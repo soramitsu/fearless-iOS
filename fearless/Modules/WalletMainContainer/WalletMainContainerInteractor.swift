@@ -22,6 +22,10 @@ final class WalletMainContainerInteractor {
     private var walletRecordsReport: StoredWalletRecordsReport?
     private let passwordSwitcher: UniversalWalletPasswordSwitcher
     private let passwordNoticeTracker: UniversalWalletPasswordNoticeTracker
+    private let watchedAccounts: UniversalWalletWatchedAccountsStore
+    private let watchedAccountsChecker: UniversalWalletWatchedAccountsChecker
+    private var isCheckingWatchedAccounts = false
+    private var portfolioRefreshObserver: NSObjectProtocol?
 
     // MARK: - Constructor
 
@@ -38,7 +42,9 @@ final class WalletMainContainerInteractor {
         walletRecordsInspector: StoredWalletRecordsInspecting,
         walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking,
         passwordSwitcher: UniversalWalletPasswordSwitcher = UniversalWalletPasswordSwitcher(),
-        passwordNoticeTracker: UniversalWalletPasswordNoticeTracker = UniversalWalletPasswordNoticeTracker()
+        passwordNoticeTracker: UniversalWalletPasswordNoticeTracker = UniversalWalletPasswordNoticeTracker(),
+        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore(),
+        watchedAccountsChecker: UniversalWalletWatchedAccountsChecker = UniversalWalletWatchedAccountsChecker()
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -53,6 +59,8 @@ final class WalletMainContainerInteractor {
         self.walletRecordsNoticeTracker = walletRecordsNoticeTracker
         self.passwordSwitcher = passwordSwitcher
         self.passwordNoticeTracker = passwordNoticeTracker
+        self.watchedAccounts = watchedAccounts
+        self.watchedAccountsChecker = watchedAccountsChecker
         applicationHandler.delegate = self
     }
 
@@ -144,6 +152,45 @@ final class WalletMainContainerInteractor {
         }
     }
 
+    /// Old addresses a password wallet left stay watched: funds there bring the address back
+    /// when its password-protected account is empty, and are reported otherwise.
+    private func checkWatchedOldAddresses() {
+        guard !isCheckingWatchedAccounts else { return }
+        isCheckingWatchedAccounts = true
+        let wallet = self.wallet
+        let checker = watchedAccountsChecker
+        Task { [weak self] in
+            let result = await checker.check(wallet)
+            await MainActor.run {
+                guard let self else { return }
+                self.isCheckingWatchedAccounts = false
+                self.apply(result, checkedFrom: wallet)
+            }
+        }
+    }
+
+    private func apply(_ result: UniversalWalletWatchedAccountsChecker.Result, checkedFrom wallet: MetaAccountModel) {
+        let arrivals = watchedAccounts.unnotified(result.arrivals, in: wallet.metaId)
+        if !arrivals.isEmpty {
+            output?.didReceiveUniversalWalletOldAddressArrivals(arrivals)
+        }
+        guard !result.movedBack.isEmpty, result.wallet != wallet else { return }
+        // A newer change to the wallet wins; the next check sees the funds again.
+        SelectedWalletSettings.shared.save(
+            value: result.wallet,
+            ifCurrentValueSatisfies: { $0 == wallet },
+            runningCompletionIn: .main,
+            completionClosure: { [weak self] saveResult in
+                guard case let .success(savedWallet) = saveResult else { return }
+                Task { @MainActor [weak self] in
+                    await BitcoinWalletBalanceCache.shared.invalidate(walletId: savedWallet.metaId)
+                    self?.passwordNoticeTracker.reset(for: savedWallet.metaId)
+                    self?.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
+                }
+            }
+        )
+    }
+
     private func checkNftAvailability() {
         let fetchOperation = featureToggleService.fetchConfigOperation()
 
@@ -169,6 +216,14 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         checkNftAvailability()
         checkStoredWalletRecords()
         checkUniversalWalletPassword()
+        checkWatchedOldAddresses()
+        portfolioRefreshObserver = NotificationCenter.default.addObserver(
+            forName: .universalWalletPortfolioRefreshed,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.checkWatchedOldAddresses()
+        }
     }
 
     func walletConnect(uri: String) async throws {
@@ -190,6 +245,10 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
     func acknowledgeUniversalWalletPasswordNotice() {
         passwordNoticeTracker.markShown(for: wallet.metaId)
+    }
+
+    func acknowledgeOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival]) {
+        watchedAccounts.markNotified(arrivals, in: wallet.metaId)
     }
 
     /// Replaces the old accounts that hold nothing and saves the wallet only if nothing
@@ -263,6 +322,7 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
 
         fetchNetworkManagmentFilter()
         checkUniversalWalletPassword()
+        checkWatchedOldAddresses()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
@@ -273,5 +333,6 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
 extension WalletMainContainerInteractor: ApplicationHandlerDelegate {
     func didReceiveWillEnterForeground(notification _: Notification) {
         checkDeprecatedAccountIssues()
+        checkWatchedOldAddresses()
     }
 }

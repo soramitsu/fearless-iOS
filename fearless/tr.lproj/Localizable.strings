@@ -1514,3 +1514,7 @@ ait olduğundan emin olun.";
 "universal.password.switch.funded" = "%@: hâlâ varlık içeriyor. Önce yeni adrese taşıyın.";
 "universal.password.switch.unchecked" = "%@: kontrol edilemedi. Daha sonra tekrar deneyin.";
 "universal.password.chain.action" = "Şifreyle korunan adrese geç";
+"universal.password.arrival.title" = "Eski adresinize varlık geldi";
+"universal.password.arrival.message" = "Varlıklar yalnızca kurtarma kelimelerinizle açılan adreslere geldi. Bu cüzdan şifreyle korunan adresleri göstermeye devam eder. Bu varlıkları taşımak için kurtarma kelimelerini şifresiz olarak başka bir cüzdan olarak içe aktarın.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";

@@ -1513,3 +1513,7 @@
 "universal.password.switch.funded" = "%@：仍有资金。请先转到新地址。";
 "universal.password.switch.unchecked" = "%@：无法检查。请稍后再试。";
 "universal.password.chain.action" = "切换到受密码保护的地址";
+"universal.password.arrival.title" = "资金已到达您的旧地址";
+"universal.password.arrival.message" = "资金已到达仅凭助记词即可打开的地址。此钱包仍显示受密码保护的地址。要转移这些资金，请不使用密码将助记词导入为另一个钱包。";
+"universal.password.arrival.row" = "%@：%@";
+"universal.password.arrival.row.balance" = "%@：%@（%@）";

@@ -1516,3 +1516,7 @@ thuộc đúng mạng";
 "universal.password.switch.funded" = "%@: vẫn còn tiền. Hãy chuyển sang địa chỉ mới trước.";
 "universal.password.switch.unchecked" = "%@: không kiểm tra được. Hãy thử lại sau.";
 "universal.password.chain.action" = "Chuyển sang địa chỉ được bảo vệ bằng mật khẩu";
+"universal.password.arrival.title" = "Có tiền gửi đến địa chỉ cũ của bạn";
+"universal.password.arrival.message" = "Có tiền gửi đến các địa chỉ chỉ cần cụm từ khôi phục là mở được. Ví này vẫn hiển thị các địa chỉ được bảo vệ bằng mật khẩu. Để chuyển số tiền này, hãy nhập cụm từ khôi phục mà không có mật khẩu thành một ví khác.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";

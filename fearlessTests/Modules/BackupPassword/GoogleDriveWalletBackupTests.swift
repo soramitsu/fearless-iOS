@@ -1102,10 +1102,10 @@ private final class RecordingRestoreInteractor: BaseAccountImportInteractor, Bac
 }
 
 private struct UncheckedFundsProbe: UniversalWalletFundsProbing {
-    func noPasswordFunds(
-        mnemonic _: String,
+    func funds(
+        of _: UniversalWalletSecret,
         slots _: Set<UniversalWalletSlot>
-    ) async -> [UniversalWalletSlot: UniversalWalletFundsState] {
+    ) async -> [UniversalWalletSlot: UniversalWalletFundsReading] {
         [:]
     }
 }

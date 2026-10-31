@@ -10,12 +10,29 @@ enum UniversalWalletFundsState: Equatable {
     case unknown
 }
 
+/// A funds check of one account.
+struct UniversalWalletFundsReading: Equatable {
+    let state: UniversalWalletFundsState
+    /// The native balance in whole units with its symbol ("0.0001 BTC"), when it was read.
+    var balance: String?
+}
+
 protocol UniversalWalletFundsProbing {
+    /// The funds held by the accounts `secret` derives, per slot.
+    func funds(
+        of secret: UniversalWalletSecret,
+        slots: Set<UniversalWalletSlot>
+    ) async -> [UniversalWalletSlot: UniversalWalletFundsReading]
+}
+
+extension UniversalWalletFundsProbing {
     /// The funds held by the accounts `mnemonic` opens without a password, per slot.
     func noPasswordFunds(
         mnemonic: String,
         slots: Set<UniversalWalletSlot>
-    ) async -> [UniversalWalletSlot: UniversalWalletFundsState]
+    ) async -> [UniversalWalletSlot: UniversalWalletFundsState] {
+        await funds(of: UniversalWalletSecret(mnemonic: mnemonic, passphrase: ""), slots: slots).mapValues(\.state)
+    }
 }
 
 /// Reads balances with the clients the portfolio uses. Every failure, timeout or partial
@@ -47,23 +64,23 @@ struct UniversalWalletRemoteFundsProbe: UniversalWalletFundsProbing {
         self.chainProvider = chainProvider
     }
 
-    func noPasswordFunds(
-        mnemonic: String,
+    func funds(
+        of secret: UniversalWalletSecret,
         slots: Set<UniversalWalletSlot>
-    ) async -> [UniversalWalletSlot: UniversalWalletFundsState] {
-        await withTaskGroup(of: (UniversalWalletSlot, UniversalWalletFundsState).self) { group in
+    ) async -> [UniversalWalletSlot: UniversalWalletFundsReading] {
+        await withTaskGroup(of: (UniversalWalletSlot, UniversalWalletFundsReading).self) { group in
             for slot in slots {
                 group.addTask {
                     let timeout = slot == .bitcoinMainnet || slot == .bitcoinTestnet
                         ? Self.bitcoinTimeout
                         : Self.timeout
-                    let state = await Self.withTimeout(timeout) {
-                        try await funds(of: slot, mnemonic: mnemonic)
+                    let reading = await Self.withTimeout(timeout) {
+                        try await funds(of: slot, secret: secret)
                     }
-                    return (slot, state)
+                    return (slot, reading)
                 }
             }
-            var result: [UniversalWalletSlot: UniversalWalletFundsState] = [:]
+            var result: [UniversalWalletSlot: UniversalWalletFundsReading] = [:]
             for await checked in group {
                 result[checked.0] = checked.1
             }
@@ -71,57 +88,87 @@ struct UniversalWalletRemoteFundsProbe: UniversalWalletFundsProbing {
         }
     }
 
-    private func funds(of slot: UniversalWalletSlot, mnemonic: String) async throws -> UniversalWalletFundsState {
+    private func funds(
+        of slot: UniversalWalletSlot,
+        secret: UniversalWalletSecret
+    ) async throws -> UniversalWalletFundsReading {
         switch slot {
         case .bitcoinMainnet:
-            return try await bitcoinFunds(mnemonic: mnemonic, network: .mainnet, indexerNetwork: .mainnet)
+            return try await bitcoinFunds(secret: secret, network: .mainnet, indexerNetwork: .mainnet)
         case .bitcoinTestnet:
-            return try await bitcoinFunds(mnemonic: mnemonic, network: .testnet, indexerNetwork: .testnet)
+            return try await bitcoinFunds(secret: secret, network: .testnet, indexerNetwork: .testnet)
         case .solana:
-            return try await solanaFunds(mnemonic: mnemonic)
+            return try await solanaFunds(secret: secret)
         case .taira:
-            return try await tairaFunds(mnemonic: mnemonic)
+            return try await UniversalWalletFundsReading(state: tairaFunds(secret: secret))
         case .ton:
-            return try await tonFunds(mnemonic: mnemonic)
+            return try await UniversalWalletFundsReading(state: tonFunds(secret: secret))
         }
     }
 
     /// Every address of the account, both branches to the gap limit, confirmed or not.
     private func bitcoinFunds(
-        mnemonic: String,
+        secret: UniversalWalletSecret,
         network: BitcoinKeyDerivation.Network,
         indexerNetwork: BitcoinIndexerNetwork
-    ) async throws -> UniversalWalletFundsState {
+    ) async throws -> UniversalWalletFundsReading {
         let result = try await bitcoinBalanceSync.balance(
-            mnemonic: mnemonic,
-            passphrase: "",
+            mnemonic: secret.mnemonic,
+            passphrase: secret.passphrase,
             network: network,
             baseURL: indexerNetwork.defaultBaseURL.absoluteString,
             gapLimit: nil,
             maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
         )
-        return result.totalSats > 0 ? .funded : .empty
+        let symbol = network == .mainnet ? "BTC" : "tBTC"
+        return UniversalWalletFundsReading(
+            state: result.totalSats > 0 ? .funded : .empty,
+            balance: Self.wholeUnits(Decimal(result.totalSats), decimals: 8, symbol: symbol)
+        )
     }
 
     /// SOL and SPL tokens; token accounts no node returned leave an empty read unknown.
-    private func solanaFunds(mnemonic: String) async throws -> UniversalWalletFundsState {
+    private func solanaFunds(secret: UniversalWalletSecret) async throws -> UniversalWalletFundsReading {
         guard let solanaBalanceSync else {
-            return .unknown
+            return UniversalWalletFundsReading(state: .unknown)
         }
-        let address = try SolanaKeyDerivation.deriveAccount(mnemonic: mnemonic).address
+        let address = try SolanaKeyDerivation.deriveAccount(
+            mnemonic: secret.mnemonic, passphrase: secret.passphrase
+        ).address
         let result = try await solanaBalanceSync.portfolioBalances(
             wallet: address,
             network: UniversalWalletRegistry.solanaMainnet
         )
+        let lamports = Decimal(string: result.nativeBalance.amount) ?? .zero
+        let balance = Self.wholeUnits(lamports, decimals: 9, symbol: "SOL")
         let amounts = ([result.nativeBalance] + result.tokenBalances).map(\.amount)
         if amounts.contains(where: { (Decimal(string: $0) ?? .zero) > .zero }) {
-            return .funded
+            return UniversalWalletFundsReading(state: .funded, balance: balance)
         }
-        return result.tokenBalancesUnavailable ? .unknown : .empty
+        return UniversalWalletFundsReading(state: result.tokenBalancesUnavailable ? .unknown : .empty, balance: balance)
     }
 
-    private func tairaFunds(mnemonic: String) async throws -> UniversalWalletFundsState {
-        let address = try IrohaKeyDerivation.deriveAddress(mnemonic: mnemonic).i105
+    private static func wholeUnits(_ amount: Decimal, decimals: Int, symbol: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = decimals
+        var units = amount
+        var divisor = Decimal(1)
+        for _ in 0 ..< decimals {
+            divisor *= 10
+        }
+        units /= divisor
+        let text = formatter.string(from: units as NSDecimalNumber) ?? "\(units)"
+        return "\(text) \(symbol)"
+    }
+
+    private func tairaFunds(secret: UniversalWalletSecret) async throws -> UniversalWalletFundsState {
+        let address = try IrohaKeyDerivation.deriveAddress(
+            mnemonic: secret.mnemonic, passphrase: secret.passphrase
+        ).i105
         let response = try await irohaToriiClient.accountAssets(
             accountID: address,
             baseURL: nil,
@@ -136,7 +183,7 @@ struct UniversalWalletRemoteFundsProbe: UniversalWalletFundsProbing {
     }
 
     /// TON and Jettons, read like the portfolio reads them.
-    private func tonFunds(mnemonic: String) async throws -> UniversalWalletFundsState {
+    private func tonFunds(secret: UniversalWalletSecret) async throws -> UniversalWalletFundsState {
         // The catalog stores TON under its workchain id.
         guard let tonBalanceFetching,
               let chain = chainProvider(TonChainSelection.mainnetChainId)
@@ -144,7 +191,9 @@ struct UniversalWalletRemoteFundsProbe: UniversalWalletFundsProbing {
         else {
             return .unknown
         }
-        let publicKey = try TonKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
+        let publicKey = try TonKeyDerivation.deriveAccount(
+            mnemonic: secret.mnemonic, passphrase: secret.passphrase
+        ).publicKey
         let infos = try await tonBalanceFetching.fetchAccountInfos(
             for: chain,
             wallet: Self.probeWallet(chainId: chain.chainId, publicKey: publicKey)
@@ -182,17 +231,17 @@ struct UniversalWalletRemoteFundsProbe: UniversalWalletFundsProbing {
 
     private static func withTimeout(
         _ seconds: TimeInterval,
-        _ body: @escaping () async throws -> UniversalWalletFundsState
-    ) async -> UniversalWalletFundsState {
-        await withTaskGroup(of: UniversalWalletFundsState?.self) { group in
-            group.addTask { (try? await body()) ?? .unknown }
+        _ body: @escaping () async throws -> UniversalWalletFundsReading
+    ) async -> UniversalWalletFundsReading {
+        await withTaskGroup(of: UniversalWalletFundsReading?.self) { group in
+            group.addTask { (try? await body()) ?? UniversalWalletFundsReading(state: .unknown) }
             group.addTask {
                 try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
                 return nil
             }
             let first = await group.next() ?? nil
             group.cancelAll()
-            return first ?? .unknown
+            return first ?? UniversalWalletFundsReading(state: .unknown)
         }
     }
 }

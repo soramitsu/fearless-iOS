@@ -74,6 +74,21 @@ enum UniversalWalletSlot: String, CaseIterable, Hashable {
         }
     }
 
+    var networkName: String {
+        switch self {
+        case .bitcoinMainnet:
+            return UniversalWalletRegistry.bitcoinMainnet.name
+        case .bitcoinTestnet:
+            return UniversalWalletRegistry.bitcoinTestnet.name
+        case .solana:
+            return UniversalWalletRegistry.solanaMainnet.name
+        case .ton:
+            return UniversalWalletRegistry.tonMainnetRegistryEntry.displayName
+        case .taira:
+            return UniversalWalletRegistry.tairaRegistryEntry.displayName
+        }
+    }
+
     var cryptoType: CryptoType {
         switch self {
         case .bitcoinMainnet, .bitcoinTestnet:
@@ -173,6 +188,15 @@ enum UniversalWalletPasswordEnrollment: Equatable {
         }
     }
 
+    /// Networks an import or enrolment gives the password-protected account after finding the
+    /// one the words alone open empty; those old accounts stay watched (`UniversalWalletWatchedAccountsStore`).
+    func leftAfterEmptyCheck(_ slots: Set<UniversalWalletSlot>, password: String) -> Set<UniversalWalletSlot> {
+        guard case let .imported(keepingNoPassword) = self, !password.isEmpty else {
+            return []
+        }
+        return slots.subtracting(keepingNoPassword)
+    }
+
     /// Keeps the account the words alone open where it holds funds or could not be checked.
     static func probed(_ funds: [UniversalWalletSlot: UniversalWalletFundsState]) -> UniversalWalletPasswordEnrollment {
         imported(keepingNoPassword: Set(UniversalWalletSlot.allCases.filter { funds[$0] != .empty }))
@@ -186,18 +210,24 @@ extension UniversalWalletAccountProvisioning {
     static func enrollingMissingAccounts(
         in wallet: MetaAccountModel,
         root: UniversalWalletSecret,
-        probe: @autoclosure () -> UniversalWalletFundsProbing
+        probe: @autoclosure () -> UniversalWalletFundsProbing,
+        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore()
     ) async throws -> MetaAccountModel {
         var enrollment = UniversalWalletPasswordEnrollment.unchecked
         let missingSlots = missingSlots(in: wallet)
         if !root.passphrase.isEmpty, !missingSlots.isEmpty {
             enrollment = .probed(await probe().noPasswordFunds(mnemonic: root.mnemonic, slots: missingSlots))
         }
-        return try addingMissingAppOwnedAccounts(
+        let enrolled = try addingMissingAppOwnedAccounts(
             to: wallet,
             mnemonic: root.mnemonic,
             passphrase: root.passphrase,
             enrollment: enrollment
         )
+        watchedAccounts.watch(
+            enrollment.leftAfterEmptyCheck(missingSlots, password: root.passphrase),
+            in: wallet.metaId
+        )
+        return enrolled
     }
 }

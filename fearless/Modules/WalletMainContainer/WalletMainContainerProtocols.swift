@@ -27,6 +27,7 @@ protocol WalletMainContainerInteractorInput: AnyObject {
     func acknowledge(_ notice: StoredWalletRecordsNotice)
     func acknowledgeUniversalWalletPasswordNotice()
     func switchNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount])
+    func acknowledgeOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival])
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {
@@ -43,6 +44,8 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
         _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
         for accounts: [UniversalWalletNoPasswordAccount]
     )
+    /// Funds reached old addresses while the wallet keeps its password-protected ones.
+    func didReceiveUniversalWalletOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival])
 }
 
 protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable, AccountScorePresentable {

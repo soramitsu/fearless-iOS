@@ -10,18 +10,7 @@ struct UniversalWalletNoPasswordAccount: Equatable {
     let newPublicKey: Data
 
     var networkName: String {
-        switch slot {
-        case .bitcoinMainnet:
-            return UniversalWalletRegistry.bitcoinMainnet.name
-        case .bitcoinTestnet:
-            return UniversalWalletRegistry.bitcoinTestnet.name
-        case .solana:
-            return UniversalWalletRegistry.solanaMainnet.name
-        case .ton:
-            return UniversalWalletRegistry.tonMainnetRegistryEntry.displayName
-        case .taira:
-            return UniversalWalletRegistry.tairaRegistryEntry.displayName
-        }
+        slot.networkName
     }
 }
 
@@ -37,13 +26,16 @@ enum UniversalWalletSwitchOutcome: Equatable {
 final class UniversalWalletPasswordSwitcher {
     private let mnemonicProvider: UniversalWalletRootMnemonicProviding
     private let fundsProbe: () -> UniversalWalletFundsProbing
+    private let watchedAccounts: UniversalWalletWatchedAccountsStore
 
     init(
         mnemonicProvider: UniversalWalletRootMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
-        fundsProbe: @escaping () -> UniversalWalletFundsProbing = { UniversalWalletRemoteFundsProbe.makeDefault() }
+        fundsProbe: @escaping () -> UniversalWalletFundsProbing = { UniversalWalletRemoteFundsProbe.makeDefault() },
+        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore()
     ) {
         self.mnemonicProvider = mnemonicProvider
         self.fundsProbe = fundsProbe
+        self.watchedAccounts = watchedAccounts
     }
 
     /// Empty for a wallet without a password, or when every account uses it.
@@ -115,6 +107,8 @@ final class UniversalWalletPasswordSwitcher {
             }
         }
 
+        // A deposit can still reach an old address after its check: it stays watched.
+        watchedAccounts.watch(Set(outcomes.filter { $0.value == .switched }.keys), in: wallet.metaId)
         let updated = chainAccounts == wallet.chainAccounts ? wallet : wallet.replacingChainAccounts(chainAccounts)
         return (updated, outcomes)
     }
@@ -133,6 +127,12 @@ final class UniversalWalletPasswordNoticeTracker {
 
     func wasShown(for walletId: MetaAccountId) -> Bool {
         (userDefaults.stringArray(forKey: Self.key) ?? []).contains(walletId)
+    }
+
+    /// An old address took funds again and is back in the wallet: the notice shows once more.
+    func reset(for walletId: MetaAccountId) {
+        let shown = (userDefaults.stringArray(forKey: Self.key) ?? []).filter { $0 != walletId }
+        userDefaults.set(shown, forKey: Self.key)
     }
 
     func markShown(for walletId: MetaAccountId) {

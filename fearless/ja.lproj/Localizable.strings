@@ -1535,3 +1535,7 @@
 "universal.password.switch.funded" = "%@: まだ資金があります。先に新しいアドレスへ移動してください。";
 "universal.password.switch.unchecked" = "%@: 確認できませんでした。後でもう一度お試しください。";
 "universal.password.chain.action" = "パスワードで保護されたアドレスに切り替え";
+"universal.password.arrival.title" = "古いアドレスに資金が届きました";
+"universal.password.arrival.message" = "リカバリーフレーズだけで開けるアドレスに資金が届きました。このウォレットはパスワードで保護されたアドレスを表示し続けます。この資金を移動するには、パスワードなしでリカバリーフレーズを別のウォレットとしてインポートしてください。";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@（%@）";

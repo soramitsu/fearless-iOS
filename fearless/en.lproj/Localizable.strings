@@ -1548,3 +1548,7 @@ belongs to the right network";
 "universal.password.switch.funded" = "%@: still holds funds. Move them to the new address first.";
 "universal.password.switch.unchecked" = "%@: couldn't check. Try again later.";
 "universal.password.chain.action" = "Switch to password-protected address";
+"universal.password.arrival.title" = "Funds arrived at your old address";
+"universal.password.arrival.message" = "Funds reached addresses your recovery words alone open. This wallet keeps showing its password-protected addresses. To move these funds, import the recovery words without the password as another wallet.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";

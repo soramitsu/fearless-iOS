@@ -14,6 +14,22 @@ final class UniversalWalletPasswordTests: XCTestCase {
     private static let password = "TREZOR"
     private static let substratePath = "//polkadot///TREZOR"
 
+    private var defaultsSuite = ""
+    private var defaults: UserDefaults!
+    private var watched: UniversalWalletWatchedAccountsStore!
+
+    override func setUp() {
+        super.setUp()
+        defaultsSuite = "UniversalWalletPasswordTests.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: defaultsSuite)
+        watched = UniversalWalletWatchedAccountsStore(userDefaults: defaults)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: defaultsSuite)
+        super.tearDown()
+    }
+
     // MARK: - Shared vectors
 
     func testPassphraseVectorsDeriveTheIndependentlyComputedAccounts() throws {
@@ -153,7 +169,12 @@ final class UniversalWalletPasswordTests: XCTestCase {
             let secret = try XCTUnwrap(provider.secret(for: wallet, chain: chain))
             XCTAssertEqual(secret, UniversalWalletSecret(mnemonic: vector.mnemonic, passphrase: Self.password))
         }
-        XCTAssertEqual(UniversalWalletPasswordSwitcher(mnemonicProvider: provider).noPasswordAccounts(in: wallet), [])
+        XCTAssertEqual(
+            UniversalWalletPasswordSwitcher(mnemonicProvider: provider, watchedAccounts: watched)
+                .noPasswordAccounts(in: wallet),
+            []
+        )
+        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), [], "Fresh words leave no old account")
     }
 
     func testImportKeepsFundedAndUncheckedNoPasswordAccountsAndProtectsTheRest() throws {
@@ -262,7 +283,7 @@ final class UniversalWalletPasswordTests: XCTestCase {
         for solanaFunds in [UniversalWalletFundsState.empty, .funded, .unknown] {
             let probe = StaticFundsProbe(funds: [.solana: solanaFunds])
             let upgraded = try await UniversalWalletAccountProvisioning.enrollingMissingAccounts(
-                in: earlier, root: root, probe: probe
+                in: earlier, root: root, probe: probe, watchedAccounts: watched
             )
             let persisted = try JSONDecoder().decode(MetaAccountModel.self, from: JSONEncoder().encode(upgraded))
 
@@ -272,6 +293,9 @@ final class UniversalWalletPasswordTests: XCTestCase {
                 ? passwordKeys(vector)[.solana]
                 : noPasswordKeys(vector.mnemonic)[.solana]
             XCTAssertEqual(try slotKeys(in: persisted)[.solana], expectedSolana)
+            if solanaFunds == .empty {
+                XCTAssertEqual(watched.watchedSlots(in: earlier.metaId), [.solana], "The empty old address stays watched")
+            }
 
             // Every stored account resolves to the secret that re-derives its key: the
             // signing material for Bitcoin, Solana and Taira, and TON's credentials.
@@ -320,7 +344,7 @@ final class UniversalWalletPasswordTests: XCTestCase {
             // Enrolment at the next start changes nothing and checks nothing.
             let again = StaticFundsProbe(funds: [:])
             let restarted = try await UniversalWalletAccountProvisioning.enrollingMissingAccounts(
-                in: persisted, root: root, probe: again
+                in: persisted, root: root, probe: again, watchedAccounts: watched
             )
             XCTAssertEqual(restarted, persisted)
             XCTAssertTrue(again.checkedSlots.isEmpty)
@@ -337,7 +361,9 @@ final class UniversalWalletPasswordTests: XCTestCase {
         let probe = StaticFundsProbe(funds: [
             .bitcoinMainnet: .funded, .bitcoinTestnet: .empty, .solana: .unknown, .ton: .empty, .taira: .empty
         ])
-        let switcher = UniversalWalletPasswordSwitcher(mnemonicProvider: provider, fundsProbe: { probe })
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: provider, fundsProbe: { probe }, watchedAccounts: watched
+        )
 
         let accounts = switcher.noPasswordAccounts(in: wallet)
         XCTAssertEqual(accounts.map(\.slot), UniversalWalletSlot.allCases)
@@ -415,7 +441,8 @@ final class UniversalWalletPasswordTests: XCTestCase {
         let wallet = try importWallet(vector.mnemonic, substratePath: "", enrollment: .unchecked, keystore: keystore)
         let switcher = UniversalWalletPasswordSwitcher(
             mnemonicProvider: KeychainUniversalWalletMnemonicProvider(keystore: keystore),
-            fundsProbe: { StaticFundsProbe(funds: [:]) }
+            fundsProbe: { StaticFundsProbe(funds: [:]) },
+            watchedAccounts: watched
         )
         XCTAssertEqual(switcher.noPasswordAccounts(in: wallet), [])
     }
@@ -470,6 +497,7 @@ final class UniversalWalletPasswordTests: XCTestCase {
     private func importWallet(
         _ mnemonic: String,
         substratePath: String = UniversalWalletPasswordTests.substratePath,
+        ethereumPath: String = DerivationPathConstants.defaultEthereum,
         enrollment: UniversalWalletPasswordEnrollment,
         keystore: InMemoryKeychain
     ) throws -> MetaAccountModel {
@@ -477,12 +505,12 @@ final class UniversalWalletPasswordTests: XCTestCase {
             mnemonic: try IRMnemonicCreator().mnemonic(fromList: mnemonic),
             username: "password wallet",
             substrateDerivationPath: substratePath,
-            ethereumDerivationPath: DerivationPathConstants.defaultEthereum,
+            ethereumDerivationPath: ethereumPath,
             cryptoType: .sr25519,
             defaultChainId: nil
         )
         request.universalWalletEnrollment = enrollment
-        let operation = MetaAccountOperationFactory(keystore: keystore).newMetaAccountOperation(
+        let operation = MetaAccountOperationFactory(keystore: keystore, watchedAccounts: watched).newMetaAccountOperation(
             request: request,
             isBackuped: true
         )
@@ -624,6 +652,152 @@ final class UniversalWalletPasswordTests: XCTestCase {
     }
 }
 
+// MARK: - Watched old addresses (spec rule 9)
+
+extension UniversalWalletPasswordTests {
+    /// The switch found the old Solana address empty; a deposit landed there before the switched
+    /// wallet was saved. The next check moves Solana back to the old address.
+    func testDepositBeforeTheSwitchCommitsBringsTheOldAddressBack() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let wallet = try importWallet(vector.mnemonic, enrollment: .unchecked, keystore: keystore)
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+        let probe = StaticFundsProbe(funds: [.solana: .empty], protectedFunds: [.solana: .empty])
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: provider, fundsProbe: { probe }, watchedAccounts: watched
+        )
+        let solana = try XCTUnwrap(switcher.noPasswordAccounts(in: wallet).first { $0.slot == .solana })
+
+        let switched = await switcher.switching([solana], in: wallet)
+        XCTAssertEqual(switched.outcomes, [.solana: .switched])
+        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), [.solana])
+
+        probe.deposit(at: .solana)
+        let result = await checker(provider, probe).check(switched.wallet)
+
+        XCTAssertEqual(result.movedBack, [.solana])
+        XCTAssertEqual(result.arrivals, [])
+        XCTAssertEqual(try slotKeys(in: result.wallet)[.solana], try noPasswordKeys(vector.mnemonic)[.solana])
+        XCTAssertEqual(
+            try provider.secret(for: result.wallet, chain: UniversalWalletRegistry.solanaMainnetChainModel)?.passphrase,
+            ""
+        )
+        XCTAssertTrue(switcher.noPasswordAccounts(in: result.wallet).contains { $0.slot == .solana })
+        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), [.solana], "It stays watched")
+    }
+
+    /// An import found the old addresses empty and took the password-protected ones; one of the
+    /// old addresses is paid later.
+    func testOldAddressAnImportFoundEmptyIsWatchedAndComesBackWhenPaid() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let wallet = try importWallet(
+            vector.mnemonic,
+            enrollment: .probed([
+                .bitcoinMainnet: .empty, .bitcoinTestnet: .funded, .solana: .unknown, .ton: .empty, .taira: .empty
+            ]),
+            keystore: keystore
+        )
+        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), [.bitcoinMainnet, .ton, .taira])
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+
+        let quiet = StaticFundsProbe(funds: [.bitcoinMainnet: .empty, .ton: .empty, .taira: .empty])
+        let unchanged = await checker(provider, quiet).check(wallet)
+        XCTAssertEqual(unchanged.wallet, wallet)
+        XCTAssertEqual(quiet.checkedSlots, [[.bitcoinMainnet, .ton, .taira]])
+        XCTAssertTrue(quiet.checkedProtectedSlots.isEmpty, "Nothing arrived, so nothing more is read")
+
+        let paid = StaticFundsProbe(
+            funds: [.bitcoinMainnet: .funded, .ton: .empty, .taira: .empty],
+            protectedFunds: [.bitcoinMainnet: .empty]
+        )
+        let result = await checker(provider, paid).check(wallet)
+        XCTAssertEqual(result.movedBack, [.bitcoinMainnet])
+        XCTAssertEqual(paid.checkedProtectedSlots, [[.bitcoinMainnet]])
+        let keys = try slotKeys(in: result.wallet)
+        XCTAssertEqual(keys[.bitcoinMainnet], try noPasswordKeys(vector.mnemonic)[.bitcoinMainnet])
+        XCTAssertEqual(keys[.ton], try passwordKeys(vector)[.ton])
+    }
+
+    /// Funds at a watched old address while the password-protected account holds funds, or
+    /// cannot be checked: that account stays and the arrival is reported once per balance.
+    func testDepositAtTheOldAddressNeverHidesTheProtectedAccount() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+        let wallet = try importWallet(vector.mnemonic, enrollment: .generated, keystore: keystore)
+        watched.watch([.solana, .taira], in: wallet.metaId)
+        let oldSolana = try SolanaKeyDerivation.deriveAccount(mnemonic: vector.mnemonic).address
+
+        let probe = StaticFundsProbe(
+            funds: [.solana: .funded, .taira: .funded],
+            protectedFunds: [.solana: .funded],
+            balance: "1.5 SOL"
+        )
+        let result = await checker(provider, probe).check(wallet)
+
+        XCTAssertEqual(result.wallet, wallet, "Funds at the password-protected accounts stay visible")
+        XCTAssertEqual(result.movedBack, [])
+        XCTAssertEqual(result.arrivals.map(\.slot), [.solana, .taira], "Taira's protected account was not checkable")
+        XCTAssertEqual(result.arrivals.first?.oldAddress, oldSolana)
+        XCTAssertEqual(result.arrivals.first?.balance, "1.5 SOL")
+
+        XCTAssertEqual(watched.unnotified(result.arrivals, in: wallet.metaId), result.arrivals)
+        watched.markNotified(result.arrivals, in: wallet.metaId)
+        XCTAssertEqual(watched.unnotified(result.arrivals, in: wallet.metaId), [])
+        let more = UniversalWalletOldAddressArrival(slot: .solana, oldAddress: oldSolana, balance: "2 SOL")
+        XCTAssertEqual(watched.unnotified([more], in: wallet.metaId), [more], "New funds are reported again")
+
+        let viewModel = UniversalWalletPasswordNotice.arrivals(result.arrivals, locale: Locale(identifier: "en")) {}
+        XCTAssertTrue(viewModel.message?.contains(oldSolana) == true)
+        XCTAssertTrue(viewModel.message?.contains("1.5 SOL") == true)
+    }
+
+    /// The watch list is stored: after a relaunch (a new store on the same defaults) the old
+    /// address is still checked. Only removing the wallet forgets it.
+    func testWatchedOldAddressesSurviveARelaunch() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let wallet = try importWallet(vector.mnemonic, enrollment: .unchecked, keystore: keystore)
+        let provider = KeychainUniversalWalletMnemonicProvider(keystore: keystore)
+        let probe = StaticFundsProbe(funds: [.taira: .empty], protectedFunds: [.taira: .empty])
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: provider, fundsProbe: { probe }, watchedAccounts: watched
+        )
+        let taira = try XCTUnwrap(switcher.noPasswordAccounts(in: wallet).first { $0.slot == .taira })
+        let switched = await switcher.switching([taira], in: wallet).wallet
+        let persisted = try JSONDecoder().decode(MetaAccountModel.self, from: JSONEncoder().encode(switched))
+
+        let relaunched = UniversalWalletWatchedAccountsStore(userDefaults: try XCTUnwrap(UserDefaults(suiteName: defaultsSuite)))
+        XCTAssertEqual(relaunched.watchedSlots(in: wallet.metaId), [.taira])
+        probe.deposit(at: .taira)
+        let result = await UniversalWalletWatchedAccountsChecker(
+            mnemonicProvider: provider, watchedAccounts: relaunched, fundsProbe: { probe }
+        ).check(persisted)
+        XCTAssertEqual(result.movedBack, [.taira])
+
+        relaunched.forget(walletId: wallet.metaId)
+        XCTAssertEqual(watched.watchedSlots(in: wallet.metaId), [])
+    }
+
+    func testNothingWatchedMeansNoCheck() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let wallet = try importWallet(vector.mnemonic, enrollment: .generated, keystore: keystore)
+        let probe = StaticFundsProbe(funds: [.solana: .funded])
+        let result = await checker(KeychainUniversalWalletMnemonicProvider(keystore: keystore), probe).check(wallet)
+        XCTAssertEqual(result.wallet, wallet)
+        XCTAssertTrue(probe.checkedSlots.isEmpty)
+    }
+
+    private func checker(
+        _ provider: KeychainUniversalWalletMnemonicProvider,
+        _ probe: StaticFundsProbe
+    ) -> UniversalWalletWatchedAccountsChecker {
+        UniversalWalletWatchedAccountsChecker(mnemonicProvider: provider, watchedAccounts: watched, fundsProbe: { probe })
+    }
+}
+
 private struct PassphraseFixture: Decodable {
     struct Vector: Decodable {
         let id: String
@@ -693,28 +867,58 @@ private struct PassphraseFixture: Decodable {
     let negativeCases: [NegativeCase]
 }
 
+/// Answers checks of the accounts the words alone open from `funds`, and of the
+/// password-protected ones from `protectedFunds`; it records the words-only checks.
 private final class StaticFundsProbe: UniversalWalletFundsProbing {
-    private let funds: [UniversalWalletSlot: UniversalWalletFundsState]
     private let lock = NSLock()
+    private var noPassword: [UniversalWalletSlot: UniversalWalletFundsState]
+    private var protected: [UniversalWalletSlot: UniversalWalletFundsState]
+    private let balance: String?
     private var mnemonics: [String] = []
     private var slots: [Set<UniversalWalletSlot>] = []
+    private var protectedSlots: [Set<UniversalWalletSlot>] = []
 
-    init(funds: [UniversalWalletSlot: UniversalWalletFundsState]) {
-        self.funds = funds
+    init(
+        funds: [UniversalWalletSlot: UniversalWalletFundsState],
+        protectedFunds: [UniversalWalletSlot: UniversalWalletFundsState] = [:],
+        balance: String? = nil
+    ) {
+        noPassword = funds
+        protected = protectedFunds
+        self.balance = balance
     }
 
     var checkedMnemonics: [String] { lock.lock(); defer { lock.unlock() }; return mnemonics }
     var checkedSlots: [Set<UniversalWalletSlot>] { lock.lock(); defer { lock.unlock() }; return slots }
+    var checkedProtectedSlots: [Set<UniversalWalletSlot>] {
+        lock.lock(); defer { lock.unlock() }; return protectedSlots
+    }
 
-    func noPasswordFunds(
-        mnemonic: String,
-        slots requested: Set<UniversalWalletSlot>
-    ) async -> [UniversalWalletSlot: UniversalWalletFundsState] {
+    /// A deposit lands at an address after an earlier check.
+    func deposit(at slot: UniversalWalletSlot, protected isProtected: Bool = false) {
         lock.lock()
-        mnemonics.append(mnemonic)
-        slots.append(requested)
+        if isProtected { protected[slot] = .funded } else { noPassword[slot] = .funded }
         lock.unlock()
-        return funds.filter { requested.contains($0.key) }
+    }
+
+    func funds(
+        of secret: UniversalWalletSecret,
+        slots requested: Set<UniversalWalletSlot>
+    ) async -> [UniversalWalletSlot: UniversalWalletFundsReading] {
+        lock.lock()
+        defer { lock.unlock() }
+        let states: [UniversalWalletSlot: UniversalWalletFundsState]
+        if secret.passphrase.isEmpty {
+            mnemonics.append(secret.mnemonic)
+            slots.append(requested)
+            states = noPassword
+        } else {
+            protectedSlots.append(requested)
+            states = protected
+        }
+        return states.filter { requested.contains($0.key) }.mapValues {
+            UniversalWalletFundsReading(state: $0, balance: $0 == .funded ? balance : nil)
+        }
     }
 }
 

@@ -50,6 +50,36 @@ enum UniversalWalletPasswordNotice {
         )
     }
 
+    static func arrivals(
+        _ arrivals: [UniversalWalletOldAddressArrival],
+        locale: Locale,
+        onDismiss: @escaping () -> Void
+    ) -> SheetAlertPresentableViewModel {
+        let languages = locale.rLanguages
+        let rows = arrivals.map { arrival -> String in
+            guard let balance = arrival.balance else {
+                return R.string.localizable.universalPasswordArrivalRow(
+                    arrival.networkName, arrival.oldAddress, preferredLanguages: languages
+                )
+            }
+            return R.string.localizable.universalPasswordArrivalRowBalance(
+                arrival.networkName, arrival.oldAddress, balance, preferredLanguages: languages
+            )
+        }
+        let message = ([R.string.localizable.universalPasswordArrivalMessage(preferredLanguages: languages)] + rows)
+            .joined(separator: "\n\n")
+
+        return SheetAlertPresentableViewModel(
+            title: R.string.localizable.universalPasswordArrivalTitle(preferredLanguages: languages),
+            message: message,
+            actions: [],
+            closeAction: R.string.localizable.commonOk(preferredLanguages: languages),
+            dismissCompletion: onDismiss,
+            icon: R.image.iconWarningBig(),
+            scrollableContent: true
+        )
+    }
+
     static func outcomes(
         _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
         for accounts: [UniversalWalletNoPasswordAccount],

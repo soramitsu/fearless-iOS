@@ -1475,3 +1475,7 @@ pertence à rede certa";
 "universal.password.switch.funded" = "%@: ainda tem fundos. Mova-os primeiro para o novo endereço.";
 "universal.password.switch.unchecked" = "%@: não foi possível verificar. Tente mais tarde.";
 "universal.password.chain.action" = "Usar endereço protegido pela palavra-passe";
+"universal.password.arrival.title" = "Chegaram fundos ao seu endereço antigo";
+"universal.password.arrival.message" = "Chegaram fundos a endereços que as palavras de recuperação abrem sozinhas. Esta carteira continua a mostrar os endereços protegidos pela palavra-passe. Para mover estes fundos, importe as palavras de recuperação sem a palavra-passe como outra carteira.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";

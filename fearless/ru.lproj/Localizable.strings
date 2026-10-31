@@ -1543,3 +1543,7 @@ Euro cash";
 "universal.password.switch.funded" = "%@: на адресе ещё есть средства. Сначала переведите их на новый адрес.";
 "universal.password.switch.unchecked" = "%@: не удалось проверить. Попробуйте позже.";
 "universal.password.chain.action" = "Перейти на адрес, защищённый паролем";
+"universal.password.arrival.title" = "На старый адрес поступили средства";
+"universal.password.arrival.message" = "Средства поступили на адреса, которые открывает одна лишь фраза восстановления. Этот кошелёк продолжает показывать адреса, защищённые паролем. Чтобы перевести эти средства, импортируйте фразу восстановления без пароля как другой кошелёк.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";

@@ -2936,6 +2936,7 @@
 		6308DCC4ADAB4E393625535E /* UniversalWalletPasswordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 980DAAEBD739BC477FB9FB76 /* UniversalWalletPasswordTests.swift */; };
 		FAE601042ECA700100000001 /* UniversalWalletEcosystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */; };
 		FAE601062ECA700100000001 /* UniversalWalletRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */; };
+		3E2BD8AD3EF914839135A30C /* UniversalWalletWatchedAccounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFB66508291C6530995DE03C /* UniversalWalletWatchedAccounts.swift */; };
 		962E09CACE90EB7D56DEBDFF /* UniversalWalletFundsProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */; };
 		BDAAD6E39E6B3F92A5E21E62 /* UniversalWalletPasswordSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC98BEFF28AA30414DA4EE6A /* UniversalWalletPasswordSwitcher.swift */; };
 		65C8AA08C6589BD29F6D5EA5 /* UniversalWalletPassword.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */; };
@@ -6233,6 +6234,7 @@
 		980DAAEBD739BC477FB9FB76 /* UniversalWalletPasswordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletPasswordTests.swift; sourceTree = "<group>"; };
 		FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletEcosystem.swift; sourceTree = "<group>"; };
 		FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletRegistry.swift; sourceTree = "<group>"; };
+		AFB66508291C6530995DE03C /* UniversalWalletWatchedAccounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletWatchedAccounts.swift; sourceTree = "<group>"; };
 		07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletFundsProbe.swift; sourceTree = "<group>"; };
 		AC98BEFF28AA30414DA4EE6A /* UniversalWalletPasswordSwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletPasswordSwitcher.swift; sourceTree = "<group>"; };
 		4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletPassword.swift; sourceTree = "<group>"; };
@@ -9815,6 +9817,7 @@
 				C633AD1029B99FA400EA8C29 /* ChainEcosystem.swift */,
 				FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */,
 				FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */,
+				AFB66508291C6530995DE03C /* UniversalWalletWatchedAccounts.swift */,
 				07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */,
 				AC98BEFF28AA30414DA4EE6A /* UniversalWalletPasswordSwitcher.swift */,
 				4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */,
@@ -17586,6 +17589,7 @@
 				C633AD1129B99FA400EA8C29 /* ChainEcosystem.swift in Sources */,
 				FAE601042ECA700100000001 /* UniversalWalletEcosystem.swift in Sources */,
 				FAE601062ECA700100000001 /* UniversalWalletRegistry.swift in Sources */,
+				3E2BD8AD3EF914839135A30C /* UniversalWalletWatchedAccounts.swift in Sources */,
 				962E09CACE90EB7D56DEBDFF /* UniversalWalletFundsProbe.swift in Sources */,
 				BDAAD6E39E6B3F92A5E21E62 /* UniversalWalletPasswordSwitcher.swift in Sources */,
 				65C8AA08C6589BD29F6D5EA5 /* UniversalWalletPassword.swift in Sources */,
