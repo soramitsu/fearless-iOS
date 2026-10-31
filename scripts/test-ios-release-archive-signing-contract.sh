@@ -93,34 +93,92 @@ grep -Fq -- \
   '--expected-profile-name "$EXPECTED_PROFILE_NAME"' \
   "$BUILD_SCRIPT" ||
   fail "signed-artifact audit is not bound to the reviewed profile name"
-grep -Fq \
-  'readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"' \
-  "$BUILD_SCRIPT" ||
-  fail "archive source is not bound to the exact distributed 4.2.0 (2026.7.28) commit"
-grep -Fq \
-  'readonly CONSOLIDATED_SOURCE_COMMIT="cbc0b07c85118b2c652b440af2f2cee73458ef8f"' \
-  "$BUILD_SCRIPT" ||
-  fail "archive source is not bound to the exact #1305 consolidation commit"
-grep -Fq \
-  'readonly CONSOLIDATED_SOURCE_HEAD="aad0fc85b42b2f1e22b281d7185803f78de390d5"' \
-  "$BUILD_SCRIPT" ||
-  fail "archive source is not bound to the exact #1305 pull request head"
-grep -Fq \
-  'git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$CONSOLIDATED_SOURCE_HEAD"' \
-  "$BUILD_SCRIPT" ||
-  fail "the #1305 pull request head's ancestry is not enforced"
-grep -Fq \
-  '[[ "$(git rev-parse --verify "${CONSOLIDATED_SOURCE_COMMIT}^{tree}")" == \' \
-  "$BUILD_SCRIPT" ||
-  fail "the #1305 consolidation tree is not bound to its pull request head"
-grep -Fq \
-  'git merge-base --is-ancestor "$CONSOLIDATED_SOURCE_COMMIT" "$source_commit"' \
-  "$BUILD_SCRIPT" ||
-  fail "archive source descent from the #1305 consolidation commit is not enforced"
-grep -Fq \
-  'git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit"' \
-  "$BUILD_SCRIPT" ||
-  fail "archive source ancestry is not enforced before the build"
+# Each provenance commit has exactly one assignment, so neither a comment nor a
+# second assignment can replace the reviewed value.
+for pin in \
+  EXPECTED_BASE_SOURCE_COMMIT=2e45e55dc03ad904598e730cfb5994fb5c1072dc \
+  CONSOLIDATED_SOURCE_COMMIT=cbc0b07c85118b2c652b440af2f2cee73458ef8f \
+  CONSOLIDATED_SOURCE_HEAD=aad0fc85b42b2f1e22b281d7185803f78de390d5; do
+  name="${pin%%=*}"
+  [[ "$(grep -Ec "(^|[^A-Za-z0-9_])$name=" "$BUILD_SCRIPT")" == 1 ]] &&
+    grep -Fxq "readonly $name=\"${pin#*=}\"" "$BUILD_SCRIPT" ||
+    fail "$name must be assigned exactly once, to the reviewed commit"
+done
+
+# Run the archive's release source provenance block against a throwaway history
+# shaped like #1305: distributed source B, pull request head H on B, master M
+# without B, and the squash S that puts H's exact tree on M.
+[[ "$(grep -c '^# BEGIN release source provenance$' "$BUILD_SCRIPT")" == 1 &&
+  "$(grep -c '^# END release source provenance$' "$BUILD_SCRIPT")" == 1 ]] ||
+  fail "archive script must mark exactly one release source provenance block"
+readonly PROVENANCE_BLOCK="$FIXTURES/provenance-block.sh"
+awk '/^# END release source provenance$/ { exit } found { print } /^# BEGIN release source provenance$/ { found = 1 }' \
+  "$BUILD_SCRIPT" >"$PROVENANCE_BLOCK"
+grep -Fq 'git merge-base --is-ancestor "$CONSOLIDATED_SOURCE_COMMIT" "$source_commit"' "$PROVENANCE_BLOCK" ||
+  fail "release source provenance block is empty or incomplete"
+
+readonly PROVENANCE_REPO="$FIXTURES/provenance-repo"
+fixture_git() {
+  GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null git -C "$PROVENANCE_REPO" \
+    -c user.name=fixture -c user.email=fixture@example.invalid "$@"
+}
+fixture_commit() { # fixture_commit <file content> [parent...]
+  local content="$1" blob tree parent
+  local parents=()
+  shift
+  for parent in "$@"; do parents+=(-p "$parent"); done
+  blob="$(printf '%s\n' "$content" | fixture_git hash-object -w --stdin)"
+  tree="$(printf '100644 blob %s\tfile\n' "$blob" | fixture_git mktree)"
+  fixture_git commit-tree "$tree" ${parents[@]+"${parents[@]}"} -m "$content"
+}
+GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null git -c init.defaultBranch=main init -q "$PROVENANCE_REPO"
+fixture_base="$(fixture_commit distributed)"
+fixture_head="$(fixture_commit pull-request "$fixture_base")"
+fixture_master="$(fixture_commit master)"
+fixture_squash="$(fixture_commit pull-request "$fixture_master")"
+fixture_release="$(fixture_commit release "$fixture_squash")"
+fixture_direct="$(fixture_commit direct "$fixture_base")"
+fixture_unrelated="$(fixture_commit unrelated "$fixture_master")"
+fixture_other_squash="$(fixture_commit other-tree "$fixture_master")"
+fixture_other_release="$(fixture_commit other-release "$fixture_other_squash")"
+[[ "$(fixture_git rev-parse "$fixture_squash^{tree}")" == "$(fixture_git rev-parse "$fixture_head^{tree}")" ]] ||
+  fail "provenance fixture squash does not carry its pull request head's tree"
+
+run_provenance() { # run_provenance <source> <consolidation commit> <pull request head>
+  (
+    fail() { printf '%s\n' "$*"; exit 1; }
+    cd "$PROVENANCE_REPO"
+    export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
+    EXPECTED_BASE_SOURCE_COMMIT="$fixture_base"
+    CONSOLIDATED_SOURCE_COMMIT="$2"
+    CONSOLIDATED_SOURCE_HEAD="$3"
+    source_commit="$1"
+    . "$PROVENANCE_BLOCK"
+    printf 'accepted\n'
+  ) 2>/dev/null
+}
+provenance_cases=0
+expect_provenance() { # expect_provenance <outcome> <source> <consolidation commit> <pull request head>
+  local expected="$1" actual
+  shift
+  provenance_cases=$((provenance_cases + 1))
+  actual="$(run_provenance "$@")" || true
+  [[ "$actual" == "$expected" ]] ||
+    fail "release source provenance case $provenance_cases gave '$actual' instead of '$expected'"
+}
+readonly NOT_DESCENDED="release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
+expect_provenance accepted "$fixture_base" "$fixture_squash" "$fixture_head"
+expect_provenance accepted "$fixture_direct" "$fixture_squash" "$fixture_head"
+expect_provenance accepted "$fixture_release" "$fixture_squash" "$fixture_head"
+expect_provenance "$NOT_DESCENDED" "$fixture_unrelated" "$fixture_squash" "$fixture_head"
+expect_provenance "$NOT_DESCENDED" "$fixture_master" "$fixture_squash" "$fixture_head"
+expect_provenance "the #1305 consolidation commit does not carry its pull request head's exact tree" \
+  "$fixture_other_release" "$fixture_other_squash" "$fixture_head"
+expect_provenance "the #1305 pull request head is not descended from the distributed 4.2.0 (2026.7.28) source" \
+  "$fixture_release" "$fixture_squash" "$fixture_master"
+expect_provenance \
+  "the #1305 consolidation commit or its pull request head is unavailable (git fetch origin refs/pull/1305/head)" \
+  "$fixture_release" 0000000000000000000000000000000000000001 "$fixture_head"
 grep -Fq 'require_setting CODE_SIGN_STYLE "Manual"' "$IDENTITY_AUDIT" ||
   fail "release identity no longer requires target-scoped Manual signing"
 grep -Fq \
@@ -133,4 +191,4 @@ grep -Fq \
   fail "release identity no longer requires the target-scoped App Store profile"
 
 printf '%s\n' \
-  "[ios-release-archive-signing-test] PASS: canonical contract and $override_number workspace-wide override mutations"
+  "[ios-release-archive-signing-test] PASS: canonical contract, $override_number workspace-wide override mutations and $provenance_cases release source provenance cases"

@@ -93,7 +93,8 @@ Usage:
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
     distributed 4.2.0 (2026.7.28) source commit, directly or through its
-    squash into master (#1305);
+    squash into master (#1305); a fresh clone gets that pull request's head
+    with `git fetch origin refs/pull/1305/head`;
   - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.1);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
@@ -168,18 +169,25 @@ git cat-file -e "${source_commit}^{commit}" ||
   fail "derived source provenance is not a commit"
 git cat-file -e "${EXPECTED_BASE_SOURCE_COMMIT}^{commit}" ||
   fail "the exact distributed 4.2.0 (2026.7.28) source commit is unavailable"
+# BEGIN release source provenance
+# scripts/test-ios-release-archive-signing-contract.sh runs this block against a
+# throwaway history shaped like #1305.
 if ! git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit"; then
   git cat-file -e "${CONSOLIDATED_SOURCE_COMMIT}^{commit}" &&
     git cat-file -e "${CONSOLIDATED_SOURCE_HEAD}^{commit}" ||
-    fail "the #1305 consolidation commit or its pull request head is unavailable"
+    fail "the #1305 consolidation commit or its pull request head is unavailable (git fetch origin refs/pull/1305/head)"
   git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$CONSOLIDATED_SOURCE_HEAD" ||
     fail "the #1305 pull request head is not descended from the distributed 4.2.0 (2026.7.28) source"
-  [[ "$(git rev-parse --verify "${CONSOLIDATED_SOURCE_COMMIT}^{tree}")" == \
-    "$(git rev-parse --verify "${CONSOLIDATED_SOURCE_HEAD}^{tree}")" ]] ||
+  consolidated_tree="$(git rev-parse --verify "${CONSOLIDATED_SOURCE_COMMIT}^{tree}")" ||
+    fail "the #1305 consolidation commit's tree is unavailable"
+  consolidated_head_tree="$(git rev-parse --verify "${CONSOLIDATED_SOURCE_HEAD}^{tree}")" ||
+    fail "the #1305 pull request head's tree is unavailable"
+  [[ "$consolidated_tree" =~ ^[0-9a-f]{40}$ && "$consolidated_tree" == "$consolidated_head_tree" ]] ||
     fail "the #1305 consolidation commit does not carry its pull request head's exact tree"
   git merge-base --is-ancestor "$CONSOLIDATED_SOURCE_COMMIT" "$source_commit" ||
     fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
 fi
+# END release source provenance
 
 # Generated service configuration is ignored by git; bind its exact reviewed
 # bytes separately so regeneration cannot silently replace production settings.
