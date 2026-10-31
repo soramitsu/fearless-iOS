@@ -353,9 +353,17 @@ private extension MetaAccountOperationFactory {
             }
         }
 
+        // Root recovery checks no funds, so a password wallet's missing networks keep the
+        // accounts the words alone open until the wallet's notice switches them.
         return try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
             to: wallet,
-            mnemonic: mnemonic.toString()
+            mnemonic: mnemonic.toString(),
+            passphrase: UniversalWalletPassphrase.resolve(
+                substrateDerivationPath: substrateDerivationPath,
+                ethereumDerivationPath: try keystore.fetchDeriviationForAddress(
+                    KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId)
+                )
+            )
         )
     }
 
@@ -430,7 +438,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             )
             let metaAccount = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
                 to: baseMetaAccount,
-                mnemonic: request.mnemonic.toString()
+                mnemonic: request.mnemonic.toString(),
+                passphrase: request.universalWalletPassphrase,
+                enrollment: request.universalWalletEnrollment
             )
 
             let metaId = metaAccount.metaId

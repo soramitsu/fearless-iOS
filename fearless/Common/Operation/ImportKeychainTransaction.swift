@@ -216,7 +216,12 @@ final class ImportKeychainTransaction: KeystoreProtocol {
             if UniversalWalletRegistry.bitcoinNetwork(for: account.chainId) != nil ||
                 UniversalWalletChainAccountSupport.chainId(account.chainId, matches: UniversalWalletRegistry.solanaMainnet.chainId) ||
                 UniversalWalletChainAccountSupport.chainId(account.chainId, matches: UniversalWalletRegistry.taira.chainId) {
-                tags.formUnion([entropy, rootSeed, bridge])
+                // A password wallet derives these accounts with the `///password` its paths carry.
+                tags.formUnion([
+                    entropy, rootSeed, bridge,
+                    KeystoreTagV2.substrateDerivationTagForMetaId(metaId),
+                    KeystoreTagV2.ethereumDerivationTagForMetaId(metaId)
+                ])
             }
             groups[.chain(metaId, accountId), default: []].formUnion(tags)
         }

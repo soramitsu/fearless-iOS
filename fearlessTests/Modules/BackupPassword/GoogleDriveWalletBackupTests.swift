@@ -651,6 +651,12 @@ private extension GoogleDriveWalletBackupTests {
         view.passwordViewModel?.inputHandler.changeValue(to: password)
 
         presenter.didReceiveBackup(result: .success(backup))
+        // A backup whose paths carry a ///password starts its import once the funds check of
+        // the accounts its words open alone has answered.
+        let deadline = Date().addingTimeInterval(5)
+        while interactor.importOperation == nil, router.messages.isEmpty, Date() < deadline {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        }
 
         return RestoreAttempt(operation: interactor.importOperation, router: router, keystore: keystore)
     }
@@ -1080,6 +1086,8 @@ private final class RecordingRestoreInteractor: BaseAccountImportInteractor, Bac
             keystoreImportService: KeystoreImportServiceStub(),
             defaultSource: .mnemonic
         )
+        // Offline: every account the words alone open stays, as with no network.
+        universalWalletFundsProbe = UncheckedFundsProbe()
     }
 
     override func importAccountUsingOperation(_ operation: BaseOperation<MetaAccountModel>) {
@@ -1091,6 +1099,15 @@ private final class RecordingRestoreInteractor: BaseAccountImportInteractor, Bac
     func importBackup(account _: OpenBackupAccount, password _: String) {}
 
     func signInIfNeeded() {}
+}
+
+private struct UncheckedFundsProbe: UniversalWalletFundsProbing {
+    func noPasswordFunds(
+        mnemonic _: String,
+        slots _: Set<UniversalWalletSlot>
+    ) async -> [UniversalWalletSlot: UniversalWalletFundsState] {
+        [:]
+    }
 }
 
 private final class RestoreRouterStub: BackupPasswordRouterInput {

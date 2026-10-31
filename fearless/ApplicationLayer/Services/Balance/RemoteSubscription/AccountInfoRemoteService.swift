@@ -188,13 +188,19 @@ extension BitcoinBalanceSyncing {
 
 protocol UniversalWalletMnemonicProviding {
     func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String?
+    /// The words and passphrase that derive the wallet's stored account on `chain`.
+    func secret(for wallet: MetaAccountModel, chain: ChainModel) throws -> UniversalWalletSecret?
     func tonSigningCredentials(for wallet: MetaAccountModel, chain: ChainModel) throws -> TonSigningCredentials
 }
 
 extension UniversalWalletMnemonicProviding {
+    func secret(for wallet: MetaAccountModel, chain: ChainModel) throws -> UniversalWalletSecret? {
+        try mnemonic(for: wallet, chain: chain).map { UniversalWalletSecret(mnemonic: $0, passphrase: "") }
+    }
+
     func tonSigningCredentials(for wallet: MetaAccountModel, chain: ChainModel) throws -> TonSigningCredentials {
-        guard let mnemonic = try mnemonic(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
-        return TonSigningCredentials(mnemonic: mnemonic)
+        guard let secret = try secret(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
+        return TonSigningCredentials(mnemonic: secret.mnemonic, passphrase: secret.passphrase)
     }
 }
 
@@ -202,6 +208,14 @@ protocol BitcoinMnemonicProviding: UniversalWalletMnemonicProviding {}
 
 protocol UniversalWalletRootMnemonicProviding {
     func rootMnemonic(for wallet: MetaAccountModel) throws -> String?
+    /// The root words with the wallet password (empty for a wallet without one).
+    func rootSecret(for wallet: MetaAccountModel) throws -> UniversalWalletSecret?
+}
+
+extension UniversalWalletRootMnemonicProviding {
+    func rootSecret(for wallet: MetaAccountModel) throws -> UniversalWalletSecret? {
+        try rootMnemonic(for: wallet).map { UniversalWalletSecret(mnemonic: $0, passphrase: "") }
+    }
 }
 
 final class KeychainUniversalWalletMnemonicProvider:
@@ -217,28 +231,39 @@ final class KeychainUniversalWalletMnemonicProvider:
         if let legacy = wallet.legacyTonAccount, chain.isTonCompatibilityChain {
             return try legacy.signingCredentials(keystore: keystore, metaId: wallet.metaId)
         }
-        guard let mnemonic = try mnemonic(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
-        return TonSigningCredentials(mnemonic: mnemonic)
+        guard let secret = try secret(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
+        return TonSigningCredentials(mnemonic: secret.mnemonic, passphrase: secret.passphrase)
     }
 
     func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String? {
+        try secret(for: wallet, chain: chain)?.mnemonic
+    }
+
+    /// The root words with the passphrase of the stored account: the wallet password when the
+    /// account is the one it protects, empty when it is one an earlier release created from
+    /// the words alone.
+    func secret(for wallet: MetaAccountModel, chain: ChainModel) throws -> UniversalWalletSecret? {
         if let legacy = wallet.legacyTonAccount, chain.isTonCompatibilityChain {
-            return try legacy.mnemonic(from: keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))).toString()
+            let mnemonic = try legacy.mnemonic(
+                from: keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+            ).toString()
+            return UniversalWalletSecret(mnemonic: mnemonic, passphrase: "")
         }
         let accountResponse = wallet.fetch(for: chain.accountRequest())
 
-        let rootResult = Result { try rootMnemonic(for: wallet) }
-        if let rootMnemonic = try? rootResult.get() {
+        let rootResult = Result { try rootSecret(for: wallet) }
+        if let rootSecret = try? rootResult.get() {
             guard let accountResponse, accountResponse.isChainAccount else {
-                return rootMnemonic
+                // No row of its own (Nexus shows the Taira key): follow the row it shares.
+                return sharedKeySecret(rootSecret, wallet: wallet, chainId: chain.chainId) ?? rootSecret
             }
 
-            if mnemonicMatches(
-                rootMnemonic,
+            if let match = matchingSecret(
+                rootSecret,
                 chainId: chain.chainId,
                 publicKey: accountResponse.publicKey
             ) {
-                return rootMnemonic
+                return match
             }
         }
 
@@ -248,12 +273,12 @@ final class KeychainUniversalWalletMnemonicProvider:
            let accountMnemonic = try mnemonicIfPresent(
                metaId: wallet.metaId,
                accountId: accountResponse?.accountId
-           ), mnemonicMatches(
-               accountMnemonic,
+           ), let match = matchingSecret(
+               UniversalWalletSecret(mnemonic: accountMnemonic, passphrase: ""),
                chainId: chain.chainId,
                publicKey: accountResponse?.publicKey
            ) {
-            return accountMnemonic
+            return match
         }
 
         // A root read/format failure stays an error unless independently verified
@@ -262,6 +287,19 @@ final class KeychainUniversalWalletMnemonicProvider:
             throw error
         }
         return nil
+    }
+
+    /// The wallet password applies only to a root that is the wallet's own BIP39 entropy; the
+    /// raw-seed bridge never had one.
+    func rootSecret(for wallet: MetaAccountModel) throws -> UniversalWalletSecret? {
+        guard wallet.substrateAccountId != nil else { return nil }
+        if let rootMnemonic = try mnemonicIfPresent(metaId: wallet.metaId, accountId: nil) {
+            return UniversalWalletSecret(
+                mnemonic: rootMnemonic,
+                passphrase: try UniversalWalletPassphrase.stored(metaId: wallet.metaId, keystore: keystore)
+            )
+        }
+        return try rootMnemonic(for: wallet).map { UniversalWalletSecret(mnemonic: $0, passphrase: "") }
     }
 
     func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {
@@ -320,40 +358,27 @@ final class KeychainUniversalWalletMnemonicProvider:
         }
     }
 
-    private func mnemonicMatches(
-        _ mnemonic: String,
+    private func matchingSecret(
+        _ secret: UniversalWalletSecret,
         chainId: ChainModel.Id,
         publicKey: Data?
-    ) -> Bool {
-        guard let publicKey else {
-            return false
+    ) -> UniversalWalletSecret? {
+        guard let publicKey, let slot = UniversalWalletSlot(chainId: chainId) else {
+            return nil
         }
+        return slot.matchingSecret(secret, publicKey: publicKey)
+    }
 
-        let derivedPublicKey: Data?
-        switch UniversalWalletChainAccountSupport.canonicalChainId(for: chainId) {
-        case UniversalWalletRegistry.bitcoinMainnet.chainId:
-            derivedPublicKey = try? BitcoinKeyDerivation.deriveAccount(
-                mnemonic: mnemonic,
-                network: .mainnet
-            ).publicKey
-        case UniversalWalletRegistry.bitcoinTestnet.chainId:
-            derivedPublicKey = try? BitcoinKeyDerivation.deriveAccount(
-                mnemonic: mnemonic,
-                network: .testnet
-            ).publicKey
-        case UniversalWalletRegistry.solanaMainnet.chainId,
-             UniversalWalletRegistry.solanaDevnet.chainId:
-            derivedPublicKey = try? SolanaKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
-        case UniversalWalletRegistry.tonMainnetRegistryEntry.chainId:
-            derivedPublicKey = try? TonKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
-        case UniversalWalletRegistry.taira.chainId,
-             UniversalWalletRegistry.nexus.chainId:
-            derivedPublicKey = try? IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
-        default:
-            return false
+    private func sharedKeySecret(
+        _ secret: UniversalWalletSecret,
+        wallet: MetaAccountModel,
+        chainId: ChainModel.Id
+    ) -> UniversalWalletSecret? {
+        guard let slot = UniversalWalletSlot(chainId: chainId),
+              let account = slot.storedAccount(in: wallet) else {
+            return nil
         }
-
-        return derivedPublicKey == publicKey
+        return slot.matchingSecret(secret, publicKey: account.publicKey)
     }
 }
 
@@ -706,7 +731,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         guard let bitcoinBalanceSync else {
             throw ConvenienceError(error: "Bitcoin discovery is unavailable")
         }
-        guard let mnemonic = try bitcoinMnemonicProvider.mnemonic(for: wallet, chain: chain) else {
+        guard let secret = try bitcoinMnemonicProvider.secret(for: wallet, chain: chain) else {
             guard let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
                 throw ConvenienceError(error: "Bitcoin account address is unavailable")
             }
@@ -755,8 +780,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 for: cacheKey
             ) {
                 try await bitcoinBalanceSync.balance(
-                    mnemonic: mnemonic,
-                    passphrase: "",
+                    mnemonic: secret.mnemonic,
+                    passphrase: secret.passphrase,
                     network: keyNetwork,
                     baseURL: baseURL,
                     gapLimit: network.defaultGapLimit,

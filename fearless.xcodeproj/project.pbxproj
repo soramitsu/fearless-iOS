@@ -2934,6 +2934,8 @@
 		FAE601022ECA700100000001 /* UniversalWalletV2VectorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601012ECA700100000001 /* UniversalWalletV2VectorsTests.swift */; };
 		FAE601042ECA700100000001 /* UniversalWalletEcosystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */; };
 		FAE601062ECA700100000001 /* UniversalWalletRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */; };
+		962E09CACE90EB7D56DEBDFF /* UniversalWalletFundsProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */; };
+		65C8AA08C6589BD29F6D5EA5 /* UniversalWalletPassword.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */; };
 		FAE601082ECA700100000001 /* UniversalWalletDerivationPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601072ECA700100000001 /* UniversalWalletDerivationPaths.swift */; };
 		FAE6010A2ECA700100000001 /* IrohaAddressCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601092ECA700100000001 /* IrohaAddressCodec.swift */; };
 		FAE6010C2ECA700100000001 /* IrohaAddressCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6010B2ECA700100000001 /* IrohaAddressCodecTests.swift */; };
@@ -6226,6 +6228,8 @@
 		FAE601012ECA700100000001 /* UniversalWalletV2VectorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletV2VectorsTests.swift; sourceTree = "<group>"; };
 		FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletEcosystem.swift; sourceTree = "<group>"; };
 		FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletRegistry.swift; sourceTree = "<group>"; };
+		07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletFundsProbe.swift; sourceTree = "<group>"; };
+		4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletPassword.swift; sourceTree = "<group>"; };
 		FAE601072ECA700100000001 /* UniversalWalletDerivationPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalWalletDerivationPaths.swift; sourceTree = "<group>"; };
 		FAE601092ECA700100000001 /* IrohaAddressCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrohaAddressCodec.swift; sourceTree = "<group>"; };
 		FAE6010B2ECA700100000001 /* IrohaAddressCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrohaAddressCodecTests.swift; sourceTree = "<group>"; };
@@ -9804,6 +9808,8 @@
 				C633AD1029B99FA400EA8C29 /* ChainEcosystem.swift */,
 				FAE601032ECA700100000001 /* UniversalWalletEcosystem.swift */,
 				FAE601052ECA700100000001 /* UniversalWalletRegistry.swift */,
+				07A73B2F71F7ACD4F47CF3C2 /* UniversalWalletFundsProbe.swift */,
+				4180B7F82985942B2852A8C8 /* UniversalWalletPassword.swift */,
 				FAE601072ECA700100000001 /* UniversalWalletDerivationPaths.swift */,
 				FAE601092ECA700100000001 /* IrohaAddressCodec.swift */,
 				FAE6010D2ECA700100000001 /* SolanaKeyDerivation.swift */,
@@ -17571,6 +17577,8 @@
 				C633AD1129B99FA400EA8C29 /* ChainEcosystem.swift in Sources */,
 				FAE601042ECA700100000001 /* UniversalWalletEcosystem.swift in Sources */,
 				FAE601062ECA700100000001 /* UniversalWalletRegistry.swift in Sources */,
+				962E09CACE90EB7D56DEBDFF /* UniversalWalletFundsProbe.swift in Sources */,
+				65C8AA08C6589BD29F6D5EA5 /* UniversalWalletPassword.swift in Sources */,
 				FAE601082ECA700100000001 /* UniversalWalletDerivationPaths.swift in Sources */,
 				FAE6010A2ECA700100000001 /* IrohaAddressCodec.swift in Sources */,
 				FAE6010E2ECA700100000001 /* SolanaKeyDerivation.swift in Sources */,
