@@ -145,30 +145,31 @@ class StakingRewardCalculatorView: UIView {
         yearlyStackView.addArrangedSubview(yearlyFiatAmountLabel)
 
         titleLabel.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().offset(UIConstants.bigOffset)
+            make.top.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
         }
 
         infoButton.snp.makeConstraints { make in
             make.centerY.equalTo(titleLabel.snp.centerY)
-            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.defaultOffset)
             make.size.equalTo(UIConstants.standardButtonSize)
         }
 
         monthlyStackView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.top.equalTo(infoButton.snp.bottom).offset(UIConstants.bigOffset)
         }
 
         yearlyStackView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.leading.equalTo(monthlyStackView.snp.trailing).offset(UIConstants.bigOffset)
             make.width.equalTo(monthlyStackView.snp.width)
             make.top.equalTo(infoButton.snp.bottom).offset(UIConstants.bigOffset)
         }
 
         amountInputView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.amountViewV2Height)
             make.top.equalTo(yearlyStackView.snp.bottom).offset(UIConstants.hugeOffset)

@@ -77,7 +77,7 @@ final class SelectCurrencyViewLayout: UIView {
         addSubview(navView)
         navView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(Constants.headerHeight)
         }
 
@@ -104,7 +104,8 @@ final class SelectCurrencyViewLayout: UIView {
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.top.equalTo(navView.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 }

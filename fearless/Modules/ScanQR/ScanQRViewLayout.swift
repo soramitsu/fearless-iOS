@@ -56,25 +56,27 @@ final class ScanQRViewLayout: UIView {
         addSubview(navigationBar)
         navigationBar.setRightViews([addButton])
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(qrFrameView)
         qrFrameView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
             make.top.equalToSuperview().offset(Constants.titleTopOffset)
         }
 
         addSubview(messageLabel)
         messageLabel.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(-UIConstants.bigOffset)
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
     }
 

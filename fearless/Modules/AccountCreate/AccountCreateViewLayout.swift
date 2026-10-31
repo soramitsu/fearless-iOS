@@ -371,8 +371,8 @@ private extension AccountCreateViewLayout {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             if adaptiveCreate {
                 keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
             } else {
@@ -447,8 +447,8 @@ private extension AccountCreateViewLayout {
         } else {
             addSubview(buttonVStackView)
             buttonVStackView.snp.makeConstraints { make in
-                make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-                make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+                make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+                make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
                 keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
                     .constraint
             }

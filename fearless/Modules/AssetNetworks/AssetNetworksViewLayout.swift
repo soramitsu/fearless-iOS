@@ -49,20 +49,20 @@ final class AssetNetworksViewLayout: UIView {
 
     private func setupConstraints() {
         networkSwitcher.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.defaultOffset)
             make.top.equalToSuperview().inset(UIConstants.defaultOffset)
             make.height.equalTo(LayoutConstants.switcherHeight)
         }
 
         sortButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.defaultOffset)
             make.size.equalTo(LayoutConstants.switcherHeight)
             make.top.equalToSuperview().inset(12)
             make.leading.equalTo(networkSwitcher.snp.trailing).offset(8)
         }
 
         tableView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.top.equalTo(networkSwitcher.snp.bottom).offset(UIConstants.defaultOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }

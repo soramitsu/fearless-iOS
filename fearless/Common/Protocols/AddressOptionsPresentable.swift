@@ -64,6 +64,7 @@ extension AddressOptionsPresentable {
             exportClosure: exportClosure
         )
 
+        view.controller.anchorPopover(of: controller)
         view.controller.present(controller, animated: true, completion: nil)
     }
 }

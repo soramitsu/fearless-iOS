@@ -81,14 +81,14 @@ final class OnboardingViewLayout: UIView {
 
         skipButton.snp.makeConstraints { make in
             make.bottom.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
             make.top.equalTo(nextButton.snp.bottom).offset(UIConstants.defaultOffset)
         }
 
         nextButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
 
@@ -96,7 +96,7 @@ final class OnboardingViewLayout: UIView {
         addSubview(stackContainer)
         stackContainer.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(55)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(nextButton.snp.top).offset(-UIConstants.bigOffset)
         }
 

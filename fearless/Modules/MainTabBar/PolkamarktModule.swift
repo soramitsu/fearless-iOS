@@ -2319,6 +2319,7 @@ final class PolkamarktMarketDetailViewController: UIViewController {
             activityItems: [market.title, url],
             applicationActivities: nil
         )
+        anchorPopover(of: controller)
         present(controller, animated: true)
     }
 

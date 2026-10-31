@@ -44,7 +44,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(types.count) * viewController.cellHeight +
@@ -93,7 +93,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(types.count) * viewController.cellHeight +
@@ -139,7 +139,7 @@ enum ModalPickerFactory {
             return LocalizableResource { _ in viewModel }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(accounts.count) * viewController.cellHeight +
@@ -184,7 +184,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: .fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight
@@ -227,7 +227,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: .fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(items.count) * viewController.cellHeight +
@@ -264,7 +264,7 @@ enum ModalPickerFactory {
 
         viewController.viewModels = items
 
-        let factory = ModalSheetPresentationFactory(configuration: .fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(items.count) * viewController.cellHeight +
@@ -305,7 +305,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(chainActions.count) * viewController.cellHeight +
@@ -348,7 +348,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(chainActions.count) * viewController.cellHeight +
@@ -391,7 +391,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(chainActions.count) * viewController.cellHeight +
@@ -436,7 +436,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = UIScreen.main.bounds.height / 3
@@ -467,7 +467,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(options.count) * viewController.cellHeight +
@@ -502,7 +502,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(options.count) * viewController.cellHeight +
@@ -535,7 +535,7 @@ enum ModalPickerFactory {
             }
         }
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(viewModels.count) * viewController.cellHeight +

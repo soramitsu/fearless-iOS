@@ -46,6 +46,12 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
         setupProgressBar()
         setupLocalization()
         setupGestureRecognizers()
+        fitTextToShortWindows()
+    }
+
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        applyAdaptiveContentColumnOutsideNavigation()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -131,6 +137,16 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
         tapRecognizer.numberOfTapsRequired = 1
         tapRecognizer.delegate = self
         view.addGestureRecognizer(tapRecognizer)
+    }
+
+    /// A story advances on its own and owns the vertical and horizontal pans, so in a
+    /// short iPad window its text shrinks to fit instead of scrolling or losing lines.
+    private func fitTextToShortWindows() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else { return }
+        for label in [titleLabel, contentLabel] {
+            label?.adjustsFontSizeToFitWidth = true
+            label?.minimumScaleFactor = 0.5
+        }
     }
 
     private func setupGestureRecognizers() {

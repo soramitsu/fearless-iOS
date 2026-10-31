@@ -205,11 +205,12 @@ final class StakingPoolCreateViewLayout: UIView {
         contentView.stackView.addArrangedSubview(amountView)
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(feeView.snp.top).offset(-UIConstants.bigOffset)
         }
@@ -250,7 +251,7 @@ final class StakingPoolCreateViewLayout: UIView {
         feeView.networkFeeView?.borderView.borderType = .none
 
         feeView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
         }
     }

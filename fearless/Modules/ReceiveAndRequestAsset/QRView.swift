@@ -34,8 +34,10 @@ final class QRView: UIView {
     func setupLayout() {
         addSubview(qrImageView)
         qrImageView.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().offset(UIConstants.hugeOffset)
-            make.trailing.bottom.equalToSuperview().offset(-UIConstants.hugeOffset)
+            make.top.equalToSuperview().offset(UIConstants.hugeOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.hugeOffset)
+            make.bottom.equalToSuperview().offset(-UIConstants.hugeOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).offset(-UIConstants.hugeOffset)
         }
 
         addSubview(fearlessIcon)

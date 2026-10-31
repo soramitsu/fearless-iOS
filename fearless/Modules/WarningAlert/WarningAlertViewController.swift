@@ -3,6 +3,7 @@ import UIKit
 final class WarningAlertViewController: UIViewController, ViewHolder {
     typealias RootViewType = WarningAlertViewLayout
 
+    private let adaptiveLayout = AdaptiveSheetLayout()
     private let presenter: WarningAlertPresenterProtocol
 
     init(presenter: WarningAlertPresenterProtocol) {
@@ -42,6 +43,14 @@ final class WarningAlertViewController: UIViewController, ViewHolder {
         )
     }
 
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        // iPhone keeps the constraints its presentation animator installs.
+        if let container = view.superview, container.traitCollection.userInterfaceIdiom == .pad {
+            adaptiveLayout.apply(to: view, in: container)
+        }
+    }
+
     @objc private func actionButtonClicked() {
         presenter.didTapActionButton()
     }
@@ -63,7 +72,7 @@ extension WarningAlertViewController: UIViewControllerTransitioningDelegate {
         presenting _: UIViewController,
         source _: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-        WarningAlertPresentAnimator()
+        WarningAlertPresentAnimator(layout: adaptiveLayout)
     }
 
     func animationController(forDismissed _: UIViewController) -> UIViewControllerAnimatedTransitioning? {

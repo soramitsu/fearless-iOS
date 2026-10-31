@@ -53,6 +53,11 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         presenter.didLoad(view: self)
     }
 
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        applyAdaptiveContentColumnOutsideNavigation()
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         guard isMovingFromParent || isBeingDismissed || navigationController?.isBeingDismissed == true else { return }

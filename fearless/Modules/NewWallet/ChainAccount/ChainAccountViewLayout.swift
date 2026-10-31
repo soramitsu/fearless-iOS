@@ -8,7 +8,11 @@ protocol ChainAccountViewDelegate: AnyObject {
 final class ChainAccountViewLayout: UIView {
     enum LayoutConstants {
         static let actionsViewHeight: CGFloat = 60
-        static let accessoryButtonSize: CGFloat = 32.0
+        /// iPad gives the header buttons full-size touch targets; iPhone keeps its layout.
+        static var accessoryButtonSize: CGFloat {
+            UIDevice.current.userInterfaceIdiom == .pad ? 44.0 : 32.0
+        }
+
         static let addressLabelWidth: CGFloat = 200
         static let addressLabelHeight: CGFloat = 24
         static let balanceViewHeight: CGFloat = 58
@@ -154,6 +158,13 @@ final class ChainAccountViewLayout: UIView {
         }
     }
 
+    var fittingContentHeight: CGFloat {
+        contentView.systemLayoutSizeFitting(
+            CGSize(width: bounds.width, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel
+        ).height + 5
+    }
+
     var backButtonHandler: (() -> Void)?
 
     override init(frame: CGRect) {
@@ -224,7 +235,7 @@ private extension ChainAccountViewLayout {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         setupNavigationViewLayout()
@@ -333,7 +344,13 @@ private extension ChainAccountViewLayout {
     }
 
     private func setupBalanceLayout() {
+        // iPad sizes the header to its content (larger text, resizable windows);
+        // iPhone keeps its fixed balance height.
+        let fitsContent = UIDevice.current.userInterfaceIdiom == .pad
         walletBalanceVStackView.distribution = .fill
+        if fitsContent {
+            walletBalanceVStackView.alignment = .center
+        }
         walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
         walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
 
@@ -344,13 +361,25 @@ private extension ChainAccountViewLayout {
         }
 
         walletBalanceViewContainer.snp.makeConstraints { make in
-            make.height.equalTo(LayoutConstants.balanceViewHeight)
+            if fitsContent {
+                make.height.greaterThanOrEqualTo(LayoutConstants.balanceViewHeight)
+            } else {
+                make.height.equalTo(LayoutConstants.balanceViewHeight)
+            }
         }
 
         contentView.setCustomSpacing(LayoutConstants.navigationBarSpacing, after: navigationBar)
         contentView.addArrangedSubview(walletBalanceVStackView)
 
+        if fitsContent {
+            walletBalanceViewContainer.snp.makeConstraints { make in
+                make.width.equalTo(walletBalanceVStackView)
+            }
+        }
         walletBalanceVStackView.snp.makeConstraints { make in
+            if fitsContent {
+                make.width.equalTo(contentView).offset(-2 * UIConstants.horizontalInset)
+            }
             make.height.greaterThanOrEqualTo(LayoutConstants.balanceStackMinHeight)
         }
     }

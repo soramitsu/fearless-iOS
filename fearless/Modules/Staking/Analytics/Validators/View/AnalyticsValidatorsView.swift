@@ -31,7 +31,8 @@ final class AnalyticsValidatorsView: UIView {
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         tableView.tableHeaderView = headerView

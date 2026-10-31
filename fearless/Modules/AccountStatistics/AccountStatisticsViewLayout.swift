@@ -166,26 +166,27 @@ final class AccountStatisticsViewLayout: UIView {
 
     private func setupConstraints() {
         topBar.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(56)
         }
 
         scrollView.snp.makeConstraints { make in
-            make.width.equalToSuperview()
+            make.width.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(topBar.snp.bottom)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(closeButton.snp.top).offset(-16)
         }
 
         closeButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(16)
             make.height.equalTo(48)
             make.bottom.equalTo(safeAreaInsets).inset(16)
         }
 
         contentBackgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         ratingView.snp.makeConstraints { make in

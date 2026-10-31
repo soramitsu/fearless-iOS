@@ -22,10 +22,10 @@ class WalletTransactionHistoryTableSectionHeader: UIView {
         addSubview(label)
 
         label.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.top.equalToSuperview().offset(UIConstants.minimalOffset)
             make.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
     }
 

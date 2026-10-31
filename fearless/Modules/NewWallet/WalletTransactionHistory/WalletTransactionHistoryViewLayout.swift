@@ -177,8 +177,8 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
         containerView.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview()
-            make.leading.equalToSuperview()
-            make.trailing.equalToSuperview()
+            make.leading.equalTo(safeAreaLayoutGuide)
+            make.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         headerTopStackView.snp.makeConstraints { make in
@@ -226,6 +226,17 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
         headerContentStackView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+        }
+    }
+
+    func setEmbeddedInColumns(_ embedded: Bool) {
+        stripeIconImageView.isHidden = embedded
+        panIndicatorView.isHidden = embedded
+        if embedded {
+            closeButton.isHidden = true
+            backgroundImageView.alpha = 0
+            tableView.isScrollEnabled = true
+            tableView.showsVerticalScrollIndicator = true
         }
     }
 

@@ -80,7 +80,7 @@ final class AnalyticsStakeHeaderView: UIView, AnalyticsRewardsHeaderViewProtocol
         addSubview(statsStack)
         statsStack.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(24)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(8)
             make.height.equalTo(396)
         }
