@@ -193,7 +193,8 @@ final class VerifiedMnemonicExportReader {
         // A damaged unrelated root cannot hide a healthy historical child. The
         // fallback below still derives and verifies that child's exact identity.
         // A password wallet's account is either the one its password protects or one an
-        // earlier release derived from the words alone; both are the wallet's words.
+        // earlier release derived from the words alone; both are the wallet's words. The words
+        // alone never restore a protected account, so its path shows the `///password` too.
         if let root = try? provider.rootSecret(for: wallet) {
             let mnemonic = try IRMnemonicCreator().mnemonic(fromList: root.mnemonic)
             for candidate in root.candidates {
@@ -203,7 +204,10 @@ final class VerifiedMnemonicExportReader {
                     storedPath: nil,
                     account: info.account
                 ) {
-                    return VerifiedMnemonicExport(mnemonic: mnemonic, derivationPath: path, wallet: wallet, info: info)
+                    let shownPath = candidate.passphrase.isEmpty ? path : "\(path)///\(candidate.passphrase)"
+                    return VerifiedMnemonicExport(
+                        mnemonic: mnemonic, derivationPath: shownPath, wallet: wallet, info: info
+                    )
                 }
             }
         }

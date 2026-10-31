@@ -798,6 +798,134 @@ extension UniversalWalletPasswordTests {
     }
 }
 
+// MARK: - Exports, backups and reimport
+
+extension UniversalWalletPasswordTests {
+    /// The whole-wallet export never offers the words alone for an account the password
+    /// protects: the Substrate row carries the `///password`, and so does every protected
+    /// universal row. Accounts the words alone open show their plain path.
+    func testWholeWalletExportShowsThePasswordEveryProtectedAccountNeeds() throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let wallet = try importWallet(
+            vector.mnemonic,
+            enrollment: .probed([
+                .bitcoinMainnet: .funded, .bitcoinTestnet: .empty, .solana: .empty, .ton: .empty, .taira: .empty
+            ]),
+            keystore: keystore
+        )
+        let reader = VerifiedMnemonicExportReader(keystore: keystore)
+
+        XCTAssertEqual(try exportedPath(reader, wallet, ChainAccountRecordsFixture.chain(id: "export-substrate")), Self.substratePath)
+        XCTAssertEqual(
+            try exportedPath(reader, wallet, UniversalWalletRegistry.solanaMainnetChainModel),
+            "\(UniversalWalletDerivationPaths.solanaDefault)///\(Self.password)"
+        )
+        XCTAssertEqual(
+            try exportedPath(reader, wallet, UniversalWalletRegistry.tairaChainModel),
+            "\(UniversalWalletDerivationPaths.irohaDefault)///\(Self.password)"
+        )
+        XCTAssertEqual(
+            try exportedPath(reader, wallet, UniversalWalletRegistry.bitcoinMainnetChainModel),
+            UniversalWalletDerivationPaths.bitcoinMainnetFirstReceive,
+            "The old Bitcoin account opens with the words alone"
+        )
+    }
+
+    /// The password only in the Ethereum path: the Ethereum row shows it, and the protected
+    /// universal rows carry it too.
+    func testEthereumOnlyPasswordIsShownWhereverItIsNeeded() throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let ethereumPath = "\(DerivationPathConstants.defaultEthereum)///\(Self.password)"
+        let wallet = try importWallet(
+            vector.mnemonic, substratePath: "//polkadot", ethereumPath: ethereumPath,
+            enrollment: .generated, keystore: keystore
+        )
+        XCTAssertEqual(try slotKeys(in: wallet), try passwordKeys(vector))
+        let reader = VerifiedMnemonicExportReader(keystore: keystore)
+
+        XCTAssertEqual(try exportedPath(reader, wallet, ChainAccountRecordsFixture.chain(id: "export-substrate")), "//polkadot")
+        XCTAssertEqual(
+            try exportedPath(reader, wallet, ChainAccountRecordsFixture.chain(id: "export-evm", ethereumBased: true)),
+            ethereumPath
+        )
+        XCTAssertEqual(
+            try exportedPath(reader, wallet, UniversalWalletRegistry.solanaMainnetChainModel),
+            "\(UniversalWalletDerivationPaths.solanaDefault)///\(Self.password)"
+        )
+    }
+
+    /// A Google Drive backup stores both paths as typed, so restoring it re-derives the
+    /// password-protected accounts, and the backup screen reports nothing missing.
+    func testGoogleDriveBackupRoundTripRestoresTheProtectedAccounts() throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let wallet = try importWallet(vector.mnemonic, enrollment: .generated, keystore: keystore)
+        let backup = OpenBackupAccount(
+            address: wallet.backupAddress,
+            passphrase: vector.mnemonic,
+            substrateDerivationPath: try keystore.fetchDeriviationForAddress(
+                fearless.KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId)
+            ),
+            ethDerivationPath: try keystore.fetchDeriviationForAddress(
+                fearless.KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId)
+            ),
+            backupAccountType: [.passphrase]
+        )
+        XCTAssertEqual(backup.substrateDerivationPath, Self.substratePath)
+        XCTAssertEqual(GoogleDriveBackupContent.appOwnedAccountsNotRestored(from: wallet, by: backup), [])
+
+        let empty = Dictionary(uniqueKeysWithValues: UniversalWalletSlot.allCases.map { ($0, UniversalWalletFundsState.empty) })
+        let restored = try importWallet(
+            try XCTUnwrap(backup.passphrase),
+            substratePath: try XCTUnwrap(backup.substrateDerivationPath),
+            ethereumPath: try XCTUnwrap(backup.ethDerivationPath),
+            enrollment: .probed(empty),
+            keystore: InMemoryKeychain()
+        )
+        XCTAssertNotEqual(restored.metaId, wallet.metaId)
+        XCTAssertEqual(try slotKeys(in: restored), try slotKeys(in: wallet))
+        XCTAssertEqual(try slotKeys(in: restored), try passwordKeys(vector))
+    }
+
+    /// Nothing marks a wallet as created: words a deleted created wallet used are imported like
+    /// any others, so the funds of the accounts they open alone are always checked.
+    func testReimportAfterDeletingACreatedWalletChecksFundsAgain() throws {
+        let vector = try trezorVector()
+        let created = try importWallet(vector.mnemonic, enrollment: .generated, keystore: InMemoryKeychain())
+        watched.forget(walletId: created.metaId)
+
+        let factory = RecordingOperationFactory()
+        let probe = StaticFundsProbe(funds: [
+            .bitcoinMainnet: .empty, .bitcoinTestnet: .empty, .solana: .funded, .ton: .empty, .taira: .empty
+        ])
+        let interactor = makeImportInteractor(factory: factory)
+        interactor.universalWalletFundsProbe = probe
+        let requested = expectation(description: "Reimport request built after the funds check")
+        factory.onMnemonicRequest = { _ in requested.fulfill() }
+
+        interactor.importMetaAccount(request: try importRequest(vector.mnemonic, substratePath: Self.substratePath))
+        wait(for: [requested], timeout: 10)
+
+        XCTAssertEqual(probe.checkedMnemonics, [vector.mnemonic])
+        XCTAssertEqual(
+            factory.mnemonicRequests.first?.universalWalletEnrollment,
+            .imported(keepingNoPassword: [.solana]),
+            "Only Solana's old address held funds"
+        )
+    }
+
+    private func exportedPath(
+        _ reader: VerifiedMnemonicExportReader,
+        _ wallet: MetaAccountModel,
+        _ chain: ChainModel
+    ) throws -> String? {
+        let account = try XCTUnwrap(wallet.fetch(for: chain.accountRequest()))
+        return try reader.fetch(wallet: wallet, info: ChainAccountInfo(chain: chain, account: account)).derivationPath
+    }
+}
+
 private struct PassphraseFixture: Decodable {
     struct Vector: Decodable {
         let id: String
