@@ -888,6 +888,7 @@
 		8467FD3924EACE08005D486C /* AccountCreationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD3824EACE08005D486C /* AccountCreationHelper.swift */; };
 		8467FD3B24EAD236005D486C /* SigningWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD3A24EAD236005D486C /* SigningWrapperTests.swift */; };
 		1C0A13E000000000000000A1 /* Sr25519KnownAnswerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A13E000000000000000B1 /* Sr25519KnownAnswerTests.swift */; };
+		87D803D2262231A058B13A44 /* SubstratePasswordNormalisationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4376AE79460BCA60CA89D7B6 /* SubstratePasswordNormalisationTests.swift */; };
 		1C0A13E000000000000000A2 /* Sr25519SpecVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A13E000000000000000B2 /* Sr25519SpecVerifier.swift */; };
 		8467FD3E24EAD66F005D486C /* validEd25519Keystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD3C24EAD66F005D486C /* validEd25519Keystore.json */; };
 		8467FD3F24EAD66F005D486C /* validEcdsaKeystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD3D24EAD66F005D486C /* validEcdsaKeystore.json */; };
@@ -4169,6 +4170,7 @@
 		8467FD3824EACE08005D486C /* AccountCreationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationHelper.swift; sourceTree = "<group>"; };
 		8467FD3A24EAD236005D486C /* SigningWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningWrapperTests.swift; sourceTree = "<group>"; };
 		1C0A13E000000000000000B1 /* Sr25519KnownAnswerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sr25519KnownAnswerTests.swift; sourceTree = "<group>"; };
+		4376AE79460BCA60CA89D7B6 /* SubstratePasswordNormalisationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstratePasswordNormalisationTests.swift; sourceTree = "<group>"; };
 		1C0A13E000000000000000B2 /* Sr25519SpecVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sr25519SpecVerifier.swift; sourceTree = "<group>"; };
 		8467FD3C24EAD66F005D486C /* validEd25519Keystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validEd25519Keystore.json; sourceTree = "<group>"; };
 		8467FD3D24EAD66F005D486C /* validEcdsaKeystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validEcdsaKeystore.json; sourceTree = "<group>"; };
@@ -9117,6 +9119,7 @@
 				84F13F1726F226F2006725FF /* EthereumAddressTests.swift */,
 				06AA224ED6A80883F26D7A0E /* KeychainContinuityTests.swift */,
 				1C0A13E000000000000000B1 /* Sr25519KnownAnswerTests.swift */,
+				4376AE79460BCA60CA89D7B6 /* SubstratePasswordNormalisationTests.swift */,
 				1C0A13E000000000000000B2 /* Sr25519SpecVerifier.swift */,
 			);
 			path = Crypto;
@@ -19494,6 +19497,7 @@
 				84B66A1626FDF7D70038B963 /* JsonSubscriptionFactoryStub.swift in Sources */,
 				8467FD3B24EAD236005D486C /* SigningWrapperTests.swift in Sources */,
 				1C0A13E000000000000000A1 /* Sr25519KnownAnswerTests.swift in Sources */,
+				87D803D2262231A058B13A44 /* SubstratePasswordNormalisationTests.swift in Sources */,
 				1C0A13E000000000000000A2 /* Sr25519SpecVerifier.swift in Sources */,
 				84893BFC24D9B0F1008F6A3F /* PredicateTests.swift in Sources */,
 				844D229925EE5E8400C022F7 /* SingleValueProviderStub.swift in Sources */,

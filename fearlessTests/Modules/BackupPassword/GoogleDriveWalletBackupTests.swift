@@ -509,6 +509,35 @@ final class GoogleDriveWalletBackupTests: XCTestCase {
         }
     }
 
+    /// A backup keeps the derivation path exactly as typed; the restore must open the same
+    /// account as the import did (`docs/substrate-password-vectors.json`, NFKD rule).
+    func testNonAsciiPathPassword_whenBackedUp_thenThePathGoesUpVerbatimAndRestoresTheSameAccount() throws {
+        for id in ["default24-unicode", "default24-unicode-decomposed-input", "import12-katakana"] {
+            let vector = try SubstratePasswordVectors.vector(id)
+            let keystore = InMemoryKeychain()
+            let wallet = try importWallet(phrase: vector.mnemonic, substratePath: vector.derivationPath, keystore: keystore)
+            XCTAssertEqual(
+                wallet.substrateAccountId?.toHex(includePrefix: true),
+                try vector.account("nfkd", .sr25519).accountId,
+                id
+            )
+
+            let run = try backUp(wallet, accounts: accountsOfBackupScreen(for: wallet), keystore: keystore)
+
+            let uploaded = try XCTUnwrap(run.uploaded, id)
+            XCTAssertEqual(uploaded.backupAccountType, [.passphrase], id)
+            // Swift compares strings by canonical equivalence; compare the code points themselves.
+            XCTAssertEqual(
+                try XCTUnwrap(uploaded.substrateDerivationPath, id).unicodeScalars.map(\.value),
+                vector.derivationPath.unicodeScalars.map(\.value),
+                id
+            )
+            let restored = try restore(uploaded)
+            XCTAssertEqual(restored.substrateAccountId, wallet.substrateAccountId, id)
+            XCTAssertEqual(restored.substratePublicKey, wallet.substratePublicKey, id)
+        }
+    }
+
     func testEthereumOnlyAndroidBackup_whenRestored_thenNothingIsImportedAndTheErrorIsShown() throws {
         let fixture = AndroidBackupFixture.ethereumOnlySeed
         let backup = try decodeAndroidBackup(fixture.json, password: fixture.password)
