@@ -98,6 +98,26 @@ grep -Fq \
   "$BUILD_SCRIPT" ||
   fail "archive source is not bound to the exact distributed 4.2.0 (2026.7.28) commit"
 grep -Fq \
+  'readonly CONSOLIDATED_SOURCE_COMMIT="cbc0b07c85118b2c652b440af2f2cee73458ef8f"' \
+  "$BUILD_SCRIPT" ||
+  fail "archive source is not bound to the exact #1305 consolidation commit"
+grep -Fq \
+  'readonly CONSOLIDATED_SOURCE_HEAD="aad0fc85b42b2f1e22b281d7185803f78de390d5"' \
+  "$BUILD_SCRIPT" ||
+  fail "archive source is not bound to the exact #1305 pull request head"
+grep -Fq \
+  'git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$CONSOLIDATED_SOURCE_HEAD"' \
+  "$BUILD_SCRIPT" ||
+  fail "the #1305 pull request head's ancestry is not enforced"
+grep -Fq \
+  '[[ "$(git rev-parse --verify "${CONSOLIDATED_SOURCE_COMMIT}^{tree}")" == \' \
+  "$BUILD_SCRIPT" ||
+  fail "the #1305 consolidation tree is not bound to its pull request head"
+grep -Fq \
+  'git merge-base --is-ancestor "$CONSOLIDATED_SOURCE_COMMIT" "$source_commit"' \
+  "$BUILD_SCRIPT" ||
+  fail "archive source descent from the #1305 consolidation commit is not enforced"
+grep -Fq \
   'git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit"' \
   "$BUILD_SCRIPT" ||
   fail "archive source ancestry is not enforced before the build"

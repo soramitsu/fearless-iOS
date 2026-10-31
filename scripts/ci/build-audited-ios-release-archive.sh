@@ -10,6 +10,11 @@ readonly LOG_PREFIX="[ios-release-archive]"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
 readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"
+# master took the 4.2.0 line as one squash commit (#1305), which drops that
+# ancestry. Its tree is exactly the tree of the pull request head, which
+# descends from the distributed source above (origin refs/pull/1305/head).
+readonly CONSOLIDATED_SOURCE_COMMIT="cbc0b07c85118b2c652b440af2f2cee73458ef8f"
+readonly CONSOLIDATED_SOURCE_HEAD="aad0fc85b42b2f1e22b281d7185803f78de390d5"
 readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)"
 readonly EXPECTED_SIGNING_CERTIFICATE_SHA1="84AB95335BE14CAE9B050A353910F86FF2F9539B"
 readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
@@ -87,7 +92,8 @@ Usage:
 
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
-    distributed 4.2.0 (2026.7.28) source commit;
+    distributed 4.2.0 (2026.7.28) source commit, directly or through its
+    squash into master (#1305);
   - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.1);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
@@ -162,8 +168,18 @@ git cat-file -e "${source_commit}^{commit}" ||
   fail "derived source provenance is not a commit"
 git cat-file -e "${EXPECTED_BASE_SOURCE_COMMIT}^{commit}" ||
   fail "the exact distributed 4.2.0 (2026.7.28) source commit is unavailable"
-git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit" ||
-  fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
+if ! git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit"; then
+  git cat-file -e "${CONSOLIDATED_SOURCE_COMMIT}^{commit}" &&
+    git cat-file -e "${CONSOLIDATED_SOURCE_HEAD}^{commit}" ||
+    fail "the #1305 consolidation commit or its pull request head is unavailable"
+  git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$CONSOLIDATED_SOURCE_HEAD" ||
+    fail "the #1305 pull request head is not descended from the distributed 4.2.0 (2026.7.28) source"
+  [[ "$(git rev-parse --verify "${CONSOLIDATED_SOURCE_COMMIT}^{tree}")" == \
+    "$(git rev-parse --verify "${CONSOLIDATED_SOURCE_HEAD}^{tree}")" ]] ||
+    fail "the #1305 consolidation commit does not carry its pull request head's exact tree"
+  git merge-base --is-ancestor "$CONSOLIDATED_SOURCE_COMMIT" "$source_commit" ||
+    fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
+fi
 
 # Generated service configuration is ignored by git; bind its exact reviewed
 # bytes separately so regeneration cannot silently replace production settings.
