@@ -289,8 +289,12 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
                                 self?.eventCenter.notify(with: SelectedAccountChanged(account: savedWallet))
                                 self?.output?.didReceiveUniversalWalletSwitchOutcomes(result.outcomes, for: accounts)
                             }
-                        case let .failure(error):
-                            self?.output?.didReceiveError(error)
+                        case .failure:
+                            // Nothing was switched; the outcome says so and lets later notices show.
+                            self?.output?.didReceiveUniversalWalletSwitchOutcomes(
+                                result.outcomes.mapValues { $0 == .switched ? .unchecked : $0 },
+                                for: accounts
+                            )
                         }
                     }
                 )

@@ -28,6 +28,12 @@ final class WalletMainContainerPresenter {
     private var pendingPasswordNoticeAccounts: [UniversalWalletNoPasswordAccount] = []
     /// Funds that reached watched old addresses, shown after the other notices.
     private var pendingOldAddressArrivals: [UniversalWalletOldAddressArrival] = []
+    /// Switch is checking balances; its outcome shows before the arrivals that wait meanwhile.
+    private var isSwitchingNoPasswordAccounts = false
+    private var pendingSwitchOutcome: (
+        outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        accounts: [UniversalWalletNoPasswordAccount]
+    )?
     private let updateSecurityNotice: UpdateSecurityNoticeTracking
     private var isUpdateSecurityNoticeActive = false
 
@@ -263,12 +269,9 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
         for accounts: [UniversalWalletNoPasswordAccount]
     ) {
-        let viewModel = UniversalWalletPasswordNotice.outcomes(
-            outcomes, for: accounts, locale: selectedLocale
-        ) { [weak self] in
-            self?.presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
-        }
-        router.present(viewModel: viewModel, from: view)
+        isSwitchingNoPasswordAccounts = false
+        pendingSwitchOutcome = (outcomes, accounts)
+        presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
     }
 }
 
@@ -363,9 +366,18 @@ private extension WalletMainContainerPresenter {
         router.present(viewModel: viewModel, from: view)
     }
 
-    /// The last notice: universal accounts the wallet's password does not protect yet. Like
-    /// the others it counts as shown once the user has closed it.
+    /// The last notices: Switch's outcome, then universal accounts the wallet's password does not
+    /// protect yet, then funds at watched addresses. Like the others each counts as shown once the
+    /// user has closed it.
     func presentPasswordNotice(retriesLeft: Int) {
+        if pendingSwitchOutcome != nil {
+            presentSwitchOutcome(retriesLeft: retriesLeft)
+            return
+        }
+        // Switch is still checking balances: its outcome comes before the notices after it.
+        guard !isSwitchingNoPasswordAccounts else {
+            return
+        }
         guard !pendingPasswordNoticeAccounts.isEmpty else {
             presentOldAddressArrivals(retriesLeft: retriesLeft)
             return
@@ -387,14 +399,14 @@ private extension WalletMainContainerPresenter {
         let accounts = pendingPasswordNoticeAccounts
         pendingPasswordNoticeAccounts = []
         var followUp: (() -> Void)?
-        // Arrivals that came in while this notice was open follow it, or follow Switch's outcome.
-        var resumesQueue = true
         let viewModel = UniversalWalletPasswordNotice.notice(
             for: accounts,
             locale: selectedLocale,
             onSwitch: { [weak self] in
-                resumesQueue = false
-                followUp = { self?.interactor.switchNoPasswordAccounts(accounts) }
+                followUp = {
+                    self?.isSwitchingNoPasswordAccounts = true
+                    self?.interactor.switchNoPasswordAccounts(accounts)
+                }
             },
             onCopy: { [weak self] account in
                 followUp = {
@@ -403,13 +415,42 @@ private extension WalletMainContainerPresenter {
                 }
             },
             onDismiss: { [weak self] in
-                self?.interactor.acknowledgeUniversalWalletPasswordNotice()
+                guard let self else { return }
+                self.interactor.acknowledgeUniversalWalletPasswordNotice()
+                // A check while this was open may have queued the same accounts again.
+                self.pendingPasswordNoticeAccounts.removeAll(where: accounts.contains)
                 followUp?()
-                if resumesQueue {
-                    self?.presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
-                }
+                // Notices that came in meanwhile follow it, after Switch's outcome when it switches.
+                self.presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
             }
         )
+        router.present(viewModel: viewModel, from: view)
+    }
+
+    func presentSwitchOutcome(retriesLeft: Int) {
+        guard let outcome = pendingSwitchOutcome else {
+            return
+        }
+        guard
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            controller.presentedViewController == nil
+        else {
+            guard retriesLeft > 0 else {
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
+                self?.presentSwitchOutcome(retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+
+        pendingSwitchOutcome = nil
+        let viewModel = UniversalWalletPasswordNotice.outcomes(
+            outcome.outcomes, for: outcome.accounts, locale: selectedLocale
+        ) { [weak self] in
+            self?.presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+        }
         router.present(viewModel: viewModel, from: view)
     }
 
@@ -439,8 +480,8 @@ private extension WalletMainContainerPresenter {
             guard let self else { return }
             self.interactor.acknowledgeOldAddressArrivals(arrivals)
             // A check while this was open may have queued the same arrivals again.
-            let shown = Set(arrivals.map(\.notificationKey))
-            self.pendingOldAddressArrivals.removeAll { shown.contains($0.notificationKey) }
+            let shown = Set(arrivals.map { "\($0.walletId ?? "")|\($0.notificationKey)" })
+            self.pendingOldAddressArrivals.removeAll { shown.contains("\($0.walletId ?? "")|\($0.notificationKey)") }
             self.presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
         }
         router.present(viewModel: viewModel, from: view)
