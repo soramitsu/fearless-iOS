@@ -700,7 +700,7 @@ private enum ReviewedXcmRouteResolver {
                 canSign: canSign,
                 unavailableReason: canSign ? nil : NSLocalizedString(
                     "cross_chain.external_signing_unavailable",
-                    value: "A local signing key is unavailable. Watch-only and external signing are not supported for this route in this build.",
+                    value: "A local signing key is unavailable. Watch-only and external signing are not supported for this route in this version.",
                     comment: ""
                 ),
                 protocolName: protocolName,
@@ -766,11 +766,19 @@ struct ReviewedUnavailableCrossChainRouteDefinition: Equatable {
 }
 
 enum ReviewedWalletXcmRouteCatalog {
-    static let unavailableReason = "Unavailable on iOS: SSFXCM discovers routes, assets and fees by symbol. It cannot bind this exact AssetKey, pallet call, live balances, fees, minimum and remote kill switch into one adjacent final submission guard."
+    /// The relay chain to Asset Hub teleports still execute on chain, but SSFXCM discovers routes, assets and fees by
+    /// symbol, so it cannot bind the exact AssetKey, pallet call, live balances, fees, minimum and remote kill switch
+    /// into one final submission guard. Users are told only that this version cannot send them.
+    static var unavailableReason: String {
+        ReviewedXcmExecutionAuthority.unavailableReason
+    }
 
-    /// Verified with the runtimes' dry-run API on 2026-10-23. Moonbeam, Moonriver and Parallel are no longer registered
-    /// on their relay chains, so no row mentions them.
-    static let staleAfterAssetHubMigrationReason = "Retired: since the Asset Hub Migration DOT and KSM are held on Asset Hub, and relay-chain reserve transfers are rejected on chain. Only the relay chain to Asset Hub teleport still executes, and a replacement route needs a new reserve decision, a live dry run and funded evidence."
+    /// Since the Asset Hub Migration DOT and KSM are held on Asset Hub, and relay-chain reserve transfers are rejected
+    /// on chain (verified with the runtimes' dry-run API on 2026-10-23). A replacement route needs a new reserve
+    /// decision, a live dry run and funded evidence. Moonbeam, Moonriver and Parallel are no longer registered on their
+    /// relay chains, so no row mentions them.
+    static let staleAfterAssetHubMigrationReason =
+        "Retired: DOT and KSM now live on Asset Hub, and the networks no longer accept this transfer."
 
     private enum Chain {
         static let polkadot = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
@@ -1016,6 +1024,9 @@ enum ReviewedUnprovisionedRouteCatalog {
     }
 }
 
+/// SORA → Ethereum delivery needs a second claim transaction and recovery tracking; Ethereum → SORA needs a contract
+/// transaction with live gas and allowance checks. Both stay unavailable until that full flow is reviewed, and users
+/// are told only that this version cannot send them.
 enum ReviewedSoraEvmRouteCatalog {
     static let routes: [ReviewedUnavailableCrossChainRouteDefinition] = [
         ReviewedUnavailableCrossChainRouteDefinition(
@@ -1039,7 +1050,7 @@ enum ReviewedSoraEvmRouteCatalog {
             feeDisplay: "Multi-step fees cannot be quoted safely in this release",
             estimatedTimeDisplay: "About 10–60 minutes plus claim",
             warnings: ["No funds are submitted while this capability is unavailable."],
-            unavailableReason: "Ethereum delivery requires a second claim transaction and recovery tracking. This route stays unavailable until that full flow is reviewed."
+            unavailableReason: ReviewedXcmExecutionAuthority.unavailableReason
         ),
         ReviewedUnavailableCrossChainRouteDefinition(
             id: "unavailable-v1:polkaswap-sora-evm:1:7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5:c2a6c062-d511-4bde-9ce6-ea775d2a302c",
@@ -1062,7 +1073,7 @@ enum ReviewedSoraEvmRouteCatalog {
             feeDisplay: "Multi-step gas, allowance and bridge fees cannot be quoted safely in this release",
             estimatedTimeDisplay: "About 10–60 minutes plus claim",
             warnings: ["No funds are submitted while this capability is unavailable."],
-            unavailableReason: "Ethereum → SORA requires a contract transaction, live gas and allowance checks, and recovery tracking. This route stays unavailable until that full flow is reviewed."
+            unavailableReason: ReviewedXcmExecutionAuthority.unavailableReason
         )
     ]
 }
@@ -1117,7 +1128,7 @@ struct LiberlandXcmRouteProvider: CrossChainRouteProvider {
 
     var unavailableReason: String {
         isExecutionAvailable
-            ? "No reviewed Liberland → SORA burn route is available for this wallet and current production registry. Add a local account or refresh network metadata."
+            ? "No Liberland → SORA transfer is available for this wallet. Add a Liberland account or refresh the networks."
             : ReviewedXcmExecutionAuthority.unavailableReason
     }
 
@@ -1143,7 +1154,12 @@ struct LiberlandXcmRouteProvider: CrossChainRouteProvider {
 struct PolkaswapEvmBridgeRouteProvider: CrossChainRouteProvider {
     let identifier = "polkaswap-sora-evm"
     let displayName = "Polkaswap SORA ↔ EVM"
-    let unavailableReason = "The current iOS Polkaswap flow has no reviewed executable SORA ↔ EVM bridge adapter. Quotes and submissions stay disabled until one is approved."
+    /// The iOS Polkaswap flow has no reviewed executable SORA ↔ EVM bridge adapter, so quotes and submissions stay
+    /// disabled until one is approved.
+    var unavailableReason: String {
+        ReviewedXcmExecutionAuthority.unavailableReason
+    }
+
     let reviewedUnavailableRoutes = ReviewedSoraEvmRouteCatalog.routes
 
     func origins(wallet _: MetaAccountModel, chains _: [ChainModel]) -> [CrossChainOriginRoute] {
@@ -1170,9 +1186,9 @@ final class CrossChainRootViewController: UIViewController {
         var title: String {
             switch self {
             case .routes:
-                return "Choose origin"
+                return "Routes"
             case .providers:
-                return "Provider coverage"
+                return "Providers"
             }
         }
     }
@@ -1306,16 +1322,15 @@ extension CrossChainRootViewController: UITableViewDataSource {
 
         switch Section(rawValue: indexPath.section) {
         case .routes:
+            // Rows show only what a user acts on. Identifiers, protocol names and review warnings stay in the route
+            // definitions, where the submission guards and tests read them.
             if let route = origins[safe: indexPath.row] {
                 configuration.text = "\(route.chainAsset.chain.name) → \(route.destinationNames.joined(separator: ", ")) · \(route.chainAsset.asset.symbolUppercased)"
                 configuration.secondaryText = route.unavailableReason ?? [
-                    route.protocolName,
-                    "AssetKey: \(route.chainAsset.assetKey.assetId)",
-                    "minimum: \(route.minimumDisplay)",
-                    "fees: \(route.feeDisplay)",
-                    route.estimatedTimeDisplay,
-                    route.warnings.first
-                ].compactMap { $0 }.joined(separator: " · ")
+                    "Minimum: \(route.minimumDisplay)",
+                    "Fee: \(route.feeDisplay)",
+                    route.estimatedTimeDisplay
+                ].joined(separator: " · ")
                 configuration.image = R.image.crossChainIcon()
                 cell.accessoryType = .disclosureIndicator
                 cell.selectionStyle = .default
@@ -1324,7 +1339,7 @@ extension CrossChainRootViewController: UITableViewDataSource {
 
             let unavailableIndex = indexPath.row - origins.count
             guard let route = unavailableRouteInventory[safe: unavailableIndex] else {
-                configuration.text = "No XCM origins available"
+                configuration.text = "No cross-chain routes"
                 configuration.secondaryText = ReviewedXcmExecutionAuthority.unavailableReason
                 configuration.image = UIImage(systemName: "arrow.triangle.branch")
                 cell.accessoryType = .none
@@ -1334,16 +1349,7 @@ extension CrossChainRootViewController: UITableViewDataSource {
             }
 
             configuration.text = "\(route.originNetworkName) → \(route.destinationNetworkName) · \(route.symbol)"
-            configuration.secondaryText = [
-                route.protocolName,
-                "AssetKey: \(route.assetKey.assetId)",
-                "route asset: \(route.originRouteAssetId)",
-                "minimum: \(route.minimumDisplay)",
-                "fees: \(route.feeDisplay)",
-                route.estimatedTimeDisplay,
-                route.unavailableReason,
-                route.warnings.first
-            ].compactMap { $0 }.joined(separator: " · ")
+            configuration.secondaryText = route.unavailableReason
             configuration.image = UIImage(systemName: "lock.shield")
             cell.accessoryType = .none
             cell.selectionStyle = .none
@@ -1351,12 +1357,12 @@ extension CrossChainRootViewController: UITableViewDataSource {
             if let capability = capabilities[safe: indexPath.row] {
                 configuration.text = capability.displayName
                 configuration.secondaryText = capability.isAvailable
-                    ? "Reviewed route available"
+                    ? "Available"
                     : capability.reason
                 configuration.image = UIImage(systemName: capability.isAvailable ? "checkmark.shield" : "xmark.shield")
             } else {
-                configuration.text = "Other ecosystems"
-                configuration.secondaryText = "TON, Bitcoin, Solana, Iroha and unsupported EVM routes remain unavailable until a reviewed provider is added."
+                configuration.text = "Other networks"
+                configuration.secondaryText = "Cross-chain transfers for TON, Bitcoin, Solana, Iroha and other EVM networks are not available yet."
                 configuration.image = UIImage(systemName: "info.circle")
             }
             cell.accessoryType = .none

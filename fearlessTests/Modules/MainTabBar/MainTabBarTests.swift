@@ -1625,7 +1625,7 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertTrue(routes.isEmpty)
         XCTAssertFalse(capability.isAvailable)
         XCTAssertEqual(capability.identifier, "polkaswap-sora-evm")
-        XCTAssertTrue(capability.reason?.contains("no reviewed executable") == true)
+        XCTAssertEqual(capability.reason, ReviewedXcmExecutionAuthority.unavailableReason)
 
         let wallet = AccountGenerator.generateMetaAccount()
         let walletXcmRoutes = WalletXcmRouteProvider().origins(wallet: wallet, chains: [])
@@ -1646,9 +1646,9 @@ final class MainTabBarTests: XCTestCase {
             Set(ReviewedXcmRouteRegistry.routes.map { $0.execution.fingerprint }).count,
             ReviewedXcmRouteRegistry.routes.count
         )
-        XCTAssertTrue(
-            WalletXcmRouteProvider().capability(for: walletXcmRoutes).reason?
-                .contains("SSFXCM") == true
+        XCTAssertEqual(
+            WalletXcmRouteProvider().capability(for: walletXcmRoutes).reason,
+            ReviewedXcmExecutionAuthority.unavailableReason
         )
         XCTAssertTrue(
             SoraSubstrateBridgeRouteProvider().capability(for: soraSubstrateRoutes).reason?
@@ -1667,7 +1667,7 @@ final class MainTabBarTests: XCTestCase {
         // Only the two relay chain to Asset Hub teleports still execute on chain; the other seven rows are the reserve
         // transfers that the Asset Hub Migration made impossible.
         XCTAssertEqual(
-            walletRoutes.filter { $0.unavailableReason.contains("adjacent final submission guard") }.count,
+            walletRoutes.filter { $0.unavailableReason == ReviewedXcmExecutionAuthority.unavailableReason }.count,
             2
         )
         XCTAssertEqual(
@@ -1779,6 +1779,40 @@ final class MainTabBarTests: XCTestCase {
             viewController.tableView(UITableView(), numberOfRowsInSection: 0),
             inventory.count
         )
+    }
+
+    func testTransferTabShowsNoIdentifiersOrEngineeringText() {
+        let viewController = CrossChainRootViewController(wallet: AccountGenerator.generateMetaAccount())
+        viewController.loadViewIfNeeded()
+        let table = UITableView()
+        table.register(UITableViewCell.self, forCellReuseIdentifier: "CrossChainOriginCell")
+        let inventory = CrossChainProviderRegistry.defaultProviders.flatMap(\.reviewedUnavailableRoutes)
+        XCTAssertEqual(viewController.tableView(table, numberOfRowsInSection: 0), inventory.count)
+
+        var texts: [String] = []
+        for section in 0 ..< viewController.numberOfSections(in: table) {
+            texts.append(viewController.tableView(table, titleForHeaderInSection: section) ?? "")
+            for row in 0 ..< viewController.tableView(table, numberOfRowsInSection: section) {
+                let cell = viewController.tableView(table, cellForRowAt: IndexPath(row: row, section: section))
+                let configuration = cell.contentConfiguration as? UIListContentConfiguration
+                texts += [configuration?.text ?? "", configuration?.secondaryText ?? ""]
+                if section == 0, let route = inventory[safe: row] {
+                    XCTAssertEqual(configuration?.secondaryText, route.unavailableReason, route.id)
+                }
+            }
+        }
+
+        // Asset and chain identifiers, and the review vocabulary behind the route gates, stay out of the rows.
+        let forbidden = [
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-", "[0-9a-fA-F]{32}", "AssetKey", "SSFXCM", "canonical", "registry",
+            "adapter", "pallet", "dry run", "kill switch", "submission", "[Rr]eviewed", "evidence"
+        ]
+        XCTAssertGreaterThan(texts.count, inventory.count)
+        for text in texts {
+            for pattern in forbidden {
+                XCTAssertNil(text.range(of: pattern, options: .regularExpression), "\(pattern) in: \(text)")
+            }
+        }
     }
 
     func testLiberlandLldRoutesKeepCatalogAndXcmIdentitiesSeparate() throws {
