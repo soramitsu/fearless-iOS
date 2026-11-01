@@ -1600,10 +1600,10 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertEqual(
             CrossChainProviderRegistry.defaultProviders.map(\.displayName),
             [
-                "Wallet XCM",
-                "Polkaswap SORA ↔ Substrate",
+                "Polkadot and Kusama",
+                "SORA ↔ Polkadot and Kusama",
                 "SORA ↔ Liberland",
-                "Polkaswap SORA ↔ EVM"
+                "SORA ↔ Ethereum"
             ]
         )
         XCTAssertTrue(ReviewedXcmRouteRegistry.soraSubstrateRoutes.allSatisfy {
@@ -1802,10 +1802,12 @@ final class MainTabBarTests: XCTestCase {
             }
         }
 
-        // Asset and chain identifiers, and the review vocabulary behind the route gates, stay out of the rows.
+        // Asset and chain identifiers, protocol names and the review vocabulary behind the route gates stay out of
+        // the rows.
         let forbidden = [
-            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-", "[0-9a-fA-F]{32}", "AssetKey", "SSFXCM", "canonical", "registry",
-            "adapter", "pallet", "dry run", "kill switch", "submission", "[Rr]eviewed", "evidence"
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-", "[0-9a-fA-F]{32}", "AssetKey", "SSFXCM", "XCM", "Substrate", "EVM",
+            "Iroha", "canonical", "registry", "adapter", "pallet", "dry run", "kill switch", "submission",
+            "[Rr]eviewed", "evidence"
         ]
         XCTAssertGreaterThan(texts.count, inventory.count)
         for text in texts {

@@ -924,7 +924,8 @@ enum ReviewedWalletXcmRouteCatalog {
 /// direction is missing and can never produce a submission context.
 enum ReviewedRetiredBridgeRouteCatalog {
     static let soraParachainsHaltedReason = "Paused: the SORA parachains for Polkadot and Kusama have stopped producing blocks, so transfers between SORA and those networks cannot be delivered. This route returns once SORA confirms that delivery works again."
-    static let soraToLiberlandStalledReason = "Paused: SORA to Liberland transfers are not being delivered, and the latest ones are still pending after several months. Transfers from Liberland to SORA are not affected."
+    static let soraToLiberlandStalledReason =
+        "Paused: SORA to Liberland transfers are not being delivered, and the latest ones are still pending after several months."
 
     private static let destinationNames: [ChainModel.Id: String] = [
         "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe": "Kusama",
@@ -1085,7 +1086,7 @@ enum ReviewedUnavailableCrossChainRouteCatalog {
 
 struct WalletXcmRouteProvider: CrossChainRouteProvider {
     let identifier = "wallet-xcm"
-    let displayName = "Wallet XCM"
+    let displayName = "Polkadot and Kusama"
     let unavailableReason = ReviewedWalletXcmRouteCatalog.unavailableReason
     let reviewedUnavailableRoutes = ReviewedWalletXcmRouteCatalog.routes
 
@@ -1099,7 +1100,7 @@ struct WalletXcmRouteProvider: CrossChainRouteProvider {
 
 struct SoraSubstrateBridgeRouteProvider: CrossChainRouteProvider {
     let identifier = "polkaswap-sora-substrate"
-    let displayName = "Polkaswap SORA ↔ Substrate"
+    let displayName = "SORA ↔ Polkadot and Kusama"
     let unavailableReason = ReviewedRetiredBridgeRouteCatalog.soraParachainsHaltedReason
     let reviewedUnavailableRoutes = ReviewedRetiredBridgeRouteCatalog.routes.filter {
         $0.providerId == "polkaswap-sora-substrate"
@@ -1153,7 +1154,7 @@ struct LiberlandXcmRouteProvider: CrossChainRouteProvider {
 
 struct PolkaswapEvmBridgeRouteProvider: CrossChainRouteProvider {
     let identifier = "polkaswap-sora-evm"
-    let displayName = "Polkaswap SORA ↔ EVM"
+    let displayName = "SORA ↔ Ethereum"
     /// The iOS Polkaswap flow has no reviewed executable SORA ↔ EVM bridge adapter, so quotes and submissions stay
     /// disabled until one is approved.
     var unavailableReason: String {
@@ -1270,7 +1271,7 @@ final class CrossChainRootViewController: UIViewController {
                 message: String(
                     format: NSLocalizedString(
                         "cross_chain.no_reviewed_route",
-                        value: "A reviewed route could not be created for %@ and %@.",
+                        value: "A transfer route could not be created for %@ and %@.",
                         comment: ""
                     ),
                     route.chainAsset.chain.name,
@@ -1362,7 +1363,7 @@ extension CrossChainRootViewController: UITableViewDataSource {
                 configuration.image = UIImage(systemName: capability.isAvailable ? "checkmark.shield" : "xmark.shield")
             } else {
                 configuration.text = "Other networks"
-                configuration.secondaryText = "Cross-chain transfers for TON, Bitcoin, Solana, Iroha and other EVM networks are not available yet."
+                configuration.secondaryText = "Cross-chain transfers for TON, Bitcoin, Solana and SORA Nexus are not available yet."
                 configuration.image = UIImage(systemName: "info.circle")
             }
             cell.accessoryType = .none
