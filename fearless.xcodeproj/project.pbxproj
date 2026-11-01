@@ -3212,6 +3212,7 @@
 		AE8D284152A6668633630400 /* RetainedDataRestoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66913F06B7BE8C0B010D94D8 /* RetainedDataRestoreViewController.swift */; };
 		B98E89BD435B047C27DC443E /* CanonicalTokenGroupCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C157D1E50F97F02658DE71FF /* CanonicalTokenGroupCatalogTests.swift */; };
 		A7AD10974DB86EDCB8BDD6B5 /* VerifiedSeedExportReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2150DC12A1AA3BA0272FACEE /* VerifiedSeedExportReaderTests.swift */; };
+		CD7368F2B95C75A7EFDE3B31 /* ScamInfoDescriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C4B9DB4FC19CB891B6860B /* ScamInfoDescriptionTests.swift */; };
 		BE536ACEEB56E59CA5937C47 /* RootInteractorRecoveryFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41F04092501BAB0946E05E8 /* RootInteractorRecoveryFlowTests.swift */; };
 		C376974FD46F598131429558 /* RetainedSubstrateContactSalvage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B9AA8C3591236E76EC3678C /* RetainedSubstrateContactSalvage.swift */; };
 		C50EAE158CAF22920E098986 /* RetainedDataRestoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62BEA32CA9F6DF99F448FEBB /* RetainedDataRestoreTests.swift */; };
@@ -6525,6 +6526,7 @@
 		C0C01E241A09B331EB656BC4 /* FWGlassPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWGlassPanelView.swift; sourceTree = "<group>"; };
 		C157D1E50F97F02658DE71FF /* CanonicalTokenGroupCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanonicalTokenGroupCatalogTests.swift; sourceTree = "<group>"; };
 		2150DC12A1AA3BA0272FACEE /* VerifiedSeedExportReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifiedSeedExportReaderTests.swift; sourceTree = "<group>"; };
+		85C4B9DB4FC19CB891B6860B /* ScamInfoDescriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfoDescriptionTests.swift; sourceTree = "<group>"; };
 		C7392C8511D53E72CCF62736 /* RetainedDataRestoreInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetainedDataRestoreInteractor.swift; sourceTree = "<group>"; };
 		C95CB833C371F05671493112 /* IrohaConnectReleasePolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrohaConnectReleasePolicyTests.swift; sourceTree = "<group>"; };
 		D18607467FA02B01EF40FC6D /* UpgradeFixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = UpgradeFixtures; sourceTree = "<group>"; };
@@ -15950,6 +15952,7 @@
 			children = (
 				C157D1E50F97F02658DE71FF /* CanonicalTokenGroupCatalogTests.swift */,
 				2150DC12A1AA3BA0272FACEE /* VerifiedSeedExportReaderTests.swift */,
+				85C4B9DB4FC19CB891B6860B /* ScamInfoDescriptionTests.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -19679,6 +19682,7 @@
 				6D38ED2B83F79DA7E8E95FCC /* SolanaRecipientSafetyTests.swift in Sources */,
 				B98E89BD435B047C27DC443E /* CanonicalTokenGroupCatalogTests.swift in Sources */,
 				A7AD10974DB86EDCB8BDD6B5 /* VerifiedSeedExportReaderTests.swift in Sources */,
+				CD7368F2B95C75A7EFDE3B31 /* ScamInfoDescriptionTests.swift in Sources */,
 				24C739E2B96855CAFEC8FBC9 /* PortfolioVisibilityPolicyTests.swift in Sources */,
 				E2B6812B3A813622A2DF295D /* FWLegacyFontViewTests.swift in Sources */,
 				CEB06F8DD5724418937B8202 /* OnboardingStartTests.swift in Sources */,
