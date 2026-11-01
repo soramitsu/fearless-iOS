@@ -33,7 +33,7 @@ a separate Ruby 3.2+ bundle. Do not add Fastlane to the root Gemfile.
 
 ## Finish the already uploaded build
 
-Use this after an accepted upload of `4.2.0 (2026.11.1)` if finalization needs
+Use this after an accepted upload of `4.2.0 (2026.11.2)` if finalization needs
 retry. It waits for that exact build, rejects invalid
 processing state or any existing external assignment, resolves an exact
 internal group that already contains the configured tester, assigns the build,
@@ -42,7 +42,7 @@ re-reads App Store Connect, and writes a mode-0600 publication receipt.
 ```sh
 scripts/fastlane.sh ios finalize_existing \
   version:4.2.0 \
-  build:2026.11.1
+  build:2026.11.2
 ```
 
 If the tester belongs to more than one internal group, set
@@ -61,7 +61,7 @@ TESTFLIGHT_ARCHIVE=/absolute/path/fearless.xcarchive \
 TESTFLIGHT_SIGNED_AUDIT=/absolute/path/signed-archive-audit.json \
 scripts/fastlane.sh ios publish_archive \
   version:4.2.0 \
-  build:2026.11.1
+  build:2026.11.2
 ```
 
 Receipts live under `build/upload/<version>-<build>-<commit>/`. The original

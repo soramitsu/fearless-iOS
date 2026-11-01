@@ -17,7 +17,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "${1:-$SCRIPT_DIR/..}" && pwd -P)"
 readonly EXPECTED_MARKETING_VERSION="4.2.0"
 # Builds already uploaded for 4.2.0. Add each newly consumed build here.
-readonly CONSUMED_BUILDS="2026.7.26 2026.7.28 2026.8.10 2026.8.13 2026.8.14 2026.8.34 2026.9.6"
+readonly CONSUMED_BUILDS="2026.7.26 2026.7.28 2026.8.10 2026.8.13 2026.8.14 2026.8.34 2026.9.6 2026.11.1"
 
 python3 - "$REPO_ROOT" "$EXPECTED_MARKETING_VERSION" "$CONSUMED_BUILDS" "$LOG_PREFIX" <<'PYTHON'
 import json
