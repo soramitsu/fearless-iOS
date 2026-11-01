@@ -366,7 +366,7 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
     /// The sheet behind the recipient warning used to give the sanctions sentence for every flag.
     func testConfirm_whenRecipientWarningIsTapped_thenSheetGivesThatFlagsWarning() throws {
         let english = Locale(identifier: "en")
-        for type in [ScamInfo.ScamType.scam, .exchange, .lowScore, .unknown] {
+        for type in [ScamInfo.ScamType.scam, .exchange, .service, .lowScore, .unknown] {
             let context = makeConfirmPresenter(
                 scamInfo: ScamInfo(name: "Flagged", address: "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m", type: type, subtype: "")
             )
@@ -378,6 +378,9 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
             XCTAssertEqual(sheet.title, "Warning", "\(type)")
             XCTAssertEqual(sheet.message, type.confirmationAlertMessage(for: english, assetName: "BTC"), "\(type)")
             XCTAssertFalse(sheet.message?.contains("sanctions") ?? true, "\(type)")
+            if [.exchange, .service].contains(type) {
+                XCTAssertFalse(sheet.message?.contains("don't send") ?? true, "\(type)")
+            }
         }
 
         let scam = makeConfirmPresenter(

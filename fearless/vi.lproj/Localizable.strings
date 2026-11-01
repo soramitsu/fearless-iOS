@@ -745,9 +745,12 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "scam.additional.stub" = "Bổ sung:";
 "scam.description.donation.stub" = "Địa chỉ này đã được gắn cờ là đáng ngờ. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
 "scam.description.exchange.stub" = "Địa chỉ này được đánh dấu là một sàn giao dịch, hãy cẩn thận, địa chỉ gửi tiền và địa chỉ rút tiền có thể khác nhau.";
+"scam.description.highrisk.stub" = "Địa chỉ này đã bị gắn cờ là một tổ chức có rủi ro cao. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
 "scam.description.lowscore.text" = "Địa chỉ bạn sắp chuyển đến có ít hoạt động on-chain, điều này có thể cho thấy đây là kẻ lừa đảo hoặc kẻ tấn công sybil.";
 "scam.description.sanctions.stub" = "Địa chỉ này đã bị gắn cờ do có liên quan đến một quốc gia đang bị trừng phạt. Chúng tôi thực sự khuyên bạn không nên gửi %s vào tài khoản này.";
 "scam.description.scam.stub" = "Địa chỉ này đã bị gắn cờ do có bằng chứng lừa đảo. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
+"scam.description.service.stub" = "Địa chỉ này được đánh dấu là một dịch vụ tài chính, hãy cẩn thận, địa chỉ gửi tiền và địa chỉ rút tiền có thể khác nhau.";
+"scam.description.theft.stub" = "Địa chỉ này đã bị gắn cờ do có bằng chứng trộm cắp. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "Tên:";

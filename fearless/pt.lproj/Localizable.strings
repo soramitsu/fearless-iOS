@@ -750,9 +750,12 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "scam.additional.stub" = "Adicional:";
 "scam.description.donation.stub" = "Este endereço foi sinalizado como suspeito. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.exchange.stub" = "Este endereço está marcado como uma corretora, tome cuidado pois os endereços de depósito e saque podem ser diferentes.";
+"scam.description.highrisk.stub" = "Este endereço foi sinalizado como uma organização de alto risco. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.lowscore.text" = "O endereço para o qual você está prestes a transferir tem pouca atividade on-chain, o que pode indicar um possível fraudador ou atacante sybil.";
 "scam.description.sanctions.stub" = "Este endereço foi sinalizado devido a uma entidade relacionada a um país sob sanções. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.scam.stub" = "Este endereço foi sinalizado devido a evidências de fraude. Recomendamos fortemente que você não envie %s para esta conta.";
+"scam.description.service.stub" = "Este endereço está marcado como um serviço financeiro, tome cuidado pois os endereços de depósito e saque podem ser diferentes.";
+"scam.description.theft.stub" = "Este endereço foi sinalizado devido a evidências de roubo. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "Nome:";

@@ -24,6 +24,9 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
         case donation
         case exchange
         case sanctions
+        case service
+        case highRiskOrganization = "High Risk Organization"
+        case theft
         case lowScore = "Low network activity"
 
         init?(from string: String) {
@@ -59,6 +62,15 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
             case .sanctions:
                 return R.string.localizable
                     .scamDescriptionSanctionsStub(assetName, preferredLanguages: locale.rLanguages)
+            case .service:
+                return R.string.localizable
+                    .scamDescriptionServiceStub(preferredLanguages: locale.rLanguages)
+            case .highRiskOrganization:
+                return R.string.localizable
+                    .scamDescriptionHighriskStub(assetName, preferredLanguages: locale.rLanguages)
+            case .theft:
+                return R.string.localizable
+                    .scamDescriptionTheftStub(assetName, preferredLanguages: locale.rLanguages)
             case .lowScore:
                 return R.string.localizable.scamDescriptionLowscoreText(preferredLanguages: locale.rLanguages)
             }

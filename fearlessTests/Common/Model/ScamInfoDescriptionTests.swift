@@ -4,11 +4,20 @@ import XCTest
 /// The send screen's address warnings, read in every language the app bundles.
 final class ScamInfoDescriptionTests: XCTestCase {
     private let languages = Bundle.main.localizations.filter { $0 != "Base" }.sorted()
+    /// Flags whose warning advises against sending the asset, and flags whose warning only asks for care.
+    private let assetNamingTypes: [ScamInfo.ScamType] = [.scam, .donation, .sanctions, .highRiskOrganization, .theft]
+    private let cautionTypes: [ScamInfo.ScamType] = [.exchange, .service, .lowScore]
+
+    func testEveryFlagHasAWarning() {
+        let covered = assetNamingTypes + cautionTypes + [.unknown]
+        XCTAssertEqual(covered.count, ScamInfo.ScamType.allCases.count)
+        XCTAssertEqual(Set(covered), Set(ScamInfo.ScamType.allCases))
+    }
 
     func testWarningsThatNameTheAssetShowItOnceInEveryLanguage() throws {
         XCTAssertGreaterThan(languages.count, 1)
         for language in languages {
-            for type in [ScamInfo.ScamType.scam, .donation, .sanctions] {
+            for type in assetNamingTypes {
                 let text = try XCTUnwrap(
                     type.description(for: Locale(identifier: language), assetName: "DOT"),
                     "\(language) \(type)"
@@ -21,7 +30,7 @@ final class ScamInfoDescriptionTests: XCTestCase {
 
     func testWarningsWithoutAnAssetHaveNoPlaceholders() throws {
         for language in languages {
-            for type in [ScamInfo.ScamType.exchange, .lowScore] {
+            for type in cautionTypes {
                 let text = try XCTUnwrap(
                     type.description(for: Locale(identifier: language), assetName: "DOT"),
                     "\(language) \(type)"
@@ -49,7 +58,7 @@ final class ScamInfoDescriptionTests: XCTestCase {
                         ?? R.string.localizable.scamWarningAlertSubtitle("DOT", preferredLanguages: locale.rLanguages),
                     "\(language) \(type)"
                 )
-                let namesTheAsset = [.scam, .donation, .sanctions, .unknown].contains(type)
+                let namesTheAsset = type == .unknown || assetNamingTypes.contains(type)
                 XCTAssertEqual(
                     message.components(separatedBy: "DOT").count - 1,
                     namesTheAsset ? 1 : 0,
@@ -70,6 +79,16 @@ final class ScamInfoDescriptionTests: XCTestCase {
             ScamInfo.ScamType.exchange.confirmationAlertMessage(for: english, assetName: "DOT"),
             "This address is marked as an exchange, " +
                 "be careful as the deposit and withdrawal addresses may be different."
+        )
+        XCTAssertEqual(
+            ScamInfo.ScamType.service.confirmationAlertMessage(for: english, assetName: "DOT"),
+            "This address is marked as a financial service, " +
+                "be careful as the deposit and withdrawal addresses may be different."
+        )
+        XCTAssertEqual(
+            ScamInfo.ScamType.theft.confirmationAlertMessage(for: english, assetName: "DOT"),
+            "This address has been flagged due to evidence of theft. " +
+                "We strongly recommend that you don't send DOT to this account."
         )
         XCTAssertEqual(
             ScamInfo.ScamType.lowScore.confirmationAlertMessage(for: english, assetName: "DOT"),

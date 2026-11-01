@@ -149,16 +149,21 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     }
 
     private func handleRemote(_ data: Data) -> [ScamInfo] {
-        var scamInfos: Set<ScamInfo> = []
-
         guard let stringValue = String(data: data, encoding: .utf8) else {
             return []
         }
-        var rows = stringValue.components(separatedBy: "\n")
+
+        return Self.scamInfos(fromCsv: stringValue)
+    }
+
+    static func scamInfos(fromCsv csv: String) -> [ScamInfo] {
+        var scamInfos: Set<ScamInfo> = []
+
+        var rows = csv.components(separatedBy: "\n")
         rows.removeFirst()
 
         rows.forEach { row in
-            let columns = row.components(separatedBy: ",")
+            let columns = csvFields(of: row.trimmingCharacters(in: CharacterSet(charactersIn: "\r")))
 
             guard
                 let name = columns[safe: 0],
@@ -180,6 +185,44 @@ final class ScamSyncService: ScamSyncServiceProtocol {
         }
 
         return Array(scamInfos)
+    }
+
+    /// A name such as `"Polkadot2022 Net, Polkadotevent2022"` is quoted because it holds a comma;
+    /// splitting on every comma read the name's second half as the address.
+    static func csvFields(of row: String) -> [String] {
+        var fields: [String] = []
+        var field = ""
+        var isQuoted = false
+        var characters = row.makeIterator()
+
+        while let character = characters.next() {
+            switch character {
+            case "\"" where isQuoted:
+                // Two quotes inside a quoted field are one quote; one quote ends the quoting.
+                let next = characters.next()
+                if next == "\"" {
+                    field.append("\"")
+                    continue
+                }
+                isQuoted = false
+                if next == "," {
+                    fields.append(field)
+                    field = ""
+                } else if let next {
+                    field.append(next)
+                }
+            case "\"" where field.isEmpty:
+                isQuoted = true
+            case "," where !isQuoted:
+                fields.append(field)
+                field = ""
+            default:
+                field.append(character)
+            }
+        }
+        fields.append(field)
+
+        return fields
     }
 
     private func retry() {
