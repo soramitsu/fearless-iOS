@@ -704,7 +704,6 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "scam.name.stub" = "Nome:";
 "scam.reason.stub" = "Motivo:";
 "scam.warning.alert.subtitle" = "Recomendamos fortemente que você não envie %s para esta conta.";
-"scam.warning.alert.title" = "Este endereço foi sinalizado devido a uma entidade relacionada a um país sob sanções. Recomendamos fortemente que você não envie %@ para esta conta.";
 "scan.qr.subtitle" = "Leia o código do destinatário.";
 "scan.qr.title" = "Ler QR";
 "scan.qr.upload.button.title" = "Carregar da galeria";

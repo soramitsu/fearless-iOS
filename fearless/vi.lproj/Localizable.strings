@@ -753,7 +753,6 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "scam.name.stub" = "Tên:";
 "scam.reason.stub" = "Lý do:";
 "scam.warning.alert.subtitle" = "Chúng tôi thực sự khuyên bạn không nên gửi %s vào tài khoản này.";
-"scam.warning.alert.title" = "Địa chỉ này đã bị gắn cờ do một thực thể có liên quan đến một quốc gia đang bị trừng phạt. Chúng tôi thực sự khuyên bạn không nên gửi %@ tới tài khoản này.";
 "scan.qr.subtitle" = "Quét mã từ người nhận";
 "scan.qr.title" = "Quét mã QR";
 "scan.qr.upload.button.title" = "Tải lên từ thư viện";

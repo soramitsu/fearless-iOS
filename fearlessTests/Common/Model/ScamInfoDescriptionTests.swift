@@ -32,21 +32,48 @@ final class ScamInfoDescriptionTests: XCTestCase {
         XCTAssertNil(ScamInfo.ScamType.unknown.description(for: Locale(identifier: "en"), assetName: "DOT"))
     }
 
-    func testConfirmationAlertNamesTheAssetOnceInEveryLanguage() {
+    /// The confirm screen's sheet used to give the sanctions sentence for every flag.
+    func testConfirmationAlertRepeatsTheFlagsOwnWarningInEveryLanguage() {
         for language in languages {
-            let texts = [
-                R.string.localizable.scamWarningAlertTitle("DOT", preferredLanguages: [language]),
-                R.string.localizable.scamWarningAlertSubtitle("DOT", preferredLanguages: [language])
-            ]
-            for text in texts {
-                XCTAssertEqual(text.components(separatedBy: "DOT").count - 1, 1, "\(language): \(text)")
-                XCTAssertNil(text.range(of: "[{}%]", options: .regularExpression), "\(language): \(text)")
+            let locale = Locale(identifier: language)
+            var messages: [ScamInfo.ScamType: String] = [:]
+            for type in ScamInfo.ScamType.allCases {
+                let message = type.confirmationAlertMessage(for: locale, assetName: "DOT")
+                messages[type] = message
+                XCTAssertEqual(
+                    message,
+                    type.description(for: locale, assetName: "DOT")
+                        ?? R.string.localizable.scamWarningAlertSubtitle("DOT", preferredLanguages: locale.rLanguages),
+                    "\(language) \(type)"
+                )
+                let namesTheAsset = [.scam, .donation, .sanctions, .unknown].contains(type)
+                XCTAssertEqual(
+                    message.components(separatedBy: "DOT").count - 1,
+                    namesTheAsset ? 1 : 0,
+                    "\(language) \(type): \(message)"
+                )
+                XCTAssertNil(message.range(of: "[{}%]", options: .regularExpression), "\(language) \(type): \(message)")
             }
+            XCTAssertEqual(Set(messages.values).count, ScamInfo.ScamType.allCases.count, "\(language): \(messages)")
         }
+    }
+
+    func testConfirmationAlertInEnglishAndTurkish() {
+        let english = Locale(identifier: "en")
         XCTAssertEqual(
-            R.string.localizable.scamWarningAlertSubtitle("DOT", preferredLanguages: ["tr"]),
+            ScamInfo.ScamType.exchange.confirmationAlertMessage(for: english, assetName: "DOT"),
+            "This address is marked as an exchange, " +
+                "be careful as the deposit and withdrawal addresses may be different."
+        )
+        XCTAssertEqual(
+            ScamInfo.ScamType.unknown.confirmationAlertMessage(for: english, assetName: "DOT"),
+            "We strongly recommend that you don't send DOT to this account."
+        )
+        XCTAssertEqual(
+            ScamInfo.ScamType.unknown.confirmationAlertMessage(for: Locale(identifier: "tr"), assetName: "DOT"),
             "Bu hesaba DOT göndermemenizi şiddetle tavsiye ederiz."
         )
+        XCTAssertEqual(R.string.localizable.commonWarning(preferredLanguages: ["tr"]), "Uyarı")
     }
 
     func testScamWarningNamesTheAssetInEnglishAndTurkish() {

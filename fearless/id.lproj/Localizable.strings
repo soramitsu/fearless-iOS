@@ -740,7 +740,6 @@ Syarat dan Ketentuan serta Kebijakan Privasi";
 "scam.name.stub" = "Nama:";
 "scam.reason.stub" = "Alasan:";
 "scam.warning.alert.subtitle" = "Kami sangat menyarankan agar Anda tidak mengirim %s ke akun ini.";
-"scam.warning.alert.title" = "Alamat ini ditandai karena ada entitas yang terkait dengan negara yang terkena sanksi. Kami sangat menyarankan agar Anda tidak mengirim %@ ke akun ini.";
 "scan.qr.subtitle" = "Pindai kode dari pengirim";
 "scan.qr.title" = "Kode QR";
 "scan.qr.upload.button.title" = "Unggah dari galeri";

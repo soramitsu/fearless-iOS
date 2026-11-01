@@ -753,7 +753,6 @@
 "scam.name.stub" = "姓名：";
 "scam.reason.stub" = "原因：";
 "scam.warning.alert.subtitle" = "我们强烈建议您不要向此账户发送%s。";
-"scam.warning.alert.title" = "由于与受制裁国家相关的实体，此地址已被标记。我们强烈建议您不要向此账户发送%@。";
 "scan.qr.subtitle" = "从接收方扫描代码";
 "scan.qr.title" = "二维码";
 "scan.qr.upload.button.title" = "从相册上传";

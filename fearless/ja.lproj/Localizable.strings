@@ -745,7 +745,6 @@
 "scam.name.stub" = "名前：";
 "scam.reason.stub" = "理由：";
 "scam.warning.alert.subtitle" = "このアカウントに %s を送信しないことを強くお勧めします";
-"scam.warning.alert.title" = "このアドレスは、制裁下にある国に関連するエンティティだと喚起されています。このアカウントに %@ を送信しないことを強くお勧めします";
 "scan.qr.subtitle" = "受信者からQRコードをスキャン";
 "scan.qr.title" = "QRコード";
 "scan.qr.upload.button.title" = "写真からアップロード";

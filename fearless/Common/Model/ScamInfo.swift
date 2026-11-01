@@ -63,5 +63,12 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
                 return R.string.localizable.scamDescriptionLowscoreText(preferredLanguages: locale.rLanguages)
             }
         }
+
+        /// The sheet behind the confirm screen's recipient warning repeats the Send screen's warning
+        /// for this flag; a flag the app does not recognise gets the general advice.
+        func confirmationAlertMessage(for locale: Locale, assetName: String) -> String {
+            description(for: locale, assetName: assetName)
+                ?? R.string.localizable.scamWarningAlertSubtitle(assetName, preferredLanguages: locale.rLanguages)
+        }
     }
 }

@@ -750,7 +750,6 @@ Euro cash";
 "scam.name.stub" = "Имя:";
 "scam.reason.stub" = "Причина:";
 "scam.warning.alert.subtitle" = "Мы настоятельно рекомендуем не отправлять %s на этот аккаунт.";
-"scam.warning.alert.title" = "Этот адрес был помечен в связи с организацией из страны, находящейся под санкциями. Мы настоятельно рекомендуем вам не отправлять %@ на этот аккаунт.";
 "scan.qr.subtitle" = "Поднесите QR код получателя";
 "scan.qr.title" = "QR Код";
 "scan.qr.upload.button.title" = "Из галереи";

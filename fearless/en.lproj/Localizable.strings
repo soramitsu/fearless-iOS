@@ -748,7 +748,6 @@ Terms and Conditions and Privacy Policy";
 "scam.name.stub" = "Name:";
 "scam.reason.stub" = "Reason:";
 "scam.warning.alert.subtitle" = "We strongly recommend that you don't send %s to this account.";
-"scam.warning.alert.title" = "This address has been flagged due to an entity related to a country under sanctions. We strongly recommend that you don't send %@ to this account.";
 "scan.qr.subtitle" = "Scan code from receiver";
 "scan.qr.title" = "QR Code";
 "scan.qr.upload.button.title" = "Upload from gallery";
