@@ -32,6 +32,23 @@ final class ScamInfoDescriptionTests: XCTestCase {
         XCTAssertNil(ScamInfo.ScamType.unknown.description(for: Locale(identifier: "en"), assetName: "DOT"))
     }
 
+    func testConfirmationAlertNamesTheAssetOnceInEveryLanguage() {
+        for language in languages {
+            let texts = [
+                R.string.localizable.scamWarningAlertTitle("DOT", preferredLanguages: [language]),
+                R.string.localizable.scamWarningAlertSubtitle("DOT", preferredLanguages: [language])
+            ]
+            for text in texts {
+                XCTAssertEqual(text.components(separatedBy: "DOT").count - 1, 1, "\(language): \(text)")
+                XCTAssertNil(text.range(of: "[{}%]", options: .regularExpression), "\(language): \(text)")
+            }
+        }
+        XCTAssertEqual(
+            R.string.localizable.scamWarningAlertSubtitle("DOT", preferredLanguages: ["tr"]),
+            "Bu hesaba DOT göndermemenizi şiddetle tavsiye ederiz."
+        )
+    }
+
     func testScamWarningNamesTheAssetInEnglishAndTurkish() {
         XCTAssertEqual(
             ScamInfo.ScamType.scam.description(for: Locale(identifier: "en"), assetName: "DOT"),
@@ -42,6 +59,11 @@ final class ScamInfoDescriptionTests: XCTestCase {
             ScamInfo.ScamType.scam.description(for: Locale(identifier: "tr"), assetName: "DOT"),
             "Bu adres dolandırıcılık kanıtı nedeniyle işaretlendi. " +
                 "Bu hesaba DOT göndermemenizi şiddetle tavsiye ederiz."
+        )
+        XCTAssertEqual(
+            ScamInfo.ScamType.exchange.description(for: Locale(identifier: "en"), assetName: "DOT"),
+            "This address is marked as an exchange, " +
+                "be careful as the deposit and withdrawal addresses may be different."
         )
     }
 }
