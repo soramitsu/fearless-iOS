@@ -346,7 +346,7 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
         redesigned_predecessor["installation"]["previousBuildVersion"] = "2026.8.17"
         validate(redesigned_predecessor)
 
-        for consumed_build in ("2026.8.34", "2026.9.6", "2026.11.1"):
+        for consumed_build in ("2026.8.34", "2026.9.6", "2026.11.1", "2026.11.2"):
             latest_predecessor = passing_evidence()
             latest_predecessor["installation"]["previousBuildVersion"] = consumed_build
             validate(latest_predecessor)
@@ -355,7 +355,7 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
         reinstalled_same_build["installation"]["previousBuildVersion"] = GATE.EXPECTED_BUILD
         with self.assertRaisesRegex(
             GATE.EvidenceError,
-            r"supported predecessor build 2026\.8\.15, .*2026\.9\.6, or 2026\.11\.1$",
+            r"supported predecessor build 2026\.8\.15, .*2026\.11\.1, or 2026\.11\.2$",
         ):
             validate(reinstalled_same_build)
 

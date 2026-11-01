@@ -72,11 +72,12 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # and includes the qualified accessibility and layout fixes.
 # 2026.10.29 was never uploaded. 2026.11.1 went to TestFlight from release/4.2.0:
 # the safe-upgrade line plus the network retirement, Asset Hub staking,
-# password-protected universal accounts and native iPad support. 2026.11.2 is
-# the 4.2.0 App Store release: 2026.11.1 with the scam warning naming the asset
-# again and user-facing Transfer tab text.
+# password-protected universal accounts and native iPad support. 2026.11.2 went
+# to TestFlight with the scam warning naming the asset again and user-facing
+# Transfer tab text. 2026.11.3 is the 4.2.0 App Store release: 2026.11.2 with
+# the confirm screen's recipient warning matching the address's flag.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.11.2"
+readonly EXPECTED_BUILD="2026.11.3"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -97,7 +98,7 @@ Preconditions:
     distributed 4.2.0 (2026.7.28) source commit, directly or through its
     squash into master (#1305); a fresh clone gets that pull request's head
     with `git fetch origin refs/pull/1305/head`;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.2);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.3);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
