@@ -34,6 +34,9 @@ final class ScamInfoDescriptionTests: XCTestCase {
 
     /// The confirm screen's sheet used to give the sanctions sentence for every flag.
     func testConfirmationAlertRepeatsTheFlagsOwnWarningInEveryLanguage() {
+        let english = ScamInfo.ScamType.allCases.map {
+            $0.confirmationAlertMessage(for: Locale(identifier: "en"), assetName: "DOT")
+        }
         for language in languages {
             let locale = Locale(identifier: language)
             var messages: [ScamInfo.ScamType: String] = [:]
@@ -53,6 +56,9 @@ final class ScamInfoDescriptionTests: XCTestCase {
                     "\(language) \(type): \(message)"
                 )
                 XCTAssertNil(message.range(of: "[{}%]", options: .regularExpression), "\(language) \(type): \(message)")
+                if language != "en" {
+                    XCTAssertFalse(english.contains(message), "\(language) \(type) is in English: \(message)")
+                }
             }
             XCTAssertEqual(Set(messages.values).count, ScamInfo.ScamType.allCases.count, "\(language): \(messages)")
         }
@@ -64,6 +70,11 @@ final class ScamInfoDescriptionTests: XCTestCase {
             ScamInfo.ScamType.exchange.confirmationAlertMessage(for: english, assetName: "DOT"),
             "This address is marked as an exchange, " +
                 "be careful as the deposit and withdrawal addresses may be different."
+        )
+        XCTAssertEqual(
+            ScamInfo.ScamType.lowScore.confirmationAlertMessage(for: english, assetName: "DOT"),
+            "The address you are about to transfer to has low onchain activity, " +
+                "which may indicate a potential scammer or sybil attacker."
         )
         XCTAssertEqual(
             ScamInfo.ScamType.unknown.confirmationAlertMessage(for: english, assetName: "DOT"),

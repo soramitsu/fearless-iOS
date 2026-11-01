@@ -745,7 +745,7 @@
 "scam.additional.stub" = "附加：";
 "scam.description.donation.stub" = "此地址已被标记为可疑。我们强烈建议您不要向该账户发送%s。";
 "scam.description.exchange.stub" = "这个地址被标记为交易所，请注意存款和提款地址可能不同。";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"scam.description.lowscore.text" = "您即将转账的地址链上活动较少，这可能表明对方是潜在的诈骗者或女巫攻击者。";
 "scam.description.sanctions.stub" = "由于与受制裁国家相关的实体,此地址已被标记。我们强烈建议您不要向此账户发送%s。";
 "scam.description.scam.stub" = "此地址已被标记存在诈骗嫌疑。我们强烈建议您不要将%s发送到此账户。";
 "scam.info.nomis.name" = "Nomis multi-chain score";

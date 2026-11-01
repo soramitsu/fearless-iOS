@@ -742,7 +742,7 @@ Euro cash";
 "scam.additional.stub" = "Дополнительно:";
 "scam.description.donation.stub" = "Этот адрес подозрителен. Мы настоятельно рекомендуем вам не отправлять %s на этот аккаунт.";
 "scam.description.exchange.stub" = "Этот адрес помечен как биржа. Будьте осторожны: адреса для пополнения и вывода могут отличаться.";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"scam.description.lowscore.text" = "У адреса, на который вы собираетесь сделать перевод, низкая активность в блокчейне, что может указывать на мошенника или участника сибил-атаки.";
 "scam.description.sanctions.stub" = "Этот адрес был помечен в связи с организацией из страны, находящейся под санкциями. Мы настоятельно рекомендуем вам не отправлять %s на этот аккаунт.";
 "scam.description.scam.stub" = "Этот адрес был помечен в связи с доказательствами мошенничества. Мы настоятельно рекомендуем вам не отправлять %s на этот аккаунт.";
 "scam.info.nomis.name" = "Nomis multi-chain score";
