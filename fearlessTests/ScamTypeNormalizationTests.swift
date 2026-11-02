@@ -20,6 +20,18 @@ final class ScamTypeNormalizationTests: XCTestCase {
         XCTAssertTrue(ScamInfo.ScamType.theft.isScam)
     }
 
+    /// Reading the list as strict UTF-8 turned one damaged byte into an empty list.
+    func testDamagedByteDoesNotLoseTheList() {
+        var data = Data("tag_name_verbose,addresses,tag_type_verbose,tag_subtype_verbose\nDot4 Org,1scam,Scam,Phishing\nCaf".utf8)
+        data.append(0xE9)
+        data.append(Data(",1cafe,Exchange,OTC\n".utf8))
+
+        let infos = ScamSyncService.scamInfos(from: data)
+
+        XCTAssertEqual(Set(infos.map(\.address)), ["1scam", "1cafe"])
+        XCTAssertEqual(infos.first { $0.address == "1scam" }?.type, .scam)
+    }
+
     /// A stored flag this build does not know must not fail every stored flag.
     func testStoredFlagFromANewerBuildReadsAsUnknown() throws {
         let decoded = try JSONDecoder().decode(

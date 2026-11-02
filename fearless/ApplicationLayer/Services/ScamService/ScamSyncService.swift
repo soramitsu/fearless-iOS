@@ -166,11 +166,12 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     }
 
     private func handleRemote(_ data: Data) -> [ScamInfo] {
-        guard let stringValue = String(data: data, encoding: .utf8) else {
-            return []
-        }
+        Self.scamInfos(from: data)
+    }
 
-        return Self.scamInfos(fromCsv: stringValue)
+    /// A damaged byte costs its own row, not the whole list.
+    static func scamInfos(from data: Data) -> [ScamInfo] {
+        scamInfos(fromCsv: String(decoding: data, as: UTF8.self))
     }
 
     static func scamInfos(fromCsv csv: String) -> [ScamInfo] {
