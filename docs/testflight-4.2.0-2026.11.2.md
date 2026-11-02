@@ -2,8 +2,8 @@
 
 Status: **uploaded to App Store Connect on 1 November 2026 at 22:43 JST** (delivery
 `293c41cf-503e-43a0-b8b9-ba47b10f9c02`) for internal TestFlight testing. App Store Connect reported no warnings and
-was processing the build when the upload finished. This is the build to submit for App Review; 2026.11.1
-(`docs/testflight-4.2.0-2026.11.1.md`) stays on TestFlight.
+was processing the build when the upload finished. 2026.11.3 (`docs/testflight-4.2.0-2026.11.3.md`) replaced it as
+the build to submit for App Review; 2026.11.1 (`docs/testflight-4.2.0-2026.11.1.md`) and 2026.11.2 stay on TestFlight.
 
 ## Candidate
 
@@ -65,5 +65,5 @@ generated file, and a stale keyless one fails with "missing required setting". T
 - Polkadot and Kusama staking need #1312 on `master`: the app reads its network list from `fearless-iOS` master,
   which still marks the relay chains for staking and has no Asset Hub flag.
 - No KaiaScan key (Kaia history unavailable), as in 2026.11.1.
-- The scam confirmation alert's title has been the sanctions sentence for every flag type since 2022, in every
-  language.
+- The scam confirmation alert's title had been the sanctions sentence for every flag type since 2022, in every
+  language. Fixed in 2026.11.3.
