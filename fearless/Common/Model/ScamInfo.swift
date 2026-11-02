@@ -37,9 +37,15 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
             self = type
         }
 
+        /// A flag stored by a newer build reads as unknown instead of failing every stored flag.
+        init(from decoder: Decoder) throws {
+            let rawValue = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: rawValue) ?? .unknown
+        }
+
         var isScam: Bool {
             switch self {
-            case .scam:
+            case .scam, .theft:
                 return true
             default:
                 return false

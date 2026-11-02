@@ -733,7 +733,7 @@ Syarat dan Ketentuan serta Kebijakan Privasi";
 "roles.common" = "Peran";
 "same.address.transfer.warning.message" = "Anda mencoba melakukan transfer ke rekening yang sama. Operasi ini akan mengenakan biaya dan tidak masuk akal";
 "scam.additional.stub" = "Tambahan:";
-"scam.description.donation.stub" = "Alamat ini telah ditandai sebagai mencurigakan. Kami sangat menyarankan agar Anda tidak mengirimkan %s ke akun ini.";
+"scam.description.donation.stub" = "Alamat ini ditandai sebagai alamat donasi sebuah lembaga amal. Pastikan Anda memang ingin berdonasi sebelum mengirim %s.";
 "scam.description.exchange.stub" = "Alamat ini ditandai sebagai bursa, hati-hati karena alamat penyetoran dan penarikan mungkin berbeda.";
 "scam.description.highrisk.stub" = "Alamat ini telah ditandai sebagai organisasi berisiko tinggi. Kami sangat menyarankan agar Anda tidak mengirim %s ke akun ini.";
 "scam.description.sanctions.stub" = "Alamat ini ditandai karena ada entitas yang terkait dengan negara yang terkena sanksi. Kami sangat menyarankan agar Anda tidak mengirimkan %s ke akun ini.";

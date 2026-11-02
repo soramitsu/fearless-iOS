@@ -4,12 +4,12 @@ import XCTest
 /// The send screen's address warnings, read in every language the app bundles.
 final class ScamInfoDescriptionTests: XCTestCase {
     private let languages = Bundle.main.localizations.filter { $0 != "Base" }.sorted()
-    /// Flags whose warning advises against sending the asset, and flags whose warning only asks for care.
+    /// Flags whose warning names the asset, and flags whose warning does not.
     private let assetNamingTypes: [ScamInfo.ScamType] = [.scam, .donation, .sanctions, .highRiskOrganization, .theft]
-    private let cautionTypes: [ScamInfo.ScamType] = [.exchange, .service, .lowScore]
+    private let typesWithoutAsset: [ScamInfo.ScamType] = [.exchange, .service, .lowScore]
 
     func testEveryFlagHasAWarning() {
-        let covered = assetNamingTypes + cautionTypes + [.unknown]
+        let covered = assetNamingTypes + typesWithoutAsset + [.unknown]
         XCTAssertEqual(covered.count, ScamInfo.ScamType.allCases.count)
         XCTAssertEqual(Set(covered), Set(ScamInfo.ScamType.allCases))
     }
@@ -30,7 +30,7 @@ final class ScamInfoDescriptionTests: XCTestCase {
 
     func testWarningsWithoutAnAssetHaveNoPlaceholders() throws {
         for language in languages {
-            for type in cautionTypes {
+            for type in typesWithoutAsset {
                 let text = try XCTUnwrap(
                     type.description(for: Locale(identifier: language), assetName: "DOT"),
                     "\(language) \(type)"
@@ -65,6 +65,7 @@ final class ScamInfoDescriptionTests: XCTestCase {
                     "\(language) \(type): \(message)"
                 )
                 XCTAssertNil(message.range(of: "[{}%]", options: .regularExpression), "\(language) \(type): \(message)")
+                XCTAssertFalse(message.hasPrefix("scam."), "\(language) \(type) shows its key: \(message)")
                 if language != "en" {
                     XCTAssertFalse(english.contains(message), "\(language) \(type) is in English: \(message)")
                 }
@@ -84,6 +85,11 @@ final class ScamInfoDescriptionTests: XCTestCase {
             ScamInfo.ScamType.service.confirmationAlertMessage(for: english, assetName: "DOT"),
             "This address is marked as a financial service, " +
                 "be careful as the deposit and withdrawal addresses may be different."
+        )
+        XCTAssertEqual(
+            ScamInfo.ScamType.donation.confirmationAlertMessage(for: english, assetName: "DOT"),
+            "This address is marked as a charity's donation address. " +
+                "Make sure you mean to donate before you send DOT."
         )
         XCTAssertEqual(
             ScamInfo.ScamType.theft.confirmationAlertMessage(for: english, assetName: "DOT"),

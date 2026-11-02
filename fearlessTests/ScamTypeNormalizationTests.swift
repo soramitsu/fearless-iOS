@@ -17,6 +17,48 @@ final class ScamTypeNormalizationTests: XCTestCase {
         XCTAssertEqual(ScamInfo.ScamType(from: "Service"), .service)
         XCTAssertEqual(ScamInfo.ScamType(from: "High Risk Organization"), .highRiskOrganization)
         XCTAssertEqual(ScamInfo.ScamType(from: "Theft"), .theft)
+        XCTAssertTrue(ScamInfo.ScamType.theft.isScam)
+    }
+
+    /// A stored flag this build does not know must not fail every stored flag.
+    func testStoredFlagFromANewerBuildReadsAsUnknown() throws {
+        let decoded = try JSONDecoder().decode(
+            [ScamInfo].self,
+            from: Data("""
+            [{"name": "A", "address": "1a", "type": "a future category", "subtype": ""},
+             {"name": "B", "address": "1b", "type": "High Risk Organization", "subtype": ""}]
+            """.utf8)
+        )
+        XCTAssertEqual(decoded.map(\.type), [.unknown, .highRiskOrganization])
+    }
+
+    /// Rows the old parser stored are replaced by the next sync, and a bad download keeps every stored flag.
+    func testSyncReplacesRowsTheOldParserStoredAndKeepsFlagsWhenTheListIsEmpty() throws {
+        let phishing = "1Rb2Uhkkztfz2oJewKXcEBRykQurtJAZ1zLEsWyrFs24RFD"
+        let local = [
+            ScamInfo(name: "\"Polkadot2022 Net", address: " Polkadotevent2022\"", type: .unknown, subtype: "Scam"),
+            ScamInfo(name: "Example custody", address: "1service", type: .unknown, subtype: "Custody"),
+            ScamInfo(name: "Dot4 Org", address: "1scam", type: .scam, subtype: "Phishing")
+        ]
+        let remote = ScamSyncService.scamInfos(fromCsv: [
+            "tag_name_verbose,addresses,tag_type_verbose,tag_subtype_verbose",
+            "\"Polkadot2022 Net, Polkadotevent2022\",\(phishing),Scam,Phishing",
+            "Example custody,1service,Service,Custody",
+            "Dot4 Org,1scam,Scam,Phishing"
+        ].joined(separator: "\r"))
+
+        let changes = try XCTUnwrap(ScamSyncService.syncChanges(remote: remote, local: local))
+        XCTAssertEqual(
+            Set(changes.newOrUpdatedItems.map { "\($0.address) \($0.type)" }),
+            ["\(phishing) scam", "1service service"]
+        )
+        XCTAssertEqual(changes.removedItems.map(\.address), [" Polkadotevent2022\""])
+
+        XCTAssertNil(ScamSyncService.syncChanges(remote: [], local: local))
+        XCTAssertNil(ScamSyncService.syncChanges(
+            remote: ScamSyncService.scamInfos(fromCsv: "404: Not Found"),
+            local: local
+        ))
     }
 
     /// Splitting each row on every comma stored this phishing address under the name's second half.

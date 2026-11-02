@@ -743,7 +743,7 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "roles.common" = "Vai trò";
 "same.address.transfer.warning.message" = "Bạn đang cố gắng thực hiện chuyển khoản vào cùng một tài khoản. Hoạt động sẽ tính phí và không có ý nghĩa gì";
 "scam.additional.stub" = "Bổ sung:";
-"scam.description.donation.stub" = "Địa chỉ này đã được gắn cờ là đáng ngờ. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
+"scam.description.donation.stub" = "Địa chỉ này được đánh dấu là địa chỉ quyên góp của một tổ chức từ thiện. Hãy chắc chắn rằng bạn muốn quyên góp trước khi gửi %s.";
 "scam.description.exchange.stub" = "Địa chỉ này được đánh dấu là một sàn giao dịch, hãy cẩn thận, địa chỉ gửi tiền và địa chỉ rút tiền có thể khác nhau.";
 "scam.description.highrisk.stub" = "Địa chỉ này đã bị gắn cờ là một tổ chức có rủi ro cao. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
 "scam.description.lowscore.text" = "Địa chỉ bạn sắp chuyển đến có ít hoạt động on-chain, điều này có thể cho thấy đây là kẻ lừa đảo hoặc kẻ tấn công sybil.";

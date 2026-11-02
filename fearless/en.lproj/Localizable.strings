@@ -741,7 +741,7 @@ Terms and Conditions and Privacy Policy";
 "roles.common" = "Roles";
 "same.address.transfer.warning.message" = "You're trying to make a transfer to the same account. The operation will charge a fee and doesn't make any sense";
 "scam.additional.stub" = "Additional:";
-"scam.description.donation.stub" = "This address has been flagged as suspicious. We strongly recommend that you don't send %s to this account.";
+"scam.description.donation.stub" = "This address is marked as a charity's donation address. Make sure you mean to donate before you send %s.";
 "scam.description.exchange.stub" = "This address is marked as an exchange, be careful as the deposit and withdrawal addresses may be different.";
 "scam.description.highrisk.stub" = "This address has been flagged as a high-risk organization. We strongly recommend that you don't send %s to this account.";
 "scam.description.sanctions.stub" = "This address has been flagged due to an entity related to a country under sanctions. We strongly recommend that you don't send %s to this account.";

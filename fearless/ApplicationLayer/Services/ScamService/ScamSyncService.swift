@@ -6,6 +6,10 @@ protocol ScamSyncServiceProtocol {
     func syncUp()
 }
 
+enum ScamSyncError: Error {
+    case emptyList
+}
+
 final class ScamSyncService: ScamSyncServiceProtocol {
     struct SyncChanges {
         let newOrUpdatedItems: [ScamInfo]
@@ -110,6 +114,20 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     }
 
     private func sync(remote: [ScamInfo], local: [ScamInfo]) {
+        guard let syncChanges = Self.syncChanges(remote: remote, local: local) else {
+            complete(result: .failure(ScamSyncError.emptyList))
+            return
+        }
+
+        handle(syncChanges: syncChanges)
+    }
+
+    /// An empty or unreadable download keeps the stored flags: deleting them would silence every warning.
+    static func syncChanges(remote: [ScamInfo], local: [ScamInfo]) -> SyncChanges? {
+        guard !remote.isEmpty else {
+            return nil
+        }
+
         let remoteMapping = remote.reduce(into: [String: ScamInfo]()) { mapping, item in
             mapping[item.address] = item
         }
@@ -130,8 +148,7 @@ final class ScamSyncService: ScamSyncServiceProtocol {
             remoteMapping[localItem.address] == nil ? localItem : nil
         }
 
-        let syncChanges = SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
-        handle(syncChanges: syncChanges)
+        return SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
     }
 
     private func handle(syncChanges: SyncChanges) {
@@ -159,11 +176,11 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     static func scamInfos(fromCsv csv: String) -> [ScamInfo] {
         var scamInfos: Set<ScamInfo> = []
 
-        var rows = csv.components(separatedBy: "\n")
+        var rows = csv.components(separatedBy: .newlines)
         rows.removeFirst()
 
         rows.forEach { row in
-            let columns = csvFields(of: row.trimmingCharacters(in: CharacterSet(charactersIn: "\r")))
+            let columns = csvFields(of: row)
 
             guard
                 let name = columns[safe: 0],

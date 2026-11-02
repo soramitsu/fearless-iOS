@@ -741,7 +741,7 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "roles.common" = "Roller";
 "same.address.transfer.warning.message" = "Aynı hesaba transfer yapmaya çalışıyorsunuz. Operasyon ücretli olacak ve hiçbir anlam ifade etmiyor";
 "scam.additional.stub" = "Ek olarak:";
-"scam.description.donation.stub" = "Bu adres şüpheli olarak işaretlendi. Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
+"scam.description.donation.stub" = "Bu adres bir hayır kurumunun bağış adresi olarak işaretlenmiştir. %s göndermeden önce bağış yapmak istediğinizden emin olun.";
 "scam.description.exchange.stub" = "Bu adres bir borsa olarak işaretlenmiştir, para yatırma ve çekme adresleri farklı olabileceğinden dikkatli olun.";
 "scam.description.highrisk.stub" = "Bu adres yüksek riskli bir kuruluş olarak işaretlendi. Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
 "scam.description.lowscore.text" = "Transfer yapmak üzere olduğunuz adresin zincir üstü etkinliği düşük; bu, olası bir dolandırıcıya veya sybil saldırganına işaret edebilir.";

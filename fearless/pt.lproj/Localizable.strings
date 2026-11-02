@@ -748,7 +748,7 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "roles.common" = "Funções";
 "same.address.transfer.warning.message" = "Você está tentando fazer uma transferência para a mesma conta. A operação cobrará uma taxa e não faz sentido nenhum";
 "scam.additional.stub" = "Adicional:";
-"scam.description.donation.stub" = "Este endereço foi sinalizado como suspeito. Recomendamos fortemente que você não envie %s para esta conta.";
+"scam.description.donation.stub" = "Este endereço está marcado como endereço de doação de uma instituição de caridade. Confirme que você deseja doar antes de enviar %s.";
 "scam.description.exchange.stub" = "Este endereço está marcado como uma corretora, tome cuidado pois os endereços de depósito e saque podem ser diferentes.";
 "scam.description.highrisk.stub" = "Este endereço foi sinalizado como uma organização de alto risco. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.lowscore.text" = "O endereço para o qual você está prestes a transferir tem pouca atividade on-chain, o que pode indicar um possível fraudador ou atacante sybil.";
