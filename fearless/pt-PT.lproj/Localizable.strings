@@ -697,14 +697,16 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "roles.common" = "Funções";
 "same.address.transfer.warning.message" = "Você está tentando fazer uma transferência para a mesma conta. A operação cobrará uma taxa e não faz sentido nenhum";
 "scam.additional.stub" = "Adicional:";
-"scam.description.donation.stub" = "Este endereço foi sinalizado como suspeito. Recomendamos fortemente que você não envie %s para esta conta.";
+"scam.description.donation.stub" = "Este endereço está marcado como endereço de doação de uma instituição de caridade. Confirme que você deseja doar antes de enviar %s.";
 "scam.description.exchange.stub" = "Este endereço está marcado como uma corretora, tome cuidado pois os endereços de depósito e saque podem ser diferentes.";
+"scam.description.highrisk.stub" = "Este endereço foi sinalizado como uma organização de alto risco. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.sanctions.stub" = "Este endereço foi sinalizado devido a uma entidade relacionada a um país sob sanções. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.scam.stub" = "Este endereço foi sinalizado devido a evidências de fraude. Recomendamos fortemente que você não envie %s para esta conta.";
+"scam.description.service.stub" = "Este endereço está marcado como um serviço financeiro, tome cuidado pois os endereços de depósito e saque podem ser diferentes.";
+"scam.description.theft.stub" = "Este endereço foi sinalizado devido a evidências de roubo. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.name.stub" = "Nome:";
 "scam.reason.stub" = "Motivo:";
 "scam.warning.alert.subtitle" = "Recomendamos fortemente que você não envie %s para esta conta.";
-"scam.warning.alert.title" = "Este endereço foi sinalizado devido a uma entidade relacionada a um país sob sanções. Recomendamos fortemente que você não envie %@ para esta conta.";
 "scan.qr.subtitle" = "Leia o código do destinatário.";
 "scan.qr.title" = "Ler QR";
 "scan.qr.upload.button.title" = "Carregar da galeria";
@@ -1181,7 +1183,7 @@ pertence à rede certa";
 "common.activation.required" = "Activation Required";
 "error.scan.qr.disabled.asset" = "The asset you want to transfer is either unsupported or turned off. Go to Asset Management, activate the asset, and then scan the QR code again.";
 "account.stats.wallet.option.title" = "Show wallet score";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"scam.description.lowscore.text" = "O endereço para o qual você está prestes a transferir tem pouca atividade on-chain, o que pode indicar um possível fraudador ou atacante sybil.";
 "account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
 "profile.account.score.title" = "Nomis multichain score";
 "scam.info.nomis.name" = "Nomis multi-chain score";
@@ -1457,3 +1459,34 @@ pertence à rede certa";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Abertura da conta do destinatário";
 "solana.transfer.account_creation.included" = "Incluído na taxa de rede";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "O Fearless não consegue ler o registo das transferências entre cadeias recentes, por isso não consegue saber se esta já foi enviada. Nada foi enviado. Verifique o histórico da conta de origem. Poderá voltar a fazer transferências entre cadeias 24 horas depois de o registo ter ficado ilegível.";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "Não disponível nesta versão do Fearless.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Mova os fundos dos endereços antigos";
+"universal.password.notice.message" = "Estes endereços não usam a palavra-passe da sua carteira, por isso as palavras de recuperação bastam para os abrir. Envie os fundos para os novos endereços protegidos pela palavra-passe e depois toque em Mudar.";
+"universal.password.notice.row" = "%@\nAntigo: %@\nNovo: %@";
+"universal.password.notice.switch" = "Mudar";
+"universal.password.notice.later" = "Mais tarde";
+"universal.password.notice.copy" = "Copiar novo endereço %@";
+"universal.password.switch.switched" = "%@: mudou para o novo endereço.";
+"universal.password.switch.funded" = "%@: ainda tem fundos. Mova-os primeiro para o novo endereço.";
+"universal.password.switch.unchecked" = "%@: não foi possível verificar. Tente mais tarde.";
+"universal.password.chain.action" = "Usar endereço protegido pela palavra-passe";
+"universal.password.arrival.title" = "Chegaram fundos ao seu endereço antigo";
+"universal.password.arrival.message" = "Chegaram fundos a endereços que as palavras de recuperação abrem sozinhas. Esta carteira continua a mostrar os endereços protegidos pela palavra-passe. Para mover estes fundos, importe as palavras de recuperação sem a palavra-passe como outra carteira.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Chegaram fundos a outro endereço";
+"universal.password.arrival.protected.message" = "Chegaram fundos a endereços desta carteira protegidos pela palavra-passe. A carteira continua a mostrar os endereços que as palavras de recuperação abrem sozinhas enquanto tiverem fundos ou não puderem ser verificados, e muda assim que ficarem vazios. Envie os fundos deles para o endereço protegido pela palavra-passe para mudar.";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Escolha seu endereço";
+"substrate.password.choice.message" = "Versões anteriores da extensão de navegador do Fearless criavam outro endereço a partir desta senha. Escolha aquele que guarda seus fundos.";
+"substrate.password.choice.nfkd" = "Todos os apps Fearless";
+"substrate.password.choice.nfc" = "Extensão de navegador anterior";
+"substrate.password.choice.asTyped" = "Extensão de navegador 3.0, como digitado";

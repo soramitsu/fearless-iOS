@@ -738,14 +738,16 @@
 "roles.common" = "役割";
 "same.address.transfer.warning.message" = "同じ口座に送信しようとしています。操作には手数料が掛かるので、無駄になりませんか";
 "scam.additional.stub" = "追加：";
-"scam.description.donation.stub" = "このアドレスは、疑わしいアドレスだと喚起されています。このアカウントに %s を送信しないことを強くお勧めします";
-"scam.description.exchange.stub" = "このアドレスは取引所としてマークされていますが、入金アドレスと出金アドレスが異なる場合があるので注意してください";
-"scam.description.sanctions.stub" = "このアドレスは、制裁下にある国に関連するエンティティだと喚起されています。このアカウントに %s を送信しないことを強くお勧めします";
-"scam.description.scam.stub" = "このアドレスは、詐欺の証拠があると喚起されています。このアカウントに %s を送信しないことを強くお勧めします";
+"scam.description.donation.stub" = "このアドレスは慈善団体の寄付用アドレスとしてマークされています。%s を送信する前に、寄付するつもりであることを確認してください。";
+"scam.description.exchange.stub" = "このアドレスは取引所としてマークされています。入金アドレスと出金アドレスが異なる場合があるので注意してください。";
+"scam.description.highrisk.stub" = "このアドレスは高リスクの組織としてフラグが付けられています。このアカウントに %s を送信しないことを強くお勧めします。";
+"scam.description.sanctions.stub" = "このアドレスは制裁対象国と関係のある組織に関連しているため、フラグが付けられています。このアカウントに %s を送信しないことを強くお勧めします。";
+"scam.description.scam.stub" = "このアドレスは詐欺の証拠があるため、フラグが付けられています。このアカウントに %s を送信しないことを強くお勧めします。";
+"scam.description.service.stub" = "このアドレスは金融サービスとしてマークされています。入金アドレスと出金アドレスが異なる場合があるので注意してください。";
+"scam.description.theft.stub" = "このアドレスは盗難の証拠があるため、フラグが付けられています。このアカウントに %s を送信しないことを強くお勧めします。";
 "scam.name.stub" = "名前：";
 "scam.reason.stub" = "理由：";
-"scam.warning.alert.subtitle" = "このアカウントに %s を送信しないことを強くお勧めします";
-"scam.warning.alert.title" = "このアドレスは、制裁下にある国に関連するエンティティだと喚起されています。このアカウントに %@ を送信しないことを強くお勧めします";
+"scam.warning.alert.subtitle" = "このアカウントに %s を送信しないことを強くお勧めします。";
 "scan.qr.subtitle" = "受信者からQRコードをスキャン";
 "scan.qr.title" = "QRコード";
 "scan.qr.upload.button.title" = "写真からアップロード";
@@ -1216,7 +1218,7 @@
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
 "account.stats.wallet.option.title" = "Show wallet score";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"scam.description.lowscore.text" = "送金先のアドレスはオンチェーンでの活動が少ないため、詐欺師またはシビル攻撃者である可能性があります。";
 "account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
 "profile.account.score.title" = "Nomis multichain score";
 "scam.info.nomis.name" = "Nomis multi-chain score";
@@ -1517,3 +1519,34 @@
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "受取人アカウントの開設";
 "solana.transfer.account_creation.included" = "ネットワーク手数料に含まれます";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless は最近のクロスチェーン送金の記録を読み取れないため、この送金がすでに送信されたかどうかを確認できません。何も送信されていません。送金元アカウントの履歴を確認してください。新しいクロスチェーン送金は、記録が読み取れなくなってから 24 時間後に再び行えます。";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "このバージョンの Fearless では利用できません。";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "古いアドレスから資金を移動";
+"universal.password.notice.message" = "これらのアドレスはウォレットのパスワードを使っていないため、リカバリーフレーズだけで開けます。資金をパスワードで保護された新しいアドレスに送ってから、［切り替え］をタップしてください。";
+"universal.password.notice.row" = "%@\n旧: %@\n新: %@";
+"universal.password.notice.switch" = "切り替え";
+"universal.password.notice.later" = "後で";
+"universal.password.notice.copy" = "新しい%@アドレスをコピー";
+"universal.password.switch.switched" = "%@: 新しいアドレスに切り替えました。";
+"universal.password.switch.funded" = "%@: まだ資金があります。先に新しいアドレスへ移動してください。";
+"universal.password.switch.unchecked" = "%@: 確認できませんでした。後でもう一度お試しください。";
+"universal.password.chain.action" = "パスワードで保護されたアドレスに切り替え";
+"universal.password.arrival.title" = "古いアドレスに資金が届きました";
+"universal.password.arrival.message" = "リカバリーフレーズだけで開けるアドレスに資金が届きました。このウォレットはパスワードで保護されたアドレスを表示し続けます。この資金を移動するには、パスワードなしでリカバリーフレーズを別のウォレットとしてインポートしてください。";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@（%@）";
+"universal.password.arrival.protected.title" = "別のアドレスに資金が届きました";
+"universal.password.arrival.protected.message" = "このウォレットのパスワードで保護されたアドレスに資金が届きました。リカバリーフレーズだけで開けるアドレスに資金がある間、または確認できない間は、ウォレットはそちらを表示し続け、空になると切り替わります。切り替えるには、その資金をパスワードで保護されたアドレスに送ってください。";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "アドレスを選択";
+"substrate.password.choice.message" = "以前のFearlessブラウザ拡張機能は、このパスワードから別のアドレスを作成していました。資金があるほうを選んでください。";
+"substrate.password.choice.nfkd" = "すべてのFearlessアプリ";
+"substrate.password.choice.nfc" = "以前のブラウザ拡張機能";
+"substrate.password.choice.asTyped" = "ブラウザ拡張機能 3.0（入力どおり）";

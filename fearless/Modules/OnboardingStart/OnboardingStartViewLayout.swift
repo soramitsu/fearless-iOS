@@ -67,14 +67,14 @@ final class OnboardingStartViewLayout: UIView {
 
         addSubview(stackView)
         stackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(35)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(35)
             make.centerY.equalToSuperview().offset(-(UIConstants.bigOffset + UIConstants.actionHeight))
         }
 
         addSubview(startButton)
         startButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
     }

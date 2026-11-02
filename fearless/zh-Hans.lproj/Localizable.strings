@@ -743,17 +743,19 @@
 "roles.common" = "角色";
 "same.address.transfer.warning.message" = "您正在尝试向同一账户进行转账。此操作将收取费用且没有任何意义。";
 "scam.additional.stub" = "附加：";
-"scam.description.donation.stub" = "此地址已被标记为可疑。我们强烈建议您不要向该账户发送%s。";
+"scam.description.donation.stub" = "此地址被标记为慈善机构的捐款地址。发送%s前，请确认您确实要捐款。";
 "scam.description.exchange.stub" = "这个地址被标记为交易所，请注意存款和提款地址可能不同。";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
-"scam.description.sanctions.stub" = "由于与受制裁国家相关的实体,此地址已被标记。我们强烈建议您不要向此账户发送%s。";
-"scam.description.scam.stub" = "此地址已被标记存在诈骗嫌疑。我们强烈建议您不要将{asset}发送到此账户。";
+"scam.description.highrisk.stub" = "此地址已被标记为高风险组织。我们强烈建议您不要将%s发送到此账户。";
+"scam.description.lowscore.text" = "您即将转账的地址链上活动较少，这可能表明对方是潜在的诈骗者或女巫攻击者。";
+"scam.description.sanctions.stub" = "由于与受制裁国家相关的实体，此地址已被标记。我们强烈建议您不要向此账户发送%s。";
+"scam.description.scam.stub" = "此地址已被标记存在诈骗嫌疑。我们强烈建议您不要将%s发送到此账户。";
+"scam.description.service.stub" = "这个地址被标记为金融服务，请注意存款和提款地址可能不同。";
+"scam.description.theft.stub" = "由于存在盗窃证据，此地址已被标记。我们强烈建议您不要将%s发送到此账户。";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "姓名：";
 "scam.reason.stub" = "原因：";
 "scam.warning.alert.subtitle" = "我们强烈建议您不要向此账户发送%s。";
-"scam.warning.alert.title" = "由于与受制裁国家相关的实体，此地址已被标记。我们强烈建议您不要向此账户发送%@。";
 "scan.qr.subtitle" = "从接收方扫描代码";
 "scan.qr.title" = "二维码";
 "scan.qr.upload.button.title" = "从相册上传";
@@ -1495,3 +1497,34 @@
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "收款人账户开设";
 "solana.transfer.account_creation.included" = "已包含在网络手续费中";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless 无法读取最近跨链转账的记录，因此无法确定此转账是否已发送。未发送任何内容。请查看来源账户的历史记录。记录无法读取 24 小时后，即可再次进行新的跨链转账。";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "此版本的 Fearless 中不可用。";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "从旧地址转出资金";
+"universal.password.notice.message" = "这些地址没有使用您的钱包密码，仅凭助记词即可打开。请将资金发送到受密码保护的新地址，然后点击“切换”。";
+"universal.password.notice.row" = "%@\n旧：%@\n新：%@";
+"universal.password.notice.switch" = "切换";
+"universal.password.notice.later" = "稍后";
+"universal.password.notice.copy" = "复制新的 %@ 地址";
+"universal.password.switch.switched" = "%@：已切换到新地址。";
+"universal.password.switch.funded" = "%@：仍有资金。请先转到新地址。";
+"universal.password.switch.unchecked" = "%@：无法检查。请稍后再试。";
+"universal.password.chain.action" = "切换到受密码保护的地址";
+"universal.password.arrival.title" = "资金已到达您的旧地址";
+"universal.password.arrival.message" = "资金已到达仅凭助记词即可打开的地址。此钱包仍显示受密码保护的地址。要转移这些资金，请不使用密码将助记词导入为另一个钱包。";
+"universal.password.arrival.row" = "%@：%@";
+"universal.password.arrival.row.balance" = "%@：%@（%@）";
+"universal.password.arrival.protected.title" = "资金已到达另一个地址";
+"universal.password.arrival.protected.message" = "资金已到达此钱包受密码保护的地址。只要仅凭助记词即可打开的地址中仍有资金或无法检查，钱包就会继续显示这些地址，一旦它们为空就会切换。如需切换，请将其中的资金发送到受密码保护的地址。";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "选择您的地址";
+"substrate.password.choice.message" = "早期版本的 Fearless 浏览器扩展用此密码生成了另一个地址。请选择存有您资金的那个地址。";
+"substrate.password.choice.nfkd" = "所有 Fearless 应用";
+"substrate.password.choice.nfc" = "早期浏览器扩展";
+"substrate.password.choice.asTyped" = "浏览器扩展 3.0（按输入原样）";

@@ -4,7 +4,6 @@ import SSFModels
 
 enum StakingRebondConfirmationFlow {
     case relaychain(variant: SelectedRebondVariant)
-    case parachain(delegation: ParachainStakingDelegationInfo, request: ParachainStakingScheduledRequest)
 }
 
 protocol StakingRebondConfirmationModelStateListener: AnyObject {

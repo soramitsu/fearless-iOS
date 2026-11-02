@@ -741,14 +741,16 @@ Terms and Conditions and Privacy Policy";
 "roles.common" = "Roles";
 "same.address.transfer.warning.message" = "You're trying to make a transfer to the same account. The operation will charge a fee and doesn't make any sense";
 "scam.additional.stub" = "Additional:";
-"scam.description.donation.stub" = "This address has been flagged as suspicious. We strongly recommend that you don't send %s to this account.";
-"scam.description.exchange.stub" = "This address is marked as an exchange, be careful as the deposit and withdrawal addresses may different.";
+"scam.description.donation.stub" = "This address is marked as a charity's donation address. Make sure you mean to donate before you send %s.";
+"scam.description.exchange.stub" = "This address is marked as an exchange, be careful as the deposit and withdrawal addresses may be different.";
+"scam.description.highrisk.stub" = "This address has been flagged as a high-risk organization. We strongly recommend that you don't send %s to this account.";
 "scam.description.sanctions.stub" = "This address has been flagged due to an entity related to a country under sanctions. We strongly recommend that you don't send %s to this account.";
-"scam.description.scam.stub" = "This address has been flagged due to evidence of a scam. We strongly recommend that you don't send {asset} to this account.";
+"scam.description.scam.stub" = "This address has been flagged due to evidence of a scam. We strongly recommend that you don't send %s to this account.";
+"scam.description.service.stub" = "This address is marked as a financial service, be careful as the deposit and withdrawal addresses may be different.";
+"scam.description.theft.stub" = "This address has been flagged due to evidence of theft. We strongly recommend that you don't send %s to this account.";
 "scam.name.stub" = "Name:";
 "scam.reason.stub" = "Reason:";
 "scam.warning.alert.subtitle" = "We strongly recommend that you don't send %s to this account.";
-"scam.warning.alert.title" = "This address has been flagged due to an entity related to a country under sanctions. We strongly recommend that you don't send %@ to this account.";
 "scan.qr.subtitle" = "Scan code from receiver";
 "scan.qr.title" = "QR Code";
 "scan.qr.upload.button.title" = "Upload from gallery";
@@ -1227,7 +1229,7 @@ belongs to the right network";
 "your.validators.validator.total.stake" = "Total staked: %@";
 "сurrencies.stub.text" = "Currencies";
 "account.stats.wallet.option.title" = "Show wallet score";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker.";
 "account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
 "profile.account.score.title" = "Nomis multichain score";
 "scam.info.nomis.name" = "Nomis multi-chain score";
@@ -1530,3 +1532,34 @@ belongs to the right network";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Recipient account setup";
 "solana.transfer.account_creation.included" = "Included in the network fee";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless cannot read its record of recent cross-chain transfers, so it cannot tell whether this one was already sent. Nothing was sent. Check the origin account's history. New cross-chain transfers are possible again 24 hours after the record became unreadable.";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "Not available in this version of Fearless.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Move funds from old addresses";
+"universal.password.notice.message" = "These addresses don't use your wallet password, so your recovery words alone open them. Send their funds to the new password-protected addresses, then tap Switch.";
+"universal.password.notice.row" = "%@\nOld: %@\nNew: %@";
+"universal.password.notice.switch" = "Switch";
+"universal.password.notice.later" = "Later";
+"universal.password.notice.copy" = "Copy new %@ address";
+"universal.password.switch.switched" = "%@: switched to the new address.";
+"universal.password.switch.funded" = "%@: still holds funds. Move them to the new address first.";
+"universal.password.switch.unchecked" = "%@: couldn't check. Try again later.";
+"universal.password.chain.action" = "Switch to password-protected address";
+"universal.password.arrival.title" = "Funds arrived at your old address";
+"universal.password.arrival.message" = "Funds reached addresses your recovery words alone open. This wallet keeps showing its password-protected addresses. To move these funds, import the recovery words without the password as another wallet.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Funds arrived at another address";
+"universal.password.arrival.protected.message" = "Funds reached this wallet's password-protected addresses. The wallet keeps showing the addresses your recovery words alone open while they hold funds or can't be checked, and switches once they are empty. Send their funds to the password-protected address to switch.";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Choose your address";
+"substrate.password.choice.message" = "Earlier versions of the Fearless browser extension made a different address from this password. Choose the one that holds your funds.";
+"substrate.password.choice.nfkd" = "All Fearless apps";
+"substrate.password.choice.nfc" = "Earlier browser extension";
+"substrate.password.choice.asTyped" = "Browser extension 3.0, as typed";

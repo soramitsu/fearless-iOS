@@ -81,7 +81,7 @@ class RootViewLayout: UIView {
             make.top.equalTo(fearlessLogoImageView.snp.bottom).offset(32)
             make.leading.greaterThanOrEqualToSuperview().offset(32)
             make.trailing.lessThanOrEqualToSuperview().inset(32)
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
     }
 

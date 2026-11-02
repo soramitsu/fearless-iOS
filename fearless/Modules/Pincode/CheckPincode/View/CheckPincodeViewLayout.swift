@@ -79,17 +79,18 @@ private extension CheckPincodeViewLayout {
         navigationBar.setCenterViews([navigationTitleLabel])
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         pinView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
             make.centerY.equalToSuperview().offset(Layout.pinViewCenterVerticalOffset)
             make.top.equalTo(titleLabel.snp.bottom).offset(Layout.titleLabelOffset)
         }
 
         titleLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
     }
 

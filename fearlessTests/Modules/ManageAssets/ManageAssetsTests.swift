@@ -779,6 +779,23 @@ final class ManageAssetsTests: XCTestCase {
         do { _ = try await interactor.refreshAccountInfos(for: assets, wallet: wallet); XCTFail("All failed scans must report their failure") } catch { XCTAssertTrue(error is ManageTestFailure) }
     }
 
+    func testRefreshKeepsWhatANetworkReadWhenOneOfItsAssetsCouldNotBeRead() async throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let chain = try XCTUnwrap(try SendNetworkFixture.assets().map(\.chain).first { $0.isEthereum && !$0.disabled && $0.chainAssets.count > 1 })
+        let read = chain.chainAssets[0], unread = chain.chainAssets[1]
+        let account = try XCTUnwrap(wallet.fetch(for: chain.accountRequest()))
+        let remote = ManageRemoteStub()
+        remote.unreadChainAssetIds = [unread.chainAssetId]
+        let interactor = AssetManagementInteractor(chainAssetFetching: ManageAssetsFetcherStub(), accountInfoFetchingProvider: ManageCacheStub(), eventCenter: ManageEventStub(), accountInfoRemoteService: remote)
+        // The only network refreshed read one balance: it is kept, the other is left out, and nothing is thrown.
+        let result = try await interactor.refreshAccountInfos(for: [read, unread], wallet: wallet)
+        XCTAssertEqual(Array(result.keys), [read.uniqueKey(accountId: account.accountId)])
+        XCTAssertNotNil(result[read.uniqueKey(accountId: account.accountId)] ?? nil)
+        XCTAssertTrue(NetworkScanStateStore.state(for: chain, walletId: wallet.metaId).hasError)
+        remote.unreadChainAssetIds = Set(chain.chainAssets.map(\.chainAssetId))
+        do { _ = try await interactor.refreshAccountInfos(for: [read, unread], wallet: wallet); XCTFail("A network that read nothing has failed") } catch { XCTAssertTrue(error is IncompleteAccountInfosError) }
+    }
+
     func testWalletChangeDuringRemoteScanRejectsItsResult() async throws {
         let wallet = AccountGenerator.generateMetaAccount()
         let asset = try XCTUnwrap(try SendNetworkFixture.assets().first)
@@ -872,12 +889,15 @@ private enum ManageTestFailure: Error { case unavailable }
 private final class ManageRemoteStub: AccountInfoRemoteService {
     var requests: [AssetKey] = []
     var failingChainIds = Set<String>()
+    var unreadChainAssetIds = Set<ChainAssetId>()
     var onScan: ((ChainModel) -> Void)?
     func fetchAccountInfos(for chain: ChainModel, wallet: MetaAccountModel) async throws -> [ChainAssetId: AccountInfo?] {
         onScan?(chain)
         if failingChainIds.contains(chain.chainId) { throw ManageTestFailure.unavailable }
         var result: [ChainAssetId: AccountInfo?] = [:]
-        for asset in chain.chainAssets { result[asset.chainAssetId] = .some(try await fetchAccountInfo(for: asset, wallet: wallet)) }
+        for asset in chain.chainAssets where !unreadChainAssetIds.contains(asset.chainAssetId) { result[asset.chainAssetId] = .some(try await fetchAccountInfo(for: asset, wallet: wallet)) }
+        let unread = Set(chain.chainAssets.map(\.chainAssetId)).intersection(unreadChainAssetIds)
+        if !unread.isEmpty { throw IncompleteAccountInfosError(accountInfos: result, unreadChainAssetIds: unread) }
         return result
     }
 

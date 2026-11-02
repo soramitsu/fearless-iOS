@@ -105,34 +105,6 @@ struct AnalyticsRewardsViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .parachain:
-            let viewModelState = AnalyticsRewardsParachainViewModelState(
-                chainAsset: chainAsset,
-                wallet: wallet
-            )
-
-            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-            let strategy = AnalyticsRewardsParachainStrategy(
-                operationManager: operationManager,
-                logger: Logger.shared,
-                chainAsset: chainAsset,
-                wallet: wallet,
-                output: viewModelState,
-                rewardOperationFactory: rewardOperationFactory
-            )
-
-            let viewModelFactory = AnalyticsRewardsParachainViewModelFactory(
-                assetInfo: chainAsset.asset.displayInfo,
-                balanceViewModelFactory: balanceViewModelFactory,
-                calendar: Calendar(identifier: .gregorian)
-            )
-
-            return AnalyticsRewardsDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
         }
     }
 }

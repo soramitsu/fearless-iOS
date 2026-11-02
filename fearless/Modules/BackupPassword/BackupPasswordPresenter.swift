@@ -76,7 +76,7 @@ final class BackupPasswordPresenter {
                 source = .keystore(data: seedData)
             }
 
-            guard let source = source else {
+            guard var source = source else {
                 throw ConvenienceError(error: "Can't create MetaAccountImportRequestSource")
             }
 
@@ -87,6 +87,13 @@ final class BackupPasswordPresenter {
                 cryptoType = fromUInt8ValueCryptoType
             } else {
                 throw ConvenienceError(error: "Wrong crypto type in google backup")
+            }
+
+            if case var .mnemonic(data) = source {
+                data.substratePasswordRule = restoringSubstratePasswordRule(
+                    data, address: backup.address, cryptoType: cryptoType
+                )
+                source = .mnemonic(data: data)
             }
 
             let request = MetaAccountImportRequest(
@@ -100,6 +107,26 @@ final class BackupPasswordPresenter {
             logger.customError(error)
             showCommonError()
         }
+    }
+
+    /// A wallet imported with an earlier browser extension's account restores that account: the rule
+    /// (SubstratePasswordRule) whose account the backup is filed under, otherwise the current one.
+    private func restoringSubstratePasswordRule(
+        _ data: MetaAccountImportRequestSource.MnemonicImportRequestData,
+        address: String?,
+        cryptoType: CryptoType
+    ) -> SubstratePasswordRule {
+        guard let address,
+              SubstratePasswordRule.distinctRules(forSubstrateDerivationPath: data.substrateDerivationPath).count > 1
+        else {
+            return .nfkd
+        }
+        let accounts = try? SubstratePasswordRule.accounts(
+            mnemonic: data.mnemonic,
+            derivationPath: data.substrateDerivationPath,
+            cryptoType: cryptoType
+        )
+        return accounts?.first { $0.address == address }?.rule ?? .nfkd
     }
 
     private func createSeedRequestData(

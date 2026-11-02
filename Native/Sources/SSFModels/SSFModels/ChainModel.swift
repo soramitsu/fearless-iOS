@@ -145,10 +145,6 @@ public final class ChainModel: Codable, Identifiable {
         knownChainEquivalent == .ternoa
     }
 
-    public var isReef: Bool {
-        knownChainEquivalent == .reef || knownChainEquivalent == .scuba
-    }
-
     public var isUtilityFeePayment: Bool {
         options?.contains(where: { $0 == .utilityFeePayment }) == true
     }
@@ -497,22 +493,6 @@ public extension ChainModel {
         }
 
         return URL(string: "https://etherscan.io/tx/\(hash)")
-    }
-
-    func reefscanAddressURL(_ address: String) -> URL? {
-        guard externalApi?.explorers?.contains(where: { $0.type == .reef }) == true else {
-            return nil
-        }
-
-        return URL(string: "https://reefscan.com/account/\(address)")
-    }
-
-    func reefscanTransactionURL(_ hash: String) -> URL? {
-        guard externalApi?.explorers?.contains(where: { $0.type == .reef }) == true else {
-            return nil
-        }
-
-        return URL(string: "https://reefscan.com/extrinsic/\(hash)")
     }
 }
 

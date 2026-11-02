@@ -2,54 +2,42 @@ import Foundation
 
 protocol IrohaToriiClientProtocol {
     func health(baseURL: String?) async throws -> Data
-    func accounts(baseURL: String?, limit: Int?, offset: Int64?, countMode: IrohaToriiCountMode?) async throws -> IrohaAccountListResponse
+    func accounts(baseURL: String?, limit: Int?, cursor: String?) async throws -> IrohaAccountListResponse
     func account(accountID: String, baseURL: String?, network: UniversalWalletRegistry.IrohaNetwork) async throws -> IrohaAccountListItem
     func accountAssets(
         accountID: String,
         baseURL: String?,
         limit: Int?,
-        offset: Int64?,
-        countMode: IrohaToriiCountMode?,
-        asset: String?,
-        scope: String?,
+        cursor: String?,
         network: UniversalWalletRegistry.IrohaNetwork
     ) async throws -> IrohaAccountAssetListResponse
     func accountHistory(
         accountID: String,
         baseURL: String?,
         limit: Int?,
-        offset: Int64?,
-        countMode: IrohaToriiCountMode?,
-        assetID: String?,
+        cursor: String?,
+        filter: String?,
         network: UniversalWalletRegistry.IrohaNetwork
     ) async throws -> IrohaAccountHistoryResponse
     func assetDefinitions(baseURL: String?) async throws -> IrohaAssetDefinitionListResponse
     func assetDefinitions(
         baseURL: String?,
         limit: Int?,
-        offset: Int64?,
-        countMode: IrohaToriiCountMode?
+        cursor: String?
     ) async throws -> IrohaAssetDefinitionListResponse
     func assetDefinition(selector: String, baseURL: String?) async throws -> IrohaAssetDefinitionListItem
     func resolveAssetAlias(_ alias: String, baseURL: String?) async throws -> IrohaAssetAliasResolution
     func submitTransaction(noritoBytes: Data, baseURL: String?) async throws -> IrohaTransactionSubmissionReceipt
     func transactionStatus(hash: String, baseURL: String?, scope: IrohaTransactionStatusScope) async throws -> IrohaPipelineTransactionStatusResponse
-    func mcpCapabilities(network: UniversalWalletRegistry.IrohaNetwork, baseURL: String?) async throws -> Data
-    func mcpJSONRPC(
-        _ request: IrohaMcpJsonRPCRequest,
-        network: UniversalWalletRegistry.IrohaNetwork,
-        baseURL: String?
-    ) async throws -> IrohaMcpJsonRPCResponse
 }
 
 extension IrohaToriiClientProtocol {
     func assetDefinitions(
         baseURL: String?,
         limit _: Int?,
-        offset: Int64?,
-        countMode _: IrohaToriiCountMode?
+        cursor: String?
     ) async throws -> IrohaAssetDefinitionListResponse {
-        guard offset == nil || offset == 0 else {
+        guard cursor == nil else {
             throw ConvenienceError(error: "Iroha asset-definition pagination is unavailable")
         }
 
@@ -60,9 +48,8 @@ extension IrohaToriiClientProtocol {
         accountID _: String,
         baseURL _: String?,
         limit _: Int?,
-        offset _: Int64?,
-        countMode _: IrohaToriiCountMode?,
-        assetID _: String?,
+        cursor _: String?,
+        filter _: String?,
         network _: UniversalWalletRegistry.IrohaNetwork
     ) async throws -> IrohaAccountHistoryResponse {
         throw ConvenienceError(error: "Iroha account history is unavailable")
@@ -108,15 +95,13 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
     func accounts(
         baseURL: String? = nil,
         limit: Int? = nil,
-        offset: Int64? = nil,
-        countMode: IrohaToriiCountMode? = nil
+        cursor: String? = nil
     ) async throws -> IrohaAccountListResponse {
         try await get(
             try IrohaToriiRoutes.accountsURL(
                 baseURL: resolvedBaseURL(baseURL),
                 limit: limit,
-                offset: offset,
-                countMode: countMode
+                cursor: cursor
             )
         )
     }
@@ -138,10 +123,7 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
         accountID: String,
         baseURL: String? = nil,
         limit: Int? = nil,
-        offset: Int64? = nil,
-        countMode: IrohaToriiCountMode? = nil,
-        asset: String? = nil,
-        scope: String? = nil,
+        cursor: String? = nil,
         network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira
     ) async throws -> IrohaAccountAssetListResponse {
         try await get(
@@ -149,10 +131,7 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
                 accountID: normalizeWalletAccountID(accountID, network: network),
                 baseURL: resolvedBaseURL(baseURL, network: network),
                 limit: limit,
-                offset: offset,
-                countMode: countMode,
-                asset: asset,
-                scope: scope
+                cursor: cursor
             )
         )
     }
@@ -161,9 +140,8 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
         accountID: String,
         baseURL: String? = nil,
         limit: Int? = nil,
-        offset: Int64? = nil,
-        countMode: IrohaToriiCountMode? = nil,
-        assetID: String? = nil,
+        cursor: String? = nil,
+        filter: String? = nil,
         network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira
     ) async throws -> IrohaAccountHistoryResponse {
         try await get(
@@ -171,29 +149,26 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
                 accountID: normalizeWalletAccountID(accountID, network: network),
                 baseURL: resolvedBaseURL(baseURL, network: network),
                 limit: limit,
-                offset: offset,
-                countMode: countMode,
-                assetID: assetID
+                cursor: cursor,
+                filter: filter
             )
         )
     }
 
     func assetDefinitions(baseURL: String? = nil) async throws -> IrohaAssetDefinitionListResponse {
-        try await assetDefinitions(baseURL: baseURL, limit: nil, offset: nil, countMode: nil)
+        try await assetDefinitions(baseURL: baseURL, limit: nil, cursor: nil)
     }
 
     func assetDefinitions(
         baseURL: String? = nil,
         limit: Int? = nil,
-        offset: Int64? = nil,
-        countMode: IrohaToriiCountMode? = nil
+        cursor: String? = nil
     ) async throws -> IrohaAssetDefinitionListResponse {
         try await get(
             try IrohaToriiRoutes.assetDefinitionsURL(
                 baseURL: resolvedBaseURL(baseURL),
                 limit: limit,
-                offset: offset,
-                countMode: countMode
+                cursor: cursor
             )
         )
     }
@@ -261,31 +236,6 @@ final class IrohaToriiClient: IrohaToriiClientProtocol {
                 scope: scope
             )
         )
-    }
-
-    func mcpCapabilities(
-        network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira,
-        baseURL: String? = nil
-    ) async throws -> Data {
-        try await transport.perform(
-            urlRequest(url: try IrohaToriiRoutes.mcpURL(network: network, baseURL: resolvedBaseURL(baseURL, network: network)))
-        )
-    }
-
-    func mcpJSONRPC(
-        _ request: IrohaMcpJsonRPCRequest,
-        network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira,
-        baseURL: String? = nil
-    ) async throws -> IrohaMcpJsonRPCResponse {
-        var urlRequest = urlRequest(
-            url: try IrohaToriiRoutes.mcpURL(network: network, baseURL: resolvedBaseURL(baseURL, network: network)),
-            method: "POST"
-        )
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
-        urlRequest.httpBody = try encoder.encode(request)
-
-        return try decode(try await transport.perform(urlRequest))
     }
 
     private func get<T: Decodable>(_ url: URL) async throws -> T {

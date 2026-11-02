@@ -11,7 +11,10 @@ hosts, chain identities, insecure URLs and missing credentials fail closed.
 
 The request uses `Authorization: Bearer <FL_IOS_KAIASCAN_API_KEY>`, which the
 Kaia Foundation's integration guide shows for native OAPI. The key is not put
-in the URL. The iOS Release configuration audit requires this value. The mainnet
+in the URL. The iOS Release configuration audit treats this value as optional
+(since 4.2.0 build 2026.11.1): no release source holds a provisioned key, and
+without one the request is refused with `missingAPIKey`, so Kaia history shows
+as unavailable with Retry and View on explorer. The mainnet
 host is `mainnet-oapi.kaiascan.io`; the Kairos host is
 `kairos-oapi.kaiascan.io`. Native history uses
 `/api/v1/accounts/:accountAddress/transactions`; fungible token history uses

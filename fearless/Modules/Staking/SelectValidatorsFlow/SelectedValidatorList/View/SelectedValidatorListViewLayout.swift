@@ -38,7 +38,7 @@ final class SelectedValidatorListViewLayout: UIView {
         addSubview(proceedButton)
         proceedButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
     }

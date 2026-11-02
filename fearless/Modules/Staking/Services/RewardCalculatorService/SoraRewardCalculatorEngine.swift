@@ -54,7 +54,7 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         period: CalculationPeriod
     ) throws -> Decimal {
         guard let validator = validators.first(where: { $0.accountId == validatorAccountId }) else {
-            throw ReefRewardCalculatorEngineError.validatorNotFound(accountId: validatorAccountId)
+            throw RewardCalculatorEngineError.unexpectedValidator(accountId: validatorAccountId)
         }
 
         let filteredRewardPointsByEra = rewardPointsByEra.sorted(by: { $0.key < $1.key }).prefix(rewardPointsByEra.count - 1)

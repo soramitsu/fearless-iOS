@@ -19,7 +19,8 @@ after confirming the intent and obtaining current signed authorization.
 
 ## Keeping it read-only
 
-`scripts/test-xcm-read-only-boundary.py` runs in CI (`ios-production-source.yml`). On the code of
+Run `python3 Native/scripts/test-xcm-read-only-boundary.py --root Native` from the app root before a release; this
+project does not depend on hosted CI, although `.github/workflows/codecov.yml` runs the same script. On the code of
 `Sources/SSFXCM`, with comments removed, it fails when:
 
 - a name that carries or creates signing material shows up (`secretKeyData`,

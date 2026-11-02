@@ -72,13 +72,14 @@ final class FiltersViewLayout: UIView {
         navigationBar.setRightViews([resetButton])
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         tableView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
-            make.width.equalToSuperview()
-            make.centerX.equalToSuperview()
+            make.width.equalTo(safeAreaLayoutGuide)
+            make.centerX.equalTo(safeAreaLayoutGuide)
             make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
         }
     }
@@ -107,8 +108,8 @@ final class FiltersViewLayout: UIView {
 
         applyButton.snp.makeConstraints { make in
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
-            make.width.equalToSuperview().inset(UIConstants.defaultOffset * 2)
-            make.centerX.equalToSuperview()
+            make.width.equalTo(safeAreaLayoutGuide).inset(UIConstants.defaultOffset * 2)
+            make.centerX.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.actionHeight)
         }
 

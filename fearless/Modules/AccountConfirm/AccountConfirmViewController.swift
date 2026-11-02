@@ -121,8 +121,8 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
             needsTypographyRefresh = false
             refreshAdaptiveTypography()
         }
-        // Match the XIB's root-width-minus-margins constraint before its child layout pass.
-        let width = view.bounds.width - 2 * Constants.externalMargin
+        // Match the XIB's safe-area-width-minus-margins constraint before its child layout pass.
+        let width = view.bounds.inset(by: view.safeAreaInsets).width - 2 * Constants.externalMargin
         guard width > 0 else { return }
         if abs(contentWidth - width) > 0.5 || needsAdaptiveReflow {
             contentWidth = width
@@ -144,7 +144,7 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func configureLayout() {
-        contentWidth = view.bounds.width - 2 * Constants.externalMargin
+        contentWidth = view.bounds.inset(by: view.safeAreaInsets).width - 2 * Constants.externalMargin
     }
 
     private func reflowWordButtons() {

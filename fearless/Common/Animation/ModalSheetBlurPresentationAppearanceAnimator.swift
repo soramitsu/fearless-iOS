@@ -9,9 +9,11 @@ final class ModalSheetBlurPresentationAppearanceAnimator: NSObject {
     static let UIVisualEffectViewFearlessTag = 013_013
 
     private let animator: BlockViewAnimatorProtocol
+    private let layout: (UIView) -> Void
 
-    init(animator: BlockViewAnimatorProtocol) {
+    init(animator: BlockViewAnimatorProtocol, layout: @escaping (UIView) -> Void) {
         self.animator = animator
+        self.layout = layout
 
         super.init()
     }
@@ -31,26 +33,38 @@ extension ModalSheetBlurPresentationAppearanceAnimator: UIViewControllerAnimated
         }
 
         let containerView = transitionContext.containerView
-        let presentationBounds = containerView.bounds
-
-        var beginFrame = presentationBounds
-        beginFrame.origin.y = presentationBounds.maxY
-        toViewController.view.frame = beginFrame
-
-        containerView.insertSubview(toViewController.view, aboveSubview: fromViewController.view)
-        toViewController.view.snp.makeConstraints { make in
-            if (toViewController as? SheetAletViewController)?.scrollableContent == true {
-                make.top.equalTo(containerView.safeAreaLayoutGuide.snp.top)
-            } else {
-                make.top.greaterThanOrEqualTo(containerView.safeAreaLayoutGuide.snp.top)
+        let animationBlock: () -> Void
+        if containerView.traitCollection.userInterfaceIdiom == .pad {
+            containerView.insertSubview(toViewController.view, aboveSubview: fromViewController.view)
+            layout(containerView)
+            containerView.layoutIfNeeded()
+            toViewController.view.transform = CGAffineTransform(translationX: 0, y: containerView.bounds.height)
+            animationBlock = {
+                toViewController.view.transform = .identity
             }
-            make.bottom.equalTo(containerView.snp.bottom)
-            make.width.equalTo(containerView.snp.width)
-        }
-        toViewController.view.layoutIfNeeded()
+        } else {
+            // iPhone keeps its bottom sheet presentation.
+            let presentationBounds = containerView.bounds
 
-        let animationBlock: () -> Void = {
-            toViewController.view.frame = presentationBounds
+            var beginFrame = presentationBounds
+            beginFrame.origin.y = presentationBounds.maxY
+            toViewController.view.frame = beginFrame
+
+            containerView.insertSubview(toViewController.view, aboveSubview: fromViewController.view)
+            toViewController.view.snp.makeConstraints { make in
+                if (toViewController as? SheetAletViewController)?.scrollableContent == true {
+                    make.top.equalTo(containerView.safeAreaLayoutGuide.snp.top)
+                } else {
+                    make.top.greaterThanOrEqualTo(containerView.safeAreaLayoutGuide.snp.top)
+                }
+                make.bottom.equalTo(containerView.snp.bottom)
+                make.width.equalTo(containerView.snp.width)
+            }
+            toViewController.view.layoutIfNeeded()
+
+            animationBlock = {
+                toViewController.view.frame = presentationBounds
+            }
         }
 
         let completionBlock: (Bool) -> Void = { finished in

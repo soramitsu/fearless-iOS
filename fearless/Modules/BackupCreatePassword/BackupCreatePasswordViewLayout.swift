@@ -116,13 +116,14 @@ final class BackupCreatePasswordViewLayout: UIView {
 
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         contentView.stackView.addArrangedSubview(descriptionLabel)
@@ -143,7 +144,7 @@ final class BackupCreatePasswordViewLayout: UIView {
         addSubview(continueButton)
         continueButton.snp.makeConstraints { make in
             make.top.equalTo(contentView.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
             make.height.equalTo(UIConstants.actionHeight)
         }

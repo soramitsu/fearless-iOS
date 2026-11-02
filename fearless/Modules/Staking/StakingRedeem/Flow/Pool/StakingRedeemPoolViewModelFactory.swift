@@ -52,9 +52,7 @@ final class StakingRedeemPoolViewModelFactory: StakingRedeemViewModelFactoryProt
             senderIcon: senderIcon,
             senderName: poolViewModelState.wallet.fetch(for: poolViewModelState.chainAsset.chain.accountRequest())?.name,
             amount: amount,
-            title: title,
-            collatorName: nil,
-            collatorIcon: nil
+            title: title
         )
     }
 

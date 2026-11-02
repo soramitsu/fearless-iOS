@@ -32,22 +32,10 @@ struct ValidatorSearchViewFactory {
             return nil
         }
 
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
-            validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            validatorService: eraValidatorService
         ) else {
             return nil
         }
@@ -85,27 +73,6 @@ struct ValidatorSearchViewFactory {
             let viewModelFactory = ValidatorSearchRelaychainViewModelFactory(
                 iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
-            )
-            return ValidatorSearchDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
-        case let .parachain(validatorList, selectedValidatorList, delegate):
-            let viewModelState = ValidatorSearchParachainViewModelState(
-                fullValidatorList: validatorList,
-                selectedValidatorList: selectedValidatorList,
-                delegate: delegate
-            )
-            let strategy = ValidatorSearchParachainStrategy(
-                validatorOperationFactory: validatorOperationFactory,
-                operationManager: OperationManagerFacade.sharedManager,
-                output: viewModelState
-            )
-            let viewModelFactory = ValidatorSearchParachainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(),
-                balanceViewModelFactory: balanceViewModelFactory,
-                chainAsset: chainAsset
             )
             return ValidatorSearchDependencyContainer(
                 viewModelState: viewModelState,

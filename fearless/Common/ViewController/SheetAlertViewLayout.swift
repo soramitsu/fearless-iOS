@@ -19,6 +19,7 @@ final class SheetAlertViewLayout: UIView {
     var dismissAndHandle: ((@escaping () -> Void) -> Void)?
 
     private let viewModel: SheetAlertPresentableViewModel
+    private var descriptionHeightConstraint: NSLayoutConstraint?
 
     let closeButton: UIButton = {
         let button = UIButton()
@@ -120,6 +121,10 @@ final class SheetAlertViewLayout: UIView {
     }
 
     private func descriptionLabelLayoutSubviews() {
+        if traitCollection.userInterfaceIdiom == .pad {
+            adaptiveDescriptionLabelLayoutSubviews()
+            return
+        }
         guard let descriptionText = descriptionLabel.text else {
             return
         }
@@ -138,6 +143,70 @@ final class SheetAlertViewLayout: UIView {
                 make.height.equalTo(labelFullHeight / 2)
             }
             scrollableView.scrollView.flashScrollIndicators()
+        }
+    }
+
+    /// iPad windows resize while the alert is up: the message scrolls only when the
+    /// window is too short for it, and returns inline when there is room again.
+    private func adaptiveDescriptionLabelLayoutSubviews() {
+        guard let text = descriptionLabel.text, bounds.width > 32, let container = superview else { return }
+        let width = bounds.width - 2 * UIConstants.horizontalInset
+        let naturalHeight = text.height(withConstrainedWidth: width, font: descriptionLabel.font)
+        let safeHeight = container.bounds.inset(by: container.safeAreaInsets).height
+        let margin = AdaptiveLayout.isRegularWidth(traitCollection) ? 2 * AdaptiveLayout.sheetMargin : 0
+        let fixedViews = contentStackView.arrangedSubviews.filter {
+            !$0.isHidden && $0 !== descriptionLabel && $0 !== scrollableView
+        }
+        let fixedHeight = fixedViews.reduce(CGFloat(76 + UIConstants.bigOffset)) { height, view in
+            height + view.systemLayoutSizeFitting(
+                CGSize(width: width, height: 0), withHorizontalFittingPriority: .required,
+                verticalFittingPriority: .fittingSizeLevel
+            ).height + 24
+        }
+        let messageHeight = min(naturalHeight, max(40, safeHeight - margin - fixedHeight))
+        if messageHeight < naturalHeight {
+            scrollableView.isHidden = false
+            if descriptionLabel.superview !== scrollableView.stackView {
+                descriptionLabel.removeFromSuperview()
+                scrollableView.stackView.addArrangedSubview(descriptionLabel)
+            }
+            if let constraint = descriptionHeightConstraint {
+                if abs(constraint.constant - messageHeight) > 0.5 {
+                    constraint.constant = messageHeight
+                }
+            } else {
+                let constraint = scrollableView.heightAnchor.constraint(equalToConstant: messageHeight)
+                constraint.isActive = true
+                descriptionHeightConstraint = constraint
+            }
+        } else if descriptionLabel.superview !== contentStackView {
+            descriptionHeightConstraint?.isActive = false
+            descriptionHeightConstraint = nil
+            descriptionLabel.removeFromSuperview()
+            let index = contentStackView.arrangedSubviews.firstIndex(of: scrollableView) ?? 0
+            contentStackView.insertArrangedSubview(descriptionLabel, at: index)
+            descriptionLabel.snp.makeConstraints { make in make.leading.trailing.equalToSuperview() }
+            contentStackView.setCustomSpacing(24, after: descriptionLabel)
+            scrollableView.isHidden = true
+        }
+    }
+
+    /// An iPad window can be shorter than an alert with many actions: its content
+    /// then scrolls, and keeps its own height when there is room.
+    private func setupScrollingContentStack() {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = false
+        addSubview(scrollView)
+        scrollView.addSubview(contentStackView)
+        scrollView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(76)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            make.height.equalTo(contentStackView).priority(.low)
+        }
+        contentStackView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
         }
     }
 
@@ -207,7 +276,8 @@ final class SheetAlertViewLayout: UIView {
         addSubview(indicator)
         indicator.snp.makeConstraints { make in
             make.size.equalTo(UIConstants.indicatorSize)
-            make.top.equalToSuperview()
+            // A card's handle sits inside its rounded top edge; iPhone sheets are unchanged.
+            make.top.equalToSuperview().offset(UIDevice.current.userInterfaceIdiom == .pad ? 8 : 0)
             make.centerX.equalToSuperview()
         }
 
@@ -250,11 +320,15 @@ final class SheetAlertViewLayout: UIView {
             }
         }
 
-        addSubview(contentStackView)
-        contentStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(76)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            setupScrollingContentStack()
+        } else {
+            addSubview(contentStackView)
+            contentStackView.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(76)
+                make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+                make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            }
         }
 
         contentStackView.addArrangedSubview(imageViewContainer)

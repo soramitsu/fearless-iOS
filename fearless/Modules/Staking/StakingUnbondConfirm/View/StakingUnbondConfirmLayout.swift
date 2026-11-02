@@ -38,19 +38,6 @@ final class StakingUnbondConfirmLayout: UIView {
         return view
     }()
 
-    let collatorView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = R.color.colorWhite()
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        return view
-    }()
-
     let accountView: TitleMultiValueView = {
         let view = TitleMultiValueView()
         view.titleLabel.font = .h5Title
@@ -125,13 +112,6 @@ final class StakingUnbondConfirmLayout: UIView {
 
         accountView.valueBottom.text = confirmationViewModel.senderAddress
 
-        if let collatorName = confirmationViewModel.collatorName {
-            collatorView.isHidden = false
-            collatorView.valueTop.text = collatorName
-        } else {
-            collatorView.isHidden = true
-        }
-
         if let stakedViewModel = confirmationViewModel.stakeAmountViewModel?.value(for: locale) {
             stakeAmountView.bind(viewModel: stakedViewModel)
         }
@@ -172,7 +152,7 @@ final class StakingUnbondConfirmLayout: UIView {
             }
 
             view.snp.makeConstraints { make in
-                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+                make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             }
 
             contentView.stackView.setCustomSpacing(Constants.spacingBetweenHints, after: view)
@@ -181,8 +161,6 @@ final class StakingUnbondConfirmLayout: UIView {
 
     private func applyLocalization() {
         accountView.titleLabel.text = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
-
-        collatorView.titleLabel.text = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
         amountView.titleLabel.text = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
@@ -208,11 +186,12 @@ final class StakingUnbondConfirmLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
@@ -225,7 +204,6 @@ final class StakingUnbondConfirmLayout: UIView {
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
-        infoStackView.addArrangedSubview(collatorView)
         infoStackView.addArrangedSubview(accountView)
         infoStackView.addArrangedSubview(amountView)
         infoStackView.addArrangedSubview(feeView)
@@ -248,7 +226,8 @@ final class StakingUnbondConfirmLayout: UIView {
         addSubview(networkFeeFooterView)
 
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(contentView.snp.bottom)
         }
     }

@@ -23,6 +23,37 @@ extension ModalSheetBlurPresentationDismissAnimator: UIViewControllerAnimatedTra
             return
         }
 
+        guard transitionContext.containerView.traitCollection.userInterfaceIdiom == .pad else {
+            animateBottomSheetDismissal(of: presentedController, using: transitionContext)
+            return
+        }
+
+        let initialFrame = presentedController.view.frame
+        let initialTransform = presentedController.view.transform
+        let distance = transitionContext.containerView.bounds.maxY - initialFrame.minY + finalPositionOffset
+
+        let animationBlock: () -> Void = {
+            presentedController.view.transform = CGAffineTransform(translationX: 0, y: distance)
+        }
+
+        let completionBlock: (Bool) -> Void = { _ in
+            if !transitionContext.transitionWasCancelled {
+                presentedController.view.removeFromSuperview()
+            } else {
+                presentedController.view.transform = initialTransform
+            }
+
+            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+        }
+
+        animator.animate(block: animationBlock, completionBlock: completionBlock)
+    }
+
+    /// iPhone keeps its bottom sheet dismissal.
+    private func animateBottomSheetDismissal(
+        of presentedController: UIViewController,
+        using transitionContext: UIViewControllerContextTransitioning
+    ) {
         let initialFrame = presentedController.view.frame
         var finalFrame = initialFrame
         finalFrame.origin.y = transitionContext.containerView.frame.maxY + finalPositionOffset

@@ -111,6 +111,56 @@ final class EthereumNodeFetchingTests: XCTestCase {
         XCTAssertNil(chain.selectedNode)
     }
 
+    func testAutomaticSelectionFollowsCatalogOrderWithHTTPSNodesFirst() throws {
+        let keyed = try node("https://z-keyed.example/rpc")
+        let publicNode = try node("https://a-public.example/rpc")
+        let socketOnly = try node("wss://socket-only.example/ws")
+        let unlisted = try node("https://b-unlisted.example/rpc")
+        let retired = try node("https://bsc-mainnet.blastapi.io/old")
+        let chain = makeChain(nodes: [publicNode, socketOnly, unlisted, keyed, retired])
+        let catalogOrder = [retired.url, socketOnly.url, keyed.url, publicNode.url]
+
+        XCTAssertEqual(
+            EthereumNodeSelection.automaticURLs(for: chain, catalogOrder: catalogOrder),
+            [keyed.url, publicNode.url, unlisted.url, socketOnly.url]
+        )
+        XCTAssertEqual(try EthereumNodeSelection.url(for: chain, catalogOrder: catalogOrder), keyed.url)
+        // Before the first catalog download, the order is by URL as before.
+        XCTAssertEqual(try EthereumNodeSelection.url(for: chain), publicNode.url)
+    }
+
+    func testWebSocketNodeIsReachedOverItsHostsHTTPSNodeInTheSocketsPlace() throws {
+        // Ethereum in the chain catalog: a WebSocket node first, the same host over HTTPS second.
+        let socket = try node("wss://ethereum.publicnode.com")
+        let https = try node("https://ethereum.publicnode.com")
+        let mew = try node("https://nodes.mewapi.io/rpc/eth")
+
+        XCTAssertEqual(
+            EthereumNodeSelection.automaticURLs(
+                for: makeChain(nodes: [socket, https, mew]),
+                catalogOrder: [socket.url, https.url, mew.url]
+            ),
+            [https.url, mew.url]
+        )
+        XCTAssertEqual(
+            EthereumNodeSelection.automaticURLs(
+                for: makeChain(nodes: [socket, mew, https]),
+                catalogOrder: [socket.url, mew.url, https.url]
+            ),
+            [https.url, mew.url]
+        )
+    }
+
+    func testChosenNodeIsUsedAsEnteredWhateverTheCatalogOrder() throws {
+        let socket = try node("wss://ethereum.publicnode.com")
+        let https = try node("https://ethereum.publicnode.com")
+        let chain = makeChain(nodes: [socket, https], selected: socket)
+
+        XCTAssertEqual(EthereumNodeSelection.chosenURL(for: chain), socket.url)
+        XCTAssertEqual(try EthereumNodeSelection.url(for: chain, catalogOrder: [https.url, socket.url]), socket.url)
+        XCTAssertNil(EthereumNodeSelection.chosenURL(for: makeChain(nodes: [socket, https])))
+    }
+
     private func node(_ value: String) throws -> ChainNodeModel {
         ChainNodeModel(url: try XCTUnwrap(URL(string: value)), name: "Synthetic node", apikey: nil)
     }

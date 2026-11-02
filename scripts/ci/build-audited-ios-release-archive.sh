@@ -10,6 +10,11 @@ readonly LOG_PREFIX="[ios-release-archive]"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
 readonly EXPECTED_VERSION="4.2.0"
 readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"
+# master took the 4.2.0 line as one squash commit (#1305), which drops that
+# ancestry. Its tree is exactly the tree of the pull request head, which
+# descends from the distributed source above (origin refs/pull/1305/head).
+readonly CONSOLIDATED_SOURCE_COMMIT="cbc0b07c85118b2c652b440af2f2cee73458ef8f"
+readonly CONSOLIDATED_SOURCE_HEAD="aad0fc85b42b2f1e22b281d7185803f78de390d5"
 readonly EXPECTED_SIGNING_IDENTITY="Apple Distribution: Soramitsu Co., Ltd. (YLWWUD25VZ)"
 readonly EXPECTED_SIGNING_CERTIFICATE_SHA1="84AB95335BE14CAE9B050A353910F86FF2F9539B"
 readonly EXPECTED_PROFILE_NAME="Fearless App Store 2026.7.26"
@@ -65,10 +70,14 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # 2026.9.6 preserves pre-4.2.0 accounts and native TON/Jetton/TonConnect
 # functionality, adds missing networks without replacing legacy identities,
 # and includes the qualified accessibility and layout fixes.
-# 2026.10.1 is the 4.2.0 safe-upgrade App Store release from
-# release/fearless-safe-upgrade, the first build above the consumed 2026.9.6.
+# 2026.10.29 was never uploaded. 2026.11.1 went to TestFlight from release/4.2.0:
+# the safe-upgrade line plus the network retirement, Asset Hub staking,
+# password-protected universal accounts and native iPad support. 2026.11.2 went
+# to TestFlight with the scam warning naming the asset again and user-facing
+# Transfer tab text. 2026.11.3 is the 4.2.0 App Store release: 2026.11.2 with
+# the confirm screen's recipient warning matching the address's flag.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.10.1"
+readonly EXPECTED_BUILD="2026.11.3"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -86,8 +95,10 @@ Usage:
 
 Preconditions:
   - exact clean git HEAD, including no untracked files, descended from the
-    distributed 4.2.0 (2026.7.28) source commit;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.10.1);
+    distributed 4.2.0 (2026.7.28) source commit, directly or through its
+    squash into master (#1305); a fresh clone gets that pull request's head
+    with `git fetch origin refs/pull/1305/head`;
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.3);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
@@ -161,8 +172,25 @@ git cat-file -e "${source_commit}^{commit}" ||
   fail "derived source provenance is not a commit"
 git cat-file -e "${EXPECTED_BASE_SOURCE_COMMIT}^{commit}" ||
   fail "the exact distributed 4.2.0 (2026.7.28) source commit is unavailable"
-git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit" ||
-  fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
+# BEGIN release source provenance
+# scripts/test-ios-release-archive-signing-contract.sh runs this block against a
+# throwaway history shaped like #1305.
+if ! git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit"; then
+  git cat-file -e "${CONSOLIDATED_SOURCE_COMMIT}^{commit}" &&
+    git cat-file -e "${CONSOLIDATED_SOURCE_HEAD}^{commit}" ||
+    fail "the #1305 consolidation commit or its pull request head is unavailable (git fetch origin refs/pull/1305/head)"
+  git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$CONSOLIDATED_SOURCE_HEAD" ||
+    fail "the #1305 pull request head is not descended from the distributed 4.2.0 (2026.7.28) source"
+  consolidated_tree="$(git rev-parse --verify "${CONSOLIDATED_SOURCE_COMMIT}^{tree}")" ||
+    fail "the #1305 consolidation commit's tree is unavailable"
+  consolidated_head_tree="$(git rev-parse --verify "${CONSOLIDATED_SOURCE_HEAD}^{tree}")" ||
+    fail "the #1305 pull request head's tree is unavailable"
+  [[ "$consolidated_tree" =~ ^[0-9a-f]{40}$ && "$consolidated_tree" == "$consolidated_head_tree" ]] ||
+    fail "the #1305 consolidation commit does not carry its pull request head's exact tree"
+  git merge-base --is-ancestor "$CONSOLIDATED_SOURCE_COMMIT" "$source_commit" ||
+    fail "release source is not descended from the exact distributed 4.2.0 (2026.7.28) source"
+fi
+# END release source provenance
 
 # Generated service configuration is ignored by git; bind its exact reviewed
 # bytes separately so regeneration cannot silently replace production settings.

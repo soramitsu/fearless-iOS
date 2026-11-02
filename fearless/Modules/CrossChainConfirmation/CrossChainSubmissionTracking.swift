@@ -27,8 +27,10 @@ enum ReviewedCrossChainTransferKey {
 /// What the origin chain did with an included submission.
 enum ReviewedCrossChainDispatchOutcome: Equatable {
     case succeeded(blockHash: String)
+    /// The runtime rejected the extrinsic in a block the chain has finalized.
     case failed(blockHash: String)
-    /// No inclusion was observed in time, or the block could not be read: the transfer stays in doubt.
+    /// No inclusion was observed in time, the block could not be read, or a failure was seen only in a block the chain
+    /// had not finalized: the transfer stays in doubt.
     case unknown
 }
 
@@ -47,6 +49,8 @@ enum ReviewedCrossChainDispatchError: LocalizedError, Equatable {
     case submissionInDoubt
     /// The record that guards against sending the same transfer twice could not be stored.
     case journalUnavailable
+    /// The records of recent transfers could not be read, so an earlier attempt of this transfer may be hidden.
+    case journalUnreadable
 
     var errorDescription: String? {
         switch self {
@@ -68,6 +72,14 @@ enum ReviewedCrossChainDispatchError: LocalizedError, Equatable {
                 value: "Fearless could not record this transfer before sending it, so it was not sent.",
                 comment: ""
             )
+        case .journalUnreadable:
+            return NSLocalizedString(
+                "cross_chain.dispatch.journal_unreadable",
+                value: "Fearless cannot read its record of recent cross-chain transfers, so it cannot tell whether "
+                    + "this one was already sent. Nothing was sent. Check the origin account's history. New "
+                    + "cross-chain transfers are possible again 24 hours after the record became unreadable.",
+                comment: ""
+            )
         }
     }
 }
@@ -76,8 +88,16 @@ protocol ReviewedCrossChainDispatchWatching {
     func outcome(subscriptionId: String, extrinsicHash: String) async -> ReviewedCrossChainDispatchOutcome
 }
 
-/// Follows an `author_submitAndWatchExtrinsic` subscription to the block that includes the extrinsic, finds the
-/// extrinsic in that block by hash and reads the block's `System.Events` for its `ExtrinsicSuccess` or `ExtrinsicFailed`.
+/// The block an extrinsic was included in, and whether the chain had finalized that block when it was read.
+struct ReviewedCrossChainInclusion: Equatable {
+    let blockHash: String
+    let isFinalized: Bool
+}
+
+/// Follows an `author_submitAndWatchExtrinsic` subscription until the chain finalizes the block that includes the
+/// extrinsic, finds the extrinsic in that block by hash and reads the block's `System.Events` for its
+/// `ExtrinsicSuccess` or `ExtrinsicFailed`. Without finality in time it reads the latest best block that included it
+/// instead, where only a success counts.
 final class ReviewedCrossChainDispatchWatcher: ReviewedCrossChainDispatchWatching {
     private let connection: JSONRPCEngine
     private let runtime: RuntimeCodingServiceProtocol
@@ -86,7 +106,7 @@ final class ReviewedCrossChainDispatchWatcher: ReviewedCrossChainDispatchWatchin
     init(
         connection: JSONRPCEngine,
         runtime: RuntimeCodingServiceProtocol,
-        timeout: TimeInterval = 45
+        timeout: TimeInterval = 60
     ) {
         self.connection = connection
         self.runtime = runtime
@@ -94,19 +114,34 @@ final class ReviewedCrossChainDispatchWatcher: ReviewedCrossChainDispatchWatchin
     }
 
     func outcome(subscriptionId: String, extrinsicHash: String) async -> ReviewedCrossChainDispatchOutcome {
-        guard let blockHash = await inclusionBlockHash(subscriptionId: subscriptionId) else {
+        guard let inclusion = await inclusion(subscriptionId: subscriptionId) else {
             return .unknown
         }
         do {
-            let block: SignedBlock = try await request(RPCMethod.getChainBlock, params: [blockHash])
+            let block: SignedBlock = try await request(RPCMethod.getChainBlock, params: [inclusion.blockHash])
             guard let index = Self.index(of: extrinsicHash, in: block.block.extrinsics) else {
                 return .unknown
             }
-            let records = try await events(at: blockHash)
-            return Self.outcome(of: records, extrinsicIndex: UInt32(index), blockHash: blockHash)
+            let records = try await events(at: inclusion.blockHash)
+            return Self.settled(
+                Self.outcome(of: records, extrinsicIndex: UInt32(index), blockHash: inclusion.blockHash),
+                isFinalized: inclusion.isFinalized
+            )
         } catch {
             return .unknown
         }
+    }
+
+    /// A failure read from a block the chain has not finalized proves nothing: the block can be retracted and the same
+    /// signed extrinsic included again in another block, where it may succeed. Only a finalized failure is final.
+    static func settled(
+        _ outcome: ReviewedCrossChainDispatchOutcome,
+        isFinalized: Bool
+    ) -> ReviewedCrossChainDispatchOutcome {
+        if case .failed = outcome, !isFinalized {
+            return .unknown
+        }
+        return outcome
     }
 
     static func index(of extrinsicHash: String, in extrinsics: [String]) -> Int? {
@@ -138,10 +173,10 @@ final class ReviewedCrossChainDispatchWatcher: ReviewedCrossChainDispatchWatchin
             .map(to: [EventRecord].self)
     }
 
-    private func inclusionBlockHash(subscriptionId: String) async -> String? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<String?, Never>) in
+    private func inclusion(subscriptionId: String) async -> ReviewedCrossChainInclusion? {
+        await withCheckedContinuation { (continuation: CheckedContinuation<ReviewedCrossChainInclusion?, Never>) in
             let requestId = connection.generateRequestId()
-            let resolution = ReviewedOneShotResolution(continuation) { [connection] in
+            let resolution = ReviewedInclusionResolution(continuation) { [connection] in
                 connection.cancelForIdentifier(requestId)
             }
             let subscription = JSONRPCSubscription<JSONRPCSubscriptionUpdate<ExtrinsicStatus>>(
@@ -150,22 +185,25 @@ final class ReviewedCrossChainDispatchWatcher: ReviewedCrossChainDispatchWatchin
                 requestOptions: JSONRPCOptions(resendOnReconnect: false),
                 updateClosure: { update in
                     switch update.params.result {
-                    case let .inBlock(blockHash), let .finalized(blockHash):
-                        resolution.resolve(blockHash)
+                    case let .inBlock(blockHash):
+                        // A best block can still be retracted; keep waiting for the finalized one.
+                        resolution.include(blockHash)
+                    case let .finalized(blockHash):
+                        resolution.finalize(blockHash)
                     case .ready, .broadcast:
                         break
                     }
                 },
                 failureClosure: { _, unsubscribed in
                     if unsubscribed {
-                        resolution.resolve(nil)
+                        resolution.end()
                     }
                 }
             )
             subscription.remoteId = subscriptionId
             connection.addSubscription(subscription)
             DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
-                resolution.resolve(nil)
+                resolution.end()
             }
         }
     }
@@ -198,19 +236,38 @@ final class ReviewedCrossChainDispatchWatcher: ReviewedCrossChainDispatchWatchin
 
 private struct ReviewedSystemEventsDecoder: StorageDecodable {}
 
-/// Resumes a continuation exactly once, whichever of the subscription, its failure or the timeout comes first. The lock
-/// makes it safe to share across those threads.
-private final class ReviewedOneShotResolution: @unchecked Sendable {
+/// Resumes a continuation exactly once, whichever of finality, the subscription's end or the timeout comes first. The
+/// last two answer with the latest best block that included the extrinsic, if any. The lock makes it safe to share
+/// across those threads.
+private final class ReviewedInclusionResolution: @unchecked Sendable {
     private let lock = NSLock()
-    private var continuation: CheckedContinuation<String?, Never>?
+    private var continuation: CheckedContinuation<ReviewedCrossChainInclusion?, Never>?
+    private var bestBlockHash: String?
     private let onResolve: () -> Void
 
-    init(_ continuation: CheckedContinuation<String?, Never>, onResolve: @escaping () -> Void) {
+    init(_ continuation: CheckedContinuation<ReviewedCrossChainInclusion?, Never>, onResolve: @escaping () -> Void) {
         self.continuation = continuation
         self.onResolve = onResolve
     }
 
-    func resolve(_ value: String?) {
+    func include(_ blockHash: String) {
+        lock.lock()
+        bestBlockHash = blockHash
+        lock.unlock()
+    }
+
+    func finalize(_ blockHash: String) {
+        resolve(ReviewedCrossChainInclusion(blockHash: blockHash, isFinalized: true))
+    }
+
+    func end() {
+        lock.lock()
+        let blockHash = bestBlockHash
+        lock.unlock()
+        resolve(blockHash.map { ReviewedCrossChainInclusion(blockHash: $0, isFinalized: false) })
+    }
+
+    private func resolve(_ value: ReviewedCrossChainInclusion?) {
         lock.lock()
         let pending = continuation
         continuation = nil
@@ -221,8 +278,10 @@ private final class ReviewedOneShotResolution: @unchecked Sendable {
     }
 }
 
-/// A cross-chain transfer the wallet handed to the network without learning that it failed. While one exists, the same
-/// transfer is only sent again after the user confirms, because a second burn cannot be undone.
+/// One attempt at a cross-chain transfer that the wallet handed to the network without learning that it failed. While
+/// one exists, the same transfer is only sent again after the user confirms, because a second burn cannot be undone.
+/// Each attempt keeps its own record: a later attempt that fails never clears an earlier one that may have gone
+/// through.
 struct ReviewedCrossChainSubmissionRecord: Codable, Equatable {
     enum Status: String, Codable {
         /// About to be handed over; written before the extrinsic leaves the app.
@@ -234,6 +293,9 @@ struct ReviewedCrossChainSubmissionRecord: Codable, Equatable {
     }
 
     let transferKey: String
+    /// Tells this attempt apart from earlier attempts of the same transfer, so settling it never removes their records.
+    /// Records written before attempts were kept apart have none and stand for their whole transfer.
+    let attemptId: String?
     let intentSha256: String
     var status: Status
     var extrinsicHash: String?
@@ -241,12 +303,19 @@ struct ReviewedCrossChainSubmissionRecord: Codable, Equatable {
     let summary: String
     let createdAt: Date
     var updatedAt: Date
+
+    var journalKey: String {
+        attemptId.map { "\(transferKey)#\($0)" } ?? transferKey
+    }
 }
 
 protocol ReviewedCrossChainSubmissionJournaling: AnyObject {
-    func unresolved(for transferKey: String, now: Date) -> ReviewedCrossChainSubmissionRecord?
+    /// Every attempt of the transfer whose outcome is still unresolved, newest first. Throws while recent records
+    /// cannot be read, because one of them may be an attempt of this transfer.
+    func unresolved(for transferKey: String, now: Date) throws -> [ReviewedCrossChainSubmissionRecord]
     func save(_ record: ReviewedCrossChainSubmissionRecord) throws
-    func remove(transferKey: String)
+    /// Drops one attempt. Earlier attempts of the same transfer stay and keep asking before it is sent again.
+    func remove(_ record: ReviewedCrossChainSubmissionRecord)
 }
 
 /// `UserDefaults` keeps the records across restarts, so a transfer interrupted by a crash or a kill between hand-over
@@ -260,6 +329,7 @@ final class ReviewedCrossChainSubmissionJournal: ReviewedCrossChainSubmissionJou
 
     private static let key = "cross_chain.submission_journal.v1"
     private static let unreadableKey = "cross_chain.submission_journal.v1.unreadable"
+    private static let unreadableSinceKey = "cross_chain.submission_journal.v1.unreadable_since"
     private static let lock = NSLock()
 
     private let userDefaults: UserDefaults
@@ -270,46 +340,65 @@ final class ReviewedCrossChainSubmissionJournal: ReviewedCrossChainSubmissionJou
         self.logger = logger
     }
 
-    func unresolved(for transferKey: String, now: Date) -> ReviewedCrossChainSubmissionRecord? {
+    func unresolved(for transferKey: String, now: Date) throws -> [ReviewedCrossChainSubmissionRecord] {
         Self.lock.lock()
         defer { Self.lock.unlock() }
 
-        guard let record = loadLocked()[transferKey] else { return nil }
-        return now.timeIntervalSince(record.createdAt) < Self.confirmationWindow ? record : nil
+        return try loadLocked(now: now).values
+            .filter { $0.transferKey == transferKey && now.timeIntervalSince($0.createdAt) < Self.confirmationWindow }
+            .sorted { ($0.createdAt, $0.journalKey) > ($1.createdAt, $1.journalKey) }
     }
 
     func save(_ record: ReviewedCrossChainSubmissionRecord) throws {
         Self.lock.lock()
         defer { Self.lock.unlock() }
 
-        var records = loadLocked().filter {
+        var records = try loadLocked(now: record.updatedAt).filter {
             record.updatedAt.timeIntervalSince($0.value.createdAt) < Self.confirmationWindow
         }
-        records[record.transferKey] = record
+        records[record.journalKey] = record
         try storeLocked(records)
     }
 
-    func remove(transferKey: String) {
+    func remove(_ record: ReviewedCrossChainSubmissionRecord) {
         Self.lock.lock()
         defer { Self.lock.unlock() }
 
-        var records = loadLocked()
-        guard records.removeValue(forKey: transferKey) != nil else { return }
+        guard var records = try? loadLocked(now: record.updatedAt),
+              records.removeValue(forKey: record.journalKey) != nil else { return }
         try? storeLocked(records)
     }
 
-    private func loadLocked() -> [String: ReviewedCrossChainSubmissionRecord] {
+    private func loadLocked(now: Date) throws -> [String: ReviewedCrossChainSubmissionRecord] {
+        try checkUnreadableLocked(now: now)
         guard let data = userDefaults.data(forKey: Self.key) else { return [:] }
         do {
             return try Self.decoder.decode([String: ReviewedCrossChainSubmissionRecord].self, from: data)
         } catch {
-            // Only this class writes the key. Keep damaged bytes for diagnosis instead of letting them hide every
-            // record, and start over.
+            // Only this class writes the key. Keep the damaged bytes for diagnosis and remember when they were found.
             userDefaults.set(data, forKey: Self.unreadableKey)
+            userDefaults.set(now, forKey: Self.unreadableSinceKey)
             userDefaults.removeObject(forKey: Self.key)
             logger?.error("Unreadable cross-chain submission journal was set aside: \(error)")
-            return [:]
+            throw ReviewedCrossChainDispatchError.journalUnreadable
         }
+    }
+
+    /// Damaged records may hold an attempt that is still on its way, so nothing new is sent until one confirmation
+    /// window has passed since they were found. By then none of them could still stand in the way, and they are
+    /// dropped.
+    private func checkUnreadableLocked(now: Date) throws {
+        guard userDefaults.data(forKey: Self.unreadableKey) != nil else { return }
+        guard let since = userDefaults.object(forKey: Self.unreadableSinceKey) as? Date, since <= now else {
+            // Set aside without a time, or the clock went back: the window starts now.
+            userDefaults.set(now, forKey: Self.unreadableSinceKey)
+            throw ReviewedCrossChainDispatchError.journalUnreadable
+        }
+        guard now.timeIntervalSince(since) >= Self.confirmationWindow else {
+            throw ReviewedCrossChainDispatchError.journalUnreadable
+        }
+        userDefaults.removeObject(forKey: Self.unreadableKey)
+        userDefaults.removeObject(forKey: Self.unreadableSinceKey)
     }
 
     private func storeLocked(_ records: [String: ReviewedCrossChainSubmissionRecord]) throws {

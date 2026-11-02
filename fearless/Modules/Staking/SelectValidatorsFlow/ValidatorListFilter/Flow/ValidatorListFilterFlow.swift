@@ -2,7 +2,6 @@ import Foundation
 
 enum ValidatorListFilterFlow {
     case relaychain(filter: CustomValidatorRelaychainListFilter)
-    case parachain(filter: CustomValidatorParachainListFilter)
 }
 
 protocol ValidatorListFilterModelStateListener: AnyObject {

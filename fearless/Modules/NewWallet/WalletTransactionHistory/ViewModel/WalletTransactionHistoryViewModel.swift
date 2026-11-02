@@ -1,7 +1,6 @@
 import Foundation
 
 enum WalletTransactionHistoryViewFilterMode {
-    case single
     case multiple
     case disabled
 }

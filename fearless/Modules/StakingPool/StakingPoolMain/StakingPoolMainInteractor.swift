@@ -122,17 +122,6 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
 
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageOperationFactory,
-            identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         do {
             let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
                 for: chainAsset.chain
@@ -141,8 +130,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
             let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
-                validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory
+                validatorService: eraValidatorService
             )
 
             rewardCalculationService = rewardCalculatorService

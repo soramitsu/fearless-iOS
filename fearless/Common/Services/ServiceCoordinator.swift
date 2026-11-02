@@ -25,6 +25,7 @@ final class ServiceCoordinator {
     private let walletAssetsObserver: WalletAssetsObserver
     private let pricesService: PricesServiceProtocol
     private let appOwnedMnemonicProvider: UniversalWalletRootMnemonicProviding
+    private let universalWalletFundsProbe: () -> UniversalWalletFundsProbing
     private let notificationCenter: NotificationCenter
     private let appOwnedProvisioningLock = NSLock()
     private var appOwnedProvisioningWalletIds = Set<MetaAccountId>()
@@ -40,6 +41,9 @@ final class ServiceCoordinator {
         walletAssetsObserver: WalletAssetsObserver,
         pricesService: PricesServiceProtocol,
         bitcoinMnemonicProvider: UniversalWalletRootMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
+        universalWalletFundsProbe: @escaping () -> UniversalWalletFundsProbing = {
+            UniversalWalletRemoteFundsProbe.makeDefault()
+        },
         notificationCenter: NotificationCenter = .default
     ) {
         self.walletSettings = walletSettings
@@ -51,6 +55,7 @@ final class ServiceCoordinator {
         self.walletAssetsObserver = walletAssetsObserver
         self.pricesService = pricesService
         appOwnedMnemonicProvider = bitcoinMnemonicProvider
+        self.universalWalletFundsProbe = universalWalletFundsProbe
         self.notificationCenter = notificationCenter
     }
 
@@ -141,16 +146,17 @@ private extension ServiceCoordinator {
             return
         }
 
-        DispatchQueue.global(qos: .utility).async { [self] in
+        Task.detached(priority: .utility) { [self] in
             do {
-                guard let mnemonic = try appOwnedMnemonicProvider.rootMnemonic(for: wallet) else {
+                guard let root = try appOwnedMnemonicProvider.rootSecret(for: wallet) else {
                     finishAppOwnedProvisioning(for: wallet.metaId)
                     return
                 }
 
-                let updatedWallet = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
-                    to: wallet,
-                    mnemonic: mnemonic
+                let updatedWallet = try await UniversalWalletAccountProvisioning.enrollingMissingAccounts(
+                    in: wallet,
+                    root: root,
+                    probe: universalWalletFundsProbe()
                 )
                 guard updatedWallet != wallet else {
                     finishAppOwnedProvisioning(for: wallet.metaId)

@@ -160,6 +160,16 @@ final class CloudStorageServiceTests: XCTestCase {
         XCTAssertTrue(factory?.createFileCalled ?? false)
     }
 
+    func testSaveBackupLeavesNoLocalCopy() async throws {
+        signInProvider?._currentUser = TestData.user
+        let fileURL = try getURL()
+        factory?.createFileReturnValue = fileURL
+
+        try await service?.saveBackup(account: TestData.account, password: "1")
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+
     func testSaveBackupAndImportReadsExactCreatedFileDespiteOlderDuplicate() async throws {
         signInProvider?._currentUser = TestData.user
         let fileURL = try getURL()

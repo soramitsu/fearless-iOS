@@ -51,16 +51,6 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
     let feeView: TitleMultiValueView = createTitleMultiValueView()
 
-    let selectedCollatorContainer = UIView()
-    let selectedCollatorTitle: UILabel = {
-        let label = UILabel()
-        label.font = .p2Paragraph
-        label.textColor = R.color.colorWhite()
-        return label
-    }()
-
-    let selectedCollatorView: TitleMultiValueView = createTitleMultiValueView()
-
     private(set) var hintViews: [UIView] = []
 
     let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
@@ -134,7 +124,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
             }
 
             view.snp.makeConstraints { make in
-                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+                make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             }
 
             infoStackView.setCustomSpacing(9, after: view)
@@ -161,7 +151,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
@@ -210,7 +200,8 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         addSubview(networkFeeFooterView)
 
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(contentView.snp.bottom)
         }
     }

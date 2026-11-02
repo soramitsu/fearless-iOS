@@ -83,20 +83,21 @@ final class BackupWalletImportedViewLayout: UIView {
     private func setupLayout() {
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(triangularedView)
         triangularedView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(72)
         }
 
         addSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(triangularedView.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         iconImageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -117,7 +118,7 @@ final class BackupWalletImportedViewLayout: UIView {
         let buttonVStack = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
         addSubview(buttonVStack)
         buttonVStack.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
 

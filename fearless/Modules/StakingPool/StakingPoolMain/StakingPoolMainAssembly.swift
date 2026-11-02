@@ -72,8 +72,7 @@ final class StakingPoolMainAssembly {
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
-            validatorService: eraValidatorService,
-            collatorOperationFactory: nil
+            validatorService: eraValidatorService
         ) else {
             return nil
         }
@@ -154,22 +153,10 @@ final class StakingPoolMainAssembly {
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
-            validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            validatorService: eraValidatorService
         ) else {
             return nil
         }

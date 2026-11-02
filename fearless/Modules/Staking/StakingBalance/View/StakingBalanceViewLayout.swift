@@ -40,7 +40,8 @@ final class StakingBalanceViewLayout: UIView {
 
         addSubview(navBarBlurView)
         navBarBlurView.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             self.navBarBlurViewHeightConstraint = make.height.equalTo(0).constraint
             self.navBarBlurViewHeightConstraint.activate()
         }
@@ -48,7 +49,8 @@ final class StakingBalanceViewLayout: UIView {
         addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         scrollView.addSubview(refreshControl)
@@ -57,7 +59,7 @@ final class StakingBalanceViewLayout: UIView {
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.addSubview(balanceWidget)

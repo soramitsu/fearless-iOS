@@ -1,5 +1,4 @@
 import Foundation
-
 import UIKit
 import SoraUI
 
@@ -15,6 +14,14 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
     }
 
     private var shadowView: UIView?
+    private var draggablePan: UIPanGestureRecognizer?
+    private(set) var usesAdaptiveColumns = false
+    private var didLayoutAdaptivePanels = false
+
+    /// Opt in only for dashboards whose summary and list can remain visible together.
+    var supportsAdaptiveColumns: Bool {
+        false
+    }
 
     private var containerSize = CGSize(width: 375.0, height: 667.0)
     private var boundsHeight: CGFloat = 667.0
@@ -45,6 +52,9 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
 
     var inheritedInsets: UIEdgeInsets {
         var contentInsets: UIEdgeInsets = .zero
+        if supportsAdaptiveColumns {
+            return contentInsets
+        }
 
         if #available(iOS 11.0, *) {
             contentInsets.top = view.safeAreaInsets.top
@@ -83,11 +93,13 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        adjustLayout()
-        updateContentLayout()
-        updateDraggableLayout()
-        updateContentInsets()
-        updateDraggableContentInsets()
+        if !supportsAdaptiveColumns {
+            adjustLayout()
+            updateContentLayout()
+            updateDraggableLayout()
+            updateContentInsets()
+            updateDraggableContentInsets()
+        }
 
         setupScrollView()
         setupContentView()
@@ -100,9 +112,13 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
 
-        updateContentInsets()
-        updateDraggableLayout()
-        updateDraggableContentInsets()
+        if supportsAdaptiveColumns {
+            view.setNeedsLayout()
+        } else {
+            updateContentInsets()
+            updateDraggableLayout()
+            updateDraggableContentInsets()
+        }
     }
 
     @objc private func handleRefresh() {
@@ -115,12 +131,20 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
 
+        guard !supportsAdaptiveColumns else { return }
         if abs(boundsHeight - view.bounds.height) > CGFloat.leastNonzeroMagnitude {
             boundsHeight = view.bounds.height
 
             updateContentInsets()
             updateDraggableLayout()
             updateDraggableContentInsets()
+        }
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if supportsAdaptiveColumns {
+            layoutAdaptivePanels()
         }
     }
 
@@ -138,6 +162,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
             pan.maximumNumberOfTouches = 1
             pan.minimumNumberOfTouches = 1
             draggable.draggableView.addGestureRecognizer(pan)
+            draggablePan = pan
         }
     }
 
@@ -145,8 +170,10 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
         view.addSubview(scrollView)
         scrollView.addSubview(refreshControl)
 
-        scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        if !supportsAdaptiveColumns {
+            scrollView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
         }
 
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -161,6 +188,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
             scrollView.addSubview(content.contentView)
             content.contentView.autoresizingMask = []
 
+            (content as? UIViewController)?.didMove(toParent: self)
             content.observable.add(observer: self)
 
             if let contentReloadable = content as? Reloadable {
@@ -178,6 +206,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
             scrollView.addSubview(draggable.draggableView)
             draggable.draggableView.autoresizingMask = []
 
+            (draggable as? UIViewController)?.didMove(toParent: self)
             draggable.delegate = self
 
             if let draggableReloadable = draggable as? Reloadable {
@@ -187,7 +216,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupShadowView() {
-        if let draggable = draggable, shouldInsertShadow {
+        if let draggable = draggable, shouldInsertShadow, !usesAdaptiveColumns {
             let currentShadow: UIView
 
             if let shadowView = shadowView {
@@ -246,6 +275,13 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
     fileprivate func createDraggableFrame(for state: DraggableState) -> CGRect {
         let preferredContentHeight = content?.preferredContentHeight ?? 0.0
 
+        if supportsAdaptiveColumns {
+            let top = state == .compact ? preferredContentHeight + UIConstants.bigOffset : 0
+            return CGRect(
+                x: 0, y: top, width: containerSize.width,
+                height: state == .compact ? max(160, containerSize.height - top) : containerSize.height
+            )
+        }
         switch state {
         case .compact:
             let preferredContentInsets = createPreferredContentInsets(for: preferredContentHeight)
@@ -304,11 +340,11 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
             if draggable.canDrag(from: draggableState), draggable.draggableView.frame.origin.y != newOriginY {
                 var frame = draggable.draggableView.frame
                 frame.origin.y = newOriginY
-                frame.size.height = containerSize.height - newOriginY
+                frame.size.height = supportsAdaptiveColumns
+                    ? max(160, containerSize.height - newOriginY) : containerSize.height - newOriginY
 
                 updateAnimationProgress(draggableFrame: frame)
             }
-
         case .ended, .cancelled:
             let velocity = recognizer.velocity(in: view)
             completeStateTransitionAnimation(with: velocity)
@@ -393,6 +429,63 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
     }
 }
 
+extension ContainerViewController {
+    /// Use the actual window safe area, including the native tab sidebar, rather
+    /// than the original screen size. Both children keep their state on resize.
+    func layoutAdaptivePanels() {
+        let safeFrame = view.bounds.inset(by: AdaptiveLayout.contentInsets(in: view))
+        let columns = AdaptiveLayout.showsColumns(in: safeFrame.width, traits: traitCollection)
+        let changed = !didLayoutAdaptivePanels || columns != usesAdaptiveColumns
+        usesAdaptiveColumns = columns
+        didLayoutAdaptivePanels = true
+        draggablePan?.isEnabled = !columns
+        shadowView?.removeFromSuperview()
+        shadowView = nil
+        scrollView.contentInsetAdjustmentBehavior = .never
+
+        if columns {
+            let frame = safeFrame.insetBy(dx: 24, dy: 0)
+            scrollView.frame = CGRect(x: frame.minX, y: frame.minY, width: 320, height: frame.height)
+            if draggable?.draggableView.superview !== view, let panel = draggable?.draggableView {
+                view.addSubview(panel)
+            }
+            draggable?.draggableView.frame = CGRect(
+                x: scrollView.frame.maxX + 24, y: frame.minY,
+                width: max(0, frame.width - 344), height: frame.height
+            )
+            content?.contentView.frame = CGRect(origin: .zero, size: scrollView.bounds.size)
+            content?.contentView.layoutIfNeeded()
+            let height = max(scrollView.bounds.height, (content?.preferredContentHeight ?? 0) + 16)
+            content?.contentView.frame.size.height = height
+            scrollView.contentSize = CGSize(width: scrollView.bounds.width, height: height)
+            content?.setContentInsets(.zero, animated: false)
+            draggable?.set(contentInsets: .zero, for: .full)
+        } else {
+            let inset = AdaptiveLayout.isRegularWidth(traitCollection)
+                ? AdaptiveLayout.columnInset(containerWidth: safeFrame.width) : 0
+            scrollView.frame = safeFrame.insetBy(dx: inset, dy: 0)
+            containerSize = scrollView.bounds.size
+            if draggable?.draggableView.superview !== scrollView, let panel = draggable?.draggableView {
+                scrollView.addSubview(panel)
+            }
+            content?.contentView.frame = CGRect(origin: .zero, size: containerSize)
+            content?.contentView.layoutIfNeeded()
+            let frame = createDraggableFrame(for: changed ? .compact : draggableState)
+            draggable?.draggableView.frame = frame
+            scrollView.contentSize = CGSize(width: containerSize.width, height: max(containerSize.height, frame.maxY))
+            content?.setContentInsets(.zero, animated: false)
+            draggable?.set(contentInsets: .zero, for: .full)
+            draggable?.set(contentInsets: UIEdgeInsets(top: 16, left: 0, bottom: 0, right: 0), for: .compact)
+        }
+        if changed {
+            scrollView.setContentOffset(.zero, animated: false)
+            draggableState = columns ? .full : .compact
+            (draggable as? AdaptiveSidePanel)?.setEmbeddedInColumns(columns)
+            draggable?.set(dragableState: draggableState, animated: false)
+        }
+    }
+}
+
 extension ContainerViewController: ContainableObserver {
     func willChangePreferredContentHeight() {
         CATransaction.begin()
@@ -400,6 +493,11 @@ extension ContainerViewController: ContainableObserver {
     }
 
     func didChangePreferredContentHeight(to _: CGFloat) {
+        if supportsAdaptiveColumns {
+            view.setNeedsLayout()
+            CATransaction.commit()
+            return
+        }
         UIView.animate(withDuration: Constants.contentAnimationDuration) {
             self.updateDraggableLayout(forceLayoutUpdate: true)
             self.updateContentInsets(animated: true)
@@ -411,6 +509,7 @@ extension ContainerViewController: ContainableObserver {
 
 extension ContainerViewController: DraggableDelegate {
     func wantsTransit(to draggableState: DraggableState, animating: Bool) {
+        guard !usesAdaptiveColumns else { return }
         if self.draggableState != draggableState {
             self.draggableState = draggableState
 

@@ -87,10 +87,14 @@ final class VerifiedSeedExportReader: VerifiedSeedExportReading {
             KeystoreTagV2.entropyTagForMetaId(metaId, accountId: accountId)
         ) {
             storedCandidateExists = true
-            if let rebuilt = try? derivation.exportSeedForEntropy(
-                entropy, derivationPath: derivationPath ?? "", cryptoType: cryptoType
-            ), rebuilt.publicKey == publicKey {
-                return VerifiedSeedExport(seed: rebuilt.seed, derivationPath: derivationPath)
+            // An import may have opened the account an earlier browser extension made from the
+            // path's password (SubstratePasswordRule): the seed is the one that rebuilds it.
+            for rule in SubstratePasswordRule.distinctRules(forSubstrateDerivationPath: derivationPath ?? "") {
+                if let rebuilt = try? derivation.exportSeedForEntropy(
+                    entropy, derivationPath: derivationPath ?? "", cryptoType: cryptoType, passwordRule: rule
+                ), rebuilt.publicKey == publicKey {
+                    return VerifiedSeedExport(seed: rebuilt.seed, derivationPath: derivationPath)
+                }
             }
         }
 

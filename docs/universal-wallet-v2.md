@@ -170,7 +170,9 @@ must be non-empty human-readable strings without control characters, native asse
 symbols must be uppercase, decimals must be in `0...255`, and derivation paths
 must be rooted at `m`.
 
-Endpoint kinds are `indexer`, `rpc`, `torii-mcp`, and `explorer`. Public URLs
+Endpoint kinds are `indexer`, `rpc`, `torii`, `torii-mcp`, and `explorer`.
+`torii` is a Torii REST base URL. iOS calls Torii REST routes directly and
+only reads `torii-mcp` from older registries; it never calls `/v1/mcp`. Public URLs
 must be HTTPS; local development URLs may use `http://localhost` or
 `http://127.0.0.1`. Public indexer entries remain marked read-only: that flag
 describes catalog discovery and prevents generic write routing. Bitcoin's

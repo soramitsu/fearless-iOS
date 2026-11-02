@@ -610,8 +610,9 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
             invalidScam.setValue("not-a-valid-scam-type", forKey: "type")
             invalidScam.setValue("subtype", forKey: "subtype")
 
+            // A type stored by a newer build reads as unknown, so one row cannot fail every stored flag.
             let scamMapper = CodableCoreDataMapper<ScamInfo, TestCDScamInfo>()
-            XCTAssertThrowsError(try scamMapper.transform(entity: invalidScam))
+            XCTAssertEqual(try scamMapper.transform(entity: invalidScam).type, .unknown)
 
             context.rollback()
         }

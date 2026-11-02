@@ -145,7 +145,9 @@ extension StakingAssetSelectionPresenter: ChainSelectionPresenterProtocol {
 extension StakingAssetSelectionPresenter: ChainSelectionInteractorOutputProtocol {
     func didReceiveChains(result: Result<[ChainModel], Error>) {
         switch result {
-        case let .success(chains):
+        case let .success(storedChains):
+            // Stored chains may not be normalized yet when the picker opens right after an upgrade.
+            let chains = NetworkRetirement.applying(to: storedChains)
             self.chains = chains.reduce(into: [:]) { result, item in
                 result[item.chainId] = item
             }

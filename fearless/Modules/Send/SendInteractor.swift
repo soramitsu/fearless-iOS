@@ -178,8 +178,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
         Task {
             do {
-                let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
-                let storageRequest = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
+                let storageRequest = AssetsAccountRequest(accountId: accountId, currencyId: currencyId)
                 let assetAccountInfo: AssetAccountInfo? = try await dependencies.storageRequestPerformer?.performSingle(storageRequest)
 
                 await MainActor.run {

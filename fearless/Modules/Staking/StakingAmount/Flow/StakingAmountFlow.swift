@@ -6,12 +6,10 @@ import SSFModels
 
 enum StakingAmountFlow {
     case relaychain
-    case parachain
 }
 
 protocol StakingAmountModelStateListener: AnyObject {
     func modelStateDidChanged(viewModelState: StakingAmountViewModelState)
-    func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState)
 }
 
 protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
@@ -43,12 +41,6 @@ protocol StakingAmountViewModelFactoryProtocol {
         calculator: RewardCalculatorEngineProtocol?
     ) -> StakingAmountMainViewModel?
 
-    func buildYourRewardDestinationViewModel(
-        viewModelState: StakingAmountViewModelState,
-        priceData: PriceData?,
-        calculator: RewardCalculatorEngineProtocol?
-    ) -> LocalizableResource<YourRewardDestinationViewModel>?
-
     func buildSelectRewardDestinationViewModel(
         viewModelState: StakingAmountViewModelState,
         priceData: PriceData?,
@@ -62,12 +54,6 @@ extension StakingAmountViewModelFactoryProtocol {
         priceData _: PriceData?,
         calculator _: RewardCalculatorEngineProtocol?
     ) -> StakingAmountMainViewModel? { nil }
-
-    func buildYourRewardDestinationViewModel(
-        viewModelState _: StakingAmountViewModelState,
-        priceData _: PriceData?,
-        calculator _: RewardCalculatorEngineProtocol?
-    ) -> LocalizableResource<YourRewardDestinationViewModel>? { nil }
 
     func buildSelectRewardDestinationViewModel(
         viewModelState _: StakingAmountViewModelState,

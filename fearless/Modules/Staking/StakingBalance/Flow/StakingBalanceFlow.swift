@@ -4,10 +4,6 @@ import SSFModels
 
 enum StakingBalanceFlow {
     case relaychain
-    case parachain(
-        delegation: ParachainStakingDelegation,
-        collator: ParachainStakingCandidateInfo
-    )
 }
 
 protocol StakingBalanceModelStateListener: AnyObject {

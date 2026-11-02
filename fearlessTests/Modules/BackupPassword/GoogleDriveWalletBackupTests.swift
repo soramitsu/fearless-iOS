@@ -509,6 +509,59 @@ final class GoogleDriveWalletBackupTests: XCTestCase {
         }
     }
 
+    /// A backup keeps the derivation path exactly as typed; the restore must open the same
+    /// account as the import did (`docs/substrate-password-vectors.json`, NFKD rule).
+    func testNonAsciiPathPassword_whenBackedUp_thenThePathGoesUpVerbatimAndRestoresTheSameAccount() throws {
+        for id in ["default24-unicode", "default24-unicode-decomposed-input", "import12-katakana"] {
+            let vector = try SubstratePasswordVectors.vector(id)
+            let keystore = InMemoryKeychain()
+            let wallet = try importWallet(phrase: vector.mnemonic, substratePath: vector.derivationPath, keystore: keystore)
+            XCTAssertEqual(
+                wallet.substrateAccountId?.toHex(includePrefix: true),
+                try vector.account("nfkd", .sr25519).accountId,
+                id
+            )
+
+            let run = try backUp(wallet, accounts: accountsOfBackupScreen(for: wallet), keystore: keystore)
+
+            let uploaded = try XCTUnwrap(run.uploaded, id)
+            XCTAssertEqual(uploaded.backupAccountType, [.passphrase], id)
+            // Swift compares strings by canonical equivalence; compare the code points themselves.
+            XCTAssertEqual(
+                try XCTUnwrap(uploaded.substrateDerivationPath, id).unicodeScalars.map(\.value),
+                vector.derivationPath.unicodeScalars.map(\.value),
+                id
+            )
+            let restored = try restore(uploaded)
+            XCTAssertEqual(restored.substrateAccountId, wallet.substrateAccountId, id)
+            XCTAssertEqual(restored.substratePublicKey, wallet.substratePublicKey, id)
+        }
+    }
+
+    /// A wallet imported with the account the browser extension 4.2 made from its path password
+    /// (`SubstratePasswordRule.nfc`) uploads its phrase, and the restore opens that same account.
+    func testWalletImportedWithAnEarlierExtensionRule_whenBackedUp_thenItsPhraseRestoresThatAccount() throws {
+        let vector = try SubstratePasswordVectors.vector("default24-unicode")
+        let keystore = InMemoryKeychain()
+        let wallet = try SubstratePasswordVectors.importWallet(
+            vector, cryptoType: .sr25519, rule: .nfc, keystore: keystore
+        )
+        XCTAssertEqual(
+            wallet.substrateAccountId?.toHex(includePrefix: true),
+            try vector.account("nfc", .sr25519).accountId
+        )
+
+        let run = try backUp(wallet, accounts: accountsOfBackupScreen(for: wallet), keystore: keystore)
+
+        let uploaded = try XCTUnwrap(run.uploaded)
+        XCTAssertEqual(uploaded.backupAccountType, [.passphrase])
+        XCTAssertEqual(uploaded.passphrase, vector.mnemonic)
+        XCTAssertEqual(uploaded.address, wallet.backupAddress)
+        let restored = try restore(uploaded)
+        XCTAssertEqual(restored.substrateAccountId, wallet.substrateAccountId)
+        XCTAssertEqual(restored.substratePublicKey, wallet.substratePublicKey)
+    }
+
     func testEthereumOnlyAndroidBackup_whenRestored_thenNothingIsImportedAndTheErrorIsShown() throws {
         let fixture = AndroidBackupFixture.ethereumOnlySeed
         let backup = try decodeAndroidBackup(fixture.json, password: fixture.password)
@@ -651,6 +704,12 @@ private extension GoogleDriveWalletBackupTests {
         view.passwordViewModel?.inputHandler.changeValue(to: password)
 
         presenter.didReceiveBackup(result: .success(backup))
+        // A backup whose paths carry a ///password starts its import once the funds check of
+        // the accounts its words open alone has answered.
+        let deadline = Date().addingTimeInterval(5)
+        while interactor.importOperation == nil, router.messages.isEmpty, Date() < deadline {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        }
 
         return RestoreAttempt(operation: interactor.importOperation, router: router, keystore: keystore)
     }
@@ -1080,6 +1139,8 @@ private final class RecordingRestoreInteractor: BaseAccountImportInteractor, Bac
             keystoreImportService: KeystoreImportServiceStub(),
             defaultSource: .mnemonic
         )
+        // Offline: every account the words alone open stays, as with no network.
+        universalWalletFundsProbe = UncheckedFundsProbe()
     }
 
     override func importAccountUsingOperation(_ operation: BaseOperation<MetaAccountModel>) {
@@ -1091,6 +1152,15 @@ private final class RecordingRestoreInteractor: BaseAccountImportInteractor, Bac
     func importBackup(account _: OpenBackupAccount, password _: String) {}
 
     func signInIfNeeded() {}
+}
+
+private struct UncheckedFundsProbe: UniversalWalletFundsProbing {
+    func funds(
+        of _: UniversalWalletSecret,
+        slots _: Set<UniversalWalletSlot>
+    ) async -> [UniversalWalletSlot: UniversalWalletFundsReading] {
+        [:]
+    }
 }
 
 private final class RestoreRouterStub: BackupPasswordRouterInput {

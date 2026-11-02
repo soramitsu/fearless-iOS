@@ -748,17 +748,19 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "roles.common" = "Funções";
 "same.address.transfer.warning.message" = "Você está tentando fazer uma transferência para a mesma conta. A operação cobrará uma taxa e não faz sentido nenhum";
 "scam.additional.stub" = "Adicional:";
-"scam.description.donation.stub" = "Este endereço foi sinalizado como suspeito. Recomendamos fortemente que você não envie %s para esta conta.";
+"scam.description.donation.stub" = "Este endereço está marcado como endereço de doação de uma instituição de caridade. Confirme que você deseja doar antes de enviar %s.";
 "scam.description.exchange.stub" = "Este endereço está marcado como uma corretora, tome cuidado pois os endereços de depósito e saque podem ser diferentes.";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"scam.description.highrisk.stub" = "Este endereço foi sinalizado como uma organização de alto risco. Recomendamos fortemente que você não envie %s para esta conta.";
+"scam.description.lowscore.text" = "O endereço para o qual você está prestes a transferir tem pouca atividade on-chain, o que pode indicar um possível fraudador ou atacante sybil.";
 "scam.description.sanctions.stub" = "Este endereço foi sinalizado devido a uma entidade relacionada a um país sob sanções. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.scam.stub" = "Este endereço foi sinalizado devido a evidências de fraude. Recomendamos fortemente que você não envie %s para esta conta.";
+"scam.description.service.stub" = "Este endereço está marcado como um serviço financeiro, tome cuidado pois os endereços de depósito e saque podem ser diferentes.";
+"scam.description.theft.stub" = "Este endereço foi sinalizado devido a evidências de roubo. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "Nome:";
 "scam.reason.stub" = "Motivo:";
 "scam.warning.alert.subtitle" = "Recomendamos fortemente que você não envie %s para esta conta.";
-"scam.warning.alert.title" = "Este endereço foi sinalizado devido a uma entidade relacionada a um país sob sanções. Recomendamos fortemente que você não envie %@ para esta conta.";
 "scan.qr.subtitle" = "Leia o código do destinatário.";
 "scan.qr.title" = "Ler QR";
 "scan.qr.upload.button.title" = "Carregar da galeria";
@@ -1450,3 +1452,28 @@ pertence à rede certa";
 "solana.transfer.recovery_unavailable.message" = "Não é possível verificar a rede original desta transferência guardada. A Fearless manteve o registo da transferência. A consulta do estado e o reenvio estão indisponíveis. Não envie uma transferência de substituição até que o resultado da transferência original seja esclarecido.\n%@";
 
 "solana.transfer.recovery_unreadable.message" = "A Fearless não consegue ler o registo de transferência guardado para esta carteira e rede Solana. Os dados originais foram preservados. Não é possível enviar uma nova transferência, consultar o estado ou tentar novamente porque o resultado anterior é desconhecido. Não envie uma transferência de substituição até esclarecer o resultado da original. As outras funções da carteira continuam disponíveis.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Mova os fundos dos endereços antigos";
+"universal.password.notice.message" = "Estes endereços não usam a senha da sua carteira, então só as palavras de recuperação já os abrem. Envie os fundos para os novos endereços protegidos pela senha e depois toque em Trocar.";
+"universal.password.notice.row" = "%@\nAntigo: %@\nNovo: %@";
+"universal.password.notice.switch" = "Trocar";
+"universal.password.notice.later" = "Depois";
+"universal.password.notice.copy" = "Copiar novo endereço %@";
+"universal.password.switch.switched" = "%@: trocado para o novo endereço.";
+"universal.password.switch.funded" = "%@: ainda tem fundos. Mova-os antes para o novo endereço.";
+"universal.password.switch.unchecked" = "%@: não foi possível verificar. Tente de novo depois.";
+"universal.password.chain.action" = "Usar endereço protegido pela senha";
+"universal.password.arrival.title" = "Chegaram fundos ao seu endereço antigo";
+"universal.password.arrival.message" = "Chegaram fundos a endereços que só as palavras de recuperação já abrem. Esta carteira continua mostrando os endereços protegidos pela senha. Para mover esses fundos, importe as palavras de recuperação sem a senha como outra carteira.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Chegaram fundos a outro endereço";
+"universal.password.arrival.protected.message" = "Chegaram fundos a endereços desta carteira protegidos pela senha. A carteira continua mostrando os endereços que só as palavras de recuperação já abrem enquanto eles tiverem fundos ou não puderem ser verificados, e troca assim que ficarem vazios. Envie os fundos deles para o endereço protegido pela senha para trocar.";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Escolha seu endereço";
+"substrate.password.choice.message" = "Versões anteriores da extensão de navegador do Fearless criavam outro endereço a partir desta senha. Escolha aquele que guarda seus fundos.";
+"substrate.password.choice.nfkd" = "Todos os apps Fearless";
+"substrate.password.choice.nfc" = "Extensão de navegador anterior";
+"substrate.password.choice.asTyped" = "Extensão de navegador 3.0, como digitado";

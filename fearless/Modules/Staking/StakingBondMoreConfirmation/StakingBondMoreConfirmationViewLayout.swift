@@ -51,19 +51,6 @@ final class StakingBMConfirmationViewLayout: UIView {
         return view
     }()
 
-    let collatorView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = R.color.colorWhite()
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        return view
-    }()
-
     let accountView: TitleMultiValueView = {
         let view = TitleMultiValueView()
         view.titleLabel.font = .h5Title
@@ -138,10 +125,7 @@ final class StakingBMConfirmationViewLayout: UIView {
 
     func bind(confirmationViewModel: StakingBondMoreConfirmViewModel) {
         accountView.bind(viewModel: confirmationViewModel.accountViewModel)
-        collatorView.bind(viewModel: confirmationViewModel.collatorViewModel)
         amountView.bind(viewModel: confirmationViewModel.amountViewModel)
-
-        collatorView.isHidden = confirmationViewModel.collatorViewModel == nil
 
         if let stakeViewModel = confirmationViewModel.amount?.value(for: locale) {
             stakeAmountView.bind(viewModel: stakeViewModel)
@@ -162,7 +146,6 @@ final class StakingBMConfirmationViewLayout: UIView {
 
     private func applyLocalization() {
         accountView.titleLabel.text = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
-        collatorView.titleLabel.text = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
         hintView.detailsLabel.text = R.string.localizable.stakingHintRewardBondMore(
             preferredLanguages: locale.rLanguages
@@ -186,12 +169,13 @@ final class StakingBMConfirmationViewLayout: UIView {
         addSubview(navigationBar)
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
@@ -204,7 +188,6 @@ final class StakingBMConfirmationViewLayout: UIView {
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
-        infoStackView.addArrangedSubview(collatorView)
         infoStackView.addArrangedSubview(accountView)
         infoStackView.addArrangedSubview(amountView)
         infoStackView.addArrangedSubview(feeView)
@@ -227,7 +210,8 @@ final class StakingBMConfirmationViewLayout: UIView {
         addSubview(networkFeeFooterView)
 
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(contentView.snp.bottom)
         }
     }

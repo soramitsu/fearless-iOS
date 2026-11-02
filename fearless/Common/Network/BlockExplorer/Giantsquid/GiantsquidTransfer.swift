@@ -24,10 +24,6 @@ struct GiantsquidTransfer: Decodable {
     let extrinsicHash: String?
     let timestamp: String
     let blockNumber: UInt32?
-    let type: String?
-    let feeAmount: String?
-    let signedData: GiantsquidSignedData?
-    let blockHash: String?
 
     var timestampInSeconds: Int64 {
         let locale = LocalizationManager.shared.selectedLocale
@@ -35,16 +31,6 @@ struct GiantsquidTransfer: Decodable {
         let date = dateFormatter.value(for: locale).date(from: timestamp)
         return Int64(date?.timeIntervalSince1970 ?? 0)
     }
-}
-
-struct GiantsquidSignedData: Decodable {
-    let fee: GiantsquidSignedDataFee?
-}
-
-struct GiantsquidSignedDataFee: Decodable {
-    let `class`: String?
-    let weight: UInt32?
-    @OptionStringCodable var partialFee: BigUInt?
 }
 
 extension GiantsquidTransfer: WalletRemoteHistoryItemProtocol {

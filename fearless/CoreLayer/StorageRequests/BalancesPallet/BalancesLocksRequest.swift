@@ -1,15 +1,10 @@
 import Foundation
 
 struct BalancesLocksRequest: StorageRequest {
-    let accountId: AccountIdVariant
+    let accountId: AccountId
 
     var parametersType: StorageRequestParametersType {
-        switch accountId {
-        case let .accountId(accountId):
-            return .encodable(param: accountId)
-        case let .address(address):
-            return .encodable(param: address)
-        }
+        .encodable(param: accountId)
     }
 
     var storagePath: StorageCodingPath {

@@ -18,6 +18,9 @@ class BaseAccountImportInteractor {
     let defaultSource: AccountImportSource
     /// The network of the per-chain account being imported; nil while a wallet is imported.
     private(set) var uniqueChainImportChainId: ChainModel.Id?
+    /// For words with a `///password`: which accounts the words open without it hold funds.
+    /// Those stay in the wallet; the others are replaced by the ones the password protects.
+    lazy var universalWalletFundsProbe: UniversalWalletFundsProbing = UniversalWalletRemoteFundsProbe.makeDefault()
 
     init(
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
@@ -68,6 +71,25 @@ class BaseAccountImportInteractor {
     }
 
     func importAccountUsingOperation(_: BaseOperation<MetaAccountModel>) {}
+
+    /// Imported words may already hold funds at the addresses earlier releases showed, which
+    /// derived them without the password. Those stay visible; offline or failed checks keep
+    /// them too.
+    private func importCheckingNoPasswordFunds(_ request: MetaAccountImportMnemonicRequest) {
+        let probe = universalWalletFundsProbe
+        let mnemonic = request.mnemonic.toString()
+        Task { [weak self] in
+            let funds = await probe.noPasswordFunds(mnemonic: mnemonic, slots: Set(UniversalWalletSlot.allCases))
+            await MainActor.run {
+                guard let self else { return }
+                var checked = request
+                checked.universalWalletEnrollment = .probed(funds)
+                self.importAccountUsingOperation(
+                    self.accountOperationFactory.newMetaAccountOperation(request: checked, isBackuped: true)
+                )
+            }
+        }
+    }
 }
 
 extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
@@ -87,8 +109,13 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 substrateDerivationPath: data.substrateDerivationPath,
                 ethereumDerivationPath: data.ethereumDerivationPath,
                 cryptoType: request.cryptoType,
-                defaultChainId: request.defaultChainId
+                defaultChainId: request.defaultChainId,
+                substratePasswordRule: data.substratePasswordRule
             )
+            guard request.universalWalletPassphrase.isEmpty else {
+                importCheckingNoPasswordFunds(request)
+                return
+            }
             operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: true)
         case let .seed(data):
             let request = MetaAccountImportSeedRequest(
@@ -126,7 +153,8 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 cryptoType: request.cryptoType,
                 isEthereum: request.chain.isEthereumBased,
                 meta: request.meta,
-                chainId: request.chain.chainId
+                chainId: request.chain.chainId,
+                substratePasswordRule: data.substratePasswordRule
             )
             operation = accountOperationFactory.importChainAccountOperation(request: request)
         case let .seed(data):

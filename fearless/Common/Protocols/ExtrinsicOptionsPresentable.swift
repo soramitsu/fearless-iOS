@@ -57,6 +57,7 @@ extension ExtrinsicOptionsPresentable {
 
         alertController.addAction(cancel)
 
+        view?.controller.anchorPopover(of: alertController)
         view?.controller.present(alertController, animated: true)
     }
 }

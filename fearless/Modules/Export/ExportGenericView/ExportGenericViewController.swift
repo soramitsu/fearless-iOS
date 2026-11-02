@@ -306,7 +306,7 @@ extension ExportGenericViewController {
         if FWAppearance.exportGenericRestyled {
             containerView.stackView.addArrangedSubview(buttonsStackView)
             buttonsStackView.widthAnchor.constraint(
-                equalTo: view.widthAnchor, constant: -2 * UIConstants.horizontalInset
+                equalTo: view.safeAreaLayoutGuide.widthAnchor, constant: -2 * UIConstants.horizontalInset
             ).isActive = true
             containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
             containerView.scrollView.contentInset.bottom = 24
@@ -316,8 +316,8 @@ extension ExportGenericViewController {
 
         buttonsStackView.snp.makeConstraints { make in
             make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            make.leading.equalTo(view.safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.top.equalTo(containerView.snp.bottom).offset(UIConstants.bigOffset)
         }
     }
@@ -463,7 +463,7 @@ extension ExportGenericViewController {
         insert(subview: newOptionView, after: sourceTypeView)
 
         newOptionView.widthAnchor.constraint(
-            equalTo: view.widthAnchor,
+            equalTo: view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
 
@@ -479,7 +479,7 @@ extension ExportGenericViewController {
 
         containerView.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(view.safeAreaLayoutGuide)
         }
 
         var inset = containerView.scrollView.contentInset
@@ -495,7 +495,7 @@ extension ExportGenericViewController {
         containerView.stackView.setCustomSpacing(Constants.verticalSpacing, after: view)
 
         view.widthAnchor.constraint(
-            equalTo: self.view.widthAnchor,
+            equalTo: self.view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
 
@@ -513,7 +513,7 @@ extension ExportGenericViewController {
         containerView.stackView.setCustomSpacing(0.0, after: view)
 
         view.widthAnchor.constraint(
-            equalTo: self.view.widthAnchor,
+            equalTo: self.view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
 
@@ -532,7 +532,7 @@ extension ExportGenericViewController {
         containerView.stackView.addArrangedSubview(bottomSeparator)
 
         bottomSeparator.widthAnchor.constraint(
-            equalTo: self.view.widthAnchor,
+            equalTo: self.view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
         bottomSeparator.heightAnchor.constraint(equalToConstant: UIConstants.formSeparatorWidth).isActive = true
@@ -551,7 +551,7 @@ extension ExportGenericViewController {
             self.containerView.stackView.addArrangedSubview(containerView)
 
             containerView.widthAnchor.constraint(
-                equalTo: view.widthAnchor,
+                equalTo: view.safeAreaLayoutGuide.widthAnchor,
                 constant: -2.0 * UIConstants.horizontalInset
             ).isActive = true
 
@@ -647,7 +647,7 @@ extension ExportGenericViewController {
         }
 
         networkView.widthAnchor.constraint(
-            equalTo: view.widthAnchor,
+            equalTo: view.safeAreaLayoutGuide.widthAnchor,
             constant: -2.0 * UIConstants.horizontalInset
         ).isActive = true
 

@@ -116,7 +116,8 @@ private extension WalletDetailsViewLayout {
 
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         navigationBar.setCenterViews([navigationLabel])
@@ -124,22 +125,22 @@ private extension WalletDetailsViewLayout {
         addSubview(walletView)
         walletView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(72)
         }
 
         addSubview(searchTextField)
         searchTextField.snp.makeConstraints { make in
             make.top.equalTo(walletView.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.greaterThanOrEqualTo(48)
         }
 
         addSubview(container)
         container.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(searchTextField.snp.bottom).offset(UIConstants.bigOffset)
             keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
         }
@@ -152,9 +153,9 @@ private extension WalletDetailsViewLayout {
         addSubview(exportButton)
         exportButton.snp.makeConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.actionHeight)
-            make.width.equalToSuperview().inset(UIConstants.bigOffset * 2)
+            make.width.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset * 2)
         }
     }
 }

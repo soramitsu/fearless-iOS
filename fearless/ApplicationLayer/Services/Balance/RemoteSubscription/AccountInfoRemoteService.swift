@@ -28,6 +28,15 @@ protocol AccountInfoLastKnownBalanceProviding {
     ) -> [ChainAssetId: AccountInfo?]
 }
 
+/// A network scan that could not read every balance, for example an EVM token whose call reverts or a network with no
+/// working node. The scan failed, so the network keeps its "update failed" attention, but the balances it did read
+/// are fresh: they are in `accountInfos` (none when nothing was read), keyed as a full scan's are. The assets it could
+/// not read are left out of it, never reported as no balance.
+struct IncompleteAccountInfosError: Error {
+    let accountInfos: [ChainAssetId: AccountInfo?]
+    let unreadChainAssetIds: Set<ChainAssetId>
+}
+
 struct RemoteAccountInfoUpdatedEvent: EventProtocol {
     let walletId: MetaAccountId
     let chainId: ChainModel.Id
@@ -179,13 +188,19 @@ extension BitcoinBalanceSyncing {
 
 protocol UniversalWalletMnemonicProviding {
     func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String?
+    /// The words and passphrase that derive the wallet's stored account on `chain`.
+    func secret(for wallet: MetaAccountModel, chain: ChainModel) throws -> UniversalWalletSecret?
     func tonSigningCredentials(for wallet: MetaAccountModel, chain: ChainModel) throws -> TonSigningCredentials
 }
 
 extension UniversalWalletMnemonicProviding {
+    func secret(for wallet: MetaAccountModel, chain: ChainModel) throws -> UniversalWalletSecret? {
+        try mnemonic(for: wallet, chain: chain).map { UniversalWalletSecret(mnemonic: $0, passphrase: "") }
+    }
+
     func tonSigningCredentials(for wallet: MetaAccountModel, chain: ChainModel) throws -> TonSigningCredentials {
-        guard let mnemonic = try mnemonic(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
-        return TonSigningCredentials(mnemonic: mnemonic)
+        guard let secret = try secret(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
+        return TonSigningCredentials(mnemonic: secret.mnemonic, passphrase: secret.passphrase)
     }
 }
 
@@ -193,6 +208,14 @@ protocol BitcoinMnemonicProviding: UniversalWalletMnemonicProviding {}
 
 protocol UniversalWalletRootMnemonicProviding {
     func rootMnemonic(for wallet: MetaAccountModel) throws -> String?
+    /// The root words with the wallet password (empty for a wallet without one).
+    func rootSecret(for wallet: MetaAccountModel) throws -> UniversalWalletSecret?
+}
+
+extension UniversalWalletRootMnemonicProviding {
+    func rootSecret(for wallet: MetaAccountModel) throws -> UniversalWalletSecret? {
+        try rootMnemonic(for: wallet).map { UniversalWalletSecret(mnemonic: $0, passphrase: "") }
+    }
 }
 
 final class KeychainUniversalWalletMnemonicProvider:
@@ -208,28 +231,39 @@ final class KeychainUniversalWalletMnemonicProvider:
         if let legacy = wallet.legacyTonAccount, chain.isTonCompatibilityChain {
             return try legacy.signingCredentials(keystore: keystore, metaId: wallet.metaId)
         }
-        guard let mnemonic = try mnemonic(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
-        return TonSigningCredentials(mnemonic: mnemonic)
+        guard let secret = try secret(for: wallet, chain: chain) else { throw TonSendServiceError.invalidAccount }
+        return TonSigningCredentials(mnemonic: secret.mnemonic, passphrase: secret.passphrase)
     }
 
     func mnemonic(for wallet: MetaAccountModel, chain: ChainModel) throws -> String? {
+        try secret(for: wallet, chain: chain)?.mnemonic
+    }
+
+    /// The root words with the passphrase of the stored account: the wallet password when the
+    /// account is the one it protects, empty when it is one an earlier release created from
+    /// the words alone.
+    func secret(for wallet: MetaAccountModel, chain: ChainModel) throws -> UniversalWalletSecret? {
         if let legacy = wallet.legacyTonAccount, chain.isTonCompatibilityChain {
-            return try legacy.mnemonic(from: keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))).toString()
+            let mnemonic = try legacy.mnemonic(
+                from: keystore.fetchKey(for: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+            ).toString()
+            return UniversalWalletSecret(mnemonic: mnemonic, passphrase: "")
         }
         let accountResponse = wallet.fetch(for: chain.accountRequest())
 
-        let rootResult = Result { try rootMnemonic(for: wallet) }
-        if let rootMnemonic = try? rootResult.get() {
+        let rootResult = Result { try rootSecret(for: wallet) }
+        if let rootSecret = try? rootResult.get() {
             guard let accountResponse, accountResponse.isChainAccount else {
-                return rootMnemonic
+                // No row of its own (Nexus shows the Taira key): follow the row it shares.
+                return sharedKeySecret(rootSecret, wallet: wallet, chainId: chain.chainId) ?? rootSecret
             }
 
-            if mnemonicMatches(
-                rootMnemonic,
+            if let match = matchingSecret(
+                rootSecret,
                 chainId: chain.chainId,
                 publicKey: accountResponse.publicKey
             ) {
-                return rootMnemonic
+                return match
             }
         }
 
@@ -239,12 +273,12 @@ final class KeychainUniversalWalletMnemonicProvider:
            let accountMnemonic = try mnemonicIfPresent(
                metaId: wallet.metaId,
                accountId: accountResponse?.accountId
-           ), mnemonicMatches(
-               accountMnemonic,
+           ), let match = matchingSecret(
+               UniversalWalletSecret(mnemonic: accountMnemonic, passphrase: ""),
                chainId: chain.chainId,
                publicKey: accountResponse?.publicKey
            ) {
-            return accountMnemonic
+            return match
         }
 
         // A root read/format failure stays an error unless independently verified
@@ -253,6 +287,19 @@ final class KeychainUniversalWalletMnemonicProvider:
             throw error
         }
         return nil
+    }
+
+    /// The wallet password applies only to a root that is the wallet's own BIP39 entropy; the
+    /// raw-seed bridge never had one.
+    func rootSecret(for wallet: MetaAccountModel) throws -> UniversalWalletSecret? {
+        guard wallet.substrateAccountId != nil else { return nil }
+        if let rootMnemonic = try mnemonicIfPresent(metaId: wallet.metaId, accountId: nil) {
+            return UniversalWalletSecret(
+                mnemonic: rootMnemonic,
+                passphrase: try UniversalWalletPassphrase.stored(metaId: wallet.metaId, keystore: keystore)
+            )
+        }
+        return try rootMnemonic(for: wallet).map { UniversalWalletSecret(mnemonic: $0, passphrase: "") }
     }
 
     func rootMnemonic(for wallet: MetaAccountModel) throws -> String? {
@@ -311,40 +358,27 @@ final class KeychainUniversalWalletMnemonicProvider:
         }
     }
 
-    private func mnemonicMatches(
-        _ mnemonic: String,
+    private func matchingSecret(
+        _ secret: UniversalWalletSecret,
         chainId: ChainModel.Id,
         publicKey: Data?
-    ) -> Bool {
-        guard let publicKey else {
-            return false
+    ) -> UniversalWalletSecret? {
+        guard let publicKey, let slot = UniversalWalletSlot(chainId: chainId) else {
+            return nil
         }
+        return slot.matchingSecret(secret, publicKey: publicKey)
+    }
 
-        let derivedPublicKey: Data?
-        switch UniversalWalletChainAccountSupport.canonicalChainId(for: chainId) {
-        case UniversalWalletRegistry.bitcoinMainnet.chainId:
-            derivedPublicKey = try? BitcoinKeyDerivation.deriveAccount(
-                mnemonic: mnemonic,
-                network: .mainnet
-            ).publicKey
-        case UniversalWalletRegistry.bitcoinTestnet.chainId:
-            derivedPublicKey = try? BitcoinKeyDerivation.deriveAccount(
-                mnemonic: mnemonic,
-                network: .testnet
-            ).publicKey
-        case UniversalWalletRegistry.solanaMainnet.chainId,
-             UniversalWalletRegistry.solanaDevnet.chainId:
-            derivedPublicKey = try? SolanaKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
-        case UniversalWalletRegistry.tonMainnetRegistryEntry.chainId:
-            derivedPublicKey = try? TonKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
-        case UniversalWalletRegistry.taira.chainId,
-             UniversalWalletRegistry.nexus.chainId:
-            derivedPublicKey = try? IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
-        default:
-            return false
+    private func sharedKeySecret(
+        _ secret: UniversalWalletSecret,
+        wallet: MetaAccountModel,
+        chainId: ChainModel.Id
+    ) -> UniversalWalletSecret? {
+        guard let slot = UniversalWalletSlot(chainId: chainId),
+              let account = slot.storedAccount(in: wallet) else {
+            return nil
         }
-
-        return derivedPublicKey == publicKey
+        return slot.matchingSecret(secret, publicKey: account.publicKey)
     }
 }
 
@@ -641,14 +675,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             )
             return request
         case .none:
-            let parametersType: MixStorageRequestParametersType
-            if chainAsset.chain.chainId == Chain.reef.genesisHash || chainAsset.chain.chainId == Chain.scuba.genesisHash {
-                parametersType = .encodable(param: accountId.toHexString())
-            } else {
-                parametersType = .encodable(param: accountId)
-            }
             let request = AccountInfoStorageRequest(
-                parametersType: parametersType,
+                parametersType: .encodable(param: accountId),
                 storagePath: chainAsset.storagePath,
                 requestId: chainAsset.chainAssetId.id
             )
@@ -682,6 +710,12 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             ($0.key.chainAssetId, $0.value)
         }
         let map = Dictionary(uniqueKeysWithValues: mapped)
+        // The fetcher leaves out every asset it could not read, so one failed asset fails the scan without taking the
+        // balances read with it.
+        let unread = Set(chainAsset.map(\.chainAssetId)).subtracting(map.keys)
+        guard unread.isEmpty else {
+            throw IncompleteAccountInfosError(accountInfos: map, unreadChainAssetIds: unread)
+        }
         return map
     }
 
@@ -697,7 +731,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         guard let bitcoinBalanceSync else {
             throw ConvenienceError(error: "Bitcoin discovery is unavailable")
         }
-        guard let mnemonic = try bitcoinMnemonicProvider.mnemonic(for: wallet, chain: chain) else {
+        guard let secret = try bitcoinMnemonicProvider.secret(for: wallet, chain: chain) else {
             guard let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
                 throw ConvenienceError(error: "Bitcoin account address is unavailable")
             }
@@ -746,8 +780,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 for: cacheKey
             ) {
                 try await bitcoinBalanceSync.balance(
-                    mnemonic: mnemonic,
-                    passphrase: "",
+                    mnemonic: secret.mnemonic,
+                    passphrase: secret.passphrase,
                     network: keyNetwork,
                     baseURL: baseURL,
                     gapLimit: network.defaultGapLimit,
@@ -1092,12 +1126,12 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 tairaXorDefinition = nil
             }
             var items: [IrohaAccountAssetListItem] = []
-            var offset: Int64 = 0
-            var hasMore = true
+            var cursor: String?
             var pageCount = 0
+            var seenCursors = Set<String>()
             var seenPageFingerprints = Set<String>()
 
-            while hasMore {
+            repeat {
                 guard pageCount < 1000 else {
                     throw ConvenienceError(error: "Iroha account-asset pagination exceeded its safety bound")
                 }
@@ -1105,35 +1139,21 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                     accountID: address,
                     baseURL: baseURL,
                     limit: IrohaToriiRoutes.maxLimit,
-                    offset: offset,
-                    countMode: nil,
-                    asset: nil,
-                    scope: nil,
+                    cursor: cursor,
                     network: network
-                )
-                let responseHasMore = try irohaResponseHasMore(
-                    explicit: response.hasMore,
-                    offset: offset,
-                    itemCount: response.items.count,
-                    pageLimit: IrohaToriiRoutes.maxLimit
                 )
                 let fingerprint = response.items.map {
                     [$0.accountID, $0.assetID, $0.asset, $0.quantity, $0.scope]
                         .compactMap { $0 }
                         .joined(separator: "|")
                 }.joined(separator: "\n")
-                guard !responseHasMore || seenPageFingerprints.insert(fingerprint).inserted else {
+                guard response.items.isEmpty || seenPageFingerprints.insert(fingerprint).inserted else {
                     throw ConvenienceError(error: "Iroha account-asset pagination repeated a page")
                 }
                 items.append(contentsOf: response.items)
-                hasMore = responseHasMore && !response.items.isEmpty
-                let pageSize = Int64(response.items.count)
-                guard offset <= Int64.max - pageSize else {
-                    throw ConvenienceError(error: "Iroha account-asset pagination offset overflow")
-                }
-                offset += pageSize
+                cursor = try nextIrohaCursor(response.nextCursor, seenCursors: &seenCursors)
                 pageCount += 1
-            }
+            } while cursor != nil
 
             let registryIds = Set(chain.assets.map(\.id))
             let requiredDefinitionIds = Set(items.compactMap { item -> String? in
@@ -1206,25 +1226,19 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
 
         var definitions: [IrohaAssetDefinitionListItem] = []
         var foundIds = Set<String>()
+        var seenCursors = Set<String>()
         var seenPageFingerprints = Set<String>()
-        var offset: Int64 = 0
+        var cursor: String?
 
         for _ in 0 ..< 1000 {
             let response = try await client.assetDefinitions(
                 baseURL: baseURL,
                 limit: IrohaToriiRoutes.maxLimit,
-                offset: offset,
-                countMode: nil
-            )
-            let responseHasMore = try irohaResponseHasMore(
-                explicit: response.hasMore,
-                offset: offset,
-                itemCount: response.items.count,
-                pageLimit: IrohaToriiRoutes.maxLimit
+                cursor: cursor
             )
             let pageIds = response.items.map(\.id)
             let fingerprint = pageIds.joined(separator: "\n")
-            guard !responseHasMore || seenPageFingerprints.insert(fingerprint).inserted else {
+            guard pageIds.isEmpty || seenPageFingerprints.insert(fingerprint).inserted else {
                 throw ConvenienceError(error: "Iroha asset-definition pagination repeated a page")
             }
 
@@ -1233,39 +1247,29 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
             if requiredAssetIds.isSubset(of: foundIds) {
                 return (definitions, true)
             }
-            guard responseHasMore, response.items.isNotEmpty else {
+            guard let nextCursor = try nextIrohaCursor(response.nextCursor, seenCursors: &seenCursors) else {
                 return (definitions, false)
             }
-
-            let pageSize = Int64(response.items.count)
-            guard offset <= Int64.max - pageSize else {
-                throw ConvenienceError(error: "Iroha asset-definition pagination offset overflow")
-            }
-            offset += pageSize
+            cursor = nextCursor
         }
 
         throw ConvenienceError(error: "Iroha asset-definition pagination exceeded its safety bound")
     }
 
-    private func irohaResponseHasMore(
-        explicit: Bool?,
-        offset: Int64,
-        itemCount: Int,
-        pageLimit: Int
-    ) throws -> Bool {
-        if let explicit {
-            return explicit
+    /// The cursor of the next Torii page, or nil after the last one. A cursor that comes back
+    /// a second time means paging makes no progress, so it fails instead of looping.
+    private func nextIrohaCursor(
+        _ cursor: String?,
+        seenCursors: inout Set<String>
+    ) throws -> String? {
+        guard let cursor, !cursor.isEmpty else {
+            return nil
+        }
+        guard seenCursors.insert(cursor).inserted else {
+            throw ConvenienceError(error: "Iroha pagination made no progress")
         }
 
-        guard offset >= 0, itemCount >= 0, pageLimit > 0 else {
-            throw ConvenienceError(error: "Iroha pagination metadata is invalid")
-        }
-        guard let itemCount64 = Int64(exactly: itemCount),
-              offset <= Int64.max - itemCount64 else {
-            throw ConvenienceError(error: "Iroha pagination offset overflow")
-        }
-
-        return itemCount >= pageLimit
+        return cursor
     }
 
     private func discoveredIrohaAssets(

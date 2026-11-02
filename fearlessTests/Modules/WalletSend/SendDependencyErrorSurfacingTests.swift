@@ -363,6 +363,37 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
         XCTAssertEqual(context.wireframe.extrinsicFailedCount, 1)
     }
 
+    /// The sheet behind the recipient warning used to give the sanctions sentence for every flag.
+    func testConfirm_whenRecipientWarningIsTapped_thenSheetGivesThatFlagsWarning() throws {
+        let english = Locale(identifier: "en")
+        for type in [ScamInfo.ScamType.scam, .donation, .exchange, .service, .lowScore, .unknown] {
+            let context = makeConfirmPresenter(
+                scamInfo: ScamInfo(name: "Flagged", address: "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m", type: type, subtype: "")
+            )
+
+            context.presenter.didTapScamWarningButton()
+
+            let sheet = try XCTUnwrap(context.wireframe.presentedSheets.first, "\(type)")
+            XCTAssertEqual(context.wireframe.presentedSheets.count, 1, "\(type)")
+            XCTAssertEqual(sheet.title, "Warning", "\(type)")
+            XCTAssertEqual(sheet.message, type.confirmationAlertMessage(for: english, assetName: "BTC"), "\(type)")
+            XCTAssertFalse(sheet.message?.contains("sanctions") ?? true, "\(type)")
+            if [.donation, .exchange, .service].contains(type) {
+                XCTAssertFalse(sheet.message?.contains("don't send") ?? true, "\(type)")
+            }
+        }
+
+        let scam = makeConfirmPresenter(
+            scamInfo: ScamInfo(name: "Flagged", address: "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m", type: .scam, subtype: "")
+        )
+        scam.presenter.didTapScamWarningButton()
+        XCTAssertEqual(
+            scam.wireframe.presentedSheets.first?.message,
+            "This address has been flagged due to evidence of a scam. " +
+                "We strongly recommend that you don't send BTC to this account."
+        )
+    }
+
     // MARK: - Bitcoin transfers whose outcome is unknown (IOSUX-3 B1)
 
     func testBitcoinUnknownOutcomeSheetOffersCopyAndSameHexRetry() throws {
@@ -997,7 +1028,8 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
 
     private func makeConfirmPresenter(
         chainAsset: ChainAsset = ChainAsset(chain: SendDependencyErrorSurfacingTests.bitcoinChain, asset: SendDependencyErrorSurfacingTests.btcAsset),
-        receiver: String = "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m"
+        receiver: String = "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m",
+        scamInfo: ScamInfo? = nil
     ) -> ConfirmContext {
         let wireframe = WalletSendConfirmWireframeSpy()
         let view = WalletSendConfirmViewStub()
@@ -1023,7 +1055,7 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
                     appId: nil
                 )
             ),
-            scamInfo: nil,
+            scamInfo: scamInfo,
             feeViewModel: nil,
             localizationManager: LocalizationManager.shared
         )

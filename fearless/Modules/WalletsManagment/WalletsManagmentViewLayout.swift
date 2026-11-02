@@ -120,7 +120,8 @@ final class WalletsManagmentViewLayout: UIView {
         let navView = UIView()
         addSubview(navView)
         navView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.greaterThanOrEqualTo(Constants.headerHeight)
         }
 
@@ -142,7 +143,7 @@ final class WalletsManagmentViewLayout: UIView {
         let buttonsVStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.accessoryItemsSpacing)
         addSubview(buttonsVStackView)
         buttonsVStackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
 
@@ -165,7 +166,7 @@ final class WalletsManagmentViewLayout: UIView {
         addSubview(recordsNoticeView)
         recordsNoticeView.snp.makeConstraints { make in
             make.top.equalTo(navView.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         addSubview(tableView)
@@ -174,7 +175,7 @@ final class WalletsManagmentViewLayout: UIView {
                 .offset(UIConstants.defaultOffset).constraint
             tableTopToRecordsNotice = make.top.equalTo(recordsNoticeView.snp.bottom)
                 .offset(UIConstants.defaultOffset).constraint
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             switch type {
             case .wallets:
                 make.bottom.equalTo(buttonsVStackView.snp.top).offset(-UIConstants.hugeOffset)

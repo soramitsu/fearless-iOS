@@ -57,19 +57,6 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         return view
     }()
 
-    let collatorView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = R.color.colorWhite()
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        return view
-    }()
-
     let accountView: TitleMultiValueView = {
         let view = TitleMultiValueView()
         view.titleLabel.font = .h5Title
@@ -138,20 +125,6 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         navigationBar.backButton.rounded()
     }
 
-    func bind(confirmationViewModel: StakingBondMoreConfirmViewModel) {
-        accountView.bind(viewModel: confirmationViewModel.accountViewModel)
-        collatorView.bind(viewModel: confirmationViewModel.collatorViewModel)
-        amountView.bind(viewModel: confirmationViewModel.amountViewModel)
-
-        collatorView.isHidden = confirmationViewModel.collatorViewModel == nil
-
-        if let stakeViewModel = confirmationViewModel.amount?.value(for: locale) {
-            stakeAmountView.bind(viewModel: stakeViewModel)
-        }
-
-        setNeedsLayout()
-    }
-
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         networkFeeFooterView.bindBalance(viewModel: feeViewModel)
         feeView.bindBalance(viewModel: feeViewModel)
@@ -173,7 +146,6 @@ final class StakingPayoutConfirmationViewLayout: UIView {
 
         tableView.isHidden = singleViewModel != nil
         contentView.isHidden = singleViewModel == nil
-        collatorView.isHidden = true
         networkFeeFooterView.networkFeeView?.isHidden = singleViewModel != nil
 
         if let senderName = singleViewModel?.senderName {
@@ -212,17 +184,18 @@ final class StakingPayoutConfirmationViewLayout: UIView {
 
         tableView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalTo(networkFeeFooterView.snp.top)
         }
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
@@ -235,7 +208,6 @@ final class StakingPayoutConfirmationViewLayout: UIView {
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
-        infoStackView.addArrangedSubview(collatorView)
         infoStackView.addArrangedSubview(accountView)
         infoStackView.addArrangedSubview(amountView)
         infoStackView.addArrangedSubview(feeView)
@@ -256,14 +228,14 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         }
 
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(contentView.snp.bottom)
         }
     }
 
     private func applyLocalization() {
         accountView.titleLabel.text = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
-        collatorView.titleLabel.text = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
         hintView.detailsLabel.text = R.string.localizable.stakingHintRewardBondMore(
             preferredLanguages: locale.rLanguages

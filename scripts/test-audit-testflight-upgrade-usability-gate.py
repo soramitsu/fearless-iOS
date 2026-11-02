@@ -29,7 +29,7 @@ def passing_capture_receipt(*, first: bool) -> dict:
         "captureStatus": "complete",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.10.1",
+        "buildNumber": GATE.EXPECTED_BUILD,
         "observationMethod": "paired-device-fearless-process-only-sanitized-syslog",
         "deviceSidePIDFilter": True,
         "historicalLogsRequested": False,
@@ -102,7 +102,7 @@ def write_capture_bundle(root: Path, *, first: bool) -> tuple[Path, str]:
         "observedAtUTC": "2026-08-10T11:59:59+09:00",
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildNumber": "2026.10.1",
+        "buildNumber": GATE.EXPECTED_BUILD,
     }
     records = [
         {
@@ -150,7 +150,7 @@ def passing_evidence() -> dict:
         "schemaVersion": 1,
         "bundleIdentifier": "jp.co.soramitsu.fearlesswallet",
         "marketingVersion": "4.2.0",
-        "buildVersion": "2026.10.1",
+        "buildVersion": GATE.EXPECTED_BUILD,
         "baseSourceCommit": "2e45e55dc03ad904598e730cfb5994fb5c1072dc",
         "artifactSourceCommit": EXPECTED_ARTIFACT_SOURCE_COMMIT,
         "distribution": "apple-testflight-internal",
@@ -346,7 +346,7 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
         redesigned_predecessor["installation"]["previousBuildVersion"] = "2026.8.17"
         validate(redesigned_predecessor)
 
-        for consumed_build in ("2026.8.34", "2026.9.6"):
+        for consumed_build in ("2026.8.34", "2026.9.6", "2026.11.1", "2026.11.2"):
             latest_predecessor = passing_evidence()
             latest_predecessor["installation"]["previousBuildVersion"] = consumed_build
             validate(latest_predecessor)
@@ -355,7 +355,7 @@ class UpgradeUsabilityGateTests(unittest.TestCase):
         reinstalled_same_build["installation"]["previousBuildVersion"] = GATE.EXPECTED_BUILD
         with self.assertRaisesRegex(
             GATE.EvidenceError,
-            r"supported predecessor build 2026\.8\.15, .*2026\.8\.34, or 2026\.9\.6$",
+            r"supported predecessor build 2026\.8\.15, .*2026\.11\.1, or 2026\.11\.2$",
         ):
             validate(reinstalled_same_build)
 

@@ -23,7 +23,6 @@ final class StakingUnbondSetupLayout: UIView {
     }()
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
-    let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
     let amountInputView = AmountInputViewV2(type: .bonded)
 
@@ -77,7 +76,7 @@ final class StakingUnbondSetupLayout: UIView {
             }
 
             view.snp.makeConstraints { make in
-                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+                make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             }
 
             contentView.stackView.setCustomSpacing(Constants.hintsSpacing, after: view)
@@ -100,17 +99,9 @@ final class StakingUnbondSetupLayout: UIView {
         addSubview(navigationBar)
         addSubview(contentView)
 
-        contentView.stackView.addArrangedSubview(collatorView)
-
-        collatorView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: collatorView)
-
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
@@ -118,21 +109,21 @@ final class StakingUnbondSetupLayout: UIView {
 
         addSubview(networkFeeFooterView)
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(networkFeeFooterView.snp.top).inset(UIConstants.bigOffset)
         }
 
         accountView.isHidden = true
-        collatorView.isHidden = true
     }
 }

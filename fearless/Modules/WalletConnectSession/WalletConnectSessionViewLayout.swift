@@ -119,18 +119,19 @@ final class WalletConnectSessionViewLayout: UIView {
         indicator.snp.makeConstraints { make in
             make.size.equalTo(UIConstants.indicatorSize)
             make.top.equalToSuperview()
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(navigationTitle)
         navigationTitle.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIConstants.bigOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
         }
 
         addSubview(closeButton)
         closeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(20)
+            make.top.equalToSuperview().inset(20)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(20)
             make.size.equalTo(Constants.closeButton)
         }
 
@@ -147,11 +148,15 @@ final class WalletConnectSessionViewLayout: UIView {
             make.center.equalToSuperview()
         }
 
-        addSubview(contentStackView)
-        contentStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(76)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            setupScrollingContent()
+        } else {
+            addSubview(contentStackView)
+            contentStackView.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(76)
+                make.leading.trailing.equalTo(safeAreaLayoutGuide)
+                make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            }
         }
 
         contentStackView.addArrangedSubview(imageViewContainer)
@@ -184,6 +189,25 @@ final class WalletConnectSessionViewLayout: UIView {
             view.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             }
+        }
+    }
+
+    /// An iPad window can be shorter than this request: the card then keeps the
+    /// warning and the action reachable by scrolling its content.
+    private func setupScrollingContent() {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = false
+        addSubview(scrollView)
+        scrollView.addSubview(contentStackView)
+        scrollView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(76)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            make.height.equalTo(contentStackView).priority(.low)
+        }
+        contentStackView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
         }
     }
 

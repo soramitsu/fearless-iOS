@@ -46,12 +46,13 @@ final class StakingBalanceUnbondingWidgetView: UIView {
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.top.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         addSubview(moreButton)
         moreButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.centerY.equalTo(titleLabel.snp.centerY)
         }
 
@@ -59,20 +60,21 @@ final class StakingBalanceUnbondingWidgetView: UIView {
         addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(15)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.height.equalTo(0.75)
         }
 
         addSubview(emptyListLabel)
         emptyListLabel.snp.makeConstraints { make in
             make.top.equalTo(separatorView.snp.bottom).offset(UIConstants.horizontalInset)
-            make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         addSubview(unbondingsStackView)
         unbondingsStackView.snp.makeConstraints { make in
             make.top.equalTo(separatorView.snp.bottom)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalToSuperview().inset(8)
         }
     }

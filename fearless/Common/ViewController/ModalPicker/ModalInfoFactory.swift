@@ -3,7 +3,7 @@ import SoraFoundation
 import SoraUI
 import SSFModels
 
-struct ModalInfoFactory {
+enum ModalInfoFactory {
     static let rowHeight: CGFloat = 50.0
     static let headerHeight: CGFloat = 40.0
     static let footerHeight: CGFloat = 0.0
@@ -46,7 +46,7 @@ struct ModalInfoFactory {
         let viewModels = [maxViewModel, avgViewModel]
         viewController.viewModels = viewModels
 
-        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        let factory = ModalSheetBlurPresentationFactory.forPicker(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(viewModels.count) * viewController.cellHeight +

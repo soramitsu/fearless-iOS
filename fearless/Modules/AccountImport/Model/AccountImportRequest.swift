@@ -9,6 +9,21 @@ struct MetaAccountImportMnemonicRequest {
     let ethereumDerivationPath: String
     let cryptoType: CryptoType
     let defaultChainId: ChainModel.Id?
+    /// For a wallet with a `///password`: which of Bitcoin, Solana, TON and Taira use it.
+    /// Unless a creation or a funds check says otherwise, the accounts the words alone open
+    /// are kept.
+    var universalWalletEnrollment: UniversalWalletPasswordEnrollment = .unchecked
+    /// How the Substrate path's password salts the seed; an import may open the account an earlier
+    /// browser extension made (SubstratePasswordRule).
+    var substratePasswordRule: SubstratePasswordRule = .nfkd
+
+    /// The wallet password the universal accounts use, from the derivation paths.
+    var universalWalletPassphrase: String {
+        UniversalWalletPassphrase.resolve(
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: ethereumDerivationPath
+        )
+    }
 }
 
 struct MetaAccountImportSeedRequest {
@@ -34,6 +49,7 @@ enum MetaAccountImportRequestSource {
         let mnemonic: IRMnemonicProtocol
         let substrateDerivationPath: String
         let ethereumDerivationPath: String
+        var substratePasswordRule: SubstratePasswordRule = .nfkd
     }
 
     struct SeedImportRequestData {
@@ -70,6 +86,7 @@ struct ChainAccountImportMnemonicRequest {
     let isEthereum: Bool
     let meta: MetaAccountModel
     let chainId: ChainModel.Id
+    var substratePasswordRule: SubstratePasswordRule = .nfkd
 }
 
 struct ChainAccountImportSeedRequest {
@@ -96,6 +113,7 @@ enum UniqueChainImportRequestSource {
     struct MnemonicImportRequestData {
         let mnemonic: IRMnemonicProtocol
         let derivationPath: String
+        var substratePasswordRule: SubstratePasswordRule = .nfkd
     }
 
     struct SeedImportRequestData {

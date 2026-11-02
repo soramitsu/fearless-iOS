@@ -306,7 +306,7 @@ final class StakingPoolInfoViewLayout: UIView {
         contentView.stackView.addArrangedSubview(rolesTitleLabel)
 
         statusView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
 
         infoBackground.addSubview(infoStackView)
@@ -325,11 +325,13 @@ final class StakingPoolInfoViewLayout: UIView {
         contentView.stackView.addArrangedSubview(saveRolesButton)
 
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom)
         }
 

@@ -5,11 +5,6 @@ import SSFModels
 
 enum StakingRedeemFlow {
     case relaychain
-    case parachain(
-        collator: ParachainStakingCandidateInfo,
-        delegation: ParachainStakingDelegation,
-        readyForRevoke: BigUInt
-    )
     case pool
 }
 

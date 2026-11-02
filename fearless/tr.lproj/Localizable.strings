@@ -342,7 +342,7 @@ Yolu olmadığını biliyorum";
 "common.update" = "Güncelle";
 "common.use" = "Kullanım";
 "common.wallet" = "Cüzdan";
-"common.warning" = "Uyarı.";
+"common.warning" = "Uyarı";
 "common.warning.capitalized" = "UYARI:";
 "common.watch" = "Kol saati";
 "common.yes" = "Evet";
@@ -741,17 +741,19 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "roles.common" = "Roller";
 "same.address.transfer.warning.message" = "Aynı hesaba transfer yapmaya çalışıyorsunuz. Operasyon ücretli olacak ve hiçbir anlam ifade etmiyor";
 "scam.additional.stub" = "Ek olarak:";
-"scam.description.donation.stub" = "Bu adres şüpheli olarak işaretlendi. göndermemenizi şiddetle tavsiye ederiz.%sbu hesaba.";
+"scam.description.donation.stub" = "Bu adres bir hayır kurumunun bağış adresi olarak işaretlenmiştir. %s göndermeden önce bağış yapmak istediğinizden emin olun.";
 "scam.description.exchange.stub" = "Bu adres bir borsa olarak işaretlenmiştir, para yatırma ve çekme adresleri farklı olabileceğinden dikkatli olun.";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
-"scam.description.sanctions.stub" = "Bu adres, yaptırım altındaki bir ülkeyle bağlantılı bir kuruluş nedeniyle işaretlendi. göndermemenizi şiddetle tavsiye ederiz.%sbu hesaba.";
-"scam.description.scam.stub" = "Bu adres dolandırıcılık kanıtı nedeniyle işaretlendi. göndermemenizi şiddetle tavsiye ederiz.%sbu hesaba.";
+"scam.description.highrisk.stub" = "Bu adres yüksek riskli bir kuruluş olarak işaretlendi. Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
+"scam.description.lowscore.text" = "Transfer yapmak üzere olduğunuz adresin zincir üstü etkinliği düşük; bu, olası bir dolandırıcıya veya sybil saldırganına işaret edebilir.";
+"scam.description.sanctions.stub" = "Bu adres, yaptırım altındaki bir ülkeyle bağlantılı bir kuruluş nedeniyle işaretlendi. Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
+"scam.description.scam.stub" = "Bu adres dolandırıcılık kanıtı nedeniyle işaretlendi. Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
+"scam.description.service.stub" = "Bu adres bir finansal hizmet olarak işaretlenmiştir, para yatırma ve çekme adresleri farklı olabileceğinden dikkatli olun.";
+"scam.description.theft.stub" = "Bu adres hırsızlık kanıtı nedeniyle işaretlendi. Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "İsim:";
 "scam.reason.stub" = "Sebep:";
-"scam.warning.alert.subtitle" = "göndermemenizi şiddetle tavsiye ederiz.%sbu hesaba.";
-"scam.warning.alert.title" = "Bu adres, yaptırım altındaki bir ülkeyle bağlantılı bir kuruluş nedeniyle işaretlendi. göndermemenizi şiddetle tavsiye ederiz.%@ bu hesaba.";
+"scam.warning.alert.subtitle" = "Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
 "scan.qr.subtitle" = "Alıcıdan kodu tarayın";
 "scan.qr.title" = "QR Kodu Tarayın";
 "scan.qr.upload.button.title" = "Galeriden yükleyin";
@@ -1496,3 +1498,34 @@ ait olduğundan emin olun.";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Alıcı hesabı kurulumu";
 "solana.transfer.account_creation.included" = "Ağ ücretine dahildir";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless son çapraz zincir transferlerinin kaydını okuyamıyor, bu yüzden bu transferin daha önce gönderilip gönderilmediğini anlayamıyor. Hiçbir şey gönderilmedi. Kaynak hesabın geçmişini kontrol edin. Yeni çapraz zincir transferleri, kayıt okunamaz hale geldikten 24 saat sonra yeniden yapılabilir.";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "Fearless'ın bu sürümünde kullanılamaz.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Eski adreslerdeki varlıkları taşıyın";
+"universal.password.notice.message" = "Bu adresler cüzdan şifrenizi kullanmıyor, bu yüzden kurtarma kelimeleriniz tek başına onları açar. Varlıklarını şifreyle korunan yeni adreslere gönderin, ardından Değiştir'e dokunun.";
+"universal.password.notice.row" = "%@\nEski: %@\nYeni: %@";
+"universal.password.notice.switch" = "Değiştir";
+"universal.password.notice.later" = "Sonra";
+"universal.password.notice.copy" = "Yeni %@ adresini kopyala";
+"universal.password.switch.switched" = "%@: yeni adrese geçildi.";
+"universal.password.switch.funded" = "%@: hâlâ varlık içeriyor. Önce yeni adrese taşıyın.";
+"universal.password.switch.unchecked" = "%@: kontrol edilemedi. Daha sonra tekrar deneyin.";
+"universal.password.chain.action" = "Şifreyle korunan adrese geç";
+"universal.password.arrival.title" = "Eski adresinize varlık geldi";
+"universal.password.arrival.message" = "Varlıklar yalnızca kurtarma kelimelerinizle açılan adreslere geldi. Bu cüzdan şifreyle korunan adresleri göstermeye devam eder. Bu varlıkları taşımak için kurtarma kelimelerini şifresiz olarak başka bir cüzdan olarak içe aktarın.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Başka bir adrese varlık geldi";
+"universal.password.arrival.protected.message" = "Varlıklar bu cüzdanın şifreyle korunan adreslerine geldi. Cüzdan, yalnızca kurtarma kelimelerinizle açılan adreslerde varlık olduğu veya kontrol edilemediği sürece onları gösterir ve boşaldıkları anda geçiş yapar. Geçmek için bu adreslerdeki varlıkları şifreyle korunan adrese gönderin.";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Adresinizi seçin";
+"substrate.password.choice.message" = "Fearless tarayıcı uzantısının önceki sürümleri bu paroladan farklı bir adres oluşturuyordu. Varlıklarınızın bulunduğu adresi seçin.";
+"substrate.password.choice.nfkd" = "Tüm Fearless uygulamaları";
+"substrate.password.choice.nfc" = "Önceki tarayıcı uzantısı";
+"substrate.password.choice.asTyped" = "Tarayıcı uzantısı 3.0, yazıldığı gibi";
