@@ -767,7 +767,7 @@ Terms and Conditions and Privacy Policy";
 "select.validators.disclaimer" = "DISCLAIMER: Algorithmic validator suggestions do not constitute financial consultation or advice. Staking is a high-risk activity and algorithmic validator suggestions do not necessarily mitigate this risk. A validator suggested by the algorithm could still be slashed. A validator suggested by the algorithm could also change their parameters (e.g. commission rates, etc.) at any time after having been suggested and/or selected. You could lose tokens or rewards for these or other reasons. Only stake tokens and use validator suggestions at your own discretion, after conducting due diligence and carefully considering the risks involved.";
 "send.all.title" = "Send all tokens and allow this network account to close";
 "send.confirm.amount.title" = "Sending\n%@";
-"send.fund.title" = "Send fund";
+"send.fund.title" = "Send funds";
 "settings.add.wallet" = "Add wallet";
 "settings.hide.zero.balances" = "Hide zero balances";
 "share.referral.code" = "Share referral code";
@@ -1083,7 +1083,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "transaction.details.view.polkascan" = "View in Polkascan";
 "transaction.details.view.reefscan" = "View in Reefscan";
 "transaction.details.view.subscan" = "View in Subscan";
-"transaction.list.header" = "All transaction";
+"transaction.list.header" = "All transactions";
 "transaction.status.completed" = "Completed";
 "transaction.status.failed" = "Failed";
 "transaction.status.pending" = "Pending";

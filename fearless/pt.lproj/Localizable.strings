@@ -777,7 +777,7 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "select.validators.disclaimer" = "RESPONSABILIDADE: As sugestões de validador algorítmico não constituem uma consulta ou conselho financeiro. O staking é uma atividade de alto risco, e as sugestões de validador algorítmico não mitigam necessariamente este risco. Um validador sugerido pelo algoritmo pode ainda ser penalizado. Um validador sugerido pelo algoritmo pode também alterar os seus parâmetros (por exemplo, taxas de comissão, etc.) em qualquer altura depois de ter sido sugerido e/ou selecionado. Pode perder tokens ou recompensas por estas, ou outras razões. Apenas faça stake de tokens e utilize as sugestões do validador ao seu próprio critério, após ter realizado a devida diligência e considerado cuidadosamente os riscos envolvidos.";
 "send.all.title" = "Enviar todos os tokens e permitir o encerramento da conta nesta rede";
 "send.confirm.amount.title" = "Enviando \n %@";
-"send.fund.title" = "Enviar fundo";
+"send.fund.title" = "Enviar fundos";
 "settings.add.wallet" = "Adicionar carteira";
 "settings.hide.zero.balances" = "Ocultar saldos nulos";
 "share.referral.code" = "Partilhar código de referência";

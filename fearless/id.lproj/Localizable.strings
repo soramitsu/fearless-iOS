@@ -759,7 +759,7 @@ Syarat dan Ketentuan serta Kebijakan Privasi";
 "select.validators.disclaimer" = "PENAFIAN: Saran validator algoritmik bukan merupakan konsultasi atau saran keuangan. Staking adalah aktivitas berisiko tinggi dan saran validator algoritmik tidak serta merta memitigasi risiko ini. Validator yang disarankan oleh algoritme masih dapat dikurangi. Validator yang disarankan oleh algoritme juga dapat mengubah parameternya (misalnya tarif komisi, dll.) kapan saja setelah disarankan dan/atau dipilih. Anda bisa kehilangan token atau hadiah karena alasan ini atau lainnya. Hanya pertaruhkan token dan gunakan saran validator sesuai kebijaksanaan Anda sendiri, setelah melakukan uji tuntas dan mempertimbangkan risiko yang ada dengan cermat.";
 "send.all.title" = "Kirim semua token dan izinkan penutupan akun di jaringan ini";
 "send.confirm.amount.title" = "Mengirim\n%@";
-"send.fund.title" = "Dana terkirim";
+"send.fund.title" = "Kirim dana";
 "settings.add.wallet" = "Tambah dompet";
 "settings.hide.zero.balances" = "Sembunyikan saldo Nol";
 "share.referral.code" = "Bagikan kode rujukan";
