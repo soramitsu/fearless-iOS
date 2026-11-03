@@ -1,8 +1,17 @@
 # TestFlight 4.2.0 (2026.11.3)
 
 Status: **uploaded to App Store Connect on 2 November 2026 at 13:25 JST** (delivery
-`d021f6bd-3d94-4d53-b318-c13cc3aa54c6`) for internal TestFlight testing. App Store Connect was processing the build
-when the upload finished. This is the build to submit for App Review; 2026.11.1 and 2026.11.2 stay on TestFlight.
+`d021f6bd-3d94-4d53-b318-c13cc3aa54c6`) for internal TestFlight testing. Processing finished the same day: TestFlight
+shows it as 提出準備完了 (Ready to Submit). This is the build to submit for App Review; 2026.11.1 and 2026.11.2 stay on
+TestFlight.
+
+**App Store version 4.2.0 prepared on 3 November 2026, not submitted.** On the owner's OK, iOS version 4.2.0 was
+created in App Store Connect.
+- Its status is 提出準備中 (Prepare for Submission); 4.0.4 is still the live version.
+- Build 2026.11.3 is attached.
+- The four iPad 13-inch screenshots from `build/reports/ios-appstore-ipad-screenshots-20261101/final/` are uploaded
+  in order and saved.
+- The workspace's `build/reports/ios-appstore-connect-4.2.0-20261102/` holds the evidence.
 
 ## Candidate
 
@@ -79,6 +88,10 @@ above 2026.11.3.
 
 ## Still open
 
+- Submitting 4.2.0 for review is the owner's call. Before it:
+  - The iPhone screenshots and text copied from 4.0.4 still show Moonbeam transfers, Moonbeam staking and Polkaswap
+    swaps, which 4.2.0 no longer has.
+  - The What's New text for 4.2.0 is not written.
 - Polkadot and Kusama staking need #1312 on `master`: the app reads its network list from `fearless-iOS` master,
   which still marks the relay chains for staking and has no Asset Hub flag.
 - No KaiaScan key (Kaia history unavailable), as in 2026.11.1.
