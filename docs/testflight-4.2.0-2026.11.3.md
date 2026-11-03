@@ -2,13 +2,14 @@
 
 Status: **uploaded to App Store Connect on 2 November 2026 at 13:25 JST** (delivery
 `d021f6bd-3d94-4d53-b318-c13cc3aa54c6`) for internal TestFlight testing. Processing finished the same day: TestFlight
-shows it as 提出準備完了 (Ready to Submit). This is the build to submit for App Review; 2026.11.1 and 2026.11.2 stay on
-TestFlight.
+shows it as 提出準備完了 (Ready to Submit). 2026.11.4 (`docs/testflight-4.2.0-2026.11.4.md`) replaced it as the build
+to submit for App Review, because on iPhone 2026.11.3's Receive screen shows only its title bar. 2026.11.1, 2026.11.2
+and 2026.11.3 stay on TestFlight.
 
 **App Store version 4.2.0 prepared on 3 November 2026, not submitted.** On the owner's OK, iOS version 4.2.0 was
 created in App Store Connect.
 - Its status is 提出準備中 (Prepare for Submission); 4.0.4 is still the live version.
-- Build 2026.11.3 is attached.
+- Build 2026.11.3 is attached. Replace it with 2026.11.4 before submitting.
 - The four iPad 13-inch screenshots from `build/reports/ios-appstore-ipad-screenshots-20261101/final/` are uploaded
   in order and saved.
 - The workspace's `build/reports/ios-appstore-connect-4.2.0-20261102/` holds the evidence.
