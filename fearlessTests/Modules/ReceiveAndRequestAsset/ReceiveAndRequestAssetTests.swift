@@ -1361,6 +1361,57 @@ final class ReceivePresentationTests: XCTestCase {
         }
     }
 
+    /// The other tests make Receive the window's root. The app presents it in a bottom sheet that only bounds
+    /// its top, where the restyled content had no height and the sheet shrank to its title bar on iPhone.
+    func testReceiveInTheAppsBottomSheetShowsItsQRCodeAndAddress() async throws {
+        try XCTSkipUnless(FWAppearance.receivePresentationRestyled, "Adaptive presentation is compiled out")
+        try XCTSkipIf(UIDevice.current.userInterfaceIdiom == .pad, "The bottom sheet is the iPhone presentation")
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        window.frame = CGRect(x: 0, y: 0, width: 393, height: 852)
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        defer { close(window) }
+
+        let controller = ReceiveAndRequestAssetViewController(
+            output: ReceivePresentationOutput(),
+            localizationManager: try XCTUnwrap(LocalizationManager(localization: "en"))
+        )
+        controller.modalPresentationStyle = .custom
+        controller.modalTransitioningFactory = ModalSheetBlurPresentationFactory(configuration: .fearlessBlur)
+        controller.loadViewIfNeeded()
+        controller.applyLocalization()
+        controller.didReceive(viewModel: ReceiveAssetViewModel(
+            asset: "BTC", networkName: "Bitcoin", accountName: "My main wallet", address: address, isSora: false
+        ))
+        controller.didReceive(assetBalanceViewModel: nil)
+        controller.didReceive(amountInputViewModel: nil)
+        let qr = try XCTUnwrap(CIFilter(name: "CIQRCodeGenerator"))
+        qr.setValue(Data(address.utf8), forKey: "inputMessage")
+        let code = try XCTUnwrap(qr.outputImage).transformed(by: CGAffineTransform(scaleX: 5, y: 5))
+        controller.didReceive(image: UIImage(cgImage: try XCTUnwrap(CIContext().createCGImage(code, from: code.extent))))
+
+        let presented = expectation(description: "Receive presented")
+        host.present(controller, animated: true) { presented.fulfill() }
+        await fulfillment(of: [presented], timeout: 5)
+        await settle(window, duration: 300_000_000)
+
+        let root = controller.rootView
+        XCTAssertGreaterThan(root.contentView.bounds.height, root.qrView.bounds.height)
+        for (name, view) in [("QR code", root.qrView), ("address", root.addressLabel)] as [(String, UIView)] {
+            let frame = view.convert(view.bounds, to: window)
+            XCTAssertGreaterThan(frame.height, 0, name)
+            XCTAssertTrue(window.bounds.insetBy(dx: -0.5, dy: -0.5).contains(frame), "\(name) \(frame) is off screen")
+            XCTAssertTrue(
+                root.contentView.convert(root.contentView.bounds, to: window).insetBy(dx: -0.5, dy: -0.5).contains(frame),
+                "\(name) \(frame) is outside the sheet's content"
+            )
+        }
+        XCTAssertEqual(root.addressLabel.text, address)
+        host.dismiss(animated: false)
+    }
+
     private struct Fixture {
         let controller: ReceiveAndRequestAssetViewController
         let output: ReceivePresentationOutput
