@@ -9,7 +9,7 @@ and 2026.11.3 stay on TestFlight.
 **App Store version 4.2.0 prepared on 3 November 2026, not submitted.** On the owner's OK, iOS version 4.2.0 was
 created in App Store Connect.
 - Its status is 提出準備中 (Prepare for Submission); 4.0.4 is still the live version.
-- Build 2026.11.3 is attached. Replace it with 2026.11.4 before submitting.
+- Build 2026.11.3 was attached until 4 November 2026, when 2026.11.4 replaced it (see the 2026.11.4 note).
 - The four iPad 13-inch screenshots from `build/reports/ios-appstore-ipad-screenshots-20261101/final/` are uploaded
   in order and saved.
 - The workspace's `build/reports/ios-appstore-connect-4.2.0-20261102/` holds the evidence.

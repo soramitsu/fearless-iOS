@@ -5,8 +5,16 @@ Status: **uploaded to App Store Connect on 3 November 2026 at 18:45 JST** (deliv
 warnings and was processing the build when the upload finished. This is the build to submit for App Review.
 2026.11.1, 2026.11.2 and 2026.11.3 stay on TestFlight, but on iPhone their Receive screen shows only its title bar.
 
-App Store version 4.2.0 (提出準備中, not submitted) still has 2026.11.3 attached. Replace it with 2026.11.4 before
-submitting.
+**App Store version 4.2.0 is ready for the owner to submit (提出準備中, not submitted).** On 4 November 2026:
+- At 03:58 JST, 2026.11.4 replaced 2026.11.3 as its build. App Store Connect asked no questions.
+- The listing is updated:
+  - new iPhone screenshots in the 6.9-, 6.5- and 5.5-inch groups (the required 6.3-inch size borrows them)
+  - the description and keywords
+  - What's New
+- The iPad 13-inch screenshots are unchanged.
+
+All of it was checked after a reload. The workspace's `build/reports/ios-appstore-connect-4.2.0-20261102/` holds the
+evidence (`evidence-listing-chrome/`, `evidence-build-2026.11.4/`).
 
 ## Candidate
 
@@ -67,11 +75,7 @@ above 2026.11.4.
 
 ## Still open
 
-- Submitting 4.2.0 for review is the owner's call. Before it:
-  - Attach 2026.11.4 in place of 2026.11.3.
-  - Replace the iPhone screenshots, description and keywords copied from 4.0.4, and add What's New. The new ones
-    are ready in the workspace's `build/reports/ios-appstore-connect-4.2.0-20261102/` (`listing-text/`,
-    `screenshots-iphone/`), made from this build's English screens.
+- Submitting 4.2.0 for review is the owner's call.
 - Polkadot and Kusama staking need #1312 on `master`: the app reads its network list from `fearless-iOS` master,
   which still marks the relay chains for staking and has no Asset Hub flag.
 - No KaiaScan key (Kaia history unavailable), as in 2026.11.1.
