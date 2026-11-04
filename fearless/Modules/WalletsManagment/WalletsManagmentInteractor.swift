@@ -107,10 +107,10 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
                 return
             }
 
-            self.settings.save(value: wallet.info, runningCompletionIn: .main) { [weak self] result in
+            self.settings.selectStoredWallet(value: wallet.info, runningCompletionIn: .main) { [weak self] result in
                 switch result {
-                case .success:
-                    self?.eventCenter.notify(with: SelectedAccountChanged(account: wallet.info))
+                case let .success(selectedWallet):
+                    self?.eventCenter.notify(with: SelectedAccountChanged(account: selectedWallet))
                     self?.output?.didCompleteSelection()
                 case let .failure(error):
                     self?.output?.didReceive(error: error)
@@ -149,6 +149,10 @@ extension WalletsManagmentInteractor: WalletBalanceSubscriptionListener {
 // MARK: - EventVisitorProtocol
 
 extension WalletsManagmentInteractor: EventVisitorProtocol {
+    func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {
+        fetchWallets()
+    }
+
     func processWalletNameChanged(event _: WalletNameChanged) {
         fetchWallets()
     }

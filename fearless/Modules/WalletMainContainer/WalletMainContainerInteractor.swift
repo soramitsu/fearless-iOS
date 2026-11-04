@@ -317,12 +317,13 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 extension WalletMainContainerInteractor: EventVisitorProtocol {
     func processWalletNameChanged(event: WalletNameChanged) {
         if wallet.identifier == event.wallet.identifier {
-            wallet = event.wallet
+            wallet = wallet.replacingName(event.wallet.name)
             output?.didReceiveAccount(wallet)
         }
     }
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard wallet.metaId == event.account.metaId else { return }
         if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
             wallet = event.account
             fetchNetworkManagmentFilter()

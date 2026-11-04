@@ -197,6 +197,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
 extension BalanceViewModelFactory: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard selectedMetaAccount.metaId == event.account.metaId else { return }
         selectedMetaAccount = event.account
     }
 }

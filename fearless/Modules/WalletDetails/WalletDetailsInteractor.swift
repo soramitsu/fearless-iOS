@@ -185,7 +185,13 @@ private extension WalletDetailsInteractor {
         let notSaved = outcomes.mapValues { $0 == .switched ? UniversalWalletSwitchOutcome.unchecked : $0 }
 
         guard selectedWalletSettings.value?.metaId == original.metaId else {
-            let saveOperation = repository.saveOperation({ [updated] }, { [] })
+            let conditionalRepository = selectedWalletSettings.storageFacade.createRepository(
+                mapper: AnyCoreDataMapper(MetaAccountMapper(
+                    expectedWallet: original,
+                    requiresUnselectedWallet: true
+                ))
+            )
+            let saveOperation = conditionalRepository.saveOperation({ [updated] }, { [] })
             saveOperation.completionBlock = { [weak self] in
                 DispatchQueue.main.async {
                     guard let self else { return }

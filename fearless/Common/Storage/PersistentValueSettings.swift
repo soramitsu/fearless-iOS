@@ -7,6 +7,8 @@ enum PersistentValueSettingsError: Error {
 class PersistentValueSettings<T> {
     private struct PendingSave {
         let value: T
+        let publishesPendingValue: Bool
+        let persistence: ((T, @escaping (Result<T, Error>) -> Void) -> Void)?
         let completion: (Result<T, Error>) -> Void
     }
 
@@ -147,6 +149,8 @@ class PersistentValueSettings<T> {
     func save(
         value: T,
         ifCurrentValueSatisfies predicate: ((T?) -> Bool)? = nil,
+        publishesPendingValue: Bool = true,
+        persistingWith persistence: ((T, @escaping (Result<T, Error>) -> Void) -> Void)? = nil,
         runningCompletionIn queue: DispatchQueue?,
         completionClosure: ((Result<T, Error>) -> Void)?
     ) -> Bool {
@@ -158,10 +162,15 @@ class PersistentValueSettings<T> {
             }
         }
         prepareForSaveInvocation()
-        willPublishValue(value)
-        internalValue = value
+        let visibleValue = publishesPendingValue ? value : nil
+        willPublishValue(visibleValue)
+        internalValue = visibleValue
         pendingSaves.append(
-            PendingSave(value: value) { result in
+            PendingSave(
+                value: value,
+                publishesPendingValue: publishesPendingValue,
+                persistence: persistence
+            ) { result in
                 if let completionClosure {
                     dispatchInQueueWhenPossible(queue) {
                         completionClosure(result)
@@ -190,8 +199,13 @@ class PersistentValueSettings<T> {
         }
         mutex.unlock()
 
-        performSave(value: pendingSave.value) { result in
+        let complete: (Result<T, Error>) -> Void = { result in
             self.completeCurrentSave(result)
+        }
+        if let persistence = pendingSave.persistence {
+            persistence(pendingSave.value, complete)
+        } else {
+            performSave(value: pendingSave.value, completionClosure: complete)
         }
     }
 
@@ -208,7 +222,12 @@ class PersistentValueSettings<T> {
             committedValue = newValue
         }
 
-        let visibleValue = pendingSaves.last?.value ?? committedValue
+        let visibleValue: T?
+        if let latestPending = pendingSaves.last {
+            visibleValue = latestPending.publishesPendingValue ? latestPending.value : nil
+        } else {
+            visibleValue = committedValue
+        }
         willPublishValue(visibleValue)
         internalValue = visibleValue
         let hasNextSave = !pendingSaves.isEmpty

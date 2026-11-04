@@ -122,6 +122,7 @@ extension ChainsIssuesCenter: EventVisitorProtocol {
     }
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard wallet.metaId == event.account.metaId else { return }
         wallet = event.account
 
         missingAccountFetcher.fetchMissingAccounts(for: wallet) { [weak self] missingAccounts in

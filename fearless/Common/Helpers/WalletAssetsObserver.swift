@@ -995,6 +995,7 @@ extension WalletAssetsObserverImpl: EventVisitorProtocol {
     }
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard wallet.metaId == event.account.metaId else { return }
         wallet = event.account
     }
 }

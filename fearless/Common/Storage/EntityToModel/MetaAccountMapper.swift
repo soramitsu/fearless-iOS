@@ -11,6 +11,7 @@ enum MetaAccountMapperError: LocalizedError {
     case unsupportedWalletRecord
     case invalidWalletRecord
     case walletOrderOverflow
+    case walletChanged
 
     var errorDescription: String? {
         switch self {
@@ -20,6 +21,8 @@ enum MetaAccountMapperError: LocalizedError {
             return "The stored wallet record is invalid"
         case .walletOrderOverflow:
             return "The wallet order cannot be incremented safely"
+        case .walletChanged:
+            return "The wallet changed while its accounts were being checked. Try again."
         }
     }
 }
@@ -31,9 +34,17 @@ final class MetaAccountMapper {
     typealias CoreDataEntity = CDMetaAccount
 
     private let fallbackName: () -> String
+    private let expectedWallet: MetaAccountModel?
+    private let requiresUnselectedWallet: Bool
 
-    init(fallbackName: @escaping () -> String = MetaAccountMapper.localizedFallbackName) {
+    init(
+        fallbackName: @escaping () -> String = MetaAccountMapper.localizedFallbackName,
+        expectedWallet: MetaAccountModel? = nil,
+        requiresUnselectedWallet: Bool = false
+    ) {
         self.fallbackName = fallbackName
+        self.expectedWallet = expectedWallet
+        self.requiresUnselectedWallet = requiresUnselectedWallet
     }
 
     static func localizedFallbackName() -> String {
@@ -259,6 +270,17 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         using context: NSManagedObjectContext,
         replaceChildrenExactly: Bool
     ) throws {
+        // Check the stored snapshot in the same serialized context transaction as the write.
+        // A delayed password-account switch must not replace a newer switch, import or edit.
+        if let expectedWallet {
+            guard model.metaId == expectedWallet.metaId,
+                  try transform(entity: entity) == expectedWallet else {
+                throw MetaAccountMapperError.walletChanged
+            }
+        }
+        guard !requiresUnselectedWallet || !entity.isSelected else {
+            throw MetaAccountMapperError.walletChanged
+        }
         guard (model.substrateAccountId == nil) == (model.substratePublicKey == nil) else {
             throw MetaAccountMapperError.invalidWalletRecord
         }

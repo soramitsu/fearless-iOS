@@ -1,4 +1,5 @@
 import Foundation
+import CoreData
 import RobinHood
 
 final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
@@ -238,6 +239,70 @@ final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
         }
 
         try repair()
+    }
+
+    /// Selecting a listed wallet changes only selection flags. A retained list item may
+    /// predate an account switch, so its payload must never be saved over the current row.
+    @discardableResult
+    func selectStoredWallet(
+        value: MetaAccountModel,
+        runningCompletionIn queue: DispatchQueue?,
+        completionClosure: ((Result<MetaAccountModel, Error>) -> Void)?
+    ) -> Bool {
+        save(
+            value: value,
+            publishesPendingValue: false,
+            persistingWith: { candidate, completion in
+                self.performStoredWalletSelection(identifier: candidate.metaId, completion: completion)
+            },
+            runningCompletionIn: queue,
+            completionClosure: completionClosure
+        )
+    }
+
+    private func performStoredWalletSelection(
+        identifier: MetaAccountId,
+        completion: @escaping (Result<MetaAccountModel, Error>) -> Void
+    ) {
+        storageFacade.databaseService.performAsync { context, error in
+            guard let context else {
+                completion(.failure(error ?? CoreDataRepositoryError.undefined))
+                return
+            }
+            do {
+                let mapper = MetaAccountSelectionMapper()
+                let request = NSFetchRequest<CDMetaAccount>(entityName: "CDMetaAccount")
+                let entities = try context.fetch(request)
+                let accounts = try entities.map { try mapper.transform(entity: $0) }
+                guard Set(accounts.map(\.identifier)).count == accounts.count else {
+                    throw SelectedWalletSettingsError.duplicateWalletIdentifier
+                }
+                guard let index = accounts.firstIndex(where: { $0.identifier == identifier }) else {
+                    throw PersistentValueSettingsError.missingValue
+                }
+                guard let selectedWallet = accounts[index].wallet else {
+                    throw SelectedWalletSettingsError.unsupportedWalletIdentifierConflict
+                }
+
+                // Mapping and flag changes share the same serialized transaction. Concurrent
+                // account updates are either already included here or run after this selection.
+                for (entity, account) in zip(entities, accounts) where account.recordState.allowsStoredRecordUpdates {
+                    let shouldSelect = account.identifier == identifier
+                    guard account.isSelected != shouldSelect else { continue }
+                    try mapper.populate(
+                        entity: entity,
+                        from: account.replacingSelection(shouldSelect),
+                        using: context
+                    )
+                }
+                try context.save()
+                self.updateStoreState(.ready)
+                completion(.success(selectedWallet))
+            } catch {
+                context.rollback()
+                completion(.failure(error))
+            }
+        }
     }
 
     // swiftlint:disable:next function_body_length

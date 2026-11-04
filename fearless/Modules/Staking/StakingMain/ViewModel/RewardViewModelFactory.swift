@@ -73,6 +73,7 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
 
 extension RewardViewModelFactory: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard selectedMetaAccount.metaId == event.account.metaId else { return }
         selectedMetaAccount = event.account
     }
 }

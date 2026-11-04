@@ -6,6 +6,115 @@ import enum SSFModels.CryptoType
 import struct SSFModels.ChainAccountModel
 
 class SelectedAccountSettingsTests: XCTestCase {
+    /// A queued selection must read the current stored payload when it runs, even when
+    /// the list candidate was captured before an account switch and another save is pending.
+    func testStoredSelectionWaitsForPendingSaveAndKeepsLatestTargetPayload() throws {
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let repositoryQueue = OperationQueue()
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let selected = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        let oldAccount = ChainAccountModel(
+            chainId: UniversalWalletRegistry.solanaMainnet.chainId,
+            accountId: Data(repeating: 0x31, count: 32), publicKey: Data(repeating: 0x31, count: 32),
+            cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+        )
+        let newAccount = ChainAccountModel(
+            chainId: oldAccount.chainId,
+            accountId: Data(repeating: 0x42, count: 32), publicKey: Data(repeating: 0x42, count: 32),
+            cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false
+        )
+        let staleCandidate = AccountGenerator.generateMetaAccount(with: [oldAccount])
+        try seed([
+            ManagedMetaAccountModel(info: selected, isSelected: true, order: 4),
+            ManagedMetaAccountModel(info: staleCandidate, isSelected: false, order: 8)
+        ], in: facade, using: repositoryQueue)
+        let managed = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(for: nil, sortDescriptors: [])
+        let initialWallets = try execute(managed.fetchAllOperation(with: RepositoryFetchOptions()), using: repositoryQueue)
+        let initialOrders = Dictionary(uniqueKeysWithValues: initialWallets.map { ($0.info.metaId, $0.order) })
+        let settings = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        XCTAssertEqual(try setup(settings), selected)
+        queue.isSuspended = true
+        defer { queue.isSuspended = false }
+        let pendingSaved = expectation(description: "Earlier ordinary save finishes")
+        let selectedStored = expectation(description: "Queued stored selection finishes")
+        var results: [String] = []
+        var selectionResult: Result<MetaAccountModel, Error>?
+        let changedSelected = selected.replacingName("Earlier queued edit")
+        settings.save(value: changedSelected, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result { XCTFail("Earlier save failed: \(error)") }
+            results.append("save")
+            pendingSaved.fulfill()
+        }
+        settings.selectStoredWallet(value: staleCandidate, runningCompletionIn: .main) { result in
+            selectionResult = result
+            results.append("select")
+            selectedStored.fulfill()
+        }
+        XCTAssertNil(settings.value, "A stale candidate must never become the selected wallet while persistence is pending")
+        XCTAssertFalse(settings.sendAuthority.capture(for: staleCandidate).isCurrent)
+        XCTAssertFalse(settings.sendAuthority.capture(for: selected).isCurrent)
+        // This update occurs after the selection request but before it can run.
+        let currentTarget = staleCandidate.replacingChainAccounts([newAccount]).replacingName("Current target")
+        try execute(repository.saveOperation({ [currentTarget] }, { [] }), using: repositoryQueue)
+        XCTAssertTrue(results.isEmpty)
+        queue.isSuspended = false
+        wait(for: [pendingSaved, selectedStored], timeout: Constants.defaultExpectationDuration, enforceOrder: true)
+        XCTAssertEqual(results, ["save", "select"])
+        XCTAssertEqual(try XCTUnwrap(selectionResult).get(), currentTarget)
+        XCTAssertEqual(settings.value, currentTarget)
+        XCTAssertTrue(settings.sendAuthority.capture(for: currentTarget).isCurrent)
+        XCTAssertFalse(settings.sendAuthority.capture(for: staleCandidate).isCurrent)
+        let stored = try execute(managed.fetchAllOperation(with: RepositoryFetchOptions()), using: repositoryQueue)
+        XCTAssertEqual(stored.filter(\.isSelected).map { $0.info.metaId }, [currentTarget.metaId])
+        XCTAssertEqual(stored.first { $0.info.metaId == currentTarget.metaId }?.info, currentTarget)
+        XCTAssertEqual(stored.first { $0.info.metaId == currentTarget.metaId }?.order, initialOrders[currentTarget.metaId])
+        XCTAssertEqual(stored.first { $0.info.metaId == selected.metaId }?.info, changedSelected)
+        XCTAssertEqual(stored.first { $0.info.metaId == selected.metaId }?.order, initialOrders[selected.metaId])
+    }
+
+    func testStoredSelectionRejectsDeletedWalletWithoutRecreatingItOrChangingSelection() throws {
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let selected = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        let deleted = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        try seed([
+            ManagedMetaAccountModel(info: selected, isSelected: true, order: 3),
+            ManagedMetaAccountModel(info: deleted, isSelected: false, order: 7)
+        ], in: facade, using: queue)
+        let settings = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        XCTAssertEqual(try setup(settings), selected)
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        try execute(repository.saveOperation({ [] }, { [deleted.metaId] }), using: queue)
+        queue.isSuspended = true
+        defer { queue.isSuspended = false }
+        let pendingSaved = expectation(description: "Prior queued save finishes")
+        settings.save(value: selected, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result { XCTFail("Prior save failed: \(error)") }
+            pendingSaved.fulfill()
+        }
+        let completed = expectation(description: "Missing wallet selection rejected")
+        var result: Result<MetaAccountModel, Error>?
+        settings.selectStoredWallet(value: deleted, runningCompletionIn: .main) {
+            result = $0
+            completed.fulfill()
+        }
+        XCTAssertNil(settings.value)
+        XCTAssertFalse(settings.sendAuthority.capture(for: deleted).isCurrent)
+        queue.isSuspended = false
+        wait(for: [pendingSaved, completed], timeout: Constants.defaultExpectationDuration, enforceOrder: true)
+        XCTAssertThrowsError(try XCTUnwrap(result).get())
+        XCTAssertEqual(settings.value, selected)
+        XCTAssertTrue(settings.sendAuthority.capture(for: selected).isCurrent)
+        XCTAssertFalse(settings.sendAuthority.capture(for: deleted).isCurrent)
+        XCTAssertEqual(try execute(repository.fetchAllOperation(with: RepositoryFetchOptions()), using: queue), [selected])
+        let reopened = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        XCTAssertEqual(try setup(reopened), selected)
+    }
+
     func testReleasedNativeTonOnlyWalletLoadsEditsAndRemainsVisibleToWalletRepository() throws {
         let facade = UserDataStorageTestFacade()
         let queue = OperationQueue()

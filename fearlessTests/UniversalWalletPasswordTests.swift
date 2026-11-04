@@ -4,6 +4,7 @@ import CryptoKit
 import IrohaCrypto
 import RobinHood
 import SoraKeystore
+import SoraFoundation
 import SSFCloudStorage
 import SSFModels
 import XCTest
@@ -477,6 +478,469 @@ final class UniversalWalletPasswordTests: XCTestCase {
             [.solana: .stillFunded], for: [account], locale: Locale(identifier: "en")
         )
         XCTAssertTrue(outcomes.message?.contains(UniversalWalletRegistry.solanaMainnet.name) == true)
+    }
+
+    /// Wallet Details can edit an unselected wallet. Two scans may finish in the opposite
+    /// order: the later callback must not put an already-switched network back on its old key.
+    /// Use the production Core Data mapper, whose universal-account rows are updated in place.
+    @MainActor
+    func testNonselectedWalletConcurrentSwitchDoesNotOverwritePreviouslyProtectedAccount() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let selectedWallet = try importWallet(vector.mnemonic, enrollment: .generated, keystore: keystore)
+        let editedWallet = try importWallet(vector.mnemonic, enrollment: .unchecked, keystore: keystore)
+        XCTAssertNotEqual(selectedWallet.metaId, editedWallet.metaId)
+
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        func execute<T>(_ operation: BaseOperation<T>) throws -> T {
+            queue.addOperations([operation], waitUntilFinished: true)
+            return try XCTUnwrap(operation.result).get()
+        }
+        let fixtureRepository = facade.createRepository(mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()))
+        try execute(fixtureRepository.saveOperation({ [
+            fearless.ManagedMetaAccountModel(info: selectedWallet, isSelected: false),
+            fearless.ManagedMetaAccountModel(info: editedWallet, isSelected: false)
+        ] }, { [] }))
+        let selection = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        let selected = expectation(description: "Wallet A selected")
+        selection.save(value: selectedWallet, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result { XCTFail("Selection failed: \(error)") }
+            selected.fulfill()
+        }
+        await fulfillment(of: [selected], timeout: 10)
+        XCTAssertEqual(selection.value?.metaId, selectedWallet.metaId)
+
+        let scansStarted = expectation(description: "Both independent address scans started")
+        scansStarted.expectedFulfillmentCount = 2
+        let probe = DeferredWalletDetailsFundsProbe { _ in scansStarted.fulfill() }
+        defer { probe.finishAll() }
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: KeychainUniversalWalletMnemonicProvider(keystore: keystore),
+            fundsProbe: { probe },
+            watchedAccounts: watched
+        )
+        let accounts = switcher.noPasswordAccounts(in: editedWallet)
+        let bitcoin = try XCTUnwrap(accounts.first { $0.slot == .bitcoinMainnet })
+        let solana = try XCTUnwrap(accounts.first { $0.slot == .solana })
+        let solanaFinished = expectation(description: "Solana switch persisted")
+        let bitcoinFinished = expectation(description: "Older Bitcoin scan settled")
+        let presenter = WalletDetailsPasswordSwitchPresenter { outcomes in
+            if outcomes[.solana] != nil { solanaFinished.fulfill() }
+            if outcomes[.bitcoinMainnet] != nil { bitcoinFinished.fulfill() }
+        }
+        let interactor = WalletDetailsInteractor(
+            flow: .normal(wallet: editedWallet),
+            chainsRepository: AnyDataProviderRepository(
+                ChainRepositoryFactory(storageFacade: SubstrateStorageTestFacade()).createRepository()
+            ),
+            operationManager: OperationManager(),
+            eventCenter: EventCenter(),
+            repository: repository,
+            availableExportOptionsProvider: AvailableExportOptionsProvider(),
+            walletRecordsInspector: StoredWalletRecordsInspector(storageFacade: facade),
+            walletRecordsNoticeTracker: WalletDetailsPasswordSwitchNoticeTracker(),
+            selectedWalletSettings: selection,
+            passwordSwitcher: switcher
+        )
+        interactor.presenter = presenter
+
+        interactor.switchToPasswordAccount(bitcoin)
+        interactor.switchToPasswordAccount(solana)
+        await fulfillment(of: [scansStarted], timeout: 10)
+        XCTAssertTrue(probe.finish(.solana), "The Solana result must be released first")
+        await fulfillment(of: [solanaFinished], timeout: 10)
+        let afterSolana = try XCTUnwrap(try execute(repository.fetchOperation(
+            by: { editedWallet.metaId }, options: RepositoryFetchOptions()
+        )))
+        XCTAssertEqual(UniversalWalletSlot.solana.storedAccount(in: afterSolana)?.publicKey, solana.newPublicKey)
+        XCTAssertEqual(presenter.outcomes[.solana], .switched)
+
+        XCTAssertTrue(probe.finish(.bitcoinMainnet), "Release the stale Bitcoin result after the first save")
+        await fulfillment(of: [bitcoinFinished], timeout: 10)
+        let finalWallet = try XCTUnwrap(try execute(repository.fetchOperation(
+            by: { editedWallet.metaId }, options: RepositoryFetchOptions()
+        )))
+        XCTAssertEqual(
+            UniversalWalletSlot.solana.storedAccount(in: finalWallet)?.publicKey,
+            solana.newPublicKey,
+            "A delayed switch must not revert the successful password-protected Solana account"
+        )
+        XCTAssertEqual(presenter.outcomes[.bitcoinMainnet], .unchecked, "A stale wallet snapshot must be retried")
+        XCTAssertEqual(selection.value, selectedWallet, "Editing B must not replace selected wallet A")
+        let managedRepository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(for: nil, sortDescriptors: [])
+        let managed = try execute(managedRepository.fetchAllOperation(with: RepositoryFetchOptions()))
+        XCTAssertEqual(managed.filter(\.isSelected).map { $0.info.metaId }, [selectedWallet.metaId])
+        XCTAssertEqual(managed.first { $0.info.metaId == selectedWallet.metaId }?.info, selectedWallet)
+        XCTAssertTrue(presenter.errors.isEmpty)
+    }
+
+    @MainActor
+    func testWalletListSelectionUsesStoredSwitchedWalletAndBroadcastsCommittedAccount() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let selectedWallet = try importWallet(vector.mnemonic, enrollment: .generated, keystore: keystore)
+        let staleWallet = try importWallet(vector.mnemonic, enrollment: .unchecked, keystore: keystore)
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: KeychainUniversalWalletMnemonicProvider(keystore: keystore),
+            fundsProbe: { StaticFundsProbe(funds: [.solana: .empty]) }, watchedAccounts: watched
+        )
+        let solana = try XCTUnwrap(switcher.noPasswordAccounts(in: staleWallet).first { $0.slot == .solana })
+        let switched = await switcher.switching([solana], in: staleWallet)
+        XCTAssertEqual(switched.outcomes[.solana], .switched)
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        func execute<T>(_ operation: BaseOperation<T>) throws -> T {
+            queue.addOperations([operation], waitUntilFinished: true)
+            return try XCTUnwrap(operation.result).get()
+        }
+        let fixtureRepository = facade.createRepository(mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()))
+        try execute(fixtureRepository.saveOperation({ [
+            fearless.ManagedMetaAccountModel(info: selectedWallet, isSelected: false),
+            fearless.ManagedMetaAccountModel(info: staleWallet, isSelected: false)
+        ] }, { [] }))
+        let settings = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        let initialSelection = expectation(description: "Initial wallet selected")
+        settings.save(value: selectedWallet, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result { XCTFail("Initial selection failed: \(error)") }
+            initialSelection.fulfill()
+        }
+        await fulfillment(of: [initialSelection], timeout: 10)
+        let eventCenter = EventCenter()
+        let selectedEvent = expectation(description: "Committed selection announced")
+        let observer = PasswordSwitchWalletMutationObserver(onSelected: { _ in selectedEvent.fulfill() })
+        eventCenter.add(observer: observer, dispatchIn: .main)
+        let initialList = expectation(description: "Original wallet list loaded")
+        let refreshedList = expectation(description: "Changed wallet refreshed in retained list")
+        let selectionFinished = expectation(description: "List selection completed")
+        let output = PasswordSwitchWalletsManagementOutput(
+            onWallets: { wallets in
+                if wallets.contains(where: { $0.info == switched.wallet }) {
+                    refreshedList.fulfill()
+                } else if wallets.contains(where: { $0.info == staleWallet }) {
+                    initialList.fulfill()
+                }
+            },
+            onSelection: { selectionFinished.fulfill() }
+        )
+        let managedRepository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(for: nil, sortDescriptors: [])
+        let interactor = WalletsManagmentInteractor(
+            shouldSaveSelected: true,
+            walletBalanceSubscriptionAdapter: PasswordSwitchNoBalances(),
+            metaAccountRepository: AnyDataProviderRepository(managedRepository),
+            operationQueue: queue,
+            settings: settings,
+            eventCenter: eventCenter,
+            featureToggleService: PasswordSwitchManagementFeatures(),
+            walletRecordsInspector: StoredWalletRecordsInspector(storageFacade: facade)
+        )
+        interactor.setup(with: output)
+        await fulfillment(of: [initialList], timeout: 10)
+        try execute(repository.saveOperation({ [switched.wallet] }, { [] }))
+        eventCenter.notify(with: MetaAccountModelChangedEvent(account: switched.wallet))
+        await fulfillment(of: [refreshedList], timeout: 10)
+
+        // A tap already captured by the old list must still select the current stored keys.
+        interactor.select(wallet: fearless.ManagedMetaAccountModel(info: staleWallet))
+        await fulfillment(of: [selectionFinished, selectedEvent], timeout: 10)
+        XCTAssertEqual(settings.value, switched.wallet)
+        XCTAssertEqual(observer.selectedAccounts, [switched.wallet])
+        XCTAssertEqual(try execute(repository.fetchOperation(
+            by: { staleWallet.metaId }, options: RepositoryFetchOptions()
+        )), switched.wallet)
+        XCTAssertTrue(output.errors.isEmpty)
+        withExtendedLifetime((interactor, observer)) {}
+    }
+
+    @MainActor
+    func testRenamingStaleUnselectedWalletPreservesSwitchedAccountAndCurrentSelection() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let selectedWallet = try importWallet(vector.mnemonic, enrollment: .generated, keystore: keystore)
+        let staleWallet = try importWallet(vector.mnemonic, enrollment: .unchecked, keystore: keystore)
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: KeychainUniversalWalletMnemonicProvider(keystore: keystore),
+            fundsProbe: { StaticFundsProbe(funds: [.solana: .empty]) }, watchedAccounts: watched
+        )
+        let solana = try XCTUnwrap(switcher.noPasswordAccounts(in: staleWallet).first { $0.slot == .solana })
+        let switched = await switcher.switching([solana], in: staleWallet)
+        XCTAssertEqual(switched.outcomes[.solana], .switched)
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        func execute<T>(_ operation: BaseOperation<T>) throws -> T {
+            queue.addOperations([operation], waitUntilFinished: true)
+            return try XCTUnwrap(operation.result).get()
+        }
+        let fixtureRepository = facade.createRepository(mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()))
+        try execute(fixtureRepository.saveOperation({ [
+            fearless.ManagedMetaAccountModel(info: selectedWallet, isSelected: false),
+            fearless.ManagedMetaAccountModel(info: switched.wallet, isSelected: false)
+        ] }, { [] }))
+        let settings = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        let initialSelection = expectation(description: "Initial wallet selected")
+        settings.save(value: selectedWallet, runningCompletionIn: .main) { result in
+            if case let .failure(error) = result { XCTFail("Initial selection failed: \(error)") }
+            initialSelection.fulfill()
+        }
+        await fulfillment(of: [initialSelection], timeout: 10)
+        let managedRepository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(for: nil, sortDescriptors: [])
+        let before = try execute(managedRepository.fetchAllOperation(with: RepositoryFetchOptions()))
+        let finished = expectation(description: "Metadata rename finished")
+        let output = PasswordSwitchWalletNameOutput { _ in finished.fulfill() }
+        let eventCenter = EventCenter()
+        let interactor = WalletNameInteractor(eventCenter: eventCenter, selectedWalletSettings: settings)
+        interactor.setup(with: output)
+        interactor.save(wallet: staleWallet.replacingName("Renamed after switch"))
+        await fulfillment(of: [finished], timeout: 10)
+        let expected = switched.wallet.replacingName("Renamed after switch")
+        XCTAssertEqual(try XCTUnwrap(output.result).get(), expected)
+        XCTAssertEqual(settings.value, selectedWallet)
+        let after = try execute(managedRepository.fetchAllOperation(with: RepositoryFetchOptions()))
+        XCTAssertEqual(after.filter(\.isSelected).map { $0.info.metaId }, [selectedWallet.metaId])
+        XCTAssertEqual(after.first { $0.info.metaId == selectedWallet.metaId }?.info, selectedWallet)
+        XCTAssertEqual(after.first { $0.info.metaId == staleWallet.metaId }?.info, expected)
+        XCTAssertEqual(
+            Dictionary(uniqueKeysWithValues: before.map { ($0.info.metaId, $0.order) }),
+            Dictionary(uniqueKeysWithValues: after.map { ($0.info.metaId, $0.order) })
+        )
+        withExtendedLifetime(interactor) {}
+    }
+
+    /// Wallet Details broadcasts edits to unselected wallets while the main wallet remains
+    /// underneath its modal. Only an edit to the main wallet may replace its displayed identity.
+    @MainActor
+    func testMainWalletIgnoresOtherWalletEditButAcceptsItsOwnThroughEventCenter() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let mainWallet = try importWallet(vector.mnemonic, enrollment: .generated, keystore: keystore)
+        let otherWallet = try importWallet(vector.mnemonic, enrollment: .generated, keystore: keystore)
+        let updatedMainWallet = mainWallet.replacingName("Updated main wallet")
+        let renamedMainWallet = updatedMainWallet.replacingName("Renamed main wallet")
+        XCTAssertNotEqual(mainWallet.metaId, otherWallet.metaId)
+
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let managedRepository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(for: nil, sortDescriptors: [])
+        let save = managedRepository.saveOperation(
+            { [mainWallet, otherWallet].map { fearless.ManagedMetaAccountModel(info: $0) } }, { [] }
+        )
+        queue.addOperations([save], waitUntilFinished: true)
+        _ = try XCTUnwrap(save.result).get()
+
+        let eventCenter = EventCenter()
+        let mainEditDelivered = expectation(description: "Main wallet's own edit delivered")
+        let mainNameDelivered = expectation(description: "Main wallet name delivered without stale keys")
+        let output = PasswordSwitchMainWalletOutput { account in
+            if account == updatedMainWallet { mainEditDelivered.fulfill() }
+            if account == renamedMainWallet { mainNameDelivered.fulfill() }
+        }
+        let noMnemonic = PasswordSwitchNoRootMnemonic()
+        let interactor = WalletMainContainerInteractor(
+            accountRepository: repository,
+            chainRepository: AnyDataProviderRepository(
+                ChainRepositoryFactory(storageFacade: SubstrateStorageTestFacade()).createRepository()
+            ),
+            wallet: mainWallet,
+            operationQueue: queue,
+            eventCenter: eventCenter,
+            deprecatedAccountsCheckService: PasswordSwitchNoDeprecatedAccounts(),
+            applicationHandler: ApplicationHandler(),
+            walletConnectService: WalletConnectServiceImpl(),
+            featureToggleService: PasswordSwitchStaticFeatures(),
+            walletRecordsInspector: StoredWalletRecordsInspector(storageFacade: facade),
+            walletRecordsNoticeTracker: WalletDetailsPasswordSwitchNoticeTracker(),
+            passwordSwitcher: UniversalWalletPasswordSwitcher(mnemonicProvider: noMnemonic),
+            passwordNoticeTracker: UniversalWalletPasswordNoticeTracker(userDefaults: defaults),
+            watchedAccounts: watched,
+            watchedAccountsChecker: UniversalWalletWatchedAccountsChecker(
+                mnemonicProvider: noMnemonic,
+                watchedAccounts: watched
+            )
+        )
+        interactor.setup(with: output)
+
+        // EventCenter preserves delivery order on the registered main queue. Reaching A's
+        // callback proves that the earlier B event has been processed, without timing sleeps.
+        eventCenter.notify(with: MetaAccountModelChangedEvent(account: otherWallet))
+        eventCenter.notify(with: MetaAccountModelChangedEvent(account: updatedMainWallet))
+        eventCenter.notify(with: WalletNameChanged(wallet: otherWallet))
+        eventCenter.notify(with: WalletNameChanged(wallet: renamedMainWallet.replacingChainAccounts([])))
+        await fulfillment(of: [mainEditDelivered, mainNameDelivered], timeout: 10)
+
+        XCTAssertEqual(output.accounts, [updatedMainWallet, renamedMainWallet])
+        XCTAssertEqual(output.selectedFilters.count, 1, "An unrelated edit must not replace A's network filter")
+        XCTAssertTrue(output.errors.isEmpty)
+        withExtendedLifetime(interactor) {}
+    }
+
+    @MainActor
+    func testRetainedWalletOptionsRouteUpdatedAccountsAndIgnoreOtherWallets() throws {
+        let original = AccountGenerator.generateMetaAccount(generatingChainAccounts: 1)
+        let changed = original.replacingName("Updated own wallet")
+        let other = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        let router = PasswordSwitchWalletOptionRouter()
+        let presenter = WalletOptionPresenter(
+            wallet: fearless.ManagedMetaAccountModel(info: original, isSelected: false, order: 7, balance: "123"),
+            interactor: PasswordSwitchWalletOptionInteractor(),
+            router: router,
+            localizationManager: LocalizationManager.shared,
+            eventCenter: EventCenter()
+        )
+        presenter.processMetaAccountChanged(event: MetaAccountModelChangedEvent(account: changed))
+        presenter.processMetaAccountChanged(event: MetaAccountModelChangedEvent(account: other))
+        presenter.walletDetailsDidTap()
+        presenter.changeWalletNameDidTap()
+        presenter.exportWalletDidTap()
+        XCTAssertEqual(router.details, changed)
+        XCTAssertEqual(router.renaming, changed)
+        XCTAssertEqual(
+            router.exported,
+            fearless.ManagedMetaAccountModel(info: changed, isSelected: false, order: 7, balance: "123")
+        )
+
+        let selectedUpdate = changed.replacingName("Updated selected wallet")
+        presenter.processSelectedAccountChanged(event: SelectedAccountChanged(account: selectedUpdate))
+        presenter.processSelectedAccountChanged(event: SelectedAccountChanged(account: other))
+        presenter.exportWalletDidTap()
+        XCTAssertEqual(router.exported?.info, selectedUpdate)
+
+        let renamed = selectedUpdate.replacingName("New name with current keys")
+        presenter.processWalletNameChanged(event: WalletNameChanged(wallet: renamed.replacingChainAccounts([])))
+        presenter.processWalletNameChanged(event: WalletNameChanged(wallet: other))
+        presenter.exportWalletDidTap()
+        XCTAssertEqual(router.exported?.info, renamed)
+    }
+
+    @MainActor
+    func testSelectedRenameRefreshDoesNotAnnounceAccountSnapshotBeforeConcurrentSwitch() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let original = try importWallet(vector.mnemonic, enrollment: .unchecked, keystore: keystore)
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: KeychainUniversalWalletMnemonicProvider(keystore: keystore),
+            fundsProbe: { StaticFundsProbe(funds: [.solana: .empty]) }, watchedAccounts: watched
+        )
+        let solana = try XCTUnwrap(switcher.noPasswordAccounts(in: original).first { $0.slot == .solana })
+        let switched = await switcher.switching([solana], in: original)
+        XCTAssertEqual(switched.outcomes[.solana], .switched)
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let managed = facade.createRepository(mapper: AnyCoreDataMapper(ManagedMetaAccountMapper()))
+        let seed = managed.saveOperation({ [fearless.ManagedMetaAccountModel(info: original, isSelected: true)] }, { [] })
+        queue.addOperations([seed], waitUntilFinished: true)
+        _ = try XCTUnwrap(seed.result).get()
+        let boundary = PasswordSwitchOneShotBoundary()
+        let settings = SelectedWalletSettings(
+            storageFacade: facade, operationQueue: queue, setupPreparationHook: { boundary.run() }
+        )
+        let initialized = expectation(description: "Initial selected wallet loaded")
+        settings.setup(runningCompletionIn: .main) { result in
+            if case let .failure(error) = result { XCTFail("Setup failed: \(error)") }
+            initialized.fulfill()
+        }
+        await fulfillment(of: [initialized], timeout: 10)
+        let switchedSaved = expectation(description: "Concurrent account switch persisted")
+        boundary.install {
+            // The rename has committed in Core Data but its settings refresh has not run.
+            // This is the exact boundary where a previously started Main scan can finish.
+            XCTAssertTrue(settings.save(
+                value: switched.wallet, ifCurrentValueSatisfies: { $0 == original },
+                runningCompletionIn: .main
+            ) { result in
+                if case let .failure(error) = result { XCTFail("Concurrent switch failed: \(error)") }
+                switchedSaved.fulfill()
+            })
+        }
+        let eventCenter = EventCenter()
+        let named = expectation(description: "Rename announces a name event only")
+        let observer = PasswordSwitchNameEventObserver { named.fulfill() }
+        eventCenter.add(observer: observer, dispatchIn: .main)
+        let completed = expectation(description: "Rename completes after refresh")
+        let output = PasswordSwitchWalletNameOutput { _ in completed.fulfill() }
+        let interactor = WalletNameInteractor(eventCenter: eventCenter, selectedWalletSettings: settings)
+        interactor.setup(with: output)
+        interactor.save(wallet: original.replacingName("Renamed during scan"))
+        await fulfillment(of: [switchedSaved, completed, named], timeout: 10)
+        let actual = try XCTUnwrap(settings.value)
+        XCTAssertEqual(UniversalWalletSlot.solana.storedAccount(in: actual)?.publicKey, solana.newPublicKey)
+        XCTAssertEqual(try XCTUnwrap(output.result).get(), actual)
+        XCTAssertTrue(observer.accountEvents.isEmpty, "A rename must never replay captured account keys")
+        XCTAssertEqual(observer.nameEvents.count, 1)
+        withExtendedLifetime((interactor, observer)) {}
+    }
+
+    @MainActor
+    func testProfileNameEventReloadsSelectionWithoutSavingStaleAccountKeys() async throws {
+        let vector = try trezorVector()
+        let keystore = InMemoryKeychain()
+        let original = try importWallet(vector.mnemonic, enrollment: .unchecked, keystore: keystore)
+        let switcher = UniversalWalletPasswordSwitcher(
+            mnemonicProvider: KeychainUniversalWalletMnemonicProvider(keystore: keystore),
+            fundsProbe: { StaticFundsProbe(funds: [.solana: .empty]) }, watchedAccounts: watched
+        )
+        let solana = try XCTUnwrap(switcher.noPasswordAccounts(in: original).first { $0.slot == .solana })
+        let switched = await switcher.switching([solana], in: original)
+        XCTAssertEqual(switched.outcomes[.solana], .switched)
+        let current = switched.wallet.replacingName("Current name")
+        let other = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let managed = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(for: nil, sortDescriptors: [])
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let seed = managed.saveOperation({ [fearless.ManagedMetaAccountModel(info: current, isSelected: true)] }, { [] })
+        queue.addOperations([seed], waitUntilFinished: true)
+        _ = try XCTUnwrap(seed.result).get()
+        let settings = SelectedWalletSettings(storageFacade: facade, operationQueue: queue)
+        let initialized = expectation(description: "Selected wallet loaded")
+        settings.setup(runningCompletionIn: .main) { result in
+            if case let .failure(error) = result { XCTFail("Setup failed: \(error)") }
+            initialized.fulfill()
+        }
+        await fulfillment(of: [initialized], timeout: 10)
+        let eventCenter = EventCenter()
+        let output = PasswordSwitchProfileOutput()
+        let interactor = ProfileInteractor(
+            selectedWalletSettings: settings,
+            eventCenter: eventCenter,
+            repository: managed,
+            operationQueue: queue,
+            selectedMetaAccount: current,
+            walletBalanceSubscriptionAdapter: PasswordSwitchNoBalances(),
+            walletRepository: repository,
+            chainsIssuesCenter: PasswordSwitchNoChainIssues(),
+            walletConnectDisconnectService: PasswordSwitchNoDisconnect()
+        )
+        interactor.setup(with: output)
+        output.reset()
+        let refreshed = expectation(description: "Own name event refreshes Profile")
+        output.onWallet = { _ in refreshed.fulfill() }
+        eventCenter.notify(with: WalletNameChanged(wallet: other))
+        eventCenter.notify(with: WalletNameChanged(wallet: original.replacingName(current.name)))
+        await fulfillment(of: [refreshed], timeout: 10)
+        let settled = expectation(description: "Any attempted save settles")
+        settings.performAfterPendingSaves { settled.fulfill() }
+        await fulfillment(of: [settled], timeout: 10)
+        XCTAssertEqual(output.wallets, [current])
+        XCTAssertTrue(output.errors.isEmpty)
+        XCTAssertEqual(settings.value, current)
+        let read = repository.fetchOperation(by: { current.metaId }, options: RepositoryFetchOptions())
+        queue.addOperations([read], waitUntilFinished: true)
+        XCTAssertEqual(try XCTUnwrap(read.result).get(), current)
+        withExtendedLifetime(interactor) {}
     }
 
     // MARK: - Helpers
@@ -1197,6 +1661,73 @@ private final class StaticFundsProbe: UniversalWalletFundsProbing {
     }
 }
 
+/// Each scan stops at its own continuation so the test controls the order of actual saves.
+private final class DeferredWalletDetailsFundsProbe: UniversalWalletFundsProbing {
+    typealias Reading = [UniversalWalletSlot: UniversalWalletFundsReading]
+    private let lock = NSLock()
+    private var waiting: [UniversalWalletSlot: CheckedContinuation<Reading, Never>] = [:]
+    private let onRequest: (UniversalWalletSlot) -> Void
+
+    init(onRequest: @escaping (UniversalWalletSlot) -> Void) {
+        self.onRequest = onRequest
+    }
+
+    func funds(of _: UniversalWalletSecret, slots: Set<UniversalWalletSlot>) async -> Reading {
+        guard slots.count == 1, let slot = slots.first else { return [:] }
+        return await withCheckedContinuation { continuation in
+            lock.lock()
+            waiting[slot] = continuation
+            lock.unlock()
+            onRequest(slot)
+        }
+    }
+
+    @discardableResult
+    func finish(_ slot: UniversalWalletSlot) -> Bool {
+        lock.lock()
+        let continuation = waiting.removeValue(forKey: slot)
+        lock.unlock()
+        continuation?.resume(returning: [slot: UniversalWalletFundsReading(state: .empty)])
+        return continuation != nil
+    }
+
+    func finishAll() {
+        UniversalWalletSlot.allCases.forEach { _ = finish($0) }
+    }
+}
+
+private final class WalletDetailsPasswordSwitchPresenter: WalletDetailsInteractorOutputProtocol {
+    private(set) var outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome] = [:]
+    private(set) var errors: [Error] = []
+    private let onOutcome: ([UniversalWalletSlot: UniversalWalletSwitchOutcome]) -> Void
+
+    init(onOutcome: @escaping ([UniversalWalletSlot: UniversalWalletSwitchOutcome]) -> Void) {
+        self.onOutcome = onOutcome
+    }
+
+    func didReceive(chains _: [ChainModel]) {}
+    func didReceiveExportOptions(options _: [ExportOption], for _: ChainAccountInfo) {}
+    func didReceive(error: Error) { errors.append(error) }
+    func didReceive(updatedFlow _: WalletDetailsFlow) {}
+    func didReceive(storedChainAccounts _: [ChainAccountModel]) {}
+    func didReceive(noPasswordAccounts _: [UniversalWalletNoPasswordAccount]) {}
+
+    func didReceive(
+        switchOutcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        for _: [UniversalWalletNoPasswordAccount]
+    ) {
+        outcomes.merge(switchOutcomes, uniquingKeysWith: { _, latest in latest })
+        onOutcome(switchOutcomes)
+    }
+}
+
+private struct WalletDetailsPasswordSwitchNoticeTracker: StoredWalletRecordsNoticeTracking {
+    func pendingNotices(for _: StoredWalletRecordsReport) -> [StoredWalletRecordsNotice] { [] }
+    func acknowledgeRecordsNotShown(in _: StoredWalletRecordsReport) {}
+    func acknowledgeStoredChainAccounts(in _: StoredWalletRecordsReport) {}
+    func acknowledgeStoredChainAccounts(of _: MetaAccountId, in _: StoredWalletRecordsReport) {}
+}
+
 private final class RecordingOperationFactory: MetaAccountOperationFactoryProtocol {
     private(set) var mnemonicRequests: [MetaAccountImportMnemonicRequest] = []
     var onMnemonicRequest: ((MetaAccountImportMnemonicRequest) -> Void)?
@@ -1230,4 +1761,175 @@ private final class RecordingOperationFactory: MetaAccountOperationFactoryProtoc
     func importChainAccountOperation(request _: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
         refused()
     }
+}
+
+private struct PasswordSwitchNoBalances: WalletBalanceSubscriptionAdapterProtocol {
+    func subscribeWalletBalance(wallet _: MetaAccountModel, listener _: WalletBalanceSubscriptionListener) {}
+    func subscribeWalletsBalances(listener _: WalletBalanceSubscriptionListener) {}
+    func subscribeChainAssetBalance(wallet _: MetaAccountModel, chainAsset _: ChainAsset, listener _: WalletBalanceSubscriptionListener) {}
+    func subscribeChainAssetsBalance(chainAssets _: [ChainAsset], wallet _: MetaAccountModel, listener _: WalletBalanceSubscriptionListener) {}
+    func subscribeNetworkManagementBalance(wallet _: MetaAccountModel, listener _: WalletBalanceSubscriptionListener) {}
+    func unsubscribe(listener _: WalletBalanceSubscriptionListener) {}
+}
+
+private struct PasswordSwitchManagementFeatures: FeatureToggleProviderProtocol {
+    func fetchConfigOperation() -> BaseOperation<FeatureToggleConfig> {
+        ClosureOperation { FeatureToggleConfig.defaultConfig }
+    }
+}
+
+private final class PasswordSwitchWalletMutationObserver: EventVisitorProtocol {
+    private(set) var selectedAccounts: [MetaAccountModel] = []
+    private let onSelected: (MetaAccountModel) -> Void
+
+    init(onSelected: @escaping (MetaAccountModel) -> Void) { self.onSelected = onSelected }
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        selectedAccounts.append(event.account)
+        onSelected(event.account)
+    }
+}
+
+private final class PasswordSwitchWalletsManagementOutput: WalletsManagmentInteractorOutput {
+    private(set) var errors: [Error] = []
+    private let onWallets: ([fearless.ManagedMetaAccountModel]) -> Void
+    private let onSelection: () -> Void
+
+    init(onWallets: @escaping ([fearless.ManagedMetaAccountModel]) -> Void, onSelection: @escaping () -> Void) {
+        self.onWallets = onWallets
+        self.onSelection = onSelection
+    }
+    func didReceiveWallets(_ wallets: Result<[fearless.ManagedMetaAccountModel], Error>) {
+        switch wallets {
+        case let .success(wallets): onWallets(wallets)
+        case let .failure(error): errors.append(error)
+        }
+    }
+    func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>) {}
+    func didReceive(error: Error) { errors.append(error) }
+    func didCompleteSelection() { onSelection() }
+    func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?) {}
+    func didReceiveWalletRecordsReport(_ report: StoredWalletRecordsReport) {}
+}
+
+private final class PasswordSwitchWalletNameOutput: WalletNameInteractorOutput {
+    private(set) var result: Result<MetaAccountModel, Error>?
+    private let onResult: (Result<MetaAccountModel, Error>) -> Void
+    init(onResult: @escaping (Result<MetaAccountModel, Error>) -> Void) { self.onResult = onResult }
+    func didReceiveSaveOperation(result: Result<MetaAccountModel, Error>) {
+        self.result = result
+        onResult(result)
+    }
+}
+
+private struct PasswordSwitchNoRootMnemonic: UniversalWalletRootMnemonicProviding {
+    func rootMnemonic(for _: MetaAccountModel) throws -> String? { nil }
+}
+
+private struct PasswordSwitchNoDeprecatedAccounts: DeprecatedControllerStashAccountCheckServiceProtocol {
+    func checkAccountDeprecations(wallet _: MetaAccountModel) async throws -> DeprecatedAccountIssue? { nil }
+    func checkStashItems() async throws -> [StashItem] { [] }
+}
+
+private struct PasswordSwitchStaticFeatures: FeatureToggleProviderProtocol {
+    func fetchConfigOperation() -> BaseOperation<FeatureToggleConfig> {
+        ClosureOperation { FeatureToggleConfig.defaultConfig }
+    }
+}
+
+private final class PasswordSwitchMainWalletOutput: WalletMainContainerInteractorOutput {
+    private(set) var accounts: [MetaAccountModel] = []
+    private(set) var selectedFilters: [NetworkManagmentFilter] = []
+    private(set) var errors: [Error] = []
+    private let onAccount: (MetaAccountModel) -> Void
+
+    init(onAccount: @escaping (MetaAccountModel) -> Void) {
+        self.onAccount = onAccount
+    }
+
+    func didReceiveAccount(_ account: MetaAccountModel) {
+        accounts.append(account)
+        onAccount(account)
+    }
+
+    func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [ChainModel])) {
+        selectedFilters.append(tuple.select)
+    }
+
+    func didReceiveError(_ error: Error) { errors.append(error) }
+    func didReceiveControllerAccountIssue(issue _: ControllerAccountIssue, hasStashItem _: Bool) {}
+    func didReceiveStashAccountIssue(address _: String) {}
+    func didReceiveNftAvailability(isNftAvailable _: Bool) {}
+    func didReceiveStoredWalletRecordsNotices(_ notices: [StoredWalletRecordsNotice]) {}
+    func didReceiveUniversalWalletNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount]) {}
+    func didReceiveUniversalWalletSwitchOutcomes(
+        _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        for accounts: [UniversalWalletNoPasswordAccount]
+    ) {}
+    func didReceiveUniversalWalletOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival]) {}
+}
+
+private final class PasswordSwitchWalletOptionInteractor: WalletOptionInteractorInput {
+    func setup(with output: WalletOptionInteractorOutput) {}
+    func deleteWallet() {}
+}
+
+private final class PasswordSwitchWalletOptionRouter: WalletOptionRouterInput {
+    private(set) var details: MetaAccountModel?
+    private(set) var renaming: MetaAccountModel?
+    private(set) var exported: fearless.ManagedMetaAccountModel?
+    func showWalletDetails(from view: ControllerBackedProtocol?, for wallet: MetaAccountModel) { details = wallet }
+    func showExportWallet(from view: ControllerBackedProtocol?, wallet: fearless.ManagedMetaAccountModel) { exported = wallet }
+    func showChangeWalletName(from view: ControllerBackedProtocol?, for wallet: MetaAccountModel) { renaming = wallet }
+}
+
+private final class PasswordSwitchOneShotBoundary {
+    private let lock = NSLock()
+    private var action: (() -> Void)?
+    func install(_ action: @escaping () -> Void) {
+        lock.lock()
+        self.action = action
+        lock.unlock()
+    }
+    func run() {
+        lock.lock()
+        let action = self.action
+        self.action = nil
+        lock.unlock()
+        action?()
+    }
+}
+
+private final class PasswordSwitchNameEventObserver: EventVisitorProtocol {
+    private(set) var accountEvents: [MetaAccountModel] = []
+    private(set) var nameEvents: [MetaAccountModel] = []
+    private let onName: () -> Void
+    init(onName: @escaping () -> Void) { self.onName = onName }
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) { accountEvents.append(event.account) }
+    func processWalletNameChanged(event: WalletNameChanged) {
+        nameEvents.append(event.wallet)
+        onName()
+    }
+}
+
+private final class PasswordSwitchProfileOutput: ProfileInteractorOutputProtocol {
+    private(set) var wallets: [MetaAccountModel] = []
+    private(set) var errors: [Error] = []
+    var onWallet: ((MetaAccountModel) -> Void)?
+    func reset() { wallets.removeAll(); errors.removeAll() }
+    func didReceive(wallet: MetaAccountModel) { wallets.append(wallet); onWallet?(wallet) }
+    func didReceiveUserDataProvider(error: Error) { errors.append(error) }
+    func didRecieve(selectedCurrency _: Currency) {}
+    func didReceiveWalletBalances(_: Result<[MetaAccountId: WalletBalanceInfo], Error>) {}
+    func didReceiveMissingAccount(issues _: [ChainIssue]) {}
+}
+
+private struct PasswordSwitchNoChainIssues: ChainsIssuesCenterProtocol {
+    func addIssuesListener(_: ChainsIssuesCenterListener, getExisting _: Bool) {}
+    func removeIssuesListener(_: ChainsIssuesCenterListener) {}
+    func forceNotify() {}
+}
+
+private struct PasswordSwitchNoDisconnect: WalletConnectDisconnectService {
+    func disconnect(wallet _: MetaAccountModel) async throws {}
+    func disconnectAllSessions() {}
 }

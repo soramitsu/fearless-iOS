@@ -75,11 +75,13 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # password-protected universal accounts and native iPad support. 2026.11.2 went
 # to TestFlight with the scam warning naming the asset again and user-facing
 # Transfer tab text. 2026.11.3 went to TestFlight with the confirm screen's
-# recipient warning matching the address's flag. 2026.11.4 is the 4.2.0 App
-# Store release: 2026.11.3 with the Receive sheet showing its QR code and
-# address on iPhone, and corrected Send and history titles.
+# recipient warning matching the address's flag. 2026.11.4 went to TestFlight
+# with the Receive sheet showing its QR code and address on iPhone, and
+# corrected Send and history titles. 2026.11.5 fixes stale wallet account
+# switches, selection and rename writes, and scopes account edit events to
+# the wallet each screen displays.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.11.4"
+readonly EXPECTED_BUILD="2026.11.5"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -100,7 +102,7 @@ Preconditions:
     distributed 4.2.0 (2026.7.28) source commit, directly or through its
     squash into master (#1305); a fresh clone gets that pull request's head
     with `git fetch origin refs/pull/1305/head`;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.4);
+  - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.5);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
