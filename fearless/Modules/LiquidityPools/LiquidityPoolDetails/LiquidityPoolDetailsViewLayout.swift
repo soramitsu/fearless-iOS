@@ -162,11 +162,13 @@ final class LiquidityPoolDetailsViewLayout: UIView {
 
     private func setupConstraints() {
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
         infoBackground.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview().inset(16)

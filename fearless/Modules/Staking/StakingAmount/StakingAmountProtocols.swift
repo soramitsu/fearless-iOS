@@ -7,7 +7,6 @@ import SSFModels
 protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceive(viewModel: StakingAmountMainViewModel)
 
-    func didReceiveYourRewardDestination(viewModel: LocalizableResource<YourRewardDestinationViewModel>)
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)

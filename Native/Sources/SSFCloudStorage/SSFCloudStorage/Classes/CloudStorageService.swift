@@ -226,7 +226,10 @@ extension CloudStorageService: CloudStorageServiceProtocol {
         -> (fileId: String, bytes: Data)
     {
         let fileUrl = try fileFactory.createFile(from: account, password: password)
-        let data = try Data(contentsOf: fileUrl)
+        // The file holds the encrypted phrase and seeds; keep only its bytes for the upload.
+        let contents = Result { try Data(contentsOf: fileUrl) }
+        try? FileManager.default.removeItem(at: fileUrl)
+        let data = try contents.get()
 
         let signInState = try await signInIfNeeded()
 

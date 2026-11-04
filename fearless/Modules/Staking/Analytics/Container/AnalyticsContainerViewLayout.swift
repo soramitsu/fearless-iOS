@@ -35,14 +35,15 @@ final class AnalyticsContainerViewLayout: UIView {
         addSubview(segmentedControl)
         segmentedControl.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(40)
         }
 
         addSubview(horizontalScrollView)
         horizontalScrollView.snp.makeConstraints { make in
             make.top.equalTo(segmentedControl.snp.bottom)
-            make.leading.bottom.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 }

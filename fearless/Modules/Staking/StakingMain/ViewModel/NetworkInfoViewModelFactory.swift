@@ -121,15 +121,25 @@ final class NetworkInfoViewModelFactory {
 
     private func createLockUpPeriodViewModel(
         with networkStakingInfo: NetworkStakingInfo,
-        constantErasPerDay: UInt32
+        accountSpecific: Bool
     ) -> LocalizableResource<String>? {
-        var erasPerDay: UInt32
+        if accountSpecific {
+            guard let duration = networkStakingInfo.relaychainInfo?.stakingDuration.unlocking,
+                  duration > 0, duration.isFinite else { return nil }
+            let showsHours = duration <= TimeInterval.secondsInDay
+            let unit = showsHours ? TimeInterval.secondsInHour : TimeInterval.secondsInDay
+            guard let count = Int(exactly: ceil(duration / unit)) else { return nil }
+            return LocalizableResource { locale in
+                showsHours
+                    ? R.string.localizable.commonHoursFormat(format: count, preferredLanguages: locale.rLanguages)
+                    : R.string.localizable.commonDaysFormat(format: count, preferredLanguages: locale.rLanguages)
+            }
+        }
+        let erasPerDay: UInt32
 
         switch networkStakingInfo {
         case let .relaychain(_, relaychainInfo):
             erasPerDay = UInt32(relaychainInfo.stakingDuration.era.intervalsInDay)
-        case .parachain:
-            erasPerDay = constantErasPerDay
         }
 
         let lockUpPeriod = networkStakingInfo.baseInfo.lockUpPeriod
@@ -195,7 +205,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
 
         let localizedLockUpPeriod = createLockUpPeriodViewModel(
             with: networkStakingInfo,
-            constantErasPerDay: chainAsset.chain.erasPerDay
+            accountSpecific: AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) != nil
         )
 
         return LocalizableResource { locale in

@@ -58,7 +58,7 @@ final class StakingBalanceUnbondingItemView: UIView {
     private func setupLayout() {
         addSubview(transactionTypeView)
         transactionTypeView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
             make.width.equalTo(Constants.iconSize)
         }
@@ -78,14 +78,14 @@ final class StakingBalanceUnbondingItemView: UIView {
 
         addSubview(tokenAmountLabel)
         tokenAmountLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.top.equalToSuperview().inset(Constants.verticalInset)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset / 2)
         }
 
         addSubview(usdAmountLabel)
         usdAmountLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.top.equalTo(tokenAmountLabel.snp.bottom)
             make.bottom.equalToSuperview().inset(Constants.verticalInset)
         }

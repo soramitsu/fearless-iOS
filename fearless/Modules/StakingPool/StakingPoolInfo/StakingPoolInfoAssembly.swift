@@ -17,11 +17,6 @@ final class StakingPoolInfoAssembly {
         let logger = Logger.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let operationManager = OperationManagerFacade.sharedManager
-        let keyFactory = StorageKeyFactory()
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: keyFactory,
-            operationManager: operationManager
-        )
 
         let serviceFactory = StakingServiceFactory(
             chainRegisty: ChainRegistryFacade.sharedRegistry,
@@ -51,22 +46,10 @@ final class StakingPoolInfoAssembly {
         }
         eraValidatorService.setup()
 
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
             for: chainAsset,
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            validatorService: eraValidatorService
         ) else {
             return nil
         }

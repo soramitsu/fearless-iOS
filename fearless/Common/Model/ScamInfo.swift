@@ -24,6 +24,9 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
         case donation
         case exchange
         case sanctions
+        case service
+        case highRiskOrganization = "High Risk Organization"
+        case theft
         case lowScore = "Low network activity"
 
         init?(from string: String) {
@@ -34,9 +37,15 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
             self = type
         }
 
+        /// A flag stored by a newer build reads as unknown instead of failing every stored flag.
+        init(from decoder: Decoder) throws {
+            let rawValue = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: rawValue) ?? .unknown
+        }
+
         var isScam: Bool {
             switch self {
-            case .scam:
+            case .scam, .theft:
                 return true
             default:
                 return false
@@ -59,9 +68,25 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
             case .sanctions:
                 return R.string.localizable
                     .scamDescriptionSanctionsStub(assetName, preferredLanguages: locale.rLanguages)
+            case .service:
+                return R.string.localizable
+                    .scamDescriptionServiceStub(preferredLanguages: locale.rLanguages)
+            case .highRiskOrganization:
+                return R.string.localizable
+                    .scamDescriptionHighriskStub(assetName, preferredLanguages: locale.rLanguages)
+            case .theft:
+                return R.string.localizable
+                    .scamDescriptionTheftStub(assetName, preferredLanguages: locale.rLanguages)
             case .lowScore:
                 return R.string.localizable.scamDescriptionLowscoreText(preferredLanguages: locale.rLanguages)
             }
+        }
+
+        /// The sheet behind the confirm screen's recipient warning repeats the Send screen's warning
+        /// for this flag; a flag the app does not recognise gets the general advice.
+        func confirmationAlertMessage(for locale: Locale, assetName: String) -> String {
+            description(for: locale, assetName: assetName)
+                ?? R.string.localizable.scamWarningAlertSubtitle(assetName, preferredLanguages: locale.rLanguages)
         }
     }
 }

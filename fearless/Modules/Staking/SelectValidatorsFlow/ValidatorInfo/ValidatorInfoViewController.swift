@@ -117,44 +117,6 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
             }
         }
 
-        if case let .electedParachain(exposure) = viewModel.staking.status {
-            rootView.addDelegationsView(exposure, locale: selectedLocale)
-
-            let totalStakeView = rootView.addBalanceView(
-                title: R.string.localizable.stakingValidatorTotalStake(preferredLanguages: selectedLocale.rLanguages),
-                viewModel: exposure.totalStake
-            )
-            totalStakeView.addTarget(self, action: #selector(actionOnTotalStake), for: .touchUpInside)
-
-            rootView.addTitleValueView(
-                for: R.string.localizable.stakingValidatorEstimatedReward(
-                    preferredLanguages: selectedLocale.rLanguages
-                ),
-                value: exposure.estimatedReward
-            )
-
-            rootView.addTitleValueView(
-                for: R.string.localizable.parachainStakingMinimumBond(
-                    preferredLanguages: selectedLocale.rLanguages
-                ),
-                value: exposure.minimumBond
-            )
-
-            rootView.addTitleValueView(
-                for: R.string.localizable.parachainStakingSelfBonded(
-                    preferredLanguages: selectedLocale.rLanguages
-                ),
-                value: exposure.selfBonded
-            )
-
-            rootView.addTitleValueView(
-                for: R.string.localizable.parachainStakingEffectiveAmountBonded(
-                    preferredLanguages: selectedLocale.rLanguages
-                ),
-                value: exposure.effectiveAmountBonded
-            )
-        }
-
         if let identityItems = viewModel.identity, !identityItems.isEmpty {
             rootView.stackView.arrangedSubviews.last.map { lastView in
                 rootView.stackView.setCustomSpacing(sectionSpacing, after: lastView)

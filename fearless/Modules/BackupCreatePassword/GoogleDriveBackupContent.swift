@@ -75,10 +75,10 @@ struct GoogleDriveBackupContent {
         from wallet: MetaAccountModel,
         by backup: OpenBackupAccount
     ) -> [ChainAccountModel] {
-        let mnemonic = appOwnedAccountsMnemonic(restoredFrom: backup)
+        let secret = appOwnedAccountsSecret(restoredFrom: backup)
 
         return wallet.chainAccounts
-            .filter { isAppOwned($0) && !isDerived($0, from: mnemonic) }
+            .filter { isAppOwned($0) && !isDerived($0, from: secret) }
             .sorted { $0.chainId < $1.chainId }
     }
 
@@ -112,40 +112,39 @@ struct GoogleDriveBackupContent {
     }
 
     /// The phrase a restore of `backup` derives the Bitcoin, Solana, BIP39 TON and Taira accounts from, in
-    /// the order `BackupPasswordPresenter` reads the backup.
-    private static func appOwnedAccountsMnemonic(restoredFrom backup: OpenBackupAccount) -> String? {
+    /// the order `BackupPasswordPresenter` reads the backup, with the wallet password its paths carry.
+    private static func appOwnedAccountsSecret(restoredFrom backup: OpenBackupAccount) -> UniversalWalletSecret? {
         let types = backup.backupAccountType ?? []
         if types.contains(.passphrase) {
-            return backup.passphrase
+            return backup.passphrase.map {
+                UniversalWalletSecret(
+                    mnemonic: $0,
+                    passphrase: UniversalWalletPassphrase.resolve(
+                        substrateDerivationPath: backup.substrateDerivationPath,
+                        ethereumDerivationPath: backup.ethDerivationPath
+                    )
+                )
+            }
         }
         guard
             types.contains(.seed),
             let substrateSeed = backup.encryptedSeed?.substrateSeed,
-            let walletSeed = try? Data(hexStringSSF: substrateSeed)
+            let walletSeed = try? Data(hexStringSSF: substrateSeed),
+            let mnemonic = try? UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
         else {
             return nil
         }
-        return try? UniversalWalletSeedBridge.mnemonic(fromWalletSeed: walletSeed)
+        return UniversalWalletSecret(mnemonic: mnemonic, passphrase: "")
     }
 
-    private static func isDerived(_ account: ChainAccountModel, from mnemonic: String?) -> Bool {
-        guard let mnemonic else {
+    /// A restore gives back the account the password protects or, where it holds funds, the one
+    /// the words alone open, so either counts as restored.
+    private static func isDerived(_ account: ChainAccountModel, from secret: UniversalWalletSecret?) -> Bool {
+        guard let secret, let slot = UniversalWalletSlot(chainId: account.chainId) else {
             return false
         }
 
-        if let network = UniversalWalletRegistry.bitcoinNetwork(for: account.chainId) {
-            let derived = try? BitcoinKeyDerivation.deriveAccount(
-                mnemonic: mnemonic,
-                network: network == UniversalWalletRegistry.bitcoinMainnet ? .mainnet : .testnet
-            )
-            return derived?.publicKey == account.publicKey
-        }
-
-        if UniversalWalletRegistry.solanaNetwork(for: account.chainId) != nil {
-            return (try? SolanaKeyDerivation.deriveAccount(mnemonic: mnemonic))?.publicKey == account.publicKey
-        }
-
-        if isTon(account) {
+        if slot == .ton {
             // A matching public key alone does not prove that a malformed stored row
             // can be recovered. Keep independent or inconsistent identities in the warning.
             guard account.publicKey.count == 32,
@@ -154,10 +153,9 @@ struct GoogleDriveBackupContent {
                   !account.ethereumBased else {
                 return false
             }
-            return (try? TonKeyDerivation.deriveAccount(mnemonic: mnemonic))?.publicKey == account.publicKey
         }
 
-        return (try? IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic))?.publicKey == account.publicKey
+        return slot.matchingSecret(secret, publicKey: account.publicKey) != nil
     }
 
     private static func isWalletOwnAccount(

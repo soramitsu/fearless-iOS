@@ -57,13 +57,14 @@ final class BackupRiskWarningsViewLayout: UIView {
     private func setupLayout() {
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         let warningsStack = UIFactory.default.createVerticalStackView(spacing: UIConstants.hugeOffset)
@@ -71,7 +72,7 @@ final class BackupRiskWarningsViewLayout: UIView {
         addSubview(warningsStack)
         warningsStack.snp.makeConstraints { make in
             make.top.equalTo(descriptionLabel.snp.bottom).offset(UIConstants.hugeOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         warningsStack.addArrangedSubview(confirm1Button)
@@ -86,7 +87,7 @@ final class BackupRiskWarningsViewLayout: UIView {
 
         addSubview(continueButton)
         continueButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }

@@ -141,7 +141,8 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
             } catch {
                 throw AdoptionError.storedWalletSeedUnavailable
             }
-            return try updatedWallet(from: wallet, mnemonic: mnemonic)
+            let passphrase = try UniversalWalletPassphrase.stored(metaId: wallet.metaId, keystore: keystore)
+            return try updatedWallet(from: wallet, mnemonic: mnemonic, passphrase: passphrase)
         }
 
         let sourceTag = KeystoreTagV2.universalWalletSecretSourceTagForMetaId(wallet.metaId)
@@ -165,7 +166,8 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
             throw AdoptionError.storedWalletSeedUnavailable
         }
 
-        return try updatedWallet(from: wallet, mnemonic: mnemonic)
+        // The bridge turns a raw seed into words; the seed's path password never applied to it.
+        return try updatedWallet(from: wallet, mnemonic: mnemonic, passphrase: "")
     }
 
     private func validateNoConflictingAccounts(in wallet: MetaAccountModel) throws {
@@ -191,20 +193,21 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         }
     }
 
+    /// Missing networks of a password wallet keep the account the words alone open: nothing
+    /// checked their funds here, and the wallet's notice offers the switch.
     private func updatedWallet(
         from wallet: MetaAccountModel,
-        mnemonic: String
+        mnemonic: String,
+        passphrase: String
     ) throws -> MetaAccountModel {
-        let bitcoinCandidate = try BitcoinKeyDerivation.deriveAccount(
-            mnemonic: mnemonic,
-            network: .mainnet
-        )
-        let tairaCandidate = try IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic)
+        let secret = UniversalWalletSecret(mnemonic: mnemonic, passphrase: passphrase)
 
         try validateExistingAccounts(
             in: wallet,
             chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
-            candidatePublicKey: bitcoinCandidate.publicKey,
+            candidatePublicKeys: try secret.candidates.map {
+                try UniversalWalletSlot.bitcoinMainnet.publicKey(for: $0)
+            },
             isStructurallyValid: {
                 UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
             }
@@ -212,20 +215,21 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         try validateExistingAccounts(
             in: wallet,
             chainId: UniversalWalletRegistry.taira.chainId,
-            candidatePublicKey: tairaCandidate.publicKey,
+            candidatePublicKeys: try secret.candidates.map { try UniversalWalletSlot.taira.publicKey(for: $0) },
             isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
         )
 
         return try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
             to: wallet,
-            mnemonic: mnemonic
+            mnemonic: mnemonic,
+            passphrase: passphrase
         )
     }
 
     private func validateExistingAccounts(
         in wallet: MetaAccountModel,
         chainId: ChainModel.Id,
-        candidatePublicKey: Data,
+        candidatePublicKeys: [Data],
         isStructurallyValid: (ChainAccountModel) -> Bool
     ) throws {
         let accounts = wallet.chainAccounts.filter {
@@ -240,7 +244,7 @@ final class UniversalWalletStoredSeedAdopter: UniversalWalletStoredSeedAdopting 
         guard isStructurallyValid(account) else {
             throw AdoptionError.conflictingUniversalWalletAccount
         }
-        guard account.publicKey == candidatePublicKey else {
+        guard candidatePublicKeys.contains(account.publicKey) else {
             throw AdoptionError.conflictingUniversalWalletAccount
         }
     }

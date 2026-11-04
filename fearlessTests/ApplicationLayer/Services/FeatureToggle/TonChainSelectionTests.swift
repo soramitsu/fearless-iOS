@@ -433,6 +433,59 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
     }
 
+    func testEthereumScanThatCouldNotReadEveryBalanceFailsWithTheBalancesItRead() async throws {
+        let ether = AssetModel(
+            id: "0x01", name: "Unit ETH", symbol: "UETH", precision: 18, isUtility: true, isNative: true, ethereumType: .normal
+        )
+        let token = AssetModel(
+            id: "0x02", name: "Unit token", symbol: "UTKN", precision: 18, isUtility: false, isNative: false, ethereumType: .erc20
+        )
+        let unlisted = AssetModel(
+            id: "0x03", name: "Unit other", symbol: "UOTH", precision: 18, isUtility: false, isNative: false, ethereumType: nil
+        )
+        let chain = makeEthereumChain(with: ether, token, unlisted)
+        let etherAsset = ChainAsset(chain: chain, asset: ether)
+        let tokenAsset = ChainAsset(chain: chain, asset: token)
+        let unlistedAsset = ChainAsset(chain: chain, asset: unlisted)
+        let ethereumFetching = AccountInfoFetchingStub()
+        // The token's read failed, so the fetcher left it out; the asset with nothing to read has no balance.
+        ethereumFetching.fetchManyResult = [etherAsset: AccountInfo(ethBalance: 5), unlistedAsset: nil]
+        let service = AccountInfoRemoteServiceDefault(
+            ethereumRemoteBalanceFetching: ethereumFetching,
+            storagePerformer: StorageRequestPerformerStub()
+        )
+
+        do {
+            _ = try await service.fetchAccountInfos(for: chain, wallet: AccountGenerator.generateMetaAccount())
+            XCTFail("A scan that could not read every balance has failed")
+        } catch let error as IncompleteAccountInfosError {
+            XCTAssertEqual(error.accountInfos.count, 2)
+            XCTAssertEqual((error.accountInfos[etherAsset.chainAssetId] ?? nil)?.data.free, 5)
+            XCTAssertTrue(error.accountInfos.keys.contains(unlistedAsset.chainAssetId))
+            XCTAssertNil(error.accountInfos[unlistedAsset.chainAssetId] ?? nil)
+            XCTAssertEqual(error.unreadChainAssetIds, [tokenAsset.chainAssetId])
+        }
+    }
+
+    func testEthereumScanThatReadNothingFailsWithNoBalance() async throws {
+        let ether = AssetModel(
+            id: "0x01", name: "Unit ETH", symbol: "UETH", precision: 18, isUtility: true, isNative: true, ethereumType: .normal
+        )
+        let chain = makeEthereumChain(with: ether)
+        let service = AccountInfoRemoteServiceDefault(
+            ethereumRemoteBalanceFetching: AccountInfoFetchingStub(),
+            storagePerformer: StorageRequestPerformerStub()
+        )
+
+        do {
+            _ = try await service.fetchAccountInfos(for: chain, wallet: AccountGenerator.generateMetaAccount())
+            XCTFail("A network with no working node has no balance to report")
+        } catch let error as IncompleteAccountInfosError {
+            XCTAssertTrue(error.accountInfos.isEmpty)
+            XCTAssertEqual(error.unreadChainAssetIds, Set(chain.chainAssets.map(\.chainAssetId)))
+        }
+    }
+
     func testFetchAccountInfosThrowsWhenTonServiceMissingForTonCompatibilityChain() async {
         let chain = makeTonLikeChain()
         let wallet = AccountGenerator.generateMetaAccount()
@@ -877,8 +930,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
                         scope: "rewards"
                     )
                 ],
-                hasMore: nil,
-                countMode: nil,
+                nextCursor: nil,
                 total: 2
             ),
             aliasResolution: Self.tairaXORAliasResolution,
@@ -896,7 +948,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         XCTAssertEqual(client.accountAssetsInvocations.first?.accountID, address)
         XCTAssertEqual(client.accountAssetsInvocations.first?.baseURL, "https://taira.sora.org")
         XCTAssertEqual(client.accountAssetsInvocations.first?.limit, IrohaToriiRoutes.maxLimit)
-        XCTAssertNil(client.accountAssetsInvocations.first?.countMode)
+        XCTAssertNil(client.accountAssetsInvocations.first?.cursor)
         XCTAssertEqual(client.accountAssetsInvocations.first?.network, UniversalWalletRegistry.taira)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
 
@@ -925,8 +977,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
                         scope: "global"
                     )
                 ],
-                hasMore: false,
-                countMode: IrohaToriiCountMode.bounded.rawValue,
+                nextCursor: nil,
                 total: 1
             ),
             aliasResolution: Self.tairaXORAliasResolution,
@@ -984,8 +1035,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
                         scope: "global"
                     )
                 ],
-                hasMore: false,
-                countMode: IrohaToriiCountMode.bounded.rawValue,
+                nextCursor: nil,
                 total: 1
             ),
             aliasResolution: wrongResolution,
@@ -1032,8 +1082,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
                         scope: "global"
                     )
                 ],
-                hasMore: nil,
-                countMode: nil,
+                nextCursor: nil,
                 total: 1
             ),
             aliasResolution: Self.tairaXORAliasResolution,
@@ -1079,16 +1128,14 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
                         scope: "global"
                     )
                 ],
-                hasMore: false,
-                countMode: IrohaToriiCountMode.bounded.rawValue,
+                nextCursor: nil,
                 total: 2
             ),
             aliasResolution: Self.tairaXORAliasResolution,
             assetDefinitionResponse: Self.tairaXORDefinition,
             assetDefinitionsResponse: IrohaAssetDefinitionListResponse(
                 items: [Self.soraXORDefinition],
-                hasMore: false,
-                countMode: IrohaToriiCountMode.bounded.rawValue,
+                nextCursor: nil,
                 total: 1
             )
         )
@@ -1135,8 +1182,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
                         scope: "global"
                     )
                 ],
-                hasMore: nil,
-                countMode: nil,
+                nextCursor: nil,
                 total: 1
             ),
             aliasResolution: Self.tairaXORAliasResolution,
@@ -1182,15 +1228,13 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             accountAssetsResponses: [
                 IrohaAccountAssetListResponse(
                     items: firstPageItems,
-                    hasMore: nil,
-                    countMode: nil,
-                    total: 500
+                    nextCursor: "assets-cursor-1",
+                    total: nil
                 ),
                 IrohaAccountAssetListResponse(
                     items: [finalItem],
-                    hasMore: nil,
-                    countMode: nil,
-                    total: 1
+                    nextCursor: nil,
+                    total: nil
                 )
             ],
             aliasResolution: Self.tairaXORAliasResolution,
@@ -1200,9 +1244,103 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
 
         let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
 
-        XCTAssertEqual(client.accountAssetsInvocations.map(\.offset), [0, 500])
+        XCTAssertEqual(client.accountAssetsInvocations.map(\.cursor), [nil, "assets-cursor-1"])
+        XCTAssertEqual(client.accountAssetsInvocations.map(\.limit), [500, 500])
         let balance = try XCTUnwrap(result[asset.chainAssetId(chainId: chain.chainId)] ?? nil)
         XCTAssertEqual(balance.data.free, BigUInt("15000000000000000000000000000"))
+    }
+
+    func testFetchAccountInfosFailsClosedWhenIrohaAssetPagingRepeats() async throws {
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let asset = try XCTUnwrap(chain.assets.first)
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
+        let item = { (quantity: String) in
+            IrohaAccountAssetListItem(
+                accountID: address,
+                asset: asset.id,
+                assetID: asset.id,
+                assetName: "xor",
+                assetAlias: UniversalWalletRegistry.tairaNativeXorAlias,
+                quantity: quantity,
+                scope: "global"
+            )
+        }
+        let repeatedCursor = [
+            IrohaAccountAssetListResponse(items: [item("1")], nextCursor: "assets-cursor-1", total: nil),
+            IrohaAccountAssetListResponse(items: [item("2")], nextCursor: "assets-cursor-1", total: nil)
+        ]
+        let repeatedPage = [
+            IrohaAccountAssetListResponse(items: [item("1")], nextCursor: "assets-cursor-1", total: nil),
+            IrohaAccountAssetListResponse(items: [item("1")], nextCursor: nil, total: nil)
+        ]
+
+        for responses in [repeatedCursor, repeatedPage] {
+            let client = IrohaToriiClientStub(
+                accountAssetsResponses: responses,
+                aliasResolution: Self.tairaXORAliasResolution,
+                assetDefinitionResponse: Self.tairaXORDefinition
+            )
+            let service = makeAccountInfoRemoteService(irohaToriiClient: client)
+
+            do {
+                _ = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+                XCTFail("Iroha paging that repeats must not produce a balance")
+            } catch {
+                XCTAssertEqual(client.accountAssetsInvocations.map(\.cursor), [nil, "assets-cursor-1"])
+            }
+        }
+    }
+
+    func testFetchAccountInfosFollowsIrohaDefinitionCursorToHeldAsset() async throws {
+        let chain = UniversalWalletRegistry.tairaChainModel
+        let wallet = try walletWithIrohaAccount(chainId: chain.chainId)
+        let address = try XCTUnwrap(
+            UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet)
+        )
+        let kinaDefinition = IrohaAssetDefinitionListItem(
+            id: "5HFTUK41MFWnFdeHo5XySHC7PQun",
+            name: "Kina",
+            alias: "kina#bpng",
+            ownedBy: nil,
+            metadata: [:],
+            aliasBinding: nil,
+            spec: IrohaAssetDefinitionSpec(scale: 2)
+        )
+        let client = IrohaToriiClientStub(
+            accountAssetsResponse: IrohaAccountAssetListResponse(
+                items: [
+                    IrohaAccountAssetListItem(
+                        accountID: address,
+                        asset: Self.soraXORDefinition.id,
+                        assetID: Self.soraXORDefinition.id,
+                        assetName: "xor",
+                        assetAlias: "xor#sora.universal",
+                        quantity: "2.5",
+                        scope: "global"
+                    )
+                ],
+                nextCursor: nil,
+                total: nil
+            ),
+            aliasResolution: Self.tairaXORAliasResolution,
+            assetDefinitionResponse: Self.tairaXORDefinition,
+            assetDefinitionsResponses: [
+                IrohaAssetDefinitionListResponse(items: [kinaDefinition], nextCursor: "definitions-cursor-1", total: nil),
+                IrohaAssetDefinitionListResponse(items: [Self.soraXORDefinition], nextCursor: "definitions-cursor-2", total: nil)
+            ]
+        )
+        let service = makeAccountInfoRemoteService(irohaToriiClient: client)
+
+        let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
+
+        XCTAssertEqual(client.assetDefinitionsCursors, [nil, "definitions-cursor-1"])
+        let soraBalance = try XCTUnwrap(
+            result[ChainAssetId(chainId: chain.chainId, assetId: Self.soraXORDefinition.id)] ?? nil
+        )
+        XCTAssertEqual(soraBalance.data.free, BigUInt(2_500_000_000))
     }
 
     func testFetchAccountInfosFailsClosedForIrohaChainsWithoutSubstrateStorage() async {
@@ -1296,7 +1434,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         )
     }
 
-    private func makeEthereumChain(with asset: AssetModel) -> ChainModel {
+    private func makeEthereumChain(with assets: AssetModel...) -> ChainModel {
         let node = ChainNodeModel(
             url: URL(string: "https://rpc.unit-eth.test")!,
             name: "Unit ETH",
@@ -1310,7 +1448,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             parentId: nil,
             paraId: nil,
             name: "Unit Ethereum",
-            assets: Set([asset]),
+            assets: Set(assets),
             xcm: nil,
             nodes: Set([node]),
             addressPrefix: 0,
@@ -3322,8 +3460,7 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
         func accounts(
             baseURL _: String?,
             limit _: Int?,
-            offset _: Int64?,
-            countMode _: IrohaToriiCountMode?
+            cursor _: String?
         ) async throws -> IrohaAccountListResponse {
             throw AccountInfoRemoteServiceStubError.notImplemented
         }
@@ -3340,10 +3477,7 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
             accountID _: String,
             baseURL _: String?,
             limit _: Int?,
-            offset _: Int64?,
-            countMode _: IrohaToriiCountMode?,
-            asset _: String?,
-            scope _: String?,
+            cursor _: String?,
             network _: UniversalWalletRegistry.IrohaNetwork
         ) async throws -> IrohaAccountAssetListResponse {
             throw AccountInfoRemoteServiceStubError.notImplemented
@@ -3375,21 +3509,6 @@ final class SendDependencyContainerUniversalWalletRoutingTests: XCTestCase {
             baseURL _: String?,
             scope _: IrohaTransactionStatusScope
         ) async throws -> IrohaPipelineTransactionStatusResponse {
-            throw AccountInfoRemoteServiceStubError.notImplemented
-        }
-
-        func mcpCapabilities(
-            network _: UniversalWalletRegistry.IrohaNetwork,
-            baseURL _: String?
-        ) async throws -> Data {
-            throw AccountInfoRemoteServiceStubError.notImplemented
-        }
-
-        func mcpJSONRPC(
-            _: IrohaMcpJsonRPCRequest,
-            network _: UniversalWalletRegistry.IrohaNetwork,
-            baseURL _: String?
-        ) async throws -> IrohaMcpJsonRPCResponse {
             throw AccountInfoRemoteServiceStubError.notImplemented
         }
     }
@@ -4376,10 +4495,7 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
         let accountID: String
         let baseURL: String?
         let limit: Int?
-        let offset: Int64?
-        let countMode: IrohaToriiCountMode?
-        let asset: String?
-        let scope: String?
+        let cursor: String?
         let network: UniversalWalletRegistry.IrohaNetwork
     }
 
@@ -4388,28 +4504,31 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
     private let aliasResolution: IrohaAssetAliasResolution?
     private let assetDefinitionResponse: IrohaAssetDefinitionListItem?
     private let assetDefinitionsResponse: IrohaAssetDefinitionListResponse?
+    private var assetDefinitionsResponses: [IrohaAssetDefinitionListResponse]
     private(set) var accountAssetsInvocations: [AccountAssetsInvocation] = []
     private(set) var aliasResolutionInvocations: [String?] = []
     private(set) var assetDefinitionInvocations: [(selector: String, baseURL: String?)] = []
+    private(set) var assetDefinitionsCursors: [String?] = []
 
     init(
         accountAssetsResponse: IrohaAccountAssetListResponse = IrohaAccountAssetListResponse(
             items: [],
-            hasMore: false,
-            countMode: IrohaToriiCountMode.bounded.rawValue,
+            nextCursor: nil,
             total: 0
         ),
         accountAssetsResponses: [IrohaAccountAssetListResponse]? = nil,
         accountAssetsError: Error? = nil,
         aliasResolution: IrohaAssetAliasResolution? = nil,
         assetDefinitionResponse: IrohaAssetDefinitionListItem? = nil,
-        assetDefinitionsResponse: IrohaAssetDefinitionListResponse? = nil
+        assetDefinitionsResponse: IrohaAssetDefinitionListResponse? = nil,
+        assetDefinitionsResponses: [IrohaAssetDefinitionListResponse] = []
     ) {
         self.accountAssetsResponses = accountAssetsResponses ?? [accountAssetsResponse]
         self.accountAssetsError = accountAssetsError
         self.aliasResolution = aliasResolution
         self.assetDefinitionResponse = assetDefinitionResponse
         self.assetDefinitionsResponse = assetDefinitionsResponse
+        self.assetDefinitionsResponses = assetDefinitionsResponses
     }
 
     func health(baseURL _: String?) async throws -> Data {
@@ -4419,8 +4538,7 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
     func accounts(
         baseURL _: String?,
         limit _: Int?,
-        offset _: Int64?,
-        countMode _: IrohaToriiCountMode?
+        cursor _: String?
     ) async throws -> IrohaAccountListResponse {
         throw AccountInfoRemoteServiceStubError.notImplemented
     }
@@ -4437,10 +4555,7 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
         accountID: String,
         baseURL: String?,
         limit: Int?,
-        offset: Int64?,
-        countMode: IrohaToriiCountMode?,
-        asset: String?,
-        scope: String?,
+        cursor: String?,
         network: UniversalWalletRegistry.IrohaNetwork
     ) async throws -> IrohaAccountAssetListResponse {
         accountAssetsInvocations.append(
@@ -4448,10 +4563,7 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
                 accountID: accountID,
                 baseURL: baseURL,
                 limit: limit,
-                offset: offset,
-                countMode: countMode,
-                asset: asset,
-                scope: scope,
+                cursor: cursor,
                 network: network
             )
         )
@@ -4471,6 +4583,21 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
             throw AccountInfoRemoteServiceStubError.notImplemented
         }
         return assetDefinitionsResponse
+    }
+
+    func assetDefinitions(
+        baseURL: String?,
+        limit _: Int?,
+        cursor: String?
+    ) async throws -> IrohaAssetDefinitionListResponse {
+        assetDefinitionsCursors.append(cursor)
+        if assetDefinitionsResponses.isNotEmpty {
+            return assetDefinitionsResponses.removeFirst()
+        }
+        guard cursor == nil else {
+            throw AccountInfoRemoteServiceStubError.notImplemented
+        }
+        return try await assetDefinitions(baseURL: baseURL)
     }
 
     func resolveAssetAlias(
@@ -4504,21 +4631,6 @@ private final class IrohaToriiClientStub: IrohaToriiClientProtocol {
         baseURL _: String?,
         scope _: IrohaTransactionStatusScope
     ) async throws -> IrohaPipelineTransactionStatusResponse {
-        throw AccountInfoRemoteServiceStubError.notImplemented
-    }
-
-    func mcpCapabilities(
-        network _: UniversalWalletRegistry.IrohaNetwork,
-        baseURL _: String?
-    ) async throws -> Data {
-        throw AccountInfoRemoteServiceStubError.notImplemented
-    }
-
-    func mcpJSONRPC(
-        _: IrohaMcpJsonRPCRequest,
-        network _: UniversalWalletRegistry.IrohaNetwork,
-        baseURL _: String?
-    ) async throws -> IrohaMcpJsonRPCResponse {
         throw AccountInfoRemoteServiceStubError.notImplemented
     }
 }

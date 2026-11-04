@@ -19,7 +19,16 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     var contentInsets: UIEdgeInsets = .zero
 
-    lazy var preferredContentHeight: CGFloat = Constants.defaultContentHeight
+    private var reportedContentHeight: CGFloat = 0
+    private var initialContentHeight: CGFloat = Constants.defaultContentHeight
+    /// iPad sizes the summary to its content as the window resizes; iPhone keeps
+    /// the fixed height its asset screen is laid out for.
+    var preferredContentHeight: CGFloat {
+        guard UIDevice.current.userInterfaceIdiom == .pad, isViewLoaded, rootView.bounds.width > 0 else {
+            return initialContentHeight
+        }
+        return rootView.fittingContentHeight
+    }
 
     init(
         presenter: ChainAccountPresenterProtocol,
@@ -34,9 +43,9 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
         switch mode {
         case .simple:
-            preferredContentHeight = 100
+            initialContentHeight = 100
         case .extended:
-            preferredContentHeight = UIScreen.main.bounds.size.height > 700 ? 300 : 330
+            initialContentHeight = UIScreen.main.bounds.size.height > 700 ? 300 : 330
         }
     }
 
@@ -71,6 +80,16 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         rootView.polkaswapButton.addTarget(self, action: #selector(polkaswapButtonClicked), for: .touchUpInside)
         rootView.infoButton.addTarget(self, action: #selector(lockedInfoButtonClicked), for: .touchUpInside)
         presenter.setup()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard UIDevice.current.userInterfaceIdiom == .pad else { return }
+        let height = preferredContentHeight
+        guard abs(height - reportedContentHeight) > 0.5 else { return }
+        reportedContentHeight = height
+        observable.observers.forEach { $0.observer?.willChangePreferredContentHeight() }
+        observable.observers.forEach { $0.observer?.didChangePreferredContentHeight(to: height) }
     }
 
     private func setupEmbededBalanceView() {

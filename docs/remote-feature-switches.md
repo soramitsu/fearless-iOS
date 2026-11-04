@@ -1,7 +1,8 @@
 # Remote feature switches (4.2.0)
 
-The app reads `appConfigs/feature_toggle` from `shared-features-utils`
-(`ApplicationConfig.featureToggleURL`) through `FeatureToggleProvider` and applies it in
+The app reads `appConfigs/feature_toggle` from this repository's `remote-config/production/`
+(`remote-config/development/` in development builds; `ApplicationConfig.featureToggleURL`) through
+`FeatureToggleProvider` and applies it in
 `MultiChainFeaturePolicy` (`fearless/ApplicationLayer/Services/FeatureToggle/FeatureToggleConfig.swift`).
 For fund-moving features the remote file is **veto-only**: it can turn a shipped feature off,
 and it can never turn on anything this build compiles off or keeps behind signed authority.
@@ -60,7 +61,7 @@ Emergency veto template (publish only the keys you need to turn off; never preem
 ```
 
 To lift a veto, publish the same key with `true` and keep it published; removing the key keeps
-the veto on devices that already saw it. Android shares this file and these keys (its
+the veto on devices that already saw it. Android uses the same keys (its
 `docs/remote-feature-switches.md`), and the extension uses `web_config.json` `actions.*`. The
 cross-platform template and its checker live in the workspace root:
 `config/remote-config/feature-toggle.veto-only.prepared.json` and

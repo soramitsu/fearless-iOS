@@ -6,7 +6,9 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         guard let controller = view?.controller, controller.presentedViewController == nil, !options.isEmpty else { return }
         let picker = PortfolioFundingPickerViewController(title: title, options: options, locale: locale)
         let navigation = UINavigationController(rootViewController: picker)
-        navigation.modalPresentationStyle = .fullScreen
+        // On iPad the picker is a card over the wallet; iPhone keeps the full screen.
+        navigation.modalPresentationStyle = controller.traitCollection.userInterfaceIdiom == .pad
+            ? .formSheet : .fullScreen
         controller.present(navigation, animated: true)
     }
 

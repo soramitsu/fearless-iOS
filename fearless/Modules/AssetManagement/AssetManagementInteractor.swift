@@ -191,9 +191,14 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
                 guard selectionScope.isCurrent(selectionRequest) else { throw CancellationError() }
                 successfulNetworks += 1
                 NetworkScanStateStore.markSuccess(for: chain, walletId: wallet.metaId)
-                for asset in assets {
-                    if let info = infos[asset.chainAssetId] { result[asset.uniqueKey(accountId: account.accountId)] = .some(info) }
-                }
+                Self.add(infos, of: assets, accountId: account.accountId, to: &result)
+            } catch let incomplete as IncompleteAccountInfosError where incomplete.accountInfos.isNotEmpty {
+                // The network failed, but the balances it read are fresh. The assets it could not read are left out,
+                // so their rows keep the balance they show.
+                guard selectionScope.isCurrent(selectionRequest) else { throw CancellationError() }
+                successfulNetworks += 1
+                NetworkScanStateStore.markFailure(for: chain, walletId: wallet.metaId)
+                Self.add(incomplete.accountInfos, of: assets, accountId: account.accountId, to: &result)
             } catch is CancellationError {
                 throw CancellationError()
             } catch {
@@ -203,6 +208,18 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
         }
         if successfulNetworks == 0, let firstFailure { throw firstFailure }
         return result
+    }
+
+    /// Adds the scanned balances of `assets` to `result`. An asset the scan did not read is not added.
+    private static func add(
+        _ infos: [ChainAssetId: AccountInfo?],
+        of assets: [ChainAsset],
+        accountId: AccountId,
+        to result: inout [ChainAssetKey: AccountInfo?]
+    ) {
+        for asset in assets {
+            if let info = infos[asset.chainAssetId] { result[asset.uniqueKey(accountId: accountId)] = .some(info) }
+        }
     }
 }
 

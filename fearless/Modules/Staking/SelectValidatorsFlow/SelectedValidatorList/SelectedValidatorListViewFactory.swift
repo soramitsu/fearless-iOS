@@ -48,23 +48,6 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
                 viewModelState: viewModelState,
                 viewModelFactory: viewModelFactory
             )
-        case let .parachain(collators, maxTargets, state):
-            let viewModelState = SelectedValidatorListParachainViewModelState(
-                baseFlow: flow,
-                maxTargets: maxTargets,
-                selectedValidatorList: collators,
-                delegate: delegate,
-                bonding: state
-            )
-            let viewModelFactory = SelectedValidatorListParachainViewModelFactory(
-                iconGenerator: iconGenerator,
-                chainAsset: chainAsset,
-                balanceViewModelFactory: balanceViewModelFactory
-            )
-            return SelectedValidatorListDependencyContainer(
-                viewModelState: viewModelState,
-                viewModelFactory: viewModelFactory
-            )
         case let .poolInitiated(validatorList, _, maxTargets, _):
             let viewModelState = SelectedValidatorListRelaychainViewModelState(
                 baseFlow: flow,

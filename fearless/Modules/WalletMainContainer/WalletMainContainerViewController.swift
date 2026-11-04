@@ -1,7 +1,8 @@
 import UIKit
 import SoraFoundation
 
-final class WalletMainContainerViewController: UIViewController, ViewHolder, AllDonePresentable {
+final class WalletMainContainerViewController: UIViewController, ViewHolder, AllDonePresentable,
+    AdaptiveFullWidthContent {
     typealias RootViewType = WalletMainContainerViewLayout
 
     // MARK: Private properties

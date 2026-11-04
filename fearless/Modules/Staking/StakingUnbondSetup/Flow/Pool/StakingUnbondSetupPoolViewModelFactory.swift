@@ -12,13 +12,6 @@ final class StakingUnbondSetupPoolViewModelFactory: StakingUnbondSetupViewModelF
         nil
     }
 
-    func buildCollatorViewModel(
-        viewModelState _: StakingUnbondSetupViewModelState,
-        locale _: Locale
-    ) -> AccountViewModel? {
-        nil
-    }
-
     func buildAccountViewModel(viewModelState: StakingUnbondSetupViewModelState, locale: Locale) -> AccountViewModel? {
         guard let viewModelState = viewModelState as? StakingUnbondSetupPoolViewModelState,
               let address = viewModelState.accountAddress else {

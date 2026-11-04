@@ -147,18 +147,19 @@ final class CrossChainViewLayout: UIView {
 
         actionButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             keyboardAdoptableConstraint =
                 make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
         }
 
         navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.bigOffset)
         }
@@ -167,26 +168,26 @@ final class CrossChainViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(originSelectNetworkView)
         originSelectNetworkView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.addArrangedSubview(destSelectNetworkView)
         destSelectNetworkView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
         searchView.titleLabel.isHidden = true
         contentView.stackView.addArrangedSubview(searchView)
         searchView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
@@ -207,17 +208,17 @@ final class CrossChainViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(commonButtonsContainer)
         commonButtonsContainer.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
         }
 
         contentView.stackView.addArrangedSubview(originNetworkFeeView)
         originNetworkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.networkFeeViewHeight)
         }
         contentView.stackView.addArrangedSubview(destinationNetworkFeeView)
         destinationNetworkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(viewOffset)
             make.height.equalTo(LayoutConstants.networkFeeViewHeight)
         }
         contentView.stackView.setCustomSpacing(0, after: originNetworkFeeView)

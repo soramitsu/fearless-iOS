@@ -3,7 +3,6 @@ import SoraFoundation
 
 enum StakingBondMoreFlow {
     case relaychain
-    case parachain(candidate: ParachainStakingCandidateInfo)
     case pool
 }
 
@@ -14,8 +13,6 @@ protocol StakingBondMoreModelStateListener: AnyObject {
     func provideAmountInputViewModel()
     func provideFee()
     func provideAsset()
-    func provideAccountViewModel()
-    func provideCollatorViewModel()
 }
 
 protocol StakingBondMoreViewModelState: StakingBondMoreUserInputHandler {
@@ -32,8 +29,6 @@ protocol StakingBondMoreViewModelState: StakingBondMoreUserInputHandler {
 }
 
 protocol StakingBondMoreViewModelFactoryProtocol {
-    func buildCollatorViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> AccountViewModel?
-    func buildAccountViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> AccountViewModel?
     func buildHintViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> LocalizableResource<String>?
 }
 

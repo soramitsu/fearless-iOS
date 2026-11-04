@@ -4,7 +4,7 @@ import SSFUtils
 import IrohaCrypto
 import BigInt
 
-struct SubqueryDelegatorHistoryItem: Decodable, RewardHistoryItemProtocol, DelegatorHistoryItem {
+struct SubqueryDelegatorHistoryItem: Decodable, RewardHistoryItemProtocol {
     enum CodingKeys: String, CodingKey {
         case id
         case type

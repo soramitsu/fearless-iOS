@@ -6,6 +6,10 @@ protocol ScamSyncServiceProtocol {
     func syncUp()
 }
 
+enum ScamSyncError: Error {
+    case emptyList
+}
+
 final class ScamSyncService: ScamSyncServiceProtocol {
     struct SyncChanges {
         let newOrUpdatedItems: [ScamInfo]
@@ -110,6 +114,20 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     }
 
     private func sync(remote: [ScamInfo], local: [ScamInfo]) {
+        guard let syncChanges = Self.syncChanges(remote: remote, local: local) else {
+            complete(result: .failure(ScamSyncError.emptyList))
+            return
+        }
+
+        handle(syncChanges: syncChanges)
+    }
+
+    /// An empty or unreadable download keeps the stored flags: deleting them would silence every warning.
+    static func syncChanges(remote: [ScamInfo], local: [ScamInfo]) -> SyncChanges? {
+        guard !remote.isEmpty else {
+            return nil
+        }
+
         let remoteMapping = remote.reduce(into: [String: ScamInfo]()) { mapping, item in
             mapping[item.address] = item
         }
@@ -130,8 +148,7 @@ final class ScamSyncService: ScamSyncServiceProtocol {
             remoteMapping[localItem.address] == nil ? localItem : nil
         }
 
-        let syncChanges = SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
-        handle(syncChanges: syncChanges)
+        return SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
     }
 
     private func handle(syncChanges: SyncChanges) {
@@ -149,16 +166,22 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     }
 
     private func handleRemote(_ data: Data) -> [ScamInfo] {
+        Self.scamInfos(from: data)
+    }
+
+    /// A damaged byte costs its own row, not the whole list.
+    static func scamInfos(from data: Data) -> [ScamInfo] {
+        scamInfos(fromCsv: String(decoding: data, as: UTF8.self))
+    }
+
+    static func scamInfos(fromCsv csv: String) -> [ScamInfo] {
         var scamInfos: Set<ScamInfo> = []
 
-        guard let stringValue = String(data: data, encoding: .utf8) else {
-            return []
-        }
-        var rows = stringValue.components(separatedBy: "\n")
+        var rows = csv.components(separatedBy: .newlines)
         rows.removeFirst()
 
         rows.forEach { row in
-            let columns = row.components(separatedBy: ",")
+            let columns = csvFields(of: row)
 
             guard
                 let name = columns[safe: 0],
@@ -180,6 +203,44 @@ final class ScamSyncService: ScamSyncServiceProtocol {
         }
 
         return Array(scamInfos)
+    }
+
+    /// A name such as `"Polkadot2022 Net, Polkadotevent2022"` is quoted because it holds a comma;
+    /// splitting on every comma read the name's second half as the address.
+    static func csvFields(of row: String) -> [String] {
+        var fields: [String] = []
+        var field = ""
+        var isQuoted = false
+        var characters = row.makeIterator()
+
+        while let character = characters.next() {
+            switch character {
+            case "\"" where isQuoted:
+                // Two quotes inside a quoted field are one quote; one quote ends the quoting.
+                let next = characters.next()
+                if next == "\"" {
+                    field.append("\"")
+                    continue
+                }
+                isQuoted = false
+                if next == "," {
+                    fields.append(field)
+                    field = ""
+                } else if let next {
+                    field.append(next)
+                }
+            case "\"" where field.isEmpty:
+                isQuoted = true
+            case "," where !isQuoted:
+                fields.append(field)
+                field = ""
+            default:
+                field.append(character)
+            }
+        }
+        fields.append(field)
+
+        return fields
     }
 
     private func retry() {

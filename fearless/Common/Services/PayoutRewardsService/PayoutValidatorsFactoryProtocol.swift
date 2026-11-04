@@ -13,7 +13,7 @@ enum PayoutValidatorsFactoryAssembly {
         switch type {
         case .subquery:
             return SubqueryPayoutValidatorsForNominatorFactory(url: blockExplorer.url, chainAsset: chainAsset)
-        case .subsquid, .reef:
+        case .subsquid:
             return SubsquidPayoutValidatorsForNominatorFactory(url: blockExplorer.url, chainAsset: chainAsset)
         case .sora:
             return SoraSubsquidPayoutValidatorsForNominatorFactory(url: blockExplorer.url, chainAsset: chainAsset)

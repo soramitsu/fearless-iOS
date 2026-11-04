@@ -79,7 +79,8 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
             try payouts.forEach { payout in
                 guard let payoutCall = try self?.callFactory.payout(
                     validatorId: payout.validator,
-                    era: payout.era
+                    era: payout.era,
+                    page: payout.page
                 ) else {
                     return
                 }

@@ -7,6 +7,18 @@ enum MainTabBarDestination: Int, CaseIterable {
     case crossChain
     case settings
 
+    /// Stable identifier of the destination's tab in the iPad sidebar and tab bar.
+    var tabIdentifier: String {
+        "fearless.tab.\(self)"
+    }
+
+    init?(tabIdentifier: String) {
+        guard let destination = Self.allCases.first(where: { $0.tabIdentifier == tabIdentifier }) else {
+            return nil
+        }
+        self = destination
+    }
+
     var title: String {
         switch self {
         case .portfolio:

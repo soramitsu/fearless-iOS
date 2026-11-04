@@ -13,6 +13,7 @@ final class PortfolioGroupHideViewController: UIViewController {
     private let viewModel: SheetAlertPresentableViewModel
     private let panel = UIView()
     private let panelMask = CAShapeLayer()
+    private var panelPlacement: AdaptivePanelPlacement?
     private var finished = false
 
     init(viewModel: SheetAlertPresentableViewModel) {
@@ -98,10 +99,6 @@ final class PortfolioGroupHideViewController: UIViewController {
             backdrop.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             backdrop.topAnchor.constraint(equalTo: view.topAnchor),
             backdrop.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            panel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            panel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            panel.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            panel.topAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             closeButton.topAnchor.constraint(equalTo: panel.topAnchor, constant: 8),
             closeButton.trailingAnchor.constraint(equalTo: panel.trailingAnchor, constant: -12),
             closeButton.widthAnchor.constraint(equalToConstant: 44),
@@ -119,11 +116,24 @@ final class PortfolioGroupHideViewController: UIViewController {
             cancelButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 44),
             contentHeight
         ])
+        let placement = AdaptivePanelPlacement(panel: panel, in: view, compact: [
+            panel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            panel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            panel.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            panel.topAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor, constant: 12)
+        ])
+        placement.update(for: traitCollection)
+        panelPlacement = placement
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateFonts()
+    }
+
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        panelPlacement?.update(for: traitCollection)
     }
 
     override func viewDidLayoutSubviews() {

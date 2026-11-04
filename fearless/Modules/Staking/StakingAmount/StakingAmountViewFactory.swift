@@ -139,7 +139,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
-        let flow: StakingAmountFlow = chainAsset.chain.isEthereumBased ? .parachain : .relaychain
+        let flow: StakingAmountFlow = .relaychain
         let operationManager = OperationManagerFacade.sharedManager
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
@@ -233,46 +233,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .parachain:
-            let parachainStakingLocalSubscriptionFactory = ParachainStakingLocalSubscriptionFactory(
-                chainRegistry: chainRegistry,
-                storageFacade: substrateStorageFacade,
-                operationManager: operationManager,
-                logger: Logger.shared
-            )
-
-            let viewModelState = StakingAmountParachainViewModelState(
-                dataValidatingFactory: dataValidatingFactory,
-                wallet: wallet,
-                chainAsset: chainAsset,
-                amount: amount,
-                callFactory: callFactory,
-                rewardChainAsset: rewardChainAsset
-            )
-
-            let strategy = StakingAmountParachainStrategy(
-                chainAsset: chainAsset,
-                stakingLocalSubscriptionFactory: parachainStakingLocalSubscriptionFactory,
-                output: viewModelState,
-                extrinsicService: extrinsicService,
-                eraInfoOperationFactory: ParachainStakingInfoOperationFactory(),
-                eraValidatorService: eraValidatorService,
-                runtimeService: runtimeService,
-                operationManager: operationManager,
-                existentialDepositService: existentialDepositService
-            )
-
-            let viewModelFactory = StakingAmountParachainViewModelFactory(
-                balanceViewModelFactory: balanceViewModelFactory,
-                rewardDestViewModelFactory: rewardDestViewModelFactory,
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator()), wallet: wallet
-            )
-
-            return StakingAmountDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
         }
     }
 
@@ -299,26 +259,10 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: asset,
-            chain: chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
             for: ChainAsset(chain: chain, asset: asset),
             assetPrecision: Int16(asset.precision),
-            validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            validatorService: eraValidatorService
         ) else {
             return nil
         }

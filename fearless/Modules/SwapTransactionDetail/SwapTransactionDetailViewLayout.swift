@@ -195,7 +195,8 @@ final class SwapTransactionDetailViewLayout: UIView {
 
         addSubview(navigationViewContainer)
         navigationViewContainer.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(Constants.navigationBarHeight)
         }
 
@@ -217,7 +218,7 @@ final class SwapTransactionDetailViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(shareButton.snp.bottom).offset(UIConstants.bigOffset)
         }
 
@@ -241,13 +242,13 @@ final class SwapTransactionDetailViewLayout: UIView {
         }
 
         subscanButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.actionHeight)
         }
 
         shareButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.actionHeight)
             make.width.equalTo(subscanButton.snp.width)

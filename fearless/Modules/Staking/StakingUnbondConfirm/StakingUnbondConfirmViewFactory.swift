@@ -177,45 +177,6 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .parachain(candidate, delegation, amount, revoke, bondingDuration):
-            let viewModelState = StakingUnbondConfirmParachainViewModelState(
-                chainAsset: chainAsset,
-                wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory,
-                inputAmount: amount,
-                candidate: candidate,
-                delegation: delegation,
-                revoke: revoke,
-                callFactory: callFactory
-            )
-
-            let strategy = StakingUnbondConfirmParachainStrategy(
-                output: viewModelState,
-                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                runtimeService: runtimeService,
-                operationManager: operationManager,
-                feeProxy: feeProxy,
-                chainAsset: chainAsset,
-                wallet: wallet,
-                connection: connection,
-                keystore: Keychain(),
-                extrinsicService: extrinsicService,
-                signingWrapper: signingWrapper,
-                eventCenter: EventCenter.shared,
-                callFactory: callFactory
-            )
-
-            let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(
-                asset: chainAsset.asset,
-                bondingDuration: bondingDuration,
-                iconGenerator: UniversalIconGenerator()
-            )
-
-            return StakingUnbondConfirmDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
         case let .pool(amount):
             let viewModelState = StakingUnbondConfirmPoolViewModelState(
                 chainAsset: chainAsset,

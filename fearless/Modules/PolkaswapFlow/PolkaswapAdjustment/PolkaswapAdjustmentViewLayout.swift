@@ -165,7 +165,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
     private func setupNavigationLayout(for container: UIView) {
         container.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(Constants.navigationBarHeight)
         }
 
@@ -199,12 +199,12 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
         }
 
         previewButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
             keyboardAdoptableConstraint = make.bottom
                 .equalTo(safeAreaLayoutGuide)
@@ -213,7 +213,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         }
 
         bannersViewContainer.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(16)
             make.height.equalTo(139)
             make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
         }

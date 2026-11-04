@@ -150,8 +150,11 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutpu
         }
     }
 
-    func didFindUnresolvedSubmission(_ record: ReviewedCrossChainSubmissionRecord) {
+    func didFindUnresolvedSubmission(_ records: [ReviewedCrossChainSubmissionRecord]) {
         view?.didStopLoading()
+        guard let record = records.first else {
+            return
+        }
 
         var sendAgain = false
         let sendAgainAction = SheetAlertPresentableAction(
@@ -163,6 +166,8 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutpu
         formatter.locale = selectedLocale
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
+        // Every unresolved attempt may still arrive, so each hash the network returned is listed for the explorer.
+        let hashes = records.compactMap(\.extrinsicHash)
         let message = String(
             format: localized(
                 "cross_chain.unresolved.message",
@@ -170,7 +175,9 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutpu
             ),
             formatter.string(from: record.createdAt),
             record.summary,
-            record.extrinsicHash ?? localized("cross_chain.unresolved.no_hash", "No transaction hash was returned.")
+            hashes.isEmpty
+                ? localized("cross_chain.unresolved.no_hash", "No transaction hash was returned.")
+                : hashes.joined(separator: "\n")
         )
         let viewModel = SheetAlertPresentableViewModel(
             title: localized("cross_chain.unresolved.title", "This transfer may already be on its way"),

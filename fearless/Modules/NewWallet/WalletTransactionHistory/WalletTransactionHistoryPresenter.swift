@@ -44,16 +44,6 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryModuleInput
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterProtocol {
-    func didChangeFiltersSliderValue(index: Int) {
-        guard let type = WalletTransactionHistoryFilter.HistoryFilterType.type(from: index) else {
-            return
-        }
-
-        let filter = WalletTransactionHistoryFilter(type: type, selected: true)
-        let filters = [FilterSet(title: nil, items: [filter])]
-        interactor.applyFilters(filters)
-    }
-
     func setup(with view: WalletTransactionHistoryViewProtocol) {
         self.view = view
         interactor.setup(with: self)
@@ -78,8 +68,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
             return
         }
 
-        let mode: FiltersMode = chainAsset.chain.isReef ? .singleSelection : .multiSelection
-        wireframe.presentFilters(with: filters, from: view, mode: mode, moduleOutput: self)
+        wireframe.presentFilters(with: filters, from: view, mode: .multiSelection, moduleOutput: self)
     }
 
     func didSelect(viewModel: WalletTransactionHistoryCellViewModel) {
@@ -188,9 +177,6 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
     }
 
     private func buildFiltering(for chain: ChainModel) -> WalletTransactionHistoryViewFilterMode {
-        if chain.isReef {
-            return .single
-        }
         guard let explorerType = chain.externalApi?.history?.type, explorerType.hasFilters else {
             return .disabled
         }

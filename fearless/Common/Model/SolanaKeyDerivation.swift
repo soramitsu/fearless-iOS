@@ -133,6 +133,7 @@ enum SolanaKeyDerivation {
 
     private static func normalizeMnemonic(_ mnemonic: String) throws -> String {
         let words = mnemonic
+            .decomposedStringWithCompatibilityMapping
             .split(whereSeparator: { $0.isWhitespace })
             .map(String.init)
 
@@ -143,9 +144,12 @@ enum SolanaKeyDerivation {
         return words.joined(separator: " ")
     }
 
+    /// BIP39 normalises the words and the passphrase with NFKD, so a password typed with
+    /// composed characters opens the same accounts as in any other BIP39 wallet.
     private static func bip39Seed(mnemonic: String, passphrase: String) throws -> Data {
         let password = Array(mnemonic.utf8)
-        let salt = Array("mnemonic\(passphrase)".utf8)
+        let normalizedPassphrase = passphrase.decomposedStringWithCompatibilityMapping
+        let salt = Array("mnemonic\(normalizedPassphrase)".utf8)
         var output = [UInt8](repeating: 0, count: bip39SeedLength)
 
         let status = password.withUnsafeBufferPointer { passwordBuffer in

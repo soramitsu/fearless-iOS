@@ -31,10 +31,13 @@ struct StakingLedger: Decodable, Equatable {
         total = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .total).value
         active = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .active).value
         unlocking = try container.decode([UnlockChunk].self, forKey: .unlocking)
-        do {
+        if container.contains(.claimedRewards) {
             claimedRewards = try container.decode([StringScaleMapper<UInt32>].self, forKey: .claimedRewards)
-        } catch {
+        } else if container.contains(.legacyClaimedRewards) {
             claimedRewards = try container.decode([StringScaleMapper<UInt32>].self, forKey: .legacyClaimedRewards)
+        } else {
+            // Modern staking stores page claims in Staking.ClaimedRewards, outside the ledger.
+            claimedRewards = []
         }
     }
 }

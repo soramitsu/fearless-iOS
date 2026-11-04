@@ -114,7 +114,7 @@ final class StakingPoolMainViewLayout: UIView {
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(walletSelectionButton.snp.bottom).offset(UIConstants.defaultOffset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
@@ -156,11 +156,11 @@ final class StakingPoolMainViewLayout: UIView {
 
         titleLabel.snp.makeConstraints { make in
             make.centerY.equalTo(walletSelectionButton.snp.centerY)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
         }
 
         walletSelectionButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.top.equalTo(safeAreaLayoutGuide.snp.top)
             make.size.equalTo(Constants.birdButtonSize)
             make.leading.equalTo(titleLabel.snp.trailing).offset(UIConstants.bigOffset)

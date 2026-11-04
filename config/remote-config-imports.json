@@ -160,7 +160,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v13/chains_dev.json",
       "upstreamSha256": "5726b01a5364d955e250939c71082c03f97da0dc9512ac9d120c6a2085173d05",
-      "ownedSha256": "97da306bd729c9b571d4483a9258210d425c6abe32da06d7a2ef721e26f508d4"
+      "ownedSha256": "afe5811da8128206468c39a947348f5738535166f6c43ffa0b50d0b6f4ff45c4"
     },
     {
       "path": "development/chains/v9/chains_dev.json",
@@ -168,7 +168,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v9/chains_dev.json",
       "upstreamSha256": "628b6749b14ee787323ba3d72c1c351f2cbff02ca47782796f4dce81bad34a07",
-      "ownedSha256": "946ff648583f0b0a4cc099bdb9d0fdf4e9502fe626c90106f51d7ce17587e203"
+      "ownedSha256": "7179283066163e94cd4d94eb8d20f1212cf25a014eb4459d690ca8c91a9c4d8a"
     },
     {
       "path": "development/fiat/fiats.json",
@@ -2872,7 +2872,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "xcm/v2/xcm_fees.json",
       "upstreamSha256": "f636253a83b41515fe160e26ab19ae91180d43b36018fc547ca2f01ff94f3a12",
-      "ownedSha256": "f636253a83b41515fe160e26ab19ae91180d43b36018fc547ca2f01ff94f3a12"
+      "ownedSha256": "dcbf881c92e23972dfe9804547e15341cd6bb9092a8f68339379aefb17f41e8f"
     },
     {
       "path": "development/xcm/v2/xcm_token_locations.json",
@@ -2880,7 +2880,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "xcm/v2/xcm_token_locations.json",
       "upstreamSha256": "aa9120458c189ed9872f8de6cc01e8f001ea661971270276cfc4a1d08be8dc71",
-      "ownedSha256": "aa9120458c189ed9872f8de6cc01e8f001ea661971270276cfc4a1d08be8dc71"
+      "ownedSha256": "7404509cf2ccac73443ba93cfa1df9f9e2fe45143e299b0c4647de26263afcdf"
     },
     {
       "path": "legacy/android/2.0.2/icons/fiat/aed.svg",
@@ -3259,630 +3259,6 @@
       "ownedSha256": "5769a5e2971a74db38ec6f4766fd0651a02fac5829b69dc0d8ae8cfba6619460"
     },
     {
-      "path": "legacy/master/crowdloan/icons/Amplitude.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Amplitude.png",
-      "upstreamSha256": "c54f7b2bf02c8aae0870b557721d4d0e604f3b40986ce42e47acd476ac16e05a",
-      "ownedSha256": "c54f7b2bf02c8aae0870b557721d4d0e604f3b40986ce42e47acd476ac16e05a"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Bajun.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Bajun.png",
-      "upstreamSha256": "e193c30306c31db1d17744516453503593fb07ebc3ef79c4753cf302dfb101ef",
-      "ownedSha256": "e193c30306c31db1d17744516453503593fb07ebc3ef79c4753cf302dfb101ef"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/DataHighway.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/DataHighway.png",
-      "upstreamSha256": "ef9304763a5b18ba3de8c70af74904e9303044380297d3b8a51548cd534b8726",
-      "ownedSha256": "ef9304763a5b18ba3de8c70af74904e9303044380297d3b8a51548cd534b8726"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/DoraFactory.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/DoraFactory.png",
-      "upstreamSha256": "1fae9868f54e9b062d34fca0ad75daf0ff3db8a896efac0cda33f7edce51fcfc",
-      "ownedSha256": "1fae9868f54e9b062d34fca0ad75daf0ff3db8a896efac0cda33f7edce51fcfc"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/GM Parachain.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/GM Parachain.png",
-      "upstreamSha256": "f5e5d5a53444e9fe822ec8d9dafb3752ac17d7a1444dd07a5f5547582fe56cdc",
-      "ownedSha256": "f5e5d5a53444e9fe822ec8d9dafb3752ac17d7a1444dd07a5f5547582fe56cdc"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Geminis.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Geminis.png",
-      "upstreamSha256": "aa8a344a682271a1b5ad81c933fdb42f61a066de4bdf0a62cc6a36ab72b2b826",
-      "ownedSha256": "aa8a344a682271a1b5ad81c933fdb42f61a066de4bdf0a62cc6a36ab72b2b826"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Hashed.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Hashed.png",
-      "upstreamSha256": "d67eb982d85b06d9803bfe3bb6aa879afe44f4dc6d090f5b8feb29c5aaa5076c",
-      "ownedSha256": "d67eb982d85b06d9803bfe3bb6aa879afe44f4dc6d090f5b8feb29c5aaa5076c"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Imbue.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Imbue.png",
-      "upstreamSha256": "3d6c0a72c38958e3adf161a050eaa06d068c0b444c340bc08a74b5fed28733b6",
-      "ownedSha256": "3d6c0a72c38958e3adf161a050eaa06d068c0b444c340bc08a74b5fed28733b6"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Kabocha.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Kabocha.png",
-      "upstreamSha256": "f51ff0f82be5e8e835e655ca5911e885e45db152e8dd780cbc20555beaea6daf",
-      "ownedSha256": "f51ff0f82be5e8e835e655ca5911e885e45db152e8dd780cbc20555beaea6daf"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Kapex (Totem).png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Kapex (Totem).png",
-      "upstreamSha256": "53e69fc0791a6c2a5195d4ac448b9b1bf8823e1c3a68ce110b8dc34c8f87ae4a",
-      "ownedSha256": "53e69fc0791a6c2a5195d4ac448b9b1bf8823e1c3a68ce110b8dc34c8f87ae4a"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Kylin Network.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Kylin Network.png",
-      "upstreamSha256": "3c4a940888e9980f96cb89a9bde0f774debbde2a86375513c7ee92b7da80ddfa",
-      "ownedSha256": "3c4a940888e9980f96cb89a9bde0f774debbde2a86375513c7ee92b7da80ddfa"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Listen.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Listen.png",
-      "upstreamSha256": "5821da712167d7be3fb2653c599d7320f282e138d8eab8c1db4869a83757e31b",
-      "ownedSha256": "5821da712167d7be3fb2653c599d7320f282e138d8eab8c1db4869a83757e31b"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Litentry.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Litentry.png",
-      "upstreamSha256": "6871c96268c29d37a4c7363f187432b1a1e342e6249fe3a3c27095ffbccfc110",
-      "ownedSha256": "6871c96268c29d37a4c7363f187432b1a1e342e6249fe3a3c27095ffbccfc110"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/MagnataX.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/MagnataX.png",
-      "upstreamSha256": "f65eb6dc1a8a5dbc1bceda507f328091847b94fef3dca638db455855246a532d",
-      "ownedSha256": "f65eb6dc1a8a5dbc1bceda507f328091847b94fef3dca638db455855246a532d"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Moonsama.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Moonsama.png",
-      "upstreamSha256": "f7e4baad2f6ec576d8a0b92c89c02b450f08d002f7bcc595271ecb0c18f20251",
-      "ownedSha256": "f7e4baad2f6ec576d8a0b92c89c02b450f08d002f7bcc595271ecb0c18f20251"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Name=SNOW.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Name=SNOW.png",
-      "upstreamSha256": "7e089dfff491ad1a883e06d5e6d627f1d5f6ca53a030665f9aa170442a811959",
-      "ownedSha256": "7e089dfff491ad1a883e06d5e6d627f1d5f6ca53a030665f9aa170442a811959"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Name=Tinkernet.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Name=Tinkernet.png",
-      "upstreamSha256": "0f4fef475d80a925d449a43b92568561e36653dc87afdcd165a6ca5d88da1302",
-      "ownedSha256": "0f4fef475d80a925d449a43b92568561e36653dc87afdcd165a6ca5d88da1302"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/OAK.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/OAK.png",
-      "upstreamSha256": "f5002115b66194014149549f54d6acc8e8d1a1e0bdcb79757762ab363f2bd803",
-      "ownedSha256": "f5002115b66194014149549f54d6acc8e8d1a1e0bdcb79757762ab363f2bd803"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/OmniBTC.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/OmniBTC.png",
-      "upstreamSha256": "160beb2ec3c9a528cbb7e4524ca7ef829225e1b64668e206d6d1f944221a96f5",
-      "ownedSha256": "160beb2ec3c9a528cbb7e4524ca7ef829225e1b64668e206d6d1f944221a96f5"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/OriginTrail.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/OriginTrail.png",
-      "upstreamSha256": "861704fa7613dfda2cf33e580236368f02064aa773b4fbe404d522744267e3e7",
-      "ownedSha256": "861704fa7613dfda2cf33e580236368f02064aa773b4fbe404d522744267e3e7"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/Pendulum.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/Pendulum.png",
-      "upstreamSha256": "22b21495d34a4b62945b8feaddd238b06f0d75ce8e7a4a1d2443c1ee8da09fb0",
-      "ownedSha256": "22b21495d34a4b62945b8feaddd238b06f0d75ce8e7a4a1d2443c1ee8da09fb0"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/TUR.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/TUR.png",
-      "upstreamSha256": "c7b528972bfba69a4b2a6a4da9e14b432b1d142c007f8f2ccb07cfb60141d7ff",
-      "ownedSha256": "c7b528972bfba69a4b2a6a4da9e14b432b1d142c007f8f2ccb07cfb60141d7ff"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/acala.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/acala.png",
-      "upstreamSha256": "43076413dcff57f69cdf8695455066b09b7c2842a3cd878d3dc346f353de2f3b",
-      "ownedSha256": "43076413dcff57f69cdf8695455066b09b7c2842a3cd878d3dc346f353de2f3b"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/altair.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/altair.png",
-      "upstreamSha256": "812503f357320ef788514174b0f3a8aa8e80129b2e0c9725bb4232ce1b69eca6",
-      "ownedSha256": "812503f357320ef788514174b0f3a8aa8e80129b2e0c9725bb4232ce1b69eca6"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/ares.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/ares.png",
-      "upstreamSha256": "6aa95ba3ea75bb27f37cfa4c40c57d198f7f4c7912fba20fb72520ceb89a7dd5",
-      "ownedSha256": "6aa95ba3ea75bb27f37cfa4c40c57d198f7f4c7912fba20fb72520ceb89a7dd5"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/astar.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/astar.png",
-      "upstreamSha256": "b70a24b3b75e2a1cb8cbaf1c0b1dad6d03ffce0a2931b20de54ca3f83bd2e15d",
-      "ownedSha256": "b70a24b3b75e2a1cb8cbaf1c0b1dad6d03ffce0a2931b20de54ca3f83bd2e15d"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/basilisk.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/basilisk.png",
-      "upstreamSha256": "2360b20f1e2249377ccdfa6a88d2efec2efe13f3d35eef9bdc243883cebdd093",
-      "ownedSha256": "2360b20f1e2249377ccdfa6a88d2efec2efe13f3d35eef9bdc243883cebdd093"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/bifrost.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/bifrost.png",
-      "upstreamSha256": "df00f5d71be6325674ef9d216ea4edc33dd45ef98c2deeeca3a909fde17d1b0c",
-      "ownedSha256": "df00f5d71be6325674ef9d216ea4edc33dd45ef98c2deeeca3a909fde17d1b0c"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/bitcountry.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/bitcountry.png",
-      "upstreamSha256": "cd292dd7f4cfca00c71169eeb1a7bd9dce9cfa1f13b197668aafe458afcdb839",
-      "ownedSha256": "cd292dd7f4cfca00c71169eeb1a7bd9dce9cfa1f13b197668aafe458afcdb839"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/calamari.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/calamari.png",
-      "upstreamSha256": "35cb014f91a4d51606985ceb19970d684735a3bc263f167ce8085113480f69f5",
-      "ownedSha256": "35cb014f91a4d51606985ceb19970d684735a3bc263f167ce8085113480f69f5"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/centrifuge.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/centrifuge.png",
-      "upstreamSha256": "9a272ce7b8f9ab3da888b707e0fd2569d4c712f4bead2c2255413f80eda1bb71",
-      "ownedSha256": "9a272ce7b8f9ab3da888b707e0fd2569d4c712f4bead2c2255413f80eda1bb71"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/clover.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/clover.png",
-      "upstreamSha256": "b8e753592b02dfa0276b1b9d55cfb6535393dd955678b0a11d82d763a9cb2cbf",
-      "ownedSha256": "b8e753592b02dfa0276b1b9d55cfb6535393dd955678b0a11d82d763a9cb2cbf"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/coinversation.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/coinversation.png",
-      "upstreamSha256": "d3c81bdefda511c2ae8595a9fd082f9efed8059a44de27680b7732049cb77670",
-      "ownedSha256": "d3c81bdefda511c2ae8595a9fd082f9efed8059a44de27680b7732049cb77670"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/composable.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/composable.png",
-      "upstreamSha256": "e3689cf490e4936c82031af1fb04815f79018f4e819d43f86090f36633140635",
-      "ownedSha256": "e3689cf490e4936c82031af1fb04815f79018f4e819d43f86090f36633140635"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/crab.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/crab.png",
-      "upstreamSha256": "0bd16b6917c8871d4a157a07f669fb8d7a247eee4b3751637e3f5ae1e886da71",
-      "ownedSha256": "0bd16b6917c8871d4a157a07f669fb8d7a247eee4b3751637e3f5ae1e886da71"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/crust.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/crust.png",
-      "upstreamSha256": "a488369fa6a1c9ab196027d1ca3f8d307b5741d6f1a519b0684f2e2be20fb3da",
-      "ownedSha256": "a488369fa6a1c9ab196027d1ca3f8d307b5741d6f1a519b0684f2e2be20fb3da"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/crustshadow.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/crustshadow.png",
-      "upstreamSha256": "24fd6a00a80c5d4d554f9fff094823f2f8c3441bdf95d232b416302f9568defc",
-      "ownedSha256": "24fd6a00a80c5d4d554f9fff094823f2f8c3441bdf95d232b416302f9568defc"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/darwinia.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/darwinia.png",
-      "upstreamSha256": "0bb1b45fe419deb0cb0708dc2d03860224e7654aa0c25379016e8a2d8d276b3b",
-      "ownedSha256": "0bb1b45fe419deb0cb0708dc2d03860224e7654aa0c25379016e8a2d8d276b3b"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/efinity.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/efinity.png",
-      "upstreamSha256": "bb2caefbd8e6d171f09fb7ec222b45400d367d4bf5c2b3c0a52b8773b041b134",
-      "ownedSha256": "bb2caefbd8e6d171f09fb7ec222b45400d367d4bf5c2b3c0a52b8773b041b134"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/equilibrium.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/equilibrium.png",
-      "upstreamSha256": "1519767fed6eed00cb087178e36114aba40b4fdf19522f70342fd5fb266d8842",
-      "ownedSha256": "1519767fed6eed00cb087178e36114aba40b4fdf19522f70342fd5fb266d8842"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/genshiro.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/genshiro.png",
-      "upstreamSha256": "8e74dac36f622eae8b0fc90f4139fa8f833114ae4ca5c824c2879896550099b9",
-      "ownedSha256": "8e74dac36f622eae8b0fc90f4139fa8f833114ae4ca5c824c2879896550099b9"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/hydradx.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/hydradx.png",
-      "upstreamSha256": "f66bde87a017beeb9a1782dd1bc6eafd32e996148e0559b67fb713d8b560f805",
-      "ownedSha256": "f66bde87a017beeb9a1782dd1bc6eafd32e996148e0559b67fb713d8b560f805"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/integritee.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/integritee.png",
-      "upstreamSha256": "25ef33e40ea8c5b0a2ded8ba3cebbdf4678d3c09cb9ec3e4c294da65809d5c6e",
-      "ownedSha256": "25ef33e40ea8c5b0a2ded8ba3cebbdf4678d3c09cb9ec3e4c294da65809d5c6e"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/interlay.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/interlay.png",
-      "upstreamSha256": "3f159e5f028dd0b7c1c841712e8539002b36d7b3a7af0e85f983986890415a5e",
-      "ownedSha256": "3f159e5f028dd0b7c1c841712e8539002b36d7b3a7af0e85f983986890415a5e"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/invarch.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/invarch.png",
-      "upstreamSha256": "cf7bb64dc4ac27417354a3c2bf942e6cbd268695a26d8d201c134759e03f0c9c",
-      "ownedSha256": "cf7bb64dc4ac27417354a3c2bf942e6cbd268695a26d8d201c134759e03f0c9c"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/karura.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/karura.png",
-      "upstreamSha256": "c148b6916d1b0e80b897a1464bef4f7d6e7838924e3d80d450fc158a717c682e",
-      "ownedSha256": "c148b6916d1b0e80b897a1464bef4f7d6e7838924e3d80d450fc158a717c682e"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/khala.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/khala.png",
-      "upstreamSha256": "46c40f274e32eecf9f6ba5f2f2e25a23725731672a5ef2ada7386fcedbfd549d",
-      "ownedSha256": "46c40f274e32eecf9f6ba5f2f2e25a23725731672a5ef2ada7386fcedbfd549d"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/kico.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/kico.png",
-      "upstreamSha256": "72d1458b41adaadf88573da759b4e0b78e50d462db9a2a719d68131ac8599cee",
-      "ownedSha256": "72d1458b41adaadf88573da759b4e0b78e50d462db9a2a719d68131ac8599cee"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/kilt.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/kilt.png",
-      "upstreamSha256": "0beb0502040c57bece1710797f6ca056976d11e0231390ff2f1914ce599bc2ab",
-      "ownedSha256": "0beb0502040c57bece1710797f6ca056976d11e0231390ff2f1914ce599bc2ab"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/kintsugi.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/kintsugi.png",
-      "upstreamSha256": "a0e53d390cdf08a340364522db4465b9f9dda6aac1e83f404ba55053e19aa3ee",
-      "ownedSha256": "a0e53d390cdf08a340364522db4465b9f9dda6aac1e83f404ba55053e19aa3ee"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/laos.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/laos.png",
-      "upstreamSha256": "f09305c9cd5f9a4fcc90de50529210deccd3ed45bb49601430486ef81022aed9",
-      "ownedSha256": "f09305c9cd5f9a4fcc90de50529210deccd3ed45bb49601430486ef81022aed9"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/litmus.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/litmus.png",
-      "upstreamSha256": "6ebe464c04126453d12b84281bad1b1c602af955e96c0aab6dbb075ba5ab0bd6",
-      "ownedSha256": "6ebe464c04126453d12b84281bad1b1c602af955e96c0aab6dbb075ba5ab0bd6"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/logion.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/logion.png",
-      "upstreamSha256": "35b65a55e1922aead6bbe99e47a246feecc1446bd09678a080141ef375542521",
-      "ownedSha256": "35b65a55e1922aead6bbe99e47a246feecc1446bd09678a080141ef375542521"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/manta.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/manta.png",
-      "upstreamSha256": "d55ba570d695faaa5dd8423146c593718fdca6a88c7d1f4df07ec3c2565e8057",
-      "ownedSha256": "d55ba570d695faaa5dd8423146c593718fdca6a88c7d1f4df07ec3c2565e8057"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/moonbeam.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/moonbeam.png",
-      "upstreamSha256": "ffee6696c1c1489829b5516567a0d4b130afe1af260af70a93f073c4b9bcd940",
-      "ownedSha256": "ffee6696c1c1489829b5516567a0d4b130afe1af260af70a93f073c4b9bcd940"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/moonriver.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/moonriver.png",
-      "upstreamSha256": "aefd5a4464e1e96864ab34e9c9a20e7797cfbe58129f8ef3eb1dad52e91723e2",
-      "ownedSha256": "aefd5a4464e1e96864ab34e9c9a20e7797cfbe58129f8ef3eb1dad52e91723e2"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/nodle.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/nodle.png",
-      "upstreamSha256": "2064eb12477fe8cf408e5f68cc89db887cdeb31bd3877a5f81a7ea9622924c67",
-      "ownedSha256": "2064eb12477fe8cf408e5f68cc89db887cdeb31bd3877a5f81a7ea9622924c67"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/parallelfinance.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/parallelfinance.png",
-      "upstreamSha256": "1089618d48e6a97d49ce269c21e048dc1a0053a15f34579c4864a15cda587b9b",
-      "ownedSha256": "1089618d48e6a97d49ce269c21e048dc1a0053a15f34579c4864a15cda587b9b"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/peaq.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/peaq.png",
-      "upstreamSha256": "9df338e5ee12ef6e2da8fc18b9dcbfaf66c5ce6ddaf23dbe2c4f11b27c050ee0",
-      "ownedSha256": "9df338e5ee12ef6e2da8fc18b9dcbfaf66c5ce6ddaf23dbe2c4f11b27c050ee0"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/phala.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/phala.png",
-      "upstreamSha256": "d56a45ce77841599dd7f8f2448ffc5fb0b27d19ae17fea1a8d6066eede57b696",
-      "ownedSha256": "d56a45ce77841599dd7f8f2448ffc5fb0b27d19ae17fea1a8d6066eede57b696"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/picasso.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/picasso.png",
-      "upstreamSha256": "31977e56ca8dc64154203e2eba9f15a489345bc25c1543b1abc7afe4d09db099",
-      "ownedSha256": "31977e56ca8dc64154203e2eba9f15a489345bc25c1543b1abc7afe4d09db099"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/pichiu.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/pichiu.png",
-      "upstreamSha256": "9c0245afec4b566eb538a66949aa5755746124f9b818d122daf9497638043e99",
-      "ownedSha256": "9c0245afec4b566eb538a66949aa5755746124f9b818d122daf9497638043e99"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/polkadex.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/polkadex.png",
-      "upstreamSha256": "70a2dc7ebf1f9fc713d3fd6cd42ba137c6f536c2e9ff958a776b872023e44b7d",
-      "ownedSha256": "70a2dc7ebf1f9fc713d3fd6cd42ba137c6f536c2e9ff958a776b872023e44b7d"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/polkasmith.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/polkasmith.png",
-      "upstreamSha256": "0e88541ad46a027aead3ee04858c773c69467e14ef9d89b0ee040e4ce12a5315",
-      "ownedSha256": "0e88541ad46a027aead3ee04858c773c69467e14ef9d89b0ee040e4ce12a5315"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/quartz.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/quartz.png",
-      "upstreamSha256": "34f072715e6a56356be977ac83d790eefe6945a18a9b80a9e047fb39c6365e47",
-      "ownedSha256": "34f072715e6a56356be977ac83d790eefe6945a18a9b80a9e047fb39c6365e47"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/robonomics.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/robonomics.png",
-      "upstreamSha256": "8cf9e0b56c77ba68387445ddbfb3430741bc78483bdfc45b1d50c2e40d5997ee",
-      "ownedSha256": "8cf9e0b56c77ba68387445ddbfb3430741bc78483bdfc45b1d50c2e40d5997ee"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/sakura.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/sakura.png",
-      "upstreamSha256": "39c43225d12d631eb7a1c82948ab1d72702b3a6ec1891f7e5ace51074bb5b718",
-      "ownedSha256": "39c43225d12d631eb7a1c82948ab1d72702b3a6ec1891f7e5ace51074bb5b718"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/sherpax.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/sherpax.png",
-      "upstreamSha256": "79ff0880eabf7a989afdb483caf2ec53fae154ca753636ddd1b9219aafed375c",
-      "ownedSha256": "79ff0880eabf7a989afdb483caf2ec53fae154ca753636ddd1b9219aafed375c"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/shiden.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/shiden.png",
-      "upstreamSha256": "b4e401a7d85ee14c799fb2580035bc733b18075f97cf84b8d6275cb612b59bba",
-      "ownedSha256": "b4e401a7d85ee14c799fb2580035bc733b18075f97cf84b8d6275cb612b59bba"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/sora.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/sora.png",
-      "upstreamSha256": "9c3cae68d5281c6b4d43b8bd3733c7007205ae958b7564d4bdf4030e163b3e45",
-      "ownedSha256": "9c3cae68d5281c6b4d43b8bd3733c7007205ae958b7564d4bdf4030e163b3e45"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/subdao.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/subdao.png",
-      "upstreamSha256": "dc6e8e450b6a8e635a7f4a4d596d31767327fdd4cad4f78c1b977cfdd61d081f",
-      "ownedSha256": "dc6e8e450b6a8e635a7f4a4d596d31767327fdd4cad4f78c1b977cfdd61d081f"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/subgame.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/subgame.png",
-      "upstreamSha256": "85eb964b14553e57303a859f366466e71ec5bd0c36e6914e990d1b422f1622b7",
-      "ownedSha256": "85eb964b14553e57303a859f366466e71ec5bd0c36e6914e990d1b422f1622b7"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/subsocial.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/subsocial.png",
-      "upstreamSha256": "ff08aca86c0374d57152fd440177621e6f0ffead1bac5a837781df2b2b228182",
-      "ownedSha256": "ff08aca86c0374d57152fd440177621e6f0ffead1bac5a837781df2b2b228182"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/unique.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/unique.png",
-      "upstreamSha256": "9686acad72cd5cb7e623eef679d24dce39f790f59c6cae8652b775c3bdfdd302",
-      "ownedSha256": "9686acad72cd5cb7e623eef679d24dce39f790f59c6cae8652b775c3bdfdd302"
-    },
-    {
-      "path": "legacy/master/crowdloan/icons/zeitgeist.png",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/icons/zeitgeist.png",
-      "upstreamSha256": "a79309354753a53d36db717792f053d4fde8b5e9110b4b7cee0035b83d47f6ba",
-      "ownedSha256": "a79309354753a53d36db717792f053d4fde8b5e9110b4b7cee0035b83d47f6ba"
-    },
-    {
-      "path": "legacy/master/crowdloan/kusama.json",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/kusama.json",
-      "upstreamSha256": "9dd73bc74bdee482b440ae2c5948fc1d3171ccaad66206f8fd043c44e815060a",
-      "ownedSha256": "179d32af1620267be76b74da9ac1c46240c4c42a542ff3d2f1319a259e714ec4"
-    },
-    {
-      "path": "legacy/master/crowdloan/polkadot.json",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/polkadot.json",
-      "upstreamSha256": "114f1868030e300ecc6bdf72a08dc23e9daff947221e88254d07fa64f25d3700",
-      "ownedSha256": "d2b0d171728804465e54bf7552f510293de220a43b1f0f5d4db0252f309c14bf"
-    },
-    {
-      "path": "legacy/master/crowdloan/westend.json",
-      "repository": "soramitsu/fearless-utils",
-      "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
-      "sourcePath": "crowdloan/westend.json",
-      "upstreamSha256": "ffd3d3091050a78f19aa716dbf5fe191db1c607622e1d1ca966be558fc0ba376",
-      "ownedSha256": "ffd3d3091050a78f19aa716dbf5fe191db1c607622e1d1ca966be558fc0ba376"
-    },
-    {
       "path": "legacy/master/icons/tokens/coloured/DAI.svg",
       "repository": "soramitsu/fearless-utils",
       "commit": "64a624bc52d17d6af92a096a96a5d989c6d9fa7c",
@@ -4048,7 +3424,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v13/chains.json",
       "upstreamSha256": "79a583f08f71139a31e00c825c746891cef50c04aa81318aaa492807757b9cec",
-      "ownedSha256": "373462d72052835bd02bf38018cb83478194bed96759c542120773aaae35d37b"
+      "ownedSha256": "dfd74369af4ca71df676c540fce588086c07069dfb9f5655b0e1280720b4b9f8"
     },
     {
       "path": "production/chains/v2/chains.json",
@@ -4056,7 +3432,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v2/chains.json",
       "upstreamSha256": "b7626f25e62a4e7a2bd9bfcb94e8cfdeca53c269f32c3a9551601a4a77c0e66b",
-      "ownedSha256": "01a6e3ba703a4594b1a032905413041891f9e777bb6a1d7700866f26fa3cd255"
+      "ownedSha256": "c380fe60ce5c12f056488a1843101bd26402d36c7962259da7d0ab95d63fd519"
     },
     {
       "path": "production/chains/v9/chains.json",
@@ -4064,7 +3440,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v9/chains.json",
       "upstreamSha256": "7bf099748b92db438635025bb5009bb77e966b3473008a48969a261da7998f57",
-      "ownedSha256": "1ab96e624590262d10e64602d596fefcf005e963b3b27ce0a090313282010346"
+      "ownedSha256": "a643de06cfbc5d24796a7112661aa7c6e7d4026d70c8db2e6520786b2488d135"
     },
     {
       "path": "production/fiat/fiats.json",
@@ -8208,7 +7584,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "xcm/v2/xcm_fees.json",
       "upstreamSha256": "5a8a356c8b0feaa285e427c47c3c7991f22ddea55e97d1cff954f3ec22596bde",
-      "ownedSha256": "5a8a356c8b0feaa285e427c47c3c7991f22ddea55e97d1cff954f3ec22596bde"
+      "ownedSha256": "b0befa7ab83bb5a9455bccce3de7f5efc38904008c42e9dbb0bf54655af87f99"
     },
     {
       "path": "production/xcm/v2/xcm_token_locations.json",
@@ -8216,7 +7592,7 @@
       "commit": "e11b90f707bd9b4e424f97a135565018a5e8eb42",
       "sourcePath": "xcm/v2/xcm_token_locations.json",
       "upstreamSha256": "a63c4db237dc572144eb08221f20dd2fe63847b5fdc7e8c63a92a1275dce27af",
-      "ownedSha256": "a63c4db237dc572144eb08221f20dd2fe63847b5fdc7e8c63a92a1275dce27af"
+      "ownedSha256": "7404509cf2ccac73443ba93cfa1df9f9e2fe45143e299b0c4647de26263afcdf"
     }
   ],
   "correctedUpstreamPaths": [
@@ -8268,6 +7644,69 @@
       ],
       "changes": [
         "Disable unreachable Reef Mainnet in app-owned catalogs after retaining unavailable chain parents and clearing stale staking selection; configured RPC returned HTTP502 on 2026-10-25. Legacy shared feeds remain unchanged."
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/xcm/v2/xcm_fees.json",
+        "remote-config/production/xcm/v2/xcm_token_locations.json",
+        "remote-config/development/xcm/v2/xcm_fees.json",
+        "remote-config/development/xcm/v2/xcm_token_locations.json"
+      ],
+      "changes": [
+        "Remove fee and token-location entries for networks no longer registered on their relay chains (Moonbeam 2004, Moonriver 2023, Parallel 2012) and, in development, for Rococo and the ROC fees of SORA test",
+        "Remove SORA Mainnet fee rows and the SORA Mainnet token-location group for tokens that reach SORA only through its halted parachains (Kusama 2011, Polkadot 2025): KSM, DOT, ACA and ASTR",
+        "Remove the token location with the malformed ASTR id 5ab1e8d-81ed-4130-9d29-55b549cc6bab; it equals the Astar catalog asset id, which stays unchanged, and no route reads it",
+        "Set the Liberland destination fee precision of XOR to 18, the precision of XOR on Liberland",
+        "Chain lists and their XCM routes are unchanged"
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/production/chains/v9/chains.json",
+        "remote-config/production/chains/v2/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json",
+        "remote-config/development/chains/v9/chains_dev.json"
+      ],
+      "changes": [
+        "Keep XCM availableDestinations only for routes with a bundled definition: Polkadot -> Polkadot Asset Hub DOT, Kusama -> Kusama Asset Hub KSM and Liberland -> SORA LLD, LLM, XOR. Live dry runs on 2026-10-28 found Karura -> Kusama Asset Hub RMRK trapping funds on Asset Hub, RMRK from Kusama Asset Hub, Karura -> Bifrost BNC and Bifrost -> Karura KSM refused at the origin, and Rococo gone; no current build executes the other routes. Nothing outside availableDestinations changed."
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json"
+      ],
+      "changes": [
+        "Drop discontinued Blast API nodes; move Dwellir nodes from retired *.dwellir.com hosts to n.dwellir.com hosts that returned the network's genesis on 2026-10-29, and drop the rest unless a network has no other node. Only node entries change."
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/production/chains/v9/chains.json",
+        "remote-config/production/chains/v2/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json",
+        "remote-config/development/chains/v9/chains_dev.json",
+        "remote-config/legacy/master/crowdloan"
+      ],
+      "changes": [
+        "Remove 39 networks that no longer produce blocks, checked on 2026-10-29 against their relay chain and every published node: parachains no longer registered (Moonbeam, which moved to Base on 2026-07-31, Moonriver, Subsocial, Integritee on Polkadot and Kusama, InvArch) or without a relay-included block for 30 days to two years and no answering node (Bitgreen, Pioneer, Bajun, Parallel Heiko, Calamari, Turing, Polimec, Picasso, Clover, both SORA parachains, Phala, Nodle, Quartz, KILT, Altair, Amplitude, Crust, Crust Shadow, Interlay, Kintsugi, Centrifuge, Composable, Manta, Robonomics on Kusama), Polygon zkEVM (sequencer stopped 2026-07-01) and networks no node answers for (Polkadex, CAGA, CAGA Ankara, 5ire, ZChains, inEVM). NetworkRetirement in the app leaves the same networks out whatever list it reads. AvN left its relay but runs on its own and stays",
+        "Remove Ajuna Polkadot, which its relay still includes but whose listed and published nodes do not answer; it can return with a working node",
+        "Remove 23 entries that were already disabled and whose networks are gone: Khala, Parallel, Moonbase Alpha, Genshiro, Litmus, Dorafactory, KICO, Mangata, DataHighway, Equilibrium, Pichiu, GM, Imbue, Kylin, Kusama (test), Polkadot (test), Snow, SORA test, Ipci, Subzero, Kapex, Reef and Analog Testnet. Installed apps keep their stored copy disabled",
+        "Polkadot, Kusama and Westend no longer offer relay staking, pool staking or crowdloans: their staking moved to Asset Hub and the relay runtimes have no Staking storage",
+        "Atleta Olympia nodes use port 443; port 9944 no longer completes TLS",
+        "Delete the legacy crowdloan lists and icons, which no chain list names any more"
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json"
+      ],
+      "changes": [
+        "Polkadot Asset Hub (DOT) and Kusama Asset Hub (KSM) offer staking again as \"staking\": \"assetHub\": staking moved there from the relays (Kusama 2025-10-07, Polkadot 2025-11-04) and a stake kept its address. Builds without Asset Hub staking decode the value as no staking, so they never run relay staking code against a hub; never mark the hubs relaychain or poolStaking. Both hubs take their relay's People chain as identity chain, so validator identities resolve; the development list gains the Polkadot People entry from the production list for this. The app follows this only for the hub's native token and offers no pool staking or crowdloans there"
       ]
     }
   ]

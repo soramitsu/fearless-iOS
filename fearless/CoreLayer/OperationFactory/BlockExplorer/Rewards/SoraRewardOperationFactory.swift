@@ -58,17 +58,6 @@ final class SoraRewardOperationFactory {
 }
 
 extension SoraRewardOperationFactory: RewardOperationFactoryProtocol {
-    func createLastRoundOperation() -> BaseOperation<String> {
-        BaseOperation.createWithError(SoraRewardOperationFactoryError.stakingTypeUnsupported)
-    }
-
-    func createAprOperation(
-        for _: @escaping () throws -> [AccountId],
-        dependingOn _: BaseOperation<String>
-    ) -> BaseOperation<CollatorAprResponse> {
-        BaseOperation.createWithError(SoraRewardOperationFactoryError.stakingTypeUnsupported)
-    }
-
     func createDelegatorRewardsOperation(
         address _: String,
         startTimestamp _: Int64?,

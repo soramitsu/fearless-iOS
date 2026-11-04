@@ -63,14 +63,6 @@ final class StakingAmountPresenter {
         ) {
             view?.didReceiveRewardDestination(viewModel: viewModel)
         }
-
-        if let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(
-            viewModelState: viewModelState,
-            priceData: priceData,
-            calculator: calculator
-        ) {
-            view?.didReceiveYourRewardDestination(viewModel: viewModel)
-        }
     }
 
     private func provideAsset() {
@@ -314,15 +306,5 @@ extension StakingAmountPresenter: StakingAmountModelStateListener {
         if let viewModel = viewModelFactory?.buildViewModel(viewModelState: viewModelState, priceData: priceData, calculator: calculator) {
             view?.didReceive(viewModel: viewModel)
         }
-    }
-
-    func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState) {
-        view?.didStopLoading()
-
-        guard let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(viewModelState: viewModelState, priceData: priceData, calculator: calculator) else {
-            return
-        }
-
-        view?.didReceiveYourRewardDestination(viewModel: viewModel)
     }
 }

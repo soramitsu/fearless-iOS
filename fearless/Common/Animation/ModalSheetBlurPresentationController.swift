@@ -4,6 +4,8 @@ import SoraUI
 final class ModalSheetBlurPresentationController: UIPresentationController {
     private let configuration: ModalSheetPresentationConfiguration
     private let shouldDissmissWhenTapOnBlurArea: Bool
+    private let usesPreferredContentSize: Bool
+    private let intrinsicLayout = AdaptiveSheetLayout()
 
     var interactiveDismissal: UIPercentDrivenInteractiveTransition?
     private var initialTranslation: CGPoint = .zero
@@ -28,10 +30,12 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
         presentedViewController: UIViewController,
         presenting presentingViewController: UIViewController?,
         configuration: ModalSheetPresentationConfiguration,
-        shouldDissmissWhenTapOnBlurArea: Bool = true
+        shouldDissmissWhenTapOnBlurArea: Bool = true,
+        usesPreferredContentSize: Bool = false
     ) {
         self.configuration = configuration
         self.shouldDissmissWhenTapOnBlurArea = shouldDissmissWhenTapOnBlurArea
+        self.usesPreferredContentSize = usesPreferredContentSize
 
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
 
@@ -46,6 +50,8 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
         blurView.alpha = 0.975
         blurView.tag = ModalSheetBlurPresentationAppearanceAnimator.UIVisualEffectViewFearlessTag
         blurView.frame = containerView?.bounds ?? .zero
+        // iPad sheets stay up through rotation and window resizing.
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         if shouldDissmissWhenTapOnBlurArea {
             let cancellationGesture = UITapGestureRecognizer(
                 target: self,
@@ -71,13 +77,34 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     override func presentationTransitionWillBegin() {
         attachCancellationGestureOnBlur()
         attachPanGesture()
+        if let containerView = containerView {
+            layoutPreferredContent(in: containerView)
+        }
 
         animateBackgroundAlpha(fromValue: 0.0, toValue: 1)
     }
 
+    override var frameOfPresentedViewInContainerView: CGRect {
+        guard usesPreferredContentSize, let containerView = containerView else {
+            return super.frameOfPresentedViewInContainerView
+        }
+        return preferredContentFrame(in: containerView)
+    }
+
+    override func containerViewWillLayoutSubviews() {
+        super.containerViewWillLayoutSubviews()
+        guard !presentedViewController.isBeingPresented, !presentedViewController.isBeingDismissed,
+              let containerView = containerView else { return }
+        layoutPreferredContent(in: containerView)
+    }
+
     override func presentationTransitionDidEnd(_ completed: Bool) {
+        super.presentationTransitionDidEnd(completed)
         if completed {
             containerView?.alpha = 1
+        }
+        if completed, let containerView = containerView {
+            layoutPreferredContent(in: containerView)
         }
     }
 
@@ -85,6 +112,51 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
         if !completed {
             containerView?.alpha = 1
         }
+    }
+
+    override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
+        super.preferredContentSizeDidChange(forChildContentContainer: container)
+        containerView?.setNeedsLayout()
+    }
+
+    /// Table-based pickers have no intrinsic height. Recalculate their frame for
+    /// rotation, split view and Stage Manager, leaving the table free to scroll.
+    func layoutPreferredContent(in container: UIView) {
+        guard let view = presentedViewController.view else { return }
+        if !usesPreferredContentSize {
+            // iPhone sheets keep the constraints their appearance animator installs.
+            if container.traitCollection.userInterfaceIdiom == .pad, view.superview === container {
+                let scrolls = (presentedViewController as? SheetAletViewController)?.scrollableContent == true
+                intrinsicLayout.apply(to: view, in: container, fillsHeight: scrolls)
+            }
+            return
+        }
+        view.frame = preferredContentFrame(in: container)
+        let isCard = AdaptiveLayout.isRegularWidth(container.traitCollection)
+        view.layer.cornerRadius = isCard ? AdaptiveLayout.sheetCornerRadius : 0
+        view.layer.cornerCurve = .continuous
+        view.clipsToBounds = isCard
+    }
+
+    private func preferredContentFrame(in container: UIView) -> CGRect {
+        let safeFrame = container.bounds.inset(by: AdaptiveLayout.contentInsets(in: container))
+        let preferredHeight = presentedViewController.preferredContentSize.height
+        if AdaptiveLayout.isRegularWidth(container.traitCollection) {
+            let width = AdaptiveLayout.sheetCardWidth(containerWidth: safeFrame.width)
+            let availableHeight = max(0, safeFrame.height - 2 * AdaptiveLayout.sheetMargin)
+            let height = min(preferredHeight > 0 ? preferredHeight : availableHeight, availableHeight)
+            return CGRect(
+                x: safeFrame.midX - width / 2,
+                y: safeFrame.midY - height / 2,
+                width: width,
+                height: height
+            )
+        }
+        let frame = configuration.extendUnderSafeArea ? container.bounds : safeFrame
+        let bottomInset = configuration.extendUnderSafeArea ? container.safeAreaInsets.bottom : 0
+        let availableHeight = safeFrame.height + bottomInset
+        let height = min(preferredHeight > 0 ? preferredHeight + bottomInset : availableHeight, availableHeight)
+        return CGRect(x: frame.minX, y: frame.maxY - height, width: frame.width, height: height)
     }
 
     override func dismissalTransitionWillBegin() {
@@ -211,7 +283,7 @@ extension ModalSheetBlurPresentationController: ModalPresenterProtocol {
 }
 
 extension ModalSheetBlurPresentationController: UIGestureRecognizerDelegate {
-    public func gestureRecognizer(
+    func gestureRecognizer(
         _: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {

@@ -29,7 +29,14 @@ enum EthereumChain: String {
 }
 
 protocol EthereumNodeFetchingProtocol {
-    func getNode(for chain: ChainModel) throws -> Web3.Eth
+    /// A connection to `url`, one of the nodes `EthereumNodeSelection` offers for `chain`.
+    func getNode(for chain: ChainModel, url: URL) throws -> Web3.Eth
+}
+
+extension EthereumNodeFetchingProtocol {
+    func getNode(for chain: ChainModel) throws -> Web3.Eth {
+        try getNode(for: chain, url: EthereumNodeSelection.url(for: chain))
+    }
 }
 
 enum EthereumNodeFetchingError: LocalizedError, Equatable {
@@ -44,56 +51,126 @@ enum EthereumNodeFetchingError: LocalizedError, Equatable {
 }
 
 enum EthereumNodeSelection {
-    static func url(for chain: ChainModel) throws -> URL {
-        if let selected = chain.selectedNode?.url, isSupported(selected) {
-            return selected
+    static func url(for chain: ChainModel, catalogOrder: [URL] = []) throws -> URL {
+        if let chosen = chosenURL(for: chain) {
+            return chosen
         }
 
-        // Catalog nodes are a Set. A stable HTTPS-first order avoids random
-        // provider changes between launches and preserves explicit user choices.
-        let candidates = chain.nodes.map(\.url).filter(isSupported).sorted {
-            let firstIsHttps = $0.scheme?.lowercased() == "https"
-            let secondIsHttps = $1.scheme?.lowercased() == "https"
-            if firstIsHttps != secondIsHttps {
-                return firstIsHttps
-            }
-            return $0.absoluteString < $1.absoluteString
-        }
-        guard let selected = candidates.first else {
+        guard let selected = automaticURLs(for: chain, catalogOrder: catalogOrder).first else {
             throw EthereumNodeFetchingError.noSupportedNode(chainName: chain.name)
         }
         return selected
     }
 
-    private static func isSupported(_ url: URL) -> Bool {
+    /// The node the user chose, exactly as they entered it, when the app can reach it. Automatic selection has none.
+    static func chosenURL(for chain: ChainModel) -> URL? {
+        guard let selected = chain.selectedNode?.url, isSupported(selected) else {
+            return nil
+        }
+        return selected
+    }
+
+    /// The nodes automatic selection goes through: HTTPS nodes before WSS ones, each in the order the chain catalog
+    /// lists them (`catalogOrder`), and nodes the catalog order does not know last, by URL. A WSS node is reached over
+    /// the same host's HTTPS node when the network lists one, so the socket is used only where no HTTPS node exists.
+    static func automaticURLs(for chain: ChainModel, catalogOrder: [URL] = []) -> [URL] {
+        let supported = chain.nodes.map(\.url).filter(isSupported)
+        let reachable = supported.map { overHTTPS($0, nodes: supported) }
+        let ranks = catalogOrder.map { overHTTPS($0, nodes: supported).absoluteString }
+            .enumerated()
+            .reduce(into: [String: Int]()) { ranks, entry in
+                if ranks[entry.element] == nil {
+                    ranks[entry.element] = entry.offset
+                }
+            }
+
+        var seen = Set<String>()
+        return reachable
+            .filter { seen.insert($0.absoluteString).inserted }
+            .sorted {
+                let firstIsHttps = isHTTPS($0)
+                let secondIsHttps = isHTTPS($1)
+                if firstIsHttps != secondIsHttps {
+                    return firstIsHttps
+                }
+                let firstRank = ranks[$0.absoluteString] ?? Int.max
+                let secondRank = ranks[$1.absoluteString] ?? Int.max
+                if firstRank != secondRank {
+                    return firstRank < secondRank
+                }
+                return $0.absoluteString < $1.absoluteString
+            }
+    }
+
+    static func isSupported(_ url: URL) -> Bool {
         guard
             let scheme = url.scheme?.lowercased(),
             scheme == "https" || scheme == "wss",
-            var host = url.host?.lowercased(),
-            !host.isEmpty
+            let host = normalizedHost(of: url)
         else {
             return false
+        }
+        // Blast retired its complete provider service. The DNS boundary matters:
+        // do not reject a custom node merely because its path/name mentions it.
+        return host != "blastapi.io" && !host.hasSuffix(".blastapi.io")
+    }
+
+    private static func isHTTPS(_ url: URL) -> Bool {
+        url.scheme?.lowercased() == "https"
+    }
+
+    private static func overHTTPS(_ url: URL, nodes: [URL]) -> URL {
+        guard !isHTTPS(url) else {
+            return url
+        }
+        return nodes.first { isHTTPS($0) && endpoint(of: $0) == endpoint(of: url) } ?? url
+    }
+
+    private static func endpoint(of url: URL) -> String? {
+        normalizedHost(of: url).map { "\($0):\(url.port ?? 443)" }
+    }
+
+    private static func normalizedHost(of url: URL) -> String? {
+        guard var host = url.host?.lowercased() else {
+            return nil
         }
         while host.hasSuffix(".") {
             host.removeLast()
         }
-        // Blast retired its complete provider service. The DNS boundary matters:
-        // do not reject a custom node merely because its path/name mentions it.
-        return !host.isEmpty && host != "blastapi.io" && !host.hasSuffix(".blastapi.io")
+        return host.isEmpty ? nil : host
     }
 }
 
 final class EthereumNodeFetching: EthereumNodeFetchingProtocol {
-    func getNode(for chain: ChainModel) throws -> Web3.Eth {
-        let url = try EthereumNodeSelection.url(for: chain)
+    private let session: URLSession?
+
+    /// - Parameter session: the session HTTPS nodes are reached with; by default each node gets its own.
+    init(session: URLSession? = nil) {
+        self.session = session
+    }
+
+    func getNode(for chain: ChainModel, url: URL) throws -> Web3.Eth {
+        guard EthereumNodeSelection.isSupported(url) else {
+            throw EthereumNodeFetchingError.noSupportedNode(chainName: chain.name)
+        }
+
+        let expectedChainId = EthereumNodeProvider.chainId(fromCatalogId: chain.chainId)
         if url.scheme?.lowercased() == "https" {
-            return Web3(rpcURL: url.absoluteString).eth
+            let transport = session.map { Web3HttpProvider(rpcURL: url.absoluteString, session: $0) }
+                ?? Web3HttpProvider(rpcURL: url.absoluteString)
+            let provider = EthereumNodeProvider(url: url, transport: transport, expectedChainId: expectedChainId)
+            return Web3(provider: provider).eth
         }
 
         // Public and custom node URLs may already contain authentication/path
         // components. Preserve them exactly; unrelated provider keys must never
         // be appended or disclosed to these hosts.
-        let provider = try Web3WebSocketProvider(wsUrl: url.absoluteString, timeout: .seconds(10))
+        let transport = try Web3WebSocketProvider(wsUrl: url.absoluteString, timeout: .seconds(10))
+        let provider = EthereumBidirectionalNodeProvider(
+            url: url,
+            transport: transport,
+            expectedChainId: expectedChainId
+        )
         return Web3(provider: provider, rpcId: Int(chain.chainId) ?? 1).eth
     }
 }

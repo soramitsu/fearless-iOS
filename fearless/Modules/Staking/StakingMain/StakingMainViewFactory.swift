@@ -48,8 +48,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let interactor = createInteractor(
             state: sharedState,
             settings: settings,
-            selectedAccount: selectedAccount,
-            chainAsset: chainAsset
+            selectedAccount: selectedAccount
         )
 
         // MARK: - Router
@@ -107,11 +106,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     private static func createInteractor(
         state: StakingSharedState,
         settings: SettingsManagerProtocol,
-        selectedAccount: MetaAccountModel,
-        chainAsset: ChainAsset
+        selectedAccount: MetaAccountModel
     ) -> StakingMainInteractor {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
 
@@ -171,16 +167,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -212,7 +198,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             commonSettings: settings,
             logger: logger,
-            collatorOperationFactory: collatorOperationFactory,
             chainAssetFetching: chainAssetFetching
         )
     }
@@ -236,26 +221,10 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             for: chainAsset.chain
         )
 
-        let storageRequestFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageRequestFactory,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory,
-            chainRegistry: chainRegistry
-        )
-
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
             for: chainAsset,
             assetPrecision: chainAsset.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            validatorService: eraValidatorService
         )
 
         let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
@@ -265,24 +234,11 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             logger: Logger.shared
         )
 
-        let parachainStakingLocalSubscriptionFactory = ParachainStakingLocalSubscriptionFactory(
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            storageFacade: storageFacade,
-            operationManager: OperationManagerFacade.sharedManager,
-            logger: Logger.shared
-        )
-
-        let stakingAnalyticsLocalSubscriptionFactory = ParachainAnalyticsLocalSubscriptionFactory(
-            storageFacade: storageFacade
-        )
-
         return StakingSharedState(
             settings: stakingSettings,
             eraValidatorService: eraValidatorService,
             rewardCalculationService: rewardCalculatorService,
-            relaychainStakingLocalSubscriptionFactory: relaychainStakingLocalSubscriptionFactory,
-            stakingAnalyticsLocalSubscriptionFactory: stakingAnalyticsLocalSubscriptionFactory,
-            parachainStakingLocalSubscriptionFactory: parachainStakingLocalSubscriptionFactory
+            relaychainStakingLocalSubscriptionFactory: relaychainStakingLocalSubscriptionFactory
         )
     }
 }

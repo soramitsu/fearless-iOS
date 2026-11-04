@@ -41,26 +41,6 @@ enum SubstrateCallPath: CaseIterable {
             return (moduleName: "Crowdloan", callName: "add_memo")
         case .addRemark:
             return (moduleName: "System", callName: "remark")
-        case .delegate:
-            return (moduleName: "ParachainStaking", callName: "Delegate")
-        case .delegatorBondMore:
-            return (moduleName: "ParachainStaking", callName: "delegator_bond_more")
-        case .scheduleDelegatorBondLess:
-            return (moduleName: "ParachainStaking", callName: "schedule_delegator_bond_less")
-        case .scheduleRevokeDelegation:
-            return (moduleName: "ParachainStaking", callName: "schedule_revoke_delegation")
-        case .executeDelegationRequest:
-            return (moduleName: "ParachainStaking", callName: "execute_delegation_request")
-        case .cancelCandidateBondLess:
-            return (moduleName: "ParachainStaking", callName: "cancel_candidate_bond_less")
-        case .cancelDelegationRequest:
-            return (moduleName: "ParachainStaking", callName: "cancel_delegation_request")
-        case .cancelLeaveDelegators:
-            return (moduleName: "ParachainStaking", callName: "cancel_leave_delegators")
-        case .candidateBondMore:
-            return (moduleName: "ParachainStaking", callName: "candidate_bond_more")
-        case .scheduleCandidateBondLess:
-            return (moduleName: "ParachainStaking", callName: "schedule_candidate_bond_less")
         case .ormlChainTransfer:
             return (moduleName: "Tokens", callName: "transfer")
         case .ormlAssetTransfer:
@@ -97,16 +77,6 @@ enum SubstrateCallPath: CaseIterable {
     case contribute
     case addMemo
     case addRemark
-    case delegate
-    case delegatorBondMore
-    case scheduleDelegatorBondLess
-    case scheduleRevokeDelegation
-    case executeDelegationRequest
-    case cancelCandidateBondLess
-    case cancelDelegationRequest
-    case cancelLeaveDelegators
-    case candidateBondMore
-    case scheduleCandidateBondLess
     case ormlChainTransfer
     case ormlAssetTransfer
     case equilibriumAssetTransfer

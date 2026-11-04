@@ -3,20 +3,12 @@ import Foundation
 enum IrohaToriiRouteError: Error, Equatable {
     case invalidBaseURL
     case missingToriiBaseURL
-    case invalidPath
     case invalidAccountID
     case invalidAsset
-    case invalidScope
     case invalidHash
     case invalidLimit
-    case invalidOffset
-    case invalidJSONRPCID
-    case invalidMCPMethod
-}
-
-enum IrohaToriiCountMode: String, Codable {
-    case bounded
-    case exact
+    case invalidCursor
+    case invalidFilter
 }
 
 enum IrohaTransactionStatusScope: String, Codable {
@@ -33,23 +25,14 @@ enum IrohaToriiRoutes {
         try makeURL("\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/health")
     }
 
-    static func mcpURL(
-        network: UniversalWalletRegistry.IrohaNetwork = UniversalWalletRegistry.taira,
-        baseURL: String? = nil
-    ) throws -> URL {
-        let base = try resolvedBaseURL(baseURL, network: network)
-        return try makeURL("\(normalizeBaseURL(base))\(normalizePath(network.mcpPath))")
-    }
-
     static func accountsURL(
         baseURL: String? = nil,
         limit: Int? = nil,
-        offset: Int64? = nil,
-        countMode: IrohaToriiCountMode? = nil
+        cursor: String? = nil
     ) throws -> URL {
         try makeURL(
             base: "\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/accounts",
-            queryItems: pageQuery(limit: limit, offset: offset, countMode: countMode)
+            queryItems: pageQuery(limit: limit, cursor: cursor)
         )
     }
 
@@ -63,22 +46,11 @@ enum IrohaToriiRoutes {
         accountID: String,
         baseURL: String? = nil,
         limit: Int? = nil,
-        offset: Int64? = nil,
-        countMode: IrohaToriiCountMode? = nil,
-        asset: String? = nil,
-        scope: String? = nil
+        cursor: String? = nil
     ) throws -> URL {
-        var queryItems = try pageQuery(limit: limit, offset: offset, countMode: countMode)
-        if let asset {
-            queryItems.append(URLQueryItem(name: "asset", value: try normalizeAssetSelector(asset)))
-        }
-        if let scope {
-            queryItems.append(URLQueryItem(name: "scope", value: try normalizeScope(scope)))
-        }
-
-        return try makeURL(
+        try makeURL(
             base: "\(accountURL(accountID: accountID, baseURL: baseURL).absoluteString)/assets",
-            queryItems: queryItems
+            queryItems: pageQuery(limit: limit, cursor: cursor)
         )
     }
 
@@ -86,15 +58,12 @@ enum IrohaToriiRoutes {
         accountID: String,
         baseURL: String? = nil,
         limit: Int? = nil,
-        offset: Int64? = nil,
-        countMode: IrohaToriiCountMode? = nil,
-        assetID: String? = nil
+        cursor: String? = nil,
+        filter: String? = nil
     ) throws -> URL {
-        var queryItems = try pageQuery(limit: limit, offset: offset, countMode: countMode)
-        if let assetID {
-            queryItems.append(
-                URLQueryItem(name: "asset_id", value: try normalizeAssetSelector(assetID))
-            )
+        var queryItems = try pageQuery(limit: limit, cursor: cursor)
+        if let filter {
+            queryItems.append(URLQueryItem(name: "filter", value: try normalizeFilter(filter)))
         }
 
         return try makeURL(
@@ -103,15 +72,30 @@ enum IrohaToriiRoutes {
         )
     }
 
+    /// Torii filter for the transfer movements of the given asset definitions.
+    static func transferHistoryFilter(assetDefinitionIDs: [String]) throws -> String {
+        var literals: [String] = []
+        for assetDefinitionID in assetDefinitionIDs {
+            let literal = "\"\(escapeFilterString(try normalizeAssetSelector(assetDefinitionID)))\""
+            if !literals.contains(literal) {
+                literals.append(literal)
+            }
+        }
+        guard !literals.isEmpty else {
+            throw IrohaToriiRouteError.invalidAsset
+        }
+
+        return "asset_definition_id in [\(literals.joined(separator: ", "))] and type = \"TRANSFER\""
+    }
+
     static func assetDefinitionsURL(
         baseURL: String? = nil,
         limit: Int? = nil,
-        offset: Int64? = nil,
-        countMode: IrohaToriiCountMode? = nil
+        cursor: String? = nil
     ) throws -> URL {
         try makeURL(
             base: "\(normalizeBaseURL(try resolvedBaseURL(baseURL)))/v1/assets/definitions",
-            queryItems: pageQuery(limit: limit, offset: offset, countMode: countMode)
+            queryItems: pageQuery(limit: limit, cursor: cursor)
         )
     }
 
@@ -143,18 +127,6 @@ enum IrohaToriiRoutes {
                 URLQueryItem(name: "hash", value: try normalizeHash(hash)),
                 URLQueryItem(name: "scope", value: scope.rawValue)
             ]
-        )
-    }
-
-    static func mcpJSONRPCRequest(
-        method: String,
-        id: String,
-        params: [String: IrohaJSONValue]? = nil
-    ) throws -> IrohaMcpJsonRPCRequest {
-        IrohaMcpJsonRPCRequest(
-            id: try normalizeJSONRPCID(id),
-            method: try normalizeMCPMethod(method),
-            params: params
         )
     }
 
@@ -207,28 +179,6 @@ enum IrohaToriiRoutes {
         return try requireToriiBaseURL(network)
     }
 
-    private static func normalizeScope(_ scope: String) throws -> String {
-        let normalized = scope.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard normalized == "global" || matches(normalized, "^dataspace:[A-Za-z0-9._:-]{1,128}$") else {
-            throw IrohaToriiRouteError.invalidScope
-        }
-
-        return normalized
-    }
-
-    private static func normalizePath(_ path: String) throws -> String {
-        let normalized = path.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard normalized.hasPrefix("/"),
-              !normalized.contains(".."),
-              !normalized.contains("?"),
-              !normalized.contains("#") else {
-            throw IrohaToriiRouteError.invalidPath
-        }
-
-        return normalized.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-            .isEmpty ? "/" : "/" + normalized.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-    }
-
     private static func normalizePathValue(_ value: String, error: IrohaToriiRouteError) throws -> String {
         let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !normalized.isEmpty,
@@ -253,29 +203,34 @@ enum IrohaToriiRoutes {
         return normalized
     }
 
-    private static func normalizeJSONRPCID(_ id: String) throws -> String {
-        let normalized = id.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard matches(normalized, "^[A-Za-z0-9._:-]{1,64}$") else {
-            throw IrohaToriiRouteError.invalidJSONRPCID
+    // Torii cursors are opaque base64url tokens; pass them back exactly as received.
+    private static func normalizeCursor(_ cursor: String) throws -> String {
+        guard matches(cursor, "^[A-Za-z0-9_-]{1,4096}$") else {
+            throw IrohaToriiRouteError.invalidCursor
         }
 
-        return normalized
+        return cursor
     }
 
-    private static func normalizeMCPMethod(_ method: String) throws -> String {
-        let normalized = method.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard matches(normalized, "^[A-Za-z][A-Za-z0-9_/.-]{0,127}$") else {
-            throw IrohaToriiRouteError.invalidMCPMethod
+    private static func normalizeFilter(_ filter: String) throws -> String {
+        guard !filter.trimmingCharacters(in: .whitespaces).isEmpty,
+              filter.count <= 2048,
+              !filter.unicodeScalars.contains(where: { $0.value < 0x20 || $0.value == 0x7F }) else {
+            throw IrohaToriiRouteError.invalidFilter
         }
 
-        return normalized
+        return filter
     }
 
-    private static func pageQuery(
-        limit: Int?,
-        offset: Int64?,
-        countMode: IrohaToriiCountMode?
-    ) throws -> [URLQueryItem] {
+    private static func escapeFilterString(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+    }
+
+    // Torii list routes accept only filter, sort, select, limit, cursor and include_total;
+    // any other parameter, such as offset, is rejected with HTTP 400.
+    private static func pageQuery(limit: Int?, cursor: String?) throws -> [URLQueryItem] {
         var queryItems: [URLQueryItem] = []
 
         if let limit {
@@ -284,14 +239,8 @@ enum IrohaToriiRoutes {
             }
             queryItems.append(URLQueryItem(name: "limit", value: String(limit)))
         }
-        if let offset {
-            guard offset >= 0 else {
-                throw IrohaToriiRouteError.invalidOffset
-            }
-            queryItems.append(URLQueryItem(name: "offset", value: String(offset)))
-        }
-        if let countMode {
-            queryItems.append(URLQueryItem(name: "count_mode", value: countMode.rawValue))
+        if let cursor {
+            queryItems.append(URLQueryItem(name: "cursor", value: try normalizeCursor(cursor)))
         }
 
         return queryItems
@@ -302,6 +251,9 @@ enum IrohaToriiRoutes {
             throw IrohaToriiRouteError.invalidBaseURL
         }
         components.queryItems = queryItems.isEmpty ? nil : queryItems
+        // URLComponents leaves "+" unescaped, and Torii decodes it as a space.
+        components.percentEncodedQuery = components.percentEncodedQuery?
+            .replacingOccurrences(of: "+", with: "%2B")
 
         guard let url = components.url else {
             throw IrohaToriiRouteError.invalidBaseURL
@@ -394,14 +346,12 @@ enum IrohaJSONValue: Codable, Equatable {
 
 struct IrohaAccountListResponse: Codable, Equatable {
     let items: [IrohaAccountListItem]
-    let hasMore: Bool
-    let countMode: String
+    let nextCursor: String?
     let total: Int64?
 
     private enum CodingKeys: String, CodingKey {
         case items
-        case hasMore = "has_more"
-        case countMode = "count_mode"
+        case nextCursor = "next_cursor"
         case total
     }
 }
@@ -426,14 +376,12 @@ struct IrohaAccountListItem: Codable, Equatable {
 
 struct IrohaAccountAssetListResponse: Codable, Equatable {
     let items: [IrohaAccountAssetListItem]
-    let hasMore: Bool?
-    let countMode: String?
+    let nextCursor: String?
     let total: Int64?
 
     private enum CodingKeys: String, CodingKey {
         case items
-        case hasMore = "has_more"
-        case countMode = "count_mode"
+        case nextCursor = "next_cursor"
         case total
     }
 }
@@ -460,29 +408,25 @@ struct IrohaAccountAssetListItem: Codable, Equatable {
 
 struct IrohaAssetDefinitionListResponse: Codable, Equatable {
     let items: [IrohaAssetDefinitionListItem]
-    let hasMore: Bool?
-    let countMode: String?
+    let nextCursor: String?
     let total: Int64?
 
     private enum CodingKeys: String, CodingKey {
         case items
-        case hasMore = "has_more"
-        case countMode = "count_mode"
+        case nextCursor = "next_cursor"
         case total
     }
 }
 
+/// Account movements, newest first. Torii scans a bounded window of blocks per request, so a
+/// filtered page can be empty and still carry a `next_cursor`.
 struct IrohaAccountHistoryResponse: Codable, Equatable {
     let items: [IrohaAccountHistoryItem]
-    let hasMore: Bool?
-    let countMode: String?
-    let total: Int64?
+    let nextCursor: String?
 
     private enum CodingKeys: String, CodingKey {
         case items
-        case hasMore = "has_more"
-        case countMode = "count_mode"
-        case total
+        case nextCursor = "next_cursor"
     }
 }
 
@@ -651,31 +595,4 @@ struct IrohaErrorEnvelope: Codable, Equatable {
     let code: String
     let message: String
     let details: IrohaJSONValue?
-}
-
-struct IrohaMcpJsonRPCRequest: Codable, Equatable {
-    let jsonrpc: String
-    let id: String
-    let method: String
-    let params: [String: IrohaJSONValue]?
-
-    init(jsonrpc: String = "2.0", id: String, method: String, params: [String: IrohaJSONValue]? = nil) {
-        self.jsonrpc = jsonrpc
-        self.id = id
-        self.method = method
-        self.params = params
-    }
-}
-
-struct IrohaMcpJsonRPCResponse: Codable, Equatable {
-    let jsonrpc: String
-    let id: IrohaJSONValue?
-    let result: IrohaJSONValue?
-    let error: IrohaMcpJsonRPCError?
-}
-
-struct IrohaMcpJsonRPCError: Codable, Equatable {
-    let code: Int
-    let message: String
-    let data: IrohaJSONValue?
 }

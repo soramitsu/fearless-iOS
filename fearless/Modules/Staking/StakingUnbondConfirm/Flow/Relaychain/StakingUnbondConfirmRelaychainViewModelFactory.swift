@@ -74,8 +74,6 @@ final class StakingUnbondConfirmRelaychainViewModelFactory: StakingUnbondConfirm
             senderAddress: address,
             senderIcon: icon,
             senderName: controller.name,
-            collatorName: nil,
-            collatorIcon: nil,
             stakeAmountViewModel: createStakedAmountViewModel(viewModelState.inputAmount),
             amountString: amount,
             hints: hints

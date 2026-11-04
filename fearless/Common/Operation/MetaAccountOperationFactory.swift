@@ -30,9 +30,14 @@ final class MetaAccountOperationFactory {
     }
 
     private let keystore: KeystoreProtocol
+    private let watchedAccounts: UniversalWalletWatchedAccountsStore
 
-    init(keystore: KeystoreProtocol) {
+    init(
+        keystore: KeystoreProtocol,
+        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore()
+    ) {
         self.keystore = keystore
+        self.watchedAccounts = watchedAccounts
     }
 
     /// Reuses the released import derivation recipe without writing Keychain or Core Data.
@@ -42,13 +47,31 @@ final class MetaAccountOperationFactory {
         _ entropy: Data,
         derivationPath: String,
         cryptoType: CryptoType,
-        ethereumBased: Bool
+        ethereumBased: Bool,
+        passwordRule: SubstratePasswordRule = .nfkd
     ) throws -> Data {
         let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
         return try getQuery(
             seedSource: .mnemonic(mnemonic), derivationPath: derivationPath,
-            cryptoType: cryptoType, ethereumBased: ethereumBased
+            cryptoType: cryptoType, ethereumBased: ethereumBased, passwordRule: passwordRule
         ).publicKey
+    }
+
+    /// True when the entropy and path re-derive `publicKey` under one of the rules that read the
+    /// path's password differently (SubstratePasswordRule): an import may have opened the account
+    /// an earlier browser extension made.
+    func entropyReproducesPublicKey(
+        _ entropy: Data,
+        derivationPath: String,
+        cryptoType: CryptoType,
+        publicKey: Data
+    ) throws -> Bool {
+        try SubstratePasswordRule.distinctRules(forSubstrateDerivationPath: derivationPath).contains { rule in
+            try publicKeyForExportEntropy(
+                entropy, derivationPath: derivationPath, cryptoType: cryptoType,
+                ethereumBased: false, passwordRule: rule
+            ) == publicKey
+        }
     }
 
     /// Reuses the released raw-seed import recipe without writing Keychain or Core Data.
@@ -71,12 +94,13 @@ final class MetaAccountOperationFactory {
     func exportSeedForEntropy(
         _ entropy: Data,
         derivationPath: String,
-        cryptoType: CryptoType
+        cryptoType: CryptoType,
+        passwordRule: SubstratePasswordRule = .nfkd
     ) throws -> (seed: Data, publicKey: Data) {
         let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
         let query = try getQuery(
             seedSource: .mnemonic(mnemonic), derivationPath: derivationPath,
-            cryptoType: cryptoType, ethereumBased: false
+            cryptoType: cryptoType, ethereumBased: false, passwordRule: passwordRule
         )
 
         return (query.seed, query.publicKey)
@@ -88,8 +112,9 @@ private extension MetaAccountOperationFactory {
         replacing previous: MetaAccountModel? = nil,
         _ body: @escaping (MetaAccountOperationFactory) throws -> MetaAccountModel
     ) -> BaseOperation<MetaAccountModel> {
-        PersistenceBoundImportOperation(keystore: keystore, replacing: previous) { transactionalStore in
-            try body(MetaAccountOperationFactory(keystore: transactionalStore))
+        let watchedAccounts = watchedAccounts
+        return PersistenceBoundImportOperation(keystore: keystore, replacing: previous) { transactionalStore in
+            try body(MetaAccountOperationFactory(keystore: transactionalStore, watchedAccounts: watchedAccounts))
         }
     }
 
@@ -254,7 +279,8 @@ private extension MetaAccountOperationFactory {
         seedSource: SeedSource,
         derivationPath: String,
         cryptoType: CryptoType,
-        ethereumBased: Bool
+        ethereumBased: Bool,
+        passwordRule: SubstratePasswordRule = .nfkd
     ) throws -> AccountQuery {
         let junctionResult = try getJunctionResult(
             from: derivationPath,
@@ -266,6 +292,8 @@ private extension MetaAccountOperationFactory {
 
         var seed: Data
         switch seedSource {
+        case let .mnemonic(mnemonic) where !ethereumBased && passwordRule != .nfkd:
+            seed = try passwordRule.miniSeed(mnemonic: mnemonic, password: password)
         case let .mnemonic(mnemonic):
             let seedResult = try deriveSeed(
                 from: mnemonic.toString(),
@@ -310,6 +338,26 @@ private extension MetaAccountOperationFactory {
             )
     }
 
+    /// True when the words re-derive the wallet's Substrate key. The wallet may have been imported
+    /// with an earlier browser extension's reading of the path's password (SubstratePasswordRule).
+    func substrateKeyMatches(
+        wallet: MetaAccountModel,
+        mnemonic: IRMnemonicProtocol,
+        derivationPath: String,
+        cryptoType: CryptoType
+    ) throws -> Bool {
+        try SubstratePasswordRule.distinctRules(forSubstrateDerivationPath: derivationPath).contains { rule in
+            let query = try getQuery(
+                seedSource: .mnemonic(mnemonic),
+                derivationPath: derivationPath,
+                cryptoType: cryptoType,
+                ethereumBased: false,
+                passwordRule: rule
+            )
+            return query.publicKey == wallet.substratePublicKey && query.address == wallet.substrateAccountId
+        }
+    }
+
     func recoverUniversalRootAccounts(
         for wallet: MetaAccountModel,
         mnemonic: IRMnemonicProtocol
@@ -321,14 +369,10 @@ private extension MetaAccountOperationFactory {
         let substrateDerivationPath = try keystore.fetchDeriviationForAddress(
             KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId)
         ) ?? ""
-        let substrateQuery = try getQuery(
-            seedSource: .mnemonic(mnemonic),
-            derivationPath: substrateDerivationPath,
-            cryptoType: substrateCryptoType,
-            ethereumBased: false
-        )
-        guard substrateQuery.publicKey == wallet.substratePublicKey,
-              substrateQuery.address == wallet.substrateAccountId else {
+        guard try substrateKeyMatches(
+            wallet: wallet, mnemonic: mnemonic,
+            derivationPath: substrateDerivationPath, cryptoType: substrateCryptoType
+        ) else {
             throw UniversalWalletRootRecoveryError.phraseDoesNotMatchWallet
         }
 
@@ -353,9 +397,17 @@ private extension MetaAccountOperationFactory {
             }
         }
 
+        // Root recovery checks no funds, so a password wallet's missing networks keep the
+        // accounts the words alone open until the wallet's notice switches them.
         return try UniversalWalletAccountProvisioning.addingAppOwnedAccounts(
             to: wallet,
-            mnemonic: mnemonic.toString()
+            mnemonic: mnemonic.toString(),
+            passphrase: UniversalWalletPassphrase.resolve(
+                substrateDerivationPath: substrateDerivationPath,
+                ethereumDerivationPath: try keystore.fetchDeriviationForAddress(
+                    KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId)
+                )
+            )
         )
     }
 
@@ -410,7 +462,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.substrateDerivationPath,
                 cryptoType: request.cryptoType,
-                ethereumBased: false
+                ethereumBased: false,
+                passwordRule: request.substratePasswordRule
             )
 
             let ethereumQuery = try factory.getQuery(
@@ -430,10 +483,20 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             )
             let metaAccount = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
                 to: baseMetaAccount,
-                mnemonic: request.mnemonic.toString()
+                mnemonic: request.mnemonic.toString(),
+                passphrase: request.universalWalletPassphrase,
+                enrollment: request.universalWalletEnrollment
             )
 
             let metaId = metaAccount.metaId
+            // The account each network of an imported password wallet did not get stays watched.
+            factory.watchedAccounts.watch(
+                request.universalWalletEnrollment.watchedAfterCheck(
+                    Set(UniversalWalletSlot.allCases),
+                    password: request.universalWalletPassphrase
+                ),
+                in: metaId
+            )
 
             try factory.saveSecretKey(substrateQuery.privateKey, metaId: metaId, ethereumBased: false)
             try factory.saveDerivationPath(request.substrateDerivationPath, metaId: metaId, ethereumBased: false)
@@ -631,7 +694,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 seedSource: .mnemonic(request.mnemonic),
                 derivationPath: request.derivationPath,
                 cryptoType: request.cryptoType,
-                ethereumBased: request.isEthereum
+                ethereumBased: request.isEthereum,
+                passwordRule: request.substratePasswordRule
             )
 
             let metaId = request.meta.metaId

@@ -268,7 +268,7 @@ final class BitcoinTransferService: TransferServiceProtocol {
         let generation = feeQuoteStore.begin(identity: quoteIdentity)
 
         do {
-            guard let mnemonic = try resolveMnemonic(
+            guard let secret = try resolveMnemonic(
                 context: context,
                 required: true,
                 failure: TransferServiceError.cannotEstimateFee(reason:)
@@ -279,7 +279,7 @@ final class BitcoinTransferService: TransferServiceProtocol {
             }
             let sources = try await resolveSpendSources(
                 context: context,
-                mnemonic: mnemonic,
+                secret: secret,
                 failure: TransferServiceError.cannotEstimateFee(reason:)
             )
             // A transfer that replaces an unresolved one must spend that one's coins, so the
@@ -380,7 +380,7 @@ final class BitcoinTransferService: TransferServiceProtocol {
             )
         }
 
-        guard let mnemonic = try resolveMnemonic(
+        guard let secret = try resolveMnemonic(
             context: context,
             required: true,
             failure: TransferServiceError.transferFailed(reason:)
@@ -391,7 +391,7 @@ final class BitcoinTransferService: TransferServiceProtocol {
         }
         let sources = try await resolveSpendSources(
             context: context,
-            mnemonic: mnemonic,
+            secret: secret,
             failure: TransferServiceError.transferFailed(reason:)
         )
 
@@ -399,10 +399,11 @@ final class BitcoinTransferService: TransferServiceProtocol {
         do {
             result = try await sendService.send(
                 BitcoinSendRequest(
-                    mnemonic: mnemonic,
+                    mnemonic: secret.mnemonic,
                     amountSats: amountSats,
                     sources: sources,
                     recipientAddress: quoteIdentity.recipientAddress,
+                    passphrase: secret.passphrase,
                     changeAddress: context.sourceAddress,
                     feeRateSatPerVbyte: quote.feeRateSatPerVbyte,
                     expectedFeeSats: quote.feeSats,
@@ -650,15 +651,15 @@ final class BitcoinTransferService: TransferServiceProtocol {
         context: BitcoinTransferContext,
         required: Bool,
         failure: (String) -> TransferServiceError
-    ) throws -> String? {
-        let mnemonic: String?
+    ) throws -> UniversalWalletSecret? {
+        let secret: UniversalWalletSecret?
         do {
-            mnemonic = try mnemonicProvider.mnemonic(for: wallet, chain: chain)
+            secret = try mnemonicProvider.secret(for: wallet, chain: chain)
         } catch {
             throw failure("Bitcoin mnemonic root material is unavailable")
         }
 
-        guard let mnemonic else {
+        guard let secret else {
             if required {
                 throw failure("Bitcoin mnemonic root material is unavailable")
             }
@@ -668,7 +669,8 @@ final class BitcoinTransferService: TransferServiceProtocol {
         let derivedAddress: String
         do {
             derivedAddress = try BitcoinKeyDerivation.deriveAccount(
-                mnemonic: mnemonic,
+                mnemonic: secret.mnemonic,
+                passphrase: secret.passphrase,
                 network: bitcoinKeyDerivationNetwork(for: context.network)
             ).firstReceiveAddress
         } catch {
@@ -679,19 +681,19 @@ final class BitcoinTransferService: TransferServiceProtocol {
             throw failure("Bitcoin mnemonic does not match selected wallet")
         }
 
-        return mnemonic
+        return secret
     }
 
     private func resolveSpendSources(
         context: BitcoinTransferContext,
-        mnemonic: String?,
+        secret: UniversalWalletSecret?,
         failure: (String) -> TransferServiceError
     ) async throws -> [BitcoinUtxoSource] {
         let firstSource = BitcoinUtxoSource(
             address: context.sourceAddress,
             derivationPath: bitcoinKeyDerivationNetwork(for: context.network).firstReceivePath
         )
-        guard let mnemonic else {
+        guard let secret else {
             return [firstSource]
         }
 
@@ -702,7 +704,8 @@ final class BitcoinTransferService: TransferServiceProtocol {
                 staleOnFailure: true
             ) {
                 try await self.balanceSync.balance(
-                    mnemonic: mnemonic,
+                    mnemonic: secret.mnemonic,
+                    passphrase: secret.passphrase,
                     network: keyNetwork,
                     baseURL: context.baseURL,
                     gapLimit: nil,
@@ -1384,13 +1387,16 @@ final class SolanaTransferService: TransferServiceProtocol {
         try requireClear(broadcaster.retainedTransferState(scope: scope))
         // The durable read can wait on storage; selection may change during that wait.
         try SolanaSendAuthorization.requireCurrent()
-        guard let mnemonic = try mnemonicProvider.mnemonic(for: wallet, chain: chain) else {
+        guard let secret = try mnemonicProvider.secret(for: wallet, chain: chain) else {
             throw TransferServiceError.transferFailed(reason: "Solana mnemonic root material is unavailable")
         }
 
         let derivedAddress: String
         do {
-            derivedAddress = try SolanaKeyDerivation.deriveAccount(mnemonic: mnemonic).address
+            derivedAddress = try SolanaKeyDerivation.deriveAccount(
+                mnemonic: secret.mnemonic,
+                passphrase: secret.passphrase
+            ).address
         } catch {
             throw TransferServiceError.transferFailed(reason: "Solana mnemonic root material is invalid")
         }
@@ -1402,9 +1408,9 @@ final class SolanaTransferService: TransferServiceProtocol {
         let prepared: PreparedBroadcast
         do {
             if isNativeSolAsset(transfer.chainAsset.asset) {
-                prepared = try await prepareNative(transfer: transfer, context: context, mnemonic: mnemonic)
+                prepared = try await prepareNative(transfer: transfer, context: context, secret: secret)
             } else {
-                prepared = try await prepareToken(transfer: transfer, context: context, mnemonic: mnemonic)
+                prepared = try await prepareToken(transfer: transfer, context: context, secret: secret)
             }
         } catch let error as SolanaSendServiceError {
             throw Self.transferError(for: error)
@@ -1484,7 +1490,7 @@ final class SolanaTransferService: TransferServiceProtocol {
     private func prepareNative(
         transfer: Transfer,
         context: SolanaTransferContext,
-        mnemonic: String
+        secret: UniversalWalletSecret
     ) async throws -> PreparedBroadcast {
         let lamports = try resolveLamports(
             transfer.amount,
@@ -1507,9 +1513,10 @@ final class SolanaTransferService: TransferServiceProtocol {
         )
         let prepared = try await sendService.prepare(
             SolanaSendRequest(
-                mnemonic: mnemonic,
+                mnemonic: secret.mnemonic,
                 recipientAddress: recipient.address,
                 lamports: lamports,
+                passphrase: secret.passphrase,
                 rpcURL: rpcURL,
                 computeBudget: budget,
                 rentRules: SolanaRentRules(
@@ -1529,7 +1536,7 @@ final class SolanaTransferService: TransferServiceProtocol {
     private func prepareToken(
         transfer: Transfer,
         context: SolanaTransferContext,
-        mnemonic: String
+        secret: UniversalWalletSecret
     ) async throws -> PreparedBroadcast {
         let token = try await resolveTokenTransferContext(
             for: transfer,
@@ -1562,11 +1569,12 @@ final class SolanaTransferService: TransferServiceProtocol {
         )
         let prepared = try await sendService.prepareTokenTransfer(
             SolanaTokenSendRequest(
-                mnemonic: mnemonic,
+                mnemonic: secret.mnemonic,
                 sourceTokenAccount: token.sourceTokenAccount,
                 mintAddress: token.mintAddress,
                 rawAmount: token.rawAmount,
                 decimals: token.decimals,
+                passphrase: secret.passphrase,
                 rpcURL: rpcURL,
                 tokenProgram: .splToken,
                 destinationWalletAddress: recipient.address,
@@ -2032,6 +2040,8 @@ struct IrohaTransferSigningRequest: Equatable {
     let destinationAccountId: String
     let metadata: IrohaTransactionMetadata
     let mnemonicOrSeed: String
+    /// The wallet password when the Taira account is the one it protects.
+    var passphrase: String = ""
     let network: String
     let signingPublicKeyHex: String
     let sourceAccountId: String
@@ -2216,14 +2226,15 @@ final class IrohaTransferService: TransferServiceProtocol {
             throw failure("Iroha recipient address is invalid")
         }
 
-        guard let mnemonic = try mnemonicProvider.mnemonic(for: wallet, chain: chain) else {
+        guard let secret = try mnemonicProvider.secret(for: wallet, chain: chain) else {
             throw failure("Iroha mnemonic root material is unavailable")
         }
 
         let derivedAddress: String
         do {
             derivedAddress = try IrohaKeyDerivation.deriveAddress(
-                mnemonic: mnemonic,
+                mnemonic: secret.mnemonic,
+                passphrase: secret.passphrase,
                 chainDiscriminant: network.chainDiscriminant
             ).i105
         } catch {
@@ -2254,7 +2265,8 @@ final class IrohaTransferService: TransferServiceProtocol {
                 derivationPath: UniversalWalletDerivationPaths.irohaDefault,
                 destinationAccountId: destinationAddress,
                 metadata: metadata,
-                mnemonicOrSeed: mnemonic,
+                mnemonicOrSeed: secret.mnemonic,
+                passphrase: secret.passphrase,
                 network: Self.networkKey(for: network),
                 signingPublicKeyHex: sourceDetails.publicKeyHex,
                 sourceAccountId: sourceDetails.i105,

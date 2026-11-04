@@ -1,3 +1,4 @@
+import BigInt
 import UIKit
 import SoraKeystore
 import SSFModels
@@ -70,12 +71,22 @@ struct CrossChainProviderCapability: Equatable {
 }
 
 /// Only the exact Liberland `soraBridgeApp.burn` descriptors in
-/// `ReviewedXcmRouteRegistry.routes` are executable. The SORA `bridgeProxy.burn`
-/// directions are retired (`retiredRoutes`), and every other bridge/XCM
-/// direction remains an explicit unavailable provider state.
+/// `ReviewedXcmRouteRegistry.routes` are executable, and only in a build that
+/// bundles reviewed mutation trust for XCM (`MutationAuthorizationReleaseBinding`).
+/// No remote value can supply that trust, so without it the reviewed routes are
+/// shown as not available in this version rather than offered and refused at
+/// confirmation. The SORA `bridgeProxy.burn` directions are retired
+/// (`retiredRoutes`), and every other bridge/XCM direction remains an explicit
+/// unavailable provider state.
 enum ReviewedXcmExecutionAuthority {
-    static let isAvailable = true
-    static let unavailableReason = "No exact reviewed Liberland bridge call is available for this wallet and current production registry."
+    static let isAvailable = MutationAuthorizationReleaseBinding.isProvisioned(.xcm)
+    static var unavailableReason: String {
+        NSLocalizedString(
+            "cross_chain.unavailable_in_version",
+            value: "Not available in this version of Fearless.",
+            comment: ""
+        )
+    }
 }
 
 extension CrossChainRouteProvider {
@@ -234,6 +245,10 @@ struct ReviewedCrossChainExecutionDescriptor: Equatable {
     /// Required before a route can execute; without it the form and the submission validator cannot find what the
     /// recipient receives.
     var destinationAsset: ReviewedCrossChainDestinationAsset?
+    /// Base units of the origin representation that the burn adds for the destination network, compiled with the
+    /// route. The remote fee file is unsigned and never consulted for a reviewed route. Required before a route can
+    /// execute.
+    var destinationFee: String?
 
     var fingerprint: String {
         [
@@ -244,7 +259,8 @@ struct ReviewedCrossChainExecutionDescriptor: Equatable {
             recipient.fingerprint,
             minimumAmount ?? "none",
             callIndex.map { "call-\($0.palletIndex).\($0.callIndex)" } ?? "call-unpinned",
-            destinationAsset?.fingerprint ?? "destination-unpinned"
+            destinationAsset?.fingerprint ?? "destination-unpinned",
+            destinationFee.map { "destination-fee-\($0)" } ?? "destination-fee-unpinned"
         ].joined(separator: "|")
     }
 
@@ -452,7 +468,9 @@ enum ReviewedXcmRouteRegistry {
 
     /// The only executable routes: Liberland to SORA. Liberland's `SoraBridgeApp` declares no minimum, and its assets
     /// pallet keeps a minimum balance of one base unit for LLM and XOR, so only LLD carries a reviewed minimum. On SORA,
-    /// `Balances.ExistentialDeposit` is 0 and the `Tokens` pallet keeps no minimum balance.
+    /// `Balances.ExistentialDeposit` is 0 and the `Tokens` pallet keeps no minimum balance. The burn adds no
+    /// destination fee, the value the fee files have always listed for these routes; changing it takes a new review
+    /// and release.
     static let routes: [ReviewedXcmRouteDefinition] = [
         ReviewedXcmRouteDefinition(
             originChainId: liberlandChainId,
@@ -478,7 +496,8 @@ enum ReviewedXcmRouteRegistry {
                     currencyId: "0x00073edd278e1bd6a7f9d0b27d4f3e93b73c8f0832b58a4df13c69611a99f156",
                     precision: 18,
                     existentialDeposit: .none
-                )
+                ),
+                destinationFee: "0"
             )
         ),
         ReviewedXcmRouteDefinition(
@@ -505,7 +524,8 @@ enum ReviewedXcmRouteRegistry {
                     currencyId: "0x0200000000000000000000000000000000000000000000000000000000000000",
                     precision: 18,
                     existentialDeposit: .balancesConstant
-                )
+                ),
+                destinationFee: "0"
             )
         ),
         ReviewedXcmRouteDefinition(
@@ -535,7 +555,8 @@ enum ReviewedXcmRouteRegistry {
                     currencyId: "0x00513be65493a7fc3e2128d4230061a530acf40478a4affa20bbba27a310673e",
                     precision: 18,
                     existentialDeposit: .none
-                )
+                ),
+                destinationFee: "0"
             )
         )
     ]
@@ -555,6 +576,14 @@ enum ReviewedXcmRouteRegistry {
             ) == context
         }
         return matches.count == 1 ? matches[0] : nil
+    }
+
+    /// The destination fee compiled with a reviewed route, in base units of the origin representation.
+    static func destinationFee(for definition: ReviewedXcmRouteDefinition) throws -> BigUInt {
+        guard let fee = definition.execution.destinationFee.flatMap({ BigUInt($0, radix: 10) }) else {
+            throw ReviewedCrossChainSubmissionError.destinationFeeUnavailable
+        }
+        return fee
     }
 
     /// The one catalog row on the destination chain that the reviewed definition names as what the recipient receives.
@@ -671,7 +700,7 @@ private enum ReviewedXcmRouteResolver {
                 canSign: canSign,
                 unavailableReason: canSign ? nil : NSLocalizedString(
                     "cross_chain.external_signing_unavailable",
-                    value: "A local signing key is unavailable. Watch-only and external signing are not supported for this route in this build.",
+                    value: "A local signing key is unavailable. Watch-only and external signing are not supported for this route in this version.",
                     comment: ""
                 ),
                 protocolName: protocolName,
@@ -737,11 +766,19 @@ struct ReviewedUnavailableCrossChainRouteDefinition: Equatable {
 }
 
 enum ReviewedWalletXcmRouteCatalog {
-    static let unavailableReason = "Unavailable on iOS: SSFXCM discovers routes, assets and fees by symbol. It cannot bind this exact AssetKey, pallet call, live balances, fees, minimum and remote kill switch into one adjacent final submission guard."
+    /// The relay chain to Asset Hub teleports still execute on chain, but SSFXCM discovers routes, assets and fees by
+    /// symbol, so it cannot bind the exact AssetKey, pallet call, live balances, fees, minimum and remote kill switch
+    /// into one final submission guard. Users are told only that this version cannot send them.
+    static var unavailableReason: String {
+        ReviewedXcmExecutionAuthority.unavailableReason
+    }
 
-    /// Verified with the runtimes' dry-run API on 2026-10-23. Moonbeam, Moonriver and Parallel are no longer registered
-    /// on their relay chains, so no row mentions them.
-    static let staleAfterAssetHubMigrationReason = "Retired: since the Asset Hub Migration DOT and KSM are held on Asset Hub, and relay-chain reserve transfers are rejected on chain. Only the relay chain to Asset Hub teleport still executes, and a replacement route needs a new reserve decision, a live dry run and funded evidence."
+    /// Since the Asset Hub Migration DOT and KSM are held on Asset Hub, and relay-chain reserve transfers are rejected
+    /// on chain (verified with the runtimes' dry-run API on 2026-10-23). A replacement route needs a new reserve
+    /// decision, a live dry run and funded evidence. Moonbeam, Moonriver and Parallel are no longer registered on their
+    /// relay chains, so no row mentions them.
+    static let staleAfterAssetHubMigrationReason =
+        "Retired: DOT and KSM now live on Asset Hub, and the networks no longer accept this transfer."
 
     private enum Chain {
         static let polkadot = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
@@ -887,7 +924,8 @@ enum ReviewedWalletXcmRouteCatalog {
 /// direction is missing and can never produce a submission context.
 enum ReviewedRetiredBridgeRouteCatalog {
     static let soraParachainsHaltedReason = "Paused: the SORA parachains for Polkadot and Kusama have stopped producing blocks, so transfers between SORA and those networks cannot be delivered. This route returns once SORA confirms that delivery works again."
-    static let soraToLiberlandStalledReason = "Paused: SORA to Liberland transfers are not being delivered, and the latest ones are still pending after several months. Transfers from Liberland to SORA are not affected."
+    static let soraToLiberlandStalledReason =
+        "Paused: SORA to Liberland transfers are not being delivered, and the latest ones are still pending after several months."
 
     private static let destinationNames: [ChainModel.Id: String] = [
         "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe": "Kusama",
@@ -941,6 +979,55 @@ enum ReviewedRetiredBridgeRouteCatalog {
     }
 }
 
+/// Read-only rows for the reviewed Liberland → SORA routes in a build that bundles no mutation trust for XCM. They name
+/// what a provisioned build offers and say that this version cannot send it, so no form is opened only to be refused at
+/// confirmation.
+enum ReviewedUnprovisionedRouteCatalog {
+    static var routes: [ReviewedUnavailableCrossChainRouteDefinition] {
+        ReviewedXcmRouteRegistry.liberlandRoutes.map { definition in
+            let providerId = ReviewedXcmRouteRegistry.providerId(for: definition)
+            let destinationChainId = definition.execution.destinationChainId
+            let minimum = definition.execution.minimumAmount
+                .flatMap { Decimal(string: $0) }
+                .map { $0 / pow(Decimal(10), Int(definition.originPrecision)) }
+            return ReviewedUnavailableCrossChainRouteDefinition(
+                id: [
+                    "unavailable-v1",
+                    providerId,
+                    definition.originChainId,
+                    destinationChainId,
+                    definition.originAssetId
+                ].joined(separator: ":"),
+                providerId: providerId,
+                originNetworkName: "Liberland",
+                originChainId: definition.originChainId,
+                originEcosystem: "substrate",
+                destinationNetworkName: "SORA Mainnet",
+                destinationChainId: destinationChainId,
+                destinationEcosystem: "substrate",
+                originCatalogAssetId: definition.originAssetId,
+                originCanonicalAssetId: definition.execution.asset.canonicalAssetId(
+                    originCatalogId: definition.originAssetId
+                ),
+                originRouteAssetId: definition.xcmAssetId,
+                destinationCatalogAssetId: definition.execution.destinationAsset?.catalogAssetId,
+                destinationRouteAssetId: definition.xcmAssetId,
+                symbol: definition.originSymbol,
+                precision: definition.originPrecision,
+                minimumAmount: minimum.map { "\($0)" },
+                protocolName: "Liberland bridge · XCM v3",
+                feeDisplay: "Not quoted in this version",
+                estimatedTimeDisplay: definition.estimatedTimeDisplay,
+                warnings: ["No funds are submitted while this route remains unavailable."],
+                unavailableReason: ReviewedXcmExecutionAuthority.unavailableReason
+            )
+        }
+    }
+}
+
+/// SORA → Ethereum delivery needs a second claim transaction and recovery tracking; Ethereum → SORA needs a contract
+/// transaction with live gas and allowance checks. Both stay unavailable until that full flow is reviewed, and users
+/// are told only that this version cannot send them.
 enum ReviewedSoraEvmRouteCatalog {
     static let routes: [ReviewedUnavailableCrossChainRouteDefinition] = [
         ReviewedUnavailableCrossChainRouteDefinition(
@@ -964,7 +1051,7 @@ enum ReviewedSoraEvmRouteCatalog {
             feeDisplay: "Multi-step fees cannot be quoted safely in this release",
             estimatedTimeDisplay: "About 10–60 minutes plus claim",
             warnings: ["No funds are submitted while this capability is unavailable."],
-            unavailableReason: "Ethereum delivery requires a second claim transaction and recovery tracking. This route stays unavailable until that full flow is reviewed."
+            unavailableReason: ReviewedXcmExecutionAuthority.unavailableReason
         ),
         ReviewedUnavailableCrossChainRouteDefinition(
             id: "unavailable-v1:polkaswap-sora-evm:1:7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5:c2a6c062-d511-4bde-9ce6-ea775d2a302c",
@@ -987,7 +1074,7 @@ enum ReviewedSoraEvmRouteCatalog {
             feeDisplay: "Multi-step gas, allowance and bridge fees cannot be quoted safely in this release",
             estimatedTimeDisplay: "About 10–60 minutes plus claim",
             warnings: ["No funds are submitted while this capability is unavailable."],
-            unavailableReason: "Ethereum → SORA requires a contract transaction, live gas and allowance checks, and recovery tracking. This route stays unavailable until that full flow is reviewed."
+            unavailableReason: ReviewedXcmExecutionAuthority.unavailableReason
         )
     ]
 }
@@ -999,7 +1086,7 @@ enum ReviewedUnavailableCrossChainRouteCatalog {
 
 struct WalletXcmRouteProvider: CrossChainRouteProvider {
     let identifier = "wallet-xcm"
-    let displayName = "Wallet XCM"
+    let displayName = "Polkadot and Kusama"
     let unavailableReason = ReviewedWalletXcmRouteCatalog.unavailableReason
     let reviewedUnavailableRoutes = ReviewedWalletXcmRouteCatalog.routes
 
@@ -1013,7 +1100,7 @@ struct WalletXcmRouteProvider: CrossChainRouteProvider {
 
 struct SoraSubstrateBridgeRouteProvider: CrossChainRouteProvider {
     let identifier = "polkaswap-sora-substrate"
-    let displayName = "Polkaswap SORA ↔ Substrate"
+    let displayName = "SORA ↔ Polkadot and Kusama"
     let unavailableReason = ReviewedRetiredBridgeRouteCatalog.soraParachainsHaltedReason
     let reviewedUnavailableRoutes = ReviewedRetiredBridgeRouteCatalog.routes.filter {
         $0.providerId == "polkaswap-sora-substrate"
@@ -1033,13 +1120,29 @@ struct SoraSubstrateBridgeRouteProvider: CrossChainRouteProvider {
 struct LiberlandXcmRouteProvider: CrossChainRouteProvider {
     let identifier = "sora-liberland-xcm"
     let displayName = "SORA ↔ Liberland"
-    let unavailableReason = "No reviewed Liberland → SORA burn route is available for this wallet and current production registry. Add a local account or refresh network metadata."
-    let reviewedUnavailableRoutes = ReviewedRetiredBridgeRouteCatalog.routes.filter {
-        $0.providerId == "sora-liberland-xcm"
+    /// Without it the reviewed Liberland → SORA burns are listed as unavailable rows, never as origins to open.
+    let isExecutionAvailable: Bool
+
+    init(isExecutionAvailable: Bool = ReviewedXcmExecutionAuthority.isAvailable) {
+        self.isExecutionAvailable = isExecutionAvailable
+    }
+
+    var unavailableReason: String {
+        isExecutionAvailable
+            ? "No Liberland → SORA transfer is available for this wallet. Add a Liberland account or refresh the networks."
+            : ReviewedXcmExecutionAuthority.unavailableReason
+    }
+
+    var reviewedUnavailableRoutes: [ReviewedUnavailableCrossChainRouteDefinition] {
+        let retired = ReviewedRetiredBridgeRouteCatalog.routes.filter { $0.providerId == identifier }
+        return isExecutionAvailable ? retired : ReviewedUnprovisionedRouteCatalog.routes + retired
     }
 
     func origins(wallet: MetaAccountModel, chains: [ChainModel]) -> [CrossChainOriginRoute] {
-        ReviewedXcmRouteResolver.origins(
+        guard isExecutionAvailable else {
+            return []
+        }
+        return ReviewedXcmRouteResolver.origins(
             providerId: identifier,
             protocolName: "Liberland bridge · XCM v3",
             definitions: ReviewedXcmRouteRegistry.liberlandRoutes,
@@ -1051,8 +1154,13 @@ struct LiberlandXcmRouteProvider: CrossChainRouteProvider {
 
 struct PolkaswapEvmBridgeRouteProvider: CrossChainRouteProvider {
     let identifier = "polkaswap-sora-evm"
-    let displayName = "Polkaswap SORA ↔ EVM"
-    let unavailableReason = "The current iOS Polkaswap flow has no reviewed executable SORA ↔ EVM bridge adapter. Quotes and submissions stay disabled until one is approved."
+    let displayName = "SORA ↔ Ethereum"
+    /// The iOS Polkaswap flow has no reviewed executable SORA ↔ EVM bridge adapter, so quotes and submissions stay
+    /// disabled until one is approved.
+    var unavailableReason: String {
+        ReviewedXcmExecutionAuthority.unavailableReason
+    }
+
     let reviewedUnavailableRoutes = ReviewedSoraEvmRouteCatalog.routes
 
     func origins(wallet _: MetaAccountModel, chains _: [ChainModel]) -> [CrossChainOriginRoute] {
@@ -1079,9 +1187,9 @@ final class CrossChainRootViewController: UIViewController {
         var title: String {
             switch self {
             case .routes:
-                return "Choose origin"
+                return "Routes"
             case .providers:
-                return "Provider coverage"
+                return "Providers"
             }
         }
     }
@@ -1163,7 +1271,7 @@ final class CrossChainRootViewController: UIViewController {
                 message: String(
                     format: NSLocalizedString(
                         "cross_chain.no_reviewed_route",
-                        value: "A reviewed route could not be created for %@ and %@.",
+                        value: "A transfer route could not be created for %@ and %@.",
                         comment: ""
                     ),
                     route.chainAsset.chain.name,
@@ -1215,16 +1323,15 @@ extension CrossChainRootViewController: UITableViewDataSource {
 
         switch Section(rawValue: indexPath.section) {
         case .routes:
+            // Rows show only what a user acts on. Identifiers, protocol names and review warnings stay in the route
+            // definitions, where the submission guards and tests read them.
             if let route = origins[safe: indexPath.row] {
                 configuration.text = "\(route.chainAsset.chain.name) → \(route.destinationNames.joined(separator: ", ")) · \(route.chainAsset.asset.symbolUppercased)"
                 configuration.secondaryText = route.unavailableReason ?? [
-                    route.protocolName,
-                    "AssetKey: \(route.chainAsset.assetKey.assetId)",
-                    "minimum: \(route.minimumDisplay)",
-                    "fees: \(route.feeDisplay)",
-                    route.estimatedTimeDisplay,
-                    route.warnings.first
-                ].compactMap { $0 }.joined(separator: " · ")
+                    "Minimum: \(route.minimumDisplay)",
+                    "Fee: \(route.feeDisplay)",
+                    route.estimatedTimeDisplay
+                ].joined(separator: " · ")
                 configuration.image = R.image.crossChainIcon()
                 cell.accessoryType = .disclosureIndicator
                 cell.selectionStyle = .default
@@ -1233,7 +1340,7 @@ extension CrossChainRootViewController: UITableViewDataSource {
 
             let unavailableIndex = indexPath.row - origins.count
             guard let route = unavailableRouteInventory[safe: unavailableIndex] else {
-                configuration.text = "No XCM origins available"
+                configuration.text = "No cross-chain routes"
                 configuration.secondaryText = ReviewedXcmExecutionAuthority.unavailableReason
                 configuration.image = UIImage(systemName: "arrow.triangle.branch")
                 cell.accessoryType = .none
@@ -1243,16 +1350,7 @@ extension CrossChainRootViewController: UITableViewDataSource {
             }
 
             configuration.text = "\(route.originNetworkName) → \(route.destinationNetworkName) · \(route.symbol)"
-            configuration.secondaryText = [
-                route.protocolName,
-                "AssetKey: \(route.assetKey.assetId)",
-                "route asset: \(route.originRouteAssetId)",
-                "minimum: \(route.minimumDisplay)",
-                "fees: \(route.feeDisplay)",
-                route.estimatedTimeDisplay,
-                route.unavailableReason,
-                route.warnings.first
-            ].compactMap { $0 }.joined(separator: " · ")
+            configuration.secondaryText = route.unavailableReason
             configuration.image = UIImage(systemName: "lock.shield")
             cell.accessoryType = .none
             cell.selectionStyle = .none
@@ -1260,12 +1358,12 @@ extension CrossChainRootViewController: UITableViewDataSource {
             if let capability = capabilities[safe: indexPath.row] {
                 configuration.text = capability.displayName
                 configuration.secondaryText = capability.isAvailable
-                    ? "Reviewed route available"
+                    ? "Available"
                     : capability.reason
                 configuration.image = UIImage(systemName: capability.isAvailable ? "checkmark.shield" : "xmark.shield")
             } else {
-                configuration.text = "Other ecosystems"
-                configuration.secondaryText = "TON, Bitcoin, Solana, Iroha and unsupported EVM routes remain unavailable until a reviewed provider is added."
+                configuration.text = "Other networks"
+                configuration.secondaryText = "Cross-chain transfers for TON, Bitcoin, Solana and SORA Nexus are not available yet."
                 configuration.image = UIImage(systemName: "info.circle")
             }
             cell.accessoryType = .none

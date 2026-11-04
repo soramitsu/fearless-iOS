@@ -743,17 +743,19 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "roles.common" = "Vai trò";
 "same.address.transfer.warning.message" = "Bạn đang cố gắng thực hiện chuyển khoản vào cùng một tài khoản. Hoạt động sẽ tính phí và không có ý nghĩa gì";
 "scam.additional.stub" = "Bổ sung:";
-"scam.description.donation.stub" = "Địa chỉ này đã được gắn cờ là đáng ngờ. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
+"scam.description.donation.stub" = "Địa chỉ này được đánh dấu là địa chỉ quyên góp của một tổ chức từ thiện. Hãy chắc chắn rằng bạn muốn quyên góp trước khi gửi %s.";
 "scam.description.exchange.stub" = "Địa chỉ này được đánh dấu là một sàn giao dịch, hãy cẩn thận, địa chỉ gửi tiền và địa chỉ rút tiền có thể khác nhau.";
-"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"scam.description.highrisk.stub" = "Địa chỉ này đã bị gắn cờ là một tổ chức có rủi ro cao. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
+"scam.description.lowscore.text" = "Địa chỉ bạn sắp chuyển đến có ít hoạt động on-chain, điều này có thể cho thấy đây là kẻ lừa đảo hoặc kẻ tấn công sybil.";
 "scam.description.sanctions.stub" = "Địa chỉ này đã bị gắn cờ do có liên quan đến một quốc gia đang bị trừng phạt. Chúng tôi thực sự khuyên bạn không nên gửi %s vào tài khoản này.";
-"scam.description.scam.stub" = "Địa chỉ này đã bị gắn cờ do có bằng chứng lừa đảo. Chúng tôi thực sự khuyên bạn không nên gửi {asset} tới tài khoản này.";
+"scam.description.scam.stub" = "Địa chỉ này đã bị gắn cờ do có bằng chứng lừa đảo. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
+"scam.description.service.stub" = "Địa chỉ này được đánh dấu là một dịch vụ tài chính, hãy cẩn thận, địa chỉ gửi tiền và địa chỉ rút tiền có thể khác nhau.";
+"scam.description.theft.stub" = "Địa chỉ này đã bị gắn cờ do có bằng chứng trộm cắp. Chúng tôi thực sự khuyên bạn không nên gửi %s tới tài khoản này.";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "Tên:";
 "scam.reason.stub" = "Lý do:";
 "scam.warning.alert.subtitle" = "Chúng tôi thực sự khuyên bạn không nên gửi %s vào tài khoản này.";
-"scam.warning.alert.title" = "Địa chỉ này đã bị gắn cờ do một thực thể có liên quan đến một quốc gia đang bị trừng phạt. Chúng tôi thực sự khuyên bạn không nên gửi %@ tới tài khoản này.";
 "scan.qr.subtitle" = "Quét mã từ người nhận";
 "scan.qr.title" = "Quét mã QR";
 "scan.qr.upload.button.title" = "Tải lên từ thư viện";
@@ -1498,3 +1500,34 @@ thuộc đúng mạng";
 /* Solana confirm: recipient token account deposit */
 "solana.transfer.account_creation.title" = "Thiết lập tài khoản người nhận";
 "solana.transfer.account_creation.included" = "Đã gồm trong phí mạng";
+
+/* Cross-chain confirm: the record of recent transfers cannot be read, so nothing new is sent for a day */
+"cross_chain.dispatch.journal_unreadable" = "Fearless không thể đọc bản ghi các giao dịch chuyển chuỗi chéo gần đây, nên không thể biết giao dịch này đã được gửi hay chưa. Chưa có gì được gửi. Hãy kiểm tra lịch sử của tài khoản nguồn. Bạn có thể thực hiện giao dịch chuyển chuỗi chéo mới sau 24 giờ kể từ khi bản ghi không đọc được.";
+
+/* Cross-chain: a reviewed route that this build cannot send */
+"cross_chain.unavailable_in_version" = "Không khả dụng trong phiên bản Fearless này.";
+
+/* Universal accounts of a wallet with a ///password that still use the address the words alone open */
+"universal.password.notice.title" = "Chuyển tiền khỏi địa chỉ cũ";
+"universal.password.notice.message" = "Các địa chỉ này không dùng mật khẩu ví của bạn, nên chỉ cần cụm từ khôi phục là mở được. Hãy gửi tiền sang các địa chỉ mới được bảo vệ bằng mật khẩu, rồi nhấn Chuyển.";
+"universal.password.notice.row" = "%@\nCũ: %@\nMới: %@";
+"universal.password.notice.switch" = "Chuyển";
+"universal.password.notice.later" = "Để sau";
+"universal.password.notice.copy" = "Sao chép địa chỉ %@ mới";
+"universal.password.switch.switched" = "%@: đã chuyển sang địa chỉ mới.";
+"universal.password.switch.funded" = "%@: vẫn còn tiền. Hãy chuyển sang địa chỉ mới trước.";
+"universal.password.switch.unchecked" = "%@: không kiểm tra được. Hãy thử lại sau.";
+"universal.password.chain.action" = "Chuyển sang địa chỉ được bảo vệ bằng mật khẩu";
+"universal.password.arrival.title" = "Có tiền gửi đến địa chỉ cũ của bạn";
+"universal.password.arrival.message" = "Có tiền gửi đến các địa chỉ chỉ cần cụm từ khôi phục là mở được. Ví này vẫn hiển thị các địa chỉ được bảo vệ bằng mật khẩu. Để chuyển số tiền này, hãy nhập cụm từ khôi phục mà không có mật khẩu thành một ví khác.";
+"universal.password.arrival.row" = "%@: %@";
+"universal.password.arrival.row.balance" = "%@: %@ (%@)";
+"universal.password.arrival.protected.title" = "Có tiền gửi đến một địa chỉ khác";
+"universal.password.arrival.protected.message" = "Có tiền gửi đến các địa chỉ được bảo vệ bằng mật khẩu của ví này. Ví vẫn hiển thị các địa chỉ chỉ cần cụm từ khôi phục là mở được khi các địa chỉ đó còn tiền hoặc không kiểm tra được, và sẽ chuyển ngay khi chúng trống. Để chuyển, hãy gửi tiền của chúng sang địa chỉ được bảo vệ bằng mật khẩu.";
+
+/* Import: an earlier browser extension made a different Substrate account from the path password */
+"substrate.password.choice.title" = "Chọn địa chỉ của bạn";
+"substrate.password.choice.message" = "Các phiên bản trước của tiện ích mở rộng trình duyệt Fearless đã tạo một địa chỉ khác từ mật khẩu này. Hãy chọn địa chỉ đang giữ tiền của bạn.";
+"substrate.password.choice.nfkd" = "Tất cả ứng dụng Fearless";
+"substrate.password.choice.nfc" = "Tiện ích mở rộng trình duyệt trước đây";
+"substrate.password.choice.asTyped" = "Tiện ích mở rộng trình duyệt 3.0, đúng như đã nhập";

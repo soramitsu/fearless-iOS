@@ -166,7 +166,7 @@
                 <constraint firstItem="HJf-mV-DOB" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="Z6W-ha-v3N"/>
                 <constraint firstItem="E2p-hu-yYu" firstAttribute="top" secondItem="HJf-mV-DOB" secondAttribute="bottom" constant="24" id="r8D-i8-03e"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="HJf-mV-DOB" secondAttribute="trailing" id="uwy-LY-vI8"/>
-                <constraint firstItem="oVw-Ru-zUO" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" constant="-32" id="uxI-B3-6pi"/>
+                <constraint firstItem="oVw-Ru-zUO" firstAttribute="width" secondItem="vUN-kp-3ea" secondAttribute="width" constant="-32" id="uxI-B3-6pi"/>
                 <constraint firstItem="E2p-hu-yYu" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="yEX-ll-8gk"/>
             </constraints>
             <point key="canvasLocation" x="139" y="133"/>

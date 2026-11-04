@@ -16,8 +16,7 @@ protocol StakingServiceFactoryProtocol {
     func createRewardCalculatorService(
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
-        validatorService: EraValidatorServiceProtocol,
-        collatorOperationFactory: ParachainCollatorOperationFactory?
+        validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol
 }
 
@@ -62,18 +61,21 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
     func createRewardCalculatorService(
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
-        validatorService: EraValidatorServiceProtocol,
-        collatorOperationFactory: ParachainCollatorOperationFactory?
+        validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
+        if AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) != nil {
+            return AssetHubRewardCalculatorService(
+                chainId: chainAsset.chain.chainId, registry: chainRegistry, validators: validatorService,
+                storage: StorageRequestFactory(remoteFactory: StorageKeyFactory(), operationManager: operationManager),
+                manager: operationManager,
+                duration: StakingDurationOperationFactory(clock: StakingRuntimeClock(
+                    runtime: { [chainRegistry] in chainRegistry.getRuntimeProvider(for: $0) },
+                    connection: { [chainRegistry] in chainRegistry.getConnection(for: $0) }
+                ))
+            )
+        }
         switch chainAsset.stakingType {
         case .relaychain:
-            if chainAsset.chain.isReef {
-                return try createReefRewardCalculator(
-                    chainAsset: chainAsset,
-                    validatorService: validatorService
-                )
-            }
-
             return InflationRewardCalculatorService(
                 chainAsset: chainAsset,
                 assetPrecision: assetPrecision,
@@ -84,20 +86,6 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
                 stakingDurationFactory: StakingDurationOperationFactory(),
                 storageFacade: storageFacade,
                 logger: logger
-            )
-        case .parachain:
-            guard let collatorOperationFactory = collatorOperationFactory else {
-                throw StakingServiceFactoryError.stakingUnavailable
-            }
-
-            return ParachainRewardCalculatorService(
-                chainAsset: chainAsset,
-                assetPrecision: assetPrecision,
-                operationManager: operationManager,
-                providerFactory: substrateDataProviderFactory,
-                chainRegistry: chainRegistry,
-                storageFacade: storageFacade,
-                collatorOperationFactory: collatorOperationFactory
             )
         case .sora:
             return try createSoraRewardCalculator(
@@ -128,26 +116,6 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
     }
 
     // MARK: - Private methods
-
-    private func createReefRewardCalculator(
-        chainAsset: ChainAsset,
-        validatorService: EraValidatorServiceProtocol
-    ) throws -> RewardCalculatorServiceProtocol {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let operationManager = OperationManagerFacade.sharedManager
-        let storageRequestPerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
-            chainRegistry: chainRegistry
-        )
-
-        return ReefRewardCalculatorService(
-            chainAsset: chainAsset,
-            eraValidatorsService: validatorService,
-            operationManager: operationManager,
-            chainRegistry: chainRegistry,
-            logger: logger,
-            storageRequestPerformer: storageRequestPerformer
-        )
-    }
 
     private func createSoraRewardCalculator(
         for chainAsset: ChainAsset,

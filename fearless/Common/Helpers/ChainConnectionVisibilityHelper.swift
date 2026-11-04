@@ -17,13 +17,11 @@ final class ChainConnectionVisibilityHelper {
         let isChainlinkProvider = chain.options?.contains(.chainlinkProvider)
         let hasPoolStaking = chain.options?.contains(.poolStaking)
         let hasRelaychainStaking = chain.assets.compactMap { $0.staking }.contains(where: { $0.isRelaychain })
-        let hasParachainStaking = chain.assets.compactMap { $0.staking }.contains(where: { $0.isParachain })
 
         let isRequired = [
             isChainlinkProvider,
             hasPoolStaking,
-            hasRelaychainStaking,
-            hasParachainStaking
+            hasRelaychainStaking
         ]
         .compactMap { $0 }
         .contains(true)

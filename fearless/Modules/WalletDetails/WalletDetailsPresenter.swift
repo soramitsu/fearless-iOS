@@ -15,6 +15,8 @@ final class WalletDetailsPresenter {
     private var searchText: String?
     /// Per-chain accounts the wallet keeps stored but does not use at the moment.
     private var storedChainAccounts: [ChainAccountModel] = []
+    /// Universal accounts the words alone open in a wallet with a password.
+    private var noPasswordAccounts: [UniversalWalletNoPasswordAccount] = []
 
     init(
         interactor: WalletDetailsInteractorInputProtocol,
@@ -119,8 +121,10 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             return
         }
         let storedAccounts = storedAccountsByAddress(for: chainAccount.chain)
+        let noPasswordAccount = noPasswordAccount(for: chainAccount.chain)
         let items: [ChainAction] = createActions(for: chainAccount.chain, address: address)
             + accountSelectionActions(for: chainAccount, storedAddresses: storedAccounts.keys.sorted())
+            + (noPasswordAccount == nil ? [] : [.switchToPasswordAccount])
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self,
                   let view = self.view
@@ -173,6 +177,10 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                 self.wireframe.present(from: view, url: url)
             case .useStoredAccount, .useWalletAccount:
                 self.confirmAccountSelection(for: action, storedAccounts: storedAccounts, chain: chainAccount.chain)
+            case .switchToPasswordAccount:
+                if let noPasswordAccount {
+                    self.interactor.switchToPasswordAccount(noPasswordAccount)
+                }
             }
         }
         wireframe.presentActions(
@@ -197,16 +205,39 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
         self.storedChainAccounts = storedChainAccounts
         provideViewModel(chains: chains)
     }
+
+    func didReceive(noPasswordAccounts: [UniversalWalletNoPasswordAccount]) {
+        self.noPasswordAccounts = noPasswordAccounts
+    }
+
+    func didReceive(
+        switchOutcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
+        for accounts: [UniversalWalletNoPasswordAccount]
+    ) {
+        wireframe.present(
+            viewModel: UniversalWalletPasswordNotice.outcomes(switchOutcomes, for: accounts, locale: selectedLocale),
+            from: view
+        )
+    }
 }
 
 private extension WalletDetailsPresenter {
+    /// Nexus shows the Taira key, so it offers the Taira switch.
+    func noPasswordAccount(for chain: ChainModel) -> UniversalWalletNoPasswordAccount? {
+        guard flow.actionsAvailable, let slot = UniversalWalletSlot(chainId: chain.chainId) else {
+            return nil
+        }
+        return noPasswordAccounts.first { $0.slot == slot }
+    }
+
     func provideViewModel(chains: [ChainModel]) {
+        let listedChains = chains.listedForKeyAccess(by: flow.wallet, storedAccounts: storedChainAccounts)
         switch flow {
         case .normal:
             let viewModel = viewModelFactory.buildNormalViewModel(
                 flow: flow,
-                chains: chains,
-                chainsWithStoredAccounts: chains.filter { !storedAccountsByAddress(for: $0).isEmpty },
+                chains: listedChains,
+                chainsWithStoredAccounts: listedChains.filter { !storedAccountsByAddress(for: $0).isEmpty },
                 locale: selectedLocale,
                 searchText: searchText
             )
@@ -214,7 +245,7 @@ private extension WalletDetailsPresenter {
         case .export:
             let viewModel = viewModelFactory.buildExportViewModel(
                 flow: flow,
-                chains: chains,
+                chains: listedChains,
                 locale: selectedLocale,
                 searchText: searchText
             )

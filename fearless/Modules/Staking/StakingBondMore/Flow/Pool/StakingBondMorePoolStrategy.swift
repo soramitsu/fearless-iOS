@@ -8,7 +8,6 @@ import SSFRuntimeCodingService
 protocol StakingBondMorePoolStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didSetup()
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
 
     func extrinsicServiceUpdated()
@@ -82,8 +81,6 @@ extension StakingBondMorePoolStrategy: StakingBondMoreStrategy {
         ) { [weak self] result in
             self?.output?.didReceiveExistentialDeposit(result: result)
         }
-
-        output?.didSetup()
     }
 }
 

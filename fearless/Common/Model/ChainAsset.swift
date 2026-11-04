@@ -522,9 +522,10 @@ struct NetworkScanState: Codable, Equatable {
     }
 }
 
+/// UserDefaults is thread-safe, so the store takes no lock of its own: holding one across a write could wait for
+/// the main thread while the main thread waits for the lock.
 enum NetworkScanStateStore {
     private static let prefix = "portfolio.network.scan"
-    private static let lock = NSLock()
 
     static func markAttempt(
         for chain: ChainModel,
@@ -594,10 +595,8 @@ enum NetworkScanStateStore {
         walletId: MetaAccountId? = nil,
         userDefaults: UserDefaults = .standard
     ) -> NetworkScanState {
-        lock.lock()
         let data = userDefaults.data(forKey: key(chain.chainId, walletId: walletId)) ??
             userDefaults.data(forKey: legacyKey(chain.chainId))
-        lock.unlock()
 
         return data.flatMap { try? JSONDecoder().decode(NetworkScanState.self, from: $0) } ??
             NetworkScanState(
@@ -618,9 +617,7 @@ enum NetworkScanStateStore {
             return
         }
 
-        lock.lock()
         userDefaults.set(data, forKey: key(chain.chainId, walletId: walletId))
-        lock.unlock()
     }
 
     private static func key(_ chainId: ChainModel.Id, walletId: MetaAccountId?) -> String {

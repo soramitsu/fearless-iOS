@@ -425,6 +425,47 @@ final class MutationAuthorizationTests: XCTestCase {
         XCTAssertThrowsError(try MutationAuthorizationReleaseBinding.makeAuthority(bundle: Bundle(for: Self.self)))
     }
 
+    func testProvisioningFollowsOnlyTheBundledTrustAndItsCompiledCapabilities() throws {
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm))
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm, bundle: Bundle(for: Self.self)))
+
+        let inputs = try releaseInputs(Fixture.load())
+        func bundle(_ files: [String: Data]) throws -> Bundle {
+            let directory = FileManager.default.temporaryDirectory
+                .appendingPathComponent("MutationAuthorizationTests-\(UUID().uuidString).bundle")
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            addTeardownBlock { try? FileManager.default.removeItem(at: directory) }
+            let info: [String: Any] = [
+                "CFBundleIdentifier": "jp.co.soramitsu.fearlesswallet",
+                "CFBundleVersion": "2026.8.34",
+                "CFBundlePackageType": "BNDL"
+            ]
+            try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0)
+                .write(to: directory.appendingPathComponent("Info.plist"))
+            for (name, data) in files {
+                try data.write(to: directory.appendingPathComponent(name))
+            }
+            return try XCTUnwrap(Bundle(url: directory))
+        }
+        let complete: [String: Data] = [
+            "mutation_authorization_policy.json": inputs.policy,
+            "mutation_authorization_trust.json": inputs.trust,
+            "mutation_route_manifest.json": inputs.routes,
+            "mutation_route_inventory.json": inputs.routeFile
+        ]
+
+        let provisioned = try bundle(complete)
+        XCTAssertTrue(MutationAuthorizationReleaseBinding.isProvisioned(.xcm, bundle: provisioned))
+        // The policy compiles in XCM only.
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.demeter, bundle: provisioned))
+        var unreviewedRoutes = complete
+        unreviewedRoutes["mutation_route_inventory.json"] = Data("other".utf8)
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm, bundle: try bundle(unreviewedRoutes)))
+        var missingTrust = complete
+        missingTrust["mutation_authorization_trust.json"] = nil
+        XCTAssertFalse(MutationAuthorizationReleaseBinding.isProvisioned(.xcm, bundle: try bundle(missingTrust)))
+    }
+
     func testReleaseBindingCannotSubstituteAnUnrelatedFileEvenWithMatchingHashPins() throws {
         for name in ["unrelated.json", "../mutation_route_inventory.json", "Mutation_route_inventory.json"] {
             let inputs = try releaseInputs(Fixture.load(), routeName: name)
@@ -750,9 +791,17 @@ extension MutationAuthorizationTests {
 }
 
 private extension Harness {
-    func operation(intent: String, validateContext: @escaping () throws -> Void = {}) throws -> MutationOperationAuthorization {
+    func operation(
+        intent: String,
+        expectedCall: Data? = nil,
+        validateContext: @escaping () throws -> Void = {}
+    ) throws -> MutationOperationAuthorization {
         let lease = try authority.lease(for: .xcm, intentSha256: intent)
-        return try MutationOperationAuthorization(intentSha256: intent, validateContext: validateContext) { action in
+        return try MutationOperationAuthorization(
+            intentSha256: intent,
+            expectedCall: expectedCall,
+            validateContext: validateContext
+        ) { action in
             try self.authority.withAuthorizedContext(lease, intentSha256: intent, validateContext: validateContext, action: action)
         }
     }
@@ -786,6 +835,74 @@ extension MutationAuthorizationTests {
             harness.authority.refreshFailed()
             XCTAssertThrowsError(try transportGuard.authorize { XCTFail("Revoked send") })
         }
+    }
+
+    func testOnlyAnExtrinsicEndingInTheConfirmedCallCanBeBound() throws {
+        let call = Data([0x51, 0x03, 0x00, 0x00])
+        func extrinsic(_ body: Data) -> Data { Data([UInt8(body.count << 2)]) + body }
+        let header = Data([0x84, 0xAA, 0xBB])
+        let longHeader = Data([0x84]) + Data(repeating: 0xAA, count: 70)
+        let cases: [(Data, Bool)] = [
+            (extrinsic(header + call), true),
+            // Two-byte length prefix, as for a real signed extrinsic.
+            (Data([UInt8(((longHeader.count + call.count) << 2) & 0xFF) | 1, UInt8((longHeader.count + call.count) >> 6)])
+                + longHeader + call, true),
+            (extrinsic(header + Data([0x51, 0x03, 0x00, 0x01])), false),
+            (extrinsic(header + call + Data([0x00])), false),
+            (Data([UInt8((header.count + call.count + 1) << 2)]) + header + call, false),
+            (extrinsic(call), false),
+            (Data([0x03]) + header + call, false)
+        ]
+        for (bytes, accepted) in cases {
+            XCTAssertEqual(MutationOperationAuthorization.extrinsic(bytes, endsWithCall: call), accepted, "\(Array(bytes))")
+            let harness = try Harness()
+            try harness.enable()
+            let operation = try harness.operation(intent: intent, expectedCall: call)
+            try operation.withKeyAccess {}
+            try operation.withSignature {}
+            var sent = 0
+            if accepted {
+                try operation.bindSubmission(extrinsic: bytes, method: "author_submitAndWatchExtrinsic")
+                try operation.authorize { sent += 1 }
+            } else {
+                XCTAssertThrowsError(
+                    try operation.bindSubmission(extrinsic: bytes, method: "author_submitAndWatchExtrinsic")
+                ) { error in
+                    XCTAssertEqual(error as? MutationAuthorizationError, .changedIntent)
+                }
+                // The refusal consumes the operation: no later binding or hand-off can use it.
+                XCTAssertThrowsError(try operation.bindSubmission(
+                    extrinsic: extrinsic(header + call),
+                    method: "author_submitAndWatchExtrinsic"
+                ))
+                XCTAssertThrowsError(try operation.authorize { sent += 1 })
+            }
+            XCTAssertEqual(sent, accepted ? 1 : 0)
+        }
+        XCTAssertThrowsError(
+            try MutationOperationAuthorization(intentSha256: intent, expectedCall: Data(), validateContext: {}) {
+                try $0()
+            }
+        )
+    }
+
+    func testSubmitAndWatchRefusesAnExtrinsicWithoutTheConfirmedCall() throws {
+        let harness = try Harness()
+        try harness.enable()
+        let authorization = try harness.operation(intent: intent, expectedCall: Data([9, 9]))
+        let wrapper = mutationFactory().submitAndWatch({ $0 }, signer: MutationFactorySigner(authorization: authorization))
+        let submission = try XCTUnwrap(wrapper.allOperations.compactMap { $0 as? JSONRPCListOperation<String> }
+            .first { $0.method == "author_submitAndWatchExtrinsic" })
+        try authorization.withKeyAccess {}
+        try authorization.withSignature {}
+        let built = try XCTUnwrap(submission.dependencies.first as? BaseOperation<[Data]>)
+        built.result = .success([Data([0x0C, 1, 2, 3])])
+        submission.configurationBlock?()
+        XCTAssertNil(submission.parameters)
+        guard case let .failure(error)? = submission.result else {
+            return XCTFail("The extrinsic must not be handed to transport")
+        }
+        XCTAssertEqual(error as? MutationAuthorizationError, .changedIntent)
     }
 
     func testGuardedBatchIsRejectedBeforeConstructingTransactions() throws {

@@ -42,6 +42,13 @@ final class RelaychainValidatorOperationFactory {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
+        if AssetHubStakingRoute.staking(on: chain.chainId) != nil {
+            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+                return .createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+            }
+            return AssetHubSlashesOperationFactory(engine: connection, runtime: runtimeService).unapplied()
+        }
+
         let path = StorageCodingPath.unappliedSlashes
 
         let keyParams: () throws -> [String] = {
@@ -95,6 +102,11 @@ final class RelaychainValidatorOperationFactory {
 
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
+        if AssetHubStakingRoute.staking(on: chain.chainId) != nil {
+            return AssetHubSlashesOperationFactory(engine: connection, runtime: runtimeService)
+                .validatorSlashes(ids: validatorIds, submittedIn: nomination.submittedIn)
         }
 
         guard let chainStakingSettings = chain.stakingSettings else {
@@ -700,7 +712,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
         let allValidatorsOperation: AwaitOperation<[EraValidatorInfo]> = AwaitOperation { [weak self] in
-            guard let self else {
+            guard self != nil else {
                 return []
             }
 
@@ -709,25 +721,12 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                     return nil
                 }
 
-                var accountId: Data
-
-                if self.chain.isReef {
-                    let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
-                    let key: String = try await extractor.extractKey(
-                        storageKey: $0.key,
-                        storagePath: .validatorPrefs,
-                        type: .accountId
-                    )
-                    accountId = try key.toAccountId()
-                } else {
-                    let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
-                    let key: AccountId = try await extractor.extractKey(
-                        storageKey: $0.key,
-                        storagePath: .validatorPrefs,
-                        type: .accountId
-                    )
-                    accountId = key
-                }
+                let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
+                let accountId: AccountId = try await extractor.extractKey(
+                    storageKey: $0.key,
+                    storagePath: .validatorPrefs,
+                    type: .accountId
+                )
 
                 let exposure = ValidatorExposure(total: .zero, own: .zero, others: [])
 

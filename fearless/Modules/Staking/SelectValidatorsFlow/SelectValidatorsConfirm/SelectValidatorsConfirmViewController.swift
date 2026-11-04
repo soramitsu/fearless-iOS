@@ -83,8 +83,6 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
         rootView.networkFeeFooterView.locale = selectedLocale
 
-        rootView.selectedCollatorTitle.text = R.string.localizable.stakingSelectedCollator(preferredLanguages: languages)
-
         applyConfirmationViewModel()
         applyHints()
         applyFeeViewModel()
@@ -141,9 +139,6 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             rootView.validatorsView.isHidden = true
         }
 
-        rootView.selectedCollatorView.isHidden = viewModel.selectedCollatorViewModel == nil
-        rootView.selectedCollatorView.titleLabel.text = viewModel.selectedCollatorViewModel?.name
-        rootView.selectedCollatorView.valueTop.text = viewModel.selectedCollatorViewModel?.address
         rootView.poolView.valueTop.text = viewModel.poolName
     }
 
@@ -168,10 +163,6 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
     @objc private func actionOnWalletAccount() {
         presenter.selectWalletAccount()
-    }
-
-    @objc private func actionOnCollatorAccount() {
-        presenter.selectCollatorAccount()
     }
 
     @objc private func proceed() {

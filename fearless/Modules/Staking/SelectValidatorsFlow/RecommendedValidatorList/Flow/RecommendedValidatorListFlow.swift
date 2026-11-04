@@ -3,7 +3,6 @@ import Foundation
 enum RecommendedValidatorListFlow {
     case relaychainInitiated(validators: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
     case relaychainExisting(validators: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
-    case parachain(collators: [ParachainStakingCandidateInfo], maxTargets: Int, bonding: InitiatedBonding)
     case poolInitiated(poolId: UInt32, validators: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
     case poolExisting(poolId: UInt32, validators: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
 }

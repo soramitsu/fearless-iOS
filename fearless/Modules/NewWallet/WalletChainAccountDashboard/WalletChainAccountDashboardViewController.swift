@@ -1,7 +1,11 @@
 import UIKit
 
-final class WalletChainAccountDashboardViewController: ContainerViewController {
+final class WalletChainAccountDashboardViewController: ContainerViewController, AdaptiveFullWidthContent {
     typealias RootViewType = WalletChainAccountDashboardViewLayout
+
+    override var supportsAdaptiveColumns: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
 
     let presenter: WalletChainAccountDashboardPresenterProtocol
 

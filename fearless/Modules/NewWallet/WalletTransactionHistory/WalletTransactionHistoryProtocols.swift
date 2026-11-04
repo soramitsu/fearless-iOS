@@ -15,7 +15,6 @@ protocol WalletTransactionHistoryPresenterProtocol: AnyObject {
     func viewHistoryOnExplorer()
     func didSelect(viewModel: WalletTransactionHistoryCellViewModel)
     func didTapFiltersButton()
-    func didChangeFiltersSliderValue(index: Int)
 }
 
 protocol WalletTransactionHistoryInteractorInputProtocol: AnyObject {

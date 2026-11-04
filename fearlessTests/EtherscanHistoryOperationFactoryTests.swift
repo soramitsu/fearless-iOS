@@ -657,7 +657,6 @@ private final class HistoryPresenterFixture: WalletTransactionHistoryPresenterPr
 
     func didSelect(viewModel _: WalletTransactionHistoryCellViewModel) {}
     func didTapFiltersButton() {}
-    func didChangeFiltersSliderValue(index _: Int) {}
 }
 
 private final class EtherscanURLProtocol: URLProtocol {

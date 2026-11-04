@@ -8,7 +8,7 @@ final class WalletOptionPresenter {
     private let router: WalletOptionRouterInput
     private let interactor: WalletOptionInteractorInput
 
-    private let wallet: ManagedMetaAccountModel
+    private var wallet: ManagedMetaAccountModel
 
     // MARK: - Constructors
 
@@ -16,12 +16,14 @@ final class WalletOptionPresenter {
         wallet: ManagedMetaAccountModel,
         interactor: WalletOptionInteractorInput,
         router: WalletOptionRouterInput,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        eventCenter: EventCenterProtocol = EventCenter.shared
     ) {
         self.wallet = wallet
         self.interactor = interactor
         self.router = router
         self.localizationManager = localizationManager
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     // MARK: - Private methods
@@ -111,3 +113,28 @@ extension WalletOptionPresenter: Localizable {
 }
 
 extension WalletOptionPresenter: WalletOptionModuleInput {}
+
+extension WalletOptionPresenter: EventVisitorProtocol {
+    func processWalletNameChanged(event: WalletNameChanged) {
+        guard event.wallet.metaId == wallet.info.metaId else { return }
+        updateWallet(wallet.info.replacingName(event.wallet.name))
+    }
+
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        updateWallet(event.account)
+    }
+
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        updateWallet(event.account)
+    }
+
+    private func updateWallet(_ account: MetaAccountModel) {
+        guard account.metaId == wallet.info.metaId else { return }
+        wallet = ManagedMetaAccountModel(
+            info: account,
+            isSelected: wallet.isSelected,
+            order: wallet.order,
+            balance: wallet.balance
+        )
+    }
+}

@@ -10,9 +10,24 @@ final class UniversalWalletRegistryContractTests: XCTestCase {
         let json = String(decoding: try JSONEncoder().encode(registry), as: UTF8.self)
         XCTAssertTrue(json.contains(#""ecosystem":"solana""#))
         XCTAssertTrue(json.contains(#""kind":"indexer""#))
-        XCTAssertTrue(json.contains(#""kind":"torii-mcp""#))
+        XCTAssertTrue(json.contains(#""kind":"torii""#))
+        XCTAssertFalse(json.contains("torii-mcp"))
         XCTAssertTrue(json.contains(#""readOnly":true"#))
         XCTAssertTrue(json.contains(#""features":["transfer"]"#))
+    }
+
+    func testDefaultRegistryPublishesToriiRESTAndStillReadsOlderMCPEndpoints() throws {
+        let irohaEndpoints = UniversalWalletRegistry.chainRegistry.chains
+            .filter { $0.ecosystem == UniversalWalletEcosystem.iroha.rawValue }
+            .flatMap(\.endpoints)
+        XCTAssertEqual(irohaEndpoints.map(\.kind), [.torii, .torii])
+        XCTAssertFalse(UniversalWalletRegistry.chainRegistry.chains.flatMap(\.endpoints).contains { $0.kind == .toriiMcp })
+
+        let olderEndpoint = try JSONDecoder().decode(
+            UniversalWalletRegistryEndpoint.self,
+            from: Data(#"{"id":"taira-torii-mcp","kind":"torii-mcp","url":"https://taira.sora.org/v1/mcp","readOnly":false,"priority":0}"#.utf8)
+        )
+        XCTAssertEqual(olderEndpoint.kind, .toriiMcp)
     }
 
     func testAllowsDisabledGatedNetworksWithoutEndpoints() {
@@ -101,8 +116,8 @@ final class UniversalWalletRegistryContractTests: XCTestCase {
         XCTAssertEqual(taira.nativeAsset?.decimals, 28)
         XCTAssertTrue(
             taira.endpoints.contains {
-                $0.kind == .toriiMcp &&
-                    $0.url == "https://taira.sora.org/v1/mcp" &&
+                $0.kind == .torii &&
+                    $0.url == "https://taira.sora.org" &&
                     !$0.readOnly
             }
         )
@@ -112,8 +127,8 @@ final class UniversalWalletRegistryContractTests: XCTestCase {
         XCTAssertEqual(nexus.features, ["transfer", "offline-cash", "sccp", "governance"])
         XCTAssertTrue(
             nexus.endpoints.contains {
-                $0.kind == .toriiMcp &&
-                    $0.url == "https://minamoto.sora.org/v1/mcp" &&
+                $0.kind == .torii &&
+                    $0.url == "https://minamoto.sora.org" &&
                     !$0.readOnly
             }
         )
@@ -225,9 +240,9 @@ final class UniversalWalletRegistryContractTests: XCTestCase {
             features: ["transfer"],
             endpoints: [
                 UniversalWalletRegistryEndpoint(
-                    id: "taira-torii-mcp",
-                    kind: .toriiMcp,
-                    url: "https://taira.sora.org/v1/mcp",
+                    id: "taira-torii",
+                    kind: .torii,
+                    url: "https://taira.sora.org",
                     readOnly: false
                 )
             ]

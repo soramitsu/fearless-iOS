@@ -96,6 +96,7 @@ final class EmergencyWalletMaterialViewController: UIViewController {
         let sheet = UIActivityViewController(activityItems: [encodedMaterial()], applicationActivities: nil)
         sheet.excludedActivityTypes = Self.excludedShareActivities
         sheet.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+        anchorPopover(of: sheet)
         present(sheet, animated: true)
     }
 

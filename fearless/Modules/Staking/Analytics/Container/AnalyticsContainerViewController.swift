@@ -54,7 +54,7 @@ final class AnalyticsContainerViewController: UIViewController, ViewHolder, Anal
 
             view.snp.makeConstraints { make in
                 make.top.bottom.equalToSuperview()
-                make.width.equalTo(rootView)
+                make.width.equalTo(rootView.horizontalScrollView.frameLayoutGuide)
 
                 if let leftView = lastView {
                     make.left.equalTo(leftView.snp.right)

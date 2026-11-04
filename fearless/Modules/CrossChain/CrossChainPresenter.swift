@@ -687,17 +687,10 @@ extension CrossChainPresenter: CrossChainViewOutput {
 // MARK: - CrossChainInteractorOutput
 
 extension CrossChainPresenter: CrossChainInteractorOutput {
-    func didReceiveDestinationFee(result: Result<DestXcmFee, Error>) {
+    func didReceiveDestinationFee(result: Result<Decimal, Error>) {
         switch result {
-        case let .success(response):
-            // A fee without its precision cannot be scaled; reading it in the origin's precision could be off by a
-            // factor of 10^n, so it counts as no fee.
-            if let feeInPlanks = response.feeInPlanks,
-               let destinationPrecision = response.precision.flatMap({ Int16($0) }) {
-                destNetworkFee = Decimal.fromSubstrateAmount(feeInPlanks, precision: destinationPrecision)
-            } else {
-                destNetworkFee = nil
-            }
+        case let .success(fee):
+            destNetworkFee = fee
         case let .failure(error):
             destNetworkFee = nil
             logger.customError(error)

@@ -120,7 +120,6 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
                 rewardDestination: rewardViewModel,
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
-                selectedCollatorViewModel: nil,
                 stakeAmountViewModel: self?.createStakedAmountViewModel(),
                 poolName: nil
             )

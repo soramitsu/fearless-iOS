@@ -89,19 +89,19 @@ final class AnalyticsRewardsHeaderView: UIView, AnalyticsRewardsHeaderViewProtoc
         addSubview(statsStack)
         statsStack.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(24)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         addSubview(pendingRewardsView)
         pendingRewardsView.snp.makeConstraints { make in
             make.top.equalTo(statsStack.snp.bottom).offset(24)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(historyTitleLabel)
         historyTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(pendingRewardsView.snp.bottom).offset(24)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(8)
         }
     }

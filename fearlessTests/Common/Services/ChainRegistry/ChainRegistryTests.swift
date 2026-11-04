@@ -456,14 +456,12 @@ private final class RecordingEthereumNodeFetching:
         return urls
     }
 
-    func getNode(for chain: ChainModel) throws -> Web3.Eth {
-        if let selectedURL = chain.selectedNode?.url {
-            lock.lock()
-            urls.append(selectedURL)
-            lock.unlock()
-        }
+    func getNode(for chain: ChainModel, url: URL) throws -> Web3.Eth {
+        lock.lock()
+        urls.append(url)
+        lock.unlock()
 
-        return try EthereumNodeFetching().getNode(for: chain)
+        return try EthereumNodeFetching().getNode(for: chain, url: url)
     }
 }
 
@@ -994,5 +992,231 @@ private final class SubscriptionTestRepository:
 
     func deleteAllOperation() -> BaseOperation<Void> {
         ClosureOperation { () }
+    }
+}
+
+extension ChainRegistryTests {
+    func testChosenEthereumNodeTakesEffectInSessionAndAutomaticSelectionResumesOnTheNodeMovedTo() throws {
+        let (provider, observable) = makeChainProvider()
+        let first = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "https://first-rpc.example")),
+            name: "First Ethereum RPC",
+            apikey: nil
+        )
+        let second = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "https://second-rpc.example")),
+            name: "Second Ethereum RPC",
+            apikey: nil
+        )
+        let chainId = "ethereum-node-choice-chain"
+        let automatic = makeEthereumChain(identifier: chainId, node: first)
+            .replacingNodes([first, second])
+            .replacingSelectedNode(nil)
+        let suite = "ChainRegistryTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let pool = EthereumConnectionPool(
+            nodeFetching: EthereumNodeFetching(),
+            catalogOrder: EthereumNodeCatalogOrder(defaults: defaults)
+        )
+        let registry = ChainRegistry(
+            snapshotHotBootBuilder: NoopSnapshotHotBootBuilder(),
+            runtimeProviderPool: makeRuntimeProviderPool(),
+            connectionPools: [pool],
+            chainSyncService: NoopChainSyncService(),
+            runtimeSyncService: makeRuntimeSyncService(),
+            chainsTypesSyncService: NoopChainsTypesSyncService(),
+            chainProvider: provider,
+            specVersionSubscriptionFactory: makeSubscriptionFactory(),
+            networkIssuesCenter: NoopNetworkIssuesCenter(),
+            eventCenter: NoopEventCenter()
+        )
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        XCTAssertTrue(observable.send([.insert(newItem: automatic)]))
+        let firstConnection: Web3.Eth = try waitForValue {
+            registry.getEthereumConnection(for: chainId)
+        }
+        XCTAssertEqual(pool.currentNodeURL(for: chainId), first.url)
+
+        // The first node stops answering, and the network moves on.
+        XCTAssertNotNil(registry.failoverEthereumConnection(for: chainId, failed: firstConnection))
+        XCTAssertEqual(pool.currentNodeURL(for: chainId), second.url)
+
+        // The user chooses the first node as the node selection screen does: a reset, then the saved chain.
+        registry.resetConnection(for: chainId)
+        XCTAssertNil(pool.getConnection(for: chainId))
+        XCTAssertTrue(observable.send([.update(newItem: automatic.replacingSelectedNode(first))]))
+        try waitForCondition {
+            pool.currentNodeURL(for: chainId) == first.url
+        }
+        let chosenConnection = try XCTUnwrap(registry.getEthereumConnection(for: chainId))
+
+        // A node the user chose is kept when it fails: rebuilt, never swapped.
+        let rebuilt = try XCTUnwrap(registry.failoverEthereumConnection(for: chainId, failed: chosenConnection))
+        XCTAssertEqual(pool.currentNodeURL(for: chainId), first.url)
+        XCTAssertFalse(
+            (rebuilt.properties.provider as? EthereumNodeProvider) ===
+                (chosenConnection.properties.provider as? EthereumNodeProvider)
+        )
+
+        // Back to automatic selection: the network resumes on the node it moved to, not on the one that failed.
+        registry.resetConnection(for: chainId)
+        XCTAssertTrue(observable.send([.update(newItem: automatic)]))
+        try waitForCondition {
+            registry.getChain(for: chainId)?.selectedNode == nil &&
+                pool.currentNodeURL(for: chainId) == second.url
+        }
+
+        provider.removeObserver(registry)
+    }
+}
+
+extension ChainRegistryTests {
+    func testRetiredNetworkIsNeverActivatedFromStoredData() throws {
+        let (provider, observable) = makeChainProvider()
+        let retiredNode = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "https://retired-rpc.example")),
+            name: "Retired RPC",
+            apikey: nil
+        )
+        let liveNode = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "https://live-rpc.example")),
+            name: "Live RPC",
+            apikey: nil
+        )
+        // Polygon zkEVM is retired; its stored copy may still be enabled before a download succeeds.
+        let retiredChain = makeEthereumChain(identifier: "1101", node: retiredNode)
+        let liveChain = makeEthereumChain(identifier: "ethereum-live-chain", node: liveNode)
+        let nodeFetching = RecordingEthereumNodeFetching()
+        let registry = ChainRegistry(
+            snapshotHotBootBuilder: NoopSnapshotHotBootBuilder(),
+            runtimeProviderPool: makeRuntimeProviderPool(),
+            connectionPools: [EthereumConnectionPool(nodeFetching: nodeFetching)],
+            chainSyncService: NoopChainSyncService(),
+            runtimeSyncService: makeRuntimeSyncService(),
+            chainsTypesSyncService: NoopChainsTypesSyncService(),
+            chainProvider: provider,
+            specVersionSubscriptionFactory: makeSubscriptionFactory(),
+            networkIssuesCenter: NoopNetworkIssuesCenter(),
+            eventCenter: NoopEventCenter()
+        )
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        XCTAssertTrue(observable.send([.insert(newItem: retiredChain), .insert(newItem: liveChain)]))
+        try waitForCondition { registry.getChain(for: liveChain.chainId) != nil }
+        XCTAssertTrue(observable.send([.update(newItem: retiredChain)]))
+        try waitForCondition { nodeFetching.requestedURLs.contains(liveNode.url) }
+
+        XCTAssertNil(registry.getChain(for: retiredChain.chainId))
+        XCTAssertNil(registry.getEthereumConnection(for: retiredChain.chainId))
+        XCTAssertFalse(nodeFetching.requestedURLs.contains(retiredNode.url))
+
+        provider.removeObserver(registry)
+    }
+
+    func testOptionsOnlyUpdatePublishesTheNewModelWithoutReconnecting() throws {
+        let (provider, observable) = makeChainProvider()
+        let node = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "https://options-rpc.example")),
+            name: "Options RPC",
+            apikey: nil
+        )
+        let chainId = "ethereum-options-chain"
+        let chainWithNft = ChainModel(
+            rank: 1,
+            disabled: false,
+            chainId: chainId,
+            paraId: nil,
+            name: "Ethereum Options",
+            xcm: nil,
+            nodes: [node],
+            addressPrefix: 0,
+            icon: nil,
+            options: [.ethereum, .nft],
+            selectedNode: node,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let chainWithoutNft = ChainModel(
+            rank: 1,
+            disabled: false,
+            chainId: chainId,
+            paraId: nil,
+            name: "Ethereum Options",
+            xcm: nil,
+            nodes: [node],
+            addressPrefix: 0,
+            icon: nil,
+            options: [.ethereum],
+            selectedNode: node,
+            iosMinAppVersion: nil,
+            identityChain: nil
+        )
+        let nodeFetching = RecordingEthereumNodeFetching()
+        let registry = ChainRegistry(
+            snapshotHotBootBuilder: NoopSnapshotHotBootBuilder(),
+            runtimeProviderPool: makeRuntimeProviderPool(),
+            connectionPools: [EthereumConnectionPool(nodeFetching: nodeFetching)],
+            chainSyncService: NoopChainSyncService(),
+            runtimeSyncService: makeRuntimeSyncService(),
+            chainsTypesSyncService: NoopChainsTypesSyncService(),
+            chainProvider: provider,
+            specVersionSubscriptionFactory: makeSubscriptionFactory(),
+            networkIssuesCenter: NoopNetworkIssuesCenter(),
+            eventCenter: NoopEventCenter()
+        )
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        XCTAssertTrue(observable.send([.insert(newItem: chainWithNft)]))
+        try waitForCondition { !nodeFetching.requestedURLs.isEmpty }
+        XCTAssertTrue(observable.send([.update(newItem: chainWithoutNft)]))
+        try waitForCondition { registry.getChain(for: chainId)?.options == [.ethereum] }
+
+        XCTAssertEqual(nodeFetching.requestedURLs, [node.url], "the connection is kept")
+        XCTAssertNotNil(registry.getEthereumConnection(for: chainId))
+
+        provider.removeObserver(registry)
+    }
+
+    func testKindChangingUpdateReleasesTheOldConnection() throws {
+        let (provider, observable) = makeChainProvider()
+        let node = ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "https://kind-rpc.example")),
+            name: "Kind RPC",
+            apikey: nil
+        )
+        let chainId = "kind-changing-chain"
+        let evmChain = makeEthereumChain(identifier: chainId, node: node)
+        // The same nodes without the ethereum option make it a Substrate chain.
+        let substrateChain = makeChain(identifier: chainId, disabled: false, node: node)
+        let nodeFetching = RecordingEthereumNodeFetching()
+        let registry = ChainRegistry(
+            snapshotHotBootBuilder: NoopSnapshotHotBootBuilder(),
+            runtimeProviderPool: makeRuntimeProviderPool(),
+            connectionPools: [EthereumConnectionPool(nodeFetching: nodeFetching)],
+            chainSyncService: NoopChainSyncService(),
+            runtimeSyncService: makeRuntimeSyncService(),
+            chainsTypesSyncService: NoopChainsTypesSyncService(),
+            chainProvider: provider,
+            specVersionSubscriptionFactory: makeSubscriptionFactory(),
+            networkIssuesCenter: NoopNetworkIssuesCenter(),
+            eventCenter: NoopEventCenter()
+        )
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        XCTAssertTrue(observable.send([.insert(newItem: evmChain)]))
+        try waitForCondition { registry.getEthereumConnection(for: chainId) != nil }
+        XCTAssertTrue(observable.send([.update(newItem: substrateChain)]))
+        // No Substrate pool in this registry: the old EVM connection must go and nothing replaces it.
+        try waitForCondition { registry.getChain(for: chainId) == nil }
+
+        XCTAssertNil(registry.getEthereumConnection(for: chainId))
+
+        provider.removeObserver(registry)
     }
 }

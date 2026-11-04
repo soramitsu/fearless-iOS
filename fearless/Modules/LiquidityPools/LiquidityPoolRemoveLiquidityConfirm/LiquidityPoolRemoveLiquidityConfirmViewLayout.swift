@@ -119,7 +119,8 @@ final class LiquidityPoolRemoveLiquidityConfirmViewLayout: UIView {
 
         addSubview(navigationViewContainer)
         navigationViewContainer.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(Constants.navigationBarHeight)
         }
 
@@ -140,7 +141,7 @@ final class LiquidityPoolRemoveLiquidityConfirmViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
 
@@ -162,7 +163,7 @@ final class LiquidityPoolRemoveLiquidityConfirmViewLayout: UIView {
         }
 
         confirmButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }

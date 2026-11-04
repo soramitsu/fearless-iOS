@@ -89,6 +89,24 @@ enum MutationAuthorizationReleaseBinding {
     }
 
     static func makeAuthority(bundle: Bundle = .main) throws -> MutationAuthorizationAuthority {
+        guard let applicationId = bundle.bundleIdentifier else {
+            throw MutationAuthorizationError.wrongRelease
+        }
+        return try MutationAuthorizationAuthority(
+            verifier: verifier(bundle: bundle),
+            store: MutationAuthorizationKeychainStore(audience: applicationId),
+            clock: MutationAuthorizationClock.system
+        )
+    }
+
+    /// Whether this build bundles reviewed trust that can ever allow `capability`. Downloaded configuration cannot
+    /// change the answer: without it the capability cannot run in this version, whatever the remote switches say. It
+    /// reads no Keychain state, so a locked device does not change it either.
+    static func isProvisioned(_ capability: MutationCapability, bundle: Bundle = .main) -> Bool {
+        (try? verifier(bundle: bundle))?.context.compiledCapabilities.contains(capability) == true
+    }
+
+    private static func verifier(bundle: Bundle) throws -> MutationAuthorizationVerifier {
         guard let applicationId = bundle.bundleIdentifier,
               let version = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String else {
             throw MutationAuthorizationError.wrongRelease
@@ -99,16 +117,11 @@ enum MutationAuthorizationReleaseBinding {
             }
             return try Data(contentsOf: url)
         }
-        let verifier = try verifier(
+        return try verifier(
             policyData: resource("mutation_authorization_policy.json"),
             trustData: resource("mutation_authorization_trust.json"),
             routeManifestData: resource("mutation_route_manifest.json"),
             applicationId: applicationId, bundleVersion: version, routeFile: resource
-        )
-        return try MutationAuthorizationAuthority(
-            verifier: verifier,
-            store: MutationAuthorizationKeychainStore(audience: applicationId),
-            clock: MutationAuthorizationClock.system
         )
     }
 

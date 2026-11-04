@@ -11,7 +11,8 @@ class EraCountdownOperationFactoryTests: XCTestCase {
 
         let operationManager: OperationManagerProtocol = OperationManager()
 
-        let chainId = Chain.kusama.genesisHash
+        let route = try XCTUnwrap(AssetHubStakingRoute.migrating(Chain.kusama.genesisHash))
+        let chainId = route.stakingChainId
         let chainRegistry = ChainRegistryFacade.setupForIntegrationTest(with: SubstrateStorageTestFacade())
 
         guard !chainRegistry.availableChains.isEmpty else {
@@ -31,7 +32,13 @@ class EraCountdownOperationFactoryTests: XCTestCase {
             operationManager: operationManager
         )
 
-        let factory = EraCountdownOperationFactory(storageRequestFactory: storageRequestFactory)
+        let factory = EraCountdownOperationFactory(
+            storageRequestFactory: storageRequestFactory,
+            clock: StakingRuntimeClock(
+                runtime: { chainRegistry.getRuntimeProvider(for: $0) },
+                connection: { chainRegistry.getConnection(for: $0) }
+            )
+        )
 
         let timeExpectation = XCTestExpectation()
         let operationWrapper = factory.fetchCountdownOperationWrapper(

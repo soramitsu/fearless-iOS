@@ -32,6 +32,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     private var isShowingHistoryRecovery = false
 
     private var draggableState: DraggableState = .compact
+    private var isSidePanel = false
     private var compactInsets: UIEdgeInsets = .zero
     private var fullInsets: UIEdgeInsets = .zero
 
@@ -84,7 +85,6 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
 
         rootView.retryButton.addTarget(self, action: #selector(retryHistoryClicked), for: .touchUpInside)
         rootView.explorerButton.addTarget(self, action: #selector(viewHistoryOnExplorerClicked), for: .touchUpInside)
-        rootView.typeSwitcher.delegate = self
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.registerClassForCell(WalletTransactionHistoryCell.self)
@@ -110,7 +110,6 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             handle(changes: viewModel.lastChanges)
             rootView.tableView.isHidden = viewModel.sections.isEmpty
             rootView.filterButton.isHidden = viewModel.filtering != .multiple
-            rootView.typeSwitcherContainer.isHidden = viewModel.filtering != .single
             rootView.separatorView.isHidden = viewModel.filtering != .multiple
 
             handleNextPageOnScroll(scrollView: rootView.tableView)
@@ -119,7 +118,6 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             reloadContent()
             rootView.tableView.isHidden = viewModel.sections.isEmpty
             rootView.filterButton.isHidden = viewModel.filtering != .multiple
-            rootView.typeSwitcherContainer.isHidden = viewModel.filtering != .single
             rootView.separatorView.isHidden = viewModel.filtering != .multiple
 
             handleNextPageOnScroll(scrollView: rootView.tableView)
@@ -338,6 +336,7 @@ extension WalletTransactionHistoryViewController: Draggable {
         }
 
         updateTableViewAfterTransition(to: dragableState, animated: animated)
+        rootView.setEmbeddedInColumns(isSidePanel)
 
         if case .hidden = headerType {
             updateHiddenTypeNavigationItem(for: dragableState, animated: animated)
@@ -406,6 +405,7 @@ extension WalletTransactionHistoryViewController: Draggable {
             rootView.update(tableViewOffset: CGFloat(1.0 - adjustedProgress) * UIConstants.bigOffset)
         }
 
+        rootView.setEmbeddedInColumns(isSidePanel)
         if forcesLayoutUpdate {
             view.layoutIfNeeded()
         }
@@ -680,8 +680,9 @@ extension WalletTransactionHistoryViewController: Localizable {
     }
 }
 
-extension WalletTransactionHistoryViewController: FWSegmentedControlDelegate {
-    func didSelect(_ segmentIndex: Int) {
-        presenter.didChangeFiltersSliderValue(index: segmentIndex)
+extension WalletTransactionHistoryViewController: AdaptiveSidePanel {
+    func setEmbeddedInColumns(_ embedded: Bool) {
+        isSidePanel = embedded
+        rootView.setEmbeddedInColumns(embedded)
     }
 }

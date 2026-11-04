@@ -4,7 +4,6 @@ import SoraFoundation
 
 enum SelectValidatorsStartError: Error {
     case dataNotLoaded
-    case emptyRecommendedValidators
 }
 
 extension SelectValidatorsStartError: ErrorContentConvertible {
@@ -18,11 +17,6 @@ extension SelectValidatorsStartError: ErrorContentConvertible {
                 .accountImportKeystoreDecryptionErrorTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
                 .accountImportKeystoreDecryptionErrorMessage(preferredLanguages: locale?.rLanguages)
-        case .emptyRecommendedValidators:
-            title = R.string.localizable
-                .commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
-            message = R.string.localizable
-                .stakingRecommendedCollatorsEmptyText(preferredLanguages: locale?.rLanguages)
         }
 
         return ErrorContent(title: title, message: message)
@@ -32,7 +26,6 @@ extension SelectValidatorsStartError: ErrorContentConvertible {
 enum SelectValidatorsStartFlow {
     case relaychainInitiated(state: InitiatedBonding)
     case relaychainExisting(state: ExistingBonding)
-    case parachain(state: InitiatedBonding)
     case poolInitiated(poolId: UInt32, state: InitiatedBonding)
     case poolExisting(poolId: UInt32, state: ExistingBonding)
 
@@ -42,8 +35,6 @@ enum SelectValidatorsStartFlow {
             return .setup
         case let .relaychainExisting(state):
             return state.selectedTargets == nil ? .setup : .update
-        case .parachain:
-            return .setup
         case .poolInitiated:
             return .setup
         case let .poolExisting(_, state):

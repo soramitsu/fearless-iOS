@@ -57,7 +57,6 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
         provideAssetViewModel()
         provideTitle()
         provideAccountViewModel()
-        provideCollatorViewModel()
         provideHintsViewModel()
 
         interactor.setup()
@@ -149,14 +148,6 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
 
         if let viewModel = viewModelFactory.buildAccountViewModel(viewModelState: viewModelState, locale: locale) {
             view?.didReceiveAccount(viewModel: viewModel)
-        }
-    }
-
-    func provideCollatorViewModel() {
-        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-
-        if let viewModel = viewModelFactory.buildCollatorViewModel(viewModelState: viewModelState, locale: locale) {
-            view?.didReceiveCollator(viewModel: viewModel)
         }
     }
 

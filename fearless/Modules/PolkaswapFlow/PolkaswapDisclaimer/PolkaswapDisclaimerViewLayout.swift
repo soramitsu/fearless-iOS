@@ -109,14 +109,15 @@ final class PolkaswapDisclaimerViewLayout: UIView {
 
         navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(bottomContainer.snp.top).inset(UIConstants.bigOffset)
-            make.width.equalToSuperview().inset(UIConstants.bigOffset)
+            make.width.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         contentView.stackView.addArrangedSubview(firstParagraphLabel)
@@ -150,7 +151,7 @@ final class PolkaswapDisclaimerViewLayout: UIView {
         }
 
         bottomContainer.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
 

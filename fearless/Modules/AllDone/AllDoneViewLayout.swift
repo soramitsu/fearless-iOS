@@ -195,12 +195,13 @@ final class AllDoneViewLayout: UIView {
         indicator.snp.makeConstraints { make in
             make.size.equalTo(UIConstants.indicatorSize)
             make.top.equalToSuperview()
-            make.centerX.equalToSuperview()
+            make.centerX.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(closeButton)
         closeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(Constants.closeButtonInset)
+            make.top.equalToSuperview().inset(Constants.closeButtonInset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(Constants.closeButtonInset)
         }
 
         let imageViewContainer = UIView()
@@ -222,7 +223,7 @@ final class AllDoneViewLayout: UIView {
         addSubview(contentStackView)
         contentStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(Constants.contentStackViewTopOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
         }
 

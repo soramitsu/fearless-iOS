@@ -60,6 +60,26 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
             return (moduleName: "Staking", itemName: "ErasRewardPoints")
         case .validatorExposureClipped:
             return (moduleName: "Staking", itemName: "ErasStakersClipped")
+        case .validatorIncentiveBudget:
+            return (moduleName: "Staking", itemName: "ErasValidatorIncentiveBudget")
+        case .validatorIncentiveWeight:
+            return (moduleName: "Staking", itemName: "ErasValidatorIncentiveWeight")
+        case .sumValidatorIncentiveWeight:
+            return (moduleName: "Staking", itemName: "ErasSumValidatorIncentiveWeight")
+        case .sumWeightedPoints:
+            return (moduleName: "Staking", itemName: "ErasSumWeightedPoints")
+        case .weightedPointsFormulaStartEra:
+            return (moduleName: "Staking", itemName: "WeightedPointsFormulaStartEra")
+        case .validatorSlashInEra:
+            return (moduleName: "Staking", itemName: "ValidatorSlashInEra")
+        case .claimedRewards:
+            return (moduleName: "Staking", itemName: "ClaimedRewards")
+        case .lastValidatorEra:
+            return (moduleName: "Staking", itemName: "LastValidatorEra")
+        case .areNominatorsSlashable:
+            return (moduleName: "Staking", itemName: "AreNominatorsSlashable")
+        case .bondedEras:
+            return (moduleName: "Staking", itemName: "BondedEras")
         case .eraStartSessionIndex:
             return (moduleName: "Staking", itemName: "ErasStartSessionIndex")
         case .currentSessionIndex:
@@ -80,30 +100,6 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
             return (moduleName: "Babe", itemName: "GenesisSlot")
         case .balanceLocks:
             return (moduleName: "Balances", itemName: "Locks")
-        case .candidatePool:
-            return (moduleName: "ParachainStaking", itemName: "CandidatePool")
-        case .selectedCandidates:
-            return (moduleName: "ParachainStaking", itemName: "SelectedCandidates")
-        case .candidateInfo:
-            return (moduleName: "ParachainStaking", itemName: "CandidateInfo")
-        case .topDelegations:
-            return (moduleName: "ParachainStaking", itemName: "TopDelegations")
-        case .atStake:
-            return (moduleName: "ParachainStaking", itemName: "AtStake")
-        case .delegatorState:
-            return (moduleName: "ParachainStaking", itemName: "DelegatorState")
-        case .round:
-            return (moduleName: "ParachainStaking", itemName: "Round")
-        case .delegationScheduledRequests:
-            return (moduleName: "ParachainStaking", itemName: "DelegationScheduledRequests")
-        case .collatorCommission:
-            return (moduleName: "ParachainStaking", itemName: "CollatorCommission")
-        case .bottomDelegations:
-            return (moduleName: "ParachainStaking", itemName: "BottomDelegations")
-        case .staked:
-            return (moduleName: "ParachainStaking", itemName: "Total")
-        case .currentBlock:
-            return (moduleName: "System", itemName: "Number")
         case .bondedPools:
             return (moduleName: "NominationPools", itemName: "BondedPools")
         case .stakingPoolMetadata:
@@ -193,6 +189,16 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
     case totalValidatorReward
     case rewardPointsPerValidator
     case validatorExposureClipped
+    case validatorIncentiveBudget
+    case validatorIncentiveWeight
+    case sumValidatorIncentiveWeight
+    case sumWeightedPoints
+    case weightedPointsFormulaStartEra
+    case validatorSlashInEra
+    case claimedRewards
+    case lastValidatorEra
+    case areNominatorsSlashable
+    case bondedEras
     case eraStartSessionIndex
     case currentSessionIndex
     case electionPhase
@@ -203,18 +209,6 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
     case currentSlot
     case genesisSlot
     case balanceLocks
-    case candidatePool
-    case selectedCandidates
-    case candidateInfo
-    case topDelegations
-    case atStake
-    case delegatorState
-    case round
-    case delegationScheduledRequests
-    case collatorCommission
-    case bottomDelegations
-    case staked
-    case currentBlock
     case bondedPools
     case stakingPoolMetadata
     case stakingPoolMinJoinBond

@@ -74,7 +74,8 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
     }
 
     func reload() {
-        if chainAsset.chain.externalApi?.staking == nil {
+        // Asset Hub payouts are read from chain storage, so they need no staking indexer.
+        if chainAsset.chain.externalApi?.staking == nil, AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) == nil {
             presenter.didReceive(result: .success(PayoutsInfo(activeEra: 0, historyDepth: 0, payouts: [])))
             return
         }

@@ -43,6 +43,7 @@ extension SharingPresentable {
             }
         }
 
+        controller.anchorPopover(of: activityController)
         controller.present(activityController, animated: true, completion: nil)
     }
 
@@ -72,6 +73,7 @@ extension SharingPresentable {
             }
         }
 
+        controller.anchorPopover(of: activityController)
         controller.present(activityController, animated: true, completion: nil)
     }
 }

@@ -67,6 +67,46 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing owned asset"):
             check.validate(self.root)
 
+    def chain_list(self, chains):
+        directory = self.config / "production" / "chains" / "v13"
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / "chains.json").write_text(json.dumps(chains))
+
+    def hub(self, staking="assetHub", asset_id=None, options=None):
+        chain_id = "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f"
+        asset = {"id": asset_id or check.ASSET_HUB_NATIVE[chain_id], "staking": staking}
+        return {"chainId": chain_id, "assets": [asset], "options": options or ["utilityFeePayment"]}
+
+    def test_asset_hub_native_staking_passes(self):
+        self.chain_list([self.hub(), {"chainId": "other", "assets": [{"id": "x", "staking": "relaychain"}]}])
+        self.assertEqual(check.validate(self.root)["documents"], 1)
+
+    def test_relay_staking_on_a_hub_fails(self):
+        self.chain_list([self.hub(staking="relaychain")])
+        with self.assertRaisesRegex(ValueError, "stakes only its native token as assetHub"):
+            check.validate(self.root)
+
+    def test_hub_staking_on_another_asset_fails(self):
+        self.chain_list([self.hub(asset_id="usdt")])
+        with self.assertRaisesRegex(ValueError, "stakes only its native token as assetHub"):
+            check.validate(self.root)
+
+    def test_staking_on_a_migrated_relay_fails(self):
+        relay = "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
+        self.chain_list([{"chainId": relay, "assets": [{"id": "dot", "staking": "relaychain"}]}])
+        with self.assertRaisesRegex(ValueError, "moved to its Asset Hub"):
+            check.validate(self.root)
+
+    def test_pool_staking_on_a_hub_fails(self):
+        self.chain_list([self.hub(options=["poolStaking"])])
+        with self.assertRaisesRegex(ValueError, "no pool staking or crowdloans"):
+            check.validate(self.root)
+
+    def test_asset_hub_value_outside_the_routes_fails(self):
+        self.chain_list([{"chainId": "other", "assets": [{"id": "x", "staking": "assetHub"}]}])
+        with self.assertRaisesRegex(ValueError, "not an Asset Hub route"):
+            check.validate(self.root)
+
     def test_invalid_json_fails(self):
         (self.config / "data.json").write_text('{"invalid":')
         with self.assertRaises(ValueError):

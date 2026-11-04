@@ -212,9 +212,11 @@ enum MultiChainFeaturePolicy {
         )
     }
 
+    /// `expectedCall`, when given, is the exact call the intent was confirmed for; the signed extrinsic must carry it.
     static func authorization(
         for capability: MutationCapability,
         intentSha256: String,
+        expectedCall: Data? = nil,
         validateContext: @escaping () throws -> Void
     ) throws -> MutationOperationAuthorization {
         lock.lock()
@@ -224,7 +226,7 @@ enum MultiChainFeaturePolicy {
         }
         let lease = try authority.lease(for: capability, intentSha256: intentSha256)
         return try MutationOperationAuthorization(
-            intentSha256: intentSha256, validateContext: validateContext
+            intentSha256: intentSha256, expectedCall: expectedCall, validateContext: validateContext
         ) { action in
             // Lock order is policy -> authority. Refresh uses the same order;
             // an unsigned disable is therefore serialized with key/sign/send.

@@ -47,7 +47,6 @@ protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, AnyD
     )
 
     func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?)
-    func presentMissingMinNominatorBond(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentMissingPoolName(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentPoolRootUnbondingTooHigh(
         minimalBond: String,
@@ -209,19 +208,6 @@ extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPrese
 
     func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?) {
         let message = R.string.localizable.stakingMaxNominatorsReachedMessage(
-            preferredLanguages: locale?.rLanguages
-        )
-
-        let title = R.string.localizable.stakingMaxNominatorsReachedTitle(
-            preferredLanguages: locale?.rLanguages
-        )
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-
-        present(message: message, title: title, closeAction: closeAction, from: view)
-    }
-
-    func presentMissingMinNominatorBond(from view: ControllerBackedProtocol?, locale: Locale?) {
-        let message = R.string.localizable.minStakingCalculatingText(
             preferredLanguages: locale?.rLanguages
         )
 

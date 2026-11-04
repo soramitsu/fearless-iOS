@@ -128,7 +128,10 @@ extension ProfileInteractor: EventVisitorProtocol {
     }
 
     func processWalletNameChanged(event: WalletNameChanged) {
-        updateWallet(event.wallet)
+        guard selectedWalletSettings.value?.metaId == event.wallet.metaId else { return }
+        // The name event may carry a wallet captured before an account switch.
+        // Refresh current selection without replaying any captured account payload.
+        provideUserSettings()
     }
 }
 

@@ -2791,6 +2791,59 @@ final class ChainAssetListTests: XCTestCase {
         XCTAssertTrue(NetworkScanStateStore.state(for: chain, walletId: wallet.metaId).hasError)
     }
 
+    func testDiscoveryOfAPartlyReadNetworkKeepsWhatItReadAndMarksTheNetworkFailed() async {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let chain = makeChain(name: "Partly read", chainId: "partly-read-\(UUID().uuidString.lowercased())")
+        let read = makeChainAsset(chain: chain, id: "read", symbol: "READ")
+        let unread = makeChainAsset(chain: chain, id: "unread", symbol: "UNREAD")
+        let remote = IncompleteRemoteStub(
+            read: [read.chainAssetId: AccountInfo(ethBalance: BigUInt(5))],
+            unread: [unread.chainAssetId]
+        )
+
+        let result = await AssetDiscoveryServiceAdapter(accountInfoRemote: remote).scan(
+            wallet: wallet,
+            chains: [chain],
+            includeTestnets: false,
+            trigger: .pullToRefresh
+        )
+
+        XCTAssertEqual(result.failedChainIds, Set([chain.chainId]))
+        XCTAssertEqual(result.accountInfosByChain[chain].map { Set($0.keys) }, Set([read.chainAssetId]))
+        XCTAssertEqual((result.accountInfosByChain[chain]?[read.chainAssetId] ?? nil)?.data.free, BigUInt(5))
+        XCTAssertTrue(NetworkScanStateStore.state(for: chain, walletId: wallet.metaId).hasError)
+    }
+
+    func testListRefreshGivesWhatAPartlyReadNetworkReadAndNothingForTheAssetItCouldNotRead() async {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let chain = makeChain(name: "Partly read", chainId: "partly-read-\(UUID().uuidString.lowercased())")
+        let read = makeChainAsset(chain: chain, id: "read", symbol: "READ")
+        let empty = makeChainAsset(chain: chain, id: "empty", symbol: "EMPTY")
+        let unread = makeChainAsset(chain: chain, id: "unread", symbol: "UNREAD")
+        let remote = IncompleteRemoteStub(
+            read: [read.chainAssetId: AccountInfo(ethBalance: BigUInt(5)), empty.chainAssetId: nil],
+            unread: [unread.chainAssetId]
+        )
+
+        let delivered = await ChainAssetListInteractor.remoteAccountInfos(for: chain, wallet: wallet, service: remote)
+
+        // The asset that could not be read gets nothing, so the list keeps the balance it shows instead of a zero.
+        XCTAssertEqual(Set(delivered.map { $0.0.chainAssetId }), Set([read.chainAssetId, empty.chainAssetId]))
+        XCTAssertEqual(delivered.first { $0.0 == read }?.1?.data.free, BigUInt(5))
+        XCTAssertNil(delivered.first { $0.0 == empty }?.1)
+        XCTAssertTrue(NetworkScanStateStore.state(for: chain, walletId: wallet.metaId).hasError)
+
+        // Other scans give every asset of the network, as before: what was read, or what was last known.
+        let retained = await ChainAssetListInteractor.remoteAccountInfos(
+            for: chain,
+            wallet: wallet,
+            service: FailingLastKnownRemoteStub(retained: [read.chainAssetId: AccountInfo(ethBalance: BigUInt(7))])
+        )
+        XCTAssertEqual(Set(retained.map { $0.0.chainAssetId }), Set(chain.chainAssets.map(\.chainAssetId)))
+        XCTAssertEqual(retained.first { $0.0 == read }?.1?.data.free, BigUInt(7))
+        XCTAssertNil(retained.first { $0.0 == unread }?.1)
+    }
+
     @MainActor
     func testEmptyFundingCardWaitsForBalancesAndNeverCallsHiddenFundsEmpty() throws {
         let asset = makeChainAsset(
@@ -3155,6 +3208,31 @@ private final class FailingLastKnownRemoteStub: AccountInfoRemoteService,
     }
 }
 
+/// A network scan that read some balances and could not read the others.
+private final class IncompleteRemoteStub: AccountInfoRemoteService, @unchecked Sendable {
+    let read: [ChainAssetId: AccountInfo?]
+    let unread: Set<ChainAssetId>
+
+    init(read: [ChainAssetId: AccountInfo?], unread: Set<ChainAssetId>) {
+        self.read = read
+        self.unread = unread
+    }
+
+    func fetchAccountInfos(
+        for _: ChainModel,
+        wallet _: MetaAccountModel
+    ) async throws -> [ChainAssetId: AccountInfo?] {
+        throw IncompleteAccountInfosError(accountInfos: read, unreadChainAssetIds: unread)
+    }
+
+    func fetchAccountInfo(
+        for _: ChainAsset,
+        wallet _: MetaAccountModel
+    ) async throws -> AccountInfo? {
+        throw ConvenienceError(error: "not read")
+    }
+}
+
 private final class DiscoveryAccountInfoRemoteStub: AccountInfoRemoteService, @unchecked Sendable {
     private let lock = NSLock()
     private var chainIds = Set<ChainModel.Id>()
@@ -3417,5 +3495,54 @@ private final class ExactAssetSelectionOutputSpy: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?) {
         if let chainAsset { assets.append(chainAsset.assetKey) }
         contexts.append(contextTag)
+    }
+}
+
+final class NetworkScanStateStoreConcurrencyTests: XCTestCase {
+    func testReadingStateNeverWaitsForAWriteInProgress() throws {
+        let suite = "network-scan-state-" + UUID().uuidString
+        let defaults = try XCTUnwrap(FirstWriteBlockingDefaults(suiteName: suite))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suite) }
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
+        let writeFinished = expectation(description: "the write completes once released")
+        DispatchQueue.global().async {
+            NetworkScanStateStore.markSuccess(for: chain, userDefaults: defaults)
+            writeFinished.fulfill()
+        }
+        XCTAssertEqual(defaults.writeEntered.wait(timeout: .now() + 5), .success)
+
+        // The write is now inside UserDefaults, where a main-queue observer could keep it waiting for the main
+        // thread. A read must not wait for it.
+        let readFinished = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            _ = NetworkScanStateStore.state(for: chain, userDefaults: defaults)
+            readFinished.signal()
+        }
+        let readResult = readFinished.wait(timeout: .now() + 5)
+        defaults.releaseWrite.signal()
+
+        XCTAssertEqual(readResult, .success)
+        wait(for: [writeFinished], timeout: 5)
+        XCTAssertNotNil(NetworkScanStateStore.state(for: chain, userDefaults: defaults).lastSuccess)
+    }
+}
+
+/// Holds its first write inside `set` until the test releases it.
+private final class FirstWriteBlockingDefaults: UserDefaults {
+    let writeEntered = DispatchSemaphore(value: 0)
+    let releaseWrite = DispatchSemaphore(value: 0)
+    private let lock = NSLock()
+    private var heldWrite = false
+
+    override func set(_ value: Any?, forKey defaultName: String) {
+        lock.lock()
+        let isFirstWrite = !heldWrite
+        heldWrite = true
+        lock.unlock()
+        if isFirstWrite {
+            writeEntered.signal()
+            releaseWrite.wait()
+        }
+        super.set(value, forKey: defaultName)
     }
 }

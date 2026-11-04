@@ -304,16 +304,14 @@ final class UniversalWalletV2VectorsTests: XCTestCase {
         XCTAssertEqual(UniversalWalletRegistry.taira.chainId, "iroha3-taira")
         XCTAssertEqual(UniversalWalletRegistry.taira.chainDiscriminant, 369)
         XCTAssertEqual(UniversalWalletRegistry.taira.toriiBaseURL?.absoluteString, "https://taira.sora.org")
-        XCTAssertEqual(UniversalWalletRegistry.taira.mcpPath, "/v1/mcp")
-        XCTAssertEqual(UniversalWalletRegistry.taira.mcpEndpointURL?.absoluteString, "https://taira.sora.org/v1/mcp")
+        XCTAssertEqual(UniversalWalletRegistry.tairaRegistryEntry.endpoints.map(\.url), ["https://taira.sora.org"])
         XCTAssertTrue(UniversalWalletRegistry.taira.enabledByDefault)
 
         XCTAssertEqual(UniversalWalletRegistry.nexus.id, "sora-nexus-mainnet")
         XCTAssertEqual(UniversalWalletRegistry.nexus.chainId, "sora:nexus:global")
         XCTAssertEqual(UniversalWalletRegistry.nexus.chainDiscriminant, 753)
         XCTAssertEqual(UniversalWalletRegistry.nexus.toriiBaseURL?.absoluteString, "https://minamoto.sora.org")
-        XCTAssertEqual(UniversalWalletRegistry.nexus.mcpPath, "/v1/mcp")
-        XCTAssertEqual(UniversalWalletRegistry.nexus.mcpEndpointURL?.absoluteString, "https://minamoto.sora.org/v1/mcp")
+        XCTAssertEqual(UniversalWalletRegistry.nexusRegistryEntry.endpoints.map(\.url), ["https://minamoto.sora.org"])
         XCTAssertFalse(UniversalWalletRegistry.nexus.enabledByDefault)
     }
 

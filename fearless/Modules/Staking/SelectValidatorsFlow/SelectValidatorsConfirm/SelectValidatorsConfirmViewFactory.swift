@@ -72,17 +72,10 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         let chain = chainAsset.chain
 
         let storageFacade = SubstrateDataStorageFacade.shared
-        let serviceFactory = StakingServiceFactory(
-            chainRegisty: chainRegistry,
-            storageFacade: storageFacade,
-            eventCenter: EventCenter.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        )
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = wallet.fetch(for: chain.accountRequest()),
-            let eraValidatorService = try? serviceFactory.createEraValidatorService(for: chainAsset.chain) else {
+            let accountResponse = wallet.fetch(for: chain.accountRequest()) else {
             return nil
         }
 
@@ -105,7 +98,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
         let iconGenerator = UniversalIconGenerator()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
@@ -204,51 +196,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .parachain(target, maxTargets, bonding):
-            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-            let collatorOperationFactory = ParachainCollatorOperationFactory(
-                asset: chainAsset.asset,
-                chain: chainAsset.chain,
-                storageRequestFactory: storageOperationFactory,
-                identityOperationFactory: identityOperationFactory,
-                subqueryOperationFactory: rewardOperationFactory,
-                chainRegistry: chainRegistry
-            )
-
-            let viewModelState = SelectValidatorsConfirmParachainViewModelState(
-                target: target,
-                maxTargets: maxTargets,
-                initiatedBonding: bonding,
-                chainAsset: chainAsset,
-                wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory,
-                callFactory: callFactory
-            )
-            let strategy = SelectValidatorsConfirmParachainStrategy(
-                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                collatorAccountId: target.owner,
-                balanceAccountId: accountResponse.accountId,
-                runtimeService: runtimeService,
-                extrinsicService: extrinsicService,
-                signer: signer,
-                operationManager: operationManager,
-                chainAsset: chainAsset,
-                output: viewModelState,
-                collatorOperationFactory: collatorOperationFactory,
-                eraInfoOperationFactory: ParachainStakingInfoOperationFactory(),
-                eraValidatorService: eraValidatorService
-            )
-            let viewModelFactory = SelectValidatorsConfirmParachainViewModelFactory(
-                balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(),
-                chainAsset: chainAsset
-            )
-            return SelectValidatorsConfirmDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
         case let .poolInitiated(poolId, targets, maxTargets, bonding):
             let viewModelState = SelectValidatorsConfirmPoolInitiatedViewModelState(
                 poolId: poolId,
@@ -336,8 +283,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             wireframe = SelectValidatorsConfirmWireframe()
         case .relaychainExisting:
             wireframe = YourValidatorList.SelectValidatorsConfirmWireframe()
-        case .parachain:
-            wireframe = SelectValidatorsConfirmWireframe()
         case .poolInitiated:
             wireframe = SelectValidatorsConfirmWireframe()
         case .poolExisting:

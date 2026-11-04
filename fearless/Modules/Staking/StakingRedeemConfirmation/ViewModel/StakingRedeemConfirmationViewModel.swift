@@ -9,6 +9,4 @@ struct StakingRedeemConfirmationViewModel {
     let stakeAmountViewModel: LocalizableResource<StakeAmountViewModel>?
     let amountString: LocalizableResource<String>
     let title: LocalizableResource<String>
-    let collatorName: String?
-    let collatorIcon: DrawableIcon?
 }

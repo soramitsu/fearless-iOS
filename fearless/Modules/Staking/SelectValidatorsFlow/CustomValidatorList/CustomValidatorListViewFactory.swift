@@ -54,26 +54,6 @@ extension CustomValidatorListViewFactory {
         let iconGenerator = UniversalIconGenerator()
 
         switch flow {
-        case let .parachain(candidates, maxTargets, bonding, selectedValidatorList):
-            let viewModelState = CustomValidatorListParachainViewModelState(
-                candidates: candidates,
-                maxTargets: maxTargets,
-                bonding: bonding,
-                selectedValidatorList: selectedValidatorList,
-                chainAsset: chainAsset
-            )
-            let strategy = CustomValidatorListParachainStrategy()
-            let viewModelFactory = CustomValidatorListParachainViewModelFactory(
-                balanceViewModelFactory: balanceViewModelFactory,
-                chainAsset: chainAsset,
-                iconGenerator: iconGenerator
-            )
-
-            return CustomValidatorListDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
         case let .relaychainInitiated(
             validatorList,
             recommendedValidatorList,

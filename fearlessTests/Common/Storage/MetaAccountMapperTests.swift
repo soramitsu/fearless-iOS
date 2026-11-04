@@ -6,6 +6,62 @@ import CoreData
 import IrohaCrypto
 
 class MetaAccountMapperTests: XCTestCase {
+    /// The compare-and-save guard runs inside the production Core Data mutation, so a newer
+    /// row is preserved and a deleted row cannot be recreated by an old address scan.
+    func testExpectedWalletMapperAcceptsExactSnapshotAndRejectsChangedOrMissingRow() throws {
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let repository = AccountRepositoryFactory(storageFacade: facade)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let original = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        func execute<T>(_ operation: BaseOperation<T>) throws -> T {
+            queue.addOperations([operation], waitUntilFinished: true)
+            return try XCTUnwrap(operation.result).get()
+        }
+        let managedRepository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(for: nil, sortDescriptors: [])
+        try execute(managedRepository.saveOperation({ [ManagedMetaAccountModel(info: original)] }, { [] }))
+        let guarded = facade.createRepository(mapper: AnyCoreDataMapper(MetaAccountMapper(expectedWallet: original)))
+        let firstUpdate = original.replacingName("First accepted update")
+        try execute(guarded.saveOperation({ [firstUpdate] }, { [] }))
+        let read = {
+            try execute(repository.fetchOperation(by: { original.metaId }, options: RepositoryFetchOptions()))
+        }
+        XCTAssertEqual(try read(), firstUpdate)
+
+        let staleUpdate = original.replacingName("Must not overwrite")
+        XCTAssertThrowsError(try execute(guarded.saveOperation({ [staleUpdate] }, { [] })))
+        XCTAssertEqual(try read(), firstUpdate, "A failed comparison must leave every stored field unchanged")
+
+        try execute(repository.saveOperation({ [] }, { [original.metaId] }))
+        XCTAssertNil(try read())
+        XCTAssertThrowsError(try execute(guarded.saveOperation({ [staleUpdate] }, { [] })))
+        XCTAssertNil(try read(), "An old scan must never recreate a removed wallet")
+    }
+
+    func testExpectedUnselectedWalletMapperRejectsWalletSelectedAfterScan() throws {
+        let facade = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let original = AccountGenerator.generateMetaAccount(generatingChainAccounts: 0)
+        let managedRepository = AccountRepositoryFactory(storageFacade: facade)
+            .createManagedMetaAccountRepository(for: nil, sortDescriptors: [])
+        func execute<T>(_ operation: BaseOperation<T>) throws -> T {
+            queue.addOperations([operation], waitUntilFinished: true)
+            return try XCTUnwrap(operation.result).get()
+        }
+        try execute(managedRepository.saveOperation(
+            { [ManagedMetaAccountModel(info: original, isSelected: true)] }, { [] }
+        ))
+        let guarded = facade.createRepository(mapper: AnyCoreDataMapper(MetaAccountMapper(
+            expectedWallet: original, requiresUnselectedWallet: true
+        )))
+        XCTAssertThrowsError(try execute(guarded.saveOperation({ [original.replacingName("Stale scan")] }, { [] })))
+        let stored = try XCTUnwrap(try execute(managedRepository.fetchOperation(
+            by: { original.metaId }, options: RepositoryFetchOptions()
+        )))
+        XCTAssertEqual(stored.info, original)
+        XCTAssertTrue(stored.isSelected)
+    }
     func testTransformConvertsMandatoryGetterExceptionToSanitizedSwiftError() {
         let entityDescription = makeEntityDescription(
             managedObjectClass: CDMetaAccount.self,

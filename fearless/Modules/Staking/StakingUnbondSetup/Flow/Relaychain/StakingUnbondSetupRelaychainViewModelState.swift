@@ -11,6 +11,7 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
     private(set) var balance: Decimal?
     private(set) var inputAmount: Decimal?
     private(set) var bondingDuration: UInt32?
+    private(set) var unbondingTime: TimeInterval?
     private(set) var minimalBalance: Decimal?
     private(set) var fee: Decimal?
     private(set) var controller: ChainAccountResponse?
@@ -222,6 +223,16 @@ extension StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupRelaycha
             }
 
             stateListener?.provideFeeViewModel()
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
+    }
+
+    func didReceiveUnbondingTime(result: Result<TimeInterval, Error>) {
+        switch result {
+        case let .success(value):
+            unbondingTime = value
+            stateListener?.provideBondingDuration()
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }

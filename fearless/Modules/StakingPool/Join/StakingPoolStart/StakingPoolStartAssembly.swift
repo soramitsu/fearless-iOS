@@ -38,8 +38,7 @@ final class StakingPoolStartAssembly {
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
-            validatorService: eraValidatorService,
-            collatorOperationFactory: nil
+            validatorService: eraValidatorService
         ) else {
             return nil
         }

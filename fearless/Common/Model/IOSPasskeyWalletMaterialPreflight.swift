@@ -602,10 +602,14 @@ final class IOSPasskeyWalletMaterialDraftCapture {
     ) throws {
         do {
             if let entropy {
-                guard try derivation.publicKeyForExportEntropy(
-                    entropy, derivationPath: path, cryptoType: cryptoType,
-                    ethereumBased: ethereumBased
-                ) == publicKey else {
+                let reproduces = ethereumBased
+                    ? try derivation.publicKeyForExportEntropy(
+                        entropy, derivationPath: path, cryptoType: cryptoType, ethereumBased: true
+                    ) == publicKey
+                    : try derivation.entropyReproducesPublicKey(
+                        entropy, derivationPath: path, cryptoType: cryptoType, publicKey: publicKey
+                    )
+                guard reproduces else {
                     throw IOSPasskeyWalletMaterialPreflightError.unverifiedExportMaterial
                 }
             }

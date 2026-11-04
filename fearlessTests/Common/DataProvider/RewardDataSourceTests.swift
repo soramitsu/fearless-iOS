@@ -56,10 +56,8 @@ final class RewardDataSourceTests: XCTestCase {
         )
 
         let rewards = try mappedRewards(response)
-        let weeklyRewards = try mappedWeeklyRewards(response)
 
         XCTAssertEqual(rewards.count, 1)
-        XCTAssertEqual(rewards, weeklyRewards)
         XCTAssertEqual(rewards.first?.eventId, "subquery-event")
         XCTAssertEqual(rewards.first?.timestamp, 1_700_000_000)
         XCTAssertEqual(rewards.first?.validatorAddress, validatorAddress)
@@ -465,16 +463,6 @@ private extension RewardDataSourceTests {
         OperationQueue().addOperations(wrapper.allOperations, waitUntilFinished: true)
         return try XCTUnwrap(wrapper.targetOperation.result).get() ?? []
     }
-
-    func mappedWeeklyRewards(_ response: RewardHistoryResponseProtocol) throws -> [SubqueryRewardItemData] {
-        let source = ParachainWeaklyAnalyticsRewardSource(
-            address: stashAddress,
-            operationFactory: RewardOperationFactoryStub(response: response)
-        )
-        let wrapper = source.fetchOperation()
-        OperationQueue().addOperations(wrapper.allOperations, waitUntilFinished: true)
-        return try XCTUnwrap(wrapper.targetOperation.result).get() ?? []
-    }
 }
 
 private enum RewardDataSourceTestError: Error {
@@ -502,17 +490,6 @@ private final class RewardOperationFactoryStub: RewardOperationFactoryProtocol {
         endTimestamp _: Int64?
     ) -> BaseOperation<RewardHistoryResponseProtocol> {
         ClosureOperation { self.response }
-    }
-
-    func createAprOperation(
-        for _: @escaping () throws -> [AccountId],
-        dependingOn _: BaseOperation<String>
-    ) -> BaseOperation<CollatorAprResponse> {
-        ClosureOperation { throw RewardDataSourceTestError.unsupported }
-    }
-
-    func createLastRoundOperation() -> BaseOperation<String> {
-        ClosureOperation { throw RewardDataSourceTestError.unsupported }
     }
 }
 

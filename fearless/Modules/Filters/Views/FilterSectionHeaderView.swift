@@ -24,8 +24,8 @@ class FilterSectionHeaderView: UIView {
 
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
     }

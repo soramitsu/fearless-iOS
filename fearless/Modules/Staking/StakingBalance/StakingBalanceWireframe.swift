@@ -42,17 +42,11 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
         wallet: MetaAccountModel,
         flow: StakingRedeemConfirmationFlow
     ) {
-        var redeemCompletion: (() -> Void)?
-        if case .parachain = flow {
-            redeemCompletion = {
-                view?.controller.navigationController?.popViewController(animated: true)
-            }
-        }
         guard let redeemView = StakingRedeemConfirmationViewFactory.createView(
             chainAsset: chainAsset,
             wallet: wallet,
             flow: flow,
-            redeemCompletion: redeemCompletion
+            redeemCompletion: nil
         ) else {
             return
         }

@@ -2,7 +2,7 @@ import SoraFoundation
 import SSFUtils
 import UIKit
 
-final class ProfileViewController: UIViewController, ViewHolder {
+final class ProfileViewController: UIViewController, ViewHolder, AdaptiveFullWidthContent {
     typealias RootViewType = ProfileViewLayout
 
     // MARK: - Constants
@@ -101,8 +101,13 @@ final class ProfileViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLocalization()
-        rootView.tableView.dataSource = self
-        rootView.tableView.delegate = self
+        for table in [rootView.tableView, rootView.secondaryTableView] {
+            table.dataSource = self
+            table.delegate = self
+        }
+        rootView.columnsDidChange = { [weak self] in
+            self?.applyState()
+        }
         presenter.didLoad(view: self)
     }
 
@@ -118,6 +123,7 @@ final class ProfileViewController: UIViewController, ViewHolder {
             break
         case .loaded:
             rootView.tableView.reloadData()
+            rootView.secondaryTableView.reloadData()
         }
     }
 
@@ -189,6 +195,20 @@ final class ProfileViewController: UIViewController, ViewHolder {
         }
     }
 
+    /// Beside each other on a wide iPad, the account and security sections lead and
+    /// every other section, in its usual order, follows in the second column.
+    private static let leadingColumnSections: Set<SettingsSection> = [
+        .profile, .walletsAccounts, .networksAssets, .security
+    ]
+
+    private func sections(for tableView: UITableView) -> [SettingsSection] {
+        guard rootView.usesColumns else {
+            return tableView === rootView.tableView ? SettingsSection.allCases : []
+        }
+        let isLeading = tableView === rootView.tableView
+        return SettingsSection.allCases.filter { Self.leadingColumnSections.contains($0) == isLeading }
+    }
+
     private func options(
         for section: SettingsSection,
         viewModel: ProfileViewModelProtocol
@@ -200,8 +220,8 @@ final class ProfileViewController: UIViewController, ViewHolder {
 }
 
 extension ProfileViewController: UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        SettingsSection.allCases.count
+    func numberOfSections(in tableView: UITableView) -> Int {
+        sections(for: tableView).count
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection _: Int) -> UIView? {
@@ -221,9 +241,9 @@ extension ProfileViewController: UITableViewDataSource {
         Constants.tableViewFooterHeight
     }
 
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard case let .loaded(viewModel) = state,
-              let section = SettingsSection(rawValue: section) else { return 0 }
+              let section = sections(for: tableView)[safe: section] else { return 0 }
         switch section {
         case .profile:
             return 2
@@ -234,8 +254,8 @@ extension ProfileViewController: UITableViewDataSource {
         }
     }
 
-    func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        SettingsSection(rawValue: section)?.title
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        sections(for: tableView)[safe: section]?.title
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -243,7 +263,7 @@ extension ProfileViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        guard let section = SettingsSection(rawValue: indexPath.section) else {
+        guard let section = sections(for: tableView)[safe: indexPath.section] else {
             return UITableViewCell()
         }
 
@@ -267,8 +287,8 @@ extension ProfileViewController: UITableViewDataSource {
         }
     }
 
-    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard SettingsSection(rawValue: indexPath.section) == .profile else {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard sections(for: tableView)[safe: indexPath.section] == .profile else {
             return Constants.optionCellHeight
         }
         switch indexPath.row {
@@ -285,7 +305,7 @@ extension ProfileViewController: UITableViewDataSource {
 extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let section = SettingsSection(rawValue: indexPath.section) else {
+        guard let section = sections(for: tableView)[safe: indexPath.section] else {
             return
         }
 

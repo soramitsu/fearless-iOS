@@ -13,29 +13,15 @@ enum StakingAccountResolverAssembly {
         repository: AnyDataProviderRepository<StashItem>,
         logger: LoggerProtocol? = nil
     ) -> StakingAccountResolver {
-        switch chainAsset.chain.stakingSettings?.type {
-        case .reef:
-            return StakingAccountResolverV13(
-                accountId: accountId,
-                chainAsset: chainAsset,
-                chainFormat: chainFormat,
-                chainRegistry: chainRegistry,
-                childSubscriptionFactory: childSubscriptionFactory,
-                operationQueue: operationQueue,
-                repository: repository,
-                logger: logger
-            )
-        default:
-            return StakingAccountResolverV14(
-                accountId: accountId,
-                chainAsset: chainAsset,
-                chainFormat: chainFormat,
-                chainRegistry: chainRegistry,
-                childSubscriptionFactory: childSubscriptionFactory,
-                operationQueue: operationQueue,
-                repository: repository,
-                logger: logger
-            )
-        }
+        StakingAccountResolverV14(
+            accountId: accountId,
+            chainAsset: chainAsset,
+            chainFormat: chainFormat,
+            chainRegistry: chainRegistry,
+            childSubscriptionFactory: childSubscriptionFactory,
+            operationQueue: operationQueue,
+            repository: repository,
+            logger: logger
+        )
     }
 }

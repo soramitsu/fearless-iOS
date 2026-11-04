@@ -133,8 +133,8 @@ private extension UsernameSetupViewLayout {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             if adaptiveEntry {
                 keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
             } else {
@@ -173,8 +173,8 @@ private extension UsernameSetupViewLayout {
         } else {
             addSubview(nextButton)
             nextButton.snp.makeConstraints { make in
-                make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-                make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+                make.leading.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+                make.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
                 make.height.equalTo(UIConstants.actionHeight)
                 keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
             }

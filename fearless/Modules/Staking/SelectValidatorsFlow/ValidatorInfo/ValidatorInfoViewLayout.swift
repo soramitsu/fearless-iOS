@@ -54,7 +54,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(accountView)
         accountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52)
         }
 
@@ -69,7 +69,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(label)
         label.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         label.text = title
@@ -102,11 +102,6 @@ final class ValidatorInfoViewLayout: UIView {
             statusView.titleLabel.text = R.string.localizable.stakingValidatorStatusUnelected(
                 preferredLanguages: locale.rLanguages
             )
-        case .electedParachain:
-            statusView.indicatorColor = R.color.colorGreen()!
-            statusView.titleLabel.text = R.string.localizable.stakingNominatorStatusActive(
-                preferredLanguages: locale.rLanguages
-            )
         }
 
         let statusContentView = GenericTitleValueView(titleView: titleLabel, valueView: statusView)
@@ -115,7 +110,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         if viewModel.slashed {
@@ -128,26 +123,6 @@ final class ValidatorInfoViewLayout: UIView {
             return addHintView(for: text, icon: R.image.iconErrorFilled())
         } else {
             return rowView
-        }
-    }
-
-    @discardableResult
-    func addDelegationsView(_ exposure: ValidatorInfoViewModel.ParachainExposure, locale: Locale) -> UIView {
-        let nominatorsView = addTitleValueView(
-            for: R.string.localizable.parachainStakingDelegatorsTitle(preferredLanguages: locale.rLanguages),
-            value: exposure.delegations
-        )
-
-        if exposure.oversubscribed {
-            nominatorsView.borderView.borderType = .none
-
-            let hintTitle: String = R.string.localizable.stakingCollatorOtherOversubscribedMessage(
-                preferredLanguages: locale.rLanguages
-            )
-
-            return addHintView(for: hintTitle, icon: R.image.iconWarning())
-        } else {
-            return nominatorsView
         }
     }
 
@@ -197,7 +172,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(borderView)
         borderView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         return borderView
@@ -231,7 +206,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         rowContentView?.valueView.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -249,7 +224,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(view)
         view.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48)
         }
 
@@ -280,7 +255,7 @@ final class ValidatorInfoViewLayout: UIView {
 
         stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
-            make.width.equalTo(self)
+            make.width.equalTo(safeAreaLayoutGuide)
         }
 
         return rowView
@@ -292,7 +267,8 @@ final class ValidatorInfoViewLayout: UIView {
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
-            make.bottom.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 }

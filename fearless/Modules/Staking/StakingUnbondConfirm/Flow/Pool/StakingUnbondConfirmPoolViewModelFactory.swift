@@ -62,8 +62,6 @@ final class StakingUnbondConfirmPoolViewModelFactory: StakingUnbondConfirmViewMo
             senderAddress: address,
             senderIcon: accountIcon,
             senderName: viewModelState.wallet.fetch(for: viewModelState.chainAsset.chain.accountRequest())?.name,
-            collatorName: nil,
-            collatorIcon: nil,
             stakeAmountViewModel: createStakedAmountViewModel(viewModelState.inputAmount),
             amountString: amount,
             hints: hints

@@ -14,14 +14,6 @@ struct ValidatorListFilterViewFactory: ValidatorListFilterViewFactoryProtocol {
             )
 
             return container
-        case let .parachain(filter):
-            let viewModelState = ValidatorListFilterParachainViewModelState(filter: filter)
-            let viewModelFactory = ValidatorListFilterParachainViewModelFactory()
-            let container = ValidatorListFilterDependencyContainer(
-                viewModelState: viewModelState,
-                viewModelFactory: viewModelFactory
-            )
-            return container
         }
     }
 

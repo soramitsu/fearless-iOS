@@ -19,13 +19,10 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func setup()
     func performAssetSelection()
     func performMainAction()
-    func performParachainMainAction(for delegation: ParachainStakingDelegationInfo)
     func performAccountAction()
     func performManageStakingAction()
-    func performParachainManageStakingAction(for delegation: ParachainStakingDelegationInfo)
     func performNominationStatusAction()
     func performValidationStatusAction()
-    func performDelegationStatusAction()
     func performRewardInfoAction()
     func performChangeValidatorsAction()
     func performSetupValidatorsForBondedAction()
@@ -80,15 +77,6 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
     func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
     func networkInfoViewExpansion(isExpanded: Bool)
-
-//    Parachain
-
-    func didReceive(delegationInfos: [ParachainStakingDelegationInfo]?)
-    func didReceiveRound(round: ParachainStakingRoundInfo?)
-    func didReceiveCurrentBlock(currentBlock: UInt32?)
-    func didReceiveScheduledRequests(requests: [AccountAddress: [ParachainStakingScheduledRequest]]?)
-    func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
-    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
 }
 
 protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable, AccountManagementPresentable {

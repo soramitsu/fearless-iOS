@@ -138,14 +138,15 @@ final class KeychainIrohaConnectAccountProvider: IrohaConnectAccountProviding {
         guard let selectedAddress = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
             throw IrohaConnectAccountProviderError.accountUnavailable
         }
-        guard let mnemonic = try KeychainUniversalWalletMnemonicProvider().mnemonic(for: wallet, chain: chain) else {
+        guard let secret = try KeychainUniversalWalletMnemonicProvider().secret(for: wallet, chain: chain) else {
             throw IrohaConnectAccountProviderError.rootMaterialUnavailable
         }
 
         let derived: IrohaDerivedAddress
         do {
             derived = try IrohaKeyDerivation.deriveAddress(
-                mnemonic: mnemonic,
+                mnemonic: secret.mnemonic,
+                passphrase: secret.passphrase,
                 chainDiscriminant: UniversalWalletRegistry.taira.chainDiscriminant
             )
         } catch {

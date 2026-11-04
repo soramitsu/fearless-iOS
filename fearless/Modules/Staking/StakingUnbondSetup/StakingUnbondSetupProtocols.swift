@@ -10,7 +10,6 @@ protocol StakingUnbondSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>)
     func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>)
     func didReceiveAccount(viewModel: AccountViewModel)
-    func didReceiveCollator(viewModel: AccountViewModel)
     func didReceiveTitle(viewModel: LocalizableResource<String>)
     func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>)
 }

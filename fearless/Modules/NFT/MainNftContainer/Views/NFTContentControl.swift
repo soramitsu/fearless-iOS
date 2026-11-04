@@ -68,7 +68,8 @@ final class NFTContentControl: UIView {
 
     private func setupConstraints() {
         collectionButton.snp.makeConstraints { make in
-            make.leading.top.bottom.equalToSuperview()
+            make.top.bottom.equalToSuperview()
+            make.leading.equalTo(safeAreaLayoutGuide)
             make.size.equalTo(LayoutConstants.buttonSize)
         }
 
@@ -86,7 +87,8 @@ final class NFTContentControl: UIView {
         }
 
         filterButton.snp.makeConstraints { make in
-            make.top.bottom.trailing.equalToSuperview()
+            make.top.bottom.equalToSuperview()
+            make.trailing.equalTo(safeAreaLayoutGuide)
             make.size.equalTo(LayoutConstants.buttonSize)
         }
     }

@@ -1600,10 +1600,10 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertEqual(
             CrossChainProviderRegistry.defaultProviders.map(\.displayName),
             [
-                "Wallet XCM",
-                "Polkaswap SORA ↔ Substrate",
+                "Polkadot and Kusama",
+                "SORA ↔ Polkadot and Kusama",
                 "SORA ↔ Liberland",
-                "Polkaswap SORA ↔ EVM"
+                "SORA ↔ Ethereum"
             ]
         )
         XCTAssertTrue(ReviewedXcmRouteRegistry.soraSubstrateRoutes.allSatisfy {
@@ -1625,7 +1625,7 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertTrue(routes.isEmpty)
         XCTAssertFalse(capability.isAvailable)
         XCTAssertEqual(capability.identifier, "polkaswap-sora-evm")
-        XCTAssertTrue(capability.reason?.contains("no reviewed executable") == true)
+        XCTAssertEqual(capability.reason, ReviewedXcmExecutionAuthority.unavailableReason)
 
         let wallet = AccountGenerator.generateMetaAccount()
         let walletXcmRoutes = WalletXcmRouteProvider().origins(wallet: wallet, chains: [])
@@ -1634,7 +1634,8 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertTrue(walletXcmRoutes.isEmpty)
         XCTAssertTrue(soraSubstrateRoutes.isEmpty)
         XCTAssertTrue(liberlandRoutes.isEmpty)
-        XCTAssertTrue(ReviewedXcmExecutionAuthority.isAvailable)
+        // Tests run in a build that bundles no mutation trust, like every production build so far.
+        XCTAssertFalse(ReviewedXcmExecutionAuthority.isAvailable)
         // Every SORA bridgeProxy.burn direction is retired; only the Liberland burns can be executed.
         XCTAssertTrue(ReviewedXcmRouteRegistry.soraSubstrateRoutes.isEmpty)
         XCTAssertEqual(ReviewedXcmRouteRegistry.liberlandRoutes.count, 3)
@@ -1645,9 +1646,9 @@ final class MainTabBarTests: XCTestCase {
             Set(ReviewedXcmRouteRegistry.routes.map { $0.execution.fingerprint }).count,
             ReviewedXcmRouteRegistry.routes.count
         )
-        XCTAssertTrue(
-            WalletXcmRouteProvider().capability(for: walletXcmRoutes).reason?
-                .contains("SSFXCM") == true
+        XCTAssertEqual(
+            WalletXcmRouteProvider().capability(for: walletXcmRoutes).reason,
+            ReviewedXcmExecutionAuthority.unavailableReason
         )
         XCTAssertTrue(
             SoraSubstrateBridgeRouteProvider().capability(for: soraSubstrateRoutes).reason?
@@ -1666,7 +1667,7 @@ final class MainTabBarTests: XCTestCase {
         // Only the two relay chain to Asset Hub teleports still execute on chain; the other seven rows are the reserve
         // transfers that the Asset Hub Migration made impossible.
         XCTAssertEqual(
-            walletRoutes.filter { $0.unavailableReason.contains("adjacent final submission guard") }.count,
+            walletRoutes.filter { $0.unavailableReason == ReviewedXcmExecutionAuthority.unavailableReason }.count,
             2
         )
         XCTAssertEqual(
@@ -1762,7 +1763,7 @@ final class MainTabBarTests: XCTestCase {
             retiredBridgeRoutes.filter { $0.providerId == "polkaswap-sora-substrate" }
         )
         XCTAssertEqual(
-            LiberlandXcmRouteProvider().reviewedUnavailableRoutes,
+            LiberlandXcmRouteProvider(isExecutionAvailable: true).reviewedUnavailableRoutes,
             retiredBridgeRoutes.filter { $0.providerId == "sora-liberland-xcm" }
         )
         XCTAssertTrue(walletProvider.origins(wallet: wallet, chains: []).isEmpty)
@@ -1778,6 +1779,42 @@ final class MainTabBarTests: XCTestCase {
             viewController.tableView(UITableView(), numberOfRowsInSection: 0),
             inventory.count
         )
+    }
+
+    func testTransferTabShowsNoIdentifiersOrEngineeringText() {
+        let viewController = CrossChainRootViewController(wallet: AccountGenerator.generateMetaAccount())
+        viewController.loadViewIfNeeded()
+        let table = UITableView()
+        table.register(UITableViewCell.self, forCellReuseIdentifier: "CrossChainOriginCell")
+        let inventory = CrossChainProviderRegistry.defaultProviders.flatMap(\.reviewedUnavailableRoutes)
+        XCTAssertEqual(viewController.tableView(table, numberOfRowsInSection: 0), inventory.count)
+
+        var texts: [String] = []
+        for section in 0 ..< viewController.numberOfSections(in: table) {
+            texts.append(viewController.tableView(table, titleForHeaderInSection: section) ?? "")
+            for row in 0 ..< viewController.tableView(table, numberOfRowsInSection: section) {
+                let cell = viewController.tableView(table, cellForRowAt: IndexPath(row: row, section: section))
+                let configuration = cell.contentConfiguration as? UIListContentConfiguration
+                texts += [configuration?.text ?? "", configuration?.secondaryText ?? ""]
+                if section == 0, let route = inventory[safe: row] {
+                    XCTAssertEqual(configuration?.secondaryText, route.unavailableReason, route.id)
+                }
+            }
+        }
+
+        // Asset and chain identifiers, protocol names and the review vocabulary behind the route gates stay out of
+        // the rows.
+        let forbidden = [
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-", "[0-9a-fA-F]{32}", "AssetKey", "SSFXCM", "XCM", "Substrate", "EVM",
+            "Iroha", "canonical", "registry", "adapter", "pallet", "dry run", "kill switch", "submission",
+            "[Rr]eviewed", "evidence"
+        ]
+        XCTAssertGreaterThan(texts.count, inventory.count)
+        for text in texts {
+            for pattern in forbidden {
+                XCTAssertNil(text.range(of: pattern, options: .regularExpression), "\(pattern) in: \(text)")
+            }
+        }
     }
 
     func testLiberlandLldRoutesKeepCatalogAndXcmIdentitiesSeparate() throws {
@@ -1936,14 +1973,16 @@ final class MainTabBarTests: XCTestCase {
             CrossChainAssembly.configureModule(
                 with: exactOrigin,
                 wallet: AccountGenerator.generateMetaAccount(),
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAvailable: true
             )
         )
         XCTAssertThrowsError(
             try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
                 origin: exactOrigin,
                 destination: destination,
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAdapterAvailable: true
             )
         ) { error in
             XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .unreviewedRoute)
@@ -2120,7 +2159,8 @@ final class MainTabBarTests: XCTestCase {
             CrossChainAssembly.configureModule(
                 with: exactOrigin,
                 wallet: AccountGenerator.generateMetaAccount(),
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAvailable: true
             )
         )
 
@@ -2129,7 +2169,8 @@ final class MainTabBarTests: XCTestCase {
                 origin: exactOrigin,
                 destination: destination,
                 reviewedRoute: context,
-                mutationsEnabled: false
+                mutationsEnabled: false,
+                executionAdapterAvailable: true
             )
         ) { error in
             XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .actionsPaused)
@@ -2139,7 +2180,8 @@ final class MainTabBarTests: XCTestCase {
                 origin: exactOrigin,
                 destination: destination,
                 reviewedRoute: context,
-                mutationsEnabled: true
+                mutationsEnabled: true,
+                executionAdapterAvailable: true
             )
         )
         // The signed-authority boundary holds the policy lock before checking
@@ -2149,7 +2191,8 @@ final class MainTabBarTests: XCTestCase {
             try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
                 origin: exactOrigin,
                 destination: destination,
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAdapterAvailable: true
             )
         )
         XCTAssertThrowsError(
@@ -2194,7 +2237,8 @@ final class MainTabBarTests: XCTestCase {
             try ReviewedCrossChainSubmissionValidator.validateReviewedRoute(
                 origin: ChainAsset(chain: origin, asset: sameSymbolDifferentIdentity),
                 destination: destination,
-                reviewedRoute: context
+                reviewedRoute: context,
+                executionAdapterAvailable: true
             )
         ) { error in
             XCTAssertEqual(error as? ReviewedCrossChainSubmissionError, .unreviewedRoute)
@@ -2386,7 +2430,7 @@ final class MainTabBarTests: XCTestCase {
         XCTAssertEqual(output.error as? ReviewedCrossChainSubmissionError, .selectedWalletChanged)
         XCTAssertEqual(executor.submitCount, 0)
         // Nothing left the app, so no record may ask the user about a transfer that never happened.
-        XCTAssertNil(journal.unresolved(for: "final-guard-transfer", now: Date()))
+        XCTAssertTrue(try journal.unresolved(for: "final-guard-transfer", now: Date()).isEmpty)
     }
 
     func testHeldIrohaAssetInjectionPreservesMissingMetadataTrust() async throws {
@@ -4242,7 +4286,7 @@ private final class ReviewedCrossChainConfirmationOutputSpy: CrossChainConfirmat
         expectation.fulfill()
     }
 
-    func didFindUnresolvedSubmission(_: ReviewedCrossChainSubmissionRecord) {
+    func didFindUnresolvedSubmission(_: [ReviewedCrossChainSubmissionRecord]) {
         expectation.fulfill()
     }
 }

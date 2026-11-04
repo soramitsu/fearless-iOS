@@ -78,12 +78,6 @@ struct StakingBondMoreConfirmViewFactory {
                 iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
-        case .parachain:
-            confirmationViewModelFactory = StakingBondMoreConfirmParachainViewModelFactory(
-                chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(),
-                balanceViewModelFactory: balanceViewModelFactory
-            )
         case .pool:
             confirmationViewModelFactory = StakingBondMoreConfirmPoolViewModelFactory(
                 chainAsset: chainAsset,
@@ -200,37 +194,6 @@ struct StakingBondMoreConfirmViewFactory {
                 keystore: keystore,
                 signingWrapper: signingWrapper,
                 output: viewModelState,
-                callFactory: callFactory
-            )
-
-            return StakingBondMoreConfirmationDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy
-            )
-        case let .parachain(amount, candidate):
-            let viewModelState = StakingBondMoreConfirmationParachainViewModelState(
-                chainAsset: chainAsset,
-                wallet: wallet,
-                amount: amount,
-                dataValidatingFactory: dataValidatingFactory,
-                candidate: candidate,
-                callFactory: callFactory
-            )
-
-            let strategy = StakingBondMoreConfirmationParachainStrategy(
-                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                chainAsset: chainAsset,
-                wallet: wallet,
-                extrinsicService: extrinsicService,
-                feeProxy: feeProxy,
-                runtimeService: runtimeService,
-                operationManager: operationManager,
-                connection: connection,
-                keystore: keystore,
-                signingWrapper: signingWrapper,
-                output: viewModelState,
-                eventCenter: EventCenter.shared,
-                logger: Logger.shared,
                 callFactory: callFactory
             )
 

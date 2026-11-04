@@ -54,7 +54,7 @@ final class AssetListSearchViewLayout: UIView {
         addSubview(hStackView)
         hStackView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         cancelButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -65,7 +65,8 @@ final class AssetListSearchViewLayout: UIView {
         addSubview(assetListViewContainer)
         assetListViewContainer.snp.makeConstraints { make in
             make.top.equalTo(hStackView.snp.bottom).offset(UIConstants.verticalInset)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 

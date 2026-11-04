@@ -155,6 +155,43 @@ extension IdentityOperationFactory: IdentityOperationFactoryProtocol {
         runtimeService: RuntimeCodingServiceProtocol,
         chain: ChainModel
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
+        if AssetHubStakingRoute.staking(on: chain.chainId) != nil {
+            return createAssetHubIdentityWrapper(for: accountIdClosure, engine: engine, runtimeService: runtimeService, chain: chain)
+        }
+        return createLegacyIdentityWrapper(for: accountIdClosure, engine: engine, runtimeService: runtimeService, chain: chain)
+    }
+
+    private func createAssetHubIdentityWrapper(
+        for accountIds: @escaping () throws -> [AccountId],
+        engine: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol,
+        chain: ChainModel
+    ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
+        let coder = runtimeService.fetchCoderFactoryOperation()
+        let combined = OperationCombiningService<[AccountAddress: AccountIdentity]>(operationManager: OperationManager()) {
+            let metadata = try coder.extractNoCancellableResultData().metadata
+            guard metadata.getStorageMetadata(for: .identity) != nil else {
+                return [CompoundOperationWrapper(targetOperation: ClosureOperation { [:] })]
+            }
+            return [self.createLegacyIdentityWrapper(for: accountIds, engine: engine, runtimeService: runtimeService, chain: chain)]
+        }.longrunOperation()
+        combined.addDependency(coder)
+        let result = ClosureOperation<[AccountAddress: AccountIdentity]> {
+            guard let values = try combined.extractNoCancellableResultData().first else {
+                throw BaseOperationError.unexpectedDependentResult
+            }
+            return values
+        }
+        result.addDependency(combined)
+        return CompoundOperationWrapper(targetOperation: result, dependencies: [coder, combined])
+    }
+
+    private func createLegacyIdentityWrapper(
+        for accountIdClosure: @escaping () throws -> [AccountId],
+        engine: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol,
+        chain: ChainModel
+    ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let superIdentityWrapper = createSuperIdentityOperation(

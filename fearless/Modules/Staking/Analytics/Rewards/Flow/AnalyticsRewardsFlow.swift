@@ -5,7 +5,6 @@ import SSFModels
 
 enum AnalyticsRewardsFlow {
     case relaychain
-    case parachain
 }
 
 protocol AnalyticsRewardsModelStateListener: AnyObject {

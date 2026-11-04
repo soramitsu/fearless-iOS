@@ -22,40 +22,43 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
     }
 
     override func performSetup(completionClosure: @escaping (Result<ChainAsset?, Error>) -> Void) {
-        let filter: NSPredicate
         let maybeChainAssetId = settings.stakingAsset
 
-        if let chainAssetId = maybeChainAssetId {
-            filter = NSCompoundPredicate(orPredicateWithSubpredicates: [
-                NSPredicate.chainBy(identifier: chainAssetId.chainId),
-                NSPredicate.relayChains()
-            ])
-        } else {
-            filter = NSPredicate.relayChains()
-        }
-
+        // Relay staking moved to Asset Hub, a parachain, so every chain is a candidate, not only relay chains.
         let factory = ChainRepositoryFactory(storageFacade: storageFacade)
-        let repository = AnyDataProviderRepository(factory.createRepository(for: filter))
+        let repository = AnyDataProviderRepository(factory.createRepository(for: nil))
 
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let mappingOperation = ClosureOperation<ChainAsset?> { [weak self] in
-            let chains = try fetchOperation.extractNoCancellableResultData().filter { !$0.disabled }
+            // Stored chains may not be normalized yet when staking opens right after an upgrade.
+            let chains = NetworkRetirement.applying(
+                to: try fetchOperation.extractNoCancellableResultData().filter { !$0.disabled }
+            )
 
             if
-                let selectedChain = chains.first(where: { $0.chainId == maybeChainAssetId?.chainId }),
-                let selectedAsset = selectedChain.assets.first(where: { $0.id == maybeChainAssetId?.assetId }),
-                selectedAsset.staking != nil,
-                self?.wallet.fetch(for: selectedChain.accountRequest()) != nil {
-                return ChainAsset(chain: selectedChain, asset: selectedAsset)
+                let chainAssetId = maybeChainAssetId,
+                let selected = AssetHubStakingRoute.selectedAsset(chainAssetId, in: chains),
+                selected.asset.offersStaking,
+                self?.wallet.fetch(for: selected.chain.accountRequest()) != nil {
+                if selected.chainAssetId != chainAssetId {
+                    self?.settings.stakingAsset = selected.chainAssetId
+                }
+
+                return selected
             }
 
-            let maybeChain = chains.first { chain in
-                chain.assets.contains(where: { $0.staking != nil }) &&
+            let assetHubChains = AssetHubStakingRoute.routes.compactMap { route in
+                chains.first { $0.chainId == route.stakingChainId }
+            }
+            let otherChains = chains.filter { AssetHubStakingRoute.staking(on: $0.chainId) == nil }
+
+            let maybeChain = (assetHubChains + otherChains).first { chain in
+                chain.assets.contains(where: { $0.offersStaking }) &&
                     self?.wallet.fetch(for: chain.accountRequest()) != nil
             }
 
-            let maybeAsset = maybeChain?.assets.first { $0.staking != nil }
+            let maybeAsset = maybeChain?.assets.first { $0.offersStaking }
 
             if let chain = maybeChain, let asset = maybeAsset {
                 self?.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.id)
@@ -83,6 +86,18 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
         value: ChainAsset,
         completionClosure: @escaping (Result<ChainAsset, Error>) -> Void
     ) {
+        // A screen can still hold a stored chain this build does not offer staking on: a migrated relay, an
+        // unsupported network such as Reef, or a parachain-staking asset.
+        let offeredAsset = NetworkRetirement.offered(value.chain)?.assets.first { $0.id == value.asset.id }
+        guard
+            AssetHubStakingRoute.migrating(value.chain.chainId) == nil,
+            !value.chain.disabled,
+            offeredAsset?.offersStaking == true
+        else {
+            completionClosure(.failure(StakingServiceFactoryError.stakingUnavailable))
+            return
+        }
+
         settings.stakingAsset = ChainAssetId(
             chainId: value.chain.chainId,
             assetId: value.asset.id

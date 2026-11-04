@@ -509,4 +509,12 @@ rm "$fixture/docs/iroha-production-send-readiness.md"
 ln -s universal-wallet-v2.md "$fixture/docs/iroha-production-send-readiness.md"
 expect_failure "document symlink" "$fixture" "missing or is a symlink"
 
+fixture="$(new_fixture mcp-route-restored)"
+printf '\nprivate let legacyHistoryPath = "/v1/mcp"\n' >> "$fixture/fearless/Common/Model/UniversalWalletRegistry.swift"
+expect_failure "MCP route restored" "$fixture" "Torii MCP endpoint"
+
+fixture="$(new_fixture mcp-tool-call-restored)"
+printf '\nprivate let legacyHistoryMethod = "tools/call"\n' >> "$fixture/fearless/Modules/Send/SendDependencyContainer.swift"
+expect_failure "MCP tool call restored" "$fixture" "Torii MCP endpoint"
+
 echo "[iroha-send-readiness-test][ios] $negative_count negative/adversarial fixtures passed."

@@ -110,23 +110,6 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
         }
     }
 
-    func selectCollatorAccount() {
-        guard let address = viewModelState.collatorAddress else {
-            return
-        }
-
-        if let view = view {
-            let locale = view.localizationManager?.selectedLocale ?? Locale.current
-
-            wireframe.presentAccountOptions(
-                from: view,
-                address: address,
-                chain: chainAsset.chain,
-                locale: locale
-            )
-        }
-    }
-
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 

@@ -3,7 +3,6 @@ import UIKit
 enum SelectedValidatorListFlow {
     case relaychainInitiated(validatorList: [SelectedValidatorInfo], maxTargets: Int, state: InitiatedBonding)
     case relaychainExisting(validatorList: [SelectedValidatorInfo], maxTargets: Int, state: ExistingBonding)
-    case parachain(collators: [ParachainStakingCandidateInfo], maxTargets: Int, state: InitiatedBonding)
     case poolInitiated(validatorList: [SelectedValidatorInfo], poolId: UInt32, maxTargets: Int, state: InitiatedBonding)
     case poolExisting(validatorList: [SelectedValidatorInfo], poolId: UInt32, maxTargets: Int, state: ExistingBonding)
 }

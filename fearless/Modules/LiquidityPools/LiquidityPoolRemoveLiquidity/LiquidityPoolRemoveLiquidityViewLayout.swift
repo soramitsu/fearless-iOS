@@ -150,18 +150,18 @@ final class LiquidityPoolRemoveLiquidityViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.bottom.equalTo(previewButton.snp.top).offset(-16)
         }
 
         previewButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(16)
             make.height.equalTo(UIConstants.actionHeight)
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(16).constraint
         }
 
         warningView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(16)
             make.bottom.equalToSuperview().inset(UIConstants.actionHeight + UIConstants.bigOffset * 2)
         }
 

@@ -33,6 +33,8 @@ final class ChainSyncService {
 
     private struct AppOwnedCatalogPersistence {
         let canonicalChains: [ChainModel]
+        /// Stored chains this build retires or strips of relay staking, applied before any download.
+        let retirementUpdates: [ChainModel]
         let changes: SyncChanges
     }
 
@@ -45,6 +47,7 @@ final class ChainSyncService {
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol?
     private let malformedChainCleanupOperationFactory: (() -> BaseOperation<Void>)?
+    private let nodeCatalogOrder: EthereumNodeCatalogOrderProtocol
 
     private var retryAttempt: Int = 0
     private var isSyncInFlight = false
@@ -70,7 +73,8 @@ final class ChainSyncService {
         cooldownTimer: CountdownTimerProtocol = CountdownTimer(
             notificationInterval: 300
         ),
-        cooldownTimerQueue: DispatchQueue = .main
+        cooldownTimerQueue: DispatchQueue = .main,
+        nodeCatalogOrder: EthereumNodeCatalogOrderProtocol = EthereumNodeCatalogOrder.shared
     ) {
         self.chainsUrl = chainsUrl
         self.dataFetchFactory = dataFetchFactory
@@ -83,6 +87,7 @@ final class ChainSyncService {
         self.malformedChainCleanupOperationFactory = malformedChainCleanupOperationFactory
         timer = cooldownTimer
         self.cooldownTimerQueue = cooldownTimerQueue
+        self.nodeCatalogOrder = nodeCatalogOrder
         timer.delegate = self
     }
 
@@ -195,7 +200,7 @@ final class ChainSyncService {
                     )
                     eventCenter.notify(
                         with: ChainsUpdatedEvent(
-                            updatedChains: persistence.canonicalChains
+                            updatedChains: persistence.canonicalChains + persistence.retirementUpdates
                         )
                     )
                 }
@@ -230,6 +235,9 @@ final class ChainSyncService {
                 let newOrUpdatedChains = canonicalChains.filter { chain in
                     localMapping[chain.chainId] != chain
                 }
+                let retirementUpdates = NetworkRetirement.storedUpdates(
+                    for: localChains.filter { !canonicalIds.contains($0.chainId) }
+                )
                 let obsoleteAliases = localChains.filter { localChain in
                     guard !canonicalIds.contains(localChain.chainId) else {
                         return false
@@ -245,8 +253,9 @@ final class ChainSyncService {
 
                 return AppOwnedCatalogPersistence(
                     canonicalChains: canonicalChains,
+                    retirementUpdates: retirementUpdates,
                     changes: SyncChanges(
-                        newOrUpdatedItems: newOrUpdatedChains,
+                        newOrUpdatedItems: newOrUpdatedChains + retirementUpdates,
                         removedItems: obsoleteAliases
                     )
                 )
@@ -321,6 +330,8 @@ final class ChainSyncService {
                 do {
                     let data = try operation.extractNoCancellableResultData()
                     let remoteChains = try self.decodeChainsTolerant(from: data)
+                    // Decoding into `ChainModel` loses the catalog's node order, which EVM node selection follows.
+                    self.nodeCatalogOrder.record(catalog: data)
                     self.handle(remoteChains: remoteChains)
                 } catch {
                     self.complete(result: .failure(error))
@@ -438,8 +449,11 @@ final class ChainSyncService {
 
         let normalizedRemoteChains: [ChainModel]
         do {
-            let remoteOnlyChains = Self.removingAppOwnedChainAliases(
-                from: remoteChains.map { normalizeSoraNexusChainAssets($0) }
+            // A retired network is left out here, so the stored copy is kept disabled below.
+            let remoteOnlyChains = NetworkRetirement.applying(
+                to: Self.removingAppOwnedChainAliases(
+                    from: remoteChains.map { normalizeSoraNexusChainAssets($0) }
+                )
             )
             guard remoteOnlyChains.isNotEmpty else {
                 complete(
@@ -540,6 +554,7 @@ final class ChainSyncService {
                             node,
                             for: chain
                         )
+                        && !isPlaintextWebSocket(node.url)
                 }
                 .sorted { lhs, rhs in
                     if lhs.url.absoluteString != rhs.url.absoluteString {
@@ -577,6 +592,13 @@ final class ChainSyncService {
                 .replacingCustomNodes([])
                 .replacingSelectedNode(nil)
         }
+    }
+
+    /// Chain lists are downloaded unsigned, so a node they name must at least be reached over TLS: over plaintext
+    /// `ws://` anyone on the network path can answer for the chain, including its genesis hash, metadata, nonces, fees
+    /// and dispatch outcomes. Nodes the user keeps on the device are not affected.
+    static func isPlaintextWebSocket(_ url: URL) -> Bool {
+        url.scheme?.lowercased() == "ws"
     }
 
     static func mergingAppOwnedProductionChains(

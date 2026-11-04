@@ -8,6 +8,4 @@ struct StakingRedeemViewModel {
     let senderName: String?
     let amount: LocalizableResource<String>
     let title: LocalizableResource<String>
-    let collatorName: String?
-    let collatorIcon: DrawableIcon?
 }

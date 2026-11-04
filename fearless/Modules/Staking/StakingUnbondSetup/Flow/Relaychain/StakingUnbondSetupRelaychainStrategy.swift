@@ -9,6 +9,7 @@ protocol StakingUnbondSetupRelaychainStrategyOutput: AnyObject {
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveBondingDuration(result: Result<UInt32, Error>)
+    func didReceiveUnbondingTime(result: Result<TimeInterval, Error>)
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveController(result: Result<ChainAccountResponse?, Error>)
@@ -17,6 +18,10 @@ protocol StakingUnbondSetupRelaychainStrategyOutput: AnyObject {
     func didReceiveMinBonded(result: Result<BigUInt?, Error>)
     func didReceiveNomination(result: Result<Nomination?, Error>)
     func didReceiveNewExtrinsicService()
+}
+
+extension StakingUnbondSetupRelaychainStrategyOutput {
+    func didReceiveUnbondingTime(result _: Result<TimeInterval, Error>) {}
 }
 
 final class StakingUnbondSetupRelaychainStrategy: RuntimeConstantFetching, AccountFetching {
@@ -81,6 +86,27 @@ final class StakingUnbondSetupRelaychainStrategy: RuntimeConstantFetching, Accou
 
         output?.didReceiveNewExtrinsicService()
     }
+
+    private func fetchAssetHubUnbondingTime(stash: AccountAddress) {
+        guard AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) != nil else { return }
+        do {
+            let accountId = try AddressFactory.accountId(from: stash, chain: chainAsset.chain)
+            let factory = AssetHubUnbondingOperationFactory(
+                storage: StorageRequestFactory(remoteFactory: StorageKeyFactory(), operationManager: operationManager),
+                duration: StakingDurationOperationFactory()
+            )
+            let wrapper = factory.create(accountId: accountId, runtime: runtimeService, connection: connection)
+            wrapper.targetOperation.completionBlock = { [weak self] in
+                let result = Result<TimeInterval, Error> {
+                    try wrapper.targetOperation.extractNoCancellableResultData().unlocking
+                }
+                DispatchQueue.main.async { self?.output?.didReceiveUnbondingTime(result: result) }
+            }
+            operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+        } catch {
+            output?.didReceiveUnbondingTime(result: .failure(error))
+        }
+    }
 }
 
 extension StakingUnbondSetupRelaychainStrategy: StakingUnbondSetupStrategy {
@@ -103,12 +129,14 @@ extension StakingUnbondSetupRelaychainStrategy: StakingUnbondSetupStrategy {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        fetchConstant(
-            for: .lockUpPeriod,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<UInt32, Error>) in
-            self?.output?.didReceiveBondingDuration(result: result)
+        if AssetHubStakingRoute.staking(on: chainAsset.chain.chainId) == nil {
+            fetchConstant(
+                for: .lockUpPeriod,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager
+            ) { [weak self] (result: Result<UInt32, Error>) in
+                self?.output?.didReceiveBondingDuration(result: result)
+            }
         }
 
         fetchConstant(
@@ -156,6 +184,7 @@ extension StakingUnbondSetupRelaychainStrategy: RelaychainStakingLocalStorageSub
             output?.didReceiveStashItem(result: result)
 
             if let stashItem = maybeStashItem {
+                fetchAssetHubUnbondingTime(stash: stashItem.stash)
                 fetchChainAccount(
                     chain: chainAsset.chain,
                     address: stashItem.controller,

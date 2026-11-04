@@ -53,9 +53,7 @@ final class StakingRedeemConfirmationPoolViewModelFactory: StakingRedeemConfirma
             senderName: poolViewModelState.wallet.fetch(for: poolViewModelState.chainAsset.chain.accountRequest())?.name,
             stakeAmountViewModel: createStakedAmountViewModel(redeemableDecimal),
             amountString: amount,
-            title: title,
-            collatorName: nil,
-            collatorIcon: nil
+            title: title
         )
     }
 

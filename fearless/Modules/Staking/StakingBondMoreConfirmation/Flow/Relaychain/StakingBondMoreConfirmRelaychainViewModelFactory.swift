@@ -42,10 +42,8 @@ final class StakingBondMoreConfirmRelaychainViewModelFactory: StakingBondMoreCon
         return StakingBondMoreConfirmViewModel(
             accountViewModel: accountViewModel,
             amountViewModel: amountViewModel,
-            collatorViewModel: nil,
             senderIcon: icon,
-            amount: createStakedAmountViewModel(amount),
-            collatorIcon: nil
+            amount: createStakedAmountViewModel(amount)
         )
     }
 

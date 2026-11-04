@@ -19,6 +19,7 @@ class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignable, Hi
 
     private let output: ScanQRViewOutput
     private lazy var messageDissmisAnimator: BlockViewAnimatorProtocol = BlockViewAnimator()
+    private weak var videoPreviewLayer: AVCaptureVideoPreviewLayer?
 
     // MARK: - Constructor
 
@@ -57,6 +58,12 @@ class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignable, Hi
         super.viewWillDisappear(animated)
 
         output.prepareDismiss()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        updateVideoOrientation()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -108,6 +115,54 @@ class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignable, Hi
         videoPreviewLayer.frame = view.layer.bounds
 
         rootView.qrFrameView.frameLayer = videoPreviewLayer
+        self.videoPreviewLayer = videoPreviewLayer
+        updateVideoOrientation()
+    }
+
+    /// iPad rotates, so the camera preview follows the interface orientation.
+    /// iPhone stays in portrait, the preview layer's default.
+    private func updateVideoOrientation() {
+        guard
+            let connection = videoPreviewLayer?.connection,
+            let orientation = view.window?.windowScene?.interfaceOrientation
+        else {
+            return
+        }
+
+        if #available(iOS 17.0, *) {
+            let angle = Self.videoRotationAngle(for: orientation)
+            if connection.isVideoRotationAngleSupported(angle), connection.videoRotationAngle != angle {
+                connection.videoRotationAngle = angle
+            }
+        } else if connection.isVideoOrientationSupported {
+            connection.videoOrientation = Self.videoOrientation(for: orientation)
+        }
+    }
+
+    static func videoRotationAngle(for orientation: UIInterfaceOrientation) -> CGFloat {
+        switch orientation {
+        case .landscapeRight:
+            return 0
+        case .landscapeLeft:
+            return 180
+        case .portraitUpsideDown:
+            return 270
+        default:
+            return 90
+        }
+    }
+
+    static func videoOrientation(for orientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation {
+        switch orientation {
+        case .landscapeRight:
+            return .landscapeRight
+        case .landscapeLeft:
+            return .landscapeLeft
+        case .portraitUpsideDown:
+            return .portraitUpsideDown
+        default:
+            return .portrait
+        }
     }
 
     // MARK: Message Management

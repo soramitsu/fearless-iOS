@@ -38,22 +38,10 @@ final class ValidatorInfoViewFactory {
                 return nil
             }
 
-            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-            let collatorOperationFactory = ParachainCollatorOperationFactory(
-                asset: chainAsset.asset,
-                chain: chainAsset.chain,
-                storageRequestFactory: storageRequestFactory,
-                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-                subqueryOperationFactory: rewardOperationFactory,
-                chainRegistry: chainRegistry
-            )
-
             guard let rewardService = try? serviceFactory.createRewardCalculatorService(
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
-                validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory
+                validatorService: eraValidatorService
             ) else {
                 return nil
             }
@@ -91,41 +79,6 @@ final class ValidatorInfoViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .parachain(candidate):
-            let chainRegistry = ChainRegistryFacade.sharedRegistry
-            let storageRequestFactory = StorageRequestFactory(
-                remoteFactory: StorageKeyFactory(),
-                operationManager: OperationManagerFacade.sharedManager
-            )
-
-            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-            let operationFactory = ParachainCollatorOperationFactory(
-                asset: chainAsset.asset,
-                chain: chainAsset.chain,
-                storageRequestFactory: storageRequestFactory,
-                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-                subqueryOperationFactory: rewardOperationFactory,
-                chainRegistry: chainRegistry
-            )
-            let viewModelState = ValidatorInfoParachainViewModelState(collatorInfo: candidate)
-            let strategy = ValidatorInfoParachainStrategy(
-                collatorId: candidate.owner,
-                operationFactory: operationFactory,
-                operationManager: OperationManagerFacade.sharedManager,
-                output: viewModelState
-            )
-            let viewModelFactory = ValidatorInfoParachainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(),
-                balanceViewModelFactory: balanceViewModelFactory,
-                chainAsset: chainAsset
-            )
-
-            return ValidatorInfoDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
         case let .pool(validatorInfo, address):
             let storageRequestFactory = StorageRequestFactory(
                 remoteFactory: StorageKeyFactory(),
@@ -147,22 +100,10 @@ final class ValidatorInfoViewFactory {
                 return nil
             }
 
-            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
-
-            let collatorOperationFactory = ParachainCollatorOperationFactory(
-                asset: chainAsset.asset,
-                chain: chainAsset.chain,
-                storageRequestFactory: storageRequestFactory,
-                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-                subqueryOperationFactory: rewardOperationFactory,
-                chainRegistry: chainRegistry
-            )
-
             guard let rewardService = try? serviceFactory.createRewardCalculatorService(
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
-                validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory
+                validatorService: eraValidatorService
             ) else {
                 return nil
             }

@@ -44,7 +44,7 @@ final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
         for accountId: AccountId,
         chainAsset: ChainAsset,
         chainFormat: ChainFormat,
-        stakingType: StakingType
+        stakingType _: StakingType
     ) throws {
         let stashItemRepository = substrateRepositoryFactory.createStashItemRepository()
 
@@ -70,8 +70,7 @@ final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
             provider: stashItemProvider,
             childSubscriptionFactory: childSubscriptionFactory,
             operationQueue: operationQueue,
-            logger: logger,
-            stakingType: stakingType
+            logger: logger
         )
 
         accountResolver?.resolveKeysAndSubscribe()

@@ -64,19 +64,23 @@ final class MainNftContainerViewLayout: UIView {
 
     private func setupConstraints() {
         nftContentControl.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.trailing.equalTo(safeAreaLayoutGuide)
         }
         tableView.snp.makeConstraints { make in
             make.top.equalTo(nftContentControl.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(nftContentControl.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
         emptyViewContainer.snp.makeConstraints { make in
             make.top.equalTo(nftContentControl.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 }

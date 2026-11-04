@@ -436,6 +436,9 @@ protocol ChainRegistryProtocol: AnyObject {
     func retryConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
+    /// Replaces `failed`, the EVM connection of a network whose node stopped answering, and returns the connection to
+    /// retry on: the network's next node, or the node the user chose, rebuilt.
+    func failoverEthereumConnection(for chainId: ChainModel.Id, failed: Web3.Eth) -> Web3.Eth?
     func getTonApiClientFactory() throws -> TonAPIClientFactory
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
@@ -455,6 +458,9 @@ protocol ChainRegistryProtocol: AnyObject {
 extension ChainRegistryProtocol {
     // Unqualified implementations cannot authorize new-feature signing.
     func getChainForMutationAuthorization(for _: ChainModel.Id) -> ChainModel? { nil }
+
+    // Implementations without EVM node failover keep the failed connection.
+    func failoverEthereumConnection(for _: ChainModel.Id, failed _: Web3.Eth) -> Web3.Eth? { nil }
 }
 
 final class ChainRegistry {
@@ -534,20 +540,35 @@ final class ChainRegistry {
             changes.forEach { change in
                 do {
                     switch change {
-                    case let .insert(newChain):
-                        if !newChain.disabled {
+                    case let .insert(storedChain):
+                        // Stored data can predate this build: retirement applies before any download succeeds.
+                        if let newChain = NetworkRetirement.offered(storedChain), !newChain.disabled {
                             try self.handleInsert(newChain)
                         }
-                    case let .update(updatedChain):
-                        let currentChain = self.chains.first { $0.chainId == updatedChain.chainId }
-                        if updatedChain.disabled {
+                    case let .update(storedChain):
+                        let currentChain = self.chains.first { $0.chainId == storedChain.chainId }
+                        guard let updatedChain = NetworkRetirement.offered(storedChain), !updatedChain.disabled else {
                             if currentChain != nil {
-                                self.handleDelete(updatedChain.chainId)
+                                self.handleDelete(storedChain.chainId)
                             }
-                        } else if let chain = currentChain {
-                            if chain.nodes != updatedChain.nodes ||
-                                chain.selectedNode != updatedChain.selectedNode {
+                            return
+                        }
+
+                        if let chain = currentChain {
+                            if self.chainKind(for: chain) != self.chainKind(for: updatedChain) {
+                                // Tear down with the old model's kind, then set up the new one.
+                                self.handleDelete(chain.chainId)
+                                try self.handleInsert(updatedChain)
+                            } else if chain.nodes != updatedChain.nodes ||
+                                chain.selectedNode != updatedChain.selectedNode ||
+                                chain.assets != updatedChain.assets {
+                                // Runtime providers keep their own chain model, so asset changes rebuild them.
                                 try self.handleUpdate(updatedChain)
+                            } else if chain != updatedChain {
+                                // Options or other metadata changed: keep the connection, publish the new model.
+                                self.chains = self.chains.map {
+                                    $0.chainId == updatedChain.chainId ? updatedChain : $0
+                                }
                             }
                         } else {
                             try self.handleInsert(updatedChain)
@@ -866,6 +887,19 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
     }
 
+    func failoverEthereumConnection(for chainId: ChainModel.Id, failed: Web3.Eth) -> Web3.Eth? {
+        readLock.concurrentlyRead {
+            guard
+                let ethereumConnectionPool = self.ethereumConnectionPool,
+                let chain = chains.first(where: { $0.chainId == chainId })
+            else {
+                return nil
+            }
+
+            return ethereumConnectionPool.failover(for: chain, failed: failed)
+        }
+    }
+
     func getChain(for chainId: ChainModel.Id) -> ChainModel? {
         readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
     }
@@ -971,7 +1005,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func resetConnection(for chainId: ChainModel.Id) {
-        guard let chain = chains.first(where: { $0.chainId == chainId }) else {
+        guard let chain = getChain(for: chainId) else {
             return
         }
 

@@ -117,13 +117,15 @@ final class NetworkInfoView: UIView {
         }
 
         titleControl.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(UIConstants.cellHeight)
             make.bottom.lessThanOrEqualToSuperview()
         }
 
         networkInfoContainer.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.top.equalTo(titleControl.snp.bottom)
         }
 

@@ -92,24 +92,24 @@ final class NetworkManagmentViewLayout: UIView {
 
         navigationBar.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(56)
         }
 
         searchTextField.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         filtersStackView.snp.makeConstraints { make in
             make.top.equalTo(searchTextField.snp.bottom).offset(UIConstants.offset12)
-            make.leading.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.trailing.greaterThanOrEqualToSuperview().offset(UIConstants.bigOffset).priority(.low)
         }
 
         container.snp.makeConstraints { make in
             make.top.equalTo(filtersStackView.snp.bottom).offset(UIConstants.offset12)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
         }
 

@@ -128,11 +128,11 @@ extension WalletSendConfirmViewLayout {
         }
         confirmButton.removeFromSuperview()
         contentView.stackView.addArrangedSubview(confirmButton)
-        confirmButton.snp.remakeConstraints { $0.width.equalTo(self).offset(-2 * UIConstants.bigOffset) }
+        confirmButton.snp.remakeConstraints { $0.width.equalTo(safeAreaLayoutGuide).offset(-2 * UIConstants.bigOffset) }
         contentView.stackView.layoutMargins.bottom = UIConstants.bigOffset
         amountLabel.numberOfLines = 0
         amountLabel.lineBreakMode = .byCharWrapping
-        amountLabel.snp.makeConstraints { $0.width.equalTo(self).offset(-2 * UIConstants.bigOffset) }
+        amountLabel.snp.makeConstraints { $0.width.equalTo(safeAreaLayoutGuide).offset(-2 * UIConstants.bigOffset) }
         [senderView, receiverView, amountView, feeView, tipView, accountCreationView].forEach { $0.snp.removeConstraints() }
         receiverStack.alignment = .top
         receiverWarningButton.snp.makeConstraints { $0.size.equalTo(44) }

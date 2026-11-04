@@ -4332,14 +4332,14 @@ class MockStakingServiceFactoryProtocol: StakingServiceFactoryProtocol, Cuckoo.P
         )
     }
 
-    func createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol, collatorOperationFactory p3: ParachainCollatorOperationFactory?) throws -> RewardCalculatorServiceProtocol {
+    func createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol) throws -> RewardCalculatorServiceProtocol {
         return try cuckoo_manager.callThrows(
-            "createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol, collatorOperationFactory p3: ParachainCollatorOperationFactory?) throws -> RewardCalculatorServiceProtocol",
-            parameters: (p0, p1, p2, p3),
-            escapingParameters: (p0, p1, p2, p3),
+            "createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol) throws -> RewardCalculatorServiceProtocol",
+            parameters: (p0, p1, p2),
+            escapingParameters: (p0, p1, p2),
             errorType: Swift.Error.self,
             superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.createRewardCalculatorService(for: p0, assetPrecision: p1, validatorService: p2, collatorOperationFactory: p3)
+            defaultCall: __defaultImplStub!.createRewardCalculatorService(for: p0, assetPrecision: p1, validatorService: p2)
         )
     }
 
@@ -4358,10 +4358,10 @@ class MockStakingServiceFactoryProtocol: StakingServiceFactoryProtocol, Cuckoo.P
             ))
         }
         
-        func createRewardCalculatorService<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(for p0: M1, assetPrecision p1: M2, validatorService p2: M3, collatorOperationFactory p3: M4) -> Cuckoo.ProtocolStubThrowingFunction<(SSFModels.ChainAsset, Int16, EraValidatorServiceProtocol, ParachainCollatorOperationFactory?), RewardCalculatorServiceProtocol,Swift.Error> where M1.MatchedType == SSFModels.ChainAsset, M2.MatchedType == Int16, M3.MatchedType == EraValidatorServiceProtocol, M4.OptionalMatchedType == ParachainCollatorOperationFactory {
-            let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainAsset, Int16, EraValidatorServiceProtocol, ParachainCollatorOperationFactory?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
+        func createRewardCalculatorService<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, assetPrecision p1: M2, validatorService p2: M3) -> Cuckoo.ProtocolStubThrowingFunction<(SSFModels.ChainAsset, Int16, EraValidatorServiceProtocol), RewardCalculatorServiceProtocol,Swift.Error> where M1.MatchedType == SSFModels.ChainAsset, M2.MatchedType == Int16, M3.MatchedType == EraValidatorServiceProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainAsset, Int16, EraValidatorServiceProtocol)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingServiceFactoryProtocol.self,
-                method: "createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol, collatorOperationFactory p3: ParachainCollatorOperationFactory?) throws -> RewardCalculatorServiceProtocol",
+                method: "createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol) throws -> RewardCalculatorServiceProtocol",
                 parameterMatchers: matchers
             ))
         }
@@ -4392,10 +4392,10 @@ class MockStakingServiceFactoryProtocol: StakingServiceFactoryProtocol, Cuckoo.P
         
         
         @discardableResult
-        func createRewardCalculatorService<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable>(for p0: M1, assetPrecision p1: M2, validatorService p2: M3, collatorOperationFactory p3: M4) -> Cuckoo.__DoNotUse<(SSFModels.ChainAsset, Int16, EraValidatorServiceProtocol, ParachainCollatorOperationFactory?), RewardCalculatorServiceProtocol> where M1.MatchedType == SSFModels.ChainAsset, M2.MatchedType == Int16, M3.MatchedType == EraValidatorServiceProtocol, M4.OptionalMatchedType == ParachainCollatorOperationFactory {
-            let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainAsset, Int16, EraValidatorServiceProtocol, ParachainCollatorOperationFactory?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }, wrap(matchable: p3) { $0.3 }]
+        func createRewardCalculatorService<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for p0: M1, assetPrecision p1: M2, validatorService p2: M3) -> Cuckoo.__DoNotUse<(SSFModels.ChainAsset, Int16, EraValidatorServiceProtocol), RewardCalculatorServiceProtocol> where M1.MatchedType == SSFModels.ChainAsset, M2.MatchedType == Int16, M3.MatchedType == EraValidatorServiceProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(SSFModels.ChainAsset, Int16, EraValidatorServiceProtocol)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }, wrap(matchable: p2) { $0.2 }]
             return cuckoo_manager.verify(
-                "createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol, collatorOperationFactory p3: ParachainCollatorOperationFactory?) throws -> RewardCalculatorServiceProtocol",
+                "createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol) throws -> RewardCalculatorServiceProtocol",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -4412,7 +4412,7 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (EraValidatorServiceProtocol).self)
     }
     
-    func createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol, collatorOperationFactory p3: ParachainCollatorOperationFactory?) throws -> RewardCalculatorServiceProtocol {
+    func createRewardCalculatorService(for p0: SSFModels.ChainAsset, assetPrecision p1: Int16, validatorService p2: EraValidatorServiceProtocol) throws -> RewardCalculatorServiceProtocol {
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }

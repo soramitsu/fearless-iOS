@@ -59,7 +59,11 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
     private func setupLayout() {
         if !isFullSize {
             rootView.contentStackView.snp.makeConstraints { make in
-                make.height.equalTo(UIScreen.main.bounds.height / 2)
+                // An iPad card is bounded by its window; the list scrolls in the room it has.
+                let height = make.height.equalTo(UIScreen.main.bounds.height / 2)
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    height.priority(.high)
+                }
             }
         }
     }

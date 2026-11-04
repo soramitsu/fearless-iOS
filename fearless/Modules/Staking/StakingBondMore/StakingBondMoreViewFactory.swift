@@ -151,41 +151,7 @@ struct StakingBondMoreViewFactory {
                 callFactory: callFactory,
                 existentialDepositService: existentialDepositService
             )
-            let viewModelFactory = StakingBondMoreRelaychainViewModelFactory(
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
-            )
-            return StakingBondMoreDependencyContainer(
-                viewModelState: viewModelState,
-                strategy: strategy,
-                viewModelFactory: viewModelFactory
-            )
-        case let .parachain(candidate):
-            let viewModelState = StakingBondMoreParachainViewModelState(
-                chainAsset: chainAsset,
-                wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory,
-                candidate: candidate,
-                callFactory: callFactory
-            )
-            let strategy = StakingBondMoreParachainStrategy(
-                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                output: viewModelState,
-                chainAsset: chainAsset,
-                wallet: wallet,
-                connection: connection,
-                extrinsicService: extrinsicService,
-                feeProxy: feeProxy,
-                runtimeService: runtimeService,
-                operationManager: operationManager,
-                callFactory: callFactory,
-                existentialDepositService: existentialDepositService
-            )
-
-            let viewModelFactory = StakingBondMoreParachainViewModelFactory(
-                accountViewModelFactory:
-                AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
-            )
-
+            let viewModelFactory = StakingBondMoreRelaychainViewModelFactory()
             return StakingBondMoreDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
@@ -211,9 +177,7 @@ struct StakingBondMoreViewFactory {
                 callFactory: callFactory,
                 existentialDepositService: existentialDepositService
             )
-            let viewModelFactory = StakingBondMorePoolViewModelFactory(
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
-            )
+            let viewModelFactory = StakingBondMorePoolViewModelFactory()
 
             return StakingBondMoreDependencyContainer(
                 viewModelState: viewModelState,

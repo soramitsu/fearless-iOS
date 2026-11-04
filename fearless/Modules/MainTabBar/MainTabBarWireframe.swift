@@ -64,6 +64,9 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
 
         if let navigationController = topViewController as? UINavigationController {
             topNavigationController = navigationController
+        } else if let mainTabBar = topViewController as? MainTabBarViewController {
+            topNavigationController = mainTabBar.selectedDestination
+                .flatMap { mainTabBar.controller(for: $0) } as? UINavigationController
         } else if let tabBarController = topViewController as? UITabBarController {
             topNavigationController = tabBarController.selectedViewController as? UINavigationController
         } else {

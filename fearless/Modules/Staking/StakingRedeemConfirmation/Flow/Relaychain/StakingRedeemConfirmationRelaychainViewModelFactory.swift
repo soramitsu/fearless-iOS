@@ -49,9 +49,7 @@ final class StakingRedeemConfirmationRelaychainViewModelFactory: StakingRedeemCo
             senderName: relaychainViewModelState.controller?.name,
             stakeAmountViewModel: createStakedAmountViewModel(redeemableDecimal),
             amountString: amount,
-            title: title,
-            collatorName: nil,
-            collatorIcon: nil
+            title: title
         )
     }
 

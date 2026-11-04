@@ -280,7 +280,6 @@ enum UniversalWalletRegistry {
         chainId: "iroha3-taira",
         chainDiscriminant: 369,
         toriiBaseURL: URL(string: "https://taira.sora.org")!,
-        mcpPath: "/v1/mcp",
         enabledByDefault: true,
         features: ["receive"]
     )
@@ -373,7 +372,6 @@ enum UniversalWalletRegistry {
         chainId: "sora:nexus:global",
         chainDiscriminant: 753,
         toriiBaseURL: URL(string: "https://minamoto.sora.org")!,
-        mcpPath: "/v1/mcp",
         enabledByDefault: false,
         features: ["transfer", "offline-cash", "sccp", "governance"]
     )
@@ -432,21 +430,8 @@ enum UniversalWalletRegistry {
         let chainId: String
         let chainDiscriminant: Int
         let toriiBaseURL: URL?
-        let mcpPath: String
         let enabledByDefault: Bool
         let features: [String]
-
-        var mcpEndpointURL: URL? {
-            guard let toriiBaseURL = toriiBaseURL else {
-                return nil
-            }
-
-            return mcpPath
-                .split(separator: "/")
-                .reduce(toriiBaseURL) { url, component in
-                    url.appendingPathComponent(String(component))
-                }
-        }
     }
 
     struct BitcoinNetwork: Equatable {
@@ -563,12 +548,12 @@ enum UniversalWalletRegistry {
                 name: "SORA XOR"
             )
             : nil
-        let endpoints = network.mcpEndpointURL.map { endpoint in
+        let endpoints = network.toriiBaseURL.map { toriiBaseURL in
             [
                 UniversalWalletRegistryEndpoint(
-                    id: "\(network.id)-torii-mcp",
-                    kind: .toriiMcp,
-                    url: endpoint.absoluteString,
+                    id: "\(network.id)-torii",
+                    kind: .torii,
+                    url: toriiBaseURL.absoluteString,
                     readOnly: false
                 )
             ]
@@ -594,69 +579,75 @@ enum UniversalWalletAccountProvisioning {
     /// including keys imported from another phrase, retain their own identity.
     /// Explicit root recovery uses the stricter validation below before it may
     /// persist recovery material.
+    ///
+    /// `passphrase` is the wallet password. A missing network gets the account that password
+    /// protects unless `enrollment` keeps the one the words alone open (see
+    /// `UniversalWalletPasswordEnrollment`); an account already present is never replaced.
     static func addingMissingAppOwnedAccounts(
         to wallet: MetaAccountModel,
-        mnemonic: String
+        mnemonic: String,
+        passphrase: String = "",
+        enrollment: UniversalWalletPasswordEnrollment = .unchecked
     ) throws -> MetaAccountModel {
         var accounts = wallet.chainAccounts
-        let chainIds = [
-            UniversalWalletRegistry.bitcoinMainnet.chainId,
-            UniversalWalletRegistry.bitcoinTestnet.chainId,
-            UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
-            UniversalWalletRegistry.taira.chainId
-        ]
-        for chainId in chainIds {
+        let slots: [UniversalWalletSlot] = [.bitcoinMainnet, .bitcoinTestnet, .ton, .taira]
+        for slot in slots {
             guard !accounts.contains(where: {
-                UniversalWalletChainAccountSupport.chainId($0.chainId, matches: chainId)
+                UniversalWalletChainAccountSupport.chainId($0.chainId, matches: slot.chainId)
             }) else { continue }
             // A released native TON account has its own phrase and signing key.
             // Never shadow it with a BIP39-derived account during upgrade.
-            if chainId == UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
-               wallet.legacyTonAccount != nil { continue }
+            if slot == .ton, wallet.legacyTonAccount != nil { continue }
 
-            let publicKey: Data
-            let cryptoType: CryptoType
-            switch chainId {
-            case UniversalWalletRegistry.bitcoinMainnet.chainId:
-                publicKey = try BitcoinKeyDerivation.deriveAccount(mnemonic: mnemonic, network: .mainnet).publicKey
-                cryptoType = .ecdsa
-            case UniversalWalletRegistry.bitcoinTestnet.chainId:
-                publicKey = try BitcoinKeyDerivation.deriveAccount(mnemonic: mnemonic, network: .testnet).publicKey
-                cryptoType = .ecdsa
-            case UniversalWalletRegistry.tonMainnetRegistryEntry.chainId:
-                publicKey = try TonKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
-                cryptoType = .ed25519
-            default:
-                publicKey = try IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic).publicKey
-                cryptoType = .ed25519
-            }
+            let publicKey = try slot.publicKey(for: UniversalWalletSecret(
+                mnemonic: mnemonic,
+                passphrase: enrollment.passphrase(for: slot, password: passphrase)
+            ))
             accounts.insert(ChainAccountModel(
-                chainId: chainId,
+                chainId: slot.chainId,
                 accountId: publicKey,
                 publicKey: publicKey,
-                cryptoType: cryptoType.rawValue,
+                cryptoType: slot.cryptoType.rawValue,
                 ethereumBased: false
             ))
         }
         let updatedWallet = accounts == wallet.chainAccounts ? wallet : wallet.replacingChainAccounts(accounts)
-        return try addingSolanaMainnetAccount(to: updatedWallet, mnemonic: mnemonic)
+        return try addingSolanaMainnetAccount(
+            to: updatedWallet,
+            mnemonic: mnemonic,
+            passphrase: enrollment.passphrase(for: .solana, password: passphrase)
+        )
+    }
+
+    /// The networks `addingMissingAppOwnedAccounts` would add to `wallet`.
+    static func missingSlots(in wallet: MetaAccountModel) -> Set<UniversalWalletSlot> {
+        Set(UniversalWalletSlot.allCases.filter { slot in
+            switch slot {
+            case .solana:
+                return !wallet.chainAccounts.contains {
+                    UniversalWalletChainAccountSupport.isValidSolanaAccount($0, chainId: slot.chainId)
+                }
+            case .ton where wallet.legacyTonAccount != nil:
+                return false
+            default:
+                return !wallet.chainAccounts.contains {
+                    UniversalWalletChainAccountSupport.chainId($0.chainId, matches: slot.chainId)
+                }
+            }
+        })
     }
 
     static func addingAppOwnedAccounts(
         to wallet: MetaAccountModel,
-        mnemonic: String
+        mnemonic: String,
+        passphrase: String = "",
+        enrollment: UniversalWalletPasswordEnrollment = .unchecked
     ) throws -> MetaAccountModel {
-        let bitcoinPublicKey = try BitcoinKeyDerivation.deriveAccount(
-            mnemonic: mnemonic,
-            network: .mainnet
-        ).publicKey
-        let tairaPublicKey = try IrohaKeyDerivation.deriveAccount(
-            mnemonic: mnemonic
-        ).publicKey
+        let secret = UniversalWalletSecret(mnemonic: mnemonic, passphrase: passphrase)
         _ = try validateExistingAccount(
             in: wallet,
             chainId: UniversalWalletRegistry.bitcoinMainnet.chainId,
-            candidatePublicKey: bitcoinPublicKey,
+            candidatePublicKeys: secret.candidates.map { try UniversalWalletSlot.bitcoinMainnet.publicKey(for: $0) },
             isStructurallyValid: {
                 UniversalWalletChainAccountSupport.isValidBitcoinAccount($0)
             }
@@ -664,19 +655,26 @@ enum UniversalWalletAccountProvisioning {
         _ = try validateExistingAccount(
             in: wallet,
             chainId: UniversalWalletRegistry.taira.chainId,
-            candidatePublicKey: tairaPublicKey,
+            candidatePublicKeys: secret.candidates.map { try UniversalWalletSlot.taira.publicKey(for: $0) },
             isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
         )
 
         // Existing Bitcoin/Taira recovery validation remains strict. Other
         // dedicated accounts keep their independently imported identity.
-        return try addingMissingAppOwnedAccounts(to: wallet, mnemonic: mnemonic)
+        return try addingMissingAppOwnedAccounts(
+            to: wallet,
+            mnemonic: mnemonic,
+            passphrase: passphrase,
+            enrollment: enrollment
+        )
     }
 
+    /// An existing account must be one the phrase derives: with the wallet password, or
+    /// without it as every earlier release did.
     private static func validateExistingAccount(
         in wallet: MetaAccountModel,
         chainId: ChainModel.Id,
-        candidatePublicKey: Data,
+        candidatePublicKeys: [Data],
         isStructurallyValid: (ChainAccountModel) -> Bool
     ) throws -> Bool {
         let accounts = wallet.chainAccounts.filter {
@@ -688,7 +686,7 @@ enum UniversalWalletAccountProvisioning {
         guard let account = accounts.first else {
             return false
         }
-        guard isStructurallyValid(account), account.publicKey == candidatePublicKey else {
+        guard isStructurallyValid(account), candidatePublicKeys.contains(account.publicKey) else {
             throw UniversalWalletRootRecoveryError.existingAccountUsesDifferentPhrase
         }
 
@@ -697,17 +695,19 @@ enum UniversalWalletAccountProvisioning {
 
     static func addingBitcoinMainnetAccount(
         to wallet: MetaAccountModel,
-        mnemonic: String
+        mnemonic: String,
+        passphrase: String = ""
     ) throws -> MetaAccountModel {
         let chainId = UniversalWalletRegistry.bitcoinMainnet.chainId
         let account = try BitcoinKeyDerivation.deriveAccount(
             mnemonic: mnemonic,
+            passphrase: passphrase,
             network: .mainnet
         )
         if try validateExistingAccount(
             in: wallet,
             chainId: chainId,
-            candidatePublicKey: account.publicKey,
+            candidatePublicKeys: [account.publicKey],
             isStructurallyValid: { UniversalWalletChainAccountSupport.isValidBitcoinAccount($0) }
         ) {
             return wallet
@@ -738,7 +738,8 @@ enum UniversalWalletAccountProvisioning {
     /// kept too; the new account sits beside it. Only public keys are written.
     static func addingSolanaMainnetAccount(
         to wallet: MetaAccountModel,
-        mnemonic: String
+        mnemonic: String,
+        passphrase: String = ""
     ) throws -> MetaAccountModel {
         let chainId = UniversalWalletRegistry.solanaMainnet.chainId
         guard !wallet.chainAccounts.contains(where: {
@@ -747,7 +748,7 @@ enum UniversalWalletAccountProvisioning {
             return wallet
         }
 
-        let account = try SolanaKeyDerivation.deriveAccount(mnemonic: mnemonic)
+        let account = try SolanaKeyDerivation.deriveAccount(mnemonic: mnemonic, passphrase: passphrase)
         let chainAccount = ChainAccountModel(
             chainId: chainId,
             accountId: account.publicKey,
@@ -768,14 +769,15 @@ enum UniversalWalletAccountProvisioning {
 
     static func addingTairaTestnetAccount(
         to wallet: MetaAccountModel,
-        mnemonic: String
+        mnemonic: String,
+        passphrase: String = ""
     ) throws -> MetaAccountModel {
         let chainId = UniversalWalletRegistry.taira.chainId
-        let account = try IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic)
+        let account = try IrohaKeyDerivation.deriveAccount(mnemonic: mnemonic, passphrase: passphrase)
         if try validateExistingAccount(
             in: wallet,
             chainId: chainId,
-            candidatePublicKey: account.publicKey,
+            candidatePublicKeys: [account.publicKey],
             isStructurallyValid: UniversalWalletChainAccountSupport.isValidTairaAccount
         ) {
             return wallet

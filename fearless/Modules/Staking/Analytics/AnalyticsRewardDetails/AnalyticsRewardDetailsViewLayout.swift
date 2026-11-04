@@ -48,13 +48,13 @@ final class AnalyticsRewardDetailsViewLayout: UIView {
         addSubview(content)
         content.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide).inset(8)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
 
         eventIdView.snp.makeConstraints { $0.height.equalTo(52) }
         [dateView, typeView, amountView].forEach { view in
             view.snp.makeConstraints { make in
-                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+                make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
                 make.height.equalTo(48.0)
             }
         }

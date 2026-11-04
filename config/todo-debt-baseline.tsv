@@ -7,7 +7,6 @@ fearless/Common/Services/ChainRegistry/RuntimeProviderPool/RuntimeSnapshotOperat
 fearless/Modules/AddAccount/Interactors/AddAccount+AccountConfirmInteractor.swift	// TODO: Check how to convert this to chain account import
 fearless/Modules/PolkaswapFlow/PolkaswapAdjustment/PolkaswapAdjustmentPresenter.swift	// TODO: - need think about this
 fearless/Modules/Profile/ProfileViewFactory.swift	// TODO: Eth account info fetching
-fearless/Modules/Staking/SelectValidatorsFlow/ValidatorInfo/Flow/Parachain/ValidatorInfoParachainViewModelFactory.swift	// TODO: Has slashes real value
 fearlessTests/Modules/ControllerAccountConfirmation/ControllerAccountConfirmationTests.swift	// TODO
 fearlessTests/Modules/StakingUnbondSetup/StakingUnbondSetupTests.swift	// TODO
 # Third-party TON SDK 1.0.4 source, pinned and documented in Packages/ton-swift/FEARLESS_PATCHES.md.

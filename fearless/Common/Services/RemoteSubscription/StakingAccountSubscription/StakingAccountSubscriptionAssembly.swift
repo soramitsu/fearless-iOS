@@ -11,34 +11,17 @@ enum StakingAccountSubscriptionAssembly {
         provider: StreamableProvider<StashItem>,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
         operationQueue: OperationQueue,
-        logger: LoggerProtocol? = nil,
-        stakingType: StakingType
+        logger: LoggerProtocol? = nil
     ) -> StakingAccountSubscription {
-        switch chainAsset.chain.stakingSettings?.type {
-        case .reef:
-            return StakingAccountSubscriptionV13(
-                accountId: accountId,
-                chainAsset: chainAsset,
-                chainFormat: chainFormat,
-                chainRegistry: chainRegistry,
-                provider: provider,
-                childSubscriptionFactory: childSubscriptionFactory,
-                operationQueue: operationQueue,
-                logger: logger,
-                stakingType: stakingType
-            )
-        default:
-            return StakingAccountSubscriptionV14(
-                accountId: accountId,
-                chainAsset: chainAsset,
-                chainFormat: chainFormat,
-                chainRegistry: chainRegistry,
-                provider: provider,
-                childSubscriptionFactory: childSubscriptionFactory,
-                operationQueue: operationQueue,
-                logger: logger,
-                stakingType: stakingType
-            )
-        }
+        StakingAccountSubscriptionV14(
+            accountId: accountId,
+            chainAsset: chainAsset,
+            chainFormat: chainFormat,
+            chainRegistry: chainRegistry,
+            provider: provider,
+            childSubscriptionFactory: childSubscriptionFactory,
+            operationQueue: operationQueue,
+            logger: logger
+        )
     }
 }

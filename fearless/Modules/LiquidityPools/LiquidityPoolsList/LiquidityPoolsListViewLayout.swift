@@ -128,7 +128,8 @@ final class LiquidityPoolsListViewLayout: UIView {
     private func setupConstraints() {
         vStackView.snp.makeConstraints { make in
             make.bottom.lessThanOrEqualToSuperview()
-            make.leading.trailing.top.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         separatorView.snp.makeConstraints { make in
@@ -142,7 +143,7 @@ final class LiquidityPoolsListViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(vStackView.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(safeAreaLayoutGuide)
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }
 

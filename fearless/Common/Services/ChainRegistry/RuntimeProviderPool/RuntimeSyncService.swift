@@ -220,7 +220,10 @@ final class RuntimeSyncService {
             do {
                 let currentItem = try localMetadataOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                if let item = currentItem, item.version == runtimeVersion.specVersion {
+                if let item = currentItem,
+                   item.chain == chainId,
+                   item.version == runtimeVersion.specVersion,
+                   item.txVersion == runtimeVersion.transactionVersion {
                     remoteMetadaOperation.result = .failure(RuntimeSyncServiceError.skipMetadataUnchanged)
                 }
             } catch {
@@ -253,7 +256,9 @@ final class RuntimeSyncService {
                 let metadataItem = try buildRuntimeMetadataOperation.extractNoCancellableResultData()
                 return metadataItem
             } catch let error as RuntimeSyncServiceError where error == .skipMetadataUnchanged {
-                return nil
+                // A newly created provider still needs this readiness event even when
+                // the persisted metadata already matches the observed runtime version.
+                return try localMetadataOperation.extractNoCancellableResultData()
             }
         }
 

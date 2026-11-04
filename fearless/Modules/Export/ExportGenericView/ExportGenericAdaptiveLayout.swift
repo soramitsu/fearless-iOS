@@ -19,7 +19,7 @@ final class ExportGenericAdaptiveLayout {
         headingLabel.accessibilityTraits.insert(.header)
         container.stackView.insertArrangedSubview(headingLabel, at: 0)
         headingLabel.widthAnchor.constraint(
-            equalTo: root.widthAnchor, constant: -2 * UIConstants.horizontalInset
+            equalTo: root.safeAreaLayoutGuide.widthAnchor, constant: -2 * UIConstants.horizontalInset
         ).isActive = true
         expandable.constraints.filter { $0.firstAttribute == .height && $0.secondItem == nil }
             .forEach { $0.isActive = false }
@@ -57,7 +57,7 @@ final class ExportGenericAdaptiveLayout {
     func updateWidth() {
         let width = max(
             1,
-            root.bounds.width - 2 * UIConstants.horizontalInset
+            root.bounds.inset(by: root.safeAreaInsets).width - 2 * UIConstants.horizontalInset
                 - expandable.contentInsets.left - expandable.contentInsets.right
                 - expandable.horizontalSpacing - (expandable.indicator?.intrinsicContentSize.width ?? 0)
         )

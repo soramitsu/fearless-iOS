@@ -9,10 +9,3 @@ struct SelectValidatorsConfirmRelaychainModel {
     let hasExistingBond: Bool
     let hasExistingNomination: Bool
 }
-
-struct SelectValidatorsConfirmParachainModel {
-    let wallet: DisplayAddress
-    let amount: Decimal
-    let target: ParachainStakingCandidateInfo
-    let maxTargets: Int
-}

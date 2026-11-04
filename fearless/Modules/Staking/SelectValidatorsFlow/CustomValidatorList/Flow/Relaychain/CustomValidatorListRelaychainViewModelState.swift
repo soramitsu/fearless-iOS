@@ -65,8 +65,6 @@ final class CustomValidatorListRelaychainViewModelState: CustomValidatorListView
         }
 
         switch baseFlow {
-        case .parachain:
-            return nil
         case let .relaychainInitiated(_, _, _, maxTargets, bonding):
             return .relaychainInitiated(
                 validatorList: selectedValidatorList.items,

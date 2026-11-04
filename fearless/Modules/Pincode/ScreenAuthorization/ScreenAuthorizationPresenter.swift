@@ -62,8 +62,15 @@ extension ScreenAuthorizationPresenter: PinSetupPresenterProtocol {
         interactor.startAuth(with: self)
     }
 
+    /// UIKit marks a dismissal as begun before it calls `viewWillDisappear`, so a reply can land between the two.
+    private var isLeavingView: Bool {
+        guard let controller = view?.controller else { return false }
+        return controller.isMovingFromParent || controller.isBeingDismissed ||
+            controller.navigationController?.isBeingDismissed == true
+    }
+
     private func finish(with result: Bool) {
-        guard !finished, !result || !departurePending else { return }
+        guard !finished, !result || !(departurePending || isLeavingView) else { return }
         finished = true
         deliveryGeneration &+= 1
         interactor.cancelAuth()

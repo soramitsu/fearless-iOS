@@ -125,6 +125,14 @@ class AuditTests(unittest.TestCase):
         self.assertNotIn(field, A.REQUIRED)
         A.validate_values(self.fields | {field: ''}, SCHEMA)
 
+    def test_kaiascan_is_optional_because_kaia_history_fails_closed_without_it(self):
+        field = 'BlockExplorerApiKeys.kaiaScanApiKey'
+        self.assertNotIn(field, A.REQUIRED)
+        A.validate_values(self.fields | {field: ''}, SCHEMA)
+        source = (REPO / 'fearless/CoreLayer/OperationFactory/BlockExplorer/History/Main/'
+                  'KaiaHistoryOperationFactory.swift').read_text()
+        self.assertIn('throw KaiaHistoryError.missingAPIKey', source)
+
     def test_optional_placeholders_are_rejected_but_real_optional_values_are_allowed(self):
         for field in SCHEMA.keys() - A.REQUIRED:
             with self.subTest(field=field):

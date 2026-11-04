@@ -97,7 +97,7 @@ final class RuntimeProvider {
         self.repository = repository
         self.usedRuntimePaths = usedRuntimePaths
         initialChainMetadata = chainMetadata
-        self.chainTypes = chainTypes
+        self.chainTypes = AssetHubStakingRoute.runtimeTypes(for: chainModel.chainId, existing: chainTypes)
 
         self.operationQueue.maxConcurrentOperationCount = 10
 
@@ -402,6 +402,7 @@ extension RuntimeProvider: EventVisitorProtocol {
         currentWrapper?.cancel()
         currentWrapper = nil
 
+        initialChainMetadata = event.metadata
         buildSnapshot(for: event.metadata)
     }
 }

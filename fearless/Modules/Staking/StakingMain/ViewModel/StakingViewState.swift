@@ -14,10 +14,4 @@ enum StakingViewState {
         analyticsViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
     )
     case noStash(viewModel: StakingEstimationViewModel, alerts: [StakingAlert])
-    case delegations(
-        rewardViewModel: StakingEstimationViewModel,
-        delegationViewModels: [DelegationInfoCellModel]?,
-        alerts: [StakingAlert],
-        analyticsViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
-    )
 }
