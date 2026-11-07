@@ -8,8 +8,29 @@ uses only Apple's system frameworks (Foundation, CryptoKit, Security, Combine), 
 
 The app plays the wallet role: dApps pair with Fearless by its pairing link, propose sessions, and send requests. The
 client does exactly that. A session in which Fearless is the controller is a wallet session; the client refuses
-requests in any other, and namespace updates or extensions from the dApp. The app's signing policy is unchanged:
-`WalletConnectSigningPolicy.production` still declines every request before a key is read.
+requests in any other, and namespace updates or extensions from the dApp.
+
+## Pairing and signing in the app
+
+- **Pairing.** A `wc:` QR code from the scanner or the gallery, a `wc:` link, or `fearless://wc?uri=<wc: URI>`
+  (`WalletConnectURLHandler`). A link that opens the app waits until WalletConnect starts after the unlock; a link that
+  cannot pair gets a notice. A `wc:` link without a key only brings the wallet forward.
+- **What is signed.** EVM `personal_sign`, `eth_signTypedData` and `eth_signTypedData_v4` (the legacy array form is
+  declined), `eth_signTransaction` and `eth_sendTransaction`, and Polkadot `polkadot_signMessage` and
+  `polkadot_signTransaction`. Before the confirmation opens, the request is
+  bound to an account the session approved, checked against its network, and decoded: an EVM transaction is quoted
+  by the wallet, a Substrate call must encode back to the dApp's bytes for the chain's runtime, and messages are
+  signed inside polkadot-js's `<Bytes>` envelope.
+- **Confirmation.** It shows the network, the recipient, the amount and the fee (for messages, the text), the wallet
+  and account, the app, and the site the request came from as WalletConnect Verify reports it: on a domain mismatch
+  the site Verify saw, and "Domain not verified" with a warning when Verify could not check it. Apps Verify flags as
+  scams are declined before anything opens.
+- **The PIN.** Sign asks for the PIN or trusted biometrics through `SubmissionAuthorizer`, as every fund-moving and
+  staking submission does; without a PIN nothing is signed.
+- **Remote vetoes.** `evm_dapp_signing_enabled` and `polkadot_dapp_signing_enabled` in the remote feature toggles can
+  pause signing per network (`ton_dapp_signing_enabled` does the same for TON Connect). An absent key keeps signing
+  on; only an explicit `false` pauses it, and the pause is remembered until an explicit `true`. A paused request is
+  declined and the user is told nothing was signed; the confirmation checks again before and after the PIN.
 
 ## Files
 
@@ -95,6 +116,9 @@ Proposals and requests in flight are not imported.
   - `scripts/walletconnect/reference-dapp.mjs` runs `@walletconnect/sign-client` as a dApp on the live relay, and
     `LiveRelayInteropTests` runs the wallet against it: approval, an answered and a refused request, pings both ways,
     the wallet's disconnection, and a refused second proposal.
+  - `scripts/walletconnect/reference-dapp-sign.mjs` asks for real `personal_sign`, `eth_signTypedData_v4` and
+    `polkadot_signMessage` signatures and checks them with `ox` and `@noble/curves`; `WalletConnectLiveSigningTests`
+    (`FEARLESS_WC_SIGN_LIVE=1`) answers with the app's own preparation and signer.
 
 ```bash
 cd Packages/FearlessWalletConnect && swift test
