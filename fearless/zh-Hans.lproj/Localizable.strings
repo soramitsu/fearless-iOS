@@ -1125,13 +1125,6 @@
 "wallet.balance.redeemable" = "可赎回";
 "wallet.balance.reserved" = "保留";
 "wallet.balance.unbonding_v1.9.0" = "解除质押";
-"wallet.connect.connection.complete" = "来自%@的连接已成功完成";
-"wallet.connect.connection.dissconnected" = "成功完成与%@的断开连接。";
-"wallet.connect.invalid.url.message" = "我们的应用程序仅支持Wallet Connect SDK v2，不支持已弃用的SDK v1。请使用适当的版本以确保成功连接。";
-"wallet.connect.invalid.url.title" = "警告：不支持 Wallet Connect SDK v1";
-"wallet.connect.sign.warning.message" = "警告：签署此消息可能会产生危险的副作用。只有在您完全信任的网站上，才使用您的整个账户签署消息。";
-"wallet.connect.signing.unavailable.message" = "已连接的应用请求 Fearless 签名。该请求已被拒绝，没有任何内容被签名。您可以照常使用钱包，并在个人资料的 WalletConnect 中断开应用连接。";
-"wallet.connect.signing.unavailable.title" = "此版本暂不支持 WalletConnect 签名";
 "wallet.contacts.empty.title" = "您的账户和您发送转账的联系人将会显示在这里";
 "wallet.contacts.empty.title_v1.10" = "您的账户和联系人\
 您发送给谁的转账会出现在这里";
@@ -1315,7 +1308,15 @@
 "recovery.read_failed" = "无法读取已保存的数据。请将其保留在此设备上并重试。";
 "recovery.close" = "关闭";
 "recovery.share" = "分享";
-"recovery.export_warning" = "此导出包含按原样保存并以 Base64 编码的秘密恢复资料。资料可能不完整或无效，并非经过验证的钱包备份。任何收到资料的人都可能控制您的资金。请仅保存到可信的位置。无法读取的条目会单独列出。切勿发送给客服。";
+"recovery.export_warning" = "这会把此设备上存储的所有钱包秘密生成一个加密文件。任何同时拥有该文件和密码的人都能转走您的资金。切勿发送给客服。";
+"recovery.export_summary" = "已存储项目：%1$d。无法读取的项目：%2$d。";
+"recovery.export_password" = "密码（至少 8 个字符）";
+"recovery.export_password_repeat" = "再次输入密码";
+"recovery.export_password_short" = "请至少使用 8 个字符。";
+"recovery.export_password_mismatch" = "两次输入的密码不一致。";
+"recovery.export_create" = "创建加密文件";
+"recovery.export_ready" = "加密文件已就绪。没有此密码将无法打开。";
+"recovery.export_failed" = "无法创建加密文件。未共享任何内容。";
 "recovery.locked" = "已锁定。请关闭此页面并重新验证身份。";
 "recovery.restore_access_warning" = "您可以导入恢复短语以恢复访问。如果钱包列表无法读取，原始数据将保留在此设备上。密钥和当前 PIN 将保留。如果没有其他副本，请先导出已保存的恢复资料。";
 "recovery.continue" = "继续";
@@ -1528,3 +1529,9 @@
 "substrate.password.choice.nfkd" = "所有 Fearless 应用";
 "substrate.password.choice.nfc" = "早期浏览器扩展";
 "substrate.password.choice.asTyped" = "浏览器扩展 3.0（按输入原样）";
+"pincode.lockout.message" = "尝试次数过多。请在 %@ 后重试";
+"secret.capture.hidden" = "屏幕录制或镜像期间已隐藏。";
+"secret.screenshot.message" = "任何拿到此截图的人都能盗取您的资金。请删除它。";
+"tonconnect.disabled" = "TON Connect 暂时停用，请稍后再试。";
+"tonconnect.domain.mismatch" = "自称是 %@，但未经验证。";
+"tonconnect.proof.refused" = "此链接来自 %1$@，却自称是 %2$@。已拒绝登录。";

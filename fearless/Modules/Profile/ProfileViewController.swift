@@ -57,8 +57,8 @@ final class ProfileViewController: UIViewController, ViewHolder, AdaptiveFullWid
                 return [.networkAssets]
             case .connections:
                 return IrohaConnectReleasePolicy.production.isEnabled
-                    ? [.walletConnect, .tonConnect, .irohaConnect]
-                    : [.walletConnect, .tonConnect]
+                    ? [.tonConnect, .irohaConnect]
+                    : [.tonConnect]
             case .security:
                 return [.changePincode, .biometry]
             case .preferences:

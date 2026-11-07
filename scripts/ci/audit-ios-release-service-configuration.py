@@ -14,11 +14,11 @@ import re
 import sys
 
 PREFIX = '[ios-release-service-configuration]'
-# Active Release credential consumers: ChainRegistry,
-# WalletConnectService, Google backup, Alchemy and Etherscan V2 history.
+# Active Release credential consumers: ChainRegistry, Google backup, Alchemy and
+# Etherscan V2 history. WalletConnect was removed (its SDK is not open source), so
+# no WalletConnect project identifier is generated or required.
 REQUIRED = frozenset({
     'TonNodeApiKey.tonApiKey',
-    'WalletConnect.projectId',
     'GoogleBackup.googleToken',
     'GoogleBackup.googleUrlScheme',
     'ThirdPartyServicesApiKeys.alchemyApiKey',
@@ -112,8 +112,6 @@ def validate_values(values, schema):
             failures.append(field + ': implausibly short required setting')
     if failures:
         raise AuditFailure('; '.join(failures))
-    if not re.fullmatch(r'[0-9a-fA-F]{32}', values['WalletConnect.projectId']):
-        raise AuditFailure('WalletConnect.projectId: invalid project identifier shape')
     if not CLIENT_ID.fullmatch(values['GoogleBackup.googleToken']):
         raise AuditFailure('GoogleBackup.googleToken: invalid Google OAuth client shape')
     if not GOOGLE_SCHEME.fullmatch(values['GoogleBackup.googleUrlScheme']):

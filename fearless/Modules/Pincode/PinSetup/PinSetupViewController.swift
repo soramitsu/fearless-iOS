@@ -31,6 +31,10 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
     private var authorizationDeparturePending = false
     private let contentScrollView = UIScrollView()
     private let saveErrorLabel = UILabel()
+    private var lockoutRemaining: TimeInterval?
+    private lazy var lockoutCountdown = PinLockoutCountdown(onChange: { [weak self] remaining in
+        self?.applyLockout(remaining: remaining)
+    })
 
     @IBOutlet var topLabel: UILabel!
 
@@ -122,7 +126,12 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
     private func updateTitleLabelState() {
         let languages = localizationManager?.preferredLocalizations
 
-        if pinView.mode == .create {
+        if let lockoutRemaining = lockoutRemaining {
+            titleLabel.text = R.string.localizable.pincodeLockoutMessage(
+                PinLockoutCountdown.format(lockoutRemaining),
+                preferredLanguages: languages
+            )
+        } else if pinView.mode == .create {
             if pinView.creationState == .normal {
                 titleLabel.text = R.string.localizable
                     .createNewPincode(preferredLanguages: languages)
@@ -247,6 +256,16 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
     @objc func actionCancel() {
         presenter.cancel()
     }
+
+    // MARK: Lockout
+
+    private func applyLockout(remaining: TimeInterval?) {
+        lockoutRemaining = remaining
+        if remaining == nil {
+            pinView.setPinEntryEnabled(true)
+        }
+        updateTitleLabelState()
+    }
 }
 
 extension PinSetupViewController: PinSetupViewProtocol {
@@ -311,6 +330,13 @@ extension PinSetupViewController: PinSetupViewProtocol {
         }
     }
 
+    func didReceiveLockout(remaining: TimeInterval) {
+        guard remaining > 0 else { return }
+        pinView.setPinEntryEnabled(false)
+        lockoutCountdown.start(remaining: remaining)
+        UIAccessibility.post(notification: .announcement, argument: titleLabel.text)
+    }
+
     func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType) {
         pinView?.numpadView?.supportsAccessoryControl = enabled
         pinView?.numpadView?.accessoryIcon = availableBiometryType.accessoryIcon?.tinted(
@@ -322,7 +348,11 @@ extension PinSetupViewController: PinSetupViewProtocol {
 extension PinSetupViewController: PinViewDelegate {
     func didFailConfirmation(pinView _: PinView) {}
 
-    func didCompleteInput(pinView _: PinView, result: String) {
+    func didCompleteInput(pinView: PinView, result: String) {
+        guard lockoutRemaining == nil else {
+            pinView.reset(shouldAnimateError: false)
+            return
+        }
         presenter.submit(pin: result)
     }
 

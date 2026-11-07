@@ -8,6 +8,8 @@ enum RemoteKillSwitch: String, CaseIterable {
     case polkaswapMutations = "polkaswap_mutations"
     case bitcoinSend = "bitcoin_send"
     case solanaSend = "solana_send"
+    /// TON Connect links, connections and transaction signing.
+    case tonConnect = "ton_connect"
 
     var storageKey: String {
         "feature.kill_switch.\(rawValue)"
@@ -23,6 +25,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
     let crossChainMutationsEnabled: Bool
     let bitcoinSendEnabled: Bool
     let solanaSendEnabled: Bool
+    let tonConnectEnabled: Bool
     let assetDiscoveryShadowMode: Bool
     let signedMutationAuthorization: String?
     /// Kill-switch values the payload stated explicitly. Only these record or
@@ -38,6 +41,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
         crossChainMutationsEnabled: Bool = false,
         bitcoinSendEnabled: Bool = true,
         solanaSendEnabled: Bool = true,
+        tonConnectEnabled: Bool = true,
         assetDiscoveryShadowMode: Bool = true,
         signedMutationAuthorization: String? = nil,
         explicitKillSwitches: [RemoteKillSwitch: Bool] = [:]
@@ -50,6 +54,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
         self.crossChainMutationsEnabled = crossChainMutationsEnabled
         self.bitcoinSendEnabled = bitcoinSendEnabled
         self.solanaSendEnabled = solanaSendEnabled
+        self.tonConnectEnabled = tonConnectEnabled
         self.assetDiscoveryShadowMode = assetDiscoveryShadowMode
         self.signedMutationAuthorization = signedMutationAuthorization
         self.explicitKillSwitches = explicitKillSwitches
@@ -67,6 +72,8 @@ struct FeatureToggleConfig: Decodable, Equatable {
         case bitcoinSendEnabledLegacy = "bitcoin_send_enabled"
         case solanaSendEnabled
         case solanaSendEnabledLegacy = "solana_send_enabled"
+        case tonConnectEnabled
+        case tonConnectEnabledLegacy = "ton_connect_enabled"
         case assetDiscoveryShadowMode
         case signedMutationAuthorization = "mutation_authorization"
         case normalizedMutationAuthorization = "mutationAuthorization"
@@ -97,13 +104,22 @@ struct FeatureToggleConfig: Decodable, Equatable {
             Bool.self,
             forKey: .solanaSendEnabledLegacy
         )
+        let remoteTonConnect = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .tonConnectEnabled
+        ) ?? container.decodeIfPresent(
+            Bool.self,
+            forKey: .tonConnectEnabledLegacy
+        )
         polkaswapMutationsEnabled = remotePolkaswap ?? true
         bitcoinSendEnabled = remoteBitcoinSend ?? true
         solanaSendEnabled = remoteSolanaSend ?? true
+        tonConnectEnabled = remoteTonConnect ?? true
         let remoteKillSwitches: [RemoteKillSwitch: Bool?] = [
             .polkaswapMutations: remotePolkaswap,
             .bitcoinSend: remoteBitcoinSend,
-            .solanaSend: remoteSolanaSend
+            .solanaSend: remoteSolanaSend,
+            .tonConnect: remoteTonConnect
         ]
         explicitKillSwitches = remoteKillSwitches.compactMapValues { $0 }
         demeterMutationsEnabled = try container.decodeIfPresent(
@@ -183,7 +199,7 @@ final class RemoteKillSwitchStore {
 }
 
 /// Process-wide, read-only-at-call-site policy for remote action kill switches.
-/// Polkaswap, Bitcoin send and Solana send ship enabled, so they stay available
+/// Polkaswap, Bitcoin send, Solana send and TON Connect ship enabled, so they stay available
 /// when their keys are absent from the legacy remote payload; an explicit false
 /// pauses them and is remembered until an explicit true (`RemoteKillSwitchStore`).
 /// New destinations continue to default fail-closed.
@@ -208,6 +224,7 @@ enum MultiChainFeaturePolicy {
             crossChainMutationsEnabled: config.crossChainMutationsEnabled && authority?.isAllowed(.xcm) == true,
             bitcoinSendEnabled: config.bitcoinSendEnabled && !vetoes.contains(.bitcoinSend),
             solanaSendEnabled: config.solanaSendEnabled && !vetoes.contains(.solanaSend),
+            tonConnectEnabled: config.tonConnectEnabled && !vetoes.contains(.tonConnect),
             assetDiscoveryShadowMode: config.assetDiscoveryShadowMode
         )
     }

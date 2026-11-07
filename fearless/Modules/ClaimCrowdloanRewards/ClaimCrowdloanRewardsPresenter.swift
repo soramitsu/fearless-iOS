@@ -14,6 +14,7 @@ final class ClaimCrowdloanRewardsPresenter {
     private let wallet: MetaAccountModel
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let viewModelFactory: ClaimCrowdloanRewardViewModelFactoryProtocol
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var tokenLocks: [LockProtocol]?
     private var balanceLocks: [LockProtocol]?
@@ -35,8 +36,10 @@ final class ClaimCrowdloanRewardsPresenter {
         chainAsset: ChainAsset,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         viewModelFactory: ClaimCrowdloanRewardViewModelFactoryProtocol,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.router = router
         self.logger = logger
@@ -125,7 +128,9 @@ extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsViewOutput {
     }
 
     func confirmButtonClicked() {
-        interactor.submit()
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            self?.interactor.submit()
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 import Foundation
 import UIKit
-import WalletConnectSign
 import SoraFoundation
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {

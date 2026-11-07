@@ -117,6 +117,14 @@ final class StartupRecoveryPresenterTests: XCTestCase {
             "close",
             "share",
             "export_warning",
+            "export_summary",
+            "export_password",
+            "export_password_repeat",
+            "export_password_short",
+            "export_password_mismatch",
+            "export_create",
+            "export_ready",
+            "export_failed",
             "locked",
             "restore_access_warning",
             "continue",
@@ -163,18 +171,33 @@ final class StartupRecoveryPresenterTests: XCTestCase {
     }
 
     @MainActor
-    func testEmergencyPreviewClearsMaterialAndShareActionBeforeAppSnapshot() throws {
-        let record = EmergencyWalletMaterial.Record(
-            tag: "historical-entropy",
-            bytesBase64: Data([1, 2, 3]).base64EncodedString()
-        )
+    func testEmergencyExportNeverShowsSecretsAndLocksBeforeAppSnapshot() throws {
+        let secret = Data([1, 2, 3]).base64EncodedString()
+        let record = EmergencyWalletMaterial.Record(tag: "historical-entropy", bytesBase64: secret)
         let controller = EmergencyWalletMaterialViewController(material: .init(records: [record], unreadableTags: []))
         controller.loadViewIfNeeded()
-        let text = try XCTUnwrap(controller.view.subviews.compactMap { $0 as? UITextView }.first)
-        XCTAssertTrue(text.text.contains("historical-entropy"))
-        XCTAssertNotNil(controller.navigationItem.rightBarButtonItem)
+
+        let visible = [controller.messageLabel.text, controller.statusLabel.text].compactMap { $0 }.joined()
+        XCTAssertFalse(visible.contains("historical-entropy"))
+        XCTAssertFalse(visible.contains(secret))
+        XCTAssertTrue(controller.passwordField.isSecureTextEntry)
+        XCTAssertTrue(controller.confirmationField.isSecureTextEntry)
+        XCTAssertNil(controller.navigationItem.rightBarButtonItem, "Nothing can be shared before it is encrypted")
+
+        controller.passwordField.text = "short"
+        controller.confirmationField.text = "short"
+        controller.createEncryptedFile()
+        XCTAssertEqual(controller.statusLabel.text, RecoveryText.string("export_password_short"))
+
+        controller.passwordField.text = "long enough 1"
+        controller.confirmationField.text = "long enough 2"
+        controller.createEncryptedFile()
+        XCTAssertEqual(controller.statusLabel.text, RecoveryText.string("export_password_mismatch"))
+
         NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
-        XCTAssertFalse(text.text.contains("historical-entropy"))
+        XCTAssertEqual(controller.messageLabel.text, RecoveryText.string("locked"))
+        XCTAssertFalse(controller.createButton.isEnabled)
+        XCTAssertFalse(controller.passwordField.isEnabled)
         XCTAssertNil(controller.navigationItem.rightBarButtonItem)
     }
 

@@ -82,7 +82,6 @@ let package = Package(
             ]
         ),
         .binaryTarget(name: "sr25519lib", path: "Binaries/sr25519lib.xcframework"),
-        .binaryTarget(name: "sorawallet", path: "Binaries/sorawallet.xcframework"),
         .target(
             name: "scrypt",
             sources: [
@@ -170,10 +169,7 @@ let package = Package(
                 "scrypt"
             ],
             publicHeadersPath: "include",
-            cSettings: [ .headerSearchPath(".") ],
-            linkerSettings: [
-                .linkedFramework("sorawallet")
-            ]
+            cSettings: [ .headerSearchPath(".") ]
         ),
         .target(
             name: "SSFCloudStorage",
@@ -367,7 +363,6 @@ let package = Package(
                 "SSFModels",
                 "SSFStorageQueryKit",
                 "SSFPools",
-                "sorawallet",
                 "SSFPoolsStorage",
                 "SSFExtrinsicKit",
                 "SSFSigner",

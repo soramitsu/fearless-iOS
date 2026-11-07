@@ -258,7 +258,6 @@ Verification matrix (execute manually):
 - Westend: basic transfer path for low‑risk checks.
 
 ## iOS Backlog (illustrative)
-- [ ] WalletConnect: improve session reconnection reliability and error surfacing.
 - [ ] EVM chains: handle gas estimation failures gracefully; improve fee UI for L2s.
 - [ ] Staking: optimize validators list loading and caching on slow networks.
 - [ ] Localization: audit new/changed strings across all `.lproj`; fill gaps.

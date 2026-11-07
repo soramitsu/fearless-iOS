@@ -19,11 +19,11 @@ Third-party components retain their own terms and notices:
   Apache license does not relicense this vendored directory.
 - native/sr25519crust/: Apache-2.0; see its LICENSE and the Soramitsu, Paritytech,
   and @polkadot/wasm-schnorrkel attribution in src/lib.rs.
-- tools/sourcery-2.1.3/: MIT-licensed Sourcery by Krzysztof Zabłocki; see its
-  LICENSE. Bundled documentation and libraries retain their own embedded notices.
-- Binaries/: prebuilt frameworks retain their upstream terms and notices. In
-  particular, MPQRCoreSDK contains MasterCard and Muchamad Chozinul Amri notices.
-  The root Apache license does not relicense third-party binary components.
+- Binaries/sr25519lib.xcframework: built from native/sr25519crust (Apache-2.0)
+  and its Cargo.lock-pinned crates.io dependencies, which keep their own
+  licenses. No closed-source binary ships in this package: the Kotlin/Native
+  sorawallet framework was removed on 2026-11-07 (see
+  docs/prebuilt-binary-provenance.md).
 
 External package dependencies retain their respective licenses. Preserve their
 license and attribution files when redistributing them.

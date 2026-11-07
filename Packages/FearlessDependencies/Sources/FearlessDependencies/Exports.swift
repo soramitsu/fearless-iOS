@@ -37,22 +37,6 @@
 @_exported import SwiftyBeaver
 #endif
 
-#if canImport(WalletConnectSign)
-@_exported import WalletConnectSign
-#endif
-
-#if canImport(WalletConnectNetworking)
-@_exported import WalletConnectNetworking
-#endif
-
-#if canImport(WalletConnectPairing)
-@_exported import WalletConnectPairing
-#endif
-
-#if canImport(ReownWalletKit)
-@_exported import ReownWalletKit
-#endif
-
 #if canImport(TonAPI)
 @_exported import TonAPI
 #endif

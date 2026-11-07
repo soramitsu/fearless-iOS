@@ -8,8 +8,7 @@ final class AllDoneAssembly {
         hashString: String?,
         title: String? = nil,
         description: String? = nil,
-        closure: (() -> Void)? = nil,
-        isWalletConnectResult: Bool = false
+        closure: (() -> Void)? = nil
     ) -> AllDoneModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -26,7 +25,6 @@ final class AllDoneAssembly {
             closure: closure,
             title: title,
             description: description,
-            isWalletConnectResult: isWalletConnectResult,
             localizationManager: localizationManager
         )
 

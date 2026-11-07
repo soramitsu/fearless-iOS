@@ -757,7 +757,6 @@ final class UniversalWalletPasswordTests: XCTestCase {
             eventCenter: eventCenter,
             deprecatedAccountsCheckService: PasswordSwitchNoDeprecatedAccounts(),
             applicationHandler: ApplicationHandler(),
-            walletConnectService: WalletConnectServiceImpl(),
             featureToggleService: PasswordSwitchStaticFeatures(),
             walletRecordsInspector: StoredWalletRecordsInspector(storageFacade: facade),
             walletRecordsNoticeTracker: WalletDetailsPasswordSwitchNoticeTracker(),
@@ -921,8 +920,7 @@ final class UniversalWalletPasswordTests: XCTestCase {
             selectedMetaAccount: current,
             walletBalanceSubscriptionAdapter: PasswordSwitchNoBalances(),
             walletRepository: repository,
-            chainsIssuesCenter: PasswordSwitchNoChainIssues(),
-            walletConnectDisconnectService: PasswordSwitchNoDisconnect()
+            chainsIssuesCenter: PasswordSwitchNoChainIssues()
         )
         interactor.setup(with: output)
         output.reset()
@@ -1927,9 +1925,4 @@ private struct PasswordSwitchNoChainIssues: ChainsIssuesCenterProtocol {
     func addIssuesListener(_: ChainsIssuesCenterListener, getExisting _: Bool) {}
     func removeIssuesListener(_: ChainsIssuesCenterListener) {}
     func forceNotify() {}
-}
-
-private struct PasswordSwitchNoDisconnect: WalletConnectDisconnectService {
-    func disconnect(wallet _: MetaAccountModel) async throws {}
-    func disconnectAllSessions() {}
 }

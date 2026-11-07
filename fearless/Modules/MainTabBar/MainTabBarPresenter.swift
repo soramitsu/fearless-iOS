@@ -1,5 +1,4 @@
 import Foundation
-import WalletConnectSign
 import UIKit
 import SoraFoundation
 import SSFUtils
@@ -13,7 +12,6 @@ final class MainTabBarPresenter {
 
     private let reachability: ReachabilityManager?
     private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
-    private let walletConnectCoordinator: WalletConnectCoordinator
     private var wallet: MetaAccountModel
 
     init(
@@ -23,7 +21,6 @@ final class MainTabBarPresenter {
         applicationHandler: ApplicationHandler,
         networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol,
         reachability: ReachabilityManager?,
-        walletConnectCoordinator: WalletConnectCoordinator,
         wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol
     ) {
@@ -33,7 +30,6 @@ final class MainTabBarPresenter {
         self.applicationHandler = applicationHandler
         self.networkStatusPresenter = networkStatusPresenter
         self.reachability = reachability
-        self.walletConnectCoordinator = walletConnectCoordinator
         self.wallet = wallet
         self.localizationManager = localizationManager
 

@@ -21,11 +21,11 @@ The wallet's carried fixes now belong in this repository's source:
   [sr25519-native-signing.md](sr25519-native-signing.md). The Ed25519 and
   BLAKE2 binaries were later replaced by pinned C sources
   ([ed25519-blake2-native-provenance.md](ed25519-blake2-native-provenance.md)).
-  `sorawallet` retains its original bytes
+  The closed-source `sorawallet` framework was removed on 2026-11-07
   ([prebuilt-binary-provenance.md](prebuilt-binary-provenance.md)).
 - Public initializers for the three existing pool parameter models.
-- The IrohaCrypto umbrella/module-map contract and explicit dynamic sorawallet
-  link directive.
+- The IrohaCrypto umbrella/module-map contract. (The explicit dynamic
+  sorawallet link directive was removed with the framework on 2026-11-07.)
 - Strict source identity verification replaces wallet post-resolution patch
   accounting once the wallet pins this source. That integration is required;
   publishing this branch alone does not eliminate the wallet patch scripts.

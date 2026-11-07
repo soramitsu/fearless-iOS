@@ -16,7 +16,6 @@ final class AllDonePresenter {
 
     private var title: String?
     private var description: String?
-    private let isWalletConnectResult: Bool
 
     private var explorer: ChainModel.ExternalApiExplorer?
 
@@ -31,7 +30,6 @@ final class AllDonePresenter {
         closure: (() -> Void)?,
         title: String? = nil,
         description: String? = nil,
-        isWalletConnectResult: Bool,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.chainAsset = chainAsset
@@ -42,7 +40,6 @@ final class AllDonePresenter {
         self.closure = closure
         self.title = title
         self.description = description
-        self.isWalletConnectResult = isWalletConnectResult
         self.localizationManager = localizationManager
     }
 
@@ -53,8 +50,7 @@ final class AllDonePresenter {
             title: title,
             description: description,
             extrinsicHash: hashString,
-            locale: selectedLocale,
-            isWalletConnectResult: isWalletConnectResult
+            locale: selectedLocale
         )
 
         view?.didReceive(viewModel: viewModel)

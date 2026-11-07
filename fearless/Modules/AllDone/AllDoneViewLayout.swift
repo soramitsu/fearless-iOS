@@ -146,11 +146,6 @@ final class AllDoneViewLayout: UIView {
             hashView.valueLabel.attributedText = hashString
             hashView.isHidden = false
             mainCloseButton.isHidden = true
-        } else if viewModel.isWalletConnectResult {
-            hashView.isHidden = true
-            successView.isHidden = true
-            infoBackground.isHidden = true
-            mainCloseButton.isHidden = false
         }
     }
 

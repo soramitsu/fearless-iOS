@@ -2,8 +2,24 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 
+/// Decides whether returning from the background needs the PIN, from monotonic clock readings.
+enum BackgroundSessionLockPolicy {
+    /// True after `limit` seconds away, and also when the clock reads earlier than when the app left: only a reboot
+    /// restarts the monotonic clock, and nothing then vouches for the time away.
+    static func requiresPin(
+        enteredBackgroundAt start: TimeInterval,
+        now: TimeInterval,
+        limit: TimeInterval = UtilityConstants.backgroundSessionDropTimeInSeconds
+    ) -> Bool {
+        let elapsed = now - start
+        return elapsed < 0 || elapsed >= limit
+    }
+}
+
 class FearlessApplication: UIApplication {
-    private lazy var goneBackgroundTimestamp = Date().timeIntervalSince1970
+    /// Monotonic time when the app entered the background. The wall clock is not used: setting it back must not
+    /// keep a backgrounded wallet unlocked.
+    private var backgroundEnteredUptime: TimeInterval?
     private var timerToDetectInactivity: Timer?
     private var applicationHandler: ApplicationHandler?
 
@@ -46,6 +62,10 @@ class FearlessApplication: UIApplication {
         }
         let window = SceneWindowFinder.activeWindow()
         if let window = window {
+            // The unlock PIN is already on screen; another one on top would ask for the PIN twice.
+            guard !Self.isShowingUnlockPin(in: window) else {
+                return
+            }
             guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
                 return
             }
@@ -54,17 +74,30 @@ class FearlessApplication: UIApplication {
             window.rootViewController?.present(pincodeViewController, animated: false)
         }
     }
+
+    static func isShowingUnlockPin(in window: UIWindow) -> Bool {
+        var controllers = [window.rootViewController].compactMap { $0 }
+        while let presented = controllers.last?.presentedViewController {
+            controllers.append(presented)
+        }
+        return controllers.contains { ($0 as? PinSetupViewController)?.presenter is LocalAuthPresenter }
+    }
 }
 
 extension FearlessApplication: ApplicationHandlerDelegate {
     func didReceiveDidEnterBackground(notification _: Notification) {
         timerToDetectInactivity?.invalidate()
-        goneBackgroundTimestamp = Date().timeIntervalSince1970
+        backgroundEnteredUptime = MonotonicClock.uptime()
     }
 
     func didReceiveWillEnterForeground(notification _: Notification) {
         resetTimer()
-        if Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
+        guard let enteredBackground = backgroundEnteredUptime else {
+            return
+        }
+        backgroundEnteredUptime = nil
+        let now = MonotonicClock.uptime()
+        if BackgroundSessionLockPolicy.requiresPin(enteredBackgroundAt: enteredBackground, now: now) {
             dropSession()
         }
     }

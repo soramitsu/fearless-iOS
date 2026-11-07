@@ -1,5 +1,4 @@
 import UIKit
-import WalletConnectSign
 
 protocol MainTabBarViewProtocol: ControllerBackedProtocol {
     var isPolkaswapUnavailable: Bool { get }

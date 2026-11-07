@@ -4,7 +4,6 @@ import SSFPolkaswap
 import SSFModels
 import SSFStorageQueryKit
 import SSFChainRegistry
-import sorawallet
 import SSFRuntimeCodingService
 
 final class LiquidityPoolsListAssembly {

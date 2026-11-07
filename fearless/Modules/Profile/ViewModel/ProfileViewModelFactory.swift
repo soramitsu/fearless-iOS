@@ -18,7 +18,6 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 }
 
 enum ProfileOption: UInt, CaseIterable {
-    case walletConnect
     case accountList
     case currency
     case language
@@ -138,8 +137,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     ) -> [ProfileOptionViewModelProtocol] {
         ProfileOption.allCases.compactMap { option -> ProfileOptionViewModel? in
             switch option {
-            case .walletConnect:
-                return createWalletConnectViewModel(locale: locale)
             case .accountList:
                 return createAccountListViewModel(
                     for: locale,
@@ -182,17 +179,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return irohaConnectPolicy.isEnabled ? createIrohaConnectViewModel() : nil
             }
         }
-    }
-
-    private func createWalletConnectViewModel(locale _: Locale) -> ProfileOptionViewModel {
-        ProfileOptionViewModel(
-            title: "Wallet connect",
-            icon: R.image.iconWalletConnect(),
-            accessoryTitle: nil,
-            accessoryImage: nil,
-            accessoryType: .arrow,
-            option: .walletConnect
-        )
     }
 
     private func createNetworkAssetsViewModel() -> ProfileOptionViewModel {

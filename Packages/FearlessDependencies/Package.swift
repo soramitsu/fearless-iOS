@@ -13,8 +13,6 @@ let package = Package(
         .library(name: "FearlessDependencies", targets: ["FearlessDependencies"])
     ],
     dependencies: [
-        // Reown (WalletConnect successor)
-        .package(url: "https://github.com/reown-com/reown-swift", from: "1.0.0"),
         // Web3
         .package(url: "https://github.com/soramitsu/web3-swift", exact: "7.7.7"),
         // Explicitly add BigInt to satisfy transitive usage in SSFModels under explicit module builds
@@ -29,7 +27,8 @@ let package = Package(
         .package(url: "https://github.com/onevcat/Kingfisher", exact: "7.10.2"),
         .package(url: "https://github.com/SnapKit/SnapKit", exact: "5.0.0"),
         // TON SDK + remote API
-        .package(url: "https://github.com/tonkeeper/ton-api-swift.git", exact: "0.1.7"),
+        // Generated in this repository from the MIT opentonapi spec (see Packages/TonAPI/README.md)
+        .package(path: "../TonAPI"),
         .package(path: "../ton-swift"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", exact: "0.3.6"),
         .package(url: "https://github.com/apple/swift-http-types", exact: "1.5.1")
@@ -38,11 +37,6 @@ let package = Package(
         .target(
             name: "FearlessDependencies",
             dependencies: [
-                // Reown products (module names are compatible with WalletConnect v2)
-                .product(name: "WalletConnect", package: "reown-swift"),
-                .product(name: "WalletConnectNetworking", package: "reown-swift"),
-                .product(name: "WalletConnectPairing", package: "reown-swift"),
-                .product(name: "ReownWalletKit", package: "reown-swift"),
                 // Web3 products
                 .product(name: "Web3", package: "web3-swift"),
                 .product(name: "Web3ContractABI", package: "web3-swift"),
@@ -59,7 +53,7 @@ let package = Package(
                 .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "SnapKit", package: "SnapKit"),
                 // TON SDK
-                .product(name: "TonAPI", package: "ton-api-swift"),
+                .product(name: "TonAPI", package: "TonAPI"),
                 .product(name: "TonSwift", package: "ton-swift"),
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "HTTPTypes", package: "swift-http-types")

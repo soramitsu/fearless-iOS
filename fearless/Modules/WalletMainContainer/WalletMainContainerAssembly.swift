@@ -7,8 +7,7 @@ import SoraKeystore
 
 final class WalletMainContainerAssembly {
     static func configureModule(
-        wallet: MetaAccountModel,
-        walletConnect: WalletConnectService
+        wallet: MetaAccountModel
     ) -> WalletMainContainerModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let localizationManager = LocalizationManager.shared
@@ -53,7 +52,6 @@ final class WalletMainContainerAssembly {
             eventCenter: EventCenter.shared,
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
             applicationHandler: ApplicationHandler(),
-            walletConnectService: walletConnect,
             featureToggleService: featureToggleProvider,
             walletRecordsInspector: AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
                 .createStoredWalletRecordsInspector(),

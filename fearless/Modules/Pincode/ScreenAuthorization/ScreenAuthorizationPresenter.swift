@@ -98,6 +98,15 @@ extension ScreenAuthorizationPresenter: LocalAuthInteractorOutputProtocol {
         }
     }
 
+    func didReceiveLockout(remaining: TimeInterval) {
+        let generation = deliveryGeneration
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.deliveryGeneration == generation,
+                  !self.finished, !self.departurePending else { return }
+            self.view?.didReceiveLockout(remaining: remaining)
+        }
+    }
+
     func didChangeState(to _: LocalAuthInteractor.LocalAuthState) {}
 
     func didCompleteAuth() {

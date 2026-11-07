@@ -601,6 +601,25 @@ final class ExportGenericPresentationTests: XCTestCase {
         capture(jsonWindow, name: "large-public-JSON-bounded-preview")
     }
 
+    func testExportGenericWarnsAfterScreenshotOnlyWhilePhraseOrSeedIsShown() async throws {
+        let localization = try XCTUnwrap(LocalizationManager(localization: "en"))
+        for (option, warns) in [(ExportOption.mnemonic, true), (.seed, true), (.keystore, false)] {
+            let (controller, _) = makeController(option: option, localization: localization)
+            let window = try show(controller, category: .large)
+            defer { close(window) }
+            await settle(window)
+            // A second screenshot while the warning is up must not stack another sheet.
+            NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+            NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            XCTAssertEqual(controller.presentedViewController is SheetAletViewController, warns, "\(option)")
+            XCTAssertNil(controller.presentedViewController?.presentedViewController)
+            if let sheet = controller.presentedViewController {
+                await withCheckedContinuation { continuation in sheet.dismiss(animated: false) { continuation.resume() } }
+            }
+        }
+    }
+
     private func fontWeight(_ font: UIFont) -> CGFloat {
         let traits = font.fontDescriptor.object(forKey: .traits) as? [UIFontDescriptor.TraitKey: Any]
         return (traits?[.weight] as? NSNumber).map { CGFloat(truncating: $0) } ?? 0
@@ -1806,6 +1825,24 @@ final class SeedShareOwnershipTests: XCTestCase {
         await withCheckedContinuation { continuation in f.view.dismiss(animated: true) { continuation.resume() } }
         XCTAssertEqual(f.wireframe.results, [true])
         XCTAssertEqual(f.interactor.backupCalls, 1)
+    }
+    func testSystemShareKeepsSeedOffPasteboardPostingPrintingAndContacts() async throws {
+        let f = try fixture(); defer { f.close() }
+        await waitUntil { f.wireframe.sheets.count == 1 && self.settled(f.view.presentedViewController, in: f.window) }
+        try await activate(try XCTUnwrap(f.wireframe.sheets[0].actions.first?.button), in: f.window)
+        await waitUntil { f.view.presentedViewController == nil }
+        f.presenter.share(f.value)
+        await waitUntil { self.settled(f.view.presentedViewController as? UIActivityViewController, in: f.window) }
+        let activity = try XCTUnwrap(f.view.presentedViewController as? UIActivityViewController)
+        let excluded = Set(activity.excludedActivityTypes ?? [])
+        let required: [UIActivity.ActivityType] = [
+            .copyToPasteboard, .print, .assignToContact, .saveToCameraRoll, .postToFacebook, .postToTwitter
+        ]
+        for activityType in required {
+            XCTAssertTrue(excluded.contains(activityType), activityType.rawValue)
+        }
+        XCTAssertEqual(excluded, Set(ExportSeedWireframe.excludedShareActivities))
+        await withCheckedContinuation { continuation in f.view.dismiss(animated: true) { continuation.resume() } }
     }
     private func settled(_ controller: UIViewController?, in window: UIWindow) -> Bool {
         guard let controller else { return false }

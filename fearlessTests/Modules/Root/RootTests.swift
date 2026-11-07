@@ -67,9 +67,11 @@ class RootTests: XCTestCase {
         verify(registry).performColdBoot()
     }
 
+    // The retired WalletConnect data cleanup clears the app group's suite, so it must
+    // resolve the group the entitlements grant to this application identity.
     func testWalletConnectGroupResolverUsesProductionEntitlementForReleaseBundle() {
         XCTAssertEqual(
-            WalletConnectGroupIdentifierResolver.resolve(
+            RetiredWalletConnectDataCleanup.groupIdentifier(
                 bundleIdentifier: "jp.co.soramitsu.fearlesswallet"
             ),
             "group.jp.co.soramitsu.fearlesswallet"
@@ -78,7 +80,7 @@ class RootTests: XCTestCase {
 
     func testWalletConnectGroupResolverUsesDevelopmentEntitlementForDevBundle() {
         XCTAssertEqual(
-            WalletConnectGroupIdentifierResolver.resolve(
+            RetiredWalletConnectDataCleanup.groupIdentifier(
                 bundleIdentifier: "jp.co.soramitsu.fearlesswallet.dev"
             ),
             "group.jp.co.soramitsu.fearlesswallet.walletconnect"
@@ -97,7 +99,7 @@ class RootTests: XCTestCase {
 
         for identifier in unsupportedIdentifiers {
             XCTAssertNil(
-                WalletConnectGroupIdentifierResolver.resolve(
+                RetiredWalletConnectDataCleanup.groupIdentifier(
                     bundleIdentifier: identifier
                 ),
                 "Unexpected WalletConnect group for \(identifier ?? "nil")"

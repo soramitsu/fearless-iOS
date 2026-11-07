@@ -15,7 +15,6 @@ final class WalletMainContainerInteractor {
     private let eventCenter: EventCenterProtocol
     private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
     private let applicationHandler: ApplicationHandler
-    private let walletConnectService: WalletConnectService
     private let featureToggleService: FeatureToggleProviderProtocol
     private let walletRecordsInspector: StoredWalletRecordsInspecting
     private let walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking
@@ -37,7 +36,6 @@ final class WalletMainContainerInteractor {
         eventCenter: EventCenterProtocol,
         deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
         applicationHandler: ApplicationHandler,
-        walletConnectService: WalletConnectService,
         featureToggleService: FeatureToggleProviderProtocol,
         walletRecordsInspector: StoredWalletRecordsInspecting,
         walletRecordsNoticeTracker: StoredWalletRecordsNoticeTracking,
@@ -53,7 +51,6 @@ final class WalletMainContainerInteractor {
         self.eventCenter = eventCenter
         self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
         self.applicationHandler = applicationHandler
-        self.walletConnectService = walletConnectService
         self.featureToggleService = featureToggleService
         self.walletRecordsInspector = walletRecordsInspector
         self.walletRecordsNoticeTracker = walletRecordsNoticeTracker
@@ -236,10 +233,6 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         ) { [weak self] _ in
             self?.checkWatchedOldAddresses()
         }
-    }
-
-    func walletConnect(uri: String) async throws {
-        try await walletConnectService.connect(uri: uri)
     }
 
     func acknowledge(_ notice: StoredWalletRecordsNotice) {

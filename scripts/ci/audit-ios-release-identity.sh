@@ -19,7 +19,7 @@ readonly TEST_HARNESS_OVERRIDE_NAMES=(
   IOS_RELEASE_ENTITLEMENTS_FILE
   IOS_DEBUG_ENTITLEMENTS_FILE
   IOS_RELEASE_INFO_PLIST_FILE
-  IOS_RELEASE_WALLET_CONNECT_SERVICE_FILE
+  IOS_RELEASE_APP_GROUP_CONSUMER_FILE
   IOS_RELEASE_SETTINGS_JSON
   IOS_DEBUG_SETTINGS_JSON
   IOS_EXPECTED_BUNDLE_ID
@@ -37,7 +37,9 @@ readonly SCHEME_FILE="${IOS_RELEASE_SCHEME_FILE:-$REPO_ROOT/fearless.xcodeproj/x
 readonly ENTITLEMENTS_FILE="${IOS_RELEASE_ENTITLEMENTS_FILE:-$REPO_ROOT/fearless/WalletConnect.entitlements}"
 readonly DEBUG_ENTITLEMENTS_FILE="${IOS_DEBUG_ENTITLEMENTS_FILE:-$REPO_ROOT/fearless/WalletConnect.dev.entitlements}"
 readonly INFO_PLIST_FILE="${IOS_RELEASE_INFO_PLIST_FILE:-$REPO_ROOT/fearless/Info.plist}"
-readonly WALLET_CONNECT_SERVICE_FILE="${IOS_RELEASE_WALLET_CONNECT_SERVICE_FILE:-$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift}"
+# WalletConnect was removed (its SDK is not open source). The app group stays entitled only so
+# the one-time clean-up can delete what WalletConnect left in it; that clean-up is its consumer.
+readonly APP_GROUP_CONSUMER_FILE="${IOS_RELEASE_APP_GROUP_CONSUMER_FILE:-$REPO_ROOT/fearless/Common/Storage/Migration/RetiredSoraCardDataCleanup.swift}"
 readonly EXPECTED_BUNDLE_ID="${IOS_EXPECTED_BUNDLE_ID:-jp.co.soramitsu.fearlesswallet}"
 readonly EXPECTED_DEBUG_BUNDLE_ID="${IOS_EXPECTED_DEBUG_BUNDLE_ID:-jp.co.soramitsu.fearlesswallet.dev}"
 readonly EXPECTED_VERSION="${IOS_EXPECTED_MARKETING_VERSION:-4.2.1}"
@@ -57,7 +59,7 @@ require_regular_file "$SCHEME_FILE" "shared scheme"
 require_regular_file "$ENTITLEMENTS_FILE" "production entitlements"
 require_regular_file "$DEBUG_ENTITLEMENTS_FILE" "development entitlements"
 require_regular_file "$INFO_PLIST_FILE" "application Info.plist"
-require_regular_file "$WALLET_CONNECT_SERVICE_FILE" "WalletConnect service"
+require_regular_file "$APP_GROUP_CONSUMER_FILE" "retired WalletConnect data clean-up"
 
 bundle_version="$(
   plutil -extract CFBundleVersion raw "$INFO_PLIST_FILE" 2>/dev/null
@@ -282,25 +284,12 @@ jq -e '
 
 grep -Fq \
   'static let productionGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet"' \
-  "$WALLET_CONNECT_SERVICE_FILE" ||
-  fail "WalletConnect production consumer does not use the entitled app group"
+  "$APP_GROUP_CONSUMER_FILE" ||
+  fail "retired WalletConnect data clean-up does not use the entitled production app group"
 grep -Fq \
   'static let developmentGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet.walletconnect"' \
-  "$WALLET_CONNECT_SERVICE_FILE" ||
-  fail "WalletConnect development consumer does not use the registered Debug app group"
-grep -Fq \
-  'WalletConnectGroupIdentifierResolver.resolve(' \
-  "$WALLET_CONNECT_SERVICE_FILE" ||
-  fail "WalletConnect setup does not resolve its group from the application identity"
-grep -Fq \
-  'groupIdentifier: groupIdentifier' \
-  "$WALLET_CONNECT_SERVICE_FILE" ||
-  fail "WalletConnect networking does not consume the resolved group"
-if grep -Fq \
-  'groupIdentifier: Self.walletConnectGroupIdentifier' \
-  "$WALLET_CONNECT_SERVICE_FILE"; then
-  fail "WalletConnect setup still consumes a hard-coded app group"
-fi
+  "$APP_GROUP_CONSUMER_FILE" ||
+  fail "retired WalletConnect data clean-up does not use the registered Debug app group"
 
 if [[ -n "$generated_settings" ]]; then
   rm -f "$generated_settings"

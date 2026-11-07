@@ -1,5 +1,6 @@
 import Foundation
 import LocalAuthentication
+import SoraKeystore
 import UIKit.UIImage
 
 enum AvailableBiometryType {
@@ -110,6 +111,103 @@ class BiometryAuth: BiometryAuthProtocol {
         activeContext = nil
         contextLock.unlock()
         context?.invalidate()
+    }
+
+    /// The device's biometric enrollment fingerprint. It changes when a face or finger is added or removed, and nil
+    /// means biometrics cannot be evaluated now (none enrolled, or locked by the system).
+    static func currentEnrollmentState(context: LAContext = LAContext()) -> Data? {
+        currentEnrollment(context: context)?.state
+    }
+
+    /// The fingerprint together with the API that produced it: iOS 18 replaced `evaluatedPolicyDomainState` with
+    /// `domainState.biometry.stateHash`, and the two describe the same enrollment with different bytes.
+    static func currentEnrollment(context: LAContext = LAContext()) -> BiometryEnrollment? {
+        defer { context.invalidate() }
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) else {
+            return nil
+        }
+        #if compiler(>=6.0)
+            if #available(iOS 18.0, *) {
+                return context.domainState.biometry.stateHash.map {
+                    BiometryEnrollment(source: BiometryEnrollment.stateHashSource, state: $0)
+                }
+            }
+        #endif
+        return context.evaluatedPolicyDomainState.map {
+            BiometryEnrollment(source: BiometryEnrollment.domainStateSource, state: $0)
+        }
+    }
+}
+
+struct BiometryEnrollment: Codable, Equatable {
+    static let domainStateSource = "evaluatedPolicyDomainState"
+    static let stateHashSource = "domainState.biometry.stateHash"
+
+    let source: String
+    let state: Data
+}
+
+/// A biometric success counts only while the device's enrollment equals the one recorded for this wallet, so a face
+/// or finger added later cannot unlock the wallet or approve a transfer. The record lives in the Keychain.
+protocol BiometryEnrollmentGuarding: AnyObject {
+    /// True when the current enrollment equals the recorded one. An unreadable state is not trusted.
+    func isCurrentEnrollmentTrusted() -> Bool
+    /// Records the current enrollment. Call only right after the PIN was entered correctly or created.
+    func trustCurrentEnrollment()
+}
+
+final class BiometryEnrollmentGuard: BiometryEnrollmentGuarding {
+    static let shared = BiometryEnrollmentGuard()
+
+    private let keystore: KeystoreProtocol
+    private let currentState: () -> BiometryEnrollment?
+    private let tag = KeystoreTag.biometryEnrollment.rawValue
+
+    init(
+        keystore: KeystoreProtocol = Keychain(),
+        currentState: @escaping () -> BiometryEnrollment? = { BiometryAuth.currentEnrollment() }
+    ) {
+        self.keystore = keystore
+        self.currentState = currentState
+    }
+
+    func isCurrentEnrollmentTrusted() -> Bool {
+        guard let current = currentState(), !current.state.isEmpty else {
+            return false
+        }
+
+        guard let recorded = recordedEnrollment(), recorded.source == current.source else {
+            // No record: the install predates this check, and its user may rely on Face ID or Touch ID because the
+            // PIN is forgotten. Demanding the PIN now would lock them out of their keys, so the enrollment present
+            // at this first check is trusted, as every earlier version did, and the wallet is held to it from now on.
+            // A changed source is the same enrollment read through the newer iOS API; it is re-recorded the same way.
+            save(current)
+            return true
+        }
+
+        return recorded.state == current.state
+    }
+
+    func trustCurrentEnrollment() {
+        // Without a readable state the earlier record stays: it still names the enrollment the user vouched for.
+        guard let current = currentState(), !current.state.isEmpty, recordedEnrollment() != current else {
+            return
+        }
+        save(current)
+    }
+
+    private func recordedEnrollment() -> BiometryEnrollment? {
+        guard let data = try? keystore.fetchKey(for: tag) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(BiometryEnrollment.self, from: data)
+    }
+
+    private func save(_ enrollment: BiometryEnrollment) {
+        guard let data = try? JSONEncoder().encode(enrollment) else {
+            return
+        }
+        try? keystore.saveKey(data, with: tag)
     }
 }
 

@@ -1,4 +1,5 @@
 import Foundation
+import Security
 import SoraKeystore
 
 enum RetiredSoraCardDataCleanupOutcome: Equatable {
@@ -149,5 +150,188 @@ final class RetiredSoraCardDataCleanup {
         settings.set(value: true, for: Self.completionKey)
         logger?.info("Removed retired SORA Card data")
         return .completed
+    }
+}
+
+enum RetiredWalletConnectDataCleanupOutcome: Equatable {
+    case alreadyCompleted
+    case completed
+    case retryOnNextLaunch
+}
+
+/// Removes what WalletConnect left on upgraded devices.
+///
+/// WalletConnect was removed because its SDK (reown-swift) is not open source. Releases
+/// 3.0.5 to 4.2.x kept its relay session material as generic passwords under the service
+/// `com.walletconnect.sdk`: in the app's default access group up to 4.1.0 and in the app
+/// group since 4.2.0. Its session and pairing records lived in `UserDefaults.standard` and
+/// in the app group's suite. None of it is wallet key material: wallet keys are
+/// `kSecClassKey` items, and this never touches that class.
+///
+/// The Keychain delete names only the class and the service, with no access group, so it
+/// reaches every group the app can access. Completion is recorded only after the Keychain
+/// reports success or "not found"; anything else repeats on the next launch.
+final class RetiredWalletConnectDataCleanup {
+    static let keychainService = "com.walletconnect.sdk"
+    static let userDefaultsKeyPrefix = "com.walletconnect."
+    /// Markers the SDK wrote into the group suite after moving one of its stores there.
+    static let groupMigrationMarkerPrefix = "hasMigratedToGroup_com.walletconnect."
+    /// The app's own record of sessions kept by releases before 4.2.0.
+    static let legacySessionsKey = "walletconnect.legacy_sessions.v1"
+    static let completionKey = "retiredWalletConnectDataCleanupCompleted"
+
+    static let productionBundleIdentifier = "jp.co.soramitsu.fearlesswallet"
+    static let developmentBundleIdentifier = "jp.co.soramitsu.fearlesswallet.dev"
+    static let productionGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet"
+    static let developmentGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet.walletconnect"
+
+    private let standardDefaults: UserDefaults
+    private let groupDefaults: UserDefaults?
+    private let deleteKeychainItems: () -> OSStatus
+    private let protectedDataAvailabilityMonitor: RootProtectedDataAvailabilityMonitoring
+    private let workQueue: DispatchQueue
+    private let logger: LoggerProtocol?
+
+    private let lock = NSLock()
+    private var protectedDataObservation: RootProtectedDataAvailabilityObservation?
+    private var completionsAwaitingProtectedData: [(RetiredWalletConnectDataCleanupOutcome) -> Void] = []
+
+    init(
+        standardDefaults: UserDefaults = .standard,
+        groupDefaults: UserDefaults? = RetiredWalletConnectDataCleanup
+            .groupIdentifier(bundleIdentifier: Bundle.main.bundleIdentifier)
+            .flatMap { UserDefaults(suiteName: $0) },
+        deleteKeychainItems: @escaping () -> OSStatus =
+            RetiredWalletConnectDataCleanup.deleteWalletConnectKeychainItems,
+        protectedDataAvailabilityMonitor: RootProtectedDataAvailabilityMonitoring =
+            RootUIApplicationProtectedDataAvailabilityMonitor(),
+        workQueue: DispatchQueue = DispatchQueue(
+            label: "jp.co.soramitsu.fearlesswallet.retired-walletconnect-cleanup",
+            qos: .utility
+        ),
+        logger: LoggerProtocol? = Logger.shared
+    ) {
+        self.standardDefaults = standardDefaults
+        self.groupDefaults = groupDefaults
+        self.deleteKeychainItems = deleteKeychainItems
+        self.protectedDataAvailabilityMonitor = protectedDataAvailabilityMonitor
+        self.workQueue = workQueue
+        self.logger = logger
+    }
+
+    deinit {
+        protectedDataObservation?.invalidate()
+    }
+
+    /// The app group WalletConnect used for this application identity, if any.
+    static func groupIdentifier(bundleIdentifier: String?) -> String? {
+        if bundleIdentifier == productionBundleIdentifier {
+            return productionGroupIdentifier
+        }
+
+        if bundleIdentifier == developmentBundleIdentifier {
+            return developmentGroupIdentifier
+        }
+
+        return nil
+    }
+
+    /// WalletConnect's generic passwords only: the class and the service, with no access
+    /// group, so the delete covers the app group and the default group alike. Never a whole
+    /// class, and never `kSecClassKey`, where wallet keys live.
+    static func deleteWalletConnectKeychainItems() -> OSStatus {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService
+        ]
+        return SecItemDelete(query as CFDictionary)
+    }
+
+    /// Call on the main queue: protected data availability is read from `UIApplication`.
+    /// The completion runs on the cleanup's work queue.
+    func runIfNeeded(completion: ((RetiredWalletConnectDataCleanupOutcome) -> Void)? = nil) {
+        // The SDK stored its keys `AfterFirstUnlockThisDeviceOnly` and UserDefaults can be
+        // unreadable before the first unlock, so wait for protected data instead of
+        // reading or deleting anything early.
+        guard protectedDataAvailabilityMonitor.isProtectedDataAvailable else {
+            waitForProtectedData(completion: completion)
+            return
+        }
+
+        workQueue.async { [self] in
+            let outcome = perform()
+            completion?(outcome)
+        }
+    }
+
+    private func waitForProtectedData(completion: ((RetiredWalletConnectDataCleanupOutcome) -> Void)?) {
+        let observation = protectedDataAvailabilityMonitor.observeDidBecomeAvailable { [weak self] in
+            self?.protectedDataDidBecomeAvailable()
+        }
+
+        lock.lock()
+        let previousObservation = protectedDataObservation
+        protectedDataObservation = observation
+        if let completion = completion {
+            completionsAwaitingProtectedData.append(completion)
+        }
+        lock.unlock()
+
+        previousObservation?.invalidate()
+
+        // Data may have become available before the observation was registered.
+        if protectedDataAvailabilityMonitor.isProtectedDataAvailable {
+            protectedDataDidBecomeAvailable()
+        }
+    }
+
+    private func protectedDataDidBecomeAvailable() {
+        lock.lock()
+        guard let observation = protectedDataObservation else {
+            lock.unlock()
+            return
+        }
+        protectedDataObservation = nil
+        let completions = completionsAwaitingProtectedData
+        completionsAwaitingProtectedData = []
+        lock.unlock()
+
+        observation.invalidate()
+
+        runIfNeeded { outcome in
+            completions.forEach { $0(outcome) }
+        }
+    }
+
+    private func perform() -> RetiredWalletConnectDataCleanupOutcome {
+        guard !standardDefaults.bool(forKey: Self.completionKey) else {
+            return .alreadyCompleted
+        }
+
+        let status = deleteKeychainItems()
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            logger?.warning("Retired WalletConnect keys could not be removed (\(status)); will retry on next launch")
+            return .retryOnNextLaunch
+        }
+
+        Self.removeKeys(from: standardDefaults) { key in
+            key.hasPrefix(Self.userDefaultsKeyPrefix) || key == Self.legacySessionsKey
+        }
+
+        if let groupDefaults = groupDefaults {
+            Self.removeKeys(from: groupDefaults) { key in
+                key.hasPrefix(Self.userDefaultsKeyPrefix) || key.hasPrefix(Self.groupMigrationMarkerPrefix)
+            }
+        }
+
+        standardDefaults.set(true, forKey: Self.completionKey)
+        logger?.info("Removed retired WalletConnect data")
+        return .completed
+    }
+
+    private static func removeKeys(from defaults: UserDefaults, where shouldRemove: (String) -> Bool) {
+        for key in defaults.dictionaryRepresentation().keys where shouldRemove(key) {
+            defaults.removeObject(forKey: key)
+        }
     }
 }

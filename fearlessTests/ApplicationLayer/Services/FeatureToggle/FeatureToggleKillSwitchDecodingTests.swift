@@ -135,6 +135,41 @@ final class FeatureToggleKillSwitchDecodingTests: XCTestCase {
         XCTAssertTrue(PreinstalledWalletImportPolicy.isAvailable(remote: remoteOn, isCompiledIn: true))
     }
 
+    func testTonConnectVeto_whenDecoded_thenOnlyTonConnectIsVetoedAndAbsentKeyKeepsItOn() throws {
+        for decoder in Self.decoders {
+            let vetoed = try decode(#"{"ton_connect_enabled":false}"#, with: decoder)
+
+            XCTAssertFalse(vetoed.tonConnectEnabled)
+            XCTAssertTrue(vetoed.bitcoinSendEnabled)
+            XCTAssertTrue(vetoed.solanaSendEnabled)
+            XCTAssertEqual(vetoed.explicitKillSwitches, [.tonConnect: false])
+
+            let live = try decode(Self.livePayload, with: decoder)
+            XCTAssertTrue(live.tonConnectEnabled)
+            XCTAssertNil(live.explicitKillSwitches[.tonConnect])
+        }
+        XCTAssertTrue(FeatureToggleConfig.defaultConfig.tonConnectEnabled)
+        XCTAssertThrowsError(try decode(#"{"ton_connect_enabled":"false"}"#, with: GithubJSONDecoder()))
+    }
+
+    func testTonConnectVeto_whenRemembered_thenOnlyAnExplicitTrueLiftsIt() throws {
+        defer { MultiChainFeaturePolicy.liftRememberedVetoes() }
+        let production = GithubJSONDecoder()
+
+        MultiChainFeaturePolicy.update(try decode(#"{"ton_connect_enabled":false}"#, with: production))
+        XCTAssertFalse(MultiChainFeaturePolicy.current.tonConnectEnabled)
+        XCTAssertTrue(MultiChainFeaturePolicy.current.bitcoinSendEnabled)
+
+        // A failed fetch and a payload without the key both keep the remembered veto.
+        MultiChainFeaturePolicy.update(.defaultConfig)
+        XCTAssertFalse(MultiChainFeaturePolicy.current.tonConnectEnabled)
+        MultiChainFeaturePolicy.update(try decode(Self.livePayload, with: production))
+        XCTAssertFalse(MultiChainFeaturePolicy.current.tonConnectEnabled)
+
+        MultiChainFeaturePolicy.update(try decode(#"{"ton_connect_enabled":true}"#, with: production))
+        XCTAssertTrue(MultiChainFeaturePolicy.current.tonConnectEnabled)
+    }
+
     private static var decoders: [JSONDecoder] {
         [JSONDecoder(), GithubJSONDecoder()]
     }

@@ -2261,7 +2261,8 @@ private final class LocalSendRouter: SendRouterInput {
             call: call,
             scamInfo: scamInfo,
             feeViewModel: feeViewModel,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            submissionAuthorizer: GrantingSubmissionAuthorizer()
         )
         let controller = WalletSendConfirmViewController(presenter: presenter, localizationManager: LocalizationManager.shared)
         dataValidatingFactory.view = controller

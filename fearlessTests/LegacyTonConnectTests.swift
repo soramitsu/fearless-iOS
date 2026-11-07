@@ -986,3 +986,220 @@ extension LegacyTonConnectReplyTests {
         XCTAssertEqual(try replies.context(sessionId: "original"), context)
     }
 }
+
+extension LegacyTonConnectProtocolTests {
+    func testManifestClaimIsVouchedOnlyBySameSiteOrSubdomain() throws {
+        let cases: [(claimed: String, voucher: String, vouched: Bool)] = [
+            ("https://example.org/app", "https://example.org/manifest.json", true),
+            ("https://EXAMPLE.org/app", "https://example.ORG/manifest.json", true),
+            ("https://app.example.org", "https://example.org/manifest.json", true),
+            ("https://example.org", "https://cdn.example.org/manifest.json", true),
+            ("https://a.example.org", "https://b.example.org/manifest.json", false),
+            ("https://example.org", "https://notexample.org/manifest.json", false),
+            ("https://example.org", "https://example.org.attacker.example/manifest.json", false),
+            ("https://wallet-login.example.org", "https://raw.githubusercontent.com/manifest.json", false),
+            ("https://1.2.3.4", "https://2.3.4/manifest.json", false),
+            ("https://10.0.0.1", "https://10.0.0.1/manifest.json", true)
+        ]
+        for item in cases {
+            let claimed = try XCTUnwrap(URL(string: item.claimed))
+            let voucher = try XCTUnwrap(URL(string: item.voucher))
+            XCTAssertEqual(
+                LegacyTonConnectProtocol.isVouched(claimed: claimed, by: voucher), item.vouched,
+                item.claimed + " vouched by " + item.voucher
+            )
+        }
+    }
+
+    func testProofIsSignedOnlyForASiteItsVoucherBacks() throws {
+        let pair = try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: tonConnectNativePhrase.components(separatedBy: " "))
+        let address = try WalletV4R2(publicKey: pair.publicKey.data).address()
+        let account = try LegacyTonAccount(serializedAddress: JSONEncoder().encode(address), publicKey: pair.publicKey.data, contractVersion: "v4R2")
+        let claimed = LegacyTonConnectManifest(url: URL(string: "https://wallet-login.example.org/app")!, name: "Trusted exchange", iconUrl: nil)
+        let spoofed = LegacyTonConnectConnectRequest(
+            manifestUrl: URL(string: "https://attacker.example.net/tonconnect-manifest.json")!,
+            items: [.init(name: "ton_addr", payload: nil), .init(name: "ton_proof", payload: "login-challenge")]
+        )
+        XCTAssertThrowsError(try LegacyTonConnectProtocol.connectEvent(
+            account: account, privateKey: pair.privateKey.data, network: "-239", request: spoofed, manifest: claimed, timestamp: 1
+        )) { error in
+            guard case let LegacyTonConnectError.unverifiedApplication(claimedHost, sourceHost) = error else {
+                return XCTFail("Unexpected \(error)")
+            }
+            XCTAssertEqual(claimedHost, "wallet-login.example.org")
+            XCTAssertEqual(sourceHost, "attacker.example.net")
+        }
+        // The verified page that asked in the in-app browser vouches for its own site.
+        let response = try LegacyTonConnectProtocol.connectEvent(
+            account: account, privateKey: pair.privateKey.data, network: "-239", request: spoofed, manifest: claimed,
+            timestamp: 1, vouchedBy: URL(string: "https://wallet-login.example.org/")!
+        )
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: response) as? [String: Any])
+        let items = try XCTUnwrap((json["payload"] as? [String: Any])?["items"] as? [[String: Any]])
+        let proof = try XCTUnwrap(items.last?["proof"] as? [String: Any])
+        XCTAssertEqual((proof["domain"] as? [String: Any])?["value"] as? String, "wallet-login.example.org")
+        // An address-only connection carries no proof, so no domain is ever signed.
+        let addressOnly = LegacyTonConnectConnectRequest(manifestUrl: spoofed.manifestUrl, items: [.init(name: "ton_addr", payload: nil)])
+        XCTAssertNoThrow(try LegacyTonConnectProtocol.connectEvent(
+            account: account, privateKey: nil, network: "-239", request: addressOnly, manifest: claimed, timestamp: 1
+        ))
+    }
+}
+
+extension LegacyTonConnectServiceTests {
+    func testVetoedSigningRequestGetsOneDurableUnsupportedReply() async throws {
+        let session = try tonConnectTestSession()
+        let handler = TonConnectFakeHandler()
+        handler.processError = LegacyTonConnectError.disabled
+        let service = LegacyTonConnectService(store: TonConnectFakeSessionStore(values: [session]),
+                                              replies: .init(keystore: TonConnectFixtureKeychain()), transport: TonConnectFakeTransport())
+        await service.set(handler: handler)
+        let request = Data(#"{"id":"vetoed","method":"sendTransaction","params":["{}"]}"#.utf8)
+        let reply = try await service.handle(request, session: session, network: "-239")
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: reply) as? [String: Any])
+        XCTAssertEqual((json["error"] as? [String: Any])?["code"] as? Int, 400)
+        handler.processError = nil
+        let replay = try await service.handle(request, session: session, network: "-239")
+        XCTAssertEqual(replay, reply, "A vetoed request is answered once and never signed later")
+        XCTAssertEqual(handler.processCount, 1)
+        XCTAssertEqual(handler.acknowledgeCount, 0)
+    }
+}
+
+extension LegacyTonConnectCoordinatorTests {
+    private var claimedManifest: LegacyTonConnectManifest {
+        .init(url: URL(string: "https://wallet-login.example.org/app")!, name: "Trusted exchange",
+              iconUrl: URL(string: "https://wallet-login.example.org/icon.png"))
+    }
+
+    private func spoofedRequest(proof: Bool) -> LegacyTonConnectConnectRequest {
+        .init(manifestUrl: URL(string: "https://attacker.example.net/tonconnect-manifest.json")!,
+              items: [.init(name: "ton_addr", payload: nil)] + (proof ? [.init(name: "ton_proof", payload: "login-challenge")] : []))
+    }
+
+    @MainActor
+    func testLinkClaimingAnotherSiteNeverGetsASignInProof() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let original = keys.values
+        let storage = TonConnectFakeSessionStore(values: [])
+        let transport = TonConnectFakeTransport()
+        var approvals = 0
+        let coordinator = LegacyTonConnectCoordinator(store: storage, transport: transport, replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return true }, walletLoader: { _ in wallet },
+            isEnabled: { true })
+        await coordinator.activate()
+        do {
+            _ = try await coordinator.connect(walletId: wallet.metaId, clientId: tonConnectTestSession().clientId,
+                request: spoofedRequest(proof: true), manifest: claimedManifest, connectionType: "http")
+            XCTFail("A proof for a site the manifest host does not vouch for must be refused")
+        } catch let LegacyTonConnectError.unverifiedApplication(claimedHost, sourceHost) {
+            XCTAssertEqual(claimedHost, "wallet-login.example.org")
+            XCTAssertEqual(sourceHost, "attacker.example.net")
+            XCTAssertFalse(LegacyTonConnectError.unverifiedApplication(claimedHost: claimedHost, sourceHost: sourceHost)
+                .localizedDescription.isEmpty)
+        }
+        XCTAssertEqual(approvals, 0, "Refused before any prompt")
+        XCTAssertTrue(storage.values.isEmpty)
+        XCTAssertEqual(keys.values, original)
+        let reply = try XCTUnwrap(transport.sent.first?.0)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: reply) as? [String: Any])
+        XCTAssertEqual(json["event"] as? String, "connect_error")
+        XCTAssertEqual((json["payload"] as? [String: Any])?["code"] as? Int, 3)
+        coordinator.throttle()
+    }
+
+    @MainActor
+    func testLinkClaimingAnotherSiteIsShownAndStoredUnderTheServingHost() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let storage = TonConnectFakeSessionStore(values: [])
+        let transport = TonConnectFakeTransport()
+        var details = ""
+        let coordinator = LegacyTonConnectCoordinator(store: storage, transport: transport, replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, value in details = value; return true }, walletLoader: { _ in wallet },
+            isEnabled: { true })
+        await coordinator.activate()
+        let response = try await coordinator.connect(walletId: wallet.metaId, clientId: tonConnectTestSession().clientId,
+            request: spoofedRequest(proof: false), manifest: claimedManifest, connectionType: "http")
+        let lines = details.components(separatedBy: "\n")
+        XCTAssertEqual(lines.first, "Application: https://attacker.example.net")
+        XCTAssertEqual(lines.dropFirst().first, R.string.localizable.tonconnectDomainMismatch(
+            "https://wallet-login.example.org/app", preferredLanguages: LegacyTonConnectProtocol.languages
+        ))
+        XCTAssertFalse(details.contains("Manifest:"))
+        XCTAssertFalse(details.contains("proof of wallet ownership"))
+        let session = try XCTUnwrap(storage.values.first)
+        XCTAssertEqual(session.appUrl, URL(string: "https://attacker.example.net"))
+        XCTAssertEqual(session.name, "attacker.example.net")
+        XCTAssertNil(session.iconUrl)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: response) as? [String: Any])
+        let items = try XCTUnwrap((json["payload"] as? [String: Any])?["items"] as? [[String: Any]])
+        XCTAssertEqual(items.map { $0["name"] as? String }, ["ton_addr"])
+        coordinator.throttle()
+    }
+
+    @MainActor
+    func testLinkFromASubdomainOfTheClaimedSiteBehavesAsBefore() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let storage = TonConnectFakeSessionStore(values: [])
+        var details = ""
+        let coordinator = LegacyTonConnectCoordinator(store: storage, transport: TonConnectFakeTransport(), replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, value in details = value; return true }, walletLoader: { _ in wallet },
+            isEnabled: { true })
+        await coordinator.activate()
+        let cdnRequest = LegacyTonConnectConnectRequest(
+            manifestUrl: URL(string: "https://cdn.example.org/tonconnect.json")!,
+            items: [.init(name: "ton_addr", payload: nil), .init(name: "ton_proof", payload: "login-challenge")]
+        )
+        let response = try await coordinator.connect(walletId: wallet.metaId, clientId: tonConnectTestSession().clientId,
+            request: cdnRequest, manifest: manifest, connectionType: "http")
+        XCTAssertTrue(details.hasPrefix("Application: https://example.org/app\nManifest: https://cdn.example.org/tonconnect.json\n"))
+        XCTAssertTrue(details.hasSuffix("\nThe application also requests proof of wallet ownership."))
+        XCTAssertEqual(storage.values.first?.appUrl, manifest.url)
+        XCTAssertEqual(storage.values.first?.name, manifest.name)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: response) as? [String: Any])
+        let items = try XCTUnwrap((json["payload"] as? [String: Any])?["items"] as? [[String: Any]])
+        let proof = try XCTUnwrap(items.last?["proof"] as? [String: Any])
+        XCTAssertEqual((proof["domain"] as? [String: Any])?["value"] as? String, "example.org")
+        coordinator.throttle()
+    }
+
+    @MainActor
+    func testRemoteVetoRefusesConnectionsAndSigningButKeepsSessionsAndKeys() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let session = try tonConnectTestSession()
+        let storage = TonConnectFakeSessionStore(values: [session])
+        var approvals = 0
+        let coordinator = LegacyTonConnectCoordinator(store: storage, transport: TonConnectFakeTransport(), replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return true },
+            walletLoader: { _ in wallet }, isEnabled: { false })
+        await coordinator.activate()
+        // Existing sessions keep listening so they can be told TON Connect is paused; that bridge
+        // bookkeeping (bridge URL, network, last event id) is the only thing allowed to be written.
+        let walletState: ([String: Data]) -> [String: Data] = { values in
+            values.filter { !$0.key.hasPrefix("fearless-tonconnect-v1-context-") }
+        }
+        let original = walletState(keys.values)
+        do {
+            _ = try await coordinator.connect(walletId: wallet.metaId, clientId: "", request: request, manifest: manifest, connectionType: "js")
+            XCTFail("Vetoed connection")
+        } catch LegacyTonConnectError.disabled {}
+        do {
+            _ = try await coordinator.connectJS(request: request, origin: manifest.url)
+            XCTFail("Vetoed browser connection")
+        } catch LegacyTonConnectError.disabled {}
+        let rpc = try LegacyTonConnectRPCRequest.decode(Data(#"{"id":"1","method":"sendTransaction","params":["{}"]}"#.utf8))
+        do {
+            _ = try await coordinator.process(session: session, network: "-239", request: rpc)
+            XCTFail("Vetoed signing")
+        } catch LegacyTonConnectError.disabled {}
+        XCTAssertEqual(approvals, 0)
+        XCTAssertEqual(storage.values, [session])
+        XCTAssertEqual(walletState(keys.values), original)
+        XCTAssertFalse(LegacyTonConnectError.disabled.localizedDescription.isEmpty)
+        coordinator.throttle()
+    }
+}

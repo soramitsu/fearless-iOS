@@ -14,6 +14,7 @@ final class StakingPoolCreateConfirmPresenter {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let viewModelFactory: StakingPoolCreateConfirmViewModelFactoryProtocol
     private let logger: LoggerProtocol
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var fee: Decimal?
     private var extrinsicHash: String?
@@ -31,8 +32,10 @@ final class StakingPoolCreateConfirmPresenter {
         viewModelFactory: StakingPoolCreateConfirmViewModelFactoryProtocol,
         createData: StakingPoolCreateData,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        logger: LoggerProtocol
+        logger: LoggerProtocol,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.router = router
         self.createData = createData
@@ -76,8 +79,10 @@ final class StakingPoolCreateConfirmPresenter {
 
 extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmViewOutput {
     func didTapConfirmButton() {
-        view?.didStartLoading()
-        interactor.submit()
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            self?.view?.didStartLoading()
+            self?.interactor.submit()
+        }
     }
 
     func didTapBackButton() {

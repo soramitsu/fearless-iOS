@@ -160,7 +160,8 @@ actor LegacyTonConnectService {
             let code: Int
             switch error {
             case .invalidRequest, .expiredRequest: code = 1
-            case .unsupportedRequest: code = 400
+            // A remote veto answers once and for good, so the bridge does not redeliver it.
+            case .unsupportedRequest, .disabled: code = 400
             default: throw error
             }
             outcome = LegacyTonConnectRPCOutcome(
