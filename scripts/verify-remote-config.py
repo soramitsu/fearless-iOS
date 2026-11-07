@@ -45,6 +45,19 @@ def check_asset_hub_staking(document, source, failures):
             failures.append(source + ": no pool staking or crowdloans on relay or Asset Hub " + chain_id[:8])
 
 
+def check_unique_chain_ids(document, source, failures):
+    """ChainSyncService.sanitizingRemoteChains refuses a whole list that repeats a chainId: the build keeps only its
+    app-owned chains."""
+    seen = set()
+    for chain in document if isinstance(document, list) else []:
+        chain_id = chain.get("chainId") if isinstance(chain, dict) else None
+        if not isinstance(chain_id, str):
+            continue
+        if chain_id in seen:
+            failures.append(source + ": chainId " + chain_id[:8] + " is listed more than once")
+        seen.add(chain_id)
+
+
 def validate(root):
     root = Path(root).resolve()
     config = root / "remote-config"
@@ -80,6 +93,8 @@ def validate(root):
             visit(document, file.relative_to(root))
             if file.parent.name == "v13" and file.name in ("chains.json", "chains_dev.json"):
                 check_asset_hub_staking(document, str(file.relative_to(root)), failures)
+            if file.parent.parent.name == "chains" and file.name in ("chains.json", "chains_dev.json"):
+                check_unique_chain_ids(document, str(file.relative_to(root)), failures)
         except (ValueError, UnicodeError) as error:
             failures.append(str(file.relative_to(root)) + ": " + str(error))
     if counts["documents"] == 0:
