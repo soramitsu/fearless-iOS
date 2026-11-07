@@ -139,7 +139,7 @@ final class WalletConnectCoordinator: DefaultCoordinator {
 
 extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     func sign(request: Request, session: Session?, verification: WalletConnectVerification) {
-        let requestId = request.id.string
+        let requestId = String(request.id)
         guard queuedRequestIds.insert(requestId).inserted else {
             return
         }

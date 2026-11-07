@@ -149,16 +149,16 @@ enum WalletConnectRequestError: Error, Equatable {
     /// The network fee could not be calculated.
     case feeUnavailable
 
-    var rpcError: JSONRPC.JSONRPCError {
+    var rpcError: FearlessWalletConnect.JSONRPCError {
         switch self {
         case .accountNotApproved:
-            return JSONRPC.JSONRPCError(code: 4100, message: "The requested account was not approved for this session")
+            return FearlessWalletConnect.JSONRPCError(code: 4100, message: "The requested account was not approved for this session")
         case .networkMismatch, .runtimeMismatch:
-            return JSONRPC.JSONRPCError(code: -32602, message: "The request does not match the network")
+            return FearlessWalletConnect.JSONRPCError(code: -32602, message: "The request does not match the network")
         case .unsupported:
-            return JSONRPC.JSONRPCError(code: -32602, message: "The request cannot be displayed")
+            return FearlessWalletConnect.JSONRPCError(code: -32602, message: "The request cannot be displayed")
         case .feeUnavailable:
-            return JSONRPC.JSONRPCError(code: -32603, message: "The network fee could not be calculated")
+            return FearlessWalletConnect.JSONRPCError(code: -32603, message: "The network fee could not be calculated")
         }
     }
 }

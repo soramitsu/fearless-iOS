@@ -245,7 +245,7 @@ final class WalletConnectSigningGateTests: XCTestCase {
 
     func testSigningAuthorizer_asksTheSubmissionAuthorizerFromTheConfirmation() async throws {
         let keystore = InMemoryKeychain()
-        try keystore.addKey(Data("123456".utf8), with: KeystoreTag.pincode.rawValue)
+        try keystore.addKey(Data("123456".utf8), with: fearless.KeystoreTag.pincode.rawValue)
         let submission = SubmissionAuthorizerSpy(result: true)
         let authorizer = WalletConnectSigningAuthorizer(keystore: keystore, submissionAuthorizer: submission)
         let view = GateHostViewController()
@@ -261,7 +261,7 @@ final class WalletConnectSigningGateTests: XCTestCase {
 
     func testSigningAuthorizer_whenTheSubmissionIsNotAuthorized_thenRefuses() async throws {
         let keystore = InMemoryKeychain()
-        try keystore.addKey(Data("123456".utf8), with: KeystoreTag.pincode.rawValue)
+        try keystore.addKey(Data("123456".utf8), with: fearless.KeystoreTag.pincode.rawValue)
         let authorizer = WalletConnectSigningAuthorizer(
             keystore: keystore,
             submissionAuthorizer: SubmissionAuthorizerSpy(result: false)

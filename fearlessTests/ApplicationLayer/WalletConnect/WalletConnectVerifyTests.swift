@@ -211,14 +211,14 @@ private final class VerifyListener: WalletConnectServiceDelegate {
 
 private final class ProposalRejectionRecorder {
     private let lock = NSLock()
-    private var ids: [String] = []
+    private var ids: [Int64] = []
     private let onRecord: () -> Void
 
     init(onRecord: @escaping () -> Void = {}) {
         self.onRecord = onRecord
     }
 
-    var proposalIds: [String] {
+    var proposalIds: [Int64] {
         lock.lock()
         defer { lock.unlock() }
         return ids
