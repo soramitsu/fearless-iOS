@@ -113,7 +113,7 @@ prepare_case canonical
 run_pass canonical
 
 # App Store Connect compares numeric components, not text: 2026.11.10 follows
-# the latest consumed build 2026.11.5 and 2026.9.10 precedes it, although text
+# the latest consumed build 2026.11.6 and 2026.9.10 precedes it, although text
 # order puts the 2026.9.x builds last.
 prepare_case numeric-successor
 set_all_pins 2026.11.10
@@ -121,15 +121,15 @@ run_pass numeric-successor
 
 prepare_case text-successor-only
 set_all_pins 2026.9.10
-run_reject text-successor-only "2026.9.10 is not greater than latest consumed build 2026.11.5"
+run_reject text-successor-only "2026.9.10 is not greater than latest consumed build 2026.11.6"
 
 prepare_case reused-latest-build
-set_all_pins 2026.11.5
-run_reject reused-latest-build "2026.11.5 is not greater than latest consumed build 2026.11.5"
+set_all_pins 2026.11.6
+run_reject reused-latest-build "2026.11.6 is not greater than latest consumed build 2026.11.6"
 
 prepare_case reused-iroha-build
 set_all_pins 2026.8.34
-run_reject reused-iroha-build "2026.8.34 is not greater than latest consumed build 2026.11.5"
+run_reject reused-iroha-build "2026.8.34 is not greater than latest consumed build 2026.11.6"
 
 prepare_case release-listed-as-predecessor
 replace_line scripts/audit-testflight-upgrade-usability-gate.py \
@@ -140,8 +140,8 @@ run_reject release-listed-as-predecessor "is not greater than latest consumed bu
 prepare_case project-drift
 replace_line fearless.xcodeproj/project.pbxproj \
   "				CURRENT_PROJECT_VERSION = $release_build;" \
-  "				CURRENT_PROJECT_VERSION = 2026.11.7;"
-run_reject project-drift "pins $release_build, but the Release target builds 2026.11.7"
+  "				CURRENT_PROJECT_VERSION = 2026.11.8;"
+run_reject project-drift "pins $release_build, but the Release target builds 2026.11.8"
 
 prepare_case jenkins-drift
 replace_line Jenkinsfile \
