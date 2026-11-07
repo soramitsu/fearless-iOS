@@ -59,6 +59,7 @@
 		2E119E9A98D0018D1DFC3F8A /* NetworkDateParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E88C7644F811162F7F8D3AD /* NetworkDateParsingTests.swift */; };
 		FF26D6B731581C9CA1DAD936 /* PricesServiceSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CD4A119D13D3900A6732CC1 /* PricesServiceSubscriptionTests.swift */; };
 		3EAFF017611DFC0F6F040ABA /* WalletConnectPairingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB0E81FB111857D76148885 /* WalletConnectPairingTests.swift */; };
+		1A10D9F3D2BF7D4C694079DD /* WalletConnectLiveSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B54032291FF61CCB52CF1 /* WalletConnectLiveSigningTests.swift */; };
 		D96C41A5F4ABDD1F769F8AB3 /* WalletConnectSigningGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CCBD1F17BA5B2C3BF80B2C /* WalletConnectSigningGateTests.swift */; };
 		5A8C85952089D8F76A6A94FB /* WalletConnectConfirmationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95733E35C11AE9CAE85BAE34 /* WalletConnectConfirmationTests.swift */; };
 		95999564E3AA56D4E4233BA3 /* WalletConnectTestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC06DC8A3768EE9ED313BA3C /* WalletConnectTestFixtures.swift */; };
@@ -3343,6 +3344,7 @@
 		2E88C7644F811162F7F8D3AD /* NetworkDateParsingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkDateParsingTests.swift; sourceTree = "<group>"; };
 		1CD4A119D13D3900A6732CC1 /* PricesServiceSubscriptionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PricesServiceSubscriptionTests.swift; sourceTree = "<group>"; };
 		4BB0E81FB111857D76148885 /* WalletConnectPairingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectPairingTests.swift; sourceTree = "<group>"; };
+		8E1B54032291FF61CCB52CF1 /* WalletConnectLiveSigningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletConnectLiveSigningTests.swift"; sourceTree = "<group>"; };
 		06CCBD1F17BA5B2C3BF80B2C /* WalletConnectSigningGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletConnectSigningGateTests.swift"; sourceTree = "<group>"; };
 		95733E35C11AE9CAE85BAE34 /* WalletConnectConfirmationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectConfirmationTests.swift; sourceTree = "<group>"; };
 		B8EA440B2D475548CD3C6D59 /* ApplicationLockState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLockState.swift; sourceTree = "<group>"; };
@@ -15964,6 +15966,7 @@
 			children = (
 				C09161B39D8F8E8468364F56 /* WalletConnectLegacyStorageContinuityTests.swift */,
 				4BB0E81FB111857D76148885 /* WalletConnectPairingTests.swift */,
+				8E1B54032291FF61CCB52CF1 /* WalletConnectLiveSigningTests.swift */,
 				06CCBD1F17BA5B2C3BF80B2C /* WalletConnectSigningGateTests.swift */,
 				FC06DC8A3768EE9ED313BA3C /* WalletConnectTestFixtures.swift */,
 				1A38E452E8E06B035E14D3BE /* WalletConnectRequestPreparationTests.swift */,
@@ -19752,6 +19755,7 @@
 				02BFDF245724236F801AC98B /* RetiredSoraCardDataCleanupTests.swift in Sources */,
 				46BCF969912A279E6D20B6FD /* RetiredSoraCardResourcesTests.swift in Sources */,
 				3EAFF017611DFC0F6F040ABA /* WalletConnectPairingTests.swift in Sources */,
+				1A10D9F3D2BF7D4C694079DD /* WalletConnectLiveSigningTests.swift in Sources */,
 				D96C41A5F4ABDD1F769F8AB3 /* WalletConnectSigningGateTests.swift in Sources */,
 				95999564E3AA56D4E4233BA3 /* WalletConnectTestFixtures.swift in Sources */,
 				2352FEBEF95148726F49FC1A /* WalletConnectRequestPreparationTests.swift in Sources */,
