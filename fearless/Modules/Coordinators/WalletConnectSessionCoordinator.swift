@@ -1,11 +1,17 @@
 import Foundation
 import FearlessWalletConnect
 
-final class WalletConnectSessionCoordinator: DefaultCoordinator, CoordinatorFinishOutput {
+final class WalletConnectSessionCoordinator: DefaultCoordinator, CoordinatorFinishOutput, WalletConnectSigningFlow {
     private let router: WalletConnectCoordinatorRouter
     private let request: Request
     private let session: Session?
     private let verification: WalletConnectVerification
+    private weak var confirmation: WalletConnectConfirmationCoordinator?
+
+    /// True while the confirmation signs: the PIN screen may be up.
+    var isSigning: Bool {
+        confirmation?.isSigning ?? false
+    }
 
     init(
         router: WalletConnectCoordinatorRouter,
@@ -55,6 +61,7 @@ final class WalletConnectSessionCoordinator: DefaultCoordinator, CoordinatorFini
             self?.finishFlow?()
         }
         addChildCoordinator(coordinator)
+        confirmation = coordinator
         coordinator.start()
     }
 }

@@ -16,6 +16,9 @@ protocol WalletConnectConfirmationRouterInput: PresentDismissable, SheetAlertPre
     func showRawData(json: JSON, from view: ControllerBackedProtocol?)
 }
 
-protocol WalletConnectConfirmationModuleInput: AnyObject {}
+protocol WalletConnectConfirmationModuleInput: AnyObject {
+    /// True while the confirmation signs: the PIN screen may be up.
+    var isSigning: Bool { get }
+}
 
 protocol WalletConnectConfirmationModuleOutput: AnyObject {}

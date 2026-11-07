@@ -41,6 +41,53 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
         XCTAssertEqual(try signature.get(String.self), "0x5167")
     }
 
+    func testApprove_whenTheDAppStoppedWaitingBeforeThePin_thenNoPinIsAskedAndNothingIsSigned() async throws {
+        let signer = SignerSpy()
+        let service = WalletConnectServiceSpy()
+        service.pendingAnswers = [false]
+        let authorizer = AuthorizerStub(result: true)
+        let (interactor, _) = try makeInteractor(signer: signer, service: service, authorizer: authorizer)
+
+        do {
+            _ = try await interactor.approve()
+            XCTFail("A request nobody waits for must not be signed")
+        } catch WalletConnectSigningError.requestEnded {}
+
+        XCTAssertEqual(authorizer.calls, 0)
+        XCTAssertTrue(signer.requests.isEmpty)
+        XCTAssertTrue(service.signDecisions.isEmpty)
+    }
+
+    func testApprove_whenTheDAppStopsWaitingWhileThePinIsAsked_thenNothingIsSigned() async throws {
+        let signer = SignerSpy()
+        let service = WalletConnectServiceSpy()
+        service.pendingAnswers = [true, false]
+        let authorizer = AuthorizerStub(result: true)
+        let (interactor, _) = try makeInteractor(signer: signer, service: service, authorizer: authorizer)
+
+        do {
+            _ = try await interactor.approve()
+            XCTFail("A request that ended during the PIN must not be signed")
+        } catch WalletConnectSigningError.requestEnded {}
+
+        XCTAssertEqual(authorizer.calls, 1)
+        XCTAssertEqual(service.pendingChecks, 2)
+        XCTAssertTrue(signer.requests.isEmpty)
+        XCTAssertTrue(service.signDecisions.isEmpty)
+    }
+
+    func testApprove_whenTheRequestEndsAsTheSignatureIsSent_thenItIsReportedAsEnded() async throws {
+        let signer = SignerSpy()
+        let service = WalletConnectServiceSpy()
+        service.signedSubmitError = WalletConnectClient.ClientError.requestNotFound
+        let (interactor, _) = try makeInteractor(signer: signer, service: service, authorizer: AuthorizerStub(result: true))
+
+        do {
+            _ = try await interactor.approve()
+            XCTFail("A signature the dApp never got must not be reported as given")
+        } catch WalletConnectSigningError.requestEnded {}
+    }
+
     @MainActor
     func testAuthorizer_whenNoPinIsSet_thenDeclinesWithoutAPrompt() async throws {
         let (window, root) = try hostInAppScene()
@@ -150,6 +197,117 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
         XCTAssertEqual(fixture.flows.map(\.starts), [1, 1])
     }
 
+    // MARK: - Requests the dApp stopped waiting for
+
+    func testCoordinator_whenAQueuedRequestEnds_thenItLeavesTheQueueUnseen() throws {
+        let fixture = CoordinatorFixture()
+        let shown = try Self.makeRequest()
+        let queued = try Self.makeRequest()
+        fixture.coordinator.sign(request: shown, session: nil, verification: .verified)
+        fixture.coordinator.sign(request: queued, session: nil, verification: .verified)
+
+        fixture.coordinator.requestEnded(id: queued.id, topic: queued.topic)
+        XCTAssertEqual(fixture.flows.map(\.starts), [1, 0])
+        XCTAssertEqual(fixture.router.dismissals, 0, "The request on screen stays")
+        XCTAssertFalse(fixture.requestEndedNotice.isNoticePending)
+
+        fixture.flows[0].finishFlow?()
+        XCTAssertEqual(fixture.flows.map(\.starts), [1, 0], "The ended request is never shown")
+        XCTAssertTrue(fixture.coordinator.childCoordinators.isEmpty)
+    }
+
+    func testCoordinator_whenTheRequestOnScreenEnds_thenItClosesSaysSoAndTheNextOneShows() throws {
+        let fixture = CoordinatorFixture()
+        let shown = try Self.makeRequest()
+        fixture.coordinator.sign(request: shown, session: nil, verification: .verified)
+        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil, verification: .verified)
+
+        fixture.coordinator.requestEnded(id: shown.id, topic: shown.topic)
+
+        XCTAssertEqual(fixture.router.dismissals, 1)
+        XCTAssertEqual(fixture.flows.map(\.starts), [1, 1])
+        XCTAssertTrue(fixture.requestEndedNotice.isNoticePending)
+    }
+
+    func testCoordinator_whenTheRequestOnScreenIsSigning_thenItStaysOpen() throws {
+        let fixture = CoordinatorFixture()
+        let shown = try Self.makeRequest()
+        fixture.coordinator.sign(request: shown, session: nil, verification: .verified)
+        fixture.flows[0].isSigning = true
+
+        fixture.coordinator.requestEnded(id: shown.id, topic: shown.topic)
+
+        // The PIN screen may be up: the signing's own checks stop it instead.
+        XCTAssertEqual(fixture.router.dismissals, 0)
+        XCTAssertFalse(fixture.requestEndedNotice.isNoticePending)
+    }
+
+    func testCoordinator_whenASessionEnds_thenEveryRequestOfItEnds() throws {
+        let fixture = CoordinatorFixture()
+        let blockchain = try XCTUnwrap(Blockchain("eip155:1"))
+        let first = Request(topic: "session-a", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain)
+        let second = Request(topic: "session-a", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain)
+        let other = Request(topic: "session-b", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain)
+        [first, second, other].forEach { fixture.coordinator.sign(request: $0, session: nil, verification: .verified) }
+
+        fixture.coordinator.sessionEnded(topic: "session-a")
+
+        XCTAssertEqual(fixture.router.dismissals, 1)
+        XCTAssertEqual(fixture.flows.map(\.starts), [1, 0, 1], "Only the other session's request is shown next")
+        XCTAssertEqual(fixture.coordinator.childCoordinators.count, 1)
+    }
+
+    func testCoordinator_whenAProposalExpires_thenItLeavesTheQueue() throws {
+        let fixture = CoordinatorFixture()
+        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil, verification: .verified)
+        let proposal = try WalletConnectVerifyTests.makeProposal()
+        fixture.coordinator.session(proposal: proposal, verification: .verified)
+
+        fixture.coordinator.proposalEnded(id: proposal.id)
+        fixture.flows[0].finishFlow?()
+
+        XCTAssertEqual(fixture.flows.map(\.starts), [1, 0])
+        XCTAssertTrue(fixture.coordinator.childCoordinators.isEmpty)
+    }
+
+    func testCoordinator_requestsWithTheSameIdInTwoSessionsAreBothShown() throws {
+        let fixture = CoordinatorFixture()
+        let blockchain = try XCTUnwrap(Blockchain("eip155:1"))
+        let first = Request(id: 7, topic: "session-a", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain)
+        let second = Request(id: 7, topic: "session-b", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain)
+
+        fixture.coordinator.sign(request: first, session: nil, verification: .verified)
+        fixture.coordinator.sign(request: second, session: nil, verification: .verified)
+        fixture.coordinator.sign(request: first, session: nil, verification: .verified)
+
+        XCTAssertEqual(fixture.flows.count, 2)
+    }
+
+    func testCoordinator_whenTheQueueIsFull_thenFurtherRequestsAreDeclinedAtOnce() throws {
+        let fixture = CoordinatorFixture()
+        let requests = try (0 ..< WalletConnectCoordinator.maxQueuedFlows + 2).map { _ in try Self.makeRequest() }
+
+        requests.forEach { fixture.coordinator.sign(request: $0, session: nil, verification: .verified) }
+
+        XCTAssertEqual(fixture.flows.count, WalletConnectCoordinator.maxQueuedFlows)
+        let declined = Set(requests.suffix(2).map(\.id))
+        try spin { fixture.service.signDecisions.count == 2 }
+        XCTAssertEqual(Set(fixture.service.signDecisions.compactMap { decision -> Int64? in
+            guard case let .rejected(request, error) = decision, error == .userRejected else {
+                return nil
+            }
+            return request.id
+        }), declined)
+
+        let proposal = try WalletConnectVerifyTests.makeProposal()
+        fixture.coordinator.session(proposal: proposal, verification: .verified)
+        try spin { fixture.service.proposalDecisions.count == 1 }
+        guard case let .reject(rejected) = fixture.service.proposalDecisions.first else {
+            return XCTFail("The proposal must be declined")
+        }
+        XCTAssertEqual(rejected.id, proposal.id)
+    }
+
     func testRouter_whenTheAppLocks_thenHidesTheRequestWindowUntilItIsUnlocked() throws {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         let notificationCenter = NotificationCenter()
@@ -171,6 +329,81 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
         lockState.unlock()
         XCTAssertFalse(window.isHidden)
         window.isHidden = true
+    }
+
+    /// The real lock (as `FearlessApplication.dropSession` presents it for the idle lock and the background re-lock)
+    /// while a request window is key: the PIN goes on the app's own window, stays visible when the request window
+    /// hides, and outlives the request flow ending.
+    func testRealLock_whenTheRequestWindowIsKey_thenThePinCoversTheAppAndOutlivesTheRequest() throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let notificationCenter = NotificationCenter()
+        let lockState = ApplicationLockState(notificationCenter: notificationCenter)
+        let mainRoot = UIViewController()
+        let mainWindow = FearlessWindow(windowScene: scene)
+        mainWindow.frame = CGRect(x: 0, y: 0, width: 393, height: 852)
+        mainWindow.rootViewController = mainRoot
+        mainWindow.makeKeyAndVisible()
+        defer { mainWindow.isHidden = true }
+
+        let router = WalletConnectCoordinatorRouterImpl(
+            lockState: lockState,
+            notificationCenter: notificationCenter,
+            windowScene: { scene }
+        )
+        router.setRoot(controller: UIViewController())
+        let requestWindow = try XCTUnwrap(router.coveringWindow)
+        defer { requestWindow.isHidden = true }
+        spinRunLoop(0.5)
+        XCTAssertTrue(requestWindow.isKeyWindow, "A request on screen makes its window key")
+        XCTAssertTrue(SceneWindowFinder.activeWindow(from: scene) === requestWindow)
+
+        let pin = UIViewController()
+        XCTAssertTrue(SceneWindowFinder.mainWindow(from: scene) === mainWindow)
+        let presented = FearlessApplication.presentLock(
+            on: SceneWindowFinder.mainWindow(from: scene),
+            lockState: lockState
+        ) { pin }
+        spinRunLoop(0.5)
+
+        XCTAssertTrue(presented === pin)
+        XCTAssertTrue(mainRoot.presentedViewController === pin, "The PIN goes on the app's own window")
+        XCTAssertTrue(lockState.isLocked)
+        XCTAssertTrue(requestWindow.isHidden, "The request window waits behind the lock")
+        XCTAssertTrue(pin.viewIfLoaded?.window === mainWindow, "The PIN is in the app's window")
+        XCTAssertFalse(mainWindow.isHidden, "The PIN stays visible")
+        XCTAssertTrue(mainWindow.isKeyWindow, "The PIN takes the keyboard")
+
+        // The request flow ending dismisses its own window only: the PIN and the lock stay.
+        let dismissed = expectation(description: "the request window is dismissed")
+        router.dismiss { dismissed.fulfill() }
+        wait(for: [dismissed], timeout: 5)
+        XCTAssertTrue(mainRoot.presentedViewController === pin)
+        XCTAssertTrue(lockState.isLocked)
+    }
+
+    func testRequestSheet_whenItsWindowHidesForTheLock_thenTheRequestIsNotRejected() throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        window.frame = CGRect(x: 0, y: 0, width: 393, height: 852)
+        window.windowLevel = .alert + 1
+        window.rootViewController = UIViewController()
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+        let output = SessionSheetOutputSpy()
+        let sheet = WalletConnectSessionViewController(output: output, localizationManager: nil)
+
+        window.rootViewController?.present(sheet, animated: false)
+        spinRunLoop(0.3)
+        window.isHidden = true
+        spinRunLoop(0.3)
+        XCTAssertTrue(WalletConnectSheetVisibility.isHiddenWithItsWindow(sheet))
+        XCTAssertEqual(output.disappearances, 0, "Hidden by the lock, the request is still open")
+
+        window.isHidden = false
+        sheet.dismiss(animated: false)
+        spinRunLoop(0.3)
+        XCTAssertEqual(output.disappearances, 1, "Closing the sheet answers the request")
+        XCTAssertFalse(WalletConnectSheetVisibility.isHiddenWithItsWindow(sheet))
     }
 
     func testCheckPincode_whenThePinIsAccepted_thenTheLockEnds() {
@@ -244,6 +477,14 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
         )
     }
 
+    private func spin(timeout: TimeInterval = 3, _ condition: () -> Bool) throws {
+        let deadline = Date(timeIntervalSinceNow: timeout)
+        while !condition(), Date() < deadline {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.02))
+        }
+        XCTAssertTrue(condition(), "timed out")
+    }
+
     @MainActor
     private func waitUntil(timeout: TimeInterval = 3, _ condition: () -> Bool) async {
         let deadline = Date(timeIntervalSinceNow: timeout)
@@ -271,6 +512,13 @@ private final class CoordinatorFixture {
     let lockState: ApplicationLockState
     let lockScreen = UIViewController()
     let router = RouterSpy()
+    let service = WalletConnectServiceSpy()
+    /// Kept pending: nothing is presented on the host app.
+    let requestEndedNotice = WalletConnectNoticePresenter(
+        topViewController: { nil },
+        isApplicationActive: { false },
+        makeViewModel: { locale in WalletConnectNoticePresenter.requestEndedViewModel(locale: locale) }
+    )
     private(set) var flows: [FlowSpy] = []
     var coordinator: WalletConnectCoordinator!
 
@@ -278,11 +526,12 @@ private final class CoordinatorFixture {
         let notificationCenter = NotificationCenter()
         lockState = ApplicationLockState(notificationCenter: notificationCenter)
         coordinator = WalletConnectCoordinator(
-            walletConnect: WalletConnectServiceSpy(),
+            walletConnect: service,
             router: router,
             lockState: lockState,
             notificationCenter: notificationCenter,
             isApplicationActive: { true },
+            requestEndedNotice: requestEndedNotice,
             makeRequestFlow: { [unowned self] router, _, _, _ in
                 let flow = FlowSpy(router: router as? RouterSpy)
                 flows.append(flow)
@@ -297,8 +546,9 @@ private final class CoordinatorFixture {
     }
 }
 
-private final class FlowSpy: DefaultCoordinator, CoordinatorFinishOutput {
+private final class FlowSpy: DefaultCoordinator, CoordinatorFinishOutput, WalletConnectSigningFlow {
     var finishFlow: (() -> Void)?
+    var isSigning = false
     private weak var router: RouterSpy?
     private(set) var starts = 0
 
@@ -314,11 +564,13 @@ private final class FlowSpy: DefaultCoordinator, CoordinatorFinishOutput {
 
 private final class RouterSpy: WalletConnectCoordinatorRouter {
     var isBusy = false
+    private(set) var dismissals = 0
 
     func setRoot(controller _: UIViewController) {}
     func present(controller _: UIViewController) {}
 
     func dismiss(completion: (() -> Void)?) {
+        dismissals += 1
         isBusy = false
         completion?()
     }
@@ -347,25 +599,83 @@ private final class SignerSpy: WalletConnectSigner {
     }
 }
 
-final class WalletConnectServiceSpy: WalletConnectService {
-    private(set) var signDecisions: [WalletConnectSignDecision] = []
-    private(set) var proposalDecisions: [WalletConnectProposalDecision] = []
+final class WalletConnectServiceSpy: WalletConnectService, @unchecked Sendable {
+    private let lock = NSLock()
+    private var recordedSignDecisions: [WalletConnectSignDecision] = []
+    private var recordedProposalDecisions: [WalletConnectProposalDecision] = []
+    /// Decisions arrive from tasks on any thread.
+    var signDecisions: [WalletConnectSignDecision] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recordedSignDecisions
+    }
+
+    var proposalDecisions: [WalletConnectProposalDecision] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recordedProposalDecisions
+    }
+
+    private(set) var disconnectedTopics: [String] = []
+    private(set) var disconnectAllCalls = 0
+    private(set) var pendingChecks = 0
+    var sessions: [Session] = []
+    /// Answers `isPending(request:)`, one value per check; the last one repeats.
+    var pendingAnswers: [Bool] = [true]
+    /// Thrown by `submit(signDecision:)` for a signature.
+    var signedSubmitError: Error?
 
     func setup() {}
     func throttle() {}
     func set(listener _: WalletConnectServiceDelegate) {}
     func connect(uri _: String) async throws {}
-    func disconnect(topic _: String) async throws {}
-    func getSessions() -> [Session] { [] }
+    func disconnect(topic: String) async throws {
+        disconnectedTopics.append(topic)
+    }
+
+    func disconnectAll() async throws {
+        disconnectAllCalls += 1
+    }
+
+    func getSessions() -> [Session] { sessions }
     func legacySessionsNeedingReconnect() -> [WalletConnectLegacySession] { [] }
 
+    func isPending(request _: Request) async -> Bool {
+        let answer = pendingAnswers[min(pendingChecks, pendingAnswers.count - 1)]
+        pendingChecks += 1
+        return answer
+    }
+
     func submit(proposalDecision: WalletConnectProposalDecision) async throws {
-        proposalDecisions.append(proposalDecision)
+        lock.lock()
+        recordedProposalDecisions.append(proposalDecision)
+        lock.unlock()
     }
 
     func submit(signDecision: WalletConnectSignDecision) async throws {
-        signDecisions.append(signDecision)
+        if case .signed = signDecision, let signedSubmitError = signedSubmitError {
+            throw signedSubmitError
+        }
+        lock.lock()
+        recordedSignDecisions.append(signDecision)
+        lock.unlock()
     }
 }
 
 private final class HostViewController: UIViewController, ControllerBackedProtocol {}
+
+private final class SessionSheetOutputSpy: WalletConnectSessionViewOutput {
+    private(set) var disappearances = 0
+
+    func didLoad(view _: WalletConnectSessionViewInput) {}
+    func viewDidDisappear() {
+        disappearances += 1
+    }
+
+    func closeButtonDidTapped() {}
+    func actionButtonDidTapped() {}
+}
+
+private func spinRunLoop(_ seconds: TimeInterval) {
+    RunLoop.current.run(until: Date(timeIntervalSinceNow: seconds))
+}

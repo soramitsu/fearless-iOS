@@ -20,7 +20,9 @@ final class WalletConnectConfirmationPresenter {
 
     private let inputData: WalletConnectConfirmationInputData
     private let viewModelFactory: WalletConnectConfirmationViewModelFactory
-    private var isSigning = false
+    /// From the confirm tap until the signing finishes: the PIN screen may be up. A request that ends meanwhile is
+    /// caught by the interactor's own checks, so the flow is not closed under the PIN screen.
+    private(set) var isSigning = false
 
     // MARK: - Constructors
 
@@ -82,6 +84,32 @@ final class WalletConnectConfirmationPresenter {
         )
     }
 
+    /// The dApp stopped waiting for the request while it was open. Nothing was sent to it; closing the notice ends
+    /// the flow.
+    func showRequestEnded() {
+        guard let view = view else {
+            return
+        }
+        let languages = selectedLocale.rLanguages
+        let close = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: languages),
+            handlerAfterDismissal: true
+        ) { [weak self] in
+            self?.router.dismiss(view: self?.view)
+            self?.view?.controller.onInteractionDismiss()
+        }
+        router.present(
+            viewModel: SheetAlertPresentableViewModel(
+                title: R.string.localizable.walletConnectRequestEndedTitle(preferredLanguages: languages),
+                message: R.string.localizable.walletConnectRequestEndedMessage(preferredLanguages: languages),
+                actions: [close],
+                closeAction: nil,
+                icon: R.image.iconWarningBig()
+            ),
+            from: view
+        )
+    }
+
     private func show(error: Error) {
         guard let view = view else {
             return
@@ -128,6 +156,12 @@ extension WalletConnectConfirmationPresenter: WalletConnectConfirmationViewOutpu
                     isSigning = false
                     view?.didStopLoading()
                     showSigningPaused()
+                }
+            } catch WalletConnectSigningError.requestEnded {
+                await MainActor.run {
+                    isSigning = false
+                    view?.didStopLoading()
+                    showRequestEnded()
                 }
             } catch WalletConnectSigningError.notAuthorized {
                 // The user closed the PIN screen; the request stays open to retry or reject.

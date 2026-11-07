@@ -80,6 +80,35 @@ final class WalletConnectSigningGateTests: XCTestCase {
         service.throttle()
     }
 
+    func testLinksBeforeSetup_keepOnlyTheLatestFew() throws {
+        let pairings = LinkPairingRecorder()
+        let service = WalletConnectServiceImpl(
+            signingPolicy: .production,
+            pair: pairings.record,
+            clientFactory: { _ in Self.offlineClient() },
+            notificationCenter: NotificationCenter()
+        )
+        let links = (0 ..< 10).map { _ in Self.randomPairingLink() }
+
+        // A page that opens links in a loop while the wallet is locked.
+        links.forEach { service.pairFromLink(uri: $0) }
+        // The same link again moves to the end instead of taking two places.
+        service.pairFromLink(uri: links[7])
+
+        let kept = Array(links.suffix(WalletConnectServiceImpl.maxPendingLinks).filter { $0 != links[7] }) + [links[7]]
+        XCTAssertEqual(service.pendingLinkURIs, kept)
+
+        service.setup()
+        try spin { pairings.uris.count == kept.count }
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.2))
+        XCTAssertEqual(
+            Set(pairings.uris),
+            Set(try kept.map { try WalletConnectURI(uriString: $0).absoluteString })
+        )
+        XCTAssertTrue(service.pendingLinkURIs.isEmpty)
+        service.throttle()
+    }
+
     func testLinkThatCannotPair_isReportedToTheListeners() throws {
         let service = WalletConnectServiceImpl(
             signingPolicy: .production,
@@ -348,6 +377,13 @@ final class WalletConnectSigningGateTests: XCTestCase {
             RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.02))
         }
         XCTAssertTrue(condition(), "timed out")
+    }
+
+    private static func randomPairingLink() -> String {
+        func randomHex() -> String {
+            (0 ..< 32).map { _ in String(format: "%02x", UInt8.random(in: 0 ... 255)) }.joined()
+        }
+        return "wc:\(randomHex())@2?relay-protocol=irn&symKey=\(randomHex())&expiryTimestamp=1894000000"
     }
 
     private static func offlineClient() -> WalletConnectClient {

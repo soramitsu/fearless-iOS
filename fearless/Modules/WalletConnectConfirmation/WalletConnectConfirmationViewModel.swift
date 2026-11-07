@@ -17,15 +17,34 @@ struct WalletConnectConfirmationViewModel {
             case app
             case website
             case verification
+            /// Something the user must weigh before signing: an undecoded call, extra data, typed data the wallet
+            /// does not recognise, a signature for any network, a call whose effect the wallet cannot explain.
+            case warning
+            /// The 4-byte selector of an EVM call.
+            case function
+            /// Transaction data shown raw.
+            case data
+            case from
+            /// What a `setApprovalForAll` grants.
+            case access
+            case deadline
+            /// A signed typed-data field the wallet does not specifically understand.
+            case field
+            /// A Substrate call's arguments, decoded.
+            case arguments
         }
 
         let kind: Kind
         let title: String
         let value: String
 
-        /// Messages and decoded calls can be long and are shown in full.
+        /// Messages, warnings, raw data and decoded calls can be long and are shown in full.
         var isMultiline: Bool {
-            kind == .message
+            [.message, .warning, .data, .field, .arguments, .call].contains(kind)
+        }
+
+        var isWarning: Bool {
+            kind == .warning
         }
     }
 

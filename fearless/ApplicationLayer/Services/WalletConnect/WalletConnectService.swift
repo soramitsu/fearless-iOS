@@ -49,6 +49,8 @@ enum WalletConnectSigningError: Error {
     case notAuthorized
     /// The remote config paused signing for the request's network while it was open.
     case paused
+    /// The dApp stopped waiting for the request while it was open: it expired, or its session ended.
+    case requestEnded
 }
 
 enum WalletConnectServiceError: Error {
@@ -60,7 +62,11 @@ protocol WalletConnectService: ApplicationServiceProtocol {
     func set(listener: WalletConnectServiceDelegate)
     func connect(uri: String) async throws
     func disconnect(topic: String) async throws
+    /// Ends every session and pairing, as logging out does.
+    func disconnectAll() async throws
     func getSessions() -> [Session]
+    /// Whether the dApp still waits for the request: checked before the PIN and again before anything is signed.
+    func isPending(request: Request) async -> Bool
     func legacySessionsNeedingReconnect() -> [WalletConnectLegacySession]
 
     func submit(proposalDecision: WalletConnectProposalDecision) async throws
@@ -82,6 +88,12 @@ protocol WalletConnectServiceDelegate: AnyObject {
     /// A pairing link (`wc:` or `fearless://wc?uri=`) could not be paired.
     func pairingFailed(error: Error)
     func didChange(sessions: [Session])
+    /// The dApp no longer waits for this request: it expired.
+    func requestEnded(id: Int64, topic: String)
+    /// A session ended: the dApp no longer waits for any of its requests.
+    func sessionEnded(topic: String)
+    /// The dApp no longer waits for this proposal: it expired.
+    func proposalEnded(id: Int64)
 }
 
 extension WalletConnectServiceDelegate {
@@ -92,6 +104,9 @@ extension WalletConnectServiceDelegate {
     func signingPaused(request _: Request, session _: Session?) {}
     func pairingFailed(error _: Error) {}
     func didChange(sessions _: [Session]) {}
+    func requestEnded(id _: Int64, topic _: String) {}
+    func sessionEnded(topic _: String) {}
+    func proposalEnded(id _: Int64) {}
 }
 
 enum WalletConnectGroupIdentifierResolver {
@@ -126,14 +141,18 @@ final class WalletConnectServiceImpl: WalletConnectService {
     typealias Pairer = (WalletConnectURI) async throws -> Void
     typealias ProposalRejecter = (Session.Proposal) async throws -> Void
     typealias SigningVeto = (Blockchain) -> Bool
+    typealias PendingCheck = (Request) async -> Bool
 
     private let signingPolicy: WalletConnectSigningPolicy
     private let responder: Responder?
     private let pairer: Pairer?
     private let proposalRejecter: ProposalRejecter?
     private let isSigningAllowed: SigningVeto
-    /// Pairing links that arrived before the service was set up (the app opened from a link while locked).
-    private var pendingLinkURIs: [String] = []
+    private let pendingCheck: PendingCheck?
+    /// Pairing links that arrived before the service was set up (the app opened from a link while locked). Only the
+    /// latest few are kept: a page that opens links in a loop cannot pile up pairings for later.
+    private(set) var pendingLinkURIs: [String] = []
+    static let maxPendingLinks = 3
     private let clientFactory: ClientFactory
     private let notificationCenter: NotificationCenter
     private var listeners: [WeakWrapper] = []
@@ -152,6 +171,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
         pair: Pairer? = nil,
         rejectProposal: ProposalRejecter? = nil,
         isSigningAllowed: @escaping SigningVeto = { WalletConnectSigningVeto.isSigningAllowed(on: $0) },
+        isPending: PendingCheck? = nil,
         clientFactory: @escaping ClientFactory = WalletConnectServiceImpl.makeClient,
         notificationCenter: NotificationCenter = .default
     ) {
@@ -160,6 +180,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
         pairer = pair
         proposalRejecter = rejectProposal
         self.isSigningAllowed = isSigningAllowed
+        pendingCheck = isPending
         self.clientFactory = clientFactory
         self.notificationCenter = notificationCenter
     }
@@ -388,7 +409,11 @@ final class WalletConnectServiceImpl: WalletConnectService {
     /// asked for it.
     func pairFromLink(uri: String) {
         guard startTask != nil else {
+            pendingLinkURIs.removeAll { $0 == uri }
             pendingLinkURIs.append(uri)
+            if pendingLinkURIs.count > Self.maxPendingLinks {
+                pendingLinkURIs.removeFirst(pendingLinkURIs.count - Self.maxPendingLinks)
+            }
             return
         }
 
@@ -418,6 +443,24 @@ final class WalletConnectServiceImpl: WalletConnectService {
             throw WalletConnectServiceError.unavailable
         }
         try await client.disconnect(topic: topic)
+    }
+
+    func disconnectAll() async throws {
+        guard let client = client else {
+            throw WalletConnectServiceError.unavailable
+        }
+        await startTask?.value
+        try await client.disconnectAll()
+    }
+
+    func isPending(request: Request) async -> Bool {
+        if let pendingCheck = pendingCheck {
+            return await pendingCheck(request)
+        }
+        guard let client = client else {
+            return false
+        }
+        return await client.isPending(topic: request.topic, requestId: request.id)
     }
 
     // MARK: - Client
@@ -514,7 +557,19 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 case let .sessionRequest(request, context):
                     let session = client.currentSessions.first { $0.topic == request.topic }
                     self.handle(request: request, session: session, context: context)
-                case .sessionDeleted, .proposalExpired, .requestExpired, .sessionPinged:
+                case let .requestExpired(id, topic):
+                    for listener in self.listeners {
+                        (listener.target as? WalletConnectServiceDelegate)?.requestEnded(id: id, topic: topic)
+                    }
+                case let .sessionDeleted(topic):
+                    for listener in self.listeners {
+                        (listener.target as? WalletConnectServiceDelegate)?.sessionEnded(topic: topic)
+                    }
+                case let .proposalExpired(id):
+                    for listener in self.listeners {
+                        (listener.target as? WalletConnectServiceDelegate)?.proposalEnded(id: id)
+                    }
+                case .sessionPinged:
                     break
                 }
             }

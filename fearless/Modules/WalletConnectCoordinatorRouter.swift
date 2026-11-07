@@ -90,9 +90,8 @@ final class WalletConnectCoordinatorRouterImpl: WalletConnectCoordinatorRouter {
 
         if lockState.isLocked {
             coveringWindow.isHidden = true
-            coveringWindow.windowScene?.windows
-                .first { $0 !== coveringWindow && !$0.isHidden && $0.windowLevel == .normal }?
-                .makeKey()
+            // The PIN screen is on the app's own window: it takes the key status back.
+            SceneWindowFinder.mainWindow(from: coveringWindow.windowScene)?.makeKey()
         } else {
             coveringWindow.makeKeyAndVisible()
         }

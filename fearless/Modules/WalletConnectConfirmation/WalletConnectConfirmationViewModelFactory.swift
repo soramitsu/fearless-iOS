@@ -96,6 +96,7 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
         let token = chain.assets.first { asset in
             (try? Data(hexStringSSF: asset.id)) == quote.to
         }
+        let languages = locale.rLanguages
 
         var rows: [Row] = []
         switch quote.tokenCall {
@@ -103,21 +104,79 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
             rows.append(recipientRow(address(of: recipient), locale: locale))
             rows.append(amountRow(formatted(amount, asset: token, locale: locale), locale: locale))
             rows.append(contractRow(quote.to, locale: locale))
-        case let .approve(spender, amount):
+        case let .transferFrom(owner, recipient, amountOrId):
+            rows.append(Row(
+                kind: .from,
+                title: R.string.localizable.walletConnectConfirmationFrom(preferredLanguages: languages),
+                value: address(of: owner)
+            ))
+            rows.append(recipientRow(address(of: recipient), locale: locale))
+            if let token = token {
+                rows.append(amountRow(formatted(amountOrId, asset: token, locale: locale), locale: locale))
+            } else {
+                // ERC-20 and ERC-721 share this call: an unknown contract's number may be an amount or an item.
+                rows.append(Row(
+                    kind: .amount,
+                    title: R.string.localizable.walletConnectConfirmationAmountOrId(preferredLanguages: languages),
+                    value: String(amountOrId)
+                ))
+            }
+            rows.append(contractRow(quote.to, locale: locale))
+        case let .approve(spender, amount), let .increaseAllowance(spender, amount):
             rows.append(spenderRow(address(of: spender), locale: locale))
             rows.append(amountRow(allowance(amount, asset: token, locale: locale), locale: locale))
             rows.append(contractRow(quote.to, locale: locale))
+        case let .setApprovalForAll(operatorAddress, approved):
+            rows.append(Row(
+                kind: .spender,
+                title: R.string.localizable.walletConnectConfirmationOperator(preferredLanguages: languages),
+                value: address(of: operatorAddress)
+            ))
+            rows.append(Row(
+                kind: .access,
+                title: R.string.localizable.walletConnectConfirmationAccess(preferredLanguages: languages),
+                value: approved
+                    ? R.string.localizable.walletConnectConfirmationAccessAll(preferredLanguages: languages)
+                    : R.string.localizable.walletConnectConfirmationAccessNone(preferredLanguages: languages)
+            ))
+            rows.append(contractRow(quote.to, locale: locale))
+        case .none where quote.isUndecodedCall:
+            // A contract call the wallet cannot decode: shown raw, the recipient named as the contract it is.
+            rows.append(warningRow(
+                R.string.localizable.walletConnectConfirmationUndecodedWarning(preferredLanguages: languages),
+                locale: locale
+            ))
+            rows.append(contractRow(quote.to, locale: locale))
+            rows.append(Row(
+                kind: .function,
+                title: R.string.localizable.walletConnectConfirmationFunction(preferredLanguages: languages),
+                value: Data(quote.data.prefix(4)).toHex(includePrefix: true)
+            ))
+            rows.append(dataRow(quote.data, locale: locale))
         case .none:
             rows.append(recipientRow(address(of: quote.to), locale: locale))
         }
 
-        if quote.tokenCall == nil || quote.value > 0 {
+        if quote.trailingDataLength > 0 {
+            rows.insert(
+                warningRow(
+                    R.string.localizable.walletConnectConfirmationTrailingWarning(preferredLanguages: languages),
+                    locale: locale
+                ),
+                at: 0
+            )
+            rows.append(dataRow(quote.data, locale: locale))
+        }
+
+        // A plain transfer always shows what it sends; a contract call only when it also sends the native asset.
+        let isPlainTransfer = quote.tokenCall == nil && quote.data.isEmpty
+        if isPlainTransfer || quote.value > 0 {
             rows.append(amountRow(formatted(quote.value, asset: nativeAsset, locale: locale), locale: locale))
         }
 
         rows.append(Row(
             kind: .fee,
-            title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.commonNetworkFee(preferredLanguages: languages),
             value: formatted(quote.maxFee, asset: nativeAsset, locale: locale)
         ))
         return rows
@@ -125,17 +184,47 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
 
     private func typedDataRows(for typedData: WalletConnectTypedData, locale: Locale) -> [Row] {
         let chain = inputData.signingRequest.chain
+        let languages = locale.rLanguages
         var rows: [Row] = []
 
-        if let allowance = typedData.allowance {
+        if typedData.isChainUnbound {
+            rows.append(warningRow(
+                R.string.localizable.walletConnectConfirmationUnboundWarning(preferredLanguages: languages),
+                locale: locale
+            ))
+        }
+
+        if let allowance = typedData.allowance, let amount = allowance.amount {
             let token = chain.assets.first { asset in
                 (try? Data(hexStringSSF: asset.id)) == allowance.token
             }
             rows.append(spenderRow(address(of: allowance.spender), locale: locale))
-            rows.append(amountRow(self.allowance(allowance.amount, asset: token, locale: locale), locale: locale))
+            rows.append(amountRow(self.allowance(amount, asset: token, locale: locale), locale: locale))
             rows.append(contractRow(allowance.token, locale: locale))
-        } else if let verifyingContract = typedData.verifyingContract {
-            rows.append(contractRow(verifyingContract, locale: locale))
+            if let deadline = allowance.deadline {
+                rows.append(Row(
+                    kind: .deadline,
+                    title: R.string.localizable.walletConnectConfirmationDeadline(preferredLanguages: languages),
+                    value: Self.date(deadline, locale: locale)
+                ))
+            }
+        } else {
+            // Typed data the wallet does not specifically understand: every signed field is shown.
+            rows.append(warningRow(
+                R.string.localizable.walletConnectConfirmationTypedWarning(preferredLanguages: languages),
+                locale: locale
+            ))
+            if let allowance = typedData.allowance {
+                rows.append(spenderRow(address(of: allowance.spender), locale: locale))
+                rows.append(amountRow(
+                    R.string.localizable.walletConnectConfirmationUnreadable(preferredLanguages: languages),
+                    locale: locale
+                ))
+            }
+            if let verifyingContract = typedData.verifyingContract {
+                rows.append(contractRow(verifyingContract, locale: locale))
+            }
+            rows += typedData.fields.map { Row(kind: .field, title: $0.path, value: $0.value) }
         }
 
         let summary = [typedData.domainName, typedData.primaryType]
@@ -144,7 +233,7 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
             .joined(separator: " · ")
         rows.append(Row(
             kind: .message,
-            title: R.string.localizable.commonMessage(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.commonMessage(preferredLanguages: languages),
             value: summary
         ))
         return rows
@@ -158,13 +247,23 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
         if let transfer = extrinsic.transfer {
             rows.append(recipientRow(address(of: transfer.recipient), locale: locale))
             rows.append(amountRow(formatted(transfer.amount, asset: utilityAsset, locale: locale), locale: locale))
+            rows.append(Row(
+                kind: .call,
+                title: R.string.localizable.walletConnectConfirmationCall(preferredLanguages: languages),
+                value: "\(extrinsic.call.moduleName).\(extrinsic.call.callName)"
+            ))
+        } else {
+            // Any other call is shown as the runtime decodes it, nested calls included, with a warning.
+            rows.append(warningRow(
+                R.string.localizable.walletConnectConfirmationCallWarning(preferredLanguages: languages),
+                locale: locale
+            ))
+            let callText = WalletConnectSubstrateCallText(
+                address: { [weak self] accountId in self?.address(of: accountId) },
+                nativeAmount: { [weak self] amount in self?.formatted(amount, asset: utilityAsset, locale: locale) }
+            )
+            rows += callText.rows(for: extrinsic.call, locale: locale)
         }
-
-        rows.append(Row(
-            kind: .call,
-            title: R.string.localizable.walletConnectConfirmationCall(preferredLanguages: languages),
-            value: "\(extrinsic.call.moduleName).\(extrinsic.call.callName)"
-        ))
 
         rows.append(Row(
             kind: .fee,
@@ -250,6 +349,37 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
             title: R.string.localizable.walletConnectConfirmationContract(preferredLanguages: locale.rLanguages),
             value: contract.toHex(includePrefix: true)
         )
+    }
+
+    private func warningRow(_ text: String, locale: Locale) -> Row {
+        Row(
+            kind: .warning,
+            title: R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages),
+            value: text
+        )
+    }
+
+    /// Raw transaction data: the first 256 bytes, then how many more there are; the raw-data view has it all.
+    private func dataRow(_ data: Data, locale: Locale) -> Row {
+        let shown = Data(data.prefix(256)).toHex(includePrefix: true)
+        let value = data.count > 256 ? "\(shown)… (\(data.count) bytes)" : shown
+        return Row(
+            kind: .data,
+            title: R.string.localizable.walletConnectConfirmationData(preferredLanguages: locale.rLanguages),
+            value: value
+        )
+    }
+
+    /// A Unix time as a date, or the number itself when it is beyond any date (some permits never expire).
+    static func date(_ seconds: BigUInt, locale: Locale) -> String {
+        guard seconds <= BigUInt(253_402_300_799), let value = Double(String(seconds)) else {
+            return String(seconds)
+        }
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: Date(timeIntervalSince1970: value))
     }
 
     private func noFeeRow(locale: Locale) -> Row {

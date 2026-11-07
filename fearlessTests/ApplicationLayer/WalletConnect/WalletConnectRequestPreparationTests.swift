@@ -314,6 +314,83 @@ final class WalletConnectRequestPreparationTests: XCTestCase {
             return XCTFail("Expected a transaction")
         }
         XCTAssertEqual(quote.tokenCall, .transfer(recipient: try Data(hexStringSSF: recipient), amount: 100_000_000))
+        XCTAssertEqual(quote.trailingDataLength, 0)
+        XCTAssertFalse(quote.isUndecodedCall)
+    }
+
+    func testEthereumTransaction_whenTheDataIsAnUnknownCall_thenItIsMarkedUndecoded() async throws {
+        let wallet = try Fixtures.ethereumWallet(seed: 0x4B, keystore: InMemoryKeychain())
+        let data = "0xdeadbeef" + String(repeating: "00", count: 64)
+
+        let signingRequest = try await prepareTransaction(
+            wallet: wallet,
+            fields: "\"to\": \"0x\(String(repeating: "dd", count: 20))\", \"data\": \"\(data)\"",
+            quoting: WalletConnectQuotingStub()
+        )
+
+        guard case let .ethereumTransaction(quote) = signingRequest.content else {
+            return XCTFail("Expected a transaction")
+        }
+        XCTAssertNil(quote.tokenCall)
+        XCTAssertTrue(quote.isUndecodedCall)
+    }
+
+    func testTokenCall_decodesTransferFromIncreaseAllowanceAndSetApprovalForAll() throws {
+        let owner = Data(repeating: 0x11, count: 20)
+        let recipient = Data(repeating: 0x22, count: 20)
+        let maximum = BigUInt(2).power(256) - 1
+
+        let transferFrom = try XCTUnwrap(WalletConnectTokenCall.decode(
+            Self.call("23b872dd", Self.word(owner), Self.word(recipient), Self.word(BigUInt(7)))
+        ))
+        XCTAssertEqual(transferFrom.call, .transferFrom(owner: owner, recipient: recipient, amountOrId: 7))
+        XCTAssertEqual(transferFrom.trailingBytes, 0)
+
+        let increase = try XCTUnwrap(WalletConnectTokenCall.decode(
+            Self.call("39509351", Self.word(recipient), Self.word(maximum))
+        ))
+        XCTAssertEqual(increase.call, .increaseAllowance(spender: recipient, amount: maximum))
+
+        let approveAll = try XCTUnwrap(WalletConnectTokenCall.decode(
+            Self.call("a22cb465", Self.word(recipient), Self.word(BigUInt(1)))
+        ))
+        XCTAssertEqual(approveAll.call, .setApprovalForAll(operator: recipient, approved: true))
+
+        let revokeAll = try XCTUnwrap(WalletConnectTokenCall.decode(
+            Self.call("a22cb465", Self.word(recipient), Self.word(BigUInt(0)))
+        ))
+        XCTAssertEqual(revokeAll.call, .setApprovalForAll(operator: recipient, approved: false))
+
+        let approve = try XCTUnwrap(WalletConnectTokenCall.decode(
+            Self.call("095ea7b3", Self.word(recipient), Self.word(BigUInt(5)))
+        ))
+        XCTAssertEqual(approve.call, .approve(spender: recipient, amount: 5))
+    }
+
+    func testTokenCall_countsBytesAfterTheArguments() throws {
+        let recipient = Data(repeating: 0x22, count: 20)
+        let decoded = try XCTUnwrap(WalletConnectTokenCall.decode(
+            Self.call("a9059cbb", Self.word(recipient), Self.word(BigUInt(5))) + Data([0xCA, 0xFE, 0xBA, 0xBE])
+        ))
+
+        XCTAssertEqual(decoded.call, .transfer(recipient: recipient, amount: 5))
+        XCTAssertEqual(decoded.trailingBytes, 4)
+    }
+
+    func testTokenCall_whenAnArgumentCouldBeReadTwoWays_thenItIsNotDecoded() {
+        let recipient = Data(repeating: 0x22, count: 20)
+        var dirtyAddress = Self.word(recipient)
+        dirtyAddress[0] = 0x01
+
+        // An address word with high bits set: a contract may use them.
+        XCTAssertNil(WalletConnectTokenCall.decode(Self.call("a9059cbb", dirtyAddress, Self.word(BigUInt(5)))))
+        // A bool other than 0 or 1.
+        XCTAssertNil(WalletConnectTokenCall.decode(Self.call("a22cb465", Self.word(recipient), Self.word(BigUInt(2)))))
+        // Arguments cut short.
+        XCTAssertNil(WalletConnectTokenCall.decode(Self.call("a9059cbb", Self.word(recipient))))
+        // A selector the wallet does not know.
+        XCTAssertNil(WalletConnectTokenCall.decode(Self.call("deadbeef", Self.word(recipient), Self.word(BigUInt(5)))))
+        XCTAssertNil(WalletConnectTokenCall.decode(Data([0xA9, 0x05])))
     }
 
     // MARK: - EVM messages and typed data
@@ -454,9 +531,181 @@ final class WalletConnectRequestPreparationTests: XCTestCase {
             WalletConnectTokenAllowance(
                 token: try Data(hexStringSSF: token),
                 spender: try Data(hexStringSSF: spender),
-                amount: 1_000_000
+                amount: 1_000_000,
+                deadline: 1_900_000_000
             )
         )
+    }
+
+    func testTypedData_readsADaiPermitAsUnlimitedUntilItsExpiry() async throws {
+        let wallet = try Fixtures.ethereumWallet(seed: 0x55, keystore: InMemoryKeychain())
+        let spender = "0x" + String(repeating: "5a", count: 20)
+        let dai = "0x" + String(repeating: "6b", count: 20)
+        let permit: [String: Any] = [
+            "types": [
+                "EIP712Domain": [
+                    ["name": "name", "type": "string"],
+                    ["name": "version", "type": "string"],
+                    ["name": "chainId", "type": "uint256"],
+                    ["name": "verifyingContract", "type": "address"]
+                ],
+                "Permit": [
+                    ["name": "holder", "type": "address"],
+                    ["name": "spender", "type": "address"],
+                    ["name": "nonce", "type": "uint256"],
+                    ["name": "expiry", "type": "uint256"],
+                    ["name": "allowed", "type": "bool"]
+                ]
+            ],
+            "primaryType": "Permit",
+            "domain": ["name": "Dai Stablecoin", "version": "1", "chainId": 1, "verifyingContract": dai],
+            "message": [
+                "holder": wallet.addressHex,
+                "spender": spender,
+                "nonce": 0,
+                "expiry": 1_900_000_000,
+                "allowed": true
+            ]
+        ]
+
+        let typedData = try await prepareTypedData(permit, wallet: wallet)
+
+        XCTAssertEqual(
+            typedData.allowance,
+            WalletConnectTokenAllowance(
+                token: try Data(hexStringSSF: dai),
+                spender: try Data(hexStringSSF: spender),
+                amount: BigUInt(2).power(256) - 1,
+                deadline: 1_900_000_000
+            )
+        )
+    }
+
+    func testTypedData_whenTheDomainCarriesAChainIdItDoesNotDeclare_thenDeclines() async throws {
+        // The chain id would be checked here but left out of the hash: the signature would work on every network.
+        var typedData = Self.mailTypedData(chainId: 1)
+        var types = try XCTUnwrap(typedData["types"] as? [String: Any])
+        types["EIP712Domain"] = [
+            ["name": "name", "type": "string"],
+            ["name": "version", "type": "string"],
+            ["name": "verifyingContract", "type": "address"]
+        ]
+        typedData["types"] = types
+
+        await assertTypedData(typedData, declinesWith: .unsupported)
+    }
+
+    func testTypedData_whenTheDomainHasNoChainId_thenItIsMarkedAsValidOnAnyNetwork() async throws {
+        var typedData = Self.mailTypedData(chainId: 1)
+        var types = try XCTUnwrap(typedData["types"] as? [String: Any])
+        types["EIP712Domain"] = [
+            ["name": "name", "type": "string"],
+            ["name": "version", "type": "string"],
+            ["name": "verifyingContract", "type": "address"]
+        ]
+        typedData["types"] = types
+        var domain = try XCTUnwrap(typedData["domain"] as? [String: Any])
+        domain["chainId"] = nil
+        typedData["domain"] = domain
+
+        let prepared = try await prepareTypedData(
+            typedData,
+            wallet: try Fixtures.ethereumWallet(seed: 0x56, keystore: InMemoryKeychain())
+        )
+
+        XCTAssertTrue(prepared.isChainUnbound)
+    }
+
+    func testTypedData_whenTheDomainHasTheChainId_thenItIsBound() async throws {
+        let prepared = try await prepareTypedData(
+            Self.mailTypedData(chainId: 1),
+            wallet: try Fixtures.ethereumWallet(seed: 0x57, keystore: InMemoryKeychain())
+        )
+
+        XCTAssertFalse(prepared.isChainUnbound)
+    }
+
+    func testTypedData_listsEverySignedFieldInTheOrderItsTypesDeclare() async throws {
+        var typedData = Self.mailTypedData(chainId: 1)
+        var message = try XCTUnwrap(typedData["message"] as? [String: Any])
+        // Not declared, so not hashed: not shown either.
+        message["note"] = "not signed"
+        typedData["message"] = message
+
+        let prepared = try await prepareTypedData(
+            typedData,
+            wallet: try Fixtures.ethereumWallet(seed: 0x58, keystore: InMemoryKeychain())
+        )
+
+        XCTAssertEqual(prepared.fields, [
+            WalletConnectTypedDataField(path: "domain.name", value: "Ether Mail"),
+            WalletConnectTypedDataField(path: "domain.version", value: "1"),
+            WalletConnectTypedDataField(path: "domain.chainId", value: "1"),
+            WalletConnectTypedDataField(
+                path: "domain.verifyingContract",
+                value: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"
+            ),
+            WalletConnectTypedDataField(path: "message.from.name", value: "Cow"),
+            WalletConnectTypedDataField(path: "message.from.wallet", value: "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"),
+            WalletConnectTypedDataField(path: "message.to.name", value: "Bob"),
+            WalletConnectTypedDataField(path: "message.to.wallet", value: "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"),
+            WalletConnectTypedDataField(path: "message.contents", value: "Hello, Bob!")
+        ])
+    }
+
+    func testTypedDataFields_listArraysByIndexAndStopAtTheLimit() {
+        let types: MessageTypes = [
+            "EIP712Domain": [MessageTypeProperty(name: "name", type: "string")],
+            "Batch": [MessageTypeProperty(name: "amounts", type: "uint256[]")]
+        ]
+        let amounts = (0 ..< 70).map { NSNumber(value: $0) }
+
+        let fields = WalletConnectTypedDataFields.flatten(
+            domain: ["name": "Batcher"],
+            message: ["amounts": amounts],
+            types: types,
+            primaryType: "Batch"
+        )
+
+        XCTAssertEqual(fields.count, WalletConnectTypedDataFields.limit + 1)
+        XCTAssertEqual(fields[1], WalletConnectTypedDataField(path: "message.amounts[0]", value: "0"))
+        XCTAssertEqual(fields.last, WalletConnectTypedDataField(path: "…", value: "+11"))
+    }
+
+    func testTypedDataFieldText_writesNumbersInFullAndBooleansAsWords() {
+        XCTAssertEqual(WalletConnectTypedDataFields.text(of: NSNumber(value: 1_900_000_000)), "1900000000")
+        XCTAssertEqual(
+            WalletConnectTypedDataFields.text(of: NSDecimalNumber(string: "123456789012345678901234567890")),
+            "123456789012345678901234567890"
+        )
+        XCTAssertEqual(WalletConnectTypedDataFields.text(of: NSNumber(value: true)), "true")
+        XCTAssertEqual(WalletConnectTypedDataFields.text(of: "text"), "text")
+    }
+
+    func testPermitAmount_readsDecimalHexStringsAndJSONIntegersButNothingRounded() {
+        let maximum = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        XCTAssertEqual(WalletConnectTokenAllowance.amount(from: "1000000" as NSString), 1_000_000)
+        XCTAssertEqual(WalletConnectTokenAllowance.amount(from: "0x10" as NSString), 16)
+        XCTAssertEqual(WalletConnectTokenAllowance.amount(from: maximum as NSString), BigUInt(2).power(256) - 1)
+        XCTAssertEqual(WalletConnectTokenAllowance.amount(from: NSNumber(value: UInt64.max)), BigUInt(UInt64.max))
+        // The JSON parser keeps 38 digits of a longer number: the amount would be rounded.
+        XCTAssertNil(WalletConnectTokenAllowance.amount(from: NSDecimalNumber(string: maximum)))
+        XCTAssertNil(WalletConnectTokenAllowance.amount(from: NSNumber(value: 1.5)))
+        XCTAssertNil(WalletConnectTokenAllowance.amount(from: NSNumber(value: -1)))
+        XCTAssertNil(WalletConnectTokenAllowance.amount(from: NSNumber(value: true)))
+    }
+
+    func testPermit_whenTheAmountCannotBeRead_thenTheSpenderIsStillNamed() {
+        let spender = Data(repeating: 0x5A, count: 20)
+        let token = Data(repeating: 0x7B, count: 20)
+
+        let allowance = WalletConnectTokenAllowance(
+            primaryType: "Permit",
+            message: ["spender": spender.toHex(includePrefix: true) as NSString, "value": NSNumber(value: 1.5)],
+            verifyingContract: token
+        )
+
+        XCTAssertEqual(allowance, WalletConnectTokenAllowance(token: token, spender: spender, amount: nil))
     }
 
     // MARK: - Substrate messages
@@ -680,6 +929,39 @@ final class WalletConnectRequestPreparationTests: XCTestCase {
         } catch {
             XCTFail("Fixture failed: \(error)", file: file, line: line)
         }
+    }
+
+    private func prepareTypedData(
+        _ typedData: [String: Any],
+        wallet: WalletConnectTestFixtures.EthereumWallet
+    ) async throws -> WalletConnectTypedData {
+        let blockchain = try Fixtures.ethereumBlockchain()
+        let session = try Fixtures.session(approving: [(blockchain, wallet.addressHex)])
+        let request = try Fixtures.request(
+            method: .ethereumSignTypeDataV4,
+            params: Self.jsonString([wallet.addressHex, typedData]),
+            chain: blockchain
+        )
+        let signingRequest = try await makePreparer()
+            .prepare(request: request, session: session, wallets: [wallet.wallet], chains: [Fixtures.ethereumChain()])
+        guard case let .ethereumTypedData(prepared) = signingRequest.content else {
+            throw WalletConnectRequestError.unsupported
+        }
+        return prepared
+    }
+
+    /// Calldata: a selector in hex, then 32-byte words.
+    static func call(_ selector: String, _ words: Data...) -> Data {
+        words.reduce((try? Data(hexStringSSF: selector)) ?? Data(), +)
+    }
+
+    static func word(_ address: Data) -> Data {
+        Data(count: 32 - address.count) + address
+    }
+
+    static func word(_ number: BigUInt) -> Data {
+        let bytes = number.serialize()
+        return Data(count: 32 - bytes.count) + bytes
     }
 
     static func jsonString(_ parameters: [Any]) -> String {

@@ -28,11 +28,20 @@ final class WalletConnectCoordinator: DefaultCoordinator {
     private let scamNotice: WalletConnectNoticePresenter
     private let signingPausedNotice: WalletConnectNoticePresenter
     private let pairingFailedNotice: WalletConnectNoticePresenter
+    private let requestEndedNotice: WalletConnectNoticePresenter
     private var lockObserver: NSObjectProtocol?
 
-    /// Requests already queued or on screen. The SDK sends the oldest pending request
-    /// again whenever another one arrives, so a request is queued only once.
-    private var queuedRequestIds: Set<String> = []
+    /// Flows waiting or on screen, at most this many: a dApp that sends a flood of requests is told no for the rest
+    /// at once, instead of leaving the person a queue to click through.
+    static let maxQueuedFlows = 10
+
+    /// Requests already queued or on screen, by session and id (an id is unique only within its session). A request
+    /// is queued only once.
+    private var requestFlows: [WalletConnectRequestKey: FlowCoordinator] = [:]
+    /// Proposals already queued or on screen.
+    private var proposalFlows: [Int64: FlowCoordinator] = [:]
+    /// The flow on screen.
+    private weak var activeFlow: DefaultCoordinator?
 
     private lazy var applicationHandler: ApplicationHandler = {
         ApplicationHandler()
@@ -52,6 +61,9 @@ final class WalletConnectCoordinator: DefaultCoordinator {
             WalletConnectNoticePresenter.signingPausedViewModel(locale: locale)
         },
         pairingFailedNotice: WalletConnectNoticePresenter = WalletConnectNoticePresenter.pairingFailed(),
+        requestEndedNotice: WalletConnectNoticePresenter = WalletConnectNoticePresenter { locale in
+            WalletConnectNoticePresenter.requestEndedViewModel(locale: locale)
+        },
         makeRequestFlow: @escaping (
             WalletConnectCoordinatorRouter,
             Request,
@@ -77,6 +89,7 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         self.scamNotice = scamNotice
         self.signingPausedNotice = signingPausedNotice
         self.pairingFailedNotice = pairingFailedNotice
+        self.requestEndedNotice = requestEndedNotice
         self.makeRequestFlow = makeRequestFlow
         self.makeProposalFlow = makeProposalFlow
         super.init()
@@ -107,6 +120,7 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         scamNotice.presentPendingNoticeIfPossible()
         signingPausedNotice.presentPendingNoticeIfPossible()
         pairingFailedNotice.presentPendingNoticeIfPossible()
+        requestEndedNotice.presentPendingNoticeIfPossible()
     }
 
     private func presentNextIfPossible() {
@@ -118,7 +132,28 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         else {
             return
         }
+        activeFlow = nextCoordinator as? DefaultCoordinator
         nextCoordinator.start()
+    }
+
+    private var hasRoomInQueue: Bool {
+        childCoordinators.count < Self.maxQueuedFlows
+    }
+
+    /// The dApp stopped waiting for what a flow shows. A flow still in the queue leaves it unseen. The flow on screen
+    /// closes and says why, unless it is signing: the PIN screen may be up, and the signing's own checks stop it.
+    private func end(_ flow: FlowCoordinator) {
+        guard flow === activeFlow else {
+            removeChildCoordinator(flow)
+            requestFlows = requestFlows.filter { $0.value !== flow }
+            proposalFlows = proposalFlows.filter { $0.value !== flow }
+            return
+        }
+        if (flow as? WalletConnectSigningFlow)?.isSigning == true {
+            return
+        }
+        requestEndedNotice.requestNotice()
+        flow.finishFlow?()
     }
 
     private func enqueue(_ coordinator: FlowCoordinator, onFinish: (() -> Void)? = nil) {
@@ -139,18 +174,61 @@ final class WalletConnectCoordinator: DefaultCoordinator {
 
 extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     func sign(request: Request, session: Session?, verification: WalletConnectVerification) {
-        let requestId = String(request.id)
-        guard queuedRequestIds.insert(requestId).inserted else {
+        let key = WalletConnectRequestKey(request)
+        guard requestFlows[key] == nil else {
+            return
+        }
+        guard hasRoomInQueue else {
+            let walletConnect = self.walletConnect
+            Task {
+                try? await walletConnect.submit(signDecision: .rejected(request: request, error: .userRejected))
+            }
             return
         }
 
-        enqueue(makeRequestFlow(router, request, session, verification)) { [weak self] in
-            self?.queuedRequestIds.remove(requestId)
+        let flow = makeRequestFlow(router, request, session, verification)
+        requestFlows[key] = flow
+        enqueue(flow) { [weak self] in
+            self?.requestFlows[key] = nil
         }
     }
 
     func session(proposal: Session.Proposal, verification: WalletConnectVerification) {
-        enqueue(makeProposalFlow(router, proposal, verification))
+        guard proposalFlows[proposal.id] == nil else {
+            return
+        }
+        guard hasRoomInQueue else {
+            let walletConnect = self.walletConnect
+            Task {
+                try? await walletConnect.submit(proposalDecision: .reject(proposal: proposal))
+            }
+            return
+        }
+
+        let flow = makeProposalFlow(router, proposal, verification)
+        proposalFlows[proposal.id] = flow
+        enqueue(flow) { [weak self] in
+            self?.proposalFlows[proposal.id] = nil
+        }
+    }
+
+    func requestEnded(id: Int64, topic: String) {
+        if let flow = requestFlows[WalletConnectRequestKey(topic: topic, id: id)] {
+            end(flow)
+        }
+    }
+
+    func sessionEnded(topic: String) {
+        let flows = Array(requestFlows.filter { $0.key.topic == topic }.values)
+        // The queued ones first, so the flow shown next is not one that ended too.
+        flows.filter { $0 !== activeFlow }.forEach { end($0) }
+        flows.filter { $0 === activeFlow }.forEach { end($0) }
+    }
+
+    func proposalEnded(id: Int64) {
+        if let flow = proposalFlows[id] {
+            end(flow)
+        }
     }
 
     func signingUnavailable(request _: Request, session _: Session?) {
@@ -171,6 +249,26 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
             locale: LocalizationManager.shared.selectedLocale
         ))
     }
+}
+
+/// A request, by its session and id: ids are unique only within a session.
+struct WalletConnectRequestKey: Hashable {
+    let topic: String
+    let id: Int64
+
+    init(topic: String, id: Int64) {
+        self.topic = topic
+        self.id = id
+    }
+
+    init(_ request: Request) {
+        self.init(topic: request.topic, id: request.id)
+    }
+}
+
+/// A flow that may be signing: while it signs, the PIN screen may be up and the flow must not be closed under it.
+protocol WalletConnectSigningFlow: AnyObject {
+    var isSigning: Bool { get }
 }
 
 // MARK: - ApplicationHandlerDelegate
@@ -268,6 +366,18 @@ final class WalletConnectNoticePresenter {
         return SheetAlertPresentableViewModel(
             title: R.string.localizable.walletConnectSigningUnavailableTitle(preferredLanguages: languages),
             message: R.string.localizable.walletConnectSigningUnavailableMessage(preferredLanguages: languages),
+            actions: [],
+            closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
+            icon: nil
+        )
+    }
+
+    /// The dApp stopped waiting for a request or proposal that was on screen; it closed.
+    static func requestEndedViewModel(locale: Locale) -> SheetAlertPresentableViewModel {
+        let languages = locale.rLanguages
+        return SheetAlertPresentableViewModel(
+            title: R.string.localizable.walletConnectRequestEndedTitle(preferredLanguages: languages),
+            message: R.string.localizable.walletConnectRequestEndedMessage(preferredLanguages: languages),
             actions: [],
             closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
             icon: nil

@@ -60,22 +60,34 @@ class FearlessApplication: UIApplication {
         guard secretManager.checkSecret(for: KeystoreTag.pincode.rawValue) else {
             return
         }
-        let window = SceneWindowFinder.activeWindow()
-        if let window = window {
-            // The unlock PIN is already on screen; another one on top would ask for the PIN twice.
-            guard !Self.isShowingUnlockPin(in: window) else {
-                return
-            }
-            guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
-                return
-            }
-
-            window.rootViewController?.dismiss(animated: false)
-            window.rootViewController?.present(pincodeViewController, animated: false)
-            // Prompts in their own windows, such as WalletConnect requests, stay
-            // behind the PIN screen until it is unlocked.
-            ApplicationLockState.shared.lock(with: pincodeViewController)
+        Self.presentLock(on: SceneWindowFinder.mainWindow()) {
+            PinViewFactory.createPinCheckView()?.controller
         }
+    }
+
+    /// Puts the unlock PIN on the app's own window and records the lock. The key window may be a prompt above the app
+    /// (a WalletConnect request): that window is hidden while the app is locked, so the PIN never goes there.
+    /// Returns the PIN screen, or nil when one is already shown or there is no window.
+    @discardableResult
+    static func presentLock(
+        on window: UIWindow?,
+        lockState: ApplicationLockState = .shared,
+        makePin: () -> UIViewController?
+    ) -> UIViewController? {
+        guard let window = window else {
+            return nil
+        }
+        // The unlock PIN is already on screen; another one on top would ask for the PIN twice.
+        guard !isShowingUnlockPin(in: window), let pincodeViewController = makePin() else {
+            return nil
+        }
+
+        window.rootViewController?.dismiss(animated: false)
+        window.rootViewController?.present(pincodeViewController, animated: false)
+        // Prompts in their own windows, such as WalletConnect requests, stay
+        // behind the PIN screen until it is unlocked.
+        lockState.lock(with: pincodeViewController)
+        return pincodeViewController
     }
 
     static func isShowingUnlockPin(in window: UIWindow) -> Bool {

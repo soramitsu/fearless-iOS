@@ -90,6 +90,10 @@ final class WalletConnectConfirmationViewLayout: UIView {
                 view.valueLabel.numberOfLines = 0
                 view.valueLabel.lineBreakMode = .byWordWrapping
             }
+            if row.isWarning {
+                view.titleLabel.textColor = R.color.colorOrange()
+                view.valueLabel.textColor = R.color.colorOrange()
+            }
             return view
         }
 

@@ -74,12 +74,26 @@ struct WalletConnectTypedData {
     let verifyingContract: Data?
     /// The token spending a permit allows, when the typed data is a known permit.
     let allowance: WalletConnectTokenAllowance?
+    /// Every domain and message field as signed, for typed data the wallet does not specifically understand.
+    var fields: [WalletConnectTypedDataField] = []
+    /// The domain names no chain id, so the signature is valid on every network.
+    var isChainUnbound = false
+}
+
+/// One signed typed-data field: its path ("domain.name", "message.to.wallet") and its value as text.
+struct WalletConnectTypedDataField: Equatable {
+    let path: String
+    let value: String
 }
 
 struct WalletConnectTokenAllowance: Equatable {
     let token: Data
     let spender: Data
-    let amount: BigUInt
+    /// The amount the spender may take; `nil` when the typed data states it in a form the wallet cannot read
+    /// exactly. A DAI-style `allowed: true` permit is the unlimited maximum.
+    let amount: BigUInt?
+    /// The time (seconds since 1970) after which the permit no longer works, when it names one.
+    var deadline: BigUInt?
 }
 
 /// An EVM transaction with every field fixed before the confirmation opens: the fee shown
@@ -98,7 +112,15 @@ struct WalletConnectEthereumTransactionQuote: Equatable {
     let nonce: BigUInt
     let gasLimit: BigUInt
     let fee: Fee
+    /// The call the transaction data makes, when the wallet decodes it; `nil` for no data or data it cannot decode.
     let tokenCall: WalletConnectTokenCall?
+    /// Bytes after the arguments of `tokenCall`, which the wallet cannot account for.
+    var trailingDataLength = 0
+
+    /// Data the wallet could not decode as a known call: the confirmation shows it raw, with a warning.
+    var isUndecodedCall: Bool {
+        !data.isEmpty && tokenCall == nil
+    }
 
     var maxFee: BigUInt {
         switch fee {
@@ -110,10 +132,16 @@ struct WalletConnectEthereumTransactionQuote: Equatable {
     }
 }
 
-/// An ERC-20 call decoded from a transaction's data.
+/// A token call decoded from a transaction's data: ERC-20 transfers and allowances, and the transfers and
+/// collection-wide approvals ERC-721 and ERC-1155 share.
 enum WalletConnectTokenCall: Equatable {
     case transfer(recipient: Data, amount: BigUInt)
+    /// `transferFrom(address,address,uint256)`: an ERC-20 amount or an ERC-721 item id.
+    case transferFrom(owner: Data, recipient: Data, amountOrId: BigUInt)
     case approve(spender: Data, amount: BigUInt)
+    case increaseAllowance(spender: Data, amount: BigUInt)
+    /// `setApprovalForAll(address,bool)`: lets `operator` move every item of the collection, or stops it.
+    case setApprovalForAll(operator: Data, approved: Bool)
 }
 
 /// A Substrate transaction from `polkadot_signTransaction`, checked against the chain's
