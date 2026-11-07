@@ -468,8 +468,15 @@ final class WalletConnectRequestPreparationTests: XCTestCase {
         await assertTypedData(Self.mailTypedData(chainId: "one"), declinesWith: .unsupported)
     }
 
-    func testTypedData_whenDomainChainIdIsHex_thenDeclinesBecauseTheHashWouldOmitIt() async throws {
-        await assertTypedData(Self.mailTypedData(chainId: "0x1"), declinesWith: .unsupported)
+    func testTypedData_whenDomainChainIdIsHex_thenItIsReadAsThatNumberAndHashedSo() async throws {
+        let wallet = try Fixtures.ethereumWallet(seed: 0x5D, keystore: InMemoryKeychain())
+
+        let hex = try await prepareTypedData(Self.mailTypedData(chainId: "0x1"), wallet: wallet)
+        let number = try await prepareTypedData(Self.mailTypedData(chainId: 1), wallet: wallet)
+
+        XCTAssertEqual(hex.signingInput, number.signingInput)
+        XCTAssertTrue(hex.fields.contains(WalletConnectTypedDataField(path: "domain.chainId", value: "1")))
+        await assertTypedData(Self.mailTypedData(chainId: "0x38"), declinesWith: .networkMismatch)
     }
 
     func testTypedData_whenLegacyArrayFormat_thenDeclines() async throws {
@@ -908,6 +915,221 @@ final class WalletConnectRequestPreparationTests: XCTestCase {
         ]
 
         await assertTypedData(typedData, declinesWith: .unsupported)
+    }
+
+    // MARK: - Typed-data values are read strictly and hashed as read
+
+    func testTypedDataIntegers_acceptOnlyCanonicalTextHexAndJSONIntegersWithinTheirWidth() throws {
+        let maximum = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        let accepted: [(Any, String, String)] = [
+            ("16", "uint256", "16"),
+            ("0x10", "uint256", "16"),
+            ("0x0010", "uint256", "16"),
+            (NSNumber(value: 16), "uint256", "16"),
+            ("0", "uint8", "0"),
+            ("255", "uint8", "255"),
+            ("0xff", "uint8", "255"),
+            (maximum, "uint256", maximum),
+            (maximum, "uint", maximum),
+            (NSNumber(value: UInt64.max), "uint64", String(UInt64.max)),
+            ("-5", "int256", "-5"),
+            (NSNumber(value: -5), "int256", "-5"),
+            ("-128", "int8", "-128"),
+            ("127", "int8", "127")
+        ]
+        for (value, type, shown) in accepted {
+            XCTAssertEqual(try WalletConnectTypedDataValues.atomic(value, type: type, path: "v") as? String, shown, "\(value) \(type)")
+        }
+
+        let declined: [(Any, String)] = [
+            ("-1", "uint256"),
+            (NSNumber(value: -1), "uint256"),
+            ("-5", "uint8"),
+            ("ff", "uint256"),
+            ("1e18", "uint256"),
+            ("0x", "uint256"),
+            ("0X10", "uint256"),
+            ("+5", "uint256"),
+            (" 5", "uint256"),
+            ("5 ", "uint256"),
+            ("007", "uint256"),
+            ("", "uint256"),
+            ("-0", "int256"),
+            ("١٢", "uint256"),
+            ("256", "uint8"),
+            ("0x100", "uint8"),
+            ("128", "int8"),
+            ("-129", "int8"),
+            ("115792089237316195423570985008687907853269984665640564039457584007913129639936", "uint256"),
+            (NSNumber(value: 1.5), "uint256"),
+            (NSNumber(value: true), "uint256"),
+            (NSDecimalNumber(string: "16"), "uint256"),
+            (NSNull(), "uint256")
+        ]
+        for (value, type) in declined {
+            XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic(value, type: type, path: "v"), "\(value) \(type)") { error in
+                XCTAssertEqual(error as? WalletConnectTypedDataValues.Problem, .invalidValue(path: "v"))
+            }
+        }
+    }
+
+    func testTypedDataValues_readAddressesBoolsAndBytesStrictly() throws {
+        let address = "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
+        XCTAssertEqual(try WalletConnectTypedDataValues.atomic(address, type: "address", path: "v") as? String, address)
+        for invalid in ["CD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826", "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD82", "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD8266", "0xZZ2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"] {
+            XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic(invalid, type: "address", path: "v"), invalid)
+        }
+
+        XCTAssertEqual(try WalletConnectTypedDataValues.atomic(true, type: "bool", path: "v") as? Bool, true)
+        XCTAssertEqual(try WalletConnectTypedDataValues.atomic(NSNumber(value: 0), type: "bool", path: "v") as? Bool, false)
+        XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic("true", type: "bool", path: "v"))
+        XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic(NSNumber(value: 2), type: "bool", path: "v"))
+
+        XCTAssertEqual(try WalletConnectTypedDataValues.atomic("Hi", type: "string", path: "v") as? String, "Hi")
+        XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic(NSNumber(value: 5), type: "string", path: "v"))
+
+        XCTAssertEqual(try WalletConnectTypedDataValues.atomic("0xABcd", type: "bytes", path: "v") as? String, "0xABcd")
+        XCTAssertEqual(try WalletConnectTypedDataValues.atomic("0x", type: "bytes", path: "v") as? String, "0x")
+        XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic("0xabc", type: "bytes", path: "v"))
+        XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic("abcd", type: "bytes", path: "v"))
+
+        // A short bytesN is hashed padded on the right: shown that way.
+        XCTAssertEqual(try WalletConnectTypedDataValues.atomic("0x01", type: "bytes4", path: "v") as? String, "0x01000000")
+        XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic("0x0102030405", type: "bytes4", path: "v"))
+
+        for unsupported in ["uint7", "uint264", "int0", "fixed128x18", "bytes33", "bytes0"] {
+            XCTAssertThrowsError(try WalletConnectTypedDataValues.atomic("1", type: unsupported, path: "v"), unsupported) { error in
+                XCTAssertEqual(error as? WalletConnectTypedDataValues.Problem, .unsupportedType(path: "v"))
+            }
+        }
+    }
+
+    func testTypedDataValues_checkArraysAndStructsAtEveryDepth() throws {
+        let types: MessageTypes = [
+            "EIP712Domain": [MessageTypeProperty(name: "name", type: "string")],
+            "Order": [
+                MessageTypeProperty(name: "offer", type: "Item[]"),
+                MessageTypeProperty(name: "pair", type: "uint8[2]")
+            ],
+            "Item": [MessageTypeProperty(name: "startAmount", type: "uint256")]
+        ]
+
+        let canonical = try WalletConnectTypedDataValues.canonical(
+            object: ["offer": [["startAmount": "0x10"]], "pair": [1, "2"], "note": "kept"],
+            type: "Order",
+            path: "message",
+            types: types
+        )
+        XCTAssertEqual(((canonical["offer"] as? [Any])?.first as? [String: Any])?["startAmount"] as? String, "16")
+        XCTAssertEqual(canonical["pair"] as? [String], ["1", "2"])
+        XCTAssertEqual(canonical["note"] as? String, "kept", "Undeclared keys are left for the hash to ignore")
+
+        XCTAssertThrowsError(try WalletConnectTypedDataValues.canonical(
+            object: ["offer": [["startAmount": "-1"]]],
+            type: "Order",
+            path: "message",
+            types: types
+        )) { error in
+            XCTAssertEqual(error as? WalletConnectTypedDataValues.Problem, .invalidValue(path: "message.offer[0].startAmount"))
+        }
+        XCTAssertThrowsError(try WalletConnectTypedDataValues.canonical(
+            object: ["pair": [1, 2, 3]],
+            type: "Order",
+            path: "message",
+            types: types
+        ))
+    }
+
+    func testTypedData_aSeaportOfferForMinusOneIsDeclinedNotSignedAsUnlimited() async throws {
+        // The review's case: "-1" would be shown as -1 and signed as 2^256 - 1.
+        let offer: [String: Any] = [
+            "types": [
+                "EIP712Domain": [["name": "name", "type": "string"], ["name": "chainId", "type": "uint256"]],
+                "OrderComponents": [["name": "offerer", "type": "address"], ["name": "offer", "type": "OfferItem[]"]],
+                "OfferItem": [
+                    ["name": "token", "type": "address"],
+                    ["name": "startAmount", "type": "uint256"],
+                    ["name": "endAmount", "type": "uint256"]
+                ]
+            ],
+            "primaryType": "OrderComponents",
+            "domain": ["name": "Seaport", "chainId": 1],
+            "message": [
+                "offerer": "0x" + String(repeating: "11", count: 20),
+                "offer": [[
+                    "token": "0x" + String(repeating: "c0", count: 20),
+                    "startAmount": "-1",
+                    "endAmount": "-1"
+                ]]
+            ]
+        ]
+
+        await assertTypedData(offer, declinesWith: .unsupported)
+    }
+
+    func testTypedData_aPermitForMinusOneOrForLenientTextIsDeclined() async throws {
+        let wallet = try Fixtures.ethereumWallet(seed: 0x5E, keystore: InMemoryKeychain())
+        let spender = "0x" + String(repeating: "5a", count: 20)
+        let token = "0x" + String(repeating: "7c", count: 20)
+        for value in ["-1", "ff", "1e18", "0x", "+1", " 1"] {
+            await assertTypedData(
+                Self.eip2612Permit(owner: wallet.addressHex, spender: spender, token: token, value: value),
+                declinesWith: .unsupported
+            )
+        }
+        var negativeNumber = Self.eip2612Permit(owner: wallet.addressHex, spender: spender, token: token, value: "0")
+        var message = try XCTUnwrap(negativeNumber["message"] as? [String: Any])
+        message["value"] = -1
+        negativeNumber["message"] = message
+        await assertTypedData(negativeNumber, declinesWith: .unsupported)
+    }
+
+    func testTypedData_hexAndDecimalOfOneNumberAreShownAndSignedAlike() async throws {
+        let wallet = try Fixtures.ethereumWallet(seed: 0x5F, keystore: InMemoryKeychain())
+        let spender = "0x" + String(repeating: "5a", count: 20)
+        let token = "0x" + String(repeating: "7c", count: 20)
+
+        let hex = try await prepareTypedData(
+            Self.eip2612Permit(owner: wallet.addressHex, spender: spender, token: token, value: "0x10"),
+            wallet: wallet
+        )
+        let decimal = try await prepareTypedData(
+            Self.eip2612Permit(owner: wallet.addressHex, spender: spender, token: token, value: "16"),
+            wallet: wallet
+        )
+
+        XCTAssertEqual(hex.signingInput, decimal.signingInput)
+        XCTAssertEqual(hex.allowance?.amount, 16)
+        XCTAssertTrue(hex.fields.contains(WalletConnectTypedDataField(path: "message.value", value: "16")))
+    }
+
+    func testTypedData_aSignedIntegerIsShownAndSignedAsItsNegativeValue() async throws {
+        let wallet = try Fixtures.ethereumWallet(seed: 0x60, keystore: InMemoryKeychain())
+        func typedData(_ delta: Any) -> [String: Any] {
+            [
+                "types": [
+                    "EIP712Domain": [["name": "name", "type": "string"], ["name": "chainId", "type": "uint256"]],
+                    "Adjust": [["name": "delta", "type": "int256"]]
+                ],
+                "primaryType": "Adjust",
+                "domain": ["name": "Ledger", "chainId": 1],
+                "message": ["delta": delta]
+            ]
+        }
+
+        let text = try await prepareTypedData(typedData("-5"), wallet: wallet)
+        let number = try await prepareTypedData(typedData(-5), wallet: wallet)
+
+        XCTAssertEqual(text.signingInput, number.signingInput)
+        XCTAssertTrue(text.fields.contains(WalletConnectTypedDataField(path: "message.delta", value: "-5")))
+        // The struct hash encodes -5 as a 256-bit two's complement word.
+        let encoded = try encodeData(
+            primaryType: "Adjust",
+            data: ["delta": "-5" as NSString],
+            types: ["Adjust": [MessageTypeProperty(name: "delta", type: "int256")]],
+            version: .v4
+        )
+        XCTAssertEqual(encoded.suffix(32), Data(repeating: 0xFF, count: 31) + Data([0xFB]))
     }
 
     static let eip2612Fields = [

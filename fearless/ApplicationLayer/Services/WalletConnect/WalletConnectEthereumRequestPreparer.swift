@@ -161,18 +161,47 @@ final class WalletConnectEthereumRequestPreparer: WalletConnectEthereumRequestPr
             throw WalletConnectRequestError.unsupported
         }
 
-        let message: TypedMessage
+        let declared: TypedMessage
         do {
-            message = try TypedMessage(json: typedData, version: .v4)
+            declared = try TypedMessage(json: typedData, version: .v4)
         } catch {
             throw WalletConnectRequestError.unsupported
         }
 
-        guard message.types["EIP712Domain"] != nil, message.types[message.primaryType] != nil else {
+        guard declared.types["EIP712Domain"] != nil, declared.types[declared.primaryType] != nil else {
             throw WalletConnectRequestError.unsupported
         }
 
-        let domain = typedData["domain"] as? [String: Any] ?? [:]
+        // Every declared value is parsed strictly and written back canonically before anything is hashed or shown:
+        // the ABI encoder would read "-1", "ff" or "1e18" in ways the confirmation could not show.
+        var canonicalTypedData = typedData
+        do {
+            canonicalTypedData["domain"] = try WalletConnectTypedDataValues.canonical(
+                object: typedData["domain"] as? [String: Any] ?? [:],
+                type: "EIP712Domain",
+                path: "domain",
+                types: declared.types
+            )
+            if declared.primaryType != "EIP712Domain" {
+                canonicalTypedData["message"] = try WalletConnectTypedDataValues.canonical(
+                    object: typedData["message"] as? [String: Any] ?? [:],
+                    type: declared.primaryType,
+                    path: "message",
+                    types: declared.types
+                )
+            }
+        } catch {
+            throw WalletConnectRequestError.unsupported
+        }
+
+        let message: TypedMessage
+        do {
+            message = try TypedMessage(json: canonicalTypedData, version: .v4)
+        } catch {
+            throw WalletConnectRequestError.unsupported
+        }
+
+        let domain = canonicalTypedData["domain"] as? [String: Any] ?? [:]
         let declaredDomainFields = Set((message.types["EIP712Domain"] ?? []).map(\.name))
         if let requestedChainIdValue = domain["chainId"] {
             // Only the domain fields `EIP712Domain` declares are hashed. A chain id the domain carries without
