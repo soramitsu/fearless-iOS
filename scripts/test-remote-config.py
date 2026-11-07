@@ -67,10 +67,10 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing owned asset"):
             check.validate(self.root)
 
-    def chain_list(self, chains):
-        directory = self.config / "production" / "chains" / "v13"
-        directory.mkdir(parents=True, exist_ok=True)
-        (directory / "chains.json").write_text(json.dumps(chains))
+    def chain_list(self, chains, path="production/chains/v13/chains.json"):
+        file = self.config / path
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text(json.dumps(chains))
 
     def hub(self, staking="assetHub", asset_id=None, options=None):
         chain_id = "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f"
@@ -106,6 +106,21 @@ class ConfigTests(unittest.TestCase):
         self.chain_list([{"chainId": "other", "assets": [{"id": "x", "staking": "assetHub"}]}])
         with self.assertRaisesRegex(ValueError, "not an Asset Hub route"):
             check.validate(self.root)
+
+    def test_repeated_chain_id_fails_in_every_versioned_list(self):
+        repeated = [{"chainId": "b91746b4e0"}, {"chainId": "other"}, {"chainId": "b91746b4e0"}]
+        for path in ("development/chains/v13/chains_dev.json", "production/chains/v13/chains.json",
+                     "development/chains/v9/chains_dev.json", "production/chains/v2/chains.json"):
+            with self.subTest(path=path):
+                for stale in self.config.rglob("*.json"):
+                    stale.unlink()
+                self.chain_list(repeated, path)
+                with self.assertRaisesRegex(ValueError, path + ": chainId b91746b4 is listed more than once"):
+                    check.validate(self.root)
+
+    def test_distinct_chain_ids_pass(self):
+        self.chain_list([{"chainId": "a"}, {"chainId": "b"}], "development/chains/v13/chains_dev.json")
+        self.assertEqual(check.validate(self.root)["documents"], 1)
 
     def test_invalid_json_fails(self):
         (self.config / "data.json").write_text('{"invalid":')

@@ -2,17 +2,19 @@
 
 Since the app took its configuration into this repository (#1305), release builds read the chain lists and chain types
 from `remote-config/` here, through `https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/`
-(`ApplicationConfig.chainsSourceUrl`, `chainTypesSourceUrl`). Values as of 2026-10-29:
+(`ApplicationConfig.chainsSourceUrl`, `chainTypesSourceUrl`). Values as of 2026-11-07:
 
 | Artifact | Path | Size (bytes) | SHA256 |
 | --- | --- | ---: | --- |
-| Prod chains list | `remote-config/production/chains/v13/chains.json` | 298,148 | `0546203ea2bb0b56a9563200334e9e3ba4675540fd08dab6888be6c6328c81ae` |
-| Dev chains list | `remote-config/development/chains/v13/chains_dev.json` | 329,157 | `8c02de0fce958b81d23e4fbb03b2b216e11c4d08a65404369d033d94c6f7af76` |
+| Prod chains list | `remote-config/production/chains/v13/chains.json` | 175,695 | `dfd74369af4ca71df676c540fce588086c07069dfb9f5655b0e1280720b4b9f8` |
+| Dev chains list | `remote-config/development/chains/v13/chains_dev.json` | 230,329 | `26b9dc290ad22588888dee433f6d6f7dfbe2b3541d1cf738fadef37ceca14310` |
 | Prod chain types | `remote-config/production/chains/all_chains_types.json` | 415,606 | `ced6c59d8fb198dada4f43994fb5c3d9ea7109a5f691cc278ead97bcc7fcb90e` |
 | Dev chain types | `remote-config/development/chains/all_chains_types.json` | 408,802 | `d270d62d4f9a0f1c0bacea7bb7909df513d083ee600ec76fbd41b04f55893d2d` |
 
 `CrossChainOwnedRemoteConfigTests` checks the production chain list and XCM files against the compiled cross-chain
 route registry, and `config/remote-config-imports.json` records each file's import and every later correction.
+`scripts/verify-remote-config.py` fails on a chain list that repeats a chainId: `ChainSyncService` refuses such a list
+as a whole, and the build keeps only its app-owned chains.
 
 ### Upstream snapshots (Polkadot stable2503)
 
