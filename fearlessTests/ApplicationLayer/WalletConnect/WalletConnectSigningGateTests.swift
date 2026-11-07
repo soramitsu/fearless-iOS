@@ -292,7 +292,7 @@ final class WalletConnectSigningGateTests: XCTestCase {
         let failedLink = WalletConnectNoticePresenter(
             topViewController: { nil },
             isApplicationActive: { true },
-            makeViewModel: { locale, message in
+            makeViewModel: { _, message in
                 SheetAlertPresentableViewModel(
                     title: "", message: message ?? "", actions: [], closeAction: nil, icon: nil
                 )
