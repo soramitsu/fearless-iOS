@@ -81,6 +81,15 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         presenter.didLeaveView()
     }
 
+    override func willMove(toParent parent: UIViewController?) {
+        super.willMove(toParent: parent)
+        // A pop detaches this screen at once, but UIKit calls viewWillDisappear only at the next
+        // layout pass. Cancel now, so a PIN save acknowledged in between cannot navigate.
+        if parent == nil, self.parent != nil, mode == .create {
+            presenter.cancel()
+        }
+    }
+
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
         updateNavigationBarTopInset()
