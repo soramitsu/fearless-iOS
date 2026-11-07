@@ -8,7 +8,7 @@ umask 077
 
 readonly LOG_PREFIX="[ios-release-archive]"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
-readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_VERSION="4.2.1"
 readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 # master took the 4.2.0 line as one squash commit (#1305), which drops that
 # ancestry. Its tree is exactly the tree of the pull request head, which
@@ -79,9 +79,13 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # with the Receive sheet showing its QR code and address on iPhone, and
 # corrected Send and history titles. 2026.11.5 fixes stale wallet account
 # switches, selection and rename writes, and scopes account edit events to
-# the wallet each screen displays.
+# the wallet each screen displays; it went to TestFlight and App Review.
+# 2026.11.6 makes Polkaswap usable again: a compact token search field,
+# quotes that arrive while blocks refresh them, and a reachable Confirm.
+# Apple approved 4.2.0 (2026.11.5), which closes that version to new
+# uploads, so 2026.11.6 ships as 4.2.1.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.11.5"
+readonly EXPECTED_BUILD="2026.11.6"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -102,7 +106,7 @@ Preconditions:
     distributed 4.2.0 (2026.7.28) source commit, directly or through its
     squash into master (#1305); a fresh clone gets that pull request's head
     with `git fetch origin refs/pull/1305/head`;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.5);
+  - App Store Connect read-only uniqueness check for 4.2.1 (2026.11.6);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
@@ -279,4 +283,4 @@ bash "$SCRIPT_DIR/audit-ios-signed-release-artifact.sh" \
   --receipt "$receipt"
 
 printf '%s\n' \
-  "$LOG_PREFIX PASS: local 4.2.0 ($EXPECTED_BUILD) archive is bound to clean HEAD $source_commit"
+  "$LOG_PREFIX PASS: local $EXPECTED_VERSION ($EXPECTED_BUILD) archive is bound to clean HEAD $source_commit"

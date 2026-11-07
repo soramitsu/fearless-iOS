@@ -53,6 +53,8 @@ final class PolkaswapAdjustmentRouter: PolkaswapAdjustmentRouterInput {
             return nil
         }
 
+        // The swap tab's bar and raised Polkaswap button would cover the Confirm button (iOS 4.2.0 2026.11.5).
+        module.view.controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(
             module.view.controller,
             animated: true

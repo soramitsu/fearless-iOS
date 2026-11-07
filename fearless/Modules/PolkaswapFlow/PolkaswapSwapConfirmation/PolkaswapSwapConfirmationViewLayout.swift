@@ -140,9 +140,11 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
             }
         }
 
+        // Polkaswap is a tab since 4.2.0, so this screen is pushed full screen: keep the header below the status bar
+        // and the button above the home indicator.
         addSubview(navigationViewContainer)
         navigationViewContainer.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.top.equalTo(safeAreaLayoutGuide.snp.top)
             make.leading.trailing.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(Constants.navigationBarHeight)
         }
@@ -187,7 +189,7 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
 
         confirmButton.snp.makeConstraints { make in
             make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
     }
