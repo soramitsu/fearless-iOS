@@ -43,6 +43,10 @@ final class SelectableListViewLayout: UIView {
         return view
     }()
 
+    /// Holds the list and its empty state. Hiding either one must not change the stack's layout: as arranged
+    /// subviews pinned to each other, the hidden empty view's zero height fought the list's height.
+    private let listContainer = UIView()
+
     var locale: Locale = .current
 
     override init(frame: CGRect) {
@@ -108,11 +112,17 @@ final class SelectableListViewLayout: UIView {
         }
 
         contentStackView.addArrangedSubview(searchTextField)
-        contentStackView.addArrangedSubview(tableView)
-        contentStackView.addArrangedSubview(emptyView)
+        contentStackView.addArrangedSubview(listContainer)
+
+        listContainer.addSubview(tableView)
+        listContainer.addSubview(emptyView)
+
+        listContainer.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
 
         tableView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.edges.equalToSuperview()
         }
 
         searchTextField.snp.makeConstraints { make in

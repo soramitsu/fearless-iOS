@@ -4578,3 +4578,148 @@ private final class SequencedBoolean {
         return values.isEmpty ? false : values.removeFirst()
     }
 }
+
+// MARK: - Polkaswap swap usability (iOS 4.2.0 after 2026.11.5)
+
+extension MainTabBarTests {
+    /// 2026.11.5: the Polkaswap asset sheet stretched its search field over most of the screen and left the list
+    /// a strip at the bottom. The list, not the field, takes the sheet's spare height.
+    func testSelectionSheetGivesSpareHeightToListNotSearchField() throws {
+        for category in [UIContentSizeCategory.large, .accessibilityExtraExtraExtraLarge] {
+            let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+            let window = UIWindow(windowScene: scene)
+            window.frame = CGRect(x: 0, y: 0, width: 402, height: 874)
+            if #available(iOS 17.0, *) { window.traitOverrides.preferredContentSizeCategory = category }
+            let host = UIViewController()
+            let layout = SelectableListViewLayout()
+            host.view.addSubview(layout)
+            layout.snp.makeConstraints { $0.edges.equalToSuperview() }
+            layout.bind(viewModel: .searchAssetPlaceholder)
+            window.rootViewController = host
+            window.makeKeyAndVisible()
+            window.layoutIfNeeded()
+            defer {
+                window.isHidden = true
+                window.rootViewController = nil
+            }
+
+            let search = layout.searchTextField.convert(layout.searchTextField.bounds, to: layout)
+            let list = layout.tableView.convert(layout.tableView.bounds, to: layout)
+            let textHeight = layout.searchTextField.textField.intrinsicContentSize.height
+            XCTAssertFalse(layout.searchTextField.isHidden)
+            XCTAssertGreaterThanOrEqual(search.height, 44, "\(category): the field keeps a 44 pt touch target")
+            XCTAssertLessThanOrEqual(
+                search.height,
+                max(46, textHeight + 2) + 0.5,
+                "\(category): the search field must not take the sheet's spare height"
+            )
+            XCTAssertGreaterThanOrEqual(list.minY, search.maxY)
+            XCTAssertEqual(
+                list.maxY,
+                layout.bounds.maxY - UIConstants.bigOffset,
+                accuracy: 0.5,
+                "\(category): the list reaches the bottom of the sheet"
+            )
+            XCTAssertGreaterThan(list.height, layout.bounds.height / 2, "\(category): the list gets the room")
+
+            layout.setEmptyView(vasible: true)
+            window.layoutIfNeeded()
+            XCTAssertFalse(layout.emptyView.isHidden)
+            XCTAssertEqual(
+                layout.emptyView.convert(layout.emptyView.bounds, to: layout),
+                list,
+                "\(category): the empty state takes the list's place without moving the field"
+            )
+            XCTAssertEqual(layout.searchTextField.convert(layout.searchTextField.bounds, to: layout), search)
+
+            layout.setEmptyView(vasible: false)
+            window.layoutIfNeeded()
+            XCTAssertEqual(layout.tableView.convert(layout.tableView.bounds, to: layout), list)
+        }
+    }
+
+    /// 2026.11.5: Preview pushed the confirmation inside the swap tab; its Confirm button sat under the tab bar
+    /// and its header under the status bar, so no swap could be confirmed.
+    func testSwapConfirmationFromSwapTabShowsConfirmAboveHomeIndicator() throws {
+        let polkaswapController = PolkaswapAdjustmentViewController(
+            output: PolkaswapAdjustmentViewOutputStub(),
+            bannersViewController: UIViewController(),
+            localizationManager: nil
+        )
+        let controllers = MainTabBarDestination.allCases.map { destination -> UIViewController in
+            let rootController: UIViewController = destination == .polkaswap
+                ? polkaswapController
+                : UIViewController()
+            rootController.tabBarItem = UITabBarItem(
+                title: destination.title,
+                image: UIImage(systemName: "circle"),
+                tag: destination.rawValue
+            )
+            return FearlessNavigationController(rootViewController: rootController)
+        }
+        let tabBarController = MainTabBarViewController(
+            viewControllers: controllers,
+            presenter: MainTabBarPresenterStub(),
+            localizationManager: LocalizationManager.shared,
+            idiom: .phone
+        )
+        tabBarController.select(destination: .polkaswap)
+
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.coordinateSpace.bounds
+        window.rootViewController = tabBarController
+        window.makeKeyAndVisible()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+
+        let input = PolkaswapAdjustmentRouter().showConfirmation(
+            with: makePolkaswapPreviewParams(),
+            from: polkaswapController,
+            completeClosure: nil
+        )
+        XCTAssertNotNil(input)
+        let navigation = try XCTUnwrap(polkaswapController.navigationController)
+        let deadline = Date(timeIntervalSinceNow: 3)
+        while navigation.transitionCoordinator != nil || navigation.viewControllers.count < 2, Date() < deadline {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+        }
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+        let confirmation = try XCTUnwrap(navigation.topViewController as? PolkaswapSwapConfirmationViewController)
+        XCTAssertTrue(confirmation.hidesBottomBarWhenPushed, "A confirmation step hides the tab bar")
+        window.layoutIfNeeded()
+
+        let layout = confirmation.rootView
+        let safeFrame = layout.safeAreaLayoutGuide.layoutFrame
+        XCTAssertGreaterThan(layout.safeAreaInsets.top, 0)
+        XCTAssertGreaterThanOrEqual(
+            layout.navigationViewContainer.frame.minY,
+            safeFrame.minY - 0.5,
+            "The back button and title stay below the status bar"
+        )
+
+        let button = layout.confirmButton.convert(layout.confirmButton.bounds, to: window)
+        let safeInWindow = layout.convert(safeFrame, to: window)
+        XCTAssertEqual(button.height, UIConstants.actionHeight, accuracy: 0.5)
+        XCTAssertLessThanOrEqual(button.maxY, safeInWindow.maxY - UIConstants.bigOffset + 0.5,
+                                 "Confirm stays above the home indicator")
+        XCTAssertGreaterThan(button.minY, layout.navigationViewContainer.convert(
+            layout.navigationViewContainer.bounds, to: window
+        ).maxY)
+
+        let tabBar = tabBarController.tabBar.convert(tabBarController.tabBar.bounds, to: window)
+        XCTAssertTrue(
+            tabBarController.tabBar.isHidden || !tabBar.intersects(button),
+            "The tab bar must not cover Confirm"
+        )
+        let center = CGPoint(x: button.midX, y: button.midY)
+        let hit = window.hitTest(center, with: nil)
+        XCTAssertTrue(
+            hit === layout.confirmButton || hit?.isDescendant(of: layout.confirmButton) == true,
+            "Confirm receives the tap, not the tab bar or its raised button: \(String(describing: hit))"
+        )
+    }
+}
