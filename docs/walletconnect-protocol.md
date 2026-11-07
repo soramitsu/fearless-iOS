@@ -25,8 +25,40 @@ requests in any other, and namespace updates or extensions from the dApp.
   and account, the app, and the site the request came from as WalletConnect Verify reports it: on a domain mismatch
   the site Verify saw, and "Domain not verified" with a warning when Verify could not check it. Apps Verify flags as
   scams are declined before anything opens.
+- **What the confirmation explains, and what it warns about.**
+  - EVM calls it decodes: `transfer`, `transferFrom` (the owner, and "amount or item ID" for a contract it does not
+    know), `approve` and `increaseAllowance` (the spender; the maximum is "Unlimited"), and `setApprovalForAll` (who
+    may move every item of the collection, or that the access is removed). An address word with high bits set or a
+    bool other than 0 or 1 is not decoded.
+  - Any other call data: a warning, the contract (never called a recipient), the 4-byte function selector and the raw
+    data (the first 256 bytes and its length; the raw-data view has it all). Bytes after a decoded call's arguments
+    get a warning and the raw data too.
+  - Typed data: for EIP-2612, DAI and Permit2 permits the spender, the amount (DAI's `allowed: true` is unlimited) and
+    how long it lasts; a permit amount it cannot read exactly (a fraction, a JSON number past 64 bits) is shown as
+    "Can't be read" with a warning. Any other typed data gets a warning and every signed domain and message field in
+    the order its types declare them (fields the types do not declare are not hashed, so not shown). A domain that
+    carries a `chainId` its `EIP712Domain` type does not declare is declined, since the signature would not name the
+    network shown; a domain without a chain id gets a warning that the signature is valid on any network.
+  - Substrate calls other than `Balances` transfers: a warning, the call, and its arguments as the runtime decodes
+    them. Calls inside `Utility.batch*`, `Proxy.*` and other calls that carry calls are numbered with their own
+    arguments, multi-address accounts in the chain's format, and `Balances` amounts in the chain's asset.
 - **The PIN.** Sign asks for the PIN or trusted biometrics through `SubmissionAuthorizer`, as every fund-moving and
   staking submission does; without a PIN nothing is signed.
+- **The app lock.** The idle and background lock puts its PIN screen on the app's own window, never on the request
+  window above it, which hides until the app is unlocked. A request sheet hidden with its window stays open.
+- **A request the dApp stops waiting for.** The confirmation checks that the request is still pending before the PIN
+  and again before anything is signed or sent, and the client answers only pending requests. A request or proposal
+  that expires, or whose session ends, leaves the queue; one on screen closes and says nothing was sent, unless it is
+  signing (its own checks stop it). An `eth_sendTransaction` already sent to the network shows its hash even if the
+  dApp stopped waiting in that moment.
+- **Limits.** At most 10 requests and proposals wait or show at once; more are declined at once. At most 3 pairing
+  links wait for the unlock. Requests are told apart by session and id.
+- **Links that would take over a topic.** A pairing link whose topic is a live session's, or another pairing's with a
+  different key, is refused (`topicInUse`): its key would replace theirs.
+- **Forgetting a wallet and logging out.** Forgetting a wallet ends every session that granted one of its accounts, in
+  any namespace or chain, compared by account id. Logging out ends every session and every pairing.
+- **Polkadot chains** match a request only on the exact CAIP-13 reference, the first 32 hex characters of the genesis
+  hash; a shorter reference matches nothing.
 - **Remote vetoes.** `evm_dapp_signing_enabled` and `polkadot_dapp_signing_enabled` in the remote feature toggles can
   pause signing per network (`ton_dapp_signing_enabled` does the same for TON Connect). An absent key keeps signing
   on; only an explicit `false` pauses it, and the pause is remembered until an explicit `true`. A paused request is
