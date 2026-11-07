@@ -1133,6 +1133,12 @@
 "wallet.connect.verify.scam" = "既知の詐欺として報告されています";
 "wallet.connect.scam.blocked.title" = "リクエストをブロックしました";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify により %@ は既知の詐欺として報告されています。Fearless はリクエストを拒否しました。何も接続・署名されていません。";
+"wallet.connect.signing.paused.title" = "署名は一時停止中です";
+"wallet.connect.signing.paused.message" = "Fearless はこのネットワークでアプリからの署名リクエストを一時停止しています。リクエストは拒否され、何も署名されていません。";
+"wallet.connect.verify.unknown.warning" = "WalletConnect Verify はこのアプリのウェブサイトを確認できませんでした。信頼できる場合のみ続行してください。";
+"wallet.connect.link.failed.title" = "接続できませんでした";
+"wallet.connect.link.failed.message" = "Fearless はこの接続リンクを使用できませんでした。アプリで新しいリンクを取得して、もう一度お試しください。";
+"wallet.connect.link.expired.message" = "この接続リンクは有効期限が切れています。アプリで新しいリンクを取得してください。";
 "wallet.connect.confirmation.recipient" = "受取人";
 "wallet.connect.confirmation.amount" = "金額";
 "wallet.connect.confirmation.spender" = "使用を許可する相手";

@@ -1144,6 +1144,12 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "wallet.connect.verify.scam" = "Bị gắn cờ là lừa đảo đã biết";
 "wallet.connect.scam.blocked.title" = "Yêu cầu đã bị chặn";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify đã gắn cờ %@ là lừa đảo đã biết. Fearless đã từ chối yêu cầu và không có gì được kết nối hay ký.";
+"wallet.connect.signing.paused.title" = "Đã tạm dừng ký";
+"wallet.connect.signing.paused.message" = "Fearless đã tạm dừng ký các yêu cầu từ ứng dụng trên mạng này. Yêu cầu đã bị từ chối và không có gì được ký.";
+"wallet.connect.verify.unknown.warning" = "WalletConnect Verify không thể xác nhận trang web của ứng dụng này. Chỉ tiếp tục nếu bạn tin tưởng nó.";
+"wallet.connect.link.failed.title" = "Không thể kết nối";
+"wallet.connect.link.failed.message" = "Fearless không thể dùng liên kết kết nối này. Hãy lấy liên kết mới từ ứng dụng và thử lại.";
+"wallet.connect.link.expired.message" = "Liên kết kết nối này đã hết hạn. Hãy lấy liên kết mới từ ứng dụng.";
 "wallet.connect.confirmation.recipient" = "Người nhận";
 "wallet.connect.confirmation.amount" = "Số tiền";
 "wallet.connect.confirmation.spender" = "Được phép chi tiêu";

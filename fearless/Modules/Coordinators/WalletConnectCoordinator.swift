@@ -26,6 +26,8 @@ final class WalletConnectCoordinator: DefaultCoordinator {
     ) -> FlowCoordinator
     private let signingUnavailableNotice: WalletConnectNoticePresenter
     private let scamNotice: WalletConnectNoticePresenter
+    private let signingPausedNotice: WalletConnectNoticePresenter
+    private let pairingFailedNotice: WalletConnectNoticePresenter
     private var lockObserver: NSObjectProtocol?
 
     /// Requests already queued or on screen. The SDK sends the oldest pending request
@@ -46,6 +48,10 @@ final class WalletConnectCoordinator: DefaultCoordinator {
             WalletConnectNoticePresenter.signingUnavailableViewModel(locale: locale)
         },
         scamNotice: WalletConnectNoticePresenter = WalletConnectNoticePresenter.scamBlocked(),
+        signingPausedNotice: WalletConnectNoticePresenter = WalletConnectNoticePresenter { locale in
+            WalletConnectNoticePresenter.signingPausedViewModel(locale: locale)
+        },
+        pairingFailedNotice: WalletConnectNoticePresenter = WalletConnectNoticePresenter.pairingFailed(),
         makeRequestFlow: @escaping (
             WalletConnectCoordinatorRouter,
             Request,
@@ -69,6 +75,8 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         self.isApplicationActive = isApplicationActive
         self.signingUnavailableNotice = signingUnavailableNotice
         self.scamNotice = scamNotice
+        self.signingPausedNotice = signingPausedNotice
+        self.pairingFailedNotice = pairingFailedNotice
         self.makeRequestFlow = makeRequestFlow
         self.makeProposalFlow = makeProposalFlow
         super.init()
@@ -80,8 +88,7 @@ final class WalletConnectCoordinator: DefaultCoordinator {
             queue: .main
         ) { [weak self] _ in
             self?.presentNextIfPossible()
-            self?.signingUnavailableNotice.presentPendingNoticeIfPossible()
-            self?.scamNotice.presentPendingNoticeIfPossible()
+            self?.presentPendingNotices()
         }
     }
 
@@ -95,6 +102,13 @@ final class WalletConnectCoordinator: DefaultCoordinator {
 
     /// Starts the oldest waiting flow once the app is active and unlocked, and nothing
     /// else is on screen. While the PIN screen locks the app, flows wait in the queue.
+    private func presentPendingNotices() {
+        signingUnavailableNotice.presentPendingNoticeIfPossible()
+        scamNotice.presentPendingNoticeIfPossible()
+        signingPausedNotice.presentPendingNoticeIfPossible()
+        pairingFailedNotice.presentPendingNoticeIfPossible()
+    }
+
     private func presentNextIfPossible() {
         guard
             isApplicationActive(),
@@ -146,6 +160,17 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     func blockedScam(origin: String) {
         scamNotice.requestNotice(origin: origin)
     }
+
+    func signingPaused(request _: Request, session _: Session?) {
+        signingPausedNotice.requestNotice()
+    }
+
+    func pairingFailed(error: Error) {
+        pairingFailedNotice.requestNotice(origin: WalletConnectNoticePresenter.pairingFailureMessage(
+            for: error,
+            locale: LocalizationManager.shared.selectedLocale
+        ))
+    }
 }
 
 // MARK: - ApplicationHandlerDelegate
@@ -153,8 +178,7 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
 extension WalletConnectCoordinator: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
         presentNextIfPossible()
-        signingUnavailableNotice.presentPendingNoticeIfPossible()
-        scamNotice.presentPendingNoticeIfPossible()
+        presentPendingNotices()
     }
 }
 
@@ -248,6 +272,44 @@ final class WalletConnectNoticePresenter {
             closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
             icon: nil
         )
+    }
+
+    static func signingPausedViewModel(locale: Locale) -> SheetAlertPresentableViewModel {
+        let languages = locale.rLanguages
+        return SheetAlertPresentableViewModel(
+            title: R.string.localizable.walletConnectSigningPausedTitle(preferredLanguages: languages),
+            message: R.string.localizable.walletConnectSigningPausedMessage(preferredLanguages: languages),
+            actions: [],
+            closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
+            icon: nil
+        )
+    }
+
+    /// A pairing link failed. The notice's text comes from `pairingFailureMessage(for:locale:)`.
+    static func pairingFailed() -> WalletConnectNoticePresenter {
+        WalletConnectNoticePresenter(makeViewModel: { locale, message in
+            let languages = locale.rLanguages
+            return SheetAlertPresentableViewModel(
+                title: R.string.localizable.walletConnectLinkFailedTitle(preferredLanguages: languages),
+                message: message ?? R.string.localizable.walletConnectLinkFailedMessage(preferredLanguages: languages),
+                actions: [],
+                closeAction: R.string.localizable.commonClose(preferredLanguages: languages),
+                icon: nil
+            )
+        })
+    }
+
+    /// What to tell the user about a pairing link that failed: the link's own problem when the service named one
+    /// (an old-version or malformed link), that it expired, or that a new one is needed.
+    static func pairingFailureMessage(for error: Error, locale: Locale) -> String {
+        let languages = locale.rLanguages
+        if let content = error as? ConvenienceContentError {
+            return content.message
+        }
+        if case WalletConnectClient.ClientError.pairingExpired = error {
+            return R.string.localizable.walletConnectLinkExpiredMessage(preferredLanguages: languages)
+        }
+        return R.string.localizable.walletConnectLinkFailedMessage(preferredLanguages: languages)
     }
 
     static func scamBlocked() -> WalletConnectNoticePresenter {

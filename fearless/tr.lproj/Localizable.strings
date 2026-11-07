@@ -1140,6 +1140,12 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "wallet.connect.verify.scam" = "Bilinen dolandırıcılık olarak işaretlendi";
 "wallet.connect.scam.blocked.title" = "İstek engellendi";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify, %@ adresini bilinen bir dolandırıcılık olarak işaretledi. Fearless isteği reddetti; hiçbir şey bağlanmadı veya imzalanmadı.";
+"wallet.connect.signing.paused.title" = "İmzalama duraklatıldı";
+"wallet.connect.signing.paused.message" = "Fearless bu ağdaki uygulama isteklerini imzalamayı şimdilik duraklattı. İstek reddedildi ve hiçbir şey imzalanmadı.";
+"wallet.connect.verify.unknown.warning" = "WalletConnect Verify bu uygulamanın web sitesini doğrulayamadı. Yalnızca güveniyorsanız devam edin.";
+"wallet.connect.link.failed.title" = "Bağlanılamadı";
+"wallet.connect.link.failed.message" = "Fearless bu bağlantı linkini kullanamadı. Uygulamadan yeni bir link isteyin ve tekrar deneyin.";
+"wallet.connect.link.expired.message" = "Bu bağlantı linkinin süresi doldu. Uygulamadan yeni bir link isteyin.";
 "wallet.connect.confirmation.recipient" = "Alıcı";
 "wallet.connect.confirmation.amount" = "Tutar";
 "wallet.connect.confirmation.spender" = "Harcama izni verilen";

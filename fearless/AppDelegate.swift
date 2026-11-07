@@ -17,7 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard !isUnitTesting else { return true }
 
         URLHandlingService.shared.setup(children: [
-            IrohaConnectURLHandler.shared, LegacyTonConnectURLHandler.shared, GoogleDriveBackupURLHandler.shared
+            IrohaConnectURLHandler.shared, LegacyTonConnectURLHandler.shared, WalletConnectURLHandler.shared,
+            GoogleDriveBackupURLHandler.shared
         ])
 
         // Not part of startup: these never block or fail the wallet opening.

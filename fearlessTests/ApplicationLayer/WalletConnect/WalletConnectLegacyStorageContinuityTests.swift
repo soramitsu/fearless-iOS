@@ -916,18 +916,19 @@ private func runBlocking<T>(timeout: TimeInterval = 30, _ operation: @escaping (
     return try result.get()
 }
 
-/// WalletConnect signing is unavailable in this release (`WalletConnectSigningPolicy`): a
-/// dApp request is declined before any confirmation opens or any key is read, no signature
-/// can reach a dApp, and the user is told once that nothing was signed.
+/// With signing off (`WalletConnectSigningPolicy.disabled`) a dApp request is declined before any
+/// confirmation opens or any key is read, no signature can reach a dApp, and the user is told once
+/// that nothing was signed. Production signing is on.
 final class WalletConnectSigningPolicyTests: XCTestCase {
-    func testProductionPolicy_isDisabled() {
-        XCTAssertFalse(WalletConnectSigningPolicy.production.isEnabled)
+    func testProductionPolicy_isEnabled_andTheDisabledPolicyIsOff() {
+        XCTAssertTrue(WalletConnectSigningPolicy.production.isEnabled)
+        XCTAssertFalse(WalletConnectSigningPolicy.disabled.isEnabled)
     }
 
     func testRequest_whenSigningUnavailable_thenDeclinesWithoutOpeningConfirmation() throws {
         let declined = expectation(description: "dApp told the user rejected the request")
         let responses = ResponseRecorder { declined.fulfill() }
-        let service = WalletConnectServiceImpl(signingPolicy: .production, respond: responses.record)
+        let service = WalletConnectServiceImpl(signingPolicy: .disabled, respond: responses.record)
         let listener = DelegateRecorder()
         service.set(listener: listener)
         let request = try Self.makeRequest()
@@ -961,7 +962,7 @@ final class WalletConnectSigningPolicyTests: XCTestCase {
 
     func testSignedDecision_whenSigningUnavailable_thenNoSignatureReachesTheDApp() async throws {
         let responses = ResponseRecorder()
-        let service = WalletConnectServiceImpl(signingPolicy: .production, respond: responses.record)
+        let service = WalletConnectServiceImpl(signingPolicy: .disabled, respond: responses.record)
         let request = try Self.makeRequest()
 
         do {
@@ -974,7 +975,7 @@ final class WalletConnectSigningPolicyTests: XCTestCase {
 
     func testRejectedDecision_whenSigningUnavailable_thenIsStillSent() async throws {
         let responses = ResponseRecorder()
-        let service = WalletConnectServiceImpl(signingPolicy: .production, respond: responses.record)
+        let service = WalletConnectServiceImpl(signingPolicy: .disabled, respond: responses.record)
         let request = try Self.makeRequest()
 
         try await service.submit(signDecision: .rejected(request: request, error: .userRejected))
@@ -984,7 +985,7 @@ final class WalletConnectSigningPolicyTests: XCTestCase {
 
     func testSigner_whenSigningUnavailable_thenFailsBeforeReadingKeys() async throws {
         let keystore = RecordingKeystore()
-        let signer = WalletConnectSignerImpl(policy: .production, keystore: keystore)
+        let signer = WalletConnectSignerImpl(policy: .disabled, keystore: keystore)
 
         for request in try Self.makeSigningRequests() {
             do {
@@ -1237,10 +1238,10 @@ private final class DelegateRecorder: WalletConnectServiceDelegate {
 /// this build must go on serving it. Skipped unless `FEARLESS_WC_UPGRADE_LIVE=1`.
 final class WalletConnectReownUpgradeLiveTests: XCTestCase {
     private final class Recorder: WalletConnectServiceDelegate {
-        private(set) var declined: [Request] = []
+        private(set) var requested: [Request] = []
 
-        func signingUnavailable(request: Request, session _: Session?) {
-            declined.append(request)
+        func sign(request: Request, session _: Session?, verification _: WalletConnectVerification) {
+            requested.append(request)
         }
     }
 
@@ -1313,10 +1314,13 @@ final class WalletConnectReownUpgradeLiveTests: XCTestCase {
         XCTAssertEqual(session.peer.name, "Fearless upgrade dApp")
         XCTAssertEqual(Set(session.namespaces.keys), ["eip155", "polkadot"])
 
-        // The request the dApp sent while no wallet ran reaches this client, which declines it (signing is off).
-        try spin(timeout: 300) { !recorder.declined.isEmpty }
-        XCTAssertEqual(recorder.declined.first?.method, "personal_sign")
-        XCTAssertEqual(recorder.declined.first?.topic, topic)
+        // The request the dApp sent while no wallet ran reaches this client and would open its confirmation; the
+        // user rejects it, and the dApp hears that.
+        try spin(timeout: 300) { !recorder.requested.isEmpty }
+        let held = try XCTUnwrap(recorder.requested.first)
+        XCTAssertEqual(held.method, "personal_sign")
+        XCTAssertEqual(held.topic, topic)
+        try runBlocking { try await service.submit(signDecision: .rejected(request: held, error: .userRejected)) }
 
         _ = try waitForFile(exchange.appendingPathComponent("dapp-ping-done.txt"), timeout: 180)
         try runBlocking { try await client.ping(topic: topic) }
@@ -1332,7 +1336,7 @@ final class WalletConnectReownUpgradeLiveTests: XCTestCase {
         let evidence: [String: Any] = [
             "sessionCarriedOver": true,
             "clientId": identity,
-            "heldRequestDeclined": recorder.declined.first?.method ?? "",
+            "heldRequestReceived": recorder.requested.first?.method ?? "",
             "reownSessionRecordRemoved": groupDefaults.data(forKey: sessionRecordKey) == nil
         ]
         try JSONSerialization.data(withJSONObject: evidence, options: [.sortedKeys, .prettyPrinted])

@@ -7,10 +7,10 @@ import FearlessWalletConnect
 enum WalletConnectVerification: Equatable {
     /// The request comes from the domain the app claims.
     case verified
-    /// Verify has no record of the domain.
+    /// Verify has no record of the domain, so only the app's own claim names the site.
     case unverified
-    /// The request comes from another domain than the one the app claims.
-    case mismatch
+    /// The request comes from `origin`, another domain than the one the app claims.
+    case mismatch(origin: String)
     /// Verify lists the domain as a scam. Such proposals and requests are declined.
     case scam
 
@@ -19,7 +19,7 @@ enum WalletConnectVerification: Equatable {
         case .valid:
             self = .verified
         case .invalid:
-            self = .mismatch
+            self = .mismatch(origin: context?.origin ?? "")
         case .scam:
             self = .scam
         case .unknown, .none:
@@ -41,12 +41,15 @@ enum WalletConnectVerification: Equatable {
         }
     }
 
-    /// A warning to show next to the request, when the result calls for one.
+    /// A warning to show next to the request, when the result calls for one: the site is another than the app
+    /// claims, or nothing but the app's own claim names it.
     func warning(for locale: Locale) -> String? {
         switch self {
         case .mismatch:
             return R.string.localizable.walletConnectVerifyInvalidWarning(preferredLanguages: locale.rLanguages)
-        case .verified, .unverified, .scam:
+        case .unverified:
+            return R.string.localizable.walletConnectVerifyUnknownWarning(preferredLanguages: locale.rLanguages)
+        case .verified, .scam:
             return nil
         }
     }
@@ -56,11 +59,22 @@ enum WalletConnectVerification: Equatable {
         case .verified:
             return R.color.colorGreen()
         case .unverified:
-            return R.color.colorStrokeGray()
+            return R.color.colorOrange()
         case .mismatch:
             return R.color.colorOrange()
         case .scam:
             return R.color.colorRed()
+        }
+    }
+
+    /// The website to show for the app: where the request really came from when Verify saw another site than the
+    /// app claims, otherwise the site the app claims (which Verify confirmed, or could not check).
+    func website(claimed url: String) -> String {
+        switch self {
+        case let .mismatch(origin) where !origin.isEmpty:
+            return Self.host(of: origin)
+        case .verified, .unverified, .mismatch, .scam:
+            return Self.host(of: url)
         }
     }
 

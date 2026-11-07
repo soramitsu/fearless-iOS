@@ -1,4 +1,5 @@
 import UIKit
+import FearlessWalletConnect
 
 protocol WalletConnectConfirmationInteractorOutput: AnyObject {}
 
@@ -11,17 +12,20 @@ final class WalletConnectConfirmationInteractor {
     private let inputData: WalletConnectConfirmationInputData
     private let signer: WalletConnectSigner
     private let authorizer: WalletConnectSigningAuthorizing
+    private let isSigningAllowed: (Blockchain) -> Bool
 
     init(
         walletConnect: WalletConnectService,
         inputData: WalletConnectConfirmationInputData,
         signer: WalletConnectSigner,
-        authorizer: WalletConnectSigningAuthorizing
+        authorizer: WalletConnectSigningAuthorizing,
+        isSigningAllowed: @escaping (Blockchain) -> Bool = { WalletConnectSigningVeto.isSigningAllowed(on: $0) }
     ) {
         self.walletConnect = walletConnect
         self.inputData = inputData
         self.signer = signer
         self.authorizer = authorizer
+        self.isSigningAllowed = isSigningAllowed
     }
 }
 
@@ -35,12 +39,22 @@ extension WalletConnectConfirmationInteractor: WalletConnectConfirmationInteract
     }
 
     func approve() async throws -> String? {
+        let signingRequest = inputData.signingRequest
+        // The remote config may pause signing for this network while the request is open: checked before the PIN
+        // and again right before the key is read.
+        guard isSigningAllowed(signingRequest.request.chainId) else {
+            throw WalletConnectSigningError.paused
+        }
+
         // Nothing is signed until the user confirms with the PIN or biometrics.
         guard await authorizer.authorize() else {
             throw WalletConnectSigningError.notAuthorized
         }
 
-        let signingRequest = inputData.signingRequest
+        guard isSigningAllowed(signingRequest.request.chainId) else {
+            throw WalletConnectSigningError.paused
+        }
+
         let signature = try await signer.sign(request: signingRequest)
         let signDecision: WalletConnectSignDecision = .signed(request: signingRequest.request, signature: signature)
         try await walletConnect.submit(signDecision: signDecision)

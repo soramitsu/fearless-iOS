@@ -231,9 +231,9 @@ enum WalletConnectTestFixtures {
                 redirect: try AppMetadata.Redirect(native: "example://", universal: nil)
             ),
             requiredNamespaces: [:],
+            optionalNamespaces: nil,
             namespaces: namespaces,
             sessionProperties: nil,
-            scopedProperties: nil,
             expiryDate: Date(timeIntervalSinceNow: 3600)
         )
     }

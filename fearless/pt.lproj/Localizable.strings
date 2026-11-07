@@ -1149,6 +1149,12 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "wallet.connect.verify.scam" = "Sinalizado como golpe conhecido";
 "wallet.connect.scam.blocked.title" = "Solicitação bloqueada";
 "wallet.connect.scam.blocked.message" = "O WalletConnect Verify sinalizou %@ como um golpe conhecido. A Fearless recusou a solicitação, e nada foi conectado nem assinado.";
+"wallet.connect.signing.paused.title" = "A assinatura está pausada";
+"wallet.connect.signing.paused.message" = "A Fearless pausou por enquanto a assinatura de solicitações de apps nesta rede. A solicitação foi recusada e nada foi assinado.";
+"wallet.connect.verify.unknown.warning" = "O WalletConnect Verify não conseguiu confirmar o site deste app. Continue somente se você confiar nele.";
+"wallet.connect.link.failed.title" = "Não foi possível conectar";
+"wallet.connect.link.failed.message" = "A Fearless não conseguiu usar este link de conexão. Peça um novo ao app e tente novamente.";
+"wallet.connect.link.expired.message" = "Este link de conexão expirou. Peça um novo ao app.";
 "wallet.connect.confirmation.recipient" = "Destinatário";
 "wallet.connect.confirmation.amount" = "Valor";
 "wallet.connect.confirmation.spender" = "Autorizado a gastar";

@@ -44,14 +44,23 @@ protocol WalletConnectSigningAuthorizing: AnyObject {
     func authorize() async -> Bool
 }
 
-final class WalletConnectSigningAuthorizer: WalletConnectSigningAuthorizing, AuthorizationPresentable,
-    AuthorizationAccessible {
+/// Asks for the PIN or trusted biometrics through `SubmissionAuthorizer`, the step every fund-moving and staking
+/// submission takes, so a signature for an app gets the same PIN lockout and biometric rules.
+final class WalletConnectSigningAuthorizer: WalletConnectSigningAuthorizing {
     weak var view: ControllerBackedProtocol?
 
-    private let keystore: KeystoreProtocol
+    /// True while the PIN screen asks; a second request waits for it to finish and is refused meanwhile.
+    private(set) var isAuthorizing = false
 
-    init(keystore: KeystoreProtocol = Keychain()) {
+    private let keystore: KeystoreProtocol
+    private let submissionAuthorizer: SubmissionAuthorizing
+
+    init(
+        keystore: KeystoreProtocol = Keychain(),
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
+    ) {
         self.keystore = keystore
+        self.submissionAuthorizer = submissionAuthorizer
     }
 
     @MainActor
@@ -65,12 +74,15 @@ final class WalletConnectSigningAuthorizer: WalletConnectSigningAuthorizing, Aut
             return false
         }
 
-        return await withCheckedContinuation { continuation in
+        isAuthorizing = true
+        let authorized = await withCheckedContinuation { continuation in
             let answer = AuthorizationAnswer(continuation: continuation)
-            authorize(animated: true, cancellable: true, from: view) { isAuthorized in
+            submissionAuthorizer.authorizeSubmission(from: view) { isAuthorized in
                 answer.resume(returning: isAuthorized)
             }
         }
+        isAuthorizing = false
+        return authorized
     }
 }
 

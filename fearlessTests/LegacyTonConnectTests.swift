@@ -1064,6 +1064,23 @@ extension LegacyTonConnectServiceTests {
         XCTAssertEqual(handler.processCount, 1)
         XCTAssertEqual(handler.acknowledgeCount, 0)
     }
+
+    func testPausedSigningRequestGetsOneDurableUnsupportedReply() async throws {
+        let session = try tonConnectTestSession()
+        let handler = TonConnectFakeHandler()
+        handler.processError = LegacyTonConnectError.signingPaused
+        let service = LegacyTonConnectService(store: TonConnectFakeSessionStore(values: [session]),
+                                              replies: .init(keystore: TonConnectFixtureKeychain()), transport: TonConnectFakeTransport())
+        await service.set(handler: handler)
+        let request = Data(#"{"id":"paused","method":"sendTransaction","params":["{}"]}"#.utf8)
+        let reply = try await service.handle(request, session: session, network: "-239")
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: reply) as? [String: Any])
+        XCTAssertEqual((json["error"] as? [String: Any])?["code"] as? Int, 400)
+        handler.processError = nil
+        let replay = try await service.handle(request, session: session, network: "-239")
+        XCTAssertEqual(replay, reply, "A paused request is answered once and never signed later")
+        XCTAssertEqual(handler.processCount, 1)
+    }
 }
 
 extension LegacyTonConnectCoordinatorTests {
@@ -1201,5 +1218,48 @@ extension LegacyTonConnectCoordinatorTests {
         XCTAssertEqual(walletState(keys.values), original)
         XCTAssertFalse(LegacyTonConnectError.disabled.localizedDescription.isEmpty)
         coordinator.throttle()
+    }
+
+    @MainActor
+    func testSigningVetoRefusesTransactionsAndSignInProofsButNotPlainConnections() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let session = try tonConnectTestSession()
+        var approvals = 0
+        let paused = LegacyTonConnectCoordinator(store: TonConnectFakeSessionStore(values: [session]),
+            transport: TonConnectFakeTransport(), replies: .init(keystore: keys), keystore: keys, selectedWallet: { wallet },
+            approval: { _, _ in approvals += 1; return true }, walletLoader: { _ in wallet },
+            isEnabled: { true }, isSigningEnabled: { false })
+        await paused.activate()
+        let proofRequest = LegacyTonConnectConnectRequest(
+            manifestUrl: request.manifestUrl,
+            items: request.items + [.init(name: "ton_proof", payload: "login-challenge")]
+        )
+        do {
+            _ = try await paused.connect(walletId: wallet.metaId, clientId: tonConnectTestSession().clientId,
+                request: proofRequest, manifest: manifest, connectionType: "http")
+            XCTFail("A sign-in proof is a signature")
+        } catch LegacyTonConnectError.signingPaused {}
+        let rpc = try LegacyTonConnectRPCRequest.decode(Data(#"{"id":"1","method":"sendTransaction","params":["{}"]}"#.utf8))
+        do {
+            _ = try await paused.process(session: session, network: "-239", request: rpc)
+            XCTFail("Vetoed signing")
+        } catch LegacyTonConnectError.signingPaused {}
+        XCTAssertEqual(approvals, 0, "Nothing is shown for a paused signature")
+        paused.throttle()
+
+        // A connection without a proof signs nothing, so the signing veto leaves it alone.
+        let storage = TonConnectFakeSessionStore(values: [])
+        let plain = LegacyTonConnectCoordinator(store: storage, transport: TonConnectFakeTransport(),
+            replies: .init(keystore: keys), keystore: keys, selectedWallet: { wallet },
+            approval: { _, _ in approvals += 1; return true }, walletLoader: { _ in wallet },
+            isEnabled: { true }, isSigningEnabled: { false })
+        await plain.activate()
+        _ = try await plain.connect(walletId: wallet.metaId, clientId: tonConnectTestSession().clientId,
+            request: request, manifest: manifest, connectionType: "http")
+        XCTAssertEqual(approvals, 1)
+        XCTAssertEqual(storage.values.count, 1)
+        XCTAssertFalse(LegacyTonConnectError.signingPaused.localizedDescription.isEmpty)
+        plain.throttle()
     }
 }

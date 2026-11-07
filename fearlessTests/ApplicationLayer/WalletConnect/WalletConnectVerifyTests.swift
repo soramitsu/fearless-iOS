@@ -7,10 +7,13 @@ import XCTest
 /// confirmation, and apps Verify flags as known scams are declined before anything opens.
 final class WalletConnectVerifyTests: XCTestCase {
     func testVerification_mapsEveryVerifyResult() {
-        XCTAssertEqual(WalletConnectVerification(context: VerifyContext(origin: "https://a.org", validation: .valid)), .verified)
-        XCTAssertEqual(WalletConnectVerification(context: VerifyContext(origin: "https://a.org", validation: .invalid)), .mismatch)
-        XCTAssertEqual(WalletConnectVerification(context: VerifyContext(origin: "https://a.org", validation: .scam)), .scam)
-        XCTAssertEqual(WalletConnectVerification(context: VerifyContext(origin: nil, validation: .unknown)), .unverified)
+        XCTAssertEqual(WalletConnectVerification(context: VerifyContext(origin: "https://a.org", validation: .valid, verifyUrl: "https://verify.walletconnect.org")), .verified)
+        XCTAssertEqual(
+            WalletConnectVerification(context: VerifyContext(origin: "https://a.org", validation: .invalid, verifyUrl: "https://verify.walletconnect.org")),
+            .mismatch(origin: "https://a.org")
+        )
+        XCTAssertEqual(WalletConnectVerification(context: VerifyContext(origin: "https://a.org", validation: .scam, verifyUrl: "https://verify.walletconnect.org")), .scam)
+        XCTAssertEqual(WalletConnectVerification(context: VerifyContext(origin: "https://a.org", validation: .unknown, verifyUrl: "https://verify.walletconnect.org")), .unverified)
         XCTAssertEqual(WalletConnectVerification(context: nil), .unverified)
     }
 
@@ -24,7 +27,7 @@ final class WalletConnectVerifyTests: XCTestCase {
         service.set(listener: listener)
         let proposal = try Self.makeProposal()
 
-        service.handle(proposal: proposal, context: VerifyContext(origin: "https://drainer.example", validation: .scam))
+        service.handle(proposal: proposal, context: VerifyContext(origin: "https://drainer.example", validation: .scam, verifyUrl: "https://verify.walletconnect.org"))
 
         wait(for: [declined], timeout: 3)
         XCTAssertEqual(rejections.proposalIds, [proposal.id])
@@ -38,9 +41,9 @@ final class WalletConnectVerifyTests: XCTestCase {
         let listener = VerifyListener()
         service.set(listener: listener)
 
-        service.handle(proposal: try Self.makeProposal(), context: VerifyContext(origin: "https://app.example.org", validation: .invalid))
+        service.handle(proposal: try Self.makeProposal(), context: VerifyContext(origin: "https://app.example.org", validation: .invalid, verifyUrl: "https://verify.walletconnect.org"))
 
-        XCTAssertEqual(listener.proposals.map(\.verification), [.mismatch])
+        XCTAssertEqual(listener.proposals.map(\.verification), [.mismatch(origin: "https://app.example.org")])
         XCTAssertTrue(listener.blockedOrigins.isEmpty)
         XCTAssertTrue(rejections.proposalIds.isEmpty)
     }
@@ -59,7 +62,7 @@ final class WalletConnectVerifyTests: XCTestCase {
             service.handle(
                 request: request,
                 session: nil,
-                context: VerifyContext(origin: "https://drainer.example", validation: .scam)
+                context: VerifyContext(origin: "https://drainer.example", validation: .scam, verifyUrl: "https://verify.walletconnect.org")
             )
 
             wait(for: [declined], timeout: 3)
@@ -77,7 +80,7 @@ final class WalletConnectVerifyTests: XCTestCase {
             service.handle(
                 request: try WalletConnectAuthorizationAndLockTests.makeRequest(),
                 session: nil,
-                context: VerifyContext(origin: "https://app.example.org", validation: .valid)
+                context: VerifyContext(origin: "https://app.example.org", validation: .valid, verifyUrl: "https://verify.walletconnect.org")
             )
 
             XCTAssertEqual(listener.signRequests.map(\.verification), [.verified])
@@ -88,14 +91,14 @@ final class WalletConnectVerifyTests: XCTestCase {
     func testRequest_whenFlaggedAsScamWhileSigningIsUnavailable_thenTheScamIsReported() throws {
         let declined = expectation(description: "the request is declined")
         let responses = VerifyResponseRecorder { declined.fulfill() }
-        let service = WalletConnectServiceImpl(signingPolicy: .production, respond: responses.record)
+        let service = WalletConnectServiceImpl(signingPolicy: .disabled, respond: responses.record)
         let listener = VerifyListener()
         service.set(listener: listener)
 
         service.handle(
             request: try WalletConnectAuthorizationAndLockTests.makeRequest(),
             session: nil,
-            context: VerifyContext(origin: "https://drainer.example", validation: .scam)
+            context: VerifyContext(origin: "https://drainer.example", validation: .scam, verifyUrl: "https://verify.walletconnect.org")
         )
 
         wait(for: [declined], timeout: 3)
@@ -123,12 +126,21 @@ final class WalletConnectVerifyTests: XCTestCase {
 
         for identifier in shipped {
             let locale = Locale(identifier: identifier)
-            for verification in [WalletConnectVerification.verified, .unverified, .mismatch, .scam] {
+            let mismatch = WalletConnectVerification.mismatch(origin: "https://x.example")
+            for verification in [WalletConnectVerification.verified, .unverified, mismatch, .scam] {
                 XCTAssertNotEqual(verification.title(for: locale), verification.title(for: english), identifier)
             }
+            for verification in [WalletConnectVerification.unverified, mismatch] {
+                XCTAssertNotEqual(verification.warning(for: locale), verification.warning(for: english), identifier)
+            }
             XCTAssertNotEqual(
-                WalletConnectVerification.mismatch.warning(for: locale),
-                WalletConnectVerification.mismatch.warning(for: english),
+                WalletConnectNoticePresenter.signingPausedViewModel(locale: locale).message,
+                WalletConnectNoticePresenter.signingPausedViewModel(locale: english).message,
+                identifier
+            )
+            XCTAssertNotEqual(
+                WalletConnectNoticePresenter.pairingFailureMessage(for: TestError.failed, locale: locale),
+                WalletConnectNoticePresenter.pairingFailureMessage(for: TestError.failed, locale: english),
                 identifier
             )
             XCTAssertNotEqual(
@@ -139,33 +151,38 @@ final class WalletConnectVerifyTests: XCTestCase {
         }
     }
 
-    func testOnlyAMismatchAddsAWarning() {
+    func testAMismatchOrASiteVerifyCouldNotCheckAddsAWarning() {
         let english = Locale(identifier: "en")
-        XCTAssertNotNil(WalletConnectVerification.mismatch.warning(for: english))
+        XCTAssertNotNil(WalletConnectVerification.mismatch(origin: "https://x.example").warning(for: english))
+        XCTAssertNotNil(WalletConnectVerification.unverified.warning(for: english))
         XCTAssertNil(WalletConnectVerification.verified.warning(for: english))
-        XCTAssertNil(WalletConnectVerification.unverified.warning(for: english))
+        XCTAssertNil(WalletConnectVerification.scam.warning(for: english))
+    }
+
+    func testWebsite_isWhereTheRequestCameFromWhenItIsNotTheClaimedSite() {
+        let claimed = "https://app.uniswap.org/swap"
+        XCTAssertEqual(WalletConnectVerification.verified.website(claimed: claimed), "app.uniswap.org")
+        XCTAssertEqual(WalletConnectVerification.unverified.website(claimed: claimed), "app.uniswap.org")
+        XCTAssertEqual(
+            WalletConnectVerification.mismatch(origin: "https://uniswap-airdrop.example").website(claimed: claimed),
+            "uniswap-airdrop.example"
+        )
+        // Verify reported a mismatch without saying where from: only the claim is left to show.
+        XCTAssertEqual(WalletConnectVerification.mismatch(origin: "").website(claimed: claimed), "app.uniswap.org")
     }
 
     // MARK: - Helpers
 
     static func makeProposal() throws -> Session.Proposal {
-        let json = """
-        {
-            "id": "verify-proposal",
-            "pairingTopic": "verify-pairing",
-            "proposer": {"name": "Example", "description": "", "url": "https://app.example.org", "icons": []},
-            "requiredNamespaces": {},
-            "proposal": {
-                "relays": [{"protocol": "irn"}],
-                "proposer": {
-                    "publicKey": "verify-key",
-                    "metadata": {"name": "Example", "description": "", "url": "https://app.example.org", "icons": []}
-                },
-                "requiredNamespaces": {}
-            }
-        }
-        """
-        return try JSONDecoder().decode(Session.Proposal.self, from: Data(json.utf8))
+        Session.Proposal(
+            id: 1_794_000_000_000_001,
+            pairingTopic: "verify-pairing",
+            proposer: AppMetadata(name: "Example", description: "", url: "https://app.example.org", icons: []),
+            requiredNamespaces: [:],
+            optionalNamespaces: nil,
+            sessionProperties: nil,
+            expiryDate: Date(timeIntervalSinceNow: 300)
+        )
     }
 }
 
@@ -236,4 +253,8 @@ private final class VerifyResponseRecorder {
         lock.unlock()
         onRecord()
     }
+}
+
+private enum TestError: Error {
+    case failed
 }

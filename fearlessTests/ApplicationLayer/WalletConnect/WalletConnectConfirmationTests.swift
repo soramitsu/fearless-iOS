@@ -158,11 +158,13 @@ final class WalletConnectConfirmationTests: XCTestCase {
         let rows = try viewModel(
             for: .ethereumMessage(WalletConnectMessage(bytes: Data("Hi".utf8))),
             chain: WalletConnectTestFixtures.ethereumChain(),
-            verification: .mismatch
+            verification: .mismatch(origin: "https://other.example")
         ).rows
 
         XCTAssertEqual(rows.last?.kind, .verification)
         XCTAssertEqual(rows.last?.value, "Domain mismatch")
+        // The website row shows where the request came from, not the site the app claims.
+        XCTAssertEqual(rows.first { $0.kind == .website }?.value, "other.example")
     }
 
     // MARK: - Helpers

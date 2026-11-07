@@ -33,6 +33,9 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     private let approval: ((String, String) async throws -> Bool)?
     /// The remote veto (`RemoteKillSwitch.tonConnect`); an absent key keeps TON Connect on.
     private let isEnabled: () -> Bool
+    /// The remote signing veto (`RemoteKillSwitch.tonDappSigning`): transactions and `ton_proof` sign-ins, as on
+    /// Android. An absent key keeps signing on.
+    private let isSigningEnabled: () -> Bool
     private var ready = false
     private var queuedURL: URL?
     private var approving = false
@@ -52,7 +55,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
             guard let wallet = try await repository.fetchAsync(by: id) else { throw LegacyTonConnectError.unavailableWallet }
             return wallet
         },
-        isEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonConnectEnabled }
+        isEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonConnectEnabled },
+        isSigningEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonDappSigningEnabled }
     ) {
         self.store = store
         self.transport = transport
@@ -62,6 +66,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         self.approval = approval
         self.walletLoader = walletLoader
         self.isEnabled = isEnabled
+        self.isSigningEnabled = isSigningEnabled
         service = LegacyTonConnectService(store: store, replies: replies, transport: transport)
         super.init()
     }
@@ -163,6 +168,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         }
         let network = context.network
         let requestsProof = request.items.contains(where: { $0.name == "ton_proof" })
+        // A sign-in proof is a signature: the signing veto refuses it before any prompt.
+        guard !requestsProof || isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
         if !isVouched, requestsProof {
             // Refused before any prompt: a sign-in proof for the claimed site would let this link
             // log in to it as the user. The application hears why instead of waiting.
@@ -199,6 +206,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         let current = try await walletLoader(walletId)
         guard ready, current.legacyTonAccount == account else { throw LegacyTonConnectError.unavailableWallet }
         guard isEnabled() else { throw LegacyTonConnectError.disabled }
+        guard !requestsProof || isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
         let credentials = try account.signingCredentials(keystore: keystore, metaId: walletId)
         let response = try LegacyTonConnectProtocol.connectEvent(
             account: account, privateKey: credentials.legacyNativePrivateKey,
@@ -252,6 +260,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     func process(session: LegacyTonConnectSession, network: String, request: LegacyTonConnectRPCRequest) async throws -> LegacyTonConnectRPCOutcome {
         // A vetoed request is answered at once (`LegacyTonConnectService`) and never signed.
         guard isEnabled() else { throw LegacyTonConnectError.disabled }
+        guard isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
         guard ready, let encoded = request.params.first else { throw LegacyTonConnectError.unavailableWallet }
         let wallet = try await walletLoader(session.walletId)
         guard let account = wallet.legacyTonAccount else { throw LegacyTonConnectError.unavailableWallet }
@@ -273,6 +282,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         guard ready, current.legacyTonAccount == account,
               try await store.sessions().contains(session) else { throw LegacyTonConnectError.invalidSession }
         guard isEnabled() else { throw LegacyTonConnectError.disabled }
+        guard isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
         let result = try await sender.sendTonConnect(transfer, feeQuote: quote, legacyAccount: account) { [keystore] in
             try account.signingCredentials(keystore: keystore, metaId: session.walletId)
         }

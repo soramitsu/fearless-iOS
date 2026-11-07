@@ -186,7 +186,8 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
         let request = inputData.signingRequest
         let session = inputData.session
         let languages = locale.rLanguages
-        let host = URL(string: session.peer.url)?.host ?? session.peer.url
+        // The site WalletConnect Verify saw the request come from, when it is not the one the app claims.
+        let host = inputData.verification.website(claimed: session.peer.url)
 
         return [
             Row(

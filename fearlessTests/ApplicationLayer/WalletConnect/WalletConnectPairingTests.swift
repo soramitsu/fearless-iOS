@@ -71,7 +71,7 @@ final class WalletConnectPairingTests: XCTestCase {
 
     func testConnect_whenSigningUnavailable_thenNothingIsPaired() async {
         let pairings = PairingRecorder()
-        let service = WalletConnectServiceImpl(signingPolicy: .production, pair: pairings.record)
+        let service = WalletConnectServiceImpl(signingPolicy: .disabled, pair: pairings.record)
 
         do {
             try await service.connect(uri: Self.pairingCode)

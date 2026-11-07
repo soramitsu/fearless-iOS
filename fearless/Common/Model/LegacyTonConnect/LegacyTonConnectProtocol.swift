@@ -15,6 +15,8 @@ enum LegacyTonConnectError: LocalizedError {
     case busy
     /// The remote `ton_connect_enabled: false` veto is in force.
     case disabled
+    /// The remote `ton_dapp_signing_enabled: false` veto is in force: transactions and sign-in proofs are refused.
+    case signingPaused
     /// A sign-in proof was requested for a site that the host serving the manifest does not vouch for.
     case unverifiedApplication(claimedHost: String, sourceHost: String)
 
@@ -30,6 +32,10 @@ enum LegacyTonConnectError: LocalizedError {
         case .busy: return "Finish the current TonConnect approval before opening another request."
         case .disabled:
             return R.string.localizable.tonconnectDisabled(preferredLanguages: LegacyTonConnectProtocol.languages)
+        case .signingPaused:
+            return R.string.localizable.walletConnectSigningPausedMessage(
+                preferredLanguages: LegacyTonConnectProtocol.languages
+            )
         case let .unverifiedApplication(claimedHost, sourceHost):
             return R.string.localizable.tonconnectProofRefused(
                 sourceHost,

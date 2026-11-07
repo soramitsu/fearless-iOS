@@ -4,13 +4,11 @@ import SoraFoundation
 import Combine
 import FearlessWalletConnect
 
-/// WalletConnect signing stays off until its confirmation meets the wallet's signing
-/// rules: it shows what is actually signed (network, recipient, amount and fee), the
-/// request is bound to an account the session approved, signing asks for the PIN or
-/// biometrics, and messages use the standard `<Bytes>` envelope. Until then every
-/// dApp request is declined before any key is read and the user is told that nothing
-/// was signed; sessions stay listed and can be disconnected. Like IrohaConnect, there
-/// is intentionally no environment-variable, remote-config, or runtime-toggle override.
+/// WalletConnect signing is on, because its confirmation meets the wallet's signing rules: it shows what is
+/// actually signed (network, recipient, amount and fee), the request is bound to an account the session approved,
+/// signing asks for the PIN or trusted biometrics (`SubmissionAuthorizer`), the requesting site is shown as
+/// WalletConnect Verify reports it, and messages use the standard `<Bytes>` envelope. The remote config can only
+/// pause it, per network (`WalletConnectSigningVeto`); it has no override that turns it on.
 struct WalletConnectSigningPolicy: Equatable {
     let isEnabled: Bool
 
@@ -18,16 +16,39 @@ struct WalletConnectSigningPolicy: Equatable {
         self.isEnabled = isEnabled
     }
 
-    static let production = WalletConnectSigningPolicy(isEnabled: false)
+    static let production = WalletConnectSigningPolicy(isEnabled: true)
+    /// Signing off: every request is declined before any key is read. It can only turn signing off.
+    static let disabled = WalletConnectSigningPolicy(isEnabled: false)
     #if DEBUG
         static let enabledForTests = WalletConnectSigningPolicy(isEnabled: true)
     #endif
+}
+
+/// The remote vetoes that pause signing for apps, by the request's network (its CAIP-2 namespace). Absent keys
+/// keep signing on; only an explicit `false` pauses it (`RemoteKillSwitch`). Networks other than EVM and Polkadot
+/// are never signed over WalletConnect.
+enum WalletConnectSigningVeto {
+    static func isSigningAllowed(
+        on blockchain: Blockchain,
+        policy: FeatureToggleConfig = MultiChainFeaturePolicy.current
+    ) -> Bool {
+        switch blockchain.namespace {
+        case "eip155":
+            return policy.evmDappSigningEnabled
+        case "polkadot":
+            return policy.polkadotDappSigningEnabled
+        default:
+            return false
+        }
+    }
 }
 
 enum WalletConnectSigningError: Error {
     case unavailable
     /// The user did not confirm with the PIN or biometrics.
     case notAuthorized
+    /// The remote config paused signing for the request's network while it was open.
+    case paused
 }
 
 enum WalletConnectServiceError: Error {
@@ -55,6 +76,11 @@ protocol WalletConnectServiceDelegate: AnyObject {
     /// WalletConnect Verify flags the app as a known scam. Its proposal or request was
     /// already declined; nothing was connected or signed.
     func blockedScam(origin: String)
+    /// The remote config paused signing for the request's network. The request was
+    /// already declined; nothing was signed.
+    func signingPaused(request: Request, session: Session?)
+    /// A pairing link (`wc:` or `fearless://wc?uri=`) could not be paired.
+    func pairingFailed(error: Error)
     func didChange(sessions: [Session])
 }
 
@@ -63,6 +89,8 @@ extension WalletConnectServiceDelegate {
     func sign(request _: Request, session _: Session?, verification _: WalletConnectVerification) {}
     func signingUnavailable(request _: Request, session _: Session?) {}
     func blockedScam(origin _: String) {}
+    func signingPaused(request _: Request, session _: Session?) {}
+    func pairingFailed(error _: Error) {}
     func didChange(sessions _: [Session]) {}
 }
 
@@ -97,11 +125,15 @@ final class WalletConnectServiceImpl: WalletConnectService {
     typealias Responder = (Request, RPCResult) async throws -> Void
     typealias Pairer = (WalletConnectURI) async throws -> Void
     typealias ProposalRejecter = (Session.Proposal) async throws -> Void
+    typealias SigningVeto = (Blockchain) -> Bool
 
     private let signingPolicy: WalletConnectSigningPolicy
     private let responder: Responder?
     private let pairer: Pairer?
     private let proposalRejecter: ProposalRejecter?
+    private let isSigningAllowed: SigningVeto
+    /// Pairing links that arrived before the service was set up (the app opened from a link while locked).
+    private var pendingLinkURIs: [String] = []
     private let clientFactory: ClientFactory
     private let notificationCenter: NotificationCenter
     private var listeners: [WeakWrapper] = []
@@ -119,6 +151,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
         respond: Responder? = nil,
         pair: Pairer? = nil,
         rejectProposal: ProposalRejecter? = nil,
+        isSigningAllowed: @escaping SigningVeto = { WalletConnectSigningVeto.isSigningAllowed(on: $0) },
         clientFactory: @escaping ClientFactory = WalletConnectServiceImpl.makeClient,
         notificationCenter: NotificationCenter = .default
     ) {
@@ -126,6 +159,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
         responder = respond
         pairer = pair
         proposalRejecter = rejectProposal
+        self.isSigningAllowed = isSigningAllowed
         self.clientFactory = clientFactory
         self.notificationCenter = notificationCenter
     }
@@ -178,6 +212,8 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 self?.logContinuity()
             }
         }
+        // Each pairing waits for the start above before it uses the client.
+        pairPendingLinks()
     }
 
     func throttle() {
@@ -322,6 +358,20 @@ final class WalletConnectServiceImpl: WalletConnectService {
             return
         }
 
+        guard isSigningAllowed(request.chainId) else {
+            Task { [weak self] in
+                do {
+                    try await self?.respond(request, .error(.userRejected))
+                } catch {
+                    Logger.shared.error("WalletConnect could not decline a request while signing is paused")
+                }
+            }
+            listeners.forEach {
+                ($0.target as? WalletConnectServiceDelegate)?.signingPaused(request: request, session: session)
+            }
+            return
+        }
+
         listeners.forEach {
             ($0.target as? WalletConnectServiceDelegate)?.sign(
                 request: request,
@@ -329,6 +379,38 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 verification: verification
             )
         }
+    }
+
+    // MARK: - Pairing links
+
+    /// Pairs from a `wc:` link. A link that arrives before the service is set up (the app opened from the link,
+    /// before the wallet was unlocked) waits for `setup()`; a failure is reported to the listeners, since no screen
+    /// asked for it.
+    func pairFromLink(uri: String) {
+        guard startTask != nil else {
+            pendingLinkURIs.append(uri)
+            return
+        }
+
+        Task { [weak self] in
+            do {
+                try await self?.connect(uri: uri)
+            } catch WalletConnectClient.ClientError.pairingAlreadyActive {
+                // The same link opened twice: its proposal is already on its way.
+            } catch {
+                await MainActor.run {
+                    self?.listeners.forEach {
+                        ($0.target as? WalletConnectServiceDelegate)?.pairingFailed(error: error)
+                    }
+                }
+            }
+        }
+    }
+
+    private func pairPendingLinks() {
+        let uris = pendingLinkURIs
+        pendingLinkURIs = []
+        uris.forEach { pairFromLink(uri: $0) }
     }
 
     func disconnect(topic: String) async throws {

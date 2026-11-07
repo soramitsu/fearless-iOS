@@ -56,6 +56,32 @@ final class WalletConnectConfirmationPresenter {
         }
     }
 
+    /// Signing for the request's network was paused while it was open. The request was declined; closing the
+    /// notice ends the flow.
+    private func showSigningPaused() {
+        guard let view = view else {
+            return
+        }
+        let languages = selectedLocale.rLanguages
+        let close = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: languages),
+            handlerAfterDismissal: true
+        ) { [weak self] in
+            self?.router.dismiss(view: self?.view)
+            self?.view?.controller.onInteractionDismiss()
+        }
+        router.present(
+            viewModel: SheetAlertPresentableViewModel(
+                title: R.string.localizable.walletConnectSigningPausedTitle(preferredLanguages: languages),
+                message: R.string.localizable.walletConnectSigningPausedMessage(preferredLanguages: languages),
+                actions: [close],
+                closeAction: nil,
+                icon: R.image.iconWarningBig()
+            ),
+            from: view
+        )
+    }
+
     private func show(error: Error) {
         guard let view = view else {
             return
@@ -94,6 +120,14 @@ extension WalletConnectConfirmationPresenter: WalletConnectConfirmationViewOutpu
                     isSigning = false
                     showAllDone(hash: hash)
                     view?.didStopLoading()
+                }
+            } catch WalletConnectSigningError.paused {
+                // The app hears that the request was declined; nothing was signed.
+                try? await interactor.reject()
+                await MainActor.run {
+                    isSigning = false
+                    view?.didStopLoading()
+                    showSigningPaused()
                 }
             } catch WalletConnectSigningError.notAuthorized {
                 // The user closed the PIN screen; the request stays open to retry or reject.

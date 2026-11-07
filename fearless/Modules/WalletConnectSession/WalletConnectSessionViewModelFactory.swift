@@ -41,7 +41,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
     ) -> WalletConnectSessionViewModel {
         var dApp: String?
         if let session = session {
-            dApp = URL(string: session.peer.url)?.host
+            dApp = verification.website(claimed: session.peer.url)
         }
 
         let walletViewModel = createWalletViewModel(
@@ -130,7 +130,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
 
     private func createWarning(locale: Locale) -> NSAttributedString {
         let warningLabel = R.string.localizable.commonWarningCapitalized(preferredLanguages: locale.rLanguages)
-        // A domain mismatch is the more specific warning.
+        // A domain mismatch, or a site Verify could not check, is the more specific warning.
         let warningMessage = verification.warning(for: locale) ??
             R.string.localizable.walletConnectSignWarningMessage(preferredLanguages: locale.rLanguages)
         let warningFullString = [warningLabel, warningMessage].joined(separator: " ")

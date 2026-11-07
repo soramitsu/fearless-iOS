@@ -1088,6 +1088,12 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "wallet.connect.verify.scam" = "Assinalada como burla conhecida";
 "wallet.connect.scam.blocked.title" = "Pedido bloqueado";
 "wallet.connect.scam.blocked.message" = "O WalletConnect Verify assinalou %@ como uma burla conhecida. A Fearless recusou o pedido e nada foi ligado nem assinado.";
+"wallet.connect.signing.paused.title" = "A assinatura está em pausa";
+"wallet.connect.signing.paused.message" = "A Fearless pausou, por agora, a assinatura de pedidos de aplicações nesta rede. O pedido foi recusado e nada foi assinado.";
+"wallet.connect.verify.unknown.warning" = "O WalletConnect Verify não conseguiu confirmar o site desta aplicação. Continue apenas se confiar nela.";
+"wallet.connect.link.failed.title" = "Não foi possível ligar";
+"wallet.connect.link.failed.message" = "A Fearless não conseguiu usar este link de ligação. Peça um novo à aplicação e tente novamente.";
+"wallet.connect.link.expired.message" = "Este link de ligação expirou. Peça um novo à aplicação.";
 "wallet.connect.confirmation.recipient" = "Destinatário";
 "wallet.connect.confirmation.amount" = "Montante";
 "wallet.connect.confirmation.spender" = "Autorizado a gastar";

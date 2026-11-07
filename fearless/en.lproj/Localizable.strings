@@ -1139,6 +1139,12 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "wallet.connect.verify.scam" = "Flagged as a known scam";
 "wallet.connect.scam.blocked.title" = "Request blocked";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify flagged %@ as a known scam. Fearless declined the request, and nothing was connected or signed.";
+"wallet.connect.signing.paused.title" = "Signing is paused";
+"wallet.connect.signing.paused.message" = "Fearless has paused signing app requests on this network for now. The request was declined and nothing was signed.";
+"wallet.connect.verify.unknown.warning" = "WalletConnect Verify couldn't confirm this app's website. Continue only if you trust it.";
+"wallet.connect.link.failed.title" = "Couldn't connect";
+"wallet.connect.link.failed.message" = "Fearless couldn't use this connection link. Ask the app for a new one and try again.";
+"wallet.connect.link.expired.message" = "This connection link has expired. Ask the app for a new one.";
 "wallet.connect.confirmation.recipient" = "Recipient";
 "wallet.connect.confirmation.amount" = "Amount";
 "wallet.connect.confirmation.spender" = "Allowed to spend";

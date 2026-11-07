@@ -1142,6 +1142,12 @@
 "wallet.connect.verify.scam" = "已被标记为已知诈骗";
 "wallet.connect.scam.blocked.title" = "请求已拦截";
 "wallet.connect.scam.blocked.message" = "WalletConnect Verify 已将 %@ 标记为已知诈骗。Fearless 已拒绝该请求，未进行任何连接或签名。";
+"wallet.connect.signing.paused.title" = "签名已暂停";
+"wallet.connect.signing.paused.message" = "Fearless 已暂时停止签署此网络上的应用请求。该请求已被拒绝，没有签署任何内容。";
+"wallet.connect.verify.unknown.warning" = "WalletConnect Verify 无法确认此应用的网站。仅在您信任它时继续。";
+"wallet.connect.link.failed.title" = "无法连接";
+"wallet.connect.link.failed.message" = "Fearless 无法使用此连接链接。请向应用获取新的链接后重试。";
+"wallet.connect.link.expired.message" = "此连接链接已过期。请向应用获取新的链接。";
 "wallet.connect.confirmation.recipient" = "收款人";
 "wallet.connect.confirmation.amount" = "金额";
 "wallet.connect.confirmation.spender" = "获准花费的地址";
