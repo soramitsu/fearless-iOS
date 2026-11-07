@@ -61,6 +61,7 @@ All checks ran locally; this project does not use hosted CI. Evidence is in the 
   - Archive tree `48a55d78…01dfb0`, executable `e65916f3…f1b3`.
   - The app embeds no `sorawallet`, Reown, WalletConnect or `yttrium` file, link or symbol.
 - **IPA:** SHA-256 `e1142ef2795026cac6846e668e5c04179387f515382143f2be4609763f840222`, 93,955,869 bytes. The uploaded temporary IPA is byte-identical.
+- **4.0.4 Keychain continuity (G5) at `52b2e26b6`: 12 of 12 cells pass.** The cells cover six 4.0.4 writer profiles on iOS 26.5 and 27.0, each with the 6 named tests passing, none skipped, and the old snapshot and store byte-identical. The test host runs this build's launch clean-ups against the Keychain 4.0.4 wrote.
 
 ## Not verified
 
