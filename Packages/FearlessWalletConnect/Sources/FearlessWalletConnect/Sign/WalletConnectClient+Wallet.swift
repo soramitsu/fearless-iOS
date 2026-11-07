@@ -15,8 +15,16 @@ public extension WalletConnectClient {
             throw ClientError.pairingAlreadyActive
         }
         // A pairing's topic is whatever the dApp chose: the SHA-256 of the key in most SDKs, random in others.
-        guard Hex.decodeKey(uri.symKey) != nil, Hex.isKey(uri.topic) else {
+        guard let symKey = Hex.decodeKey(uri.symKey), Hex.isKey(uri.topic) else {
             throw WalletConnectURI.Error.invalid("pairing key")
+        }
+        // A link must never replace the key of a live session or of another pairing: whoever made the link could then
+        // read and write that topic. Opening the same pending link again is harmless and changes nothing.
+        if state.sessions.contains(where: { $0.topic == uri.topic }) {
+            throw ClientError.topicInUse
+        }
+        if let existingKey = secrets.keys[uri.topic], Hex.decodeKey(existingKey) != symKey {
+            throw ClientError.topicInUse
         }
 
         let expiry = min(uri.expiryTimestamp.map { Int64(clamping: $0) } ?? now + Int64(SignProtocol.fiveMinutes), now + Int64(SignProtocol.thirtyDays))
@@ -175,6 +183,13 @@ public extension WalletConnectClient {
         guard let session = state.sessions.first(where: { $0.topic == topic }), session.isWalletSession else {
             throw ClientError.sessionNotFound
         }
+        // Only a request the dApp still waits for is answered. A signature for one that expired or was already
+        // answered would reach nobody who asked for it.
+        guard isPending(topic: topic, requestId: requestId) else {
+            state.requests.removeAll { $0.topic == topic && $0.id == requestId }
+            persist()
+            throw ClientError.requestNotFound
+        }
         state.requests.removeAll { $0.topic == topic && $0.id == requestId }
         try saveState()
         try await publish(.response(id: requestId, result: response), on: topic, options: SignProtocol.sessionRequestResponse)
@@ -215,6 +230,29 @@ public extension WalletConnectClient {
             } catch {
                 logger.warning("WalletConnect could not tell the peer it was disconnected: \(error)")
             }
+        }
+    }
+
+    /// Ends every session and every pairing, as logging out of the wallet does: each is forgotten here, then its peer
+    /// is told. Their pending proposals and requests go with them.
+    func disconnectAll() async throws {
+        guard started else {
+            throw ClientError.notStarted
+        }
+        var firstError: Error?
+        let topics = state.sessions.map(\.topic) + state.pairings.map(\.topic)
+        for topic in topics {
+            do {
+                try await disconnect(topic: topic)
+            } catch ClientError.sessionNotFound {
+                // Already ended while the others were.
+            } catch {
+                // The rest still end.
+                firstError = firstError ?? error
+            }
+        }
+        if let firstError {
+            throw firstError
         }
     }
 

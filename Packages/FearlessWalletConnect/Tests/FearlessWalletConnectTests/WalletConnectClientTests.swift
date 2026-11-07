@@ -560,6 +560,139 @@ final class WalletConnectClientTests: XCTestCase {
         await dapp.close()
     }
 
+    func testAPairingLinkCannotTakeOverTheKeyOfASessionOrAnotherPairing() async throws {
+        let relay = FakeRelay()
+        let wallet = try await makeWallet(relay: relay)
+        let events = EventRecorder(wallet)
+        let dapp = TestDApp(relay: relay)
+        let session = try await settle(wallet, dapp, events: events)
+        let secretsBefore = await wallet.storedSecrets()
+        let sessionKey = try XCTUnwrap(secretsBefore.keys[session.topic])
+
+        // A link that names the session's topic with someone else's key.
+        do {
+            try await wallet.pair(uri: WalletConnectURI(
+                topic: session.topic,
+                symKey: Hex.encode(try WalletConnectCrypto.randomKey())
+            ))
+            XCTFail("A link replaced a session's key")
+        } catch WalletConnectClient.ClientError.topicInUse {}
+        let secretsAfter = await wallet.storedSecrets()
+        XCTAssertEqual(secretsAfter.keys[session.topic], sessionKey)
+        XCTAssertEqual(wallet.currentSessions.map(\.topic), [session.topic])
+
+        // The session still works with its own key.
+        let id = try await dapp.sendRequest(method: "personal_sign", params: .array([]), chainId: "eip155:1")
+        _ = try await events.waitForRequest()
+        try await wallet.respond(topic: session.topic, requestId: id, response: .response(AnyCodable("0xsigned")))
+        let response = try await dapp.response(to: id)
+        XCTAssertEqual(response, .response(AnyCodable("0xsigned")))
+
+        // A pending pairing keeps its key too; opening its own link again changes nothing.
+        let other = TestDApp(relay: relay, name: "Other dApp")
+        let uri = try await other.propose()
+        try await wallet.pair(uri: uri)
+        do {
+            try await wallet.pair(uri: WalletConnectURI(
+                topic: uri.topic,
+                symKey: Hex.encode(try WalletConnectCrypto.randomKey())
+            ))
+            XCTFail("A link replaced a pending pairing's key")
+        } catch WalletConnectClient.ClientError.topicInUse {}
+        try await wallet.pair(uri: uri)
+        let pairingSecrets = await wallet.storedSecrets()
+        XCTAssertEqual(pairingSecrets.keys[uri.topic], uri.symKey)
+        await dapp.close()
+        await other.close()
+    }
+
+    func testOnlyARequestTheDAppStillWaitsForIsAnswered() async throws {
+        let relay = FakeRelay()
+        let testClock = TestClock()
+        let wallet = try await makeWallet(relay: relay, clock: testClock.clock)
+        let events = EventRecorder(wallet)
+        let dapp = TestDApp(relay: relay)
+        let session = try await settle(wallet, dapp, events: events)
+
+        // A request that never arrived.
+        do {
+            try await wallet.respond(topic: session.topic, requestId: 12345, response: .response(AnyCodable("0x01")))
+            XCTFail("Answered a request that never arrived")
+        } catch WalletConnectClient.ClientError.requestNotFound {}
+
+        // A request answered once is not answered again.
+        let answered = try await dapp.sendRequest(method: "personal_sign", params: .array([]), chainId: "eip155:1")
+        _ = try await events.waitForRequest()
+        let pendingBefore = await wallet.isPending(topic: session.topic, requestId: answered)
+        XCTAssertTrue(pendingBefore)
+        try await wallet.respond(topic: session.topic, requestId: answered, response: .response(AnyCodable("0x02")))
+        _ = try await dapp.response(to: answered)
+        let pendingAfter = await wallet.isPending(topic: session.topic, requestId: answered)
+        XCTAssertFalse(pendingAfter)
+        do {
+            try await wallet.respond(topic: session.topic, requestId: answered, response: .response(AnyCodable("0x03")))
+            XCTFail("Answered a request twice")
+        } catch WalletConnectClient.ClientError.requestNotFound {}
+
+        // A request that expired is not answered, even before the sweep notices.
+        let expiring = try await dapp.sendRequest(method: "personal_sign", params: .array([]), chainId: "eip155:1")
+        _ = try await events.waitForRequest(count: 2)
+        let publishedBefore = relay.publishedMessages(on: session.topic).count
+        testClock.advance(16 * 60)
+        let expiredIsPending = await wallet.isPending(topic: session.topic, requestId: expiring)
+        XCTAssertFalse(expiredIsPending)
+        do {
+            try await wallet.respond(topic: session.topic, requestId: expiring, response: .response(AnyCodable("0x04")))
+            XCTFail("Answered an expired request")
+        } catch WalletConnectClient.ClientError.requestNotFound {}
+        XCTAssertEqual(relay.publishedMessages(on: session.topic).count, publishedBefore)
+
+        // A request of a session that ended is not pending.
+        let last = try await dapp.sendRequest(method: "personal_sign", params: .array([]), chainId: "eip155:1")
+        _ = try await events.waitForRequest(count: 3)
+        try await wallet.disconnect(topic: session.topic)
+        let endedIsPending = await wallet.isPending(topic: session.topic, requestId: last)
+        XCTAssertFalse(endedIsPending)
+        await dapp.close()
+    }
+
+    func testDisconnectAllEndsEverySessionAndPairing() async throws {
+        let relay = FakeRelay()
+        let wallet = try await makeWallet(relay: relay)
+        let events = EventRecorder(wallet)
+        let first = TestDApp(relay: relay)
+        let second = TestDApp(relay: relay, name: "Second dApp")
+        let firstSession = try await settle(wallet, first, events: events)
+        let secondSession = try await settle(wallet, second, events: events)
+        // A pairing whose proposal nobody decided on yet.
+        let pending = TestDApp(relay: relay, name: "Pending dApp")
+        let pendingURI = try await pending.propose()
+        try await wallet.pair(uri: pendingURI)
+        _ = try await events.waitForProposal(pairingTopic: pendingURI.topic)
+        let firstPairing = await first.pairingTopic
+        let secondPairing = await second.pairingTopic
+
+        try await wallet.disconnectAll()
+
+        XCTAssertTrue(wallet.currentSessions.isEmpty)
+        let pendingProposals = await wallet.pendingProposals()
+        XCTAssertTrue(pendingProposals.isEmpty)
+        let state = await wallet.storedState()
+        XCTAssertTrue(state.sessions.isEmpty)
+        XCTAssertTrue(state.pairings.isEmpty)
+        let secrets = await wallet.storedSecrets()
+        for topic in [firstSession.topic, secondSession.topic, pendingURI.topic] + [firstPairing, secondPairing].compactMap({ $0 }) {
+            XCTAssertNil(secrets.keys[topic], topic)
+        }
+        // Each dApp hears the session end.
+        _ = try await first.request(named: "wc_sessionDelete")
+        _ = try await second.request(named: "wc_sessionDelete")
+        XCTAssertFalse(relay.publishedMessages(on: pendingURI.topic).filter { $0.tag == 1000 }.isEmpty)
+        await first.close()
+        await second.close()
+        await pending.close()
+    }
+
     func testApprovalMustGrantWhatTheProposalRequires() async throws {
         let relay = FakeRelay()
         let wallet = try await makeWallet(relay: relay)

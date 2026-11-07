@@ -53,11 +53,15 @@ public actor WalletConnectClient {
     public enum ClientError: Error, Equatable {
         case notStarted
         case pairingAlreadyActive
+        /// A pairing link whose topic is already a session's or another pairing's: its key would replace theirs.
+        case topicInUse
         case pairingExpired
         case proposalNotFound
         case proposalExpired
         case invalidNamespaces
         case sessionNotFound
+        /// The dApp no longer waits for the request: it was answered, it expired, or it never arrived.
+        case requestNotFound
         case noMatchingKey
         case peerError(code: Int, message: String)
         case timeout
@@ -230,6 +234,16 @@ public actor WalletConnectClient {
     /// Whether the dApp confirmed a session's settlement.
     public func isAcknowledged(topic: String) -> Bool {
         state.sessions.first { $0.topic == topic }?.acknowledged == true
+    }
+
+    /// Whether the dApp still waits for a request: its session is live, and the request arrived, has not been
+    /// answered and has not expired.
+    public func isPending(topic: String, requestId: Int64) -> Bool {
+        guard state.sessions.contains(where: { $0.topic == topic }) else {
+            return false
+        }
+        let now = clock.nowSeconds
+        return state.requests.contains { $0.topic == topic && $0.id == requestId && $0.expiry > now }
     }
 
     func storedSession(topic: String) -> StoredSession? {
