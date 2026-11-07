@@ -1,15 +1,16 @@
 # TestFlight 4.2.1 (2026.11.6)
 
-Status: **uploaded on 7 November 2026 at 11:57 JST and processed by 12:01 JST (VALID)**. Delivery
+Status: **submitted for App Review on 7 November 2026 at 19:06 JST (Waiting for Review, manual release)**; see
+"App Review". Uploaded at 11:57 JST and processed by 12:01 JST (VALID), delivery
 `e5d47d08-2967-47f2-89bf-b5b79504dbc9`. Internal TestFlight testing state: IN_BETA_TESTING. Export compliance is
-complete (no non-exempt encryption). The build was not submitted for external beta or App Review.
+complete (no non-exempt encryption). Not submitted for external beta.
 
 ## Why 4.2.1
 
 On 7 November 2026 App Store Connect listed 4.2.0 as **Pending Developer Release** with build 2026.11.5: Apple has
 approved it and the release is manual. An approved version takes no new uploads, so the Polkaswap fixes ship as
 4.2.1. **2026.11.5 has the three Polkaswap defects below; releasing 4.2.0 as approved ships them to every App Store
-user.** Whether to release 4.2.0, or to submit 4.2.1 for review and release that instead, is the owner's call.
+user.** The owner chose to withdraw 4.2.0 and submit 4.2.1 instead.
 
 ## Candidate
 
@@ -74,7 +75,20 @@ All local (this project does not use hosted CI). Evidence: the workspace's `buil
   export. Fastlane then exited 1 over altool's local resume-file message, as with 2026.11.5. App Store Connect
   listed the upload as PROCESSING with no errors or warnings, and nothing was uploaded twice.
 
+## App Review
+
+On the owner's word ("Submit 4.2.1", then "Yes, withdraw 4.2.0"), through the App Store Connect API on 7 November
+2026 (UTC):
+
+1. 10:04: 4.2.0 removed from review. That version is Developer Rejected, and its approval is gone.
+2. 10:05: the same version record renumbered to 4.2.1 with build 2026.11.6. It keeps 4.2.0's approved texts and
+   screenshots. What's New is unchanged ("What's new in 4.2"), which still fits users coming from 4.0.4.
+3. 10:06: submitted. Review submission `b76f4826-43fb-4feb-a054-f14792846b0c` is Waiting for Review, and the release
+   is manual.
+
+A read-back at 10:06 showed 4.2.1 as the only iOS version in flight and 4.0.4 still live. Receipts are in the
+evidence folder (`asc-submit-*.json`).
+
 ## Still open
 
-- 4.2.0 (2026.11.5) is approved and waiting for a manual release; see "Why 4.2.1".
-- Submitting 4.2.1 for review is the owner's call.
+- App Review of 4.2.1. After approval it waits for the owner's manual release.
