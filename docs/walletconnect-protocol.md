@@ -26,22 +26,35 @@ requests in any other, and namespace updates or extensions from the dApp.
   the site Verify saw, and "Domain not verified" with a warning when Verify could not check it. Apps Verify flags as
   scams are declined before anything opens.
 - **What the confirmation explains, and what it warns about.**
-  - EVM calls it decodes: `transfer`, `transferFrom` (the owner, and "amount or item ID" for a contract it does not
-    know), `approve` and `increaseAllowance` (the spender; the maximum is "Unlimited"), and `setApprovalForAll` (who
-    may move every item of the collection, or that the access is removed). An address word with high bits set or a
-    bool other than 0 or 1 is not decoded.
+  - EVM calls it decodes: `transfer`, `transferFrom` (with the owner), `approve`, `increaseAllowance` (the spender;
+    the maximum is "Unlimited") and `setApprovalForAll` (who may move every item of the collection, or that the access
+    is removed). For a contract that is not a token the wallet knows, the number of `transfer`, `transferFrom` and
+    `approve` is "Amount or item ID": ERC-20 tokens and ERC-721 collections share these calls. An address word with
+    high bits set or a bool other than 0 or 1 is not decoded.
   - Any other call data: a warning, the contract (never called a recipient), the 4-byte function selector and the raw
     data (the first 256 bytes and its length; the raw-data view has it all). Bytes after a decoded call's arguments
     get a warning and the raw data too.
-  - Typed data: for EIP-2612, DAI and Permit2 permits the spender, the amount (DAI's `allowed: true` is unlimited) and
-    how long it lasts; a permit amount it cannot read exactly (a fraction, a JSON number past 64 bits) is shown as
-    "Can't be read" with a warning. Any other typed data gets a warning and every signed domain and message field in
-    the order its types declare them (fields the types do not declare are not hashed, so not shown). A domain that
-    carries a `chainId` its `EIP712Domain` type does not declare is declined, since the signature would not name the
-    network shown; a domain without a chain id gets a warning that the signature is valid on any network.
-  - Substrate calls other than `Balances` transfers: a warning, the call, and its arguments as the runtime decodes
-    them. Calls inside `Utility.batch*`, `Proxy.*` and other calls that carry calls are numbered with their own
-    arguments, multi-address accounts in the chain's format, and `Balances` amounts in the chain's asset.
+  - Typed data is shown the way it is hashed: only the fields the types declare, the domain as parsed for the hash.
+    EIP-2612, DAI and Permit2 permits are read only when the primary type is defined exactly as the standard defines
+    it (compared as the EIP-712 type string), so keys the types do not declare cannot change what is shown. A permit
+    shows the spender, the amount (DAI's `allowed: true` is unlimited) and how long it lasts, then every signed field;
+    an amount it cannot read exactly (a fraction, a JSON number past 64 bits) is "Can't be read" with a warning. Other
+    typed data gets a warning and every signed field in declared order. The token contract and name come from the
+    domain only when `EIP712Domain` declares them. Keys the types do not declare are not shown and get a warning that
+    the app sent data that is not signed. A value whose shape differs from its declared type (a struct that is not an
+    object, an array that is not an array) is declined: the hash would read it differently from how it is shown. A
+    domain that carries a `chainId` its `EIP712Domain` type does not declare is declined, since the signature would
+    not name the network shown; a domain without a chain id gets a warning that the signature is valid on any network.
+  - Substrate calls other than `Balances` transfers: a warning, the call, a summary of every call it carries, and its
+    arguments as the runtime decodes them. The summary has one line per call and account with its count and total:
+    calls that move funds or act for another account first, the rarer ones first, then the larger amounts, so one
+    unusual call cannot hide behind many ordinary ones. In the arguments, calls inside `Utility.batch*`, `Proxy.*`
+    and other calls that carry calls are numbered with their own arguments, multi-address accounts in the chain's
+    format, and `Balances` amounts in the chain's asset.
+  - Nothing is cut. Typed data with more than 500 fields or nested deeper than 10 levels, and a Substrate call that
+    carries more than 100 calls or whose text would pass 60,000 characters or 24 levels, is declined before the
+    confirmation opens. Only a single value longer than 512 characters (a remark, a runtime blob) shows its start and
+    its length.
 - **The PIN.** Sign asks for the PIN or trusted biometrics through `SubmissionAuthorizer`, as every fund-moving and
   staking submission does; without a PIN nothing is signed.
 - **The app lock.** The idle and background lock puts its PIN screen on the app's own window, never on the request
@@ -51,12 +64,15 @@ requests in any other, and namespace updates or extensions from the dApp.
   that expires, or whose session ends, leaves the queue; one on screen closes and says nothing was sent, unless it is
   signing (its own checks stop it). An `eth_sendTransaction` already sent to the network shows its hash even if the
   dApp stopped waiting in that moment.
-- **Limits.** At most 10 requests and proposals wait or show at once; more are declined at once. At most 3 pairing
-  links wait for the unlock. Requests are told apart by session and id.
+- **Limits.** At most 5 requests per session, 5 proposals and 20 flows in all wait or show at once; more are declined
+  at once, so one dApp cannot crowd out the others. At most 3 pairing links wait for the unlock. Requests are told
+  apart by session and id.
 - **Links that would take over a topic.** A pairing link whose topic is a live session's, or another pairing's with a
   different key, is refused (`topicInUse`): its key would replace theirs.
 - **Forgetting a wallet and logging out.** Forgetting a wallet ends every session that granted one of its accounts, in
-  any namespace or chain, compared by account id. Logging out ends every session and every pairing.
+  any namespace or chain, compared by account id. Logging out ends every session and every pairing: all of them are
+  forgotten on the device first, in one write, even before WalletConnect has started; then every dApp is told at
+  once, best effort. None comes back on a later start, and earlier SDKs' records of them go too.
 - **Polkadot chains** match a request only on the exact CAIP-13 reference, the first 32 hex characters of the genesis
   hash; a shorter reference matches nothing.
 - **Remote vetoes.** `evm_dapp_signing_enabled` and `polkadot_dapp_signing_enabled` in the remote feature toggles can
