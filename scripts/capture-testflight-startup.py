@@ -29,6 +29,8 @@ from typing import Any, Protocol
 
 EXPECTED_BUNDLE_IDENTIFIER = "jp.co.soramitsu.fearlesswallet"
 EXPECTED_MARKETING_VERSION = "4.2.0"
+# Apple approved 4.2.0 (2026.11.5), so the next build ships under the next marketing version.
+RELEASE_MARKETING_VERSION = "4.2.1"
 EXPECTED_BUILD_NUMBER = "2026.7.28"
 FAILED_HOTFIX_BUILD_NUMBER = "2026.8.10"
 FAILED_TAB_BAR_HOTFIX_BUILD_NUMBER = "2026.8.13"
@@ -89,6 +91,12 @@ SUPPORTED_CAPTURE_BUILD_NUMBERS = (
     APP_REVIEW_SUBMISSION_BUILD_NUMBER,
     SAFE_UPGRADE_BUILD_NUMBER,
 )
+
+
+def marketing_version_for(build_number: str) -> str:
+    return RELEASE_MARKETING_VERSION if build_number == SAFE_UPGRADE_BUILD_NUMBER else EXPECTED_MARKETING_VERSION
+
+
 PROCESS_NAME = "fearless"
 SUPPORTED_PYMOBILEDEVICE3_VERSION = "10.7.2"
 MAX_PROCESS_TOKEN = (1 << 32) - 1
@@ -798,7 +806,7 @@ class CaptureController:
     def _expected_identity(self) -> AppIdentity:
         return AppIdentity(
             EXPECTED_BUNDLE_IDENTIFIER,
-            EXPECTED_MARKETING_VERSION,
+            marketing_version_for(self.settings.expected_build_number),
             self.settings.expected_build_number,
         )
 

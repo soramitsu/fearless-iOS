@@ -679,9 +679,11 @@ class CaptureControllerTests(unittest.TestCase):
             len(set(CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS)),
             len(CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS),
         )
+        self.assertEqual(CAPTURE.marketing_version_for(CAPTURE.SAFE_UPGRADE_BUILD_NUMBER), "4.2.1")
+        self.assertEqual(CAPTURE.marketing_version_for(CAPTURE.APP_REVIEW_SUBMISSION_BUILD_NUMBER), "4.2.0")
         release = CAPTURE.AppIdentity(
             CAPTURE.EXPECTED_BUNDLE_IDENTIFIER,
-            CAPTURE.EXPECTED_MARKETING_VERSION,
+            CAPTURE.marketing_version_for(CAPTURE.SAFE_UPGRADE_BUILD_NUMBER),
             CAPTURE.SAFE_UPGRADE_BUILD_NUMBER,
         )
         backend = FakeBackend(

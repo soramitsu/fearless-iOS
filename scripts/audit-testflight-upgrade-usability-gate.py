@@ -17,7 +17,7 @@ from typing import Any
 
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
-EXPECTED_VERSION = "4.2.0"
+EXPECTED_VERSION = "4.2.1"
 EXPECTED_BUILD = "2026.11.6"
 EXPECTED_PREVIOUS_BUILDS = (
     "2026.8.15",
