@@ -35,6 +35,12 @@ requests in any other, and namespace updates or extensions from the dApp.
     data (the first 256 bytes and its length; the raw-data view has it all). Bytes after a decoded call's arguments
     get a warning and the raw data too.
   - Typed data is shown the way it is hashed: only the fields the types declare, the domain as parsed for the hash.
+    Every declared value is first parsed strictly and written back in one form (`WalletConnectTypedDataValues`), and
+    only that form is hashed and shown: `uintN`/`intN` as a decimal without leading zeros, `0x` hex or a JSON integer,
+    within the type's bit width (negatives only for `intN`), shown and hashed as decimal; `address` as `0x` and 40
+    hex digits; `bool` as a JSON bool (or 1 and 0); `bytes` as even-length `0x` hex; `bytesN` as at most N bytes,
+    shown right-padded as hashed; `string` as a JSON string. Anything else is declined: the ABI encoder would read
+    `"-1"` for a `uint256` as 2^256 - 1, `"ff"` as 255 and `"1e18"` as hex, and hash a malformed address as other bytes.
     EIP-2612, DAI and Permit2 permits are read only when the primary type is defined exactly as the standard defines
     it (compared as the EIP-712 type string), so keys the types do not declare cannot change what is shown. A permit
     shows the spender, the amount (DAI's `allowed: true` is unlimited) and how long it lasts, then every signed field;
