@@ -8,7 +8,7 @@ from `remote-config/` here, through `https://raw.githubusercontent.com/soramitsu
 | --- | --- | ---: | --- |
 | Prod chains list | `remote-config/production/chains/v13/chains.json` | 175,695 | `dfd74369af4ca71df676c540fce588086c07069dfb9f5655b0e1280720b4b9f8` |
 | Dev chains list | `remote-config/development/chains/v13/chains_dev.json` | 230,329 | `26b9dc290ad22588888dee433f6d6f7dfbe2b3541d1cf738fadef37ceca14310` |
-| Prod chain types | `remote-config/production/chains/all_chains_types.json` | 415,606 | `ced6c59d8fb198dada4f43994fb5c3d9ea7109a5f691cc278ead97bcc7fcb90e` |
+| Prod chain types | `remote-config/production/chains/all_chains_types.json` | 414,933 | `cbef0d2dd3816305020e9f850cccf9a325857fe2e50340fea39680fd78512e7c` |
 | Dev chain types | `remote-config/development/chains/all_chains_types.json` | 408,802 | `d270d62d4f9a0f1c0bacea7bb7909df513d083ee600ec76fbd41b04f55893d2d` |
 
 `CrossChainOwnedRemoteConfigTests` checks the production chain list and XCM files against the compiled cross-chain

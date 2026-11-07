@@ -3416,7 +3416,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/all_chains_types.json",
       "upstreamSha256": "ced6c59d8fb198dada4f43994fb5c3d9ea7109a5f691cc278ead97bcc7fcb90e",
-      "ownedSha256": "ced6c59d8fb198dada4f43994fb5c3d9ea7109a5f691cc278ead97bcc7fcb90e"
+      "ownedSha256": "cbef0d2dd3816305020e9f850cccf9a325857fe2e50340fea39680fd78512e7c"
     },
     {
       "path": "production/chains/v13/chains.json",
@@ -7715,6 +7715,16 @@
       ],
       "changes": [
         "Remove the repeated Avail DA Mainnet entry (chainId b91746b45e0346cc2f815a520b9c6cb4d5c0902af848db0a80f85932d2e8276a). The shared-features-utils f2ed4ccf import already listed it twice, and both copies equal the production entry; the copy kept sits where the production list has it, after Viction and next to Avail Turing Testnet. ChainSyncService rejects a list that repeats a chainId, so Debug and Fearless Dev builds kept only their app-owned chains. No other entry changed"
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/all_chains_types.json",
+        "fearless/Modules/LiquidityPools/LiquidityPoolDetails/Resources/chains.json"
+      ],
+      "changes": [
+        "Remove the earlier of two chain types entries for the retired SORA Kusama parachain (chainId 6d8d9f145c2177fa83512492cdd80a71e29f22473f4a8943a6292149ac319fb9): runtime_id 1, with numeric type ids. ChainsTypesSyncService, SnapshotHotBootBuilder and the SSF ChainsTypesSyncService keep the last entry of a repeated chainId, so builds use the runtime_id 14 entry that shared-features-utils 8791e434 appended in January 2025; it stays unchanged, and the types map the app builds is the same as before",
+        "Remove the repeated Manta Pacific Mainnet (169), Enjin Relaychain (d8761d3c88f26dc12875c00d3165f7d67243d56fc85b4cf19937601a7916e5a9) and Liberland (6bd89e052d67a45bb60a9a23e8581053d5e0d619f15cb9865946937e690c42d6) entries from the bundled fallback chain list. The Manta Pacific and Enjin copies were identical. The Liberland copy removed listed only LLD and no XCM; the copy kept lists LLD, LLM and XOR with the SORA route, as the production and development lists do. The order now matches the development list. ChainSyncService would refuse the whole fallback list for these repeats if fetchLocalData were enabled. No other entry changed"
       ]
     }
   ]
