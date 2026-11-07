@@ -26,7 +26,20 @@ func makeWallet(
     clock: WalletConnectClock = .system,
     verify: VerifyClient = offlineVerify
 ) async throws -> WalletConnectClient {
-    let wallet = WalletConnectClient(
+    let wallet = makeClient(relay: relay, store: store, legacy: legacy, clock: clock, verify: verify)
+    try await wallet.start()
+    return wallet
+}
+
+/// A client that has not started: what the app has before WalletConnect starts, for example during logout.
+func makeClient(
+    relay: FakeRelay,
+    store: InMemoryWalletConnectStore = InMemoryWalletConnectStore(),
+    legacy: LegacyWalletConnectStorage? = nil,
+    clock: WalletConnectClock = .system,
+    verify: VerifyClient = offlineVerify
+) -> WalletConnectClient {
+    WalletConnectClient(
         configuration: .init(
             projectId: "public-test-project",
             relayURL: URL(string: "wss://relay.test")!,
@@ -41,8 +54,6 @@ func makeWallet(
         verify: verify,
         clock: clock
     )
-    try await wallet.start()
-    return wallet
 }
 
 /// A settled session between a test dApp and the wallet.
@@ -672,7 +683,7 @@ final class WalletConnectClientTests: XCTestCase {
         let firstPairing = await first.pairingTopic
         let secondPairing = await second.pairingTopic
 
-        try await wallet.disconnectAll()
+        await wallet.disconnectAll()
 
         XCTAssertTrue(wallet.currentSessions.isEmpty)
         let pendingProposals = await wallet.pendingProposals()
@@ -691,6 +702,65 @@ final class WalletConnectClientTests: XCTestCase {
         await first.close()
         await second.close()
         await pending.close()
+    }
+
+    func testDisconnectAllForgetsEverythingBeforeAnyPeerIsTold() async throws {
+        let relay = FakeRelay()
+        let store = InMemoryWalletConnectStore()
+        let wallet = try await makeWallet(relay: relay, store: store)
+        let events = EventRecorder(wallet)
+        let first = TestDApp(relay: relay)
+        let second = TestDApp(relay: relay, name: "Second dApp")
+        let firstSession = try await settle(wallet, first, events: events)
+        let secondSession = try await settle(wallet, second, events: events)
+
+        // A network that tells nobody anything: the record is still gone at once, and stays gone.
+        relay.refusesConnections = true
+        relay.disconnectAll()
+        let ending = Task { await wallet.disconnectAll() }
+        try await waitUntil { await wallet.storedState().sessions.isEmpty }
+
+        let reopened = makeClient(relay: relay, store: store)
+        await reopened.disconnectAll()
+        let state = await reopened.storedState()
+        XCTAssertTrue(state.sessions.isEmpty)
+        XCTAssertTrue(state.pairings.isEmpty)
+        XCTAssertTrue(state.forgottenTopics.contains(firstSession.topic))
+        XCTAssertTrue(state.forgottenTopics.contains(secondSession.topic))
+        let secrets = await reopened.storedSecrets()
+        XCTAssertNil(secrets.keys[firstSession.topic])
+        XCTAssertNil(secrets.keys[secondSession.topic])
+        await ending.value
+        await first.close()
+        await second.close()
+    }
+
+    func testDisconnectAllWorksBeforeTheClientStartsAndNothingComesBack() async throws {
+        let relay = FakeRelay()
+        let store = InMemoryWalletConnectStore()
+        let wallet = try await makeWallet(relay: relay, store: store)
+        let events = EventRecorder(wallet)
+        let dapp = TestDApp(relay: relay)
+        let session = try await settle(wallet, dapp, events: events)
+        let settledPairing = await dapp.pairingTopic
+        let pairing = try XCTUnwrap(settledPairing)
+        await wallet.stop()
+
+        // Logout before WalletConnect started: a client that never connects ends everything on the device.
+        let published = relay.allPublished.count
+        let cold = makeClient(relay: relay, store: store)
+        await cold.disconnectAll()
+
+        let restarted = try await makeWallet(relay: relay, store: store)
+        XCTAssertTrue(restarted.currentSessions.isEmpty)
+        let state = await restarted.storedState()
+        XCTAssertTrue(state.pairings.isEmpty)
+        let secrets = await restarted.storedSecrets()
+        XCTAssertNil(secrets.keys[session.topic])
+        XCTAssertNil(secrets.keys[pairing])
+        XCTAssertEqual(relay.allPublished.count, published, "A client that never started tells nobody")
+        await dapp.close()
+        await restarted.stop()
     }
 
     func testApprovalMustGrantWhatTheProposalRequires() async throws {

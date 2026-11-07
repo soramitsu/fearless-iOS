@@ -233,26 +233,112 @@ public extension WalletConnectClient {
         }
     }
 
-    /// Ends every session and every pairing, as logging out of the wallet does: each is forgotten here, then its peer
-    /// is told. Their pending proposals and requests go with them.
-    func disconnectAll() async throws {
-        guard started else {
-            throw ClientError.notStarted
-        }
-        var firstError: Error?
-        let topics = state.sessions.map(\.topic) + state.pairings.map(\.topic)
-        for topic in topics {
+    /// Ends every session and every pairing, as logging out of the wallet does. Everything is forgotten here first, in
+    /// one write, whether or not the client has started, so a slow network or the app closing cannot leave any of
+    /// them behind; earlier SDKs' records of them go too, and none comes back on a later start. Then each peer is
+    /// told, all at once and best effort.
+    func disconnectAll() async {
+        if !started {
             do {
-                try await disconnect(topic: topic)
-            } catch ClientError.sessionNotFound {
-                // Already ended while the others were.
+                try load()
             } catch {
-                // The rest still end.
-                firstError = firstError ?? error
+                logger.error("WalletConnect could not read its record to end every session: \(error)")
             }
         }
-        if let firstError {
-            throw firstError
+
+        let sessions = state.sessions
+        let pairings = state.pairings
+        let topics = sessions.map(\.topic) + pairings.map(\.topic)
+        guard !topics.isEmpty else {
+            return
+        }
+
+        // Each peer's goodbye is sealed while its key is still known.
+        var goodbyes: [(topic: String, envelope: String, options: PublishOptions)] = []
+        if started {
+            let reason = SignError.userDisconnected
+            let params = JSONValue.object(["code": .int(reason.code), "message": .string(reason.message)])
+            for topic in topics {
+                let isSession = sessions.contains { $0.topic == topic }
+                let message = RPCMessage.request(
+                    id: identifiers.next(now: clock.now()),
+                    method: isSession ? "wc_sessionDelete" : "wc_pairingDelete",
+                    params: params
+                )
+                guard
+                    let key = key(for: topic),
+                    let envelope = try? WalletConnectCrypto.seal(Data(message.text.utf8), symmetricKey: key)
+                else {
+                    continue
+                }
+                goodbyes.append((topic, envelope, isSession ? SignProtocol.deleteRequest : SignProtocol.pairingDeleteRequest))
+            }
+        }
+
+        // Forgotten here first: the record in one write, then the keys.
+        state.sessions.removeAll()
+        state.pairings.removeAll()
+        state.proposals.removeAll()
+        state.requests.removeAll()
+        state.settlements.removeAll()
+        state.forgottenTopics.append(contentsOf: topics)
+        persist()
+        for topic in topics {
+            secrets.keys[topic] = nil
+        }
+        do {
+            try saveSecrets()
+        } catch {
+            logger.error("WalletConnect could not remove the keys of ended sessions: \(error)")
+        }
+
+        for session in sessions where session.importedFrom != nil {
+            let records = LegacyWalletConnectImporter.records(forSession: session)
+            legacyStorage?.removeRecords(keys: records.keys, keychainAccounts: records.keychainAccounts)
+        }
+        for pairing in pairings where pairing.importedFrom != nil {
+            let records = LegacyWalletConnectImporter.records(forPairing: pairing)
+            legacyStorage?.removeRecords(keys: records.keys, keychainAccounts: records.keychainAccounts)
+        }
+
+        for topic in topics {
+            failWaiting(ClientError.sessionNotFound, topic: topic)
+        }
+        publishSessions()
+        for session in sessions {
+            emit(.sessionDeleted(topic: session.topic))
+        }
+
+        guard started else {
+            return
+        }
+
+        // Then every peer at once: a peer that cannot be told finds out when the wallet no longer answers.
+        let relay = self.relay
+        let logger = self.logger
+        await withTaskGroup(of: Void.self) { group in
+            for goodbye in goodbyes {
+                group.addTask {
+                    do {
+                        try await relay.publish(
+                            topic: goodbye.topic,
+                            message: goodbye.envelope,
+                            ttl: goodbye.options.ttl,
+                            tag: goodbye.options.tag,
+                            prompt: goodbye.options.prompt
+                        )
+                    } catch {
+                        logger.warning("WalletConnect could not tell a peer it was disconnected: \(error)")
+                    }
+                }
+            }
+        }
+        await withTaskGroup(of: Void.self) { group in
+            for topic in topics {
+                group.addTask {
+                    await relay.unsubscribe(topic)
+                }
+            }
         }
     }
 
