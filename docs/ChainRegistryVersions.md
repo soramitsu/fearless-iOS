@@ -12,9 +12,11 @@ from `remote-config/` here, through `https://raw.githubusercontent.com/soramitsu
 | Dev chain types | `remote-config/development/chains/all_chains_types.json` | 408,802 | `d270d62d4f9a0f1c0bacea7bb7909df513d083ee600ec76fbd41b04f55893d2d` |
 
 `CrossChainOwnedRemoteConfigTests` checks the production chain list and XCM files against the compiled cross-chain
-route registry, and `config/remote-config-imports.json` records each file's import and every later correction.
-`scripts/verify-remote-config.py` fails on a chain list that repeats a chainId: `ChainSyncService` refuses such a list
-as a whole, and the build keeps only its app-owned chains.
+route registry, and `config/remote-config-imports.json` records each file's import, its SHA-256 (`ownedSha256`) and
+every later correction. `scripts/verify-remote-config.py` fails when a pinned file is missing or no longer matches its
+pin, and when a chain list, a chain types file or the bundled fallback (`chains.json`, `types.json` in
+`LiquidityPoolDetails/Resources`) repeats a chainId: `ChainSyncService` refuses such a chain list as a whole, so the
+build keeps only its app-owned chains, and the chain types readers keep the last entry without a word.
 
 ### Upstream snapshots (Polkadot stable2503)
 
