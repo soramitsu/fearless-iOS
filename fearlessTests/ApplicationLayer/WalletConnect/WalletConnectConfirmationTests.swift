@@ -61,7 +61,13 @@ final class WalletConnectConfirmationTests: XCTestCase {
 
         XCTAssertEqual(rows.map(\.kind).prefix(5), [.network, .spender, .amount, .contract, .fee])
         XCTAssertEqual(rows[1].value, spender.toHex(includePrefix: true))
-        XCTAssertEqual(rows[2].value, R.string.localizable.walletConnectConfirmationUnlimited(preferredLanguages: ["en"]))
+        // An unknown contract may be a collection, where the number is an item.
+        XCTAssertEqual(rows[2].title, R.string.localizable.walletConnectConfirmationAmountOrId(preferredLanguages: ["en"]))
+        XCTAssertEqual(
+            rows[2].value,
+            String(BigUInt(2).power(256) - 1)
+                + " (\(R.string.localizable.walletConnectConfirmationUnlimited(preferredLanguages: ["en"])))"
+        )
     }
 
     func testMessage_showsTheMessageAndThatNoNetworkFeeIsCharged() throws {
@@ -437,11 +443,17 @@ final class WalletConnectConfirmationTests: XCTestCase {
 
         let rows = try viewModel(for: .polkadotTransaction(makeExtrinsic(call: call)), chain: chain).rows
 
-        XCTAssertEqual(rows.map(\.kind).prefix(5), [.network, .warning, .call, .arguments, .fee])
+        XCTAssertEqual(rows.map(\.kind).prefix(6), [.network, .warning, .call, .calls, .arguments, .fee])
         XCTAssertEqual(rows[1].value, R.string.localizable.walletConnectConfirmationCallWarning(preferredLanguages: ["en"]))
         XCTAssertEqual(rows[2].value, "Utility.batch_all")
-        XCTAssertEqual(rows[3].title, R.string.localizable.walletConnectConfirmationArguments(preferredLanguages: ["en"]))
+        XCTAssertEqual(rows[3].title, R.string.localizable.walletConnectConfirmationCalls(preferredLanguages: ["en"]))
         XCTAssertEqual(rows[3].value, [
+            "1 × Balances.transfer_keep_alive → \(try AddressFactory.address(for: first, chain: chain)): 2.5 WND",
+            "1 × System.remark"
+        ].joined(separator: "\n"))
+        XCTAssertTrue(rows[3].isMultiline)
+        XCTAssertEqual(rows[4].title, R.string.localizable.walletConnectConfirmationArguments(preferredLanguages: ["en"]))
+        XCTAssertEqual(rows[4].value, [
             "calls:",
             "  1. Balances.transfer_keep_alive",
             "     dest: \(try AddressFactory.address(for: first, chain: chain))",
@@ -449,7 +461,7 @@ final class WalletConnectConfirmationTests: XCTestCase {
             "  2. System.remark",
             "     remark: 0x68656c6c6f"
         ].joined(separator: "\n"))
-        XCTAssertTrue(rows[3].isMultiline)
+        XCTAssertTrue(rows[4].isMultiline)
     }
 
     func testPolkadotProxy_showsTheAccountItActsForAndTheInnerCall() throws {
@@ -472,7 +484,11 @@ final class WalletConnectConfirmationTests: XCTestCase {
         let rows = try viewModel(for: .polkadotTransaction(makeExtrinsic(call: call)), chain: chain).rows
 
         XCTAssertEqual(rows[2].value, "Proxy.proxy")
-        XCTAssertEqual(rows[3].value, [
+        XCTAssertEqual(
+            rows[3].value,
+            "1 × Balances.transfer_allow_death → \(try AddressFactory.address(for: recipient, chain: chain)): 1 WND"
+        )
+        XCTAssertEqual(rows[4].value, [
             "call: Balances.transfer_allow_death",
             "  dest: \(try AddressFactory.address(for: recipient, chain: chain))",
             "  value: 1 WND",
@@ -525,7 +541,7 @@ final class WalletConnectConfirmationTests: XCTestCase {
         XCTAssertEqual(remarkText, "remark: \(remark.prefix(512))… (1200 characters)")
     }
 
-    func testPolkadotCallText_whenCallsNestTooDeep_thenEndsWithAnEllipsis() {
+    func testPolkadotCallText_whenCallsNestTooDeep_thenItDoesNotFitAndNothingIsCut() {
         var nested = Self.call("System", "remark", ["remark": .stringValue("0x00")])
         for _ in 0 ..< 40 {
             nested = Self.call("Utility", "batch", ["calls": .arrayValue([nested])])
@@ -533,34 +549,200 @@ final class WalletConnectConfirmationTests: XCTestCase {
         guard case let .arrayValue(outer) = nested, case let .arrayValue(inner) = outer[1] else {
             return XCTFail("Not a call")
         }
-        let text = WalletConnectSubstrateCallText(address: { _ in nil }, nativeAmount: { _ in nil })
-            .text(forArgumentsOf: RuntimeCall(moduleName: "Utility", callName: "batch", args: inner[1]))
+        let call = RuntimeCall(moduleName: "Utility", callName: "batch", args: inner[1])
+        let callText = WalletConnectSubstrateCallText(address: { _ in nil }, nativeAmount: { _ in nil })
 
-        XCTAssertTrue(text.hasSuffix("\n…"), text)
-        XCTAssertFalse(text.contains("System.remark"))
+        // The preparer declines it; what would be shown is whole.
+        XCTAssertFalse(callText.fits(call))
+        XCTAssertTrue(callText.text(forArgumentsOf: call).contains("System.remark"))
+        XCTAssertFalse(callText.text(forArgumentsOf: call).contains("…"))
     }
 
-    func testPolkadotCallText_whenTheTextIsTooLong_thenEndsWithAnEllipsis() {
-        let calls = (0 ..< 2000).map { index in
+    func testPolkadotCallText_whenTheBatchIsTooLargeToShow_thenItDoesNotFit() {
+        let callText = WalletConnectSubstrateCallText(address: { _ in nil }, nativeAmount: { _ in nil })
+        let large = Self.batch(of: (0 ..< WalletConnectSubstrateCallText.maxCalls + 1).map { index in
             Self.call("System", "remark", ["remark": .stringValue("0x\(String(index, radix: 16))")])
-        }
-        let text = WalletConnectSubstrateCallText(address: { _ in nil }, nativeAmount: { _ in nil })
-            .text(forArgumentsOf: RuntimeCall(
-                moduleName: "Utility",
-                callName: "batch",
-                args: JSON.dictionaryValue(["calls": .arrayValue(calls)])
-            ))
+        })
+        let small = Self.batch(of: (0 ..< 3).map { _ in Self.call("System", "remark", ["remark": .stringValue("0x00")]) })
+        let longValue = JSON.stringValue(String(repeating: "ab", count: 500))
+        let long = Self.batch(of: (0 ..< WalletConnectSubstrateCallText.maxCalls).map { _ in
+            Self.call("Example", "store", ["first": longValue, "second": longValue, "third": longValue])
+        })
 
-        XCTAssertLessThanOrEqual(text.count, WalletConnectSubstrateCallText.maxLength + 2)
-        XCTAssertTrue(text.hasSuffix("\n…"))
-        XCTAssertTrue(text.hasPrefix("calls:\n  1. System.remark\n     remark: 0x0"))
+        XCTAssertFalse(callText.fits(large))
+        XCTAssertFalse(callText.fits(long), "Longer than the confirmation shows")
+        XCTAssertEqual(WalletConnectSubstrateCallText.innerCalls(of: long).count, WalletConnectSubstrateCallText.maxCalls)
+        XCTAssertTrue(callText.fits(small))
+    }
+
+    func testPolkadotCallText_showsListsOfNumbersOnOneLine() {
+        let callText = WalletConnectSubstrateCallText(address: { _ in nil }, nativeAmount: { _ in nil })
+        let bytes = (0 ..< 300).map { JSON.stringValue(String($0 % 256)) }
+
+        let short = callText.text(forArgumentsOf: RuntimeCall(
+            moduleName: "System",
+            callName: "remark",
+            args: JSON.dictionaryValue(["remark": .arrayValue([.stringValue("104"), .stringValue("105")])])
+        ))
+        let long = callText.text(forArgumentsOf: RuntimeCall(
+            moduleName: "System",
+            callName: "remark",
+            args: JSON.dictionaryValue(["remark": .arrayValue(bytes)])
+        ))
+
+        XCTAssertEqual(short, "remark: [104, 105]")
+        XCTAssertTrue(long.hasSuffix("… (300 numbers)"), long)
+        XCTAssertFalse(long.contains("\n"))
+    }
+
+    func testPolkadotSummary_putsATransferAllHiddenBehindPaddingFirst() throws {
+        // The review's case: many one-planck transfers, then everything to someone else.
+        let chain = Fixtures.westend()
+        let own = Data(repeating: 0x42, count: 32)
+        let attacker = Data(repeating: 0x66, count: 32)
+        let padding = (0 ..< 60).map { _ in
+            Self.call("Balances", "transfer_keep_alive", [
+                "dest": .arrayValue([.stringValue("Id"), .stringValue(own.toHex(includePrefix: true))]),
+                "value": .stringValue("1")
+            ])
+        }
+        let drain = Self.call("Balances", "transfer_all", [
+            "dest": .arrayValue([.stringValue("Id"), .stringValue(attacker.toHex(includePrefix: true))]),
+            "keep_alive": .boolValue(false)
+        ])
+
+        let rows = try viewModel(for: .polkadotTransaction(makeExtrinsic(call: Self.batch(of: padding + [drain]))), chain: chain).rows
+        let summary = try XCTUnwrap(rows.first { $0.kind == .calls }).value.components(separatedBy: "\n")
+
+        XCTAssertEqual(summary, [
+            "1 × Balances.transfer_all → \(try AddressFactory.address(for: attacker, chain: chain))",
+            "60 × Balances.transfer_keep_alive → \(try AddressFactory.address(for: own, chain: chain)): 0.00000000006 WND"
+        ])
+    }
+
+    func testPolkadotSummary_amongTransfersOfOneKind_putsTheLargestFirst() throws {
+        let chain = Fixtures.westend()
+        let attacker = Data(repeating: 0x66, count: 32)
+        let small = (0 ..< 20).map { index in
+            Self.call("Balances", "transfer_keep_alive", [
+                "dest": .arrayValue([.stringValue("Id"), .stringValue(Data(repeating: UInt8(index + 1), count: 32).toHex(includePrefix: true))]),
+                "value": .stringValue("1")
+            ])
+        }
+        let large = Self.call("Balances", "transfer_keep_alive", [
+            "dest": .arrayValue([.stringValue("Id"), .stringValue(attacker.toHex(includePrefix: true))]),
+            "value": .stringValue("5000000000000")
+        ])
+
+        let lines = WalletConnectSubstrateCallText.make(chain: chain, locale: english)
+            .summaryLines(for: Self.batch(of: small + [large]))
+
+        XCTAssertEqual(lines.count, 21, "Every recipient has its own line")
+        XCTAssertEqual(
+            lines.first,
+            "1 × Balances.transfer_keep_alive → \(try AddressFactory.address(for: attacker, chain: chain)): 5 WND"
+        )
+    }
+
+    func testPolkadotSummary_tellsACallFromAnEnumValueOfTheSameShape() {
+        // `["V3", ["Something", {...}]]` is an enum inside an enum, not a call: call names are not capitalised.
+        let call = RuntimeCall(
+            moduleName: "XcmPallet",
+            callName: "send",
+            args: JSON.dictionaryValue([
+                "message": .arrayValue([.stringValue("V3"), .arrayValue([.stringValue("Something"), .dictionaryValue([:])])])
+            ])
+        )
+
+        XCTAssertTrue(WalletConnectSubstrateCallText.innerCalls(of: call).isEmpty)
+    }
+
+    // MARK: - Permits, unsigned data and items
+
+    func testPermit_alsoListsEverySignedField() throws {
+        let token = Data(repeating: 0x7B, count: 20)
+        let typedData = WalletConnectTypedData(
+            signingInput: Data(count: 66),
+            primaryType: "Permit",
+            domainName: "USD Coin",
+            verifyingContract: token,
+            allowance: WalletConnectTokenAllowance(token: token, spender: Data(repeating: 0x5A, count: 20), amount: 1000),
+            fields: [
+                WalletConnectTypedDataField(path: "message.spender", value: "0x5a5a"),
+                WalletConnectTypedDataField(path: "message.value", value: "1000")
+            ]
+        )
+
+        let rows = try viewModel(for: .ethereumTypedData(typedData), chain: Fixtures.ethereumChain()).rows
+
+        XCTAssertEqual(rows.map(\.kind).prefix(7), [.network, .spender, .amount, .contract, .field, .field, .message])
+    }
+
+    func testTypedDataWithKeysTheTypesDoNotDeclare_warnsThatTheyAreNotSigned() throws {
+        let token = Data(repeating: 0x7B, count: 20)
+        let typedData = WalletConnectTypedData(
+            signingInput: Data(count: 66),
+            primaryType: "Permit",
+            domainName: "USD Coin",
+            verifyingContract: token,
+            allowance: WalletConnectTokenAllowance(
+                token: token,
+                spender: Data(repeating: 0x5A, count: 20),
+                amount: BigUInt(2).power(256) - 1
+            ),
+            unsignedKeys: ["message.allowed", "message.expiry"]
+        )
+
+        let rows = try viewModel(for: .ethereumTypedData(typedData), chain: Fixtures.ethereumChain()).rows
+
+        XCTAssertEqual(rows.map(\.kind).prefix(4), [.network, .warning, .spender, .amount])
+        XCTAssertEqual(rows[1].value, R.string.localizable.walletConnectConfirmationUnsignedWarning(preferredLanguages: ["en"]))
+        XCTAssertEqual(rows[3].value, R.string.localizable.walletConnectConfirmationUnlimited(preferredLanguages: ["en"]))
+    }
+
+    func testApproval_ofAnUnknownContract_isAnAmountOrAnItem() throws {
+        let spender = Data(repeating: 0x34, count: 20)
+        // An ERC-721 `approve(to, tokenId)` has the same selector as ERC-20's.
+        let nft = try makeQuote(to: Data(repeating: 0xDD, count: 20), value: 0, tokenCall: .approve(spender: spender, amount: 42))
+        let transfer = try makeQuote(
+            to: Data(repeating: 0xDD, count: 20),
+            value: 0,
+            tokenCall: .transfer(recipient: spender, amount: 7)
+        )
+
+        let nftRows = try viewModel(for: .ethereumTransaction(nft), chain: Fixtures.ethereumChain()).rows
+        let transferRows = try viewModel(for: .ethereumTransaction(transfer), chain: Fixtures.ethereumChain()).rows
+
+        let amountOrId = R.string.localizable.walletConnectConfirmationAmountOrId(preferredLanguages: ["en"])
+        XCTAssertEqual(nftRows[2].title, amountOrId)
+        XCTAssertEqual(nftRows[2].value, "42")
+        XCTAssertEqual(transferRows[2].title, amountOrId)
+        XCTAssertEqual(transferRows[2].value, "7")
+    }
+
+    func testApproval_ofAKnownToken_isAnAmountInTheToken() throws {
+        let contract = Data(repeating: 0xDD, count: 20)
+        let token = Fixtures.asset(id: contract.toHex(includePrefix: true), symbol: "USDT", precision: 6)
+        let limited = try makeQuote(to: contract, value: 0, tokenCall: .approve(spender: Data(repeating: 0x34, count: 20), amount: 5_000_000))
+        let unlimited = try makeQuote(
+            to: contract,
+            value: 0,
+            tokenCall: .approve(spender: Data(repeating: 0x34, count: 20), amount: BigUInt(2).power(256) - 1)
+        )
+
+        let limitedRows = try viewModel(for: .ethereumTransaction(limited), chain: Fixtures.ethereumChain(tokens: [token])).rows
+        let unlimitedRows = try viewModel(for: .ethereumTransaction(unlimited), chain: Fixtures.ethereumChain(tokens: [token])).rows
+
+        XCTAssertEqual(limitedRows[2].title, R.string.localizable.walletConnectConfirmationAmount(preferredLanguages: ["en"]))
+        XCTAssertEqual(limitedRows[2].value, "5 USDT")
+        XCTAssertEqual(unlimitedRows[2].value, R.string.localizable.walletConnectConfirmationUnlimited(preferredLanguages: ["en"]))
     }
 
     func testEveryBlindSigningStringIsTranslatedInEveryShippedLanguage() throws {
         let keys = [
             "from", "amount.or.id", "operator", "access", "access.all", "access.none", "undecoded.warning",
             "function", "data", "trailing.warning", "unbound.warning", "deadline", "typed.warning", "unreadable",
-            "call.warning", "arguments"
+            "call.warning", "arguments", "calls", "unsigned.warning"
         ].map { "wallet.connect.confirmation.\($0)" }
         let english = try XCTUnwrap(Bundle.main.path(forResource: "en", ofType: "lproj").flatMap(Bundle.init(path:)))
         let languages = Bundle.main.localizations.filter { $0 != "Base" }
@@ -632,6 +814,10 @@ final class WalletConnectConfirmationTests: XCTestCase {
             transfer: nil,
             fee: 15_600_000_000
         )
+    }
+
+    private static func batch(of calls: [JSON]) -> RuntimeCall<JSON> {
+        RuntimeCall(moduleName: "Utility", callName: "batch_all", args: JSON.dictionaryValue(["calls": .arrayValue(calls)]))
     }
 
     /// A call as the runtime decodes it: `[module, [call, args]]`.

@@ -1173,6 +1173,8 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "wallet.connect.confirmation.unreadable" = "Can't be read";
 "wallet.connect.confirmation.call.warning" = "Fearless can't explain what this call does. Check the call and its details before you sign.";
 "wallet.connect.confirmation.arguments" = "Details";
+"wallet.connect.confirmation.calls" = "Calls inside";
+"wallet.connect.confirmation.unsigned.warning" = "The app sent data in this message that isn't signed. Fearless doesn't show it.";
 "wallet.connect.request.rejected.title" = "This request can't be signed";
 "wallet.connect.request.error.account" = "The app asked to sign with an account you didn't approve for this connection. The request was declined and nothing was signed.";
 "wallet.connect.request.error.network" = "The request doesn't match the network it was sent for. The request was declined and nothing was signed.";

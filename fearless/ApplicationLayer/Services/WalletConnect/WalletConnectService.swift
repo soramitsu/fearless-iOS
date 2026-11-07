@@ -445,12 +445,18 @@ final class WalletConnectServiceImpl: WalletConnectService {
         try await client.disconnect(topic: topic)
     }
 
+    /// Works before WalletConnect has started (logout from the lock screen's flow): the client's record is read,
+    /// cleared and written back without connecting.
     func disconnectAll() async throws {
+        if client == nil,
+           let groupIdentifier = WalletConnectGroupIdentifierResolver.resolve(bundleIdentifier: Bundle.main.bundleIdentifier) {
+            client = clientFactory(groupIdentifier)
+        }
         guard let client = client else {
             throw WalletConnectServiceError.unavailable
         }
         await startTask?.value
-        try await client.disconnectAll()
+        await client.disconnectAll()
     }
 
     func isPending(request: Request) async -> Bool {

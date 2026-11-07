@@ -1176,6 +1176,8 @@
 "wallet.connect.confirmation.unreadable" = "无法读取";
 "wallet.connect.confirmation.call.warning" = "Fearless 无法说明此调用的作用。签名前请检查调用及其详情。";
 "wallet.connect.confirmation.arguments" = "详情";
+"wallet.connect.confirmation.calls" = "包含的调用";
+"wallet.connect.confirmation.unsigned.warning" = "该应用在此消息中发送了不会被签名的数据，Fearless 不会显示这些数据。";
 "wallet.connect.request.rejected.title" = "无法签署此请求";
 "wallet.connect.request.error.account" = "该应用请求使用您未在此连接中批准的账户签名。请求已被拒绝，没有任何内容被签名。";
 "wallet.connect.request.error.network" = "该请求与其发送的目标网络不符。请求已被拒绝，没有任何内容被签名。";

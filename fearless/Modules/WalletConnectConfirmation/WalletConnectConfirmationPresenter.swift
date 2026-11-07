@@ -67,11 +67,12 @@ final class WalletConnectConfirmationPresenter {
         let languages = selectedLocale.rLanguages
         let close = SheetAlertPresentableAction(
             title: R.string.localizable.commonClose(preferredLanguages: languages),
-            handlerAfterDismissal: true
-        ) { [weak self] in
-            self?.router.dismiss(view: self?.view)
-            self?.view?.controller.onInteractionDismiss()
-        }
+            handlerAfterDismissal: true,
+            handler: { [weak self] in
+                self?.router.dismiss(view: self?.view)
+                self?.view?.controller.onInteractionDismiss()
+            }
+        )
         router.present(
             viewModel: SheetAlertPresentableViewModel(
                 title: R.string.localizable.walletConnectSigningPausedTitle(preferredLanguages: languages),
@@ -93,11 +94,12 @@ final class WalletConnectConfirmationPresenter {
         let languages = selectedLocale.rLanguages
         let close = SheetAlertPresentableAction(
             title: R.string.localizable.commonClose(preferredLanguages: languages),
-            handlerAfterDismissal: true
-        ) { [weak self] in
-            self?.router.dismiss(view: self?.view)
-            self?.view?.controller.onInteractionDismiss()
-        }
+            handlerAfterDismissal: true,
+            handler: { [weak self] in
+                self?.router.dismiss(view: self?.view)
+                self?.view?.controller.onInteractionDismiss()
+            }
+        )
         router.present(
             viewModel: SheetAlertPresentableViewModel(
                 title: R.string.localizable.walletConnectRequestEndedTitle(preferredLanguages: languages),

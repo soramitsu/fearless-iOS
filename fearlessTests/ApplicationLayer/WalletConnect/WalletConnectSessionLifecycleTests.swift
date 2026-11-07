@@ -81,6 +81,35 @@ final class WalletConnectSessionLifecycleTests: XCTestCase {
         XCTAssertTrue(service.disconnectedTopics.isEmpty)
     }
 
+    func testLogoutBeforeWalletConnectWasSetUp_stillReachesItsRecord() async throws {
+        let made = ClientCounter()
+        let service = WalletConnectServiceImpl(
+            clientFactory: { _ in
+                made.count += 1
+                let store = InMemoryWalletConnectStore()
+                return WalletConnectClient(
+                    configuration: .init(
+                        projectId: "offline",
+                        metadata: AppMetadata(name: "Fearless", description: "", url: "https://fearlesswallet.io", icons: []),
+                        bundleId: nil,
+                        userAgent: "wc-2/fearless-wallet-ios-tests"
+                    ),
+                    stateStore: store,
+                    secretStore: store,
+                    transportFactory: OfflineRelayTransportFactory()
+                )
+            },
+            notificationCenter: NotificationCenter()
+        )
+
+        // The client is made for the clean-up, without starting it; setup() later uses the same one.
+        try await service.disconnectAll()
+
+        XCTAssertEqual(made.count, 1)
+        XCTAssertNotNil(service.client)
+        XCTAssertNil(service.startTask)
+    }
+
     func testWalletAccountIds_includeTheSubstrateEthereumAndChainAccounts() throws {
         let keystore = InMemoryKeychain()
         let substrate = try Fixtures.substrateWallet(seed: 0x25, keystore: keystore)
@@ -119,6 +148,10 @@ final class WalletConnectSessionLifecycleTests: XCTestCase {
             [Fixtures.polkadotGenesis]
         )
     }
+}
+
+private final class ClientCounter: @unchecked Sendable {
+    var count = 0
 }
 
 /// Fails to tell one dApp; records every attempt.

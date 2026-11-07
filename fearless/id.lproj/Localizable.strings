@@ -1160,6 +1160,8 @@ Syarat dan Ketentuan serta Kebijakan Privasi";
 "wallet.connect.confirmation.unreadable" = "Tidak dapat dibaca";
 "wallet.connect.confirmation.call.warning" = "Fearless tidak dapat menjelaskan apa yang dilakukan panggilan ini. Periksa panggilan dan detailnya sebelum menandatangani.";
 "wallet.connect.confirmation.arguments" = "Detail";
+"wallet.connect.confirmation.calls" = "Panggilan di dalamnya";
+"wallet.connect.confirmation.unsigned.warning" = "Aplikasi mengirim data dalam pesan ini yang tidak ditandatangani. Fearless tidak menampilkannya.";
 "wallet.connect.request.rejected.title" = "Permintaan ini tidak dapat ditandatangani";
 "wallet.connect.request.error.account" = "Aplikasi meminta tanda tangan dengan akun yang tidak Anda setujui untuk koneksi ini. Permintaan ditolak dan tidak ada yang ditandatangani.";
 "wallet.connect.request.error.network" = "Permintaan tidak sesuai dengan jaringan tujuannya. Permintaan ditolak dan tidak ada yang ditandatangani.";

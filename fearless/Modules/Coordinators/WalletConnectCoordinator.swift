@@ -31,9 +31,12 @@ final class WalletConnectCoordinator: DefaultCoordinator {
     private let requestEndedNotice: WalletConnectNoticePresenter
     private var lockObserver: NSObjectProtocol?
 
-    /// Flows waiting or on screen, at most this many: a dApp that sends a flood of requests is told no for the rest
-    /// at once, instead of leaving the person a queue to click through.
-    static let maxQueuedFlows = 10
+    /// How many flows may wait or show at once. A dApp that sends a flood of requests is told no for the rest at
+    /// once, instead of leaving the person a queue to click through, and it cannot crowd out the others: each
+    /// session has its own share, and proposals (which any page can start) have theirs.
+    static let maxQueuedFlows = 20
+    static let maxRequestsPerSession = 5
+    static let maxQueuedProposals = 5
 
     /// Requests already queued or on screen, by session and id (an id is unique only within its session). A request
     /// is queued only once.
@@ -136,8 +139,13 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         nextCoordinator.start()
     }
 
-    private var hasRoomInQueue: Bool {
+    private func hasRoom(forRequestIn topic: String) -> Bool {
         childCoordinators.count < Self.maxQueuedFlows
+            && requestFlows.keys.filter { $0.topic == topic }.count < Self.maxRequestsPerSession
+    }
+
+    private var hasRoomForProposal: Bool {
+        childCoordinators.count < Self.maxQueuedFlows && proposalFlows.count < Self.maxQueuedProposals
     }
 
     /// The dApp stopped waiting for what a flow shows. A flow still in the queue leaves it unseen. The flow on screen
@@ -178,7 +186,7 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
         guard requestFlows[key] == nil else {
             return
         }
-        guard hasRoomInQueue else {
+        guard hasRoom(forRequestIn: request.topic) else {
             let walletConnect = self.walletConnect
             Task {
                 try? await walletConnect.submit(signDecision: .rejected(request: request, error: .userRejected))
@@ -197,7 +205,7 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
         guard proposalFlows[proposal.id] == nil else {
             return
         }
-        guard hasRoomInQueue else {
+        guard hasRoomForProposal else {
             let walletConnect = self.walletConnect
             Task {
                 try? await walletConnect.submit(proposalDecision: .reject(proposal: proposal))

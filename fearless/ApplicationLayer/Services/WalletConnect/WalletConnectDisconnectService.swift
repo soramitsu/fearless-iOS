@@ -37,12 +37,15 @@ final class WalletConnectDisconnectServiceImpl: WalletConnectDisconnectService {
         }
     }
 
+    /// The sessions and pairings are forgotten on the device at once, before any dApp is told, so leaving the app
+    /// right after logging out leaves none of them behind.
     func disconnectAllSessions() {
         let walletConnectService = self.walletConnectService
         Task {
             do {
                 try await walletConnectService.disconnectAll()
             } catch {
+                // Only when this app identity has no WalletConnect storage at all: there is nothing to end.
                 Logger.shared.error("WalletConnect could not end every session on logout: \(error)")
             }
         }

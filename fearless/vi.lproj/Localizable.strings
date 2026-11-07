@@ -1178,6 +1178,8 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "wallet.connect.confirmation.unreadable" = "Không đọc được";
 "wallet.connect.confirmation.call.warning" = "Fearless không thể giải thích lệnh gọi này làm gì. Hãy kiểm tra lệnh gọi và chi tiết của nó trước khi ký.";
 "wallet.connect.confirmation.arguments" = "Chi tiết";
+"wallet.connect.confirmation.calls" = "Các lệnh gọi bên trong";
+"wallet.connect.confirmation.unsigned.warning" = "Ứng dụng đã gửi kèm dữ liệu không được ký trong thông điệp này. Fearless không hiển thị dữ liệu đó.";
 "wallet.connect.request.rejected.title" = "Không thể ký yêu cầu này";
 "wallet.connect.request.error.account" = "Ứng dụng yêu cầu ký bằng một tài khoản mà bạn chưa chấp thuận cho kết nối này. Yêu cầu đã bị từ chối và không có gì được ký.";
 "wallet.connect.request.error.network" = "Yêu cầu không khớp với mạng mà nó được gửi đến. Yêu cầu đã bị từ chối và không có gì được ký.";

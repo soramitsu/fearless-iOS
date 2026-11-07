@@ -283,29 +283,82 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
         XCTAssertEqual(fixture.flows.count, 2)
     }
 
-    func testCoordinator_whenTheQueueIsFull_thenFurtherRequestsAreDeclinedAtOnce() throws {
+    func testCoordinator_whenOneSessionSendsTooManyRequests_thenOnlyItsExtraOnesAreDeclined() throws {
         let fixture = CoordinatorFixture()
-        let requests = try (0 ..< WalletConnectCoordinator.maxQueuedFlows + 2).map { _ in try Self.makeRequest() }
+        let blockchain = try XCTUnwrap(Blockchain("eip155:1"))
+        let flood = (0 ..< WalletConnectCoordinator.maxRequestsPerSession + 2).map { _ in
+            Request(topic: "busy-session", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain)
+        }
+        let other = Request(topic: "other-session", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain)
 
-        requests.forEach { fixture.coordinator.sign(request: $0, session: nil, verification: .verified) }
-
-        XCTAssertEqual(fixture.flows.count, WalletConnectCoordinator.maxQueuedFlows)
-        let declined = Set(requests.suffix(2).map(\.id))
-        try spin { fixture.service.signDecisions.count == 2 }
-        XCTAssertEqual(Set(fixture.service.signDecisions.compactMap { decision -> Int64? in
-            guard case let .rejected(request, error) = decision, error == .userRejected else {
-                return nil
-            }
-            return request.id
-        }), declined)
-
+        flood.forEach { fixture.coordinator.sign(request: $0, session: nil, verification: .verified) }
+        fixture.coordinator.sign(request: other, session: nil, verification: .verified)
         let proposal = try WalletConnectVerifyTests.makeProposal()
         fixture.coordinator.session(proposal: proposal, verification: .verified)
+
+        // The busy session gets its share; the other session and the proposal still wait their turn.
+        XCTAssertEqual(fixture.flows.count, WalletConnectCoordinator.maxRequestsPerSession + 2)
+        try spin { fixture.service.signDecisions.count == 2 }
+        XCTAssertEqual(
+            Set(fixture.service.signDecisions.compactMap(Self.declinedRequestId)),
+            Set(flood.suffix(2).map(\.id))
+        )
+        XCTAssertTrue(fixture.service.proposalDecisions.isEmpty)
+    }
+
+    func testCoordinator_whenProposalsPileUp_thenTheExtraOnesAreDeclinedAndRequestsStillWait() throws {
+        let fixture = CoordinatorFixture()
+        let proposals = try (0 ..< WalletConnectCoordinator.maxQueuedProposals + 1).map { index in
+            Session.Proposal(
+                id: Int64(1_794_000_000_000_100 + index),
+                pairingTopic: "pairing-\(index)",
+                proposer: try WalletConnectVerifyTests.makeProposal().proposer,
+                requiredNamespaces: [:],
+                optionalNamespaces: nil,
+                sessionProperties: nil,
+                expiryDate: Date(timeIntervalSinceNow: 300)
+            )
+        }
+
+        proposals.forEach { fixture.coordinator.session(proposal: $0, verification: .verified) }
+        fixture.coordinator.sign(request: try Self.makeRequest(), session: nil, verification: .verified)
+
+        XCTAssertEqual(fixture.flows.count, WalletConnectCoordinator.maxQueuedProposals + 1)
         try spin { fixture.service.proposalDecisions.count == 1 }
         guard case let .reject(rejected) = fixture.service.proposalDecisions.first else {
-            return XCTFail("The proposal must be declined")
+            return XCTFail("The extra proposal must be declined")
         }
-        XCTAssertEqual(rejected.id, proposal.id)
+        XCTAssertEqual(rejected.id, proposals.last?.id)
+        XCTAssertTrue(fixture.service.signDecisions.isEmpty, "The request still waits")
+    }
+
+    func testCoordinator_whenEveryShareIsTaken_thenTheCeilingHolds() throws {
+        let fixture = CoordinatorFixture()
+        let blockchain = try XCTUnwrap(Blockchain("eip155:1"))
+        let sessions = WalletConnectCoordinator.maxQueuedFlows / WalletConnectCoordinator.maxRequestsPerSession
+        for session in 0 ..< sessions {
+            for _ in 0 ..< WalletConnectCoordinator.maxRequestsPerSession {
+                fixture.coordinator.sign(
+                    request: Request(topic: "session-\(session)", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain),
+                    session: nil,
+                    verification: .verified
+                )
+            }
+        }
+        let late = Request(topic: "late-session", method: "personal_sign", params: AnyCodable(["0x00"]), chainId: blockchain)
+
+        fixture.coordinator.sign(request: late, session: nil, verification: .verified)
+
+        XCTAssertEqual(fixture.flows.count, WalletConnectCoordinator.maxQueuedFlows)
+        try spin { fixture.service.signDecisions.count == 1 }
+        XCTAssertEqual(fixture.service.signDecisions.compactMap(Self.declinedRequestId), [late.id])
+    }
+
+    private static func declinedRequestId(_ decision: WalletConnectSignDecision) -> Int64? {
+        guard case let .rejected(request, error) = decision, error == .userRejected else {
+            return nil
+        }
+        return request.id
     }
 
     func testRouter_whenTheAppLocks_thenHidesTheRequestWindowUntilItIsUnlocked() throws {
@@ -647,17 +700,25 @@ final class WalletConnectServiceSpy: WalletConnectService, @unchecked Sendable {
     }
 
     func submit(proposalDecision: WalletConnectProposalDecision) async throws {
-        lock.lock()
-        recordedProposalDecisions.append(proposalDecision)
-        lock.unlock()
+        record(proposalDecision)
     }
 
     func submit(signDecision: WalletConnectSignDecision) async throws {
         if case .signed = signDecision, let signedSubmitError = signedSubmitError {
             throw signedSubmitError
         }
+        record(signDecision)
+    }
+
+    private func record(_ decision: WalletConnectProposalDecision) {
         lock.lock()
-        recordedSignDecisions.append(signDecision)
+        recordedProposalDecisions.append(decision)
+        lock.unlock()
+    }
+
+    private func record(_ decision: WalletConnectSignDecision) {
+        lock.lock()
+        recordedSignDecisions.append(decision)
         lock.unlock()
     }
 }

@@ -102,7 +102,7 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
         switch quote.tokenCall {
         case let .transfer(recipient, amount):
             rows.append(recipientRow(address(of: recipient), locale: locale))
-            rows.append(amountRow(formatted(amount, asset: token, locale: locale), locale: locale))
+            rows.append(amountOrItemRow(amount, token: token, locale: locale))
             rows.append(contractRow(quote.to, locale: locale))
         case let .transferFrom(owner, recipient, amountOrId):
             rows.append(Row(
@@ -111,18 +111,14 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
                 value: address(of: owner)
             ))
             rows.append(recipientRow(address(of: recipient), locale: locale))
-            if let token = token {
-                rows.append(amountRow(formatted(amountOrId, asset: token, locale: locale), locale: locale))
-            } else {
-                // ERC-20 and ERC-721 share this call: an unknown contract's number may be an amount or an item.
-                rows.append(Row(
-                    kind: .amount,
-                    title: R.string.localizable.walletConnectConfirmationAmountOrId(preferredLanguages: languages),
-                    value: String(amountOrId)
-                ))
-            }
+            rows.append(amountOrItemRow(amountOrId, token: token, locale: locale))
             rows.append(contractRow(quote.to, locale: locale))
-        case let .approve(spender, amount), let .increaseAllowance(spender, amount):
+        case let .approve(spender, amount):
+            rows.append(spenderRow(address(of: spender), locale: locale))
+            rows.append(amountOrItemRow(amount, token: token, isAllowance: true, locale: locale))
+            rows.append(contractRow(quote.to, locale: locale))
+        case let .increaseAllowance(spender, amount):
+            // Only ERC-20 tokens have allowances: this number is an amount.
             rows.append(spenderRow(address(of: spender), locale: locale))
             rows.append(amountRow(allowance(amount, asset: token, locale: locale), locale: locale))
             rows.append(contractRow(quote.to, locale: locale))
@@ -193,6 +189,12 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
                 locale: locale
             ))
         }
+        if !typedData.unsignedKeys.isEmpty {
+            rows.append(warningRow(
+                R.string.localizable.walletConnectConfirmationUnsignedWarning(preferredLanguages: languages),
+                locale: locale
+            ))
+        }
 
         if let allowance = typedData.allowance, let amount = allowance.amount {
             let token = chain.assets.first { asset in
@@ -208,6 +210,8 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
                     value: Self.date(deadline, locale: locale)
                 ))
             }
+            // What the permit says above, then every field it signs.
+            rows += typedData.fields.map { Row(kind: .field, title: $0.path, value: $0.value) }
         } else {
             // Typed data the wallet does not specifically understand: every signed field is shown.
             rows.append(warningRow(
@@ -258,9 +262,11 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
                 R.string.localizable.walletConnectConfirmationCallWarning(preferredLanguages: languages),
                 locale: locale
             ))
-            let callText = WalletConnectSubstrateCallText(
-                address: { [weak self] accountId in self?.address(of: accountId) },
-                nativeAmount: { [weak self] amount in self?.formatted(amount, asset: utilityAsset, locale: locale) }
+            // The same text the request preparer checked fits in full.
+            let callText = WalletConnectSubstrateCallText.make(
+                chain: inputData.signingRequest.chain,
+                locale: locale,
+                formatterFactory: assetBalanceFormatterFactory
             )
             rows += callText.rows(for: extrinsic.call, locale: locale)
         }
@@ -339,6 +345,32 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
         Row(
             kind: .amount,
             title: R.string.localizable.walletConnectConfirmationAmount(preferredLanguages: locale.rLanguages),
+            value: value
+        )
+    }
+
+    /// A token amount when the contract is a token the wallet knows. Otherwise "Amount or item ID" and the number
+    /// itself: ERC-20 tokens and ERC-721 collections share these calls, and for a collection the number is an item.
+    private func amountOrItemRow(
+        _ number: BigUInt,
+        token: AssetModel?,
+        isAllowance: Bool = false,
+        locale: Locale
+    ) -> Row {
+        if let token = token {
+            let value = isAllowance
+                ? allowance(number, asset: token, locale: locale)
+                : formatted(number, asset: token, locale: locale)
+            return amountRow(value, locale: locale)
+        }
+        let languages = locale.rLanguages
+        var value = String(number)
+        if isAllowance, number >= Constants.unlimitedAmount {
+            value += " (\(R.string.localizable.walletConnectConfirmationUnlimited(preferredLanguages: languages)))"
+        }
+        return Row(
+            kind: .amount,
+            title: R.string.localizable.walletConnectConfirmationAmountOrId(preferredLanguages: languages),
             value: value
         )
     }

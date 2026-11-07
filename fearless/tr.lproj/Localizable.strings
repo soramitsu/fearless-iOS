@@ -1174,6 +1174,8 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "wallet.connect.confirmation.unreadable" = "Okunamıyor";
 "wallet.connect.confirmation.call.warning" = "Fearless bu çağrının ne yaptığını açıklayamıyor. İmzalamadan önce çağrıyı ve ayrıntılarını kontrol edin.";
 "wallet.connect.confirmation.arguments" = "Ayrıntılar";
+"wallet.connect.confirmation.calls" = "İçerdiği çağrılar";
+"wallet.connect.confirmation.unsigned.warning" = "Uygulama bu mesajda imzalanmayan veriler gönderdi. Fearless bunları göstermez.";
 "wallet.connect.request.rejected.title" = "Bu istek imzalanamaz";
 "wallet.connect.request.error.account" = "Uygulama, bu bağlantı için onaylamadığınız bir hesapla imza istedi. İstek reddedildi ve hiçbir şey imzalanmadı.";
 "wallet.connect.request.error.network" = "İstek, gönderildiği ağla eşleşmiyor. İstek reddedildi ve hiçbir şey imzalanmadı.";

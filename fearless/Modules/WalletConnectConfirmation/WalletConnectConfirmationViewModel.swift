@@ -32,6 +32,8 @@ struct WalletConnectConfirmationViewModel {
             case field
             /// A Substrate call's arguments, decoded.
             case arguments
+            /// A summary of the calls a Substrate call carries.
+            case calls
         }
 
         let kind: Kind
@@ -40,7 +42,7 @@ struct WalletConnectConfirmationViewModel {
 
         /// Messages, warnings, raw data and decoded calls can be long and are shown in full.
         var isMultiline: Bool {
-            [.message, .warning, .data, .field, .arguments, .call].contains(kind)
+            [.message, .warning, .data, .field, .arguments, .calls, .call].contains(kind)
         }
 
         var isWarning: Bool {

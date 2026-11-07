@@ -78,6 +78,9 @@ struct WalletConnectTypedData {
     var fields: [WalletConnectTypedDataField] = []
     /// The domain names no chain id, so the signature is valid on every network.
     var isChainUnbound = false
+    /// Keys the typed data carries that its types do not declare ("message.note"): they are not signed, so they are
+    /// not shown, and the confirmation says so.
+    var unsignedKeys: [String] = []
 }
 
 /// One signed typed-data field: its path ("domain.name", "message.to.wallet") and its value as text.

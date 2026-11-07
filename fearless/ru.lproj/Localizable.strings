@@ -1176,6 +1176,8 @@ Euro cash";
 "wallet.connect.confirmation.unreadable" = "Не удаётся прочитать";
 "wallet.connect.confirmation.call.warning" = "Fearless не может объяснить, что делает этот вызов. Проверьте вызов и его детали перед подписанием.";
 "wallet.connect.confirmation.arguments" = "Детали";
+"wallet.connect.confirmation.calls" = "Вложенные вызовы";
+"wallet.connect.confirmation.unsigned.warning" = "Приложение передало в этом сообщении данные, которые не подписываются. Fearless их не показывает.";
 "wallet.connect.request.rejected.title" = "Этот запрос нельзя подписать";
 "wallet.connect.request.error.account" = "Приложение запросило подпись счётом, который вы не одобрили для этого подключения. Запрос отклонён, ничего не подписано.";
 "wallet.connect.request.error.network" = "Запрос не соответствует сети, для которой он отправлен. Запрос отклонён, ничего не подписано.";

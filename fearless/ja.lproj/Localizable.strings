@@ -1167,6 +1167,8 @@
 "wallet.connect.confirmation.unreadable" = "読み取れません";
 "wallet.connect.confirmation.call.warning" = "Fearless はこのコールの内容を説明できません。署名する前にコールとその詳細を確認してください。";
 "wallet.connect.confirmation.arguments" = "詳細";
+"wallet.connect.confirmation.calls" = "含まれるコール";
+"wallet.connect.confirmation.unsigned.warning" = "アプリはこのメッセージに署名されないデータを含めています。Fearless はそれを表示しません。";
 "wallet.connect.request.rejected.title" = "このリクエストには署名できません";
 "wallet.connect.request.error.account" = "アプリが、この接続で承認していないアカウントでの署名を求めました。リクエストは拒否され、何も署名されていません。";
 "wallet.connect.request.error.network" = "リクエストが送信先のネットワークと一致しません。リクエストは拒否され、何も署名されていません。";

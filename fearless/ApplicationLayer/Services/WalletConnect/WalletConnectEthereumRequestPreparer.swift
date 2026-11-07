@@ -203,52 +203,100 @@ final class WalletConnectEthereumRequestPreparer: WalletConnectEthereumRequestPr
             throw WalletConnectRequestError.unsupported
         }
 
-        let verifyingContract = message.domain.verifyingContract.flatMap { try? Data(hexStringSSF: $0) }
-        let messageObject = typedData["message"] as? [String: Any] ?? [:]
+        // Everything shown is read the way the hash reads it: the domain as `TypedMessage` parsed it and the message
+        // object it hashes, and of both only what the types declare.
+        let hashedDomain = message.domain.encoded()
+        let hashedMessage = message.message.first ?? [:]
+        let declaredDomain = Dictionary(
+            (message.types["EIP712Domain"] ?? []).map { ($0.name, $0.type) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        var verifyingContract: Data?
+        if declaredDomain["verifyingContract"] == "address",
+           let contract = (hashedDomain["verifyingContract"] as? String).flatMap({ try? Data(hexStringSSF: $0) }),
+           contract.count == EthereumConstants.accountIdLength {
+            verifyingContract = contract
+        }
+        let domainName: String? = declaredDomain["name"] == "string" ? hashedDomain["name"] as? String : nil
+
+        let fields: [WalletConnectTypedDataField]
+        do {
+            fields = try WalletConnectTypedDataFields.flatten(
+                domain: hashedDomain,
+                message: hashedMessage,
+                types: message.types,
+                primaryType: message.primaryType
+            )
+        } catch {
+            // Too large to show in full, or a value the hash would read differently from how it is shown.
+            throw WalletConnectRequestError.unsupported
+        }
 
         return WalletConnectTypedData(
             signingInput: signingInput,
             primaryType: message.primaryType,
-            domainName: message.domain.name,
+            domainName: domainName,
             verifyingContract: verifyingContract,
             allowance: WalletConnectTokenAllowance(
                 primaryType: message.primaryType,
-                message: message.message.first ?? [:],
+                message: hashedMessage,
+                types: message.types,
                 verifyingContract: verifyingContract
             ),
-            fields: WalletConnectTypedDataFields.flatten(
+            fields: fields,
+            // Without a chain id in the domain the signature names no network.
+            isChainUnbound: domain["chainId"] == nil,
+            unsignedKeys: WalletConnectTypedDataFields.undeclaredKeys(
                 domain: domain,
-                message: messageObject,
+                message: hashedMessage,
                 types: message.types,
                 primaryType: message.primaryType
-            ),
-            // Without a chain id in the domain the signature names no network.
-            isChainUnbound: domain["chainId"] == nil
+            )
         )
     }
 }
 
 /// The signed fields of typed data, flattened for the confirmation in the order their types declare them. Only
-/// declared fields are shown, because only they are hashed into the signature.
+/// declared fields are shown, because only they are hashed into the signature. Nothing is cut: typed data with more
+/// fields or deeper nesting than the confirmation shows is declined, and so is a value whose shape differs from its
+/// declared type (the hash reads a struct that is not an object as empty, and a lone value as a one-item array).
 enum WalletConnectTypedDataFields {
-    static let limit = 60
+    static let limit = 500
+    static let maxDepth = 10
+
+    enum Problem: Error, Equatable {
+        case tooLarge
+        case shapeMismatch(path: String)
+    }
 
     static func flatten(
         domain: [String: Any],
         message: [String: Any],
         types: MessageTypes,
         primaryType: String
-    ) -> [WalletConnectTypedDataField] {
+    ) throws -> [WalletConnectTypedDataField] {
         var fields: [WalletConnectTypedDataField] = []
-        append(object: domain, type: "EIP712Domain", path: "domain", types: types, into: &fields, depth: 0)
+        try append(object: domain, type: "EIP712Domain", path: "domain", types: types, into: &fields, depth: 0)
         if primaryType != "EIP712Domain" {
-            append(object: message, type: primaryType, path: "message", types: types, into: &fields, depth: 0)
+            try append(object: message, type: primaryType, path: "message", types: types, into: &fields, depth: 0)
         }
-        guard fields.count > limit else {
-            return fields
+        return fields
+    }
+
+    /// Keys the typed data carries that its types do not declare, in the domain and at every level of the message:
+    /// the signature does not cover them, so they are not shown.
+    static func undeclaredKeys(
+        domain: [String: Any],
+        message: [String: Any],
+        types: MessageTypes,
+        primaryType: String
+    ) -> [String] {
+        var keys: [String] = []
+        collectUndeclared(object: domain, type: "EIP712Domain", path: "domain", types: types, into: &keys, depth: 0)
+        if primaryType != "EIP712Domain" {
+            collectUndeclared(object: message, type: primaryType, path: "message", types: types, into: &keys, depth: 0)
         }
-        let shown = Array(fields.prefix(limit))
-        return shown + [WalletConnectTypedDataField(path: "…", value: "+\(fields.count - limit)")]
+        return keys
     }
 
     private static func append(
@@ -258,15 +306,25 @@ enum WalletConnectTypedDataFields {
         types: MessageTypes,
         into fields: inout [WalletConnectTypedDataField],
         depth: Int
-    ) {
-        guard let properties = types[type], depth < 8 else {
+    ) throws {
+        guard let properties = types[type] else {
             return
+        }
+        guard depth <= maxDepth else {
+            throw Problem.tooLarge
         }
         for property in properties {
             guard let value = object[property.name] else {
                 continue
             }
-            append(value: value, type: property.type, path: "\(path).\(property.name)", types: types, into: &fields, depth: depth + 1)
+            try append(
+                value: value,
+                type: property.type,
+                path: "\(path).\(property.name)",
+                types: types,
+                into: &fields,
+                depth: depth + 1
+            )
         }
     }
 
@@ -277,19 +335,91 @@ enum WalletConnectTypedDataFields {
         types: MessageTypes,
         into fields: inout [WalletConnectTypedDataField],
         depth: Int
-    ) {
-        if type.hasSuffix("]"), let items = value as? [Any], let bracket = type.lastIndex(of: "[") {
+    ) throws {
+        guard depth <= maxDepth else {
+            throw Problem.tooLarge
+        }
+        if type.hasSuffix("]"), let bracket = type.lastIndex(of: "[") {
+            guard let items = value as? [Any] else {
+                throw Problem.shapeMismatch(path: path)
+            }
             let itemType = String(type[..<bracket])
             for (index, item) in items.enumerated() {
-                append(value: item, type: itemType, path: "\(path)[\(index)]", types: types, into: &fields, depth: depth + 1)
+                try append(
+                    value: item,
+                    type: itemType,
+                    path: "\(path)[\(index)]",
+                    types: types,
+                    into: &fields,
+                    depth: depth + 1
+                )
             }
             return
         }
-        if types[type] != nil, let nested = value as? [String: Any] {
-            append(object: nested, type: type, path: path, types: types, into: &fields, depth: depth)
+        if types[type] != nil {
+            guard let nested = value as? [String: Any] else {
+                throw Problem.shapeMismatch(path: path)
+            }
+            try append(object: nested, type: type, path: path, types: types, into: &fields, depth: depth)
             return
         }
+        guard fields.count < limit else {
+            throw Problem.tooLarge
+        }
         fields.append(WalletConnectTypedDataField(path: path, value: text(of: value)))
+    }
+
+    private static func collectUndeclared(
+        object: [String: Any],
+        type: String,
+        path: String,
+        types: MessageTypes,
+        into keys: inout [String],
+        depth: Int
+    ) {
+        guard let properties = types[type], depth <= maxDepth else {
+            return
+        }
+        let declared = Dictionary(properties.map { ($0.name, $0.type) }, uniquingKeysWith: { first, _ in first })
+        for (key, value) in object.sorted(by: { $0.key < $1.key }) {
+            guard let propertyType = declared[key] else {
+                keys.append("\(path).\(key)")
+                continue
+            }
+            collectUndeclared(
+                value: value,
+                type: propertyType,
+                path: "\(path).\(key)",
+                types: types,
+                into: &keys,
+                depth: depth + 1
+            )
+        }
+    }
+
+    private static func collectUndeclared(
+        value: Any,
+        type: String,
+        path: String,
+        types: MessageTypes,
+        into keys: inout [String],
+        depth: Int
+    ) {
+        if type.hasSuffix("]"), let bracket = type.lastIndex(of: "["), let items = value as? [Any] {
+            let itemType = String(type[..<bracket])
+            for (index, item) in items.enumerated() {
+                collectUndeclared(
+                    value: item,
+                    type: itemType,
+                    path: "\(path)[\(index)]",
+                    types: types,
+                    into: &keys,
+                    depth: depth + 1
+                )
+            }
+        } else if types[type] != nil, let nested = value as? [String: Any] {
+            collectUndeclared(object: nested, type: type, path: path, types: types, into: &keys, depth: depth)
+        }
     }
 
     /// Numbers are written out in full: a JSON number may be beyond what `Double` holds exactly.
@@ -512,31 +642,45 @@ extension WalletConnectTokenCall {
 extension WalletConnectTokenAllowance {
     private static let unlimited = BigUInt(2).power(256) - 1
 
+    /// The struct definitions, as EIP-712 encodes them, of the permits the wallet reads. Typed data whose primary
+    /// type is defined in any other way is not read as a permit, so nothing the types do not declare can change
+    /// what the confirmation says.
+    static let eip2612Permit = "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+    static let daiPermit = "Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)"
+    static let permit2Single = "PermitSingle(PermitDetails details,address spender,uint256 sigDeadline)"
+        + "PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)"
+    static let permit2TransferFrom = "PermitTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,"
+        + "uint256 deadline)TokenPermissions(address token,uint256 amount)"
+
     /// Reads the spender, the amount and how long it lasts from EIP-2612 `Permit`, DAI's `Permit` (`allowed`,
-    /// `expiry`) and Permit2 `PermitSingle` and `PermitTransferFrom`. A permit whose amount the wallet cannot read
-    /// exactly still names its spender; the amount is then `nil`.
-    init?(primaryType: String, message: [String: AnyObject], verifyingContract: Data?) {
+    /// `expiry`) and Permit2 `PermitSingle` and `PermitTransferFrom`, each only when the types define it exactly so.
+    /// A permit whose amount the wallet cannot read exactly still names its spender; the amount is then `nil`.
+    init?(primaryType: String, message: [String: AnyObject], types: MessageTypes, verifyingContract: Data?) {
+        guard let definition = try? encodedType(primaryType: primaryType, types: types) else {
+            return nil
+        }
+
         let token: Data?
         let amount: BigUInt?
         let deadline: BigUInt?
 
-        switch primaryType {
-        case "Permit" where message["allowed"] != nil:
+        switch definition {
+        case Self.daiPermit:
             // DAI: `allowed: true` is the unlimited allowance, `false` withdraws it.
             token = verifyingContract
-            amount = (message["allowed"] as? NSNumber).map { $0.boolValue ? Self.unlimited : 0 }
+            amount = Self.bool(from: message["allowed"]).map { $0 ? Self.unlimited : 0 }
             deadline = message["expiry"].flatMap { Self.amount(from: $0) }
-        case "Permit":
+        case Self.eip2612Permit:
             token = verifyingContract
             amount = message["value"].flatMap { Self.amount(from: $0) }
             deadline = message["deadline"].flatMap { Self.amount(from: $0) }
-        case "PermitSingle":
+        case Self.permit2Single:
             let details = message["details"] as? [String: AnyObject]
             token = (details?["token"] as? String).flatMap { try? Data(hexStringSSF: $0) }
             amount = details?["amount"].flatMap { Self.amount(from: $0) }
             // How long the spender may use the allowance.
             deadline = details?["expiration"].flatMap { Self.amount(from: $0) }
-        case "PermitTransferFrom":
+        case Self.permit2TransferFrom:
             let permitted = message["permitted"] as? [String: AnyObject]
             token = (permitted?["token"] as? String).flatMap { try? Data(hexStringSSF: $0) }
             amount = permitted?["amount"].flatMap { Self.amount(from: $0) }
@@ -547,6 +691,7 @@ extension WalletConnectTokenAllowance {
 
         guard
             let token = token,
+            token.count == EthereumConstants.accountIdLength,
             let spender = (message["spender"] as? String).flatMap({ try? Data(hexStringSSF: $0) }),
             spender.count == EthereumConstants.accountIdLength
         else {
@@ -554,6 +699,24 @@ extension WalletConnectTokenAllowance {
         }
 
         self.init(token: token, spender: spender, amount: amount, deadline: deadline)
+    }
+
+    /// A JSON `true` or `false`, or the numbers 1 and 0, which the hash reads as the same bools.
+    static func bool(from value: AnyObject?) -> Bool? {
+        guard let number = value as? NSNumber, !(number is NSDecimalNumber), !CFNumberIsFloatType(number as CFNumber) else {
+            return nil
+        }
+        if CFGetTypeID(number) == CFBooleanGetTypeID() {
+            return number.boolValue
+        }
+        switch number.int64Value {
+        case 0:
+            return false
+        case 1:
+            return true
+        default:
+            return nil
+        }
     }
 
     /// Decimal or `0x` strings, and JSON integers. A JSON number with a fraction or beyond 64 bits is not read: the

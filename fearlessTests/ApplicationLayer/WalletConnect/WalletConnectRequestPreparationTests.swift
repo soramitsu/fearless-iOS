@@ -653,23 +653,111 @@ final class WalletConnectRequestPreparationTests: XCTestCase {
         ])
     }
 
-    func testTypedDataFields_listArraysByIndexAndStopAtTheLimit() {
+    func testTypedDataFields_listArraysByIndex() throws {
         let types: MessageTypes = [
             "EIP712Domain": [MessageTypeProperty(name: "name", type: "string")],
             "Batch": [MessageTypeProperty(name: "amounts", type: "uint256[]")]
         ]
-        let amounts = (0 ..< 70).map { NSNumber(value: $0) }
 
-        let fields = WalletConnectTypedDataFields.flatten(
+        let fields = try WalletConnectTypedDataFields.flatten(
             domain: ["name": "Batcher"],
-            message: ["amounts": amounts],
+            message: ["amounts": (0 ..< 70).map { NSNumber(value: $0) }],
             types: types,
             primaryType: "Batch"
         )
 
-        XCTAssertEqual(fields.count, WalletConnectTypedDataFields.limit + 1)
+        XCTAssertEqual(fields.count, 71)
         XCTAssertEqual(fields[1], WalletConnectTypedDataField(path: "message.amounts[0]", value: "0"))
-        XCTAssertEqual(fields.last, WalletConnectTypedDataField(path: "…", value: "+11"))
+        XCTAssertEqual(fields.last, WalletConnectTypedDataField(path: "message.amounts[69]", value: "69"))
+    }
+
+    func testTypedDataFields_whenThereAreMoreThanTheConfirmationShows_thenNothingIsCutButItIsRefused() {
+        let types: MessageTypes = [
+            "EIP712Domain": [MessageTypeProperty(name: "name", type: "string")],
+            "Batch": [MessageTypeProperty(name: "amounts", type: "uint256[]")]
+        ]
+        let amounts = (0 ..< WalletConnectTypedDataFields.limit).map { NSNumber(value: $0) }
+
+        XCTAssertThrowsError(try WalletConnectTypedDataFields.flatten(
+            domain: ["name": "Batcher"],
+            message: ["amounts": amounts],
+            types: types,
+            primaryType: "Batch"
+        )) { error in
+            XCTAssertEqual(error as? WalletConnectTypedDataFields.Problem, .tooLarge)
+        }
+    }
+
+    func testTypedDataFields_whenNestedDeeperThanShown_thenItIsRefusedRatherThanDropped() {
+        var types: MessageTypes = ["EIP712Domain": [MessageTypeProperty(name: "name", type: "string")]]
+        var value: [String: Any] = ["leaf": "end"]
+        types["Level0"] = [MessageTypeProperty(name: "leaf", type: "string")]
+        for level in 1 ... WalletConnectTypedDataFields.maxDepth + 1 {
+            types["Level\(level)"] = [MessageTypeProperty(name: "next", type: "Level\(level - 1)")]
+            value = ["next": value]
+        }
+
+        XCTAssertThrowsError(try WalletConnectTypedDataFields.flatten(
+            domain: ["name": "Deep"],
+            message: value,
+            types: types,
+            primaryType: "Level\(WalletConnectTypedDataFields.maxDepth + 1)"
+        )) { error in
+            XCTAssertEqual(error as? WalletConnectTypedDataFields.Problem, .tooLarge)
+        }
+    }
+
+    func testTypedDataFields_whenAValueDoesNotHaveItsDeclaredShape_thenItIsRefused() {
+        let types: MessageTypes = [
+            "EIP712Domain": [MessageTypeProperty(name: "name", type: "string")],
+            "Order": [
+                MessageTypeProperty(name: "maker", type: "Person"),
+                MessageTypeProperty(name: "items", type: "uint256[]")
+            ],
+            "Person": [MessageTypeProperty(name: "wallet", type: "address")]
+        ]
+
+        // The hash reads a struct that is not an object as empty, and a lone value as a one-item array.
+        XCTAssertThrowsError(try WalletConnectTypedDataFields.flatten(
+            domain: [:],
+            message: ["maker": "0x1111111111111111111111111111111111111111"],
+            types: types,
+            primaryType: "Order"
+        )) { error in
+            XCTAssertEqual(error as? WalletConnectTypedDataFields.Problem, .shapeMismatch(path: "message.maker"))
+        }
+        XCTAssertThrowsError(try WalletConnectTypedDataFields.flatten(
+            domain: [:],
+            message: ["items": "5"],
+            types: types,
+            primaryType: "Order"
+        )) { error in
+            XCTAssertEqual(error as? WalletConnectTypedDataFields.Problem, .shapeMismatch(path: "message.items"))
+        }
+    }
+
+    func testTypedDataFields_findTheKeysTheTypesDoNotDeclareAtEveryLevel() {
+        let types: MessageTypes = [
+            "EIP712Domain": [MessageTypeProperty(name: "name", type: "string")],
+            "Order": [
+                MessageTypeProperty(name: "maker", type: "Person"),
+                MessageTypeProperty(name: "items", type: "Person[]")
+            ],
+            "Person": [MessageTypeProperty(name: "wallet", type: "address")]
+        ]
+
+        let keys = WalletConnectTypedDataFields.undeclaredKeys(
+            domain: ["name": "Shop", "salt": "0x01"],
+            message: [
+                "maker": ["wallet": "0x11", "nickname": "x"],
+                "items": [["wallet": "0x22"], ["wallet": "0x33", "extra": 1]],
+                "note": "not signed"
+            ],
+            types: types,
+            primaryType: "Order"
+        )
+
+        XCTAssertEqual(keys, ["domain.salt", "message.items[1].extra", "message.maker.nickname", "message.note"])
     }
 
     func testTypedDataFieldText_writesNumbersInFullAndBooleansAsWords() {
@@ -702,10 +790,160 @@ final class WalletConnectRequestPreparationTests: XCTestCase {
         let allowance = WalletConnectTokenAllowance(
             primaryType: "Permit",
             message: ["spender": spender.toHex(includePrefix: true) as NSString, "value": NSNumber(value: 1.5)],
+            types: Self.permitTypes(Self.eip2612Fields),
             verifyingContract: token
         )
 
         XCTAssertEqual(allowance, WalletConnectTokenAllowance(token: token, spender: spender, amount: nil))
+    }
+
+    func testPermit_isReadOnlyFromTheExactStandardDefinition() {
+        let spender = Data(repeating: 0x5A, count: 20)
+        let token = Data(repeating: 0x7B, count: 20)
+        let message: [String: AnyObject] = [
+            "spender": spender.toHex(includePrefix: true) as NSString,
+            "value": "1000" as NSString,
+            "deadline": "1900000000" as NSString
+        ]
+
+        XCTAssertEqual(
+            WalletConnectTokenAllowance(
+                primaryType: "Permit",
+                message: message,
+                types: Self.permitTypes(Self.eip2612Fields),
+                verifyingContract: token
+            )?.amount,
+            1000
+        )
+        // An extra field, another order, another type or a missing token: not a permit the wallet reads.
+        let variants: [[(String, String)]] = [
+            Self.eip2612Fields + [("memo", "string")],
+            Array(Self.eip2612Fields.reversed()),
+            Self.eip2612Fields.map { $0.0 == "value" ? ($0.0, "string") : $0 }
+        ]
+        for fields in variants {
+            XCTAssertNil(
+                WalletConnectTokenAllowance(
+                    primaryType: "Permit",
+                    message: message,
+                    types: Self.permitTypes(fields),
+                    verifyingContract: token
+                ),
+                "\(fields)"
+            )
+        }
+        XCTAssertNil(WalletConnectTokenAllowance(
+            primaryType: "Permit",
+            message: message,
+            types: Self.permitTypes(Self.eip2612Fields),
+            verifyingContract: nil
+        ))
+    }
+
+    func testTypedData_whenAPermitCarriesDAIKeysItDoesNotDeclare_thenTheSignedPermitIsShown() async throws {
+        // The review's case: an EIP-2612 permit for the unlimited amount with a far deadline, plus undeclared
+        // `allowed: false` and `expiry: 0`. The hash ignores the extra keys, so what is signed is unlimited.
+        let wallet = try Fixtures.ethereumWallet(seed: 0x59, keystore: InMemoryKeychain())
+        let spender = "0x" + String(repeating: "5a", count: 20)
+        let usdc = "0x" + String(repeating: "7c", count: 20)
+        let maximum = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        var permit = Self.eip2612Permit(owner: wallet.addressHex, spender: spender, token: usdc, value: maximum)
+        var message = try XCTUnwrap(permit["message"] as? [String: Any])
+        message["allowed"] = false
+        message["expiry"] = 0
+        permit["message"] = message
+
+        let typedData = try await prepareTypedData(permit, wallet: wallet)
+
+        XCTAssertEqual(
+            typedData.allowance,
+            WalletConnectTokenAllowance(
+                token: try Data(hexStringSSF: usdc),
+                spender: try Data(hexStringSSF: spender),
+                amount: BigUInt(2).power(256) - 1,
+                deadline: 99_999_999_999
+            )
+        )
+        XCTAssertEqual(typedData.unsignedKeys, ["message.allowed", "message.expiry"])
+        XCTAssertFalse(typedData.fields.contains { $0.path == "message.allowed" || $0.path == "message.expiry" })
+        XCTAssertTrue(typedData.fields.contains { $0.path == "message.value" && $0.value == maximum })
+    }
+
+    func testTypedData_domainValuesAreShownOnlyWhenTheDomainTypeDeclaresThem() async throws {
+        let wallet = try Fixtures.ethereumWallet(seed: 0x5B, keystore: InMemoryKeychain())
+        let spender = "0x" + String(repeating: "5a", count: 20)
+        let usdc = "0x" + String(repeating: "7c", count: 20)
+        var permit = Self.eip2612Permit(owner: wallet.addressHex, spender: spender, token: usdc, value: "1000")
+        var types = try XCTUnwrap(permit["types"] as? [String: Any])
+        // Neither the token contract nor the name is hashed.
+        types["EIP712Domain"] = [["name": "chainId", "type": "uint256"]]
+        permit["types"] = types
+
+        let typedData = try await prepareTypedData(permit, wallet: wallet)
+
+        XCTAssertNil(typedData.verifyingContract)
+        XCTAssertNil(typedData.domainName)
+        XCTAssertNil(typedData.allowance, "Without a hashed token contract the permit names no token")
+        XCTAssertEqual(typedData.unsignedKeys, ["domain.name", "domain.verifyingContract"])
+    }
+
+    func testTypedData_whenAFieldDoesNotHaveItsDeclaredShape_thenDeclines() async throws {
+        var typedData = Self.mailTypedData(chainId: 1)
+        var message = try XCTUnwrap(typedData["message"] as? [String: Any])
+        message["from"] = "Cow"
+        typedData["message"] = message
+
+        await assertTypedData(typedData, declinesWith: .unsupported)
+    }
+
+    func testTypedData_whenItHasMoreFieldsThanTheConfirmationShows_thenDeclines() async {
+        let typedData: [String: Any] = [
+            "types": [
+                "EIP712Domain": [["name": "name", "type": "string"], ["name": "chainId", "type": "uint256"]],
+                "Batch": [["name": "amounts", "type": "uint256[]"]]
+            ],
+            "primaryType": "Batch",
+            "domain": ["name": "Batcher", "chainId": 1],
+            "message": ["amounts": (0 ..< WalletConnectTypedDataFields.limit).map { String($0) }]
+        ]
+
+        await assertTypedData(typedData, declinesWith: .unsupported)
+    }
+
+    static let eip2612Fields = [
+        ("owner", "address"), ("spender", "address"), ("value", "uint256"), ("nonce", "uint256"), ("deadline", "uint256")
+    ]
+
+    static func permitTypes(_ fields: [(String, String)]) -> MessageTypes {
+        [
+            "EIP712Domain": [
+                MessageTypeProperty(name: "name", type: "string"),
+                MessageTypeProperty(name: "verifyingContract", type: "address")
+            ],
+            "Permit": fields.map { MessageTypeProperty(name: $0.0, type: $0.1) }
+        ]
+    }
+
+    static func eip2612Permit(owner: String, spender: String, token: String, value: String) -> [String: Any] {
+        [
+            "types": [
+                "EIP712Domain": [
+                    ["name": "name", "type": "string"],
+                    ["name": "chainId", "type": "uint256"],
+                    ["name": "verifyingContract", "type": "address"]
+                ],
+                "Permit": eip2612Fields.map { ["name": $0.0, "type": $0.1] }
+            ],
+            "primaryType": "Permit",
+            "domain": ["name": "USD Coin", "chainId": 1, "verifyingContract": token],
+            "message": [
+                "owner": owner,
+                "spender": spender,
+                "value": value,
+                "nonce": 0,
+                "deadline": 99_999_999_999
+            ]
+        ]
     }
 
     // MARK: - Substrate messages
@@ -852,6 +1090,48 @@ final class WalletConnectRequestPreparationTests: XCTestCase {
         runtime.coderFactory = fixture.coderFactory
 
         await assertDeclines(try await fixture.prepare(runtime: runtime), with: .runtimeMismatch(chainName: "Polkadot"))
+    }
+
+    func testPolkadotTransaction_whenABatchIsTooLargeToShowInFull_thenDeclines() async throws {
+        let fixture = try PolkadotFixture(call: Self.batchOfRemarks(WalletConnectSubstrateCallText.maxCalls + 1))
+        let runtime = WalletConnectRuntimeStub()
+        runtime.coderFactory = fixture.coderFactory
+
+        await assertDeclines(try await fixture.prepare(runtime: runtime), with: .unsupported)
+        XCTAssertTrue(runtime.feeQueries.isEmpty, "Declined before anything else")
+    }
+
+    func testPolkadotTransaction_whenABatchFits_thenItIsPreparedWithEveryCall() async throws {
+        let fixture = try PolkadotFixture(call: Self.batchOfRemarks(3))
+        let runtime = WalletConnectRuntimeStub()
+        runtime.coderFactory = fixture.coderFactory
+
+        let signingRequest = try await fixture.prepare(runtime: runtime)
+
+        guard case let .polkadotTransaction(extrinsic) = signingRequest.content else {
+            return XCTFail("Expected a transaction")
+        }
+        XCTAssertEqual(extrinsic.call.callName, "batch_all")
+        XCTAssertNil(extrinsic.transfer)
+        XCTAssertEqual(WalletConnectSubstrateCallText.innerCalls(of: extrinsic.call).count, 3)
+        let text = WalletConnectSubstrateCallText(address: { _ in nil }, nativeAmount: { _ in nil })
+            .text(forArgumentsOf: extrinsic.call)
+        XCTAssertTrue(text.contains("remark: [104, 105]"), text)
+    }
+
+    private static func batchOfRemarks(_ count: Int) throws -> RuntimeCall<JSON> {
+        // `remark: Vec<u8>` takes its bytes as a list of numbers.
+        let remark = RuntimeCall(
+            moduleName: "System",
+            callName: "remark",
+            args: JSON.dictionaryValue(["remark": .arrayValue([.stringValue("104"), .stringValue("105")])])
+        )
+        let remarkJSON = try remark.toScaleCompatibleJSON()
+        return RuntimeCall(
+            moduleName: "Utility",
+            callName: "batch_all",
+            args: JSON.dictionaryValue(["calls": .arrayValue(Array(repeating: remarkJSON, count: count))])
+        )
     }
 
     func testPolkadotTransaction_whenTheCallHasExtraBytes_thenDeclines() async throws {
@@ -1029,7 +1309,8 @@ private struct PolkadotFixture {
         transactionVersion: String = "0x00000014",
         nonce: String = "0x00000005",
         callSuffix: Data = Data(),
-        payloadAddressSeed: UInt8? = nil
+        payloadAddressSeed: UInt8? = nil,
+        call: RuntimeCall<JSON>? = nil
     ) throws {
         wallet = try WalletConnectTestFixtures.substrateWallet(seed: 0x71, keystore: keystore)
         coderFactory = try WalletConnectTestFixtures.polkadotCoderFactory()
@@ -1044,7 +1325,14 @@ private struct PolkadotFixture {
         )
         // `MultiAddress::Id` is variant 0; a plain `AccountId32` has no variant byte.
         let destination = destinationType.contains("MultiAddress") ? Data([0x00]) + recipient : recipient
-        callData = Data([moduleIndex, callIndex]) + destination + Self.compact(amount)
+        if let call = call {
+            // Another call, encoded with the runtime's own encoder.
+            let encoder = coderFactory.createEncoder()
+            try encoder.append(json: call.toScaleCompatibleJSON(), type: GenericType.call.name)
+            callData = try encoder.encode()
+        } else {
+            callData = Data([moduleIndex, callIndex]) + destination + Self.compact(amount)
+        }
 
         let address = try wallet.accountId.toAddress(using: .substrate(0))
         let payloadAddress = try payloadAddressSeed.map {

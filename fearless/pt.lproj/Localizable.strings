@@ -1183,6 +1183,8 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "wallet.connect.confirmation.unreadable" = "Não é possível ler";
 "wallet.connect.confirmation.call.warning" = "A Fearless não consegue explicar o que esta chamada faz. Confira a chamada e os detalhes dela antes de assinar.";
 "wallet.connect.confirmation.arguments" = "Detalhes";
+"wallet.connect.confirmation.calls" = "Chamadas incluídas";
+"wallet.connect.confirmation.unsigned.warning" = "O app enviou nesta mensagem dados que não são assinados. A Fearless não os mostra.";
 "wallet.connect.request.rejected.title" = "Esta solicitação não pode ser assinada";
 "wallet.connect.request.error.account" = "O app pediu uma assinatura com uma conta que você não aprovou para esta conexão. A solicitação foi recusada e nada foi assinado.";
 "wallet.connect.request.error.network" = "A solicitação não corresponde à rede para a qual foi enviada. A solicitação foi recusada e nada foi assinado.";

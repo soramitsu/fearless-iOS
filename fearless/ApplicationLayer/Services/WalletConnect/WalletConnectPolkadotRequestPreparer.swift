@@ -5,6 +5,7 @@ import RobinHood
 import SSFModels
 import SSFRuntimeCodingService
 import SSFUtils
+import SoraFoundation
 
 protocol WalletConnectPolkadotRuntimeProviding {
     func coderFactory(for chain: ChainModel) async throws -> RuntimeCoderFactoryProtocol
@@ -172,6 +173,15 @@ final class WalletConnectPolkadotRequestPreparer: WalletConnectPolkadotRequestPr
         }
 
         let call = try decodeCall(payload.method, coderFactory: coderFactory)
+        let transfer = try transfer(in: call)
+
+        // Any other call is shown in full with its arguments and the calls it carries, or not signed at all.
+        if transfer == nil {
+            let text = WalletConnectSubstrateCallText.make(chain: chain, locale: LocalizationManager.shared.selectedLocale)
+            guard text.fits(call) else {
+                throw WalletConnectRequestError.unsupported
+            }
+        }
 
         return DecodedTransaction(
             payload: payload,
@@ -181,7 +191,7 @@ final class WalletConnectPolkadotRequestPreparer: WalletConnectPolkadotRequestPr
             era: era,
             tip: tip,
             call: call,
-            transfer: try transfer(in: call)
+            transfer: transfer
         )
     }
 
