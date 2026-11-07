@@ -48,8 +48,10 @@ Path(path).write_text('\n'.join(lines))
 PYTHON
 }
 
-release_build="$(bash "$CHECK" "$REPO_ROOT" | sed -nE 's/.*Release 4\.2\.0 \(([0-9.]+)\).*/\1/p')"
-[[ -n "$release_build" ]] || {
+check_output="$(bash "$CHECK" "$REPO_ROOT")" || check_output=""
+release_version="$(sed -nE 's/.*Release ([0-9]+\.[0-9]+\.[0-9]+) \(([0-9.]+)\).*/\1/p' <<<"$check_output")"
+release_build="$(sed -nE 's/.*Release ([0-9]+\.[0-9]+\.[0-9]+) \(([0-9.]+)\).*/\2/p' <<<"$check_output")"
+[[ -n "$release_version" && -n "$release_build" ]] || {
   printf '[ios-build-number-test] the repository itself does not pass the check\n' >&2
   exit 1
 }
@@ -152,16 +154,16 @@ replace_line fastlane/.env.example "TESTFLIGHT_BUILD=$release_build" "TESTFLIGHT
 run_reject fastlane-env-drift "fastlane/.env.example pins 2026.9.6"
 
 prepare_case fastlane-version-drift
-replace_line fastlane/.env.example "TESTFLIGHT_VERSION=4.2.0" "TESTFLIGHT_VERSION=4.1.0"
-run_reject fastlane-version-drift "TESTFLIGHT_VERSION must be 4.2.0"
+replace_line fastlane/.env.example "TESTFLIGHT_VERSION=$release_version" "TESTFLIGHT_VERSION=4.1.0"
+run_reject fastlane-version-drift "TESTFLIGHT_VERSION must be $release_version"
 
 prepare_case readme-drift
-python3 - "$case_root/fastlane/README.md" "$release_build" <<'PYTHON'
+python3 - "$case_root/fastlane/README.md" "$release_build" "$release_version" <<'PYTHON'
 import sys
 from pathlib import Path
-path, build = sys.argv[1:]
+path, build, version = sys.argv[1:]
 source = Path(path).read_text()
-marker = f'ios publish_archive \\\n  version:4.2.0 \\\n  build:{build}\n'
+marker = f'ios publish_archive \\\n  version:{version} \\\n  build:{build}\n'
 assert source.count(marker) == 1
 Path(path).write_text(source.replace(marker, marker.replace(build, '2026.8.34')))
 PYTHON
@@ -194,8 +196,8 @@ run_reject capture-not-allowlisted "does not allowlist SAFE_UPGRADE_BUILD_NUMBER
 
 prepare_case wrong-marketing-version
 replace_line fearless.xcodeproj/project.pbxproj \
-  "				MARKETING_VERSION = 4.2.0;" "				MARKETING_VERSION = 4.1.9;"
-run_reject wrong-marketing-version "MARKETING_VERSION must be 4.2.0"
+  "				MARKETING_VERSION = $release_version;" "				MARKETING_VERSION = 4.1.9;"
+run_reject wrong-marketing-version "MARKETING_VERSION must be $release_version"
 
 prepare_case non-canonical-build
 set_all_pins 2026.10.1-rc
