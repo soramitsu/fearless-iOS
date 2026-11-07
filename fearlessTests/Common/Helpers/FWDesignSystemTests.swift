@@ -261,11 +261,16 @@ final class FWDesignSystemTests: XCTestCase {
             let font = UIFont.fw(.hud, locale: Locale(identifier: language), compatibleWith: traits)
             XCTAssertFalse(font.fontName.localizedCaseInsensitiveContains("mono"))
         }
-        for role in [FWFontStyle.bodyM, .numberM, .titleS, .monoM, .hud] {
-            let regular = UIFont.fw(role, compatibleWith: traits, boldText: false)
-            let bold = UIFont.fw(role, compatibleWith: traits, boldText: true)
-            XCTAssertEqual(regular.pointSize, bold.pointSize)
-            XCTAssertNotEqual(regular.fontDescriptor, bold.fontDescriptor)
+        // Both a language whose HUD uses the bundled mono face and one whose HUD uses the system
+        // face; the default locale would make the result depend on the device language.
+        for language in ["en", "ja"] {
+            let locale = Locale(identifier: language)
+            for role in [FWFontStyle.bodyM, .numberM, .titleS, .monoM, .hud] {
+                let regular = UIFont.fw(role, locale: locale, compatibleWith: traits, boldText: false)
+                let bold = UIFont.fw(role, locale: locale, compatibleWith: traits, boldText: true)
+                XCTAssertEqual(regular.pointSize, bold.pointSize, "\(language) \(role)")
+                XCTAssertNotEqual(regular.fontDescriptor, bold.fontDescriptor, "\(language) \(role)")
+            }
         }
     }
 }
