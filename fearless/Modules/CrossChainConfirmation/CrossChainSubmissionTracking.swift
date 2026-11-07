@@ -173,11 +173,47 @@ final class ReviewedCrossChainDispatchWatcher: ReviewedCrossChainDispatchWatchin
             .map(to: [EventRecord].self)
     }
 
+    /// Stops following the extrinsic's status. The watcher was added without a subscribe request of its own, so
+    /// `unsubsribe` only removes it from the engine (`cancelForIdentifier` found no request and left it registered).
+    /// The node ends an `author_submitAndWatchExtrinsic` subscription itself after reporting finality; otherwise it is
+    /// ended with `author_unwatchExtrinsic`, and the watcher stays until that answer so statuses sent before it still
+    /// find their handler.
+    private static func stopWatching(
+        requestId: UInt16,
+        subscriptionId: String,
+        endedByNode: Bool,
+        connection: JSONRPCEngine
+    ) {
+        let removeWatcher = { _ = try? connection.unsubsribe(requestId) }
+
+        guard !endedByNode else {
+            removeWatcher()
+            return
+        }
+
+        do {
+            _ = try connection.callMethod(
+                RPCMethod.unwatchExtrinsic,
+                params: [subscriptionId],
+                options: JSONRPCOptions(resendOnReconnect: false)
+            ) { (_: Result<Bool, Error>) in
+                removeWatcher()
+            }
+        } catch {
+            removeWatcher()
+        }
+    }
+
     private func inclusion(subscriptionId: String) async -> ReviewedCrossChainInclusion? {
         await withCheckedContinuation { (continuation: CheckedContinuation<ReviewedCrossChainInclusion?, Never>) in
             let requestId = connection.generateRequestId()
-            let resolution = ReviewedInclusionResolution(continuation) { [connection] in
-                connection.cancelForIdentifier(requestId)
+            let resolution = ReviewedInclusionResolution(continuation) { [connection] inclusion in
+                ReviewedCrossChainDispatchWatcher.stopWatching(
+                    requestId: requestId,
+                    subscriptionId: subscriptionId,
+                    endedByNode: inclusion?.isFinalized == true,
+                    connection: connection
+                )
             }
             let subscription = JSONRPCSubscription<JSONRPCSubscriptionUpdate<ExtrinsicStatus>>(
                 requestId: requestId,
@@ -243,9 +279,12 @@ private final class ReviewedInclusionResolution: @unchecked Sendable {
     private let lock = NSLock()
     private var continuation: CheckedContinuation<ReviewedCrossChainInclusion?, Never>?
     private var bestBlockHash: String?
-    private let onResolve: () -> Void
+    private let onResolve: (ReviewedCrossChainInclusion?) -> Void
 
-    init(_ continuation: CheckedContinuation<ReviewedCrossChainInclusion?, Never>, onResolve: @escaping () -> Void) {
+    init(
+        _ continuation: CheckedContinuation<ReviewedCrossChainInclusion?, Never>,
+        onResolve: @escaping (ReviewedCrossChainInclusion?) -> Void
+    ) {
         self.continuation = continuation
         self.onResolve = onResolve
     }
@@ -273,7 +312,7 @@ private final class ReviewedInclusionResolution: @unchecked Sendable {
         continuation = nil
         lock.unlock()
         guard let pending else { return }
-        onResolve()
+        onResolve(value)
         pending.resume(returning: value)
     }
 }

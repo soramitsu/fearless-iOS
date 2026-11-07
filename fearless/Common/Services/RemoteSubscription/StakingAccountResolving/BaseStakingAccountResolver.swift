@@ -10,6 +10,10 @@ class BaseStakingAccountResolver: StakingAccountResolver {
         let controller: StorageChildSubscribing
         let ledger: StorageChildSubscribing
         let subscriptionId: UInt16
+        /// The connection that opened the subscription. The registry replaces a chain's
+        /// connection when the chain's nodes change, and the identifier may belong to
+        /// another subscription there.
+        let connection: ChainConnection
     }
 
     struct DecodedChanges {
@@ -77,8 +81,18 @@ class BaseStakingAccountResolver: StakingAccountResolver {
             return
         }
 
-        chainRegistry.getConnection(for: chainAsset.chain.chainId)?.cancelForIdentifier(subscription.subscriptionId)
+        endRemoteSubscription(subscription)
         self.subscription = nil
+    }
+
+    /// cancelForIdentifier only withdraws an unanswered request; an established
+    /// subscription keeps running on the node until it is unsubscribed.
+    private func endRemoteSubscription(_ subscription: Subscription) {
+        do {
+            try subscription.connection.unsubsribe(subscription.subscriptionId)
+        } catch {
+            logger?.error("Can't unsubscribe from staking storage: \(error)")
+        }
     }
 
     func subscribe(
@@ -123,10 +137,17 @@ class BaseStakingAccountResolver: StakingAccountResolver {
                 failureClosure: failureClosure
             )
 
+            // StakingAccountUpdatingService resolves again after init has; the
+            // replaced subscription would otherwise keep running on the node.
+            if let replaced = subscription {
+                endRemoteSubscription(replaced)
+            }
+
             subscription = Subscription(
                 controller: controllerSubscription,
                 ledger: ledgerSubscription,
-                subscriptionId: subscriptionId
+                subscriptionId: subscriptionId,
+                connection: connection
             )
         } catch {
             logger?.error("Did receive error: \(error)")

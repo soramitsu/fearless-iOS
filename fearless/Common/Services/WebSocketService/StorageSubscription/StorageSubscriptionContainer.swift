@@ -49,8 +49,18 @@ final class StorageSubscriptionContainer {
     }
 
     private func unsubscribe() {
-        if let identifier = subscriptionId {
-            engine.cancelForIdentifier(identifier)
+        guard let identifier = subscriptionId else {
+            return
+        }
+
+        subscriptionId = nil
+
+        // cancelForIdentifier only withdraws an unanswered request; an established
+        // subscription keeps running on the node until it is unsubscribed.
+        do {
+            try engine.unsubsribe(identifier)
+        } catch {
+            logger.error("Can't unsubscribe from storage: \(error)")
         }
     }
 

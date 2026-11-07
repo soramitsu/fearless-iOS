@@ -13,6 +13,10 @@ final class PoolStakingAccountSubscription: PoolStakingAccountSubscriptionProtoc
     struct Subscription {
         let handlers: [StorageChildSubscribing]
         let subscriptionId: UInt16
+        /// The connection that opened the subscription. The registry replaces a chain's
+        /// connection when the chain's nodes change, and the identifier may belong to
+        /// another subscription there.
+        let connection: ChainConnection
     }
 
     private let accountId: AccountId
@@ -54,13 +58,23 @@ final class PoolStakingAccountSubscription: PoolStakingAccountSubscriptionProtoc
     private func unsubscribeRemote() {
         mutex.lock()
 
-        if let subscriptionId = subscription?.subscriptionId {
-            chainRegistry.getConnection(for: chainAsset.chain.chainId)?.cancelForIdentifier(subscriptionId)
+        if let subscription = subscription {
+            endRemoteSubscription(subscription)
         }
 
         subscription = nil
 
         mutex.unlock()
+    }
+
+    /// cancelForIdentifier only withdraws an unanswered request; an established
+    /// subscription keeps running on the node until it is unsubscribed.
+    private func endRemoteSubscription(_ subscription: Subscription) {
+        do {
+            try subscription.connection.unsubsribe(subscription.subscriptionId)
+        } catch {
+            logger?.error("Can't unsubscribe from pool staking storage: \(error)")
+        }
     }
 
     private func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
@@ -176,7 +190,13 @@ final class PoolStakingAccountSubscription: PoolStakingAccountSubscriptionProtoc
                 childSubscriptionFactory.createEmptyHandlingSubscription(keys: keys)
             }
 
-            subscription = Subscription(handlers: handlers, subscriptionId: subscriptionId)
+            // PoolStakingAccountUpdatingService subscribes again after init has; the
+            // replaced subscription would otherwise keep running on the node.
+            if let replaced = subscription {
+                endRemoteSubscription(replaced)
+            }
+
+            subscription = Subscription(handlers: handlers, subscriptionId: subscriptionId, connection: connection)
 
         } catch {
             logger?.error("Can't subscribe to storage: \(error)")
