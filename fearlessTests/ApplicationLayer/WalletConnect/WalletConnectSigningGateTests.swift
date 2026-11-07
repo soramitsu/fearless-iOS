@@ -273,6 +273,14 @@ final class WalletConnectSigningGateTests: XCTestCase {
         XCTAssertFalse(authorized)
     }
 
+    func testPolkadotSignatureIds_stayWithinJavaScriptsSafeIntegers() {
+        for _ in 0 ..< 1000 {
+            let id = WalletConnectPolkadotSignature.makeId()
+            XCTAssertGreaterThan(id, 0)
+            XCTAssertLessThanOrEqual(id, 9_007_199_254_740_991)
+        }
+    }
+
     // MARK: - Notices
 
     func testCoordinator_showsOneNoticeForPausedRequestsAndForFailedLinks() throws {

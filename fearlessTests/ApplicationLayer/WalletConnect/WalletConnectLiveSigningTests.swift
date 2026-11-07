@@ -150,7 +150,8 @@ final class WalletConnectLiveSigningTests: XCTestCase {
             }
             RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.2))
         }
-        throw XCTSkip("\(url.lastPathComponent) did not appear: is the reference dApp running?")
+        XCTFail("\(url.lastPathComponent) did not appear: is the reference dApp running?")
+        throw CancellationError()
     }
 
     private func spin(timeout: TimeInterval, _ condition: () -> Bool) throws {

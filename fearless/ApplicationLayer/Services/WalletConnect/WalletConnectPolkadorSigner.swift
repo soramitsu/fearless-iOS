@@ -65,7 +65,7 @@ final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
         try encoder.append(multiSignature, ofType: KnownType.signature.name)
 
         let result = WalletConnectPolkadotSignature(
-            id: UInt.random(in: 0 ..< UInt.max),
+            id: WalletConnectPolkadotSignature.makeId(),
             signature: try encoder.encode().toHex(includePrefix: true)
         )
         return AnyCodable(result)
@@ -78,7 +78,7 @@ final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
     ) throws -> AnyCodable {
         let signedRawData = try transactionSigner.sign(WalletConnectBytesEnvelope.wrap(message.bytes)).rawData()
         let result = WalletConnectPolkadotSignature(
-            id: UInt.random(in: 0 ..< UInt.max),
+            id: WalletConnectPolkadotSignature.makeId(),
             signature: signedRawData.toHex(includePrefix: true)
         )
         return AnyCodable(result)

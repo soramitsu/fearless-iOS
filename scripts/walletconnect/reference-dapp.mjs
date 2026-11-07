@@ -38,7 +38,8 @@ const storage = {
   getKeys: async () => [...values.keys()],
   getEntries: async () => [...values.entries()].map(([key, value]) => [key, JSON.parse(value)]),
   getItem: async (key) => (values.has(key) ? JSON.parse(values.get(key)) : undefined),
-  setItem: async (key, value) => void values.set(key, JSON.stringify(value)),
+  // The SDK keeps integers beyond 2^53 (some wallets' response ids) as BigInt.
+  setItem: async (key, value) => void values.set(key, JSON.stringify(value, (_, v) => (typeof v === 'bigint' ? v.toString() : v))),
   removeItem: async (key) => void values.delete(key),
 };
 
