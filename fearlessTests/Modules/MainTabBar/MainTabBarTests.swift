@@ -1462,9 +1462,10 @@ final class MainTabBarTests: XCTestCase {
         wait(for: [firstNotified, secondNotified], timeout: 2)
     }
 
-    func testPolkaswapQuoteResponsePolicyRejectsOlderEquivalentRequest() {
+    func testPolkaswapQuoteResponsePolicyOrdersRepliesToTheSameQuestion() {
         let older = PolkaswapQuoteParams(
             requestId: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+            issueOrder: 1,
             fromAssetId: "xor",
             toAssetId: "val",
             amount: "1",
@@ -1474,6 +1475,7 @@ final class MainTabBarTests: XCTestCase {
         )
         let latest = PolkaswapQuoteParams(
             requestId: UUID(uuidString: "00000000-0000-0000-0000-000000000002")!,
+            issueOrder: 2,
             fromAssetId: older.fromAssetId,
             toAssetId: older.toAssetId,
             amount: older.amount,
@@ -1481,11 +1483,23 @@ final class MainTabBarTests: XCTestCase {
             liquiditySources: older.liquiditySources,
             filterMode: older.filterMode
         )
+        let otherAmount = PolkaswapQuoteParams(
+            issueOrder: 3,
+            fromAssetId: older.fromAssetId,
+            toAssetId: older.toAssetId,
+            amount: "2",
+            swapVariant: older.swapVariant,
+            liquiditySources: older.liquiditySources,
+            filterMode: older.filterMode
+        )
 
-        XCTAssertFalse(
+        // A block refresh asked again while the earlier reply was on its way: that reply still answers the
+        // question on screen, so it is shown instead of being thrown away (2026.11.5 waited minutes).
+        XCTAssertTrue(
             PolkaswapQuoteResponsePolicy.shouldAccept(
                 response: older,
                 latest: latest,
+                lastAccepted: nil,
                 currentFromAssetId: latest.fromAssetId,
                 currentToAssetId: latest.toAssetId
             )
@@ -1494,17 +1508,68 @@ final class MainTabBarTests: XCTestCase {
             PolkaswapQuoteResponsePolicy.shouldAccept(
                 response: latest,
                 latest: latest,
+                lastAccepted: older,
                 currentFromAssetId: latest.fromAssetId,
                 currentToAssetId: latest.toAssetId
             )
         )
         XCTAssertFalse(
             PolkaswapQuoteResponsePolicy.shouldAccept(
+                response: older,
+                latest: latest,
+                lastAccepted: latest,
+                currentFromAssetId: latest.fromAssetId,
+                currentToAssetId: latest.toAssetId
+            ),
+            "An older reply never replaces a newer one that is already shown"
+        )
+        XCTAssertFalse(
+            PolkaswapQuoteResponsePolicy.shouldAccept(
                 response: latest,
                 latest: latest,
+                lastAccepted: latest,
+                currentFromAssetId: latest.fromAssetId,
+                currentToAssetId: latest.toAssetId
+            )
+        )
+        XCTAssertFalse(
+            PolkaswapQuoteResponsePolicy.shouldAccept(
+                response: older,
+                latest: otherAmount,
+                lastAccepted: nil,
+                currentFromAssetId: latest.fromAssetId,
+                currentToAssetId: latest.toAssetId
+            ),
+            "A reply for another amount never shows"
+        )
+        XCTAssertTrue(
+            PolkaswapQuoteResponsePolicy.shouldAccept(
+                response: otherAmount,
+                latest: otherAmount,
+                lastAccepted: latest,
+                currentFromAssetId: latest.fromAssetId,
+                currentToAssetId: latest.toAssetId
+            ),
+            "A new question is not held back by the order of the previous one"
+        )
+        XCTAssertFalse(
+            PolkaswapQuoteResponsePolicy.shouldAccept(
+                response: latest,
+                latest: latest,
+                lastAccepted: nil,
                 currentFromAssetId: latest.fromAssetId,
                 currentToAssetId: "different"
             )
+        )
+        XCTAssertFalse(
+            PolkaswapQuoteResponsePolicy.shouldAccept(
+                response: latest,
+                latest: nil,
+                lastAccepted: nil,
+                currentFromAssetId: latest.fromAssetId,
+                currentToAssetId: latest.toAssetId
+            ),
+            "Nothing shows after the inputs were cleared"
         )
     }
 
@@ -4722,4 +4787,228 @@ extension MainTabBarTests {
             "Confirm receives the tap, not the tab bar or its raised button: \(String(describing: hit))"
         )
     }
+}
+
+// MARK: - Polkaswap quotes arrive although every block asks again (iOS 4.2.0 after 2026.11.5)
+
+extension MainTabBarTests {
+    /// 2026.11.5 accepted only the newest request's reply and asked again on every SORA block, so a reply slower
+    /// than a block was always thrown away and the quote never showed. The reply to a question still on screen
+    /// must show, a block must not start a second request while one is awaited, and an older reply must never
+    /// replace a newer one.
+    func testQuoteReplyShowsAlthoughBlocksArriveWhileItIsAwaited() throws {
+        let fixture = try makeQuoteFixture()
+        let presenter = fixture.presenter
+
+        presenter.updateFromAmount(2)
+        spinMainLoop(seconds: 0.5)
+        let first = try XCTUnwrap(fixture.interactor.quoteRequests.last)
+        XCTAssertEqual(fixture.interactor.quoteRequests.count, 1, "One request after typing pauses")
+
+        presenter.updateQuotes()
+        presenter.updateQuotes()
+        spinMainLoop(seconds: 0.5)
+        XCTAssertEqual(fixture.interactor.quoteRequests.count, 1, "Blocks wait for the reply already on its way")
+
+        presenter.didReceiveSwapValues(
+            [SwapValues(dexId: 0, amount: "4000000000000000000", rewards: [])],
+            params: first,
+            errors: []
+        )
+        spinMainLoop(seconds: 0.2)
+        XCTAssertEqual(fixture.view.toAmounts.last??.decimalAmount, Decimal(4), "The awaited reply shows")
+        XCTAssertNotNil(fixture.view.details.last ?? nil)
+
+        presenter.updateQuotes()
+        spinMainLoop(seconds: 0.2)
+        XCTAssertEqual(fixture.interactor.quoteRequests.count, 2, "The next block refreshes the quote")
+        let refresh = try XCTUnwrap(fixture.interactor.quoteRequests.last)
+        XCTAssertTrue(refresh.asksSameQuote(as: first))
+        XCTAssertGreaterThan(refresh.issueOrder, first.issueOrder)
+        XCTAssertNotNil(fixture.view.details.last ?? nil, "A refresh keeps the shown quote")
+
+        presenter.didReceiveSwapValues(
+            [SwapValues(dexId: 0, amount: "5000000000000000000", rewards: [])],
+            params: refresh,
+            errors: []
+        )
+        spinMainLoop(seconds: 0.2)
+        XCTAssertEqual(fixture.view.toAmounts.last??.decimalAmount, Decimal(5))
+
+        let toUpdates = fixture.view.toAmounts.count
+        presenter.didReceiveSwapValues(
+            [SwapValues(dexId: 0, amount: "3000000000000000000", rewards: [])],
+            params: first,
+            errors: []
+        )
+        spinMainLoop(seconds: 0.2)
+        XCTAssertEqual(fixture.view.toAmounts.count, toUpdates, "An older reply never replaces a newer one")
+
+        presenter.updateQuotes()
+        spinMainLoop(seconds: 0.2)
+        let failedRefresh = try XCTUnwrap(fixture.interactor.quoteRequests.last)
+        presenter.didReceiveSwapValues([], params: failedRefresh, errors: [JSONRPCEngineError.timeout])
+        spinMainLoop(seconds: 0.2)
+        XCTAssertEqual(fixture.router.presentedTitles, [], "A failed refresh keeps the quote without an alert")
+        XCTAssertEqual(fixture.view.toAmounts.last??.decimalAmount, Decimal(5))
+    }
+
+    func testChangedAmountDropsRepliesToTheOldAmount() throws {
+        let fixture = try makeQuoteFixture()
+        let presenter = fixture.presenter
+
+        presenter.updateFromAmount(2)
+        spinMainLoop(seconds: 0.5)
+        let oldAmount = try XCTUnwrap(fixture.interactor.quoteRequests.last)
+
+        presenter.updateFromAmount(3)
+        spinMainLoop(seconds: 0.5)
+        let newAmount = try XCTUnwrap(fixture.interactor.quoteRequests.last)
+        XCTAssertFalse(newAmount.asksSameQuote(as: oldAmount))
+
+        let toUpdates = fixture.view.toAmounts.count
+        presenter.didReceiveSwapValues(
+            [SwapValues(dexId: 0, amount: "4000000000000000000", rewards: [])],
+            params: oldAmount,
+            errors: []
+        )
+        spinMainLoop(seconds: 0.2)
+        XCTAssertEqual(fixture.view.toAmounts.count, toUpdates, "A quote for 2 never shows after typing 3")
+
+        presenter.didReceiveSwapValues(
+            [SwapValues(dexId: 0, amount: "6000000000000000000", rewards: [])],
+            params: newAmount,
+            errors: []
+        )
+        spinMainLoop(seconds: 0.2)
+        XCTAssertEqual(fixture.view.toAmounts.last??.decimalAmount, Decimal(6))
+    }
+
+    func testQuoteRequestWaitsOnlyForTypingToPause() throws {
+        let fixture = try makeQuoteFixture()
+
+        fixture.presenter.updateFromAmount(2)
+        spinMainLoop(seconds: 0.45)
+        XCTAssertEqual(
+            fixture.interactor.quoteRequests.count,
+            1,
+            "The request leaves well within the one-second target"
+        )
+    }
+
+    // MARK: Quote fixture
+
+    private struct QuoteFixture {
+        let presenter: PolkaswapAdjustmentPresenter
+        let interactor: PolkaswapQuoteInteractorSpy
+        let view: PolkaswapQuoteViewSpy
+        let router: PolkaswapQuoteRouterSpy
+    }
+
+    private func makeQuoteFixture() throws -> QuoteFixture {
+        let params = makePolkaswapPreviewParams()
+        let interactor = PolkaswapQuoteInteractorSpy()
+        let view = PolkaswapQuoteViewSpy()
+        let router = PolkaswapQuoteRouterSpy()
+        let presenter = PolkaswapAdjustmentPresenter(
+            wallet: params.wallet,
+            xorChainAsset: params.soraChinAsset,
+            swapChainAsset: params.soraChinAsset,
+            viewModelFactory: PolkaswapAdjustmentViewModelFactory(
+                wallet: params.wallet,
+                xorChainAsset: params.soraChinAsset,
+                assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+            ),
+            dataValidatingFactory: SendDataValidatingFactory(presentable: router),
+            interactor: interactor,
+            router: router,
+            swapVariant: .desiredInput,
+            localizationManager: LocalizationManager.shared
+        )
+        presenter.didLoad(view: view)
+        presenter.didReceiveSettings(settings: try XCTUnwrap(PolkaswapSettingsFactory.bundledSettings()))
+        presenter.assetSelection(didCompleteWith: params.swapToChainAsset, contextTag: 1)
+        spinMainLoop(seconds: 0.5)
+        interactor.quoteRequests.removeAll()
+        return QuoteFixture(presenter: presenter, interactor: interactor, view: view, router: router)
+    }
+
+    private func spinMainLoop(seconds: TimeInterval) {
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: seconds))
+    }
+}
+
+private final class PolkaswapQuoteInteractorSpy: PolkaswapAdjustmentInteractorInput {
+    var quoteRequests: [PolkaswapQuoteParams] = []
+
+    func setup(with _: PolkaswapAdjustmentInteractorOutput) {}
+    func didReceive(_: ChainAsset?, _: ChainAsset?) {}
+    func fetchQuotes(with params: PolkaswapQuoteParams) { quoteRequests.append(params) }
+    func subscribeOnBlocks() {}
+    func estimateFee(
+        dexId _: String,
+        fromAssetId _: String,
+        toAssetId _: String,
+        swapVariant _: SwapVariant,
+        swapAmount _: SwapAmount,
+        filter _: PolkaswapLiquidityFilterMode,
+        liquiditySourceType _: LiquiditySourceType
+    ) {}
+    func fetchDisclaimerVisible() {}
+}
+
+private final class PolkaswapQuoteViewSpy: UIViewController, PolkaswapAdjustmentViewInput {
+    var toAmounts: [IAmountInputViewModel?] = []
+    var details: [PolkaswapAdjustmentDetailsViewModel?] = []
+
+    func didReceive(market _: LiquiditySourceType) {}
+    func didReceiveSwapFrom(viewModel _: AssetBalanceViewModelProtocol?) {}
+    func didReceiveSwapTo(viewModel _: AssetBalanceViewModelProtocol?) {}
+    func didReceiveSwapFrom(amountInputViewModel _: IAmountInputViewModel?) {}
+    func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?) { toAmounts.append(amountInputViewModel) }
+    func didReceiveNetworkFee(fee _: BalanceViewModelProtocol?) {}
+    func didUpdating() {}
+    func didReceive(variant _: SwapVariant) {}
+    func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?) { details.append(viewModel) }
+    func setButtonLoadingState(isLoading _: Bool) {}
+    func hideBanners() {}
+}
+
+private final class PolkaswapQuoteRouterSpy: PolkaswapAdjustmentRouterInput {
+    var presentedTitles: [String?] = []
+
+    func present(
+        message _: String?,
+        title: String,
+        closeAction _: String?,
+        from _: ControllerBackedProtocol?,
+        actions _: [SheetAlertPresentableAction]
+    ) {
+        presentedTitles.append(title)
+    }
+
+    func showSelectMarket(
+        from _: ControllerBackedProtocol?,
+        markets _: [LiquiditySourceType],
+        selectedMarket _: LiquiditySourceType,
+        slippadgeTolerance _: Float,
+        moduleOutput _: PolkaswapTransaktionSettingsModuleOutput
+    ) {}
+
+    func showSelectAsset(
+        from _: ControllerBackedProtocol?,
+        wallet _: MetaAccountModel,
+        chainAssets _: [ChainAsset]?,
+        selectedAssetId _: AssetModel.Id?,
+        contextTag _: Int?,
+        output _: SelectAssetModuleOutput
+    ) {}
+
+    func showConfirmation(
+        with _: PolkaswapPreviewParams,
+        from _: ControllerBackedProtocol?,
+        completeClosure _: (() -> Void)?
+    ) -> PolkaswapSwapConfirmationModuleInput? { nil }
+
+    func showDisclaimer(moduleOutput _: PolkaswapDisclaimerModuleOutput?, from _: ControllerBackedProtocol?) {}
 }

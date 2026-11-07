@@ -2,6 +2,8 @@ import Foundation
 
 struct PolkaswapQuoteParams: Equatable {
     let requestId: UUID
+    /// Increases with every request the swap screen sends, so replies can be ordered.
+    let issueOrder: UInt64
     let fromAssetId: String
     let toAssetId: String
     let amount: String
@@ -11,6 +13,7 @@ struct PolkaswapQuoteParams: Equatable {
 
     init(
         requestId: UUID = UUID(),
+        issueOrder: UInt64 = 0,
         fromAssetId: String,
         toAssetId: String,
         amount: String,
@@ -19,6 +22,7 @@ struct PolkaswapQuoteParams: Equatable {
         filterMode: PolkaswapLiquidityFilterMode
     ) {
         self.requestId = requestId
+        self.issueOrder = issueOrder
         self.fromAssetId = fromAssetId
         self.toAssetId = toAssetId
         self.amount = amount
@@ -27,13 +31,19 @@ struct PolkaswapQuoteParams: Equatable {
         self.filterMode = filterMode
     }
 
+    /// True when both requests ask the node the same question: same pair, amount, direction and market.
+    func asksSameQuote(as other: PolkaswapQuoteParams) -> Bool {
+        fromAssetId == other.fromAssetId &&
+            toAssetId == other.toAssetId &&
+            amount == other.amount &&
+            swapVariant.rawValue == other.swapVariant.rawValue &&
+            liquiditySources == other.liquiditySources &&
+            filterMode.rawValue == other.filterMode.rawValue
+    }
+
     static func == (lhs: PolkaswapQuoteParams, rhs: PolkaswapQuoteParams) -> Bool {
         lhs.requestId == rhs.requestId &&
-            lhs.fromAssetId == rhs.fromAssetId &&
-            lhs.toAssetId == rhs.toAssetId &&
-            lhs.amount == rhs.amount &&
-            lhs.swapVariant.rawValue == rhs.swapVariant.rawValue &&
-            lhs.liquiditySources == rhs.liquiditySources &&
-            lhs.filterMode.rawValue == rhs.filterMode.rawValue
+            lhs.issueOrder == rhs.issueOrder &&
+            lhs.asksSameQuote(as: rhs)
     }
 }

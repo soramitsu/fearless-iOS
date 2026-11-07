@@ -24,6 +24,14 @@ protocol PolkaswapOperationFactoryProtocol {
         dexId: UInt32,
         params: PolkaswapQuoteParams
     ) -> JSONRPCOperation<[PolkaswapJSON], SwapValues>
+    /// Sends one DEX's quote straight to the SORA socket. Unlike the operation, it never waits for a slot in an
+    /// operation queue or holds a thread, so the rest of the app's work cannot delay a quote.
+    func fetchQuote(
+        dexId: UInt32,
+        params: PolkaswapQuoteParams,
+        timeout: TimeInterval,
+        completion: @escaping (Result<SwapValues, Error>) -> Void
+    )
     func createDexInfosOperation() -> CompoundOperationWrapper<[UInt32]>
 }
 
@@ -132,7 +140,47 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
             return JSONRPCOperation.failureOperation(ChainRegistryError.connectionUnavailable)
         }
 
-        let paramsArray: [PolkaswapJSON] = [
+        return JSONRPCOperation<[PolkaswapJSON], SwapValues>(
+            engine: connection,
+            method: RPCMethod.recalculateSwapValues,
+            parameters: Self.quoteParameters(dexId: dexId, params: params)
+        )
+    }
+
+    func fetchQuote(
+        dexId: UInt32,
+        params: PolkaswapQuoteParams,
+        timeout: TimeInterval,
+        completion: @escaping (Result<SwapValues, Error>) -> Void
+    ) {
+        let reply = PolkaswapQuoteReply(completion)
+
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            reply.finish(.failure(ChainRegistryError.connectionUnavailable))
+            return
+        }
+
+        do {
+            let requestId = try connection.callMethod(
+                RPCMethod.recalculateSwapValues,
+                params: Self.quoteParameters(dexId: dexId, params: params),
+                options: JSONRPCOptions()
+            ) { (result: Result<SwapValues, Error>) in
+                reply.finish(result)
+            }
+
+            DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + timeout) {
+                if reply.finish(.failure(JSONRPCEngineError.timeout)) {
+                    connection.cancelForIdentifier(requestId)
+                }
+            }
+        } catch {
+            reply.finish(.failure(error))
+        }
+    }
+
+    private static func quoteParameters(dexId: UInt32, params: PolkaswapQuoteParams) -> [PolkaswapJSON] {
+        [
             PolkaswapJSON(dexId),
             PolkaswapJSON(params.fromAssetId),
             PolkaswapJSON(params.toAssetId),
@@ -141,12 +189,6 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
             PolkaswapJSON(params.liquiditySources),
             PolkaswapJSON(params.filterMode.code)
         ]
-
-        return JSONRPCOperation<[PolkaswapJSON], SwapValues>(
-            engine: connection,
-            method: RPCMethod.recalculateSwapValues,
-            parameters: paramsArray
-        )
     }
 
     func createDexInfosOperation() -> CompoundOperationWrapper<[UInt32]> {
@@ -194,5 +236,31 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
         dexInfosWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
         return dexInfosWrapper
+    }
+}
+
+/// Delivers a quote request's first outcome, whether the node's answer or the timeout, exactly once.
+final class PolkaswapQuoteReply {
+    private let lock = NSLock()
+    private var completion: ((Result<SwapValues, Error>) -> Void)?
+
+    init(_ completion: @escaping (Result<SwapValues, Error>) -> Void) {
+        self.completion = completion
+    }
+
+    /// Returns false when an earlier outcome was already delivered.
+    @discardableResult
+    func finish(_ result: Result<SwapValues, Error>) -> Bool {
+        lock.lock()
+        let pending = completion
+        completion = nil
+        lock.unlock()
+
+        guard let pending else {
+            return false
+        }
+
+        pending(result)
+        return true
     }
 }
