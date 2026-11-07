@@ -33,6 +33,7 @@ final class SendPresenter {
     private let formScope: SolanaSendFormScope
     private let viewModelFactory: SendViewModelFactoryProtocol
     private let tokenCatalog: CanonicalTokenGroupCatalog
+    private let pasteboard: PasteboardStringAccessing
     private var initialData: SendFlowInitialData
 
     private weak var moduleOutput: SendModuleOutput?
@@ -225,7 +226,8 @@ final class SendPresenter {
         wallet: MetaAccountModel,
         initialData: SendFlowInitialData,
         tokenCatalog: CanonicalTokenGroupCatalog = .bundled,
-        selectedWalletSettings: SelectedWalletSettings = .shared
+        selectedWalletSettings: SelectedWalletSettings = .shared,
+        pasteboard: PasteboardStringAccessing = UIPasteboard.general
     ) {
         self.interactor = interactor
         self.router = router
@@ -233,6 +235,7 @@ final class SendPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
         self.wallet = wallet
+        self.pasteboard = pasteboard
         formScope = SolanaSendFormScope(selection: selectedWalletSettings.sendAuthority.capture(for: wallet))
         self.initialData = initialData
         self.tokenCatalog = tokenCatalog
@@ -1162,7 +1165,7 @@ extension SendPresenter: SendViewOutput {
     }
 
     func didTapPasteButton() {
-        if let address = UIPasteboard.general.string {
+        if let address = pasteboard.string {
             handle(newAddress: address)
         }
     }

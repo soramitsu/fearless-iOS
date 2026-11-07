@@ -1,5 +1,13 @@
 import UIKit
 
+/// The text side of a pasteboard. Screens that copy or paste take one so tests can hand them a
+/// private store: a read of the system pasteboard can wait for a paste-permission answer.
+protocol PasteboardStringAccessing: AnyObject {
+    var string: String? { get set }
+}
+
+extension UIPasteboard: PasteboardStringAccessing {}
+
 protocol TextCopyPresentable {
     func presentCopy(
         with text: String,
