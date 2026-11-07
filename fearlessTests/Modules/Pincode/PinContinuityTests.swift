@@ -1123,6 +1123,9 @@ final class PinPersistenceTests: XCTestCase {
     }
 }
 
+/// Profile's wireframe keeps its pending authorization where `AuthorizationAccessible` reads it.
+extension ProfileWireframe: @retroactive AuthorizationAccessible {}
+
 @MainActor
 final class ProfileAuthorizationLifecycleTests: XCTestCase {
     private final class Secrets: SecretStoreManagerProtocol {
@@ -1223,6 +1226,7 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
 
     private struct Fixture {
         let factory: Factory
+        let wireframe: ProfileWireframe
         let profile: ProfileViewController
         let navigation: SceneNavigation
         let window: UIWindow
@@ -1247,7 +1251,13 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
         profile.didReceive(state: .loaded(models.model))
         window.layoutIfNeeded()
         try await waitUntil("Actual Profile root appearance must finish before presenting") { navigation.hasAppeared }
-        return Fixture(factory: factory, profile: profile, navigation: navigation, window: window)
+        return Fixture(factory: factory, wireframe: wireframe, profile: profile, navigation: navigation, window: window)
+    }
+
+    /// A dismissed authorization leaves the screen before its presenter releases the wireframe's
+    /// request, and the wireframe ignores a tap until then. Wait for the release, not the screen.
+    private func waitForAuthorizationRelease(_ fixture: Fixture) async throws {
+        try await waitUntil("The dismissed authorization must release Profile's request") { !fixture.wireframe.isAuthorizing }
     }
 
     private func waitUntil(_ description: String, _ condition: () -> Bool) async throws {
@@ -1261,6 +1271,7 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
     private func descendants(_ view: UIView) -> [UIView] { [view] + view.subviews.flatMap(descendants) }
 
     private func open(_ fixture: Fixture, settled: Bool = true) async throws -> Attempt {
+        try await waitForAuthorizationRelease(fixture)
         let table = fixture.profile.rootView.tableView
         var selected: IndexPath?
         for section in 0..<table.numberOfSections {
