@@ -18,5 +18,7 @@ prices. The framework's configured SubQuery endpoint
 
 The prebuilt `yttrium` libraries (`libyttrium.xcframework` and
 `libyttrium-utils.xcframework`) that came in through `reown-swift` were removed
-with WalletConnect on 2026-11-07: `reown-swift` is under the WalletConnect
-Community License, which is not open source.
+with it on 2026-11-07: `reown-swift` is under the WalletConnect Community
+License, which is not open source. The wallet now speaks WalletConnect with its
+own open-source client, `Packages/FearlessWalletConnect` (see
+`docs/walletconnect-protocol.md`), which uses only Apple's system frameworks.
