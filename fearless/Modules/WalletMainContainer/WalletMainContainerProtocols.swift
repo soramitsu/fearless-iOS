@@ -23,6 +23,7 @@ protocol WalletMainContainerViewOutput: AnyObject {
 
 protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
+    func walletConnect(uri: String) async throws
     func acknowledge(_ notice: StoredWalletRecordsNotice)
     func acknowledgeUniversalWalletPasswordNotice()
     func switchNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount])

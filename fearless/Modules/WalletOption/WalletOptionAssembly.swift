@@ -16,11 +16,27 @@ final class WalletOptionAssembly {
             sortDescriptors: []
         )
 
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository)
+        )
+
+        let walletConnectModelFactory = WalletConnectModelFactoryImpl()
+        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl(
+            walletConnectModelFactory: walletConnectModelFactory,
+            chainAssetFetcher: chainAssetFetching
+        )
+
         let interactor = WalletOptionInteractor(
             wallet: wallet,
             metaAccountRepository: AnyDataProviderRepository(managedMetaAccountRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            moduleOutput: delegate
+            moduleOutput: delegate,
+            walletConnectDisconnectService: walletConnectDisconnectService
         )
         let router = WalletOptionRouter()
 

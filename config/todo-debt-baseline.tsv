@@ -1,3 +1,4 @@
+fearless/ApplicationLayer/Services/WalletConnect/eip_mew/SignTypedData.swift	// TODO: check with metamask test cases v4
 fearless/Common/Extension/Foundation/NSPredicate+Filter.swift	// TODO: Remove
 fearless/Common/Extension/Foundation/NSPredicate+Validation.swift	// TODO: Add deriviationPathHardSoftNumeric?
 fearless/Common/Extension/Foundation/NSPredicate+Validation.swift	// TODO: Add deriviationPathHardSoftNumericPassword?

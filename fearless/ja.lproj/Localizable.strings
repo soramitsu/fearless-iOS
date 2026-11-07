@@ -1116,6 +1116,13 @@
 "wallet.balance.redeemable" = "償還可能";
 "wallet.balance.reserved" = "予約済み";
 "wallet.balance.unbonding_v1.9.0" = "ステーキング解除";
+"wallet.connect.connection.complete" = "%@ ethers との接続が正常に完了しました";
+"wallet.connect.connection.dissconnected" = "%@ ethers との切断が正常に完了しました";
+"wallet.connect.invalid.url.message" = "当アプリはWallet Connect SDK v2のみをサポートしており、非推奨のSDK v1はサポートしておりません。適切なバージョンを使用して正しく接続してください";
+"wallet.connect.invalid.url.title" = "警告： Wallet Connect SDK v1 はサポートされていません";
+"wallet.connect.sign.warning.message" = "このメッセージに署名すると、危険な副作用が生じる可能性があります。全てのアカウントにおいて、完全に信頼できるサイトからのメッセージのみに署名してください";
+"wallet.connect.signing.unavailable.message" = "接続中のアプリが Fearless に署名を求めました。リクエストは拒否され、何も署名されていません。ウォレットはこれまでどおりご利用いただけます。アプリの接続はプロフィールの WalletConnect から解除できます。";
+"wallet.connect.signing.unavailable.title" = "このバージョンでは WalletConnect の署名を利用できません";
 "wallet.contacts.empty.title" = "送信先のアカウントと連絡先がここに表示されます";
 "wallet.contacts.empty.title_v1.10" = "送信先のアカウントと連絡先がここに表示されます";
 "wallet.contacts.search.placeholder" = "アカウントのアドレスまたはアカウント名";

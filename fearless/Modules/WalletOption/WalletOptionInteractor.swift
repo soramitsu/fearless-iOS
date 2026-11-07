@@ -10,6 +10,7 @@ final class WalletOptionInteractor {
     private let wallet: ManagedMetaAccountModel
     private let metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
+    private let walletConnectDisconnectService: WalletConnectDisconnectService
     private let secretEraser: WalletSecretEraser
 
     init(
@@ -17,12 +18,14 @@ final class WalletOptionInteractor {
         metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
         moduleOutput: WalletOptionModuleOutput?,
+        walletConnectDisconnectService: WalletConnectDisconnectService,
         secretEraser: WalletSecretEraser = WalletSecretEraser()
     ) {
         self.wallet = wallet
         self.metaAccountRepository = metaAccountRepository
         self.operationQueue = operationQueue
         self.moduleOutput = moduleOutput
+        self.walletConnectDisconnectService = walletConnectDisconnectService
         self.secretEraser = secretEraser
     }
 
@@ -58,6 +61,8 @@ extension WalletOptionInteractor: WalletOptionInteractorInput {
                     remainingMetaIds: Set(remaining.map(\.info.metaId))
                 )
             }
+            // Disconnect WC sessions if any; errors are non-fatal for UX here.
+            try? await walletConnectDisconnectService.disconnect(wallet: wallet.info)
             await MainActor.run { [weak self] in
                 self?.moduleOutput?.walletWasRemoved()
                 self?.output?.walletRemoved()

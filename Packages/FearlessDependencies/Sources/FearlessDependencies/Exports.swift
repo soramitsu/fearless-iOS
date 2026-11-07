@@ -37,6 +37,10 @@
 @_exported import SwiftyBeaver
 #endif
 
+#if canImport(FearlessWalletConnect)
+@_exported import FearlessWalletConnect
+#endif
+
 #if canImport(TonAPI)
 @_exported import TonAPI
 #endif

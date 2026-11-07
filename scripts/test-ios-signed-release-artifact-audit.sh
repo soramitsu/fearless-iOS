@@ -558,9 +558,8 @@ mutate_plist "$SIGNED_ENTITLEMENTS" \
   'value["com.apple.security.application-groups"] = ["group.com.walletconnect.sdk"]'
 expect_failure replaced-walletconnect-group "signed entitlements or embedded distribution profile"
 
-# WalletConnect was removed, but earlier releases left its session keys and records
-# in this group. The one-time clean-up deletes them; a build without the group could
-# no longer reach them.
+# WalletConnect sessions, pairings and keys from earlier releases are moved into
+# this group on first launch. A build without it would strand them.
 prepare_case missing-walletconnect-group
 mutate_plist "$SIGNED_ENTITLEMENTS" \
   'del value["com.apple.security.application-groups"]'

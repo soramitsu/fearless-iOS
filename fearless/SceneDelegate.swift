@@ -64,7 +64,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 /// scene with the launch screen while the app is in the background only, so it
 /// never sits over Face ID, permission or sign-in prompts while the app is in use.
 final class AppSwitcherSnapshotCover {
-    /// Above the IrohaConnect window (`.alert + 1`).
+    /// Above the WalletConnect and IrohaConnect windows (`.alert + 1`).
     static let windowLevel = UIWindow.Level.alert + 100
 
     private var window: UIWindow?

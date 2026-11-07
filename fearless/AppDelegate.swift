@@ -2,7 +2,6 @@ import UIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private lazy var retiredSoraCardDataCleanup = RetiredSoraCardDataCleanup()
-    private lazy var retiredWalletConnectDataCleanup = RetiredWalletConnectDataCleanup()
     private var sensitiveLeftoversObserver: NSObjectProtocol?
 
     var isUnitTesting: Bool {
@@ -23,7 +22,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Not part of startup: these never block or fail the wallet opening.
         retiredSoraCardDataCleanup.runIfNeeded()
-        retiredWalletConnectDataCleanup.runIfNeeded()
         removeSensitiveLeftoversOnceActive()
         return true
     }

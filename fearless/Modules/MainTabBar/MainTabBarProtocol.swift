@@ -1,4 +1,5 @@
 import UIKit
+import FearlessWalletConnect
 
 protocol MainTabBarViewProtocol: ControllerBackedProtocol {
     var isPolkaswapUnavailable: Bool { get }

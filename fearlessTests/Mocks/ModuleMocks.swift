@@ -12533,6 +12533,16 @@ class MockProfileWireframeProtocol: ProfileWireframeProtocol, Cuckoo.ProtocolMoc
         )
     }
 
+    func showWalletConnect(from p0: ControllerBackedProtocol?) {
+        return cuckoo_manager.call(
+            "showWalletConnect(from p0: ControllerBackedProtocol?)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.showWalletConnect(from: p0)
+        )
+    }
+
     func present(viewModel p0: SheetAlertPresentableViewModel, from p1: ControllerBackedProtocol?) {
         return cuckoo_manager.call(
             "present(viewModel p0: SheetAlertPresentableViewModel, from p1: ControllerBackedProtocol?)",
@@ -12666,6 +12676,14 @@ class MockProfileWireframeProtocol: ProfileWireframeProtocol, Cuckoo.ProtocolMoc
             let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: p0) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self,
                 method: "showPolkaswapDisclaimer(from p0: ControllerBackedProtocol?)",
+                parameterMatchers: matchers
+            ))
+        }
+        
+        func showWalletConnect<M1: Cuckoo.OptionalMatchable>(from p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?)> where M1.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self,
+                method: "showWalletConnect(from p0: ControllerBackedProtocol?)",
                 parameterMatchers: matchers
             ))
         }
@@ -12844,6 +12862,18 @@ class MockProfileWireframeProtocol: ProfileWireframeProtocol, Cuckoo.ProtocolMoc
         
         
         @discardableResult
+        func showWalletConnect<M1: Cuckoo.OptionalMatchable>(from p0: M1) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "showWalletConnect(from p0: ControllerBackedProtocol?)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+        
+        
+        @discardableResult
         func present<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(viewModel p0: M1, from p1: M2) -> Cuckoo.__DoNotUse<(SheetAlertPresentableViewModel, ControllerBackedProtocol?), Void> where M1.MatchedType == SheetAlertPresentableViewModel, M2.OptionalMatchedType == ControllerBackedProtocol {
             let matchers: [Cuckoo.ParameterMatcher<(SheetAlertPresentableViewModel, ControllerBackedProtocol?)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return cuckoo_manager.verify(
@@ -12945,6 +12975,10 @@ class ProfileWireframeProtocolStub:ProfileWireframeProtocol, @unchecked Sendable
     }
     
     func showPolkaswapDisclaimer(from p0: ControllerBackedProtocol?) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    func showWalletConnect(from p0: ControllerBackedProtocol?) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

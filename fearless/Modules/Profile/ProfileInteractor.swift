@@ -20,6 +20,7 @@ final class ProfileInteractor {
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainsIssuesCenter: ChainsIssuesCenterProtocol
+    private let walletConnectDisconnectService: WalletConnectDisconnectService
     private let secretEraser: WalletSecretEraser
 
     private lazy var currentCurrency: Currency? = {
@@ -37,6 +38,7 @@ final class ProfileInteractor {
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainsIssuesCenter: ChainsIssuesCenterProtocol,
+        walletConnectDisconnectService: WalletConnectDisconnectService,
         secretEraser: WalletSecretEraser = WalletSecretEraser()
     ) {
         self.selectedWalletSettings = selectedWalletSettings
@@ -47,6 +49,7 @@ final class ProfileInteractor {
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.walletRepository = walletRepository
         self.chainsIssuesCenter = chainsIssuesCenter
+        self.walletConnectDisconnectService = walletConnectDisconnectService
         self.secretEraser = secretEraser
     }
 
@@ -110,11 +113,13 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         let operation = repository.deleteAllOperation()
         operation.addDependency(walletsOperation)
         let secretEraser = self.secretEraser
+        let walletConnectDisconnectService = self.walletConnectDisconnectService
         operation.completionBlock = {
             if case .success? = operation.result,
                let wallets = try? walletsOperation.extractNoCancellableResultData() {
                 secretEraser.eraseSecrets(of: wallets.map(\.info), remainingMetaIds: [])
             }
+            walletConnectDisconnectService.disconnectAllSessions()
             completion()
         }
         operationQueue.addOperations([walletsOperation, operation], waitUntilFinished: false)

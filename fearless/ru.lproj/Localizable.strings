@@ -1125,6 +1125,13 @@ Euro cash";
 "wallet.balance.redeemable" = "Можно забрать";
 "wallet.balance.reserved" = "Зарезервировано";
 "wallet.balance.unbonding_v1.9.0" = "В процессе вывода";
+"wallet.connect.connection.complete" = "Connection from %@ has been successfully completed";
+"wallet.connect.connection.dissconnected" = "Disconnection from %@ has been successfully completed";
+"wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
+"wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
+"wallet.connect.sign.warning.message" = "Signing this message can have dangerous side effect. Only sign message from sites you fully trust with your entire account.";
+"wallet.connect.signing.unavailable.message" = "Подключённое приложение запросило подпись у Fearless. Запрос отклонён, ничего не подписано. Вы можете пользоваться кошельком как обычно и отключить приложения в разделе WalletConnect вашего профиля.";
+"wallet.connect.signing.unavailable.title" = "Подпись через WalletConnect недоступна в этой версии";
 "wallet.contacts.empty.title" = "Здесь появятся ваши аккаунты и контакты, которым вы отправляли переводы";
 "wallet.contacts.empty.title_v1.10" = "Здесь появятся ваши\
 аккаунты и контакты, которым\

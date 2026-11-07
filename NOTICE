@@ -16,6 +16,11 @@ Third-party code in the application target:
   MEWwalletKit (https://github.com/MyEtherWallet/MEWwalletKit), Copyright
   2019-2021 MyEtherWallet Inc., MIT License; see LICENSE-MEWwalletKit.txt in that
   folder. Modified by Soramitsu for Fearless Wallet.
+- fearless/ApplicationLayer/Services/WalletConnect/eip_mew/ RLPBigInt.swift and
+  SignTypedData.swift are derived from MEWwalletKit
+  (https://github.com/MyEtherWallet/MEWwalletKit), Copyright 2021 MyEtherWallet
+  Inc., MIT License; see LICENSE-MEWwalletKit.txt in that folder. Modified by
+  Soramitsu for Fearless Wallet.
 - Packages/TonAPI/: the tonapi.io client generated in this repository by
   swift-openapi-generator 0.3.1 (https://github.com/apple/swift-openapi-generator,
   Apache License 2.0) from the tonapi OpenAPI specification in

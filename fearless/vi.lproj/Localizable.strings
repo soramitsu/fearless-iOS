@@ -1127,6 +1127,13 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "wallet.balance.redeemable" = "Có thể đổi trả";
 "wallet.balance.reserved" = "Dự trữ";
 "wallet.balance.unbonding_v1.9.0" = "Unstaking";
+"wallet.connect.connection.complete" = "Kết nối từ %@ với ether đã hoàn tất thành công";
+"wallet.connect.connection.dissconnected" = "Việc ngắt kết nối khỏi %@ ether đã hoàn tất thành công";
+"wallet.connect.invalid.url.message" = "Ứng dụng của chúng tôi chỉ hỗ trợ Wallet Connect SDK v2 và không hỗ trợ SDK v1 không được dùng nữa. Vui lòng sử dụng phiên bản thích hợp để kết nối thành công.";
+"wallet.connect.invalid.url.title" = "Cảnh báo: SDK Connect Wallet v1 không được hỗ trợ";
+"wallet.connect.sign.warning.message" = "Việc ký vào tin nhắn này có thể có tác dụng phụ nguy hiểm. Chỉ ký tin nhắn từ các trang web mà bạn hoàn toàn tin tưởng bằng toàn bộ tài khoản của mình.";
+"wallet.connect.signing.unavailable.message" = "Một ứng dụng đã kết nối yêu cầu Fearless ký. Yêu cầu đã bị từ chối và không có gì được ký. Bạn có thể tiếp tục sử dụng ví như bình thường và ngắt kết nối ứng dụng trong mục WalletConnect ở hồ sơ của bạn.";
+"wallet.connect.signing.unavailable.title" = "Tính năng ký qua WalletConnect không khả dụng trong phiên bản này";
 "wallet.contacts.empty.title" = "Tài khoản và thông tin của người bạn đã từng chuyển khoản sẽ hiện ở đây";
 "wallet.contacts.empty.title_v1.10" = "Tài khoản và thông tin của người bạn đã từng chuyển khoản sẽ ở đây";
 "wallet.contacts.search.placeholder" = "Địa chỉ tài khoản hoặc tên tài khoản";

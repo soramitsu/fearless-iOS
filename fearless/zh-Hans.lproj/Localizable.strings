@@ -1125,6 +1125,13 @@
 "wallet.balance.redeemable" = "可赎回";
 "wallet.balance.reserved" = "保留";
 "wallet.balance.unbonding_v1.9.0" = "解除质押";
+"wallet.connect.connection.complete" = "来自%@的连接已成功完成";
+"wallet.connect.connection.dissconnected" = "成功完成与%@的断开连接。";
+"wallet.connect.invalid.url.message" = "我们的应用程序仅支持Wallet Connect SDK v2，不支持已弃用的SDK v1。请使用适当的版本以确保成功连接。";
+"wallet.connect.invalid.url.title" = "警告：不支持 Wallet Connect SDK v1";
+"wallet.connect.sign.warning.message" = "警告：签署此消息可能会产生危险的副作用。只有在您完全信任的网站上，才使用您的整个账户签署消息。";
+"wallet.connect.signing.unavailable.message" = "已连接的应用请求 Fearless 签名。该请求已被拒绝，没有任何内容被签名。您可以照常使用钱包，并在个人资料的 WalletConnect 中断开应用连接。";
+"wallet.connect.signing.unavailable.title" = "此版本暂不支持 WalletConnect 签名";
 "wallet.contacts.empty.title" = "您的账户和您发送转账的联系人将会显示在这里";
 "wallet.contacts.empty.title_v1.10" = "您的账户和联系人\
 您发送给谁的转账会出现在这里";

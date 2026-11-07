@@ -21,6 +21,7 @@ final class ServiceCoordinator {
     private let githubPhishingService: ApplicationServiceProtocol
     private let scamSyncService: ScamSyncServiceProtocol
     private let polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol
+    private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
     private let pricesService: PricesServiceProtocol
     private let appOwnedMnemonicProvider: UniversalWalletRootMnemonicProviding
@@ -36,6 +37,7 @@ final class ServiceCoordinator {
         githubPhishingService: ApplicationServiceProtocol,
         scamSyncService: ScamSyncServiceProtocol,
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
+        walletConnect: WalletConnectService,
         walletAssetsObserver: WalletAssetsObserver,
         pricesService: PricesServiceProtocol,
         bitcoinMnemonicProvider: UniversalWalletRootMnemonicProviding = KeychainUniversalWalletMnemonicProvider(),
@@ -49,6 +51,7 @@ final class ServiceCoordinator {
         self.githubPhishingService = githubPhishingService
         self.scamSyncService = scamSyncService
         self.polkaswapSettingsService = polkaswapSettingsService
+        self.walletConnect = walletConnect
         self.walletAssetsObserver = walletAssetsObserver
         self.pricesService = pricesService
         appOwnedMnemonicProvider = bitcoinMnemonicProvider
@@ -79,6 +82,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         accountInfoService.setup()
         scamSyncService.syncUp()
         polkaswapSettingsService.syncUp()
+        walletConnect.setup()
         LegacyTonConnectCoordinator.shared.setup()
         IrohaConnectCoordinator.shared.setup()
         walletAssetsObserver.setup()
@@ -93,6 +97,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func throttle() {
         githubPhishingService.throttle()
         accountInfoService.throttle()
+        walletConnect.throttle()
         LegacyTonConnectCoordinator.shared.throttle()
         IrohaConnectCoordinator.shared.throttle()
         walletAssetsObserver.throttle()
@@ -204,7 +209,8 @@ private extension ServiceCoordinator {
 
 extension ServiceCoordinator {
     static func createDefault(
-        with selectedMetaAccount: MetaAccountModel
+        with selectedMetaAccount: MetaAccountModel,
+        walletConnect: WalletConnectService
     ) -> ServiceCoordinatorProtocol {
         let githubPhishingAPIService = GitHubPhishingServiceFactory.createService()
         let scamSyncService = ScamSyncServiceFactory.createService()
@@ -302,6 +308,7 @@ extension ServiceCoordinator {
             githubPhishingService: githubPhishingAPIService,
             scamSyncService: scamSyncService,
             polkaswapSettingsService: polkaswapSettingsService,
+            walletConnect: walletConnect,
             walletAssetsObserver: walletAssetsObserver,
             pricesService: PricesService.shared
         )

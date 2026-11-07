@@ -13,6 +13,8 @@ let package = Package(
         .library(name: "FearlessDependencies", targets: ["FearlessDependencies"])
     ],
     dependencies: [
+        // The app's own WalletConnect v2 client (replaces reown-swift, which is not open source)
+        .package(path: "../FearlessWalletConnect"),
         // Web3
         .package(url: "https://github.com/soramitsu/web3-swift", exact: "7.7.7"),
         // Explicitly add BigInt to satisfy transitive usage in SSFModels under explicit module builds
@@ -37,6 +39,8 @@ let package = Package(
         .target(
             name: "FearlessDependencies",
             dependencies: [
+                // WalletConnect v2, wallet role
+                .product(name: "FearlessWalletConnect", package: "FearlessWalletConnect"),
                 // Web3 products
                 .product(name: "Web3", package: "web3-swift"),
                 .product(name: "Web3ContractABI", package: "web3-swift"),

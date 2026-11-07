@@ -22,6 +22,7 @@ ARGUMENT_ENVIRONMENT = {
     "sepoliaApiKey": "FL_BLAST_API_SEPOLIA_KEY",
     "goerliApiKey": "FL_BLAST_API_GOERLI_KEY",
     "polygonApiKey": "FL_BLAST_API_POLYGON_KEY",
+    "walletConnectProjectId": "FL_WALLET_CONNECT_PROJECT_ID",
     "webClientIdRelease": "WEB_CLIENT_ID_RELEASE",
     "fearlessGoogleUrlSchemeRelease": "FEARLESS_GOOGLE_URL_SCHEME_RELEASE",
     "webClientIdDebug": "WEB_CLIENT_ID_DEBUG",

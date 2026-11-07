@@ -124,10 +124,12 @@ final class ReceiveAndRequestAssetTests: XCTestCase {
                 let details = WalletDetailsViewLayout()
                 let pools = LiquidityPoolsListViewLayout()
                 pools.searchTextField.isHidden = false
+                let connections = WalletConnectActiveSessionsViewLayout()
                 let assets = AssetListSearchViewLayout()
                 let hosts: [(UIView, SearchTextField)] = [
                     (details, details.searchTextField),
                     (pools, pools.searchTextField),
+                    (connections, connections.searchView),
                     (assets, assets.searchTextField)
                 ]
                 for (host, search) in hosts {

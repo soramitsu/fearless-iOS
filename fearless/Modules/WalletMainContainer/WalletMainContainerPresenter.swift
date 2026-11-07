@@ -76,18 +76,16 @@ final class WalletMainContainerPresenter {
         }
     }
 
-    /// The scanner's generic error for a code the wallet cannot use. WalletConnect
-    /// codes end up here: WalletConnect was removed because its SDK is not open source.
-    private func presentUnsupportedQRCode() {
-        let viewModel = SheetAlertPresentableViewModel(
-            title: R.string.localizable.commonUndefinedErrorMessage(
-                preferredLanguages: selectedLocale.rLanguages
-            ),
-            message: nil,
-            actions: [],
-            closeAction: nil
-        )
-        router.present(viewModel: viewModel, from: view)
+    private func walletConnect(with uri: String) {
+        Task {
+            do {
+                try await interactor.walletConnect(uri: uri)
+            } catch {
+                _ = await MainActor.run(body: {
+                    router.present(error: error, from: view, locale: selectedLocale)
+                })
+            }
+        }
     }
 }
 
@@ -589,8 +587,8 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
                 wallet: wallet,
                 initialData: .init(qrInfoType: qrInfoType)
             )
-        case .walletConnect:
-            presentUnsupportedQRCode()
+        case let .walletConnect(uri):
+            walletConnect(with: uri)
         }
     }
 }

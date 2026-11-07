@@ -1,4 +1,5 @@
 import Foundation
+import FearlessWalletConnect
 import SoraKeystore
 
 import SSFUtils

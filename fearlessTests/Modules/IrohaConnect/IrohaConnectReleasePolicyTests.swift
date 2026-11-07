@@ -28,6 +28,7 @@ final class IrohaConnectReleasePolicyTests: XCTestCase {
 
         XCTAssertFalse(defaultOptions.contains(.irohaConnect))
         XCTAssertFalse(productionOptions.contains(.irohaConnect))
+        XCTAssertTrue(defaultOptions.contains(.walletConnect))
         XCTAssertTrue(defaultOptions.contains(.tonConnect))
     }
 

@@ -40,6 +40,7 @@ SCHEME = 'com.googleusercontent.apps.123456789-nativeSyntheticId'
 
 def values():
     result = {field: hashlib.sha256(field.encode()).hexdigest() if field in A.REQUIRED else '' for field in SCHEMA}
+    result['WalletConnect.projectId'] = 'abc012340123456789abcdef12345678'
     result['GoogleBackup.googleToken'] = WEB_CLIENT
     result['GoogleBackup.googleUrlScheme'] = SCHEME
     return result
@@ -77,7 +78,7 @@ class AuditTests(unittest.TestCase):
 
     def test_valid_preflight_allows_empty_source_plist_and_optional_settings(self):
         result = A.audit(self.root)
-        self.assertEqual(32, len(result['fields']))
+        self.assertEqual(33, len(result['fields']))
         self.assertEqual(len(A.REQUIRED), sum(f['required'] for f in result['fields'].values()))
         self.assertTrue(all(not row['present'] and row['sha256'] is None for name, row in result['fields'].items() if name not in A.REQUIRED))
         encoded = json.dumps(result)
@@ -145,6 +146,7 @@ class AuditTests(unittest.TestCase):
             ('TonNodeApiKey.tonApiKey', 'real-looking-secret\n'),
             ('TonNodeApiKey.tonApiKey', 'value\x00secret'),
             ('TonNodeApiKey.tonApiKey', 'short'),
+            ('WalletConnect.projectId', 'a-valid-looking-but-nonhex-project'),
             ('GoogleBackup.googleToken', '1234567-wrong-provider.example.com'),
             ('GoogleBackup.googleUrlScheme', 'not-the-google-callback'),
         ]
@@ -158,7 +160,7 @@ class AuditTests(unittest.TestCase):
         first = next(line for line in baseline.splitlines() if 'static var' in line)
         mutations = [
             baseline.replace(first, first + '\n' + first, 1),
-            baseline + '\nenum GoogleBackup {\n}\n',
+            baseline + '\nenum WalletConnect {\n}\n',
             baseline + '\nprint("synthetic-private-value")\n',
             baseline.replace(first, '    static var stolen: String = ProcessInfo.processInfo.environment["TOKEN"]!', 1),
             baseline.replace(first, '    static var stolen: String = "\\(dangerous())"', 1),

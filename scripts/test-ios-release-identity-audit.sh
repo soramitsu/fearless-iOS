@@ -72,7 +72,7 @@ dev_entitlements="$REPO_ROOT/fearless/WalletConnect.dev.entitlements"
 
 run_audit() {
   local info_plist="${4:-$REPO_ROOT/fearless/Info.plist}"
-  local app_group_consumer="${5:-$REPO_ROOT/fearless/Common/Storage/Migration/RetiredSoraCardDataCleanup.swift}"
+  local wallet_connect_service="${5:-$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift}"
   local debug_settings_file="${6:-$debug_settings}"
   local debug_entitlements_file="${7:-$dev_entitlements}"
 
@@ -84,7 +84,7 @@ run_audit() {
   IOS_RELEASE_ENTITLEMENTS_FILE="$3" \
   IOS_DEBUG_ENTITLEMENTS_FILE="$debug_entitlements_file" \
   IOS_RELEASE_INFO_PLIST_FILE="$info_plist" \
-  IOS_RELEASE_APP_GROUP_CONSUMER_FILE="$app_group_consumer" \
+  IOS_RELEASE_WALLET_CONNECT_SERVICE_FILE="$wallet_connect_service" \
     bash "$AUDIT"
 }
 
@@ -97,7 +97,7 @@ run_debug_fixture() {
     "$scheme" \
     "$entitlements" \
     "$REPO_ROOT/fearless/Info.plist" \
-    "$REPO_ROOT/fearless/Common/Storage/Migration/RetiredSoraCardDataCleanup.swift" \
+    "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
     "$debug_settings_file" \
     "$debug_entitlements_file"
 }
@@ -369,23 +369,32 @@ plutil -replace CFBundleShortVersionString -string 4.2.1 \
 run_reject hardcoded-marketing-version \
   run_audit "$settings" "$scheme" "$entitlements" "$hardcoded_version_plist"
 
-missing_production_group_consumer="$FIXTURES/missing-production-group.swift"
+missing_production_group_service="$FIXTURES/missing-production-group.swift"
 sed \
   's/static let productionGroupIdentifier = "group.jp.co.soramitsu.fearlesswallet"/static let productionGroupIdentifier = "group.com.walletconnect.sdk"/' \
-  "$REPO_ROOT/fearless/Common/Storage/Migration/RetiredSoraCardDataCleanup.swift" \
-  > "$missing_production_group_consumer"
-run_reject app-group-consumer-production-group-mismatch \
+  "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
+  > "$missing_production_group_service"
+run_reject wallet-connect-production-group-mismatch \
   run_audit "$settings" "$scheme" "$entitlements" \
-    "$REPO_ROOT/fearless/Info.plist" "$missing_production_group_consumer"
+    "$REPO_ROOT/fearless/Info.plist" "$missing_production_group_service"
 
-missing_development_group_consumer="$FIXTURES/missing-development-group.swift"
+missing_development_group_service="$FIXTURES/missing-development-group.swift"
 sed \
   's/group\.jp\.co\.soramitsu\.fearlesswallet\.walletconnect/group.com.walletconnect.sdk/' \
-  "$REPO_ROOT/fearless/Common/Storage/Migration/RetiredSoraCardDataCleanup.swift" \
-  > "$missing_development_group_consumer"
-run_reject app-group-consumer-development-group-mismatch \
+  "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
+  > "$missing_development_group_service"
+run_reject wallet-connect-development-group-mismatch \
   run_audit "$settings" "$scheme" "$entitlements" \
-    "$REPO_ROOT/fearless/Info.plist" "$missing_development_group_consumer"
+    "$REPO_ROOT/fearless/Info.plist" "$missing_development_group_service"
+
+hardcoded_group_service="$FIXTURES/hardcoded-wallet-connect-group.swift"
+sed \
+  's/groupIdentifier: groupIdentifier/groupIdentifier: Self.walletConnectGroupIdentifier/' \
+  "$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift" \
+  > "$hardcoded_group_service"
+run_reject wallet-connect-hardcoded-group \
+  run_audit "$settings" "$scheme" "$entitlements" \
+    "$REPO_ROOT/fearless/Info.plist" "$hardcoded_group_service"
 
 printf '%s\n' \
   "[ios-release-identity-test] PASS: $pass_count positive and $fail_count negative/adversarial cases"

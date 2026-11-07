@@ -8,10 +8,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     struct Dependencies {
         var walletSettings: SelectedWalletSettings
         var localizationManager: LocalizationManagerProtocol
+        var walletConnectService: WalletConnectService
         var reachability: ReachabilityManager?
         var eventCenter: EventCenterProtocol
         var operationManager: OperationManagerProtocol
-        var serviceCoordinatorBuilder: (MetaAccountModel) -> ServiceCoordinatorProtocol
+        var serviceCoordinatorBuilder: (MetaAccountModel, WalletConnectService) -> ServiceCoordinatorProtocol
         var keystoreImportServiceProvider: () -> KeystoreImportServiceProtocol?
         var applicationHandlerBuilder: () -> ApplicationHandler
 
@@ -19,11 +20,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             Dependencies(
                 walletSettings: SelectedWalletSettings.shared,
                 localizationManager: LocalizationManager.shared,
+                walletConnectService: WalletConnectServiceImpl.shared,
                 reachability: ReachabilityManager.shared,
                 eventCenter: EventCenter.shared,
                 operationManager: OperationManagerFacade.sharedManager,
-                serviceCoordinatorBuilder: { metaAccount in
-                    ServiceCoordinator.createDefault(with: metaAccount)
+                serviceCoordinatorBuilder: { metaAccount, walletConnect in
+                    ServiceCoordinator.createDefault(with: metaAccount, walletConnect: walletConnect)
                 },
                 keystoreImportServiceProvider: {
                     URLHandlingService.shared.findService()
@@ -51,7 +53,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let localizationManager = dependencies.localizationManager
 
-        let serviceCoordinator = dependencies.serviceCoordinatorBuilder(wallet)
+        let walletConnect = dependencies.walletConnectService
+        let serviceCoordinator = dependencies.serviceCoordinatorBuilder(wallet, walletConnect)
 
         let wireframe = MainTabBarWireframe()
 
@@ -80,11 +83,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             applicationHandler: dependencies.applicationHandlerBuilder(),
             networkStatusPresenter: networkStatusPresenter,
             reachability: dependencies.reachability,
+            walletConnectCoordinator: WalletConnectCoordinator(),
             wallet: wallet,
             localizationManager: localizationManager
         )
 
-        let viewControllers = createViewControllers(wallet: wallet)
+        let viewControllers = createViewControllers(walletConnect: walletConnect, wallet: wallet)
         let view = MainTabBarViewController(
             viewControllers: viewControllers,
             presenter: presenter,
@@ -95,10 +99,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createViewControllers(
+        walletConnect: WalletConnectService,
         wallet: MetaAccountModel
     ) -> [UIViewController] {
         [
-            createPortfolioController(wallet: wallet),
+            createPortfolioController(walletConnect: walletConnect, wallet: wallet),
             createDeFiController(wallet: wallet),
             createPolkaswapController(wallet: wallet),
             createCrossChainController(wallet: wallet),
@@ -108,10 +113,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func reloadWalletDependentViews(
         on view: MainTabBarViewProtocol,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        walletConnect: WalletConnectService = WalletConnectServiceImpl.shared
     ) {
         let replacements: [(MainTabBarDestination, UIViewController)] = [
-            (.portfolio, createPortfolioController(wallet: wallet)),
+            (.portfolio, createPortfolioController(walletConnect: walletConnect, wallet: wallet)),
             (.defi, createDeFiController(wallet: wallet)),
             (.polkaswap, createPolkaswapController(wallet: wallet)),
             (.crossChain, createCrossChainController(wallet: wallet))
@@ -123,10 +129,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createPortfolioController(
+        walletConnect: WalletConnectService,
         wallet: MetaAccountModel
     ) -> UIViewController {
         let viewController = WalletMainContainerAssembly
-            .configureModule(wallet: wallet)?.view.controller ??
+            .configureModule(wallet: wallet, walletConnect: walletConnect)?.view.controller ??
             FeatureUnavailableViewController(
                 title: MainTabBarDestination.portfolio.title,
                 message: "Portfolio data is unavailable while wallet services are starting.",
@@ -134,7 +141,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
                 actionTitle: NSLocalizedString("ux.retry", value: "Try again", comment: ""),
                 action: { controller in
                     (controller.tabBarController as? MainTabBarViewController)?.didReplaceView(
-                        for: createPortfolioController(wallet: wallet),
+                        for: createPortfolioController(walletConnect: walletConnect, wallet: wallet),
                         for: MainTabBarDestination.portfolio.rawValue
                     )
                 }

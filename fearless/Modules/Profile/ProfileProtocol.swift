@@ -54,6 +54,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)
     func close(view: ControllerBackedProtocol?)
     func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?)
+    func showWalletConnect(from view: ControllerBackedProtocol?)
     func showNetworkAssets(from view: ControllerBackedProtocol?, wallet: MetaAccountModel)
     func showTonConnectCapability(from view: ControllerBackedProtocol?, hasTonAccount: Bool)
     func showIrohaConnect(from view: ControllerBackedProtocol?)

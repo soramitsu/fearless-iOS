@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import FearlessWalletConnect
 import SoraFoundation
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {

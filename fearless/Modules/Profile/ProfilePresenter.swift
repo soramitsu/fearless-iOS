@@ -99,6 +99,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
         case .biometry, .accountScore:
             break
+        case .walletConnect:
+            wireframe.showWalletConnect(from: view)
         case .networkAssets:
             guard let selectedWallet else { return }
             wireframe.showNetworkAssets(from: view, wallet: selectedWallet)
