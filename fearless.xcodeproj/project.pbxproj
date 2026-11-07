@@ -814,6 +814,9 @@
 		8454C21D2632A78900657DAD /* EventRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8454C21C2632A78900657DAD /* EventRecord.swift */; };
 		8454C2652632B0EF00657DAD /* EventCodingPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8454C2642632B0EF00657DAD /* EventCodingPath.swift */; };
 		8454C2832632FC2500657DAD /* ExtrinsicProcessingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8454C2822632FC2500657DAD /* ExtrinsicProcessingTests.swift */; };
+		5B0C1A7E0000000000000002 /* ScriptedSubstrateNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0C1A7E0000000000000001 /* ScriptedSubstrateNode.swift */; };
+		5B0C1A7E0000000000000004 /* PolkaswapRemoteSubscriptionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0C1A7E0000000000000003 /* PolkaswapRemoteSubscriptionServiceTests.swift */; };
+		5B0C1A7E0000000000000006 /* SubstrateTransactionObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0C1A7E0000000000000005 /* SubstrateTransactionObserverTests.swift */; };
 		845532D02684690D00C2645D /* ParachainSlotLease.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845532CF2684690D00C2645D /* ParachainSlotLease.swift */; };
 		845532D226846B6800C2645D /* ParachainLeaseInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845532D126846B6800C2645D /* ParachainLeaseInfo.swift */; };
 		84563D0324EFE6D70055591D /* NetworkItemMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563D0224EFE6D70055591D /* NetworkItemMapperTests.swift */; };
@@ -4100,6 +4103,9 @@
 		8454C21C2632A78900657DAD /* EventRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRecord.swift; sourceTree = "<group>"; };
 		8454C2642632B0EF00657DAD /* EventCodingPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCodingPath.swift; sourceTree = "<group>"; };
 		8454C2822632FC2500657DAD /* ExtrinsicProcessingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicProcessingTests.swift; sourceTree = "<group>"; };
+		5B0C1A7E0000000000000001 /* ScriptedSubstrateNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptedSubstrateNode.swift; sourceTree = "<group>"; };
+		5B0C1A7E0000000000000003 /* PolkaswapRemoteSubscriptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapRemoteSubscriptionServiceTests.swift; sourceTree = "<group>"; };
+		5B0C1A7E0000000000000005 /* SubstrateTransactionObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateTransactionObserverTests.swift; sourceTree = "<group>"; };
 		845532CF2684690D00C2645D /* ParachainSlotLease.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainSlotLease.swift; sourceTree = "<group>"; };
 		845532D126846B6800C2645D /* ParachainLeaseInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainLeaseInfo.swift; sourceTree = "<group>"; };
 		84563D0224EFE6D70055591D /* NetworkItemMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkItemMapperTests.swift; sourceTree = "<group>"; };
@@ -8880,10 +8886,21 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		5B0C1A7E0000000000000007 /* RemoteSubscription */ = {
+			isa = PBXGroup;
+			children = (
+				5B0C1A7E0000000000000001 /* ScriptedSubstrateNode.swift */,
+				5B0C1A7E0000000000000003 /* PolkaswapRemoteSubscriptionServiceTests.swift */,
+				5B0C1A7E0000000000000005 /* SubstrateTransactionObserverTests.swift */,
+			);
+			path = RemoteSubscription;
+			sourceTree = "<group>";
+		};
 		84452F8725D5E6CC00F47EC5 /* Services */ = {
 			isa = PBXGroup;
 			children = (
 				84300B2D26C110C400D64514 /* ChainRegistry */,
+				5B0C1A7E0000000000000007 /* RemoteSubscription */,
 				8454C2822632FC2500657DAD /* ExtrinsicProcessingTests.swift */,
 			);
 			path = Services;
@@ -19468,6 +19485,9 @@
 				FAD428A82A865636001D6A16 /* BackupPasswordTests.swift in Sources */,
 				DFA79F126A13D87E6E99A401 /* GoogleDriveWalletBackupTests.swift in Sources */,
 				8454C2832632FC2500657DAD /* ExtrinsicProcessingTests.swift in Sources */,
+				5B0C1A7E0000000000000002 /* ScriptedSubstrateNode.swift in Sources */,
+				5B0C1A7E0000000000000004 /* PolkaswapRemoteSubscriptionServiceTests.swift in Sources */,
+				5B0C1A7E0000000000000006 /* SubstrateTransactionObserverTests.swift in Sources */,
 				842D1E8E24D2091A00C30A7A /* CommonMocks.swift in Sources */,
 				8467FD0824E5E0BD005D486C /* KeystoreDefinition+Test.swift in Sources */,
 				84452F5D25D5CB3B00F47EC5 /* FileManagerTests.swift in Sources */,
