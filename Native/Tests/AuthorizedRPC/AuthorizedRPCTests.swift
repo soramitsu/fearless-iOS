@@ -231,9 +231,10 @@ final class AuthorizedRPCTests: XCTestCase {
 
     func testValidUnsubscribeQueuesWithoutRecursiveEngineLock() {
         let h = NetworkHarness()
-        let request = Data("{\"jsonrpc\":\"2.0\",\"id\":10,\"method\":\"state_subscribeStorage\",\"params\":[[]]}".utf8)
+        let request = Data("{\"jsonrpc\":\"2.0\",\"id\":10,\"method\":\"state_subscribeStorage\",\"params\":[[\"0x26aa\"]]}".utf8)
         let subscription = JSONRPCSubscription<String>(requestId: 10, requestData: request, requestOptions: JSONRPCOptions(),
             updateClosure: { _ in }, failureClosure: { _, _ in })
+        subscription.remoteId = "0xremote"
         h.rpc.addSubscription(subscription)
         let done = expectation(description: "unsubscribe returns")
         DispatchQueue.global().async {
@@ -242,16 +243,48 @@ final class AuthorizedRPCTests: XCTestCase {
         }
         wait(for: [done], timeout: 3)
         h.drain()
+        XCTAssertNil(h.rpc.subscriptions[10])
+        XCTAssertEqual(h.transport.legacyCalls.map(\.method), ["state_unsubscribeStorage"])
+        XCTAssertEqual(h.transport.legacyCalls.first?.params as? [String], ["0xremote"], "Substrate needs the subscription ID")
     }
 
-    func testMalformedUnsubscribeDoesNotKeepEngineMutexLocked() throws {
+    func testMalformedSubscriptionIsRemovedLocallyWithoutKeepingEngineMutexLocked() throws {
         let h = NetworkHarness()
         let subscription = JSONRPCSubscription<String>(requestId: 10, requestData: Data("invalid-json".utf8), requestOptions: JSONRPCOptions(),
             updateClosure: { _ in }, failureClosure: { _, _ in })
+        subscription.remoteId = "0xremote"
         h.rpc.addSubscription(subscription)
-        XCTAssertThrowsError(try h.rpc.unsubsribe(10))
+        XCTAssertNoThrow(try h.rpc.unsubsribe(10))
+        XCTAssertNil(h.rpc.subscriptions[10])
         XCTAssertTrue(h.rpc.mutex.try())
         h.rpc.mutex.unlock()
+        h.drain()
+        XCTAssertTrue(h.transport.legacyCalls.isEmpty, "no subscribe method to derive an unsubscribe method from")
+    }
+
+    func testUnsubscribeStopsWatchingQueuedGuardedRequestWithoutWithdrawingIt() throws {
+        let h = NetworkHarness(connected: false)
+        let request = Data("{\"jsonrpc\":\"2.0\",\"id\":10,\"method\":\"author_submitAndWatchExtrinsic\",\"params\":[\"immutable-signed-fixture\"]}".utf8)
+        let options = JSONRPCOptions(writeAuthorization: RPCGuard())
+        let watcher = JSONRPCSubscription<String>(requestId: 10, requestData: request, requestOptions: options,
+            updateClosure: { _ in XCTFail("unsubscribed watcher received an update") }, failureClosure: { _, _ in })
+        h.rpc.addSubscription(watcher)
+        h.rpc.mutex.lock()
+        h.rpc.updateConnectionForRequest(JSONRPCRequest(requestId: 10, data: request, options: options, responseHandler: nil))
+        h.rpc.mutex.unlock()
+        XCTAssertNoThrow(try h.rpc.unsubsribe(10))
+        XCTAssertNil(h.rpc.subscriptions[10])
+        XCTAssertEqual(h.rpc.pendingEngineRequests.map(\.requestId), [10], "unsubscribing never withdraws a write")
+        let sent = expectation(description: "guarded write handed off")
+        h.transport.onSend = { sent.fulfill() }
+        h.writer.didReceiveHTTP(event: .success([:]))
+        wait(for: [sent], timeout: 3)
+        XCTAssertEqual(h.transport.sent, [request])
+        h.respond(10, value: "0xwatch")
+        let deadline = Date().addingTimeInterval(3)
+        while h.transport.legacyCalls.isEmpty, Date() < deadline { Thread.sleep(forTimeInterval: 0.005) }
+        XCTAssertEqual(h.transport.legacyCalls.map(\.method), ["author_unwatchExtrinsic"])
+        XCTAssertEqual(h.transport.legacyCalls.first?.params as? [String], ["0xwatch"])
     }
 }
 
@@ -297,14 +330,27 @@ final class ContractTransport: AuthorizedTransport {
     let context = NSObject()
     private let lock = NSLock()
     private var frames = [Data]()
+    private var legacyFrames = [Data]()
     var onSend: (() -> Void)?
     var sent: [Data] { lock.lock(); defer { lock.unlock() }; return frames }
+    /// JSON-RPC calls written without authorization, such as unsubscribe requests.
+    var legacyCalls: [(method: String, params: Any?)] {
+        lock.lock(); defer { lock.unlock() }
+        return legacyFrames.compactMap { frame in
+            (try? JSONSerialization.jsonObject(with: frame) as? [String: Any]).flatMap { call in
+                (call["method"] as? String).map { ($0, call["params"]) }
+            }
+        }
+    }
     var usingTLS: Bool { false }
     func register(delegate: TransportEventClient) {}
     func connect(url: URL, timeout: Double, certificatePinning: CertificatePinning?) {}
     func disconnect() {}
     func captureWriteContext() -> AnyObject? { context }
-    func write(data: Data, completion: @escaping (Error?) -> Void) { completion(nil) }
+    func write(data: Data, completion: @escaping (Error?) -> Void) {
+        lock.lock(); legacyFrames.append(data); lock.unlock()
+        completion(nil)
+    }
     func write(data: Data, context: AnyObject, operation: AuthorizedWrite, authorization: WebSocketWriteAuthorizing, completion: @escaping (Error?) -> Void) throws {
         lock.lock()
         let before = frames.count
