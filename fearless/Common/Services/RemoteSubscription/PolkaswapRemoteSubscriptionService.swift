@@ -81,8 +81,14 @@ final class PolkaswapRemoteSubscriptionService: PolkaswapRemoteSubscriptionServi
     }
 
     func unsubscribe() {
-        subscriptions.forEach {
-            connection.cancelForIdentifier($0)
+        // cancelForIdentifier only withdraws unanswered requests; an established
+        // subscription keeps running on the node until it is unsubscribed.
+        subscriptions.forEach { identifier in
+            do {
+                try connection.unsubsribe(identifier)
+            } catch {
+                logger.error("\(error)")
+            }
         }
         subscriptions.removeAll()
     }
@@ -192,14 +198,16 @@ final class PolkaswapRemoteSubscriptionService: PolkaswapRemoteSubscriptionServi
             self?.logger.error("\(error)")
         }
 
-        let ids = try storageKeys.map {
-            try connection.subscribe(
+        // Keep every identifier, including earlier ones and those created before
+        // a failure, so unsubscribe() can end each subscription.
+        for storageKey in storageKeys {
+            let identifier = try connection.subscribe(
                 RPCMethod.storageSubscribe,
-                params: [[$0]],
+                params: [[storageKey]],
                 updateClosure: updateClosure,
                 failureClosure: failureClosure
             )
+            subscriptions.append(identifier)
         }
-        subscriptions = ids
     }
 }
