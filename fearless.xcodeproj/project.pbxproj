@@ -19,6 +19,7 @@
 		867C261A45631201D7E1CE3A /* FWRollingLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32451E4675CE521164A1E681 /* FWRollingLabel.swift */; };
 		7AB1F4C3720B3705E49C97D8 /* FWRoundActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C98E221C47CBA1993D89E2 /* FWRoundActionButton.swift */; };
 		B9949AC97F9193B487D4B92D /* FWSunBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E004F6BCBF1548FC84C93EEE /* FWSunBadgeView.swift */; };
+		BAFDD0A57CE4D03F59623D90 /* FWWingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFB6E890CB279FAA2BA52F2 /* FWWingsView.swift */; };
 		AA3B3BD28BBFEF9B15CA5108 /* FWSunlit.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0877EA206AC5CFE914107F /* FWSunlit.swift */; };
 		45D94F9325212801C2384A19 /* FWSunlitBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83C718C5066B74DE4D81B36 /* FWSunlitBackgroundView.swift */; };
 		F843C5045A5BC5F52EC4999A /* FWSurfacePainter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CE6CEA7CD162BC73B12D4C /* FWSurfacePainter.swift */; };
@@ -3323,6 +3324,7 @@
 		32451E4675CE521164A1E681 /* FWRollingLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWRollingLabel.swift; sourceTree = "<group>"; };
 		07C98E221C47CBA1993D89E2 /* FWRoundActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWRoundActionButton.swift; sourceTree = "<group>"; };
 		E004F6BCBF1548FC84C93EEE /* FWSunBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWSunBadgeView.swift; sourceTree = "<group>"; };
+		6FFB6E890CB279FAA2BA52F2 /* FWWingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWWingsView.swift; sourceTree = "<group>"; };
 		AC0877EA206AC5CFE914107F /* FWSunlit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWSunlit.swift; sourceTree = "<group>"; };
 		B83C718C5066B74DE4D81B36 /* FWSunlitBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWSunlitBackgroundView.swift; sourceTree = "<group>"; };
 		69CE6CEA7CD162BC73B12D4C /* FWSurfacePainter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWSurfacePainter.swift; sourceTree = "<group>"; };
@@ -6698,6 +6700,7 @@
 				32451E4675CE521164A1E681 /* FWRollingLabel.swift */,
 				07C98E221C47CBA1993D89E2 /* FWRoundActionButton.swift */,
 				E004F6BCBF1548FC84C93EEE /* FWSunBadgeView.swift */,
+				6FFB6E890CB279FAA2BA52F2 /* FWWingsView.swift */,
 				AC0877EA206AC5CFE914107F /* FWSunlit.swift */,
 				B83C718C5066B74DE4D81B36 /* FWSunlitBackgroundView.swift */,
 				69CE6CEA7CD162BC73B12D4C /* FWSurfacePainter.swift */,
@@ -19484,6 +19487,7 @@
 				867C261A45631201D7E1CE3A /* FWRollingLabel.swift in Sources */,
 				7AB1F4C3720B3705E49C97D8 /* FWRoundActionButton.swift in Sources */,
 				B9949AC97F9193B487D4B92D /* FWSunBadgeView.swift in Sources */,
+				BAFDD0A57CE4D03F59623D90 /* FWWingsView.swift in Sources */,
 				AA3B3BD28BBFEF9B15CA5108 /* FWSunlit.swift in Sources */,
 				45D94F9325212801C2384A19 /* FWSunlitBackgroundView.swift in Sources */,
 				F843C5045A5BC5F52EC4999A /* FWSurfacePainter.swift in Sources */,

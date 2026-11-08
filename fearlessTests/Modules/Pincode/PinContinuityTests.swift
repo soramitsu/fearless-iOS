@@ -57,6 +57,26 @@ final class PinContinuityTests: XCTestCase {
         func close() { window.isHidden = true; window.rootViewController = nil }
     }
 
+    func testWingsSpanMostOfThePinPageAtNormalAndMaximumType() async throws {
+        for category in [UIContentSizeCategory.large, .accessibilityExtraExtraExtraLarge] {
+            for mode in [PinView.Mode.create, .securedInput] {
+                let fixture = try show(language: "en", category: category, mode: mode, cancellable: false, heading: "setup")
+                defer { fixture.close() }
+                await Task.yield()
+                fixture.window.layoutIfNeeded()
+                let wings = try XCTUnwrap(descendants(fixture.controller.view).compactMap { $0 as? FWWingsView }.first)
+                XCTAssertGreaterThanOrEqual(wings.bounds.width / fixture.window.bounds.width, 0.8)
+                XCTAssertEqual(wings.bounds.width / wings.bounds.height, FWWingsView.aspectRatio, accuracy: 0.03)
+                let labels = try XCTUnwrap(fixture.controller.topLabel.superview).subviews.compactMap { $0 as? UILabel }
+                    .filter { !$0.isHidden }
+                for label in labels {
+                    let top = label.convert(label.bounds, to: fixture.scroll).minY
+                    XCTAssertLessThanOrEqual(wings.convert(wings.bounds, to: fixture.scroll).maxY, top, "The wings stay above the text")
+                }
+            }
+        }
+    }
+
     func testProductionPinModesFitAllLocalesAtNormalAndMaximumType() async throws {
         for language in ["en", "ru", "ja", "zh-Hans", "id", "pt-PT", "tr", "vi"] {
             for category in [UIContentSizeCategory.large, .accessibilityExtraExtraExtraLarge] {

@@ -15,14 +15,14 @@ final class FWWelcomeView: UIView {
     let privacyButton: FWWelcomeActionButton
     private let mode: Mode
     private let sunlitBackground: FWSunlitBackgroundView
-    private let sunBadge: FWSunBadgeView
+    private let sunWings: FWWingsView
 
     var locale: Locale = .current { didSet { applyLocalization() } }
 
     init(mode: Mode, effects: FWEffects = .shared) {
         self.mode = mode
         sunlitBackground = FWSunlitBackgroundView(effects: effects)
-        sunBadge = FWSunBadgeView(effects: effects)
+        sunWings = FWWingsView(effects: effects)
         primaryButton = FWWelcomeActionButton(style: .primary, effects: effects)
         restoreButton = FWWelcomeActionButton(style: .secondary, effects: effects)
         preinstalledButton = FWWelcomeActionButton(style: .secondary, effects: effects)
@@ -76,25 +76,24 @@ final class FWWelcomeView: UIView {
         privacyButton.isHidden = mode == .introduction
     }
 
-    /// The winged-sun badge is the scene's light: it lights the page and the buttons below it.
+    /// The winged sun at full span is the scene's light: it lights the page and the buttons below it.
     private func makeLogo(effects _: FWEffects) -> UIView {
         let logoContainer = UIView()
-        logoContainer.addSubview(sunBadge)
-        sunBadge.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+        logoContainer.addSubview(sunWings)
+        sunWings.snp.makeConstraints { make in
+            sunWings.makeWideConstraints(make)
             make.top.bottom.equalToSuperview().inset(8)
-            make.size.equalTo(136)
         }
-        sunBadge.isAccessibilityElement = true
-        sunBadge.accessibilityLabel = "Fearless Wallet"
-        sunBadge.accessibilityTraits = .image
+        sunWings.isAccessibilityElement = true
+        sunWings.accessibilityLabel = "Fearless Wallet"
+        sunWings.accessibilityTraits = .image
         return logoContainer
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        let sunCenter = CGPoint(x: sunBadge.bounds.midX, y: sunBadge.bounds.midY)
-        sunlitBackground.sunCenter = sunBadge.convert(sunCenter, to: self)
+        let sunCenter = CGPoint(x: sunWings.bounds.midX, y: sunWings.bounds.midY)
+        sunlitBackground.sunCenter = sunWings.convert(sunCenter, to: self)
     }
 
     @available(*, unavailable)

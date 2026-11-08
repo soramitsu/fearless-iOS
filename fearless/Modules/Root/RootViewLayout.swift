@@ -1,6 +1,9 @@
 import UIKit
 
 class RootViewLayout: UIView {
+    /// The `logo` artwork's width over its height.
+    private static let logoAspectRatio: CGFloat = 480 / 200
+
     let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.backgroundImage()
@@ -49,7 +52,7 @@ class RootViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        // Matches the launch screen: the sun badge glowing on the sun-lit base (sun-lit redesign).
+        // Matches the launch screen: the winged sun glowing on the sun-lit base (sun-lit redesign).
         backgroundColor = FWSunlit.Palette.background
         backgroundImageView.isHidden = true
 
@@ -75,8 +78,10 @@ class RootViewLayout: UIView {
         }
         addSubview(fearlessLogoImageView)
         addSubview(statusLabel)
+        fearlessLogoImageView.contentMode = .scaleAspectFit
         fearlessLogoImageView.snp.makeConstraints { make in
             make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(24)
         }
 
         statusLabel.snp.makeConstraints { make in
@@ -112,7 +117,9 @@ class RootViewLayout: UIView {
         bottomSpace.snp.makeConstraints { $0.height.greaterThanOrEqualTo(0) }
         fearlessLogoImageView.contentMode = .scaleAspectFit
         fearlessLogoImageView.isAccessibilityElement = false
-        fearlessLogoImageView.snp.makeConstraints { $0.height.equalTo(158) }
+        fearlessLogoImageView.snp.makeConstraints { make in
+            make.height.equalTo(fearlessLogoImageView.snp.width).dividedBy(Self.logoAspectRatio)
+        }
         statusLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 }

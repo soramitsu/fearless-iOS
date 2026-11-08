@@ -516,3 +516,85 @@ final class FWSunlitPaintTests: XCTestCase {
         XCTAssertEqual(badge.syncState, .syncing(progress: nil))
     }
 }
+
+/// The winged sun at full span on the pages with room for it.
+@MainActor
+final class FWWingsViewTests: XCTestCase {
+    private func effects() throws -> FWEffects {
+        let suite = "fw-wings-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suite) }
+        return FWEffects(defaults: defaults, notificationCenter: NotificationCenter()) { .init() }
+    }
+
+    private func descendants(_ view: UIView) -> [UIView] { [view] + view.subviews.flatMap(descendants) }
+
+    private func host(_ page: UIView, width: CGFloat, height: CGFloat = 844) throws -> UIWindow {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        window.frame = CGRect(x: 0, y: 0, width: width, height: height)
+        let controller = UIViewController()
+        controller.view = page
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+        return window
+    }
+
+    private func pages() -> [(String, () -> UIView)] {
+        [
+            ("unlock", { CheckPincodeViewLayout() }),
+            ("welcome", { FWWelcomeView(mode: .introduction) }),
+            ("wallet choice", { FWWelcomeView(mode: .walletChoice) }),
+            ("start", { OnboardingStartViewLayout() }),
+            ("about", { AboutViewLayout() })
+        ]
+    }
+
+    func testWingsSpanMostOfEveryFullPageAtEveryPhoneWidth() throws {
+        for (name, make) in pages() {
+            for width: CGFloat in [320, 375, 402, 440] {
+                let page = make()
+                let window = try host(page, width: width)
+                defer { window.isHidden = true; window.rootViewController = nil }
+                let context = "\(name) at \(width)"
+                let wings = try XCTUnwrap(descendants(page).compactMap { $0 as? FWWingsView }.first, context)
+                XCTAssertNotNil(wings.imageView.image, context)
+                XCTAssertGreaterThanOrEqual(wings.bounds.width / width, 0.8, context)
+                XCTAssertEqual(wings.bounds.width / wings.bounds.height, FWWingsView.aspectRatio, accuracy: 0.03, context)
+                let frame = wings.convert(wings.bounds, to: window)
+                XCTAssertGreaterThanOrEqual(frame.minX, 0, context)
+                XCTAssertLessThanOrEqual(frame.maxX, width, context)
+                XCTAssertEqual(frame.midX, width / 2, accuracy: 1, context)
+            }
+        }
+    }
+
+    func testWingsStopAtTheirMaximumWidthOnATablet() throws {
+        let page = CheckPincodeViewLayout()
+        let window = try host(page, width: 1024, height: 1366)
+        defer { window.isHidden = true; window.rootViewController = nil }
+        let wings = try XCTUnwrap(descendants(page).compactMap { $0 as? FWWingsView }.first)
+        XCTAssertEqual(wings.bounds.width, FWWingsView.maximumWidth, accuracy: 1)
+    }
+
+    func testArtworkMatchesTheDeclaredAspectAndIsTheWideMark() throws {
+        let image = try XCTUnwrap(R.image.fwWings())
+        XCTAssertEqual(image.size.width / image.size.height, FWWingsView.aspectRatio, accuracy: 0.01)
+        XCTAssertEqual(image.size.width, FWWingsView.maximumWidth, accuracy: 1)
+        let launch = try XCTUnwrap(R.image.logo())
+        XCTAssertEqual(launch.size.width / launch.size.height, 480.0 / 200.0, accuracy: 0.01)
+    }
+
+    func testGlowLeavesWithReducedEffectsAndTheMarkStays() throws {
+        let settings = try effects()
+        let wings = FWWingsView(effects: settings)
+        XCTAssertTrue(wings.isGlowing)
+        settings.userChoice = .reduced
+        XCTAssertFalse(wings.isGlowing)
+        XCTAssertNotNil(wings.imageView.image)
+        XCTAssertEqual(wings.imageView.alpha, 1)
+        settings.userChoice = .automatic
+        XCTAssertTrue(wings.isGlowing)
+    }
+}

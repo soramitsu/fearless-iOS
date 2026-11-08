@@ -1,9 +1,9 @@
 import UIKit
 
 final class OnboardingStartViewLayout: UIView {
-    /// The winged-sun badge lighting the page (sun-lit redesign; replaces the animated bird).
-    private let mediaView: FWSunBadgeView = {
-        let view = FWSunBadgeView()
+    /// The winged sun at full span lighting the page (sun-lit redesign; replaces the animated bird).
+    private let mediaView: FWWingsView = {
+        let view = FWWingsView()
         view.isAccessibilityElement = true
         view.accessibilityLabel = "Fearless Wallet"
         view.accessibilityTraits = .image
@@ -72,18 +72,18 @@ final class OnboardingStartViewLayout: UIView {
         backgroundColor = FWSunlit.Palette.background
         addSubview(sunlitBackground)
         sunlitBackground.snp.makeConstraints { make in make.edges.equalToSuperview() }
-        let badgeRow = UIView()
-        badgeRow.addSubview(mediaView)
+        let wingsRow = UIView()
+        wingsRow.addSubview(mediaView)
         mediaView.snp.makeConstraints { make in
-            make.centerX.top.bottom.equalToSuperview()
-            make.size.equalTo(168)
+            mediaView.makeWideConstraints(make)
+            make.top.bottom.equalToSuperview()
         }
-        stackView.addArrangedSubview(badgeRow)
+        stackView.addArrangedSubview(wingsRow)
         stackView.addArrangedSubview(label)
 
         addSubview(stackView)
         stackView.snp.makeConstraints { make in
-            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(35)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(24)
             make.centerY.equalToSuperview().offset(-(UIConstants.bigOffset + UIConstants.actionHeight))
         }
 

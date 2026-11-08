@@ -4,11 +4,11 @@ import SoraUI
 final class AboutViewLayout: UIView {
     // MARK: - UI
 
-    /// The page and the winged-sun badge that lights it (sun-lit redesign).
+    /// The page and the winged sun that lights it, at full span (sun-lit redesign).
     private let sunlitBackground = FWSunlitBackgroundView()
 
-    private let logoImageView: FWSunBadgeView = {
-        let view = FWSunBadgeView()
+    private let logoImageView: FWWingsView = {
+        let view = FWWingsView()
         view.isAccessibilityElement = true
         view.accessibilityLabel = "Fearless Wallet"
         view.accessibilityTraits = .image
@@ -119,17 +119,22 @@ final class AboutViewLayout: UIView {
             make.edges.equalToSuperview()
         }
 
-        headerContainer.addSubview(logoImageView)
-        logoImageView.snp.makeConstraints { make in
-            make.size.equalTo(104)
-            make.centerX.equalToSuperview()
+        let logoRow = UIView()
+        headerContainer.addSubview(logoRow)
+        logoRow.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.top.equalToSuperview().offset(20)
+        }
+        logoRow.addSubview(logoImageView)
+        logoImageView.snp.makeConstraints { make in
+            logoImageView.makeWideConstraints(make)
+            make.top.bottom.equalToSuperview()
         }
 
         headerContainer.addSubview(aboutTitle)
         aboutTitle.textAlignment = .center
         aboutTitle.snp.makeConstraints { make in
-            make.top.equalTo(logoImageView.snp.bottom).offset(12)
+            make.top.equalTo(logoRow.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().offset(-UIConstants.bigOffset)
         }

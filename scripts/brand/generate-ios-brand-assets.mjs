@@ -88,6 +88,26 @@ function badgeCanvas(kind, canvasWidth, canvasHeight, badgeSide, { glow = false,
   return svg;
 }
 
+// The wide mark's frame in master units: the wings' span and the keyline disc's height, centred on the disc.
+const WINGS_BOX = { x: 15, y: 191.5, width: 482, height: 132.4 };
+
+/// The wings, joint and disc at full span, without the badge's circle, for pages with room for them. The paths
+/// are the master's own text; only the circle behind them is gone. Optionally the sun's glow, along the wings.
+function wingsCanvas(kind, canvasWidth, canvasHeight, wingsWidth, { glow = false } = {}) {
+  const gradient = marks[kind].match(/<linearGradient[\s\S]*?<\/linearGradient>/);
+  if (!gradient) throw new Error(`${MASTERS[kind].file}: no gradient`);
+  const scale = wingsWidth / WINGS_BOX.width;
+  const x = (canvasWidth - wingsWidth) / 2 - WINGS_BOX.x * scale;
+  const y = (canvasHeight - WINGS_BOX.height * scale) / 2 - WINGS_BOX.y * scale;
+  const centreX = canvasWidth / 2;
+  const centreY = canvasHeight / 2;
+  const glowGradient = glow ? `<radialGradient id="fwglow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(${centreX} ${centreY}) scale(${centreX} ${centreY})"><stop offset="0" stop-color="#EE2233" stop-opacity="0.55"/><stop offset="0.45" stop-color="#EE0077" stop-opacity="0.18"/><stop offset="1" stop-color="#EE0077" stop-opacity="0"/></radialGradient>` : '';
+  const glowLayer = glow ? `<rect width="${canvasWidth}" height="${canvasHeight}" fill="url(#fwglow)"/>` : '';
+  const svg = `<svg width="${canvasWidth}" height="${canvasHeight}" viewBox="0 0 ${canvasWidth} ${canvasHeight}" fill="none" xmlns="http://www.w3.org/2000/svg"><defs>${gradient[0]}${glowGradient}</defs>${glowLayer}<g transform="translate(${x} ${y}) scale(${scale})">${markPaths[kind].join('')}</g></svg>`;
+  assertMarkIntact(kind, svg);
+  return svg;
+}
+
 /// The sun-lit page: bg, the sun bounce (brand 18 %, halving every 0.6 widths) and the violet sky.
 function pageSVG(width, height) {
   const sunX = width * 0.5;
@@ -118,8 +138,11 @@ const IMAGESETS = [
   { name: 'fwSunBadge', width: 160, height: 160, badge: 160 },
   { name: 'fwSunBadgeSmall', width: 32, height: 32, badge: 32 },
   { name: 'fwSunGlow', width: 240, height: 240, badge: 128, glow: true },
+  // The wide mark for pages with room for the full span; FWWingsView adds the glow.
+  { name: 'fwWings', width: 480, height: 132, wings: 480 },
+  // The launch art keeps its name and shows the wide mark with its glow.
+  { name: 'logo', width: 480, height: 200, wings: 470, glow: true },
   // Old bird assets keep their names and point sizes; the badge replaces the bird.
-  { name: 'logo', width: 246, height: 158, badge: 128, glow: true },
   { name: 'iconFearlessBig', width: 142, height: 61, badge: 61 },
   { name: 'iconFearlessLog', width: 246, height: 122, badge: 122 },
   { name: 'iconFearlessRounded', width: 40, height: 40, badge: 40 },
@@ -140,7 +163,9 @@ async function imagesets() {
       const height = Math.round(set.height * scale);
       const badge = set.badge * scale;
       const inset = set.inset === undefined ? null : set.inset * scale;
-      const svg = badgeCanvas(markFor(badge), width, height, badge, { glow: set.glow, inset });
+      const svg = set.wings
+        ? wingsCanvas('lines', width, height, set.wings * scale, { glow: set.glow })
+        : badgeCanvas(markFor(badge), width, height, badge, { glow: set.glow, inset });
       const filename = `${set.name}@${scale}x.png`;
       record(join(ASSETS, `${set.name}.imageset`, filename), await rasterSVG(svg, width, height));
       images.push({ filename, idiom: 'universal', scale: `${scale}x` });

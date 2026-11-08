@@ -236,31 +236,31 @@ private final class FWWeakTarget: NSObject {
     }
 }
 
-/// A PIN screen's sun-lit scene: the page light, the winged-sun badge that lights it, and the styled keypad.
-/// The screen adds `badgeRow` to its content; the row keeps the page light and the key rims on its sun.
+/// A PIN screen's sun-lit scene: the page light, the winged sun at full span that lights it, and the styled
+/// keypad. The screen adds `wingsRow` to its content; the row keeps the page light and the key rims on its sun.
 final class FWPinScreenSunlit {
     let styler: FWPinPadStyler
-    let badge = FWSunBadgeView()
+    let wings = FWWingsView()
     private let background = FWSunlitBackgroundView()
-    private(set) lazy var badgeRow: UIView = FWLayoutReportingView { [weak self] in self?.lightScene() }
+    private(set) lazy var wingsRow: UIView = FWLayoutReportingView { [weak self] in self?.lightScene() }
 
     init(pinView: PinView, effects: FWEffects = .shared) {
         styler = FWPinPadStyler(pinView: pinView, effects: effects)
-        badge.isAccessibilityElement = false
-        badgeRow.addSubview(badge)
-        badge.snp.makeConstraints { make in
-            make.centerX.top.bottom.equalToSuperview()
-            make.size.equalTo(104)
+        wings.isAccessibilityElement = false
+        wingsRow.addSubview(wings)
+        wings.snp.makeConstraints { make in
+            wings.makeWideConstraints(make)
+            make.top.bottom.equalToSuperview()
         }
     }
 
-    /// Adds the badge row to `content` and the page light behind everything in `rootView`.
+    /// Adds the wings row to `content` and the page light behind everything in `rootView`.
     func attach(to content: UIStackView, in rootView: UIView) {
         installLight(in: rootView)
-        content.insertArrangedSubview(badgeRow, at: 0)
+        content.insertArrangedSubview(wingsRow, at: 0)
     }
 
-    /// The page light behind everything in `rootView`, for screens that place `badgeRow` themselves.
+    /// The page light behind everything in `rootView`, for screens that place `wingsRow` themselves.
     func installLight(in rootView: UIView) {
         rootView.backgroundColor = FWSunlit.Palette.background
         rootView.insertSubview(background, at: 0)
@@ -270,7 +270,7 @@ final class FWPinScreenSunlit {
 
     private func lightScene() {
         guard let root = background.superview else { return }
-        let sunCenter = badge.convert(CGPoint(x: badge.bounds.midX, y: badge.bounds.midY), to: root)
+        let sunCenter = wings.convert(CGPoint(x: wings.bounds.midX, y: wings.bounds.midY), to: root)
         background.sunCenter = sunCenter
         styler.applySunRim(sunCenter: sunCenter, in: root)
     }

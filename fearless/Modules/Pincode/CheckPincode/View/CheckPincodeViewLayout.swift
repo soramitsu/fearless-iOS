@@ -42,7 +42,7 @@ final class CheckPincodeViewLayout: UIView {
         return view
     }()
 
-    /// Sun-lit scene: the badge lights the page; raised keys and dots that fill from the key light.
+    /// Sun-lit scene: the wings light the page; raised keys and dots that fill from the key light.
     lazy var sunlit = FWPinScreenSunlit(pinView: pinView)
 
     var locale = Locale.current {
@@ -93,7 +93,7 @@ private extension CheckPincodeViewLayout {
     func setupLayout() {
         sunlit.installLight(in: self)
         addSubview(navigationBar)
-        addSubview(sunlit.badgeRow)
+        addSubview(sunlit.wingsRow)
         addSubview(titleLabel)
         addSubview(pinView)
         pinView.numpadView?.keyRadius = 34
@@ -117,8 +117,8 @@ private extension CheckPincodeViewLayout {
             make.leading.greaterThanOrEqualTo(safeAreaLayoutGuide).offset(UIConstants.horizontalInset)
         }
 
-        sunlit.badgeRow.snp.makeConstraints { make in
-            make.centerX.equalTo(safeAreaLayoutGuide)
+        sunlit.wingsRow.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.top.greaterThanOrEqualTo(navigationBar.snp.bottom).offset(8)
             make.bottom.equalTo(titleLabel.snp.top).offset(-16)
         }
