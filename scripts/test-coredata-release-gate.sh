@@ -7,7 +7,17 @@ readonly GATE="$SCRIPT_DIR/ci/run-coredata-release-gate.sh"
 readonly CDMETAACCOUNT_CODABLE_TEST="$SCRIPT_DIR/storage/test-cdmetaaccount-codable-contract.sh"
 TEMPORARY_DIR="$(mktemp -d "${TMPDIR:-/private/tmp}/fearless-coredata-gate-tests.XXXXXX")"
 readonly TEMPORARY_DIR
-trap 'rm -rf "$TEMPORARY_DIR"' EXIT
+COMPLETED=0
+cleanup() {
+  # An EXIT trap's own success can hide a crash, so only reaching the end passes.
+  local status=$?
+  rm -rf "$TEMPORARY_DIR"
+  if [[ "$COMPLETED" != "1" && "$status" == "0" ]]; then
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 
 readonly FIXTURE_ROOT="$TEMPORARY_DIR/repository"
 readonly BIN_DIR="$TEMPORARY_DIR/bin"
@@ -859,3 +869,4 @@ printf '%s\n' \
 
 printf '%s\n' \
   "[coredata-release-gate-test] PASS: 6 positive contracts + 50 negative/adversarial cases"
+COMPLETED=1

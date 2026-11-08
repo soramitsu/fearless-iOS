@@ -291,7 +291,10 @@ validate_release_app_contract() {
   [[ "$executable_digest" == "$EXPECTED_EXECUTABLE_SHA256" ]] ||
     fail "Simulator executable SHA-256 does not match the build record"
 
-  if ! "$XCRUN_BIN" nm -gj "$APP_EXECUTABLE_PATH" >"$symbols_file" 2>/dev/null; then
+  # Defined symbols only, hidden ones included: CDTonDapp and CDTonConnectedApp
+  # are internal classes kept alive by ManagedObjectRuntimeClassRegistry, so
+  # their symbols are private and `nm -g` cannot list them.
+  if ! "$XCRUN_BIN" nm -U -j "$APP_EXECUTABLE_PATH" >"$symbols_file" 2>/dev/null; then
     : >"$symbols_file"
     fail "unable to inspect managed-object symbols in the app executable"
   fi
@@ -1248,8 +1251,18 @@ patterns = {
     ),
 }
 
+# Bundled historical models declare exactly these five transformable attributes
+# with customClassName="[String]" and must stay byte-exact to open the stores that
+# wrote them, so Core Data repeats this complaint whenever it loads one.
+known_model_complaint = re.compile(
+    r'CoreData: (?:fault: )?Declared Objective-C type "\[String\]" for attribute named '
+    r"(?:assets|availableAssets|availableSources|forceSmartIds|purchaseProviders) is not valid\s*$"
+)
+
 with open(source_path, "r", encoding="utf-8", errors="ignore") as source:
-    content = source.read()
+    content = "\n".join(
+        line for line in source.read().splitlines() if not known_model_complaint.search(line)
+    )
 matched = sorted(name for name, pattern in patterns.items() if pattern.search(content))
 ready_count = content.count("FEARLESS_STARTUP_READY")
 failure_count = content.count("FEARLESS_STARTUP_FAILED")
