@@ -1545,7 +1545,11 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
         for section in 0..<table.numberOfSections {
             for row in 0..<table.numberOfRows(inSection: section) {
                 let index = IndexPath(row: row, section: section)
-                let cell = fixture.profile.tableView(table, cellForRowAt: index)
+                // Ask the table for the row: calling the data source directly dequeues outside a table
+                // request, and UIKit raises when a later open() dequeues the same index path again.
+                table.scrollToRow(at: index, at: .none, animated: false)
+                fixture.window.layoutIfNeeded()
+                let cell = try XCTUnwrap(table.cellForRow(at: index))
                 if descendants(cell).compactMap({ ($0 as? UILabel)?.text }).contains("Change PIN") { selected = index }
             }
         }
