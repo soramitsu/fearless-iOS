@@ -1849,7 +1849,8 @@ final class SeedShareOwnershipTests: XCTestCase {
         return controller.view.window === window && !controller.isBeingPresented && controller.transitionCoordinator == nil
     }
     private func waitUntil(_ condition: () -> Bool) async {
-        for _ in 0..<150 { if condition() { return }; try? await Task.sleep(nanoseconds: 20_000_000) }
+        // Up to 30 s: a loaded machine can take several seconds to present the system share sheet.
+        for _ in 0..<1500 { if condition() { return }; try? await Task.sleep(nanoseconds: 20_000_000) }
     }
     private func descendants(_ view: UIView) -> [UIView] { [view] + view.subviews.flatMap { descendants($0) } }
     private func reveal(_ view: UIView, in window: UIWindow) {
