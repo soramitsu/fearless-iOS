@@ -87,7 +87,7 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         }
 
         let navigationController = FearlessNavigationController(rootViewController: controller)
-        view?.controller.present(navigationController, animated: true)
+        present(navigationController, from: view)
     }
 
     func showControllerAccountFlow(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel) {
@@ -131,5 +131,59 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         )
 
         view?.controller.present(navigationController, animated: true)
+    }
+
+    // MARK: - Sun-lit wallet home actions
+
+    func showAssetPicker(
+        from view: WalletMainContainerViewInput?,
+        wallet: MetaAccountModel,
+        action: WalletHomeAction,
+        output: SelectAssetModuleOutput
+    ) {
+        guard let module = SelectAssetAssembly.configureModule(
+            wallet: wallet,
+            selectedAssetId: nil,
+            chainAssets: nil,
+            searchTextsViewModel: .searchAssetPlaceholder,
+            output: output,
+            contextTag: action.rawValue
+        ) else {
+            return
+        }
+        present(module.view.controller, from: view)
+    }
+
+    func showReceive(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel, chainAsset: ChainAsset) {
+        guard let controller = ReceiveAndRequestAssetAssembly.configureModule(
+            wallet: wallet, chainAsset: chainAsset
+        )?.view.controller else {
+            return
+        }
+        present(controller, from: view)
+    }
+
+    func showAssetDetails(from view: WalletMainContainerViewInput?, chainAsset: ChainAsset) {
+        guard let details = WalletChainAccountDashboardViewFactory.createDetailsView(chainAsset: chainAsset) else {
+            return
+        }
+        view?.controller.navigationController?.pushViewController(details.controller, animated: true)
+    }
+
+    func showSwap(from view: WalletMainContainerViewInput?) {
+        (view?.controller.tabBarController as? MainTabBarViewController)?.select(destination: .polkaswap)
+    }
+
+    /// Presents once any sheet that is still leaving (the asset picker) has gone.
+    private func present(_ controller: UIViewController, from view: ControllerBackedProtocol?) {
+        guard let host = view?.controller else { return }
+        if let presented = host.presentedViewController, presented.isBeingDismissed,
+           let coordinator = presented.transitionCoordinator {
+            coordinator.animate(alongsideTransition: nil) { [weak host] _ in
+                host?.present(controller, animated: true)
+            }
+        } else if host.presentedViewController == nil {
+            host.present(controller, animated: true)
+        }
     }
 }

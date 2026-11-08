@@ -2,62 +2,6 @@ import UIKit
 import SoraUI
 import SnapKit
 
-/// A multiline native control keeps the action readable at accessibility text sizes.
-final class PortfolioActionButton: UIButton {
-    private let shapeMask = CAShapeLayer()
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        var config = UIButton.Configuration.plain()
-        config.background.backgroundColor = UIColor(named: "fwSurfaceRaised2")
-        config.background.cornerRadius = 0
-        config.baseForegroundColor = UIColor(named: "fwTextPrimary")
-        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16)
-        config.titleLineBreakMode = .byWordWrapping
-        config.titleAlignment = .center
-        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { [weak self] attributes in
-            var attributes = attributes
-            attributes.font = UIFont.preferredFont(forTextStyle: .headline, compatibleWith: self?.traitCollection)
-            return attributes
-        }
-        configuration = config
-        titleLabel?.numberOfLines = 0
-        titleLabel?.adjustsFontForContentSizeCategory = true
-        layer.mask = shapeMask
-        if #available(iOS 17.0, *) {
-            registerForTraitChanges([UITraitPreferredContentSizeCategory
-                    .self]) { (button: PortfolioActionButton, _: UITraitCollection) in
-                button.setNeedsUpdateConfiguration()
-                button.invalidateIntrinsicContentSize()
-            }
-        }
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        shapeMask.path = FWChamferPath.path(in: bounds).cgPath
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if #available(iOS 17.0, *) { return }
-        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
-            setNeedsUpdateConfiguration()
-            invalidateIntrinsicContentSize()
-        }
-    }
-
-    func set(loading: Bool) {
-        configuration?.showsActivityIndicator = loading
-        isEnabled = !loading
-    }
-}
-
 final class ChainAssetListViewLayout: UIView {
     private enum Constants {
         static let tableViewContentInset = UIEdgeInsets(
@@ -565,23 +509,35 @@ final class PortfolioHiddenFundsNoticeView: UIView {
 }
 
 /// Two native buttons can wrap at accessibility sizes while retaining the existing lens action contract.
+/// Sun-lit: the buttons sit in an inset track and a raised thumb slides under the selected one.
 final class PortfolioLensControl: UIControl {
     private let legacy = UISegmentedControl(items: ["", ""])
     private let stack = UIStackView()
+    private let track: FWNeuView = {
+        let view = FWNeuView()
+        view.style = .inset
+        view.isUserInteractionEnabled = false
+        view.shape = { UIBezierPath(roundedRect: $0, cornerRadius: min(FWSunlit.Radius.button, $0.height / 2)) }
+        return view
+    }()
+
+    private let thumb = FWNeuView.segmentThumb()
     let segmentButtons = [UIButton(type: .system), UIButton(type: .system)]
 
     var selectedSegmentIndex = 0 {
-        didSet { updatePresentation() }
+        didSet {
+            updatePresentation()
+            placeThumb(animated: window != nil && oldValue != selectedSegmentIndex)
+        }
     }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         if FWAppearance.portfolioListRestyled {
             accessibilityTraits = .tabBar
-            backgroundColor = UIColor(named: "fwSurfaceSunken")
-            layer.borderWidth = 1
-            layer.borderColor = UIColor(named: "fwStrokeControl")?.cgColor
-            layer.cornerRadius = FWTokens.Radius.m
+            addSubview(track)
+            track.snp.makeConstraints { $0.edges.equalToSuperview() }
+            addSubview(thumb)
             stack.spacing = 4
             stack.distribution = .fillEqually
             addSubview(stack)
@@ -604,7 +560,6 @@ final class PortfolioLensControl: UIControl {
                         return attributes
                     }
                 button.configuration = config
-                button.layer.cornerRadius = FWTokens.Radius.m
                 button.addTarget(self, action: #selector(didSelectButton(_:)), for: .touchUpInside)
                 stack.addArrangedSubview(button)
                 button.snp.makeConstraints { $0.height.greaterThanOrEqualTo(44) }
@@ -621,7 +576,9 @@ final class PortfolioLensControl: UIControl {
     }
 
     @available(*, unavailable)
-    required init?(coder _: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     func setTitle(_ title: String?, forSegmentAt index: Int) {
         guard segmentButtons.indices.contains(index) else { return }
@@ -635,6 +592,31 @@ final class PortfolioLensControl: UIControl {
         updatePresentation()
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        placeThumb(animated: false)
+    }
+
+    /// The thumb follows the selected button; a selection change slides it with the tab-well spring.
+    private func placeThumb(animated: Bool) {
+        guard FWAppearance.portfolioListRestyled, segmentButtons.indices.contains(selectedSegmentIndex) else { return }
+        stack.layoutIfNeeded()
+        let target = stack.convert(segmentButtons[selectedSegmentIndex].frame, to: self)
+        guard target.width > 0, target != thumb.frame else { return }
+        let style = FWMotionPolicy.current(effects: .shared).style(for: .tabChange)
+        guard animated, thumb.frame.width > 0, case let .full(duration) = style else {
+            thumb.layer.removeAllAnimations()
+            thumb.frame = target
+            return
+        }
+        UIView.animate(
+            withDuration: duration, delay: 0, usingSpringWithDamping: 0.82, initialSpringVelocity: 0.3,
+            options: [.beginFromCurrentState, .allowUserInteraction]
+        ) {
+            self.thumb.frame = target
+        }
+    }
+
     private func updatePresentation() {
         legacy.selectedSegmentIndex = selectedSegmentIndex
         guard FWAppearance.portfolioListRestyled else { return }
@@ -645,11 +627,9 @@ final class PortfolioLensControl: UIControl {
             button.isSelected = selected
             button.accessibilityTraits = selected ? [.button, .selected] : .button
             var config = button.configuration
-            config?.background.backgroundColor = selected ? UIColor(named: "fwSurfaceRaised2") : .clear
-            config?.baseForegroundColor = UIColor(named: selected ? "fwTextPrimary" : "fwTextSecondary")
+            config?.background.backgroundColor = .clear
+            config?.baseForegroundColor = selected ? FWSunlit.Palette.textPrimary : FWSunlit.Palette.textSecondary
             button.configuration = config
-            button.layer.borderWidth = selected ? 1 : 0
-            button.layer.borderColor = UIColor(named: "fwAccentEdge")?.cgColor
             button.invalidateIntrinsicContentSize()
         }
         invalidateIntrinsicContentSize()

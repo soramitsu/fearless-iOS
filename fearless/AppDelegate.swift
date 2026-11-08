@@ -13,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         FailClosedSecureUnarchiveFromDataTransformer.register()
+        FWSunlitAppearance.apply()
 
         guard !isUnitTesting else { return true }
 

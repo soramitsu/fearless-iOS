@@ -14,13 +14,10 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         static let balancePriceRowSize = CGSize(width: 56.0, height: 6.0)
     }
 
-    private var backgroundTriangularedView: TriangularedView = {
-        let containerView = TriangularedView()
-        containerView.fillColor = R.color.colorWhite8()!
-        containerView.highlightedFillColor = R.color.colorWhite8()!
-        containerView.shadowOpacity = 0
-        return containerView
-    }()
+    /// Sun-lit row: a Raised-1 surface whose top rim weakens with distance from the sun.
+    private var backgroundTriangularedView = FWRowSunlit.rowBackground()
+
+    private let sunlit = FWRowSunlit()
 
     private var assetIconImageView: UIImageView = {
         let imageView = UIImageView()
@@ -151,6 +148,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         transferableLabel.text = viewModel.transferableString
         transferableLabel.isHidden = viewModel.transferableString == nil
         priceView.valueLabel.apply(state: viewModel.totalAmountString)
+        flashTotalIfChanged(viewModel)
         priceView.keyLabel.apply(state: viewModel.priceAttributedString)
 
         viewModel.imageViewModel?.loadBalanceListIcon(
@@ -189,6 +187,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        refreshSunRim()
         guard FWAppearance.portfolioListRestyled, isRestyledLoading else { return }
         contentStackView.layoutIfNeeded()
         balanceView.layoutIfNeeded()
@@ -249,6 +248,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             make.size.equalTo(LayoutConstants.iconSize)
             make.centerY.equalToSuperview()
         }
+        sunlit.installWell(behind: assetIconImageView, in: backgroundTriangularedView, growth: 6)
 
         backgroundTriangularedView.addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
@@ -300,6 +300,24 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             make.width.equalTo(90)
             make.height.equalTo(16)
         }
+    }
+}
+
+extension ChainAccountBalanceTableCell {
+    /// A new value for the same row flashes up or down, then fades back (spec section 4: 600 ms).
+    private func flashTotalIfChanged(_ viewModel: ChainAccountBalanceCellViewModel) {
+        guard case let .normal(text) = viewModel.totalAmountString else { return }
+        sunlit.show(
+            value: text, for: viewModel.chainAsset.chainAssetId.id,
+            flashing: priceView.valueLabel, settledColor: priceView.valueLabel.textColor
+        )
+    }
+
+    /// Re-reads the row's distance to the sun (layout and scrolling).
+    func refreshSunRim() {
+        backgroundTriangularedView.fwSunRim = FWSunAnchor.shared.sunRim(
+            for: backgroundTriangularedView, fallback: FWRowSunlit.fallbackRim
+        )
     }
 }
 

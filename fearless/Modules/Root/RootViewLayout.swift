@@ -35,7 +35,7 @@ class RootViewLayout: UIView {
     func applyLocalization() {
         guard FWAppearance.startupRecoveryRestyled else { return }
         statusLabel.font = .fw(.bodyL, locale: locale, compatibleWith: traitCollection)
-        statusLabel.textColor = R.color.fwTextPrimary()
+        statusLabel.textColor = FWSunlit.Palette.textPrimary
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -49,7 +49,9 @@ class RootViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()
+        // Matches the launch screen: the sun badge glowing on the sun-lit base (sun-lit redesign).
+        backgroundColor = FWSunlit.Palette.background
+        backgroundImageView.isHidden = true
 
         setupLayout()
         applyLocalization()
@@ -110,7 +112,7 @@ class RootViewLayout: UIView {
         bottomSpace.snp.makeConstraints { $0.height.greaterThanOrEqualTo(0) }
         fearlessLogoImageView.contentMode = .scaleAspectFit
         fearlessLogoImageView.isAccessibilityElement = false
-        fearlessLogoImageView.snp.makeConstraints { $0.height.equalTo(120) }
+        fearlessLogoImageView.snp.makeConstraints { $0.height.equalTo(158) }
         statusLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 }

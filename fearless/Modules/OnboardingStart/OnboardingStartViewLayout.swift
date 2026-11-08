@@ -1,15 +1,16 @@
 import UIKit
 
 final class OnboardingStartViewLayout: UIView {
-    private let mediaView: UniversalMediaView = {
-        let mediaView = UniversalMediaView(frame: .zero)
-        mediaView.allowLooping = true
-        mediaView.shouldHidePlayButton = true
-        mediaView.shouldAutoPlayAfterPresentation = true
-        mediaView.backgroundColor = .clear
-        mediaView.setGIFImage(name: "animatedIcon")
-        return mediaView
+    /// The winged-sun badge lighting the page (sun-lit redesign; replaces the animated bird).
+    private let mediaView: FWSunBadgeView = {
+        let view = FWSunBadgeView()
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Fearless Wallet"
+        view.accessibilityTraits = .image
+        return view
     }()
+
+    private let sunlitBackground = FWSunlitBackgroundView()
 
     private let label: UILabel = {
         let label = UILabel()
@@ -61,8 +62,23 @@ final class OnboardingStartViewLayout: UIView {
         label.attributedText = mutableAttributedString
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let sunCenter = CGPoint(x: mediaView.bounds.midX, y: mediaView.bounds.midY)
+        sunlitBackground.sunCenter = mediaView.convert(sunCenter, to: self)
+    }
+
     private func setupLayout() {
-        stackView.addArrangedSubview(mediaView)
+        backgroundColor = FWSunlit.Palette.background
+        addSubview(sunlitBackground)
+        sunlitBackground.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        let badgeRow = UIView()
+        badgeRow.addSubview(mediaView)
+        mediaView.snp.makeConstraints { make in
+            make.centerX.top.bottom.equalToSuperview()
+            make.size.equalTo(168)
+        }
+        stackView.addArrangedSubview(badgeRow)
         stackView.addArrangedSubview(label)
 
         addSubview(stackView)

@@ -7,6 +7,7 @@ final class MainTabBarViewController: UITabBarController {
     private var viewAppeared: Bool = false
 
     private let tabBarBackgroundView = TabBarBackgroundView()
+    private let tabWell = TabBarSunlitWell()
     private let middleButton = TabBarMiddleButton(frame: .zero)
     private let middleButtonTouchTarget = TabBarMiddleButtonTouchTarget()
     private var accessibleTabs: [MainTabBarDestination: TabBarAccessibilityElement] = [:]
@@ -67,6 +68,8 @@ final class MainTabBarViewController: UITabBarController {
         }
 
         tabBar.sendSubviewToBack(tabBarBackgroundView)
+        tabWell.keep(in: tabBar, above: tabBarBackgroundView)
+        tabWell.update(in: tabBar, selectedIndex: selectedIndex, animated: false)
         tabBar.bringSubviewToFront(middleButton)
         layoutMiddleButtonTouchTarget()
         view.bringSubviewToFront(middleButtonTouchTarget)
@@ -111,13 +114,14 @@ final class MainTabBarViewController: UITabBarController {
             appearance.backgroundEffect = nil
             appearance.shadowColor = .clear
             appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                .foregroundColor: R.color.colorGray() ?? UIColor.gray,
+                .foregroundColor: FWSunlit.Palette.textTertiary,
                 .font: UIFont.systemFont(ofSize: 12, weight: .medium)
             ]
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                .foregroundColor: R.color.colorWhite() ?? UIColor.white,
+                .foregroundColor: FWSunlit.Palette.brand,
                 .font: UIFont.systemFont(ofSize: 12, weight: .semibold)
             ]
+            TabBarSunlitWell.applyColors(to: tabBar, appearance: appearance)
             tabBar.standardAppearance = appearance
 
             if #available(iOS 15.0, *) {
@@ -133,6 +137,7 @@ final class MainTabBarViewController: UITabBarController {
         tabBarBackgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        tabWell.keep(in: tabBar, above: tabBarBackgroundView)
 
         tabBar.addSubview(middleButton)
         middleButton.snp.makeConstraints { make in
@@ -286,6 +291,7 @@ final class MainTabBarViewController: UITabBarController {
 
         middleButton.isSelected = selectedIndex == MainTabBarDestination.polkaswap.rawValue
         updateAccessibleTabs()
+        tabWell.update(in: tabBar, selectedIndex: selectedIndex, animated: true)
     }
 
     private func updateAccessibleTabs() {

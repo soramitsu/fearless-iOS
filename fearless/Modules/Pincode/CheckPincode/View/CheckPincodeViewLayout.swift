@@ -42,6 +42,9 @@ final class CheckPincodeViewLayout: UIView {
         return view
     }()
 
+    /// Sun-lit scene: the badge lights the page; raised keys and dots that fill from the key light.
+    lazy var sunlit = FWPinScreenSunlit(pinView: pinView)
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -60,7 +63,7 @@ final class CheckPincodeViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = .black
+        backgroundColor = FWSunlit.Palette.background
         setupLayout()
         applyLocalization()
         setupAccessibilityIdentifiers()
@@ -88,9 +91,13 @@ private extension CheckPincodeViewLayout {
     }
 
     func setupLayout() {
+        sunlit.installLight(in: self)
         addSubview(navigationBar)
+        addSubview(sunlit.badgeRow)
         addSubview(titleLabel)
         addSubview(pinView)
+        pinView.numpadView?.keyRadius = 34
+        sunlit.styler.apply()
 
         navigationBar.setCenterViews([navigationTitleLabel])
 
@@ -108,6 +115,12 @@ private extension CheckPincodeViewLayout {
         titleLabel.snp.makeConstraints { make in
             make.centerX.equalTo(safeAreaLayoutGuide)
             make.leading.greaterThanOrEqualTo(safeAreaLayoutGuide).offset(UIConstants.horizontalInset)
+        }
+
+        sunlit.badgeRow.snp.makeConstraints { make in
+            make.centerX.equalTo(safeAreaLayoutGuide)
+            make.top.greaterThanOrEqualTo(navigationBar.snp.bottom).offset(8)
+            make.bottom.equalTo(titleLabel.snp.top).offset(-16)
         }
     }
 

@@ -1,15 +1,23 @@
 {
-  "images" : [
+  "images": [
     {
-      "filename" : "Subtract.pdf",
-      "idiom" : "universal"
+      "filename": "iconBirdGreen@1x.png",
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "iconBirdGreen@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "iconBirdGreen@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
-  },
-  "properties" : {
-    "preserves-vector-representation" : true
+  "info": {
+    "author": "xcode",
+    "version": 1
   }
 }

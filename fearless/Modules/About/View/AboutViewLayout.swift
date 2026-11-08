@@ -4,17 +4,15 @@ import SoraUI
 final class AboutViewLayout: UIView {
     // MARK: - UI
 
-    private let backgroundImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.image = R.image.backgroundImage()
-        return imageView
-    }()
+    /// The page and the winged-sun badge that lights it (sun-lit redesign).
+    private let sunlitBackground = FWSunlitBackgroundView()
 
-    private let logoImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.iconFearlessBig()
-        return imageView
+    private let logoImageView: FWSunBadgeView = {
+        let view = FWSunBadgeView()
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Fearless Wallet"
+        view.accessibilityTraits = .image
+        return view
     }()
 
     private let aboutTitle: UILabel = {
@@ -96,13 +94,17 @@ final class AboutViewLayout: UIView {
             headerContainer.frame = frame
             tableView.tableHeaderView = headerContainer
         }
+        sunlitBackground.sunCenter = logoImageView.convert(
+            CGPoint(x: logoImageView.bounds.midX, y: logoImageView.bounds.midY), to: self
+        )
     }
 
     // MARK: - Private methods
 
     private func setupLayout() {
-        addSubview(backgroundImageView)
-        backgroundImageView.snp.makeConstraints { make in
+        backgroundColor = FWSunlit.Palette.background
+        addSubview(sunlitBackground)
+        sunlitBackground.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
@@ -119,15 +121,15 @@ final class AboutViewLayout: UIView {
 
         headerContainer.addSubview(logoImageView)
         logoImageView.snp.makeConstraints { make in
-            make.width.equalTo(142)
-            make.height.equalTo(61)
+            make.size.equalTo(104)
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(24)
+            make.top.equalToSuperview().offset(20)
         }
 
         headerContainer.addSubview(aboutTitle)
+        aboutTitle.textAlignment = .center
         aboutTitle.snp.makeConstraints { make in
-            make.top.equalTo(logoImageView.snp.bottom).offset(4)
+            make.top.equalTo(logoImageView.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().offset(-UIConstants.bigOffset)
         }

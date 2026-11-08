@@ -198,9 +198,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         let priceWithChangeString = [dayChangePercent, dayChangeValue].joined(separator: " ")
         let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
 
-        let color = dayChange > 0
-            ? R.color.colorGreen()
-            : R.color.colorRed()
+        let color = FWSunlit.Palette.change(dayChange)
 
         if let color = color, let colorLightGray = R.color.colorStrokeGray() {
             priceWithChangeAttributed.addAttributes(

@@ -148,10 +148,9 @@ final class ChainAssetListTests: XCTestCase {
                     sheet.view.bounds,
                     to: window
                 )))
-                XCTAssertEqual(
-                    sheet.confirmButton.configuration?.background.backgroundColor,
-                    UIColor(named: "fwFillTop")
-                )
+                // Sun-lit redesign: the primary action is the emissive surface, not a flat fill.
+                XCTAssertEqual(sheet.confirmButton.emphasis, .primary)
+                XCTAssertEqual(sheet.confirmButton.configuration?.background.backgroundColor, .clear)
                 XCTAssertTrue(sheet.view.accessibilityViewIsModal)
                 XCTAssertTrue(sheet.titleLabel.accessibilityTraits.contains(.header))
                 for label in [sheet.titleLabel, sheet.messageLabel] {
@@ -3261,7 +3260,7 @@ private final class DiscoveryAccountInfoRemoteStub: AccountInfoRemoteService, @u
 
 private final class PortfolioViewSpy: ChainAssetListViewInput {
     let isSetup = true
-    var controller: UIViewController = UIViewController()
+    var controller = UIViewController()
     var models: [ChainAssetListViewModel] = []
     func didReceive(viewModel: ChainAssetListViewModel) { models.append(viewModel) }
     func reloadBanners() {}

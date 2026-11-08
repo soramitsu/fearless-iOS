@@ -13,6 +13,8 @@ final class FWWelcomeActionButton: UIButton {
     private let fillMask = CAShapeLayer()
     private let rim = CAShapeLayer()
     private let halo = CALayer()
+    /// Secondary actions are Raised-2 surfaces lit from the top-left (sun-lit redesign).
+    private var surface: FWNeuView?
 
     init(style: Style, effects: FWEffects) {
         self.style = style
@@ -27,8 +29,18 @@ final class FWWelcomeActionButton: UIButton {
         label.setContentCompressionResistancePriority(.required, for: .vertical)
         layer.insertSublayer(fill, at: 0)
         fill.mask = fillMask
-        fill.startPoint = CGPoint(x: 0.5, y: 0)
-        fill.endPoint = CGPoint(x: 0.5, y: 1)
+        fill.startPoint = .zero
+        fill.endPoint = CGPoint(x: 1, y: 1)
+        if style == .secondary {
+            let surface = FWNeuView(effects: effects)
+            surface.style = .raised
+            surface.isInteractive = true
+            surface.isUserInteractionEnabled = false
+            surface.shape = { UIBezierPath(roundedRect: $0, cornerRadius: min(FWSunlit.Radius.button, $0.height / 2)) }
+            insertSubview(surface, at: 0)
+            surface.snp.makeConstraints { $0.edges.equalToSuperview() }
+            self.surface = surface
+        }
         layer.addSublayer(rim)
         rim.fillColor = nil
         addSubview(label)
@@ -80,7 +92,13 @@ final class FWWelcomeActionButton: UIButton {
         setNeedsLayout()
     }
 
-    override var isHighlighted: Bool { didSet { setNeedsLayout() } }
+    override var isHighlighted: Bool {
+        didSet {
+            setNeedsLayout()
+            guard isHighlighted != oldValue, style != .link else { return }
+            FWPress.apply(isHighlighted, to: self, surface: surface, effects: effects)
+        }
+    }
 
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
@@ -98,25 +116,29 @@ final class FWWelcomeActionButton: UIButton {
         super.layoutSubviews()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        let path = FWChamferPath.path(in: bounds)
+        let radius = min(FWSunlit.Radius.button, bounds.height / 2)
+        let path = UIBezierPath(roundedRect: bounds, cornerRadius: radius)
         fill.frame = bounds
         fillMask.path = path.cgPath
         let colors: [UIColor]
         switch style {
-        case .primary: colors = FWTokens.Gradients.primaryFill.colors
-        case .secondary: colors = [R.color.fwSurfaceRaised() ?? .black, R.color.fwSurfaceRaised() ?? .black]
-        case .link: colors = [.clear, .clear]
+        case .primary: colors = [FWSunlit.Palette.gradientStart, FWSunlit.Palette.gradientEnd]
+        case .secondary, .link: colors = [.clear, .clear]
         }
-        fill.colors = colors.map { $0.resolvedColor(with: traitCollection).cgColor }
-        fill.opacity = isHighlighted ? 0.75 : 1
-        label.textColor = style == .primary ? R.color.fwTextOnAccent() : R.color.fwTextPrimary()
-        let normalStroke = style == .primary ? R.color.fwAccentEdge() : R.color.fwStrokeControl()
-        let stroke = isFocused ? R.color.fwFocus() : normalStroke
+        fill.colors = colors.map(\.cgColor)
+        fill.opacity = isHighlighted ? 0.86 : 1
+        label.textColor = style == .primary ? .white : FWSunlit.Palette.textPrimary
+        // Primary: the 1 pt top highlight of an emissive surface; secondary rims come from its surface.
+        let normalStroke: UIColor = style == .primary
+            ? UIColor(white: 1, alpha: FWSunlit.Rim.emissiveHighlightAlpha / 2) : .clear
+        let stroke = isFocused ? FWSunlit.Palette.brand : normalStroke
         let inset: CGFloat = isFocused ? -2 : 0.5
-        rim.path = FWChamferPath.path(in: bounds.insetBy(dx: inset, dy: inset)).cgPath
+        rim.path = UIBezierPath(
+            roundedRect: bounds.insetBy(dx: inset, dy: inset), cornerRadius: max(0, radius - inset)
+        ).cgPath
         rim.lineWidth = isFocused ? 2 : 1
         let rimColor = style == .link && !isFocused ? UIColor.clear : stroke
-        rim.strokeColor = rimColor?.resolvedColor(with: traitCollection).cgColor
+        rim.strokeColor = rimColor.cgColor
         CATransaction.commit()
         FWGlow.apply(to: self, halo: halo, path: path, enabled: style == .primary && !isHighlighted, effects: effects)
     }

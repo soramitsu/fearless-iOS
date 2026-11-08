@@ -87,6 +87,16 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         rootView.accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
             self?.output.didTapAccountScore()
         }
+
+        let actions: [(FWRoundActionButton, WalletHomeAction)] = [
+            (rootView.sendButton, .send), (rootView.receiveButton, .receive),
+            (rootView.buyButton, .buy), (rootView.swapButton, .swap)
+        ]
+        for (button, action) in actions {
+            button.addAction { [weak self] in
+                self?.output.didTapHomeAction(action)
+            }
+        }
     }
 
     // MARK: - Actions
@@ -125,6 +135,10 @@ extension WalletMainContainerViewController: WalletMainContainerViewInput {
 
     func didReceiveNftAvailability(isNftAvailable: Bool) {
         rootView.segmentContainer.isHidden = !isNftAvailable
+    }
+
+    func didReceive(syncUpdate: WalletSyncUpdate) {
+        rootView.apply(syncUpdate: syncUpdate)
     }
 }
 

@@ -28,6 +28,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
     @IBOutlet private var pinViewCenterConstraint: NSLayoutConstraint!
 
     private var cancelButton: UIButton?
+    private lazy var sunlit = FWPinScreenSunlit(pinView: pinView)
     private var authorizationDeparturePending = false
     private let contentScrollView = UIScrollView()
     private let saveErrorLabel = UILabel()
@@ -203,6 +204,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
             label.lineBreakMode = .byWordWrapping
             label.textAlignment = .center
         }
+        sunlit.attach(to: content, in: view)
         contentScrollView.translatesAutoresizingMaskIntoConstraints = false
         contentScrollView.contentInsetAdjustmentBehavior = .never
         contentScrollView.alwaysBounceVertical = false
@@ -234,10 +236,12 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
             for: .monospacedDigitSystemFont(ofSize: 25, weight: weight), compatibleWith: traitCollection
         )
         pinView.numpadView?.titleFont = digits
-        pinView.numpadView?.keyRadius = max(28, ceil(digits.lineHeight / 2 + 8))
-        pinView.numpadView?.horizontalSpacing = 12
-        pinView.numpadView?.verticalSpacing = 12
-        pinView.verticalSpacing = 24
+        pinView.numpadView?.keyRadius = max(32, ceil(digits.lineHeight / 2 + 10))
+        let accessible = traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+        pinView.numpadView?.horizontalSpacing = accessible ? 6 : 22
+        pinView.numpadView?.verticalSpacing = 16
+        pinView.verticalSpacing = 32
+        sunlit.styler.apply()
         pinView.invalidateLayout()
         view.setNeedsLayout()
     }

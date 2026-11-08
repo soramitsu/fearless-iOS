@@ -352,6 +352,22 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
         checkDeprecatedAccountIssues()
+        output?.didReceive(syncUpdate: .catalog(running: false))
+    }
+
+    func processChainSyncDidStart(event _: ChainSyncDidStart) {
+        output?.didReceive(syncUpdate: .catalog(running: true))
+    }
+
+    func processChainSyncDidFail(event _: ChainSyncDidFail) {
+        output?.didReceive(syncUpdate: .catalogFailed)
+    }
+
+    func processChainReconnecting(event: ChainReconnectingEvent) {
+        output?.didReceive(syncUpdate: .connection(
+            chainId: event.chain.chainId,
+            WalletSyncUpdate.connection(for: event.state)
+        ))
     }
 }
 

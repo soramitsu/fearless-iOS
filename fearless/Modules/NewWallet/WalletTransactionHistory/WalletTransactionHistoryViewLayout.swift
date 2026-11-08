@@ -18,11 +18,14 @@ final class WalletTransactionHistoryViewLayout: UIView {
     }()
 
     private let containerView = UIView()
+    /// Sun-lit redesign: the history sheet is a Raised-2 surface lit from the top-left.
     private let backgroundView: TriangularedView = {
         let view = TriangularedView()
-        view.fillColor = R.color.colorWhite4()!
-        view.highlightedFillColor = R.color.colorWhite4()!
+        view.fillColor = FWSunlit.Palette.background
+        view.highlightedFillColor = FWSunlit.Palette.background
         view.shadowOpacity = 0
+        view.fwElevation = .raised2
+        view.fwCornerRadius = FWSunlit.Radius.tabBar
         return view
     }()
 

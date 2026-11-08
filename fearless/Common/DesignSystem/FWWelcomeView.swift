@@ -14,11 +14,15 @@ final class FWWelcomeView: UIView {
     let termsButton: FWWelcomeActionButton
     let privacyButton: FWWelcomeActionButton
     private let mode: Mode
+    private let sunlitBackground: FWSunlitBackgroundView
+    private let sunBadge: FWSunBadgeView
 
     var locale: Locale = .current { didSet { applyLocalization() } }
 
     init(mode: Mode, effects: FWEffects = .shared) {
         self.mode = mode
+        sunlitBackground = FWSunlitBackgroundView(effects: effects)
+        sunBadge = FWSunBadgeView(effects: effects)
         primaryButton = FWWelcomeActionButton(style: .primary, effects: effects)
         restoreButton = FWWelcomeActionButton(style: .secondary, effects: effects)
         preinstalledButton = FWWelcomeActionButton(style: .secondary, effects: effects)
@@ -31,10 +35,9 @@ final class FWWelcomeView: UIView {
     }
 
     private func setupLayout(effects: FWEffects) {
-        backgroundColor = R.color.fwBgBase()
-        let background = FWWelcomeBackgroundView(effects: effects)
-        addSubview(background)
-        background.snp.makeConstraints { $0.edges.equalToSuperview() }
+        backgroundColor = FWSunlit.Palette.background
+        addSubview(sunlitBackground)
+        sunlitBackground.snp.makeConstraints { $0.edges.equalToSuperview() }
         scrollView.alwaysBounceVertical = true
         scrollView.contentInsetAdjustmentBehavior = .never
         addSubview(scrollView)
@@ -54,8 +57,8 @@ final class FWWelcomeView: UIView {
             label.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         titleLabel.accessibilityTraits = .header
-        titleLabel.textColor = R.color.fwTextPrimary()
-        bodyLabel.textColor = R.color.fwTextSecondary()
+        titleLabel.textColor = FWSunlit.Palette.textPrimary
+        bodyLabel.textColor = FWSunlit.Palette.textSecondary
         [logoContainer, titleLabel, bodyLabel, primaryButton, restoreButton,
          preinstalledButton, recoveryButton, termsButton, privacyButton].forEach(stack.addArrangedSubview)
         stack.setCustomSpacing(24, after: logoContainer)
@@ -73,24 +76,25 @@ final class FWWelcomeView: UIView {
         privacyButton.isHidden = mode == .introduction
     }
 
-    private func makeLogo(effects: FWEffects) -> UIView {
+    /// The winged-sun badge is the scene's light: it lights the page and the buttons below it.
+    private func makeLogo(effects _: FWEffects) -> UIView {
         let logoContainer = UIView()
-        let logoWell = FWNeuView(effects: effects)
-        logoWell.style = .inset
-        logoContainer.addSubview(logoWell)
-        logoWell.snp.makeConstraints { make in
+        logoContainer.addSubview(sunBadge)
+        sunBadge.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.bottom.equalToSuperview()
-            make.size.equalTo(120)
+            make.top.bottom.equalToSuperview().inset(8)
+            make.size.equalTo(136)
         }
-        let logo = UIImageView(image: R.image.iconFearlessBig()?.withRenderingMode(.alwaysTemplate))
-        logo.contentMode = .scaleAspectFit
-        logo.tintColor = R.color.fwTextPrimary()
-        logo.isAccessibilityElement = true
-        logo.accessibilityLabel = "Fearless Wallet"
-        logoWell.addSubview(logo)
-        logo.snp.makeConstraints { $0.edges.equalToSuperview().inset(20) }
+        sunBadge.isAccessibilityElement = true
+        sunBadge.accessibilityLabel = "Fearless Wallet"
+        sunBadge.accessibilityTraits = .image
         return logoContainer
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let sunCenter = CGPoint(x: sunBadge.bounds.midX, y: sunBadge.bounds.midY)
+        sunlitBackground.sunCenter = sunBadge.convert(sunCenter, to: self)
     }
 
     @available(*, unavailable)

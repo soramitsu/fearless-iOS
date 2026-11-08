@@ -10,7 +10,7 @@ final class SendViewLayout: UIView {
 
     let navigationBar: BaseNavigationBar = {
         let view = BaseNavigationBar()
-        view.backgroundColor = R.color.colorBlack19()
+        view.backgroundColor = .clear
         return view
     }()
 
@@ -143,6 +143,7 @@ final class SendViewLayout: UIView {
         super.init(frame: frame)
 
         backgroundColor = R.color.colorBlack19()
+        FWSunlitBackgroundView.install(in: self)
 
         setupLayout()
         if FWAppearance.sendPresentationRestyled { setupAdaptiveLayout() }
