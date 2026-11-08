@@ -671,9 +671,9 @@ class CaptureControllerTests(unittest.TestCase):
         self.assertEqual(receipt["failedMarkerCount"], 0)
 
     def test_safe_upgrade_release_and_its_predecessor_are_allowlisted(self) -> None:
-        self.assertEqual(CAPTURE.SAFE_UPGRADE_BUILD_NUMBER, "2026.11.7")
+        self.assertEqual(CAPTURE.SAFE_UPGRADE_BUILD_NUMBER, "2026.11.8")
         self.assertEqual(
-            CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS[-3:], ("2026.11.5", "2026.11.6", "2026.11.7")
+            CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS[-3:], ("2026.11.6", "2026.11.7", "2026.11.8")
         )
         self.assertEqual(
             len(set(CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS)),
