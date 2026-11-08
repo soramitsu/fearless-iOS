@@ -251,7 +251,13 @@ JSON
 fi
 
 if [[ "${1:-}" == "xcresulttool" ]]; then
-  if printf '%s\n' "$@" | grep -Fqx "tests"; then
+  # Check the arguments in-process: under pipefail, `printf | grep -q` reports
+  # failure when grep exits before printf has written the remaining lines.
+  requests_tests=0
+  for argument in "$@"; do
+    [[ "$argument" != "tests" ]] || requests_tests=1
+  done
+  if [[ "$requests_tests" == "1" ]]; then
     case "${FAKE_TESTS_MODE:-valid}" in
       tool-failure)
         exit 1
@@ -327,7 +333,7 @@ PY
     fi
     previous="$argument"
   done
-  default_total=424
+  default_total=478
   if [[ "$result_path" == *"/copied-phone.xcresult" ]]; then
     default_total=2
   fi
@@ -380,7 +386,7 @@ if ! run_gate "valid-core"; then
   fail "valid core gate was rejected"
 fi
 assert_output_contains "PASSED requested Core Data Release gate" "$RUN_DIRECTORY/stdout"
-assert_output_contains "exactly 424 Release -O tests" "$RUN_DIRECTORY/stdout"
+assert_output_contains "exactly 478 Release -O tests" "$RUN_DIRECTORY/stdout"
 assert_argument_once "-workspace"
 assert_argument_once "$CANONICAL_WORKSPACE"
 assert_argument_once "-scheme"
@@ -698,7 +704,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unreadable-test-inventory" "could not read the executed test identities"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=424"
+  "FAKE_TOTAL_TESTS=478"
   "FAKE_PASSED_TESTS=242"
   "FAKE_FAILED_TESTS=1"
   "FAKE_RESULT=Failed"
@@ -708,7 +714,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "failed-summary" "zero-failure/zero-skip"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=424"
+  "FAKE_TOTAL_TESTS=478"
   "FAKE_PASSED_TESTS=242"
   "FAKE_EXPECTED_FAILURES=1"
 )

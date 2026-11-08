@@ -22,7 +22,7 @@ readonly UUID_PATTERN='^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]
 readonly BUNDLE_ID_PATTERN='^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$'
 readonly DEFAULT_ALIVE_SECONDS=8
 readonly EXPECTED_BUNDLE_ID="jp.co.soramitsu.fearlesswallet"
-readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_VERSION="4.2.1"
 readonly EXPECTED_SUBSTRATE_V10_CHECKSUM="Qyb9lyHRxl1FB0CHQeMaajp812iiqKqtSLJ0U/U120A="
 
 readonly STORE_FILES=(
