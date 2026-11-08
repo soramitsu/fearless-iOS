@@ -1669,8 +1669,9 @@ final class SeedShareOwnershipTests: XCTestCase {
         let row = try XCTUnwrap(descendants(f.view.view).compactMap { $0 as? MultilineTriangularedView }.first)
         reveal(row, in: f.window)
         assertHit(row, in: f.window)
-        let gesture = try XCTUnwrap(row.gestureRecognizers?.compactMap { $0 as? UITapGestureRecognizer }.first,
-            "This seed-share entry is intentionally Debug-only; this test must not enable it in Release")
+        let tap = row.gestureRecognizers?.compactMap { $0 as? UITapGestureRecognizer }.first
+        #if DEBUG
+        let gesture = try XCTUnwrap(tap, "This Debug-only seed-share entry must be on the row")
         f.view.perform(NSSelectorFromString("exportGestureHandler:"), with: gesture)
         await waitUntil { f.wireframe.sheets.count == 2 && self.settled(f.view.presentedViewController, in: f.window) }
         capture(f.window, "seed-share-warning-before-export")
@@ -1686,6 +1687,9 @@ final class SeedShareOwnershipTests: XCTestCase {
             }.joined(separator: "\n")
             let attachment = XCTAttachment(string: controls); attachment.name = "seed-share-system-control-inventory"; attachment.lifetime = .keepAlways; add(attachment)
         }
+        #else
+        XCTAssertNil(tap, "The seed-share entry is Debug-only: a Release build must not offer it")
+        #endif
     }
     func testDuplicateWarningsAndSharesHaveOneOwner() async throws {
         let f = try fixture(render: false); defer { f.close() }
