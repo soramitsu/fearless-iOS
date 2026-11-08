@@ -1,6 +1,6 @@
 # TestFlight 4.2.1 (2026.11.7)
 
-**Status:** submitted for App Review on 8 November 2026 at 01:11 JST (16:11 UTC on 7 November). It is Waiting for Review, with manual release. Review submission `b97d39c9-6972-4bff-af3b-0c0952d28644`.
+**Status: superseded.** This build was submitted for App Review on 8 November 2026 at 01:11 JST (16:11 UTC on 7 November), under review submission `b97d39c9-6972-4bff-af3b-0c0952d28644`. It was replaced in review by [2026.11.8](testflight-4.2.1-2026.11.8.md) on 8 November before public release. The entries below record 2026.11.7's historical release evidence.
 
 - **Upload:** 01:00 JST. Processed by 01:09 JST (VALID). Delivery `2a6d0ad4-26c1-49d0-910b-9538cc4acef0`.
 - **TestFlight:** internal testing IN_BETA_TESTING. Not submitted for external beta.
@@ -17,7 +17,7 @@ The swap was:
 2. Build 2026.11.7 was attached. What's New stayed byte-identical; release stayed manual.
 3. 4.2.1 was resubmitted.
 
-The only iOS version in flight is 4.2.1 with 2026.11.7; 4.0.4 is still live.
+At that submission, the only iOS version in flight was 4.2.1 with 2026.11.7; 4.0.4 was still live. The replacement 2026.11.8 restores WalletConnect through an in-repo client and removes the session clean-up described below. Devices that already ran 2026.11.7 through TestFlight must pair their dApps again.
 
 ## Candidate
 
@@ -61,7 +61,9 @@ All checks ran locally; this project does not use hosted CI. Evidence is in the 
   - Archive tree `48a55d78…01dfb0`, executable `e65916f3…f1b3`.
   - The app embeds no `sorawallet`, Reown, WalletConnect or `yttrium` file, link or symbol.
 - **IPA:** SHA-256 `e1142ef2795026cac6846e668e5c04179387f515382143f2be4609763f840222`, 93,955,869 bytes. The uploaded temporary IPA is byte-identical.
-- **4.0.4 Keychain continuity (G5) at `52b2e26b6`: 12 of 12 cells pass.** The cells cover six 4.0.4 writer profiles on iOS 26.5 and 27.0, each with the 6 named tests passing, none skipped, and the old snapshot and store byte-identical. The test host runs this build's launch clean-ups against the Keychain 4.0.4 wrote.
+- **4.0.4 Keychain continuity (G5) at `52b2e26b6`: 12 of 12 cells pass.** The cells cover six 4.0.4 writer profiles on iOS 26.5 and 27.0, each with the 6 named tests passing, none skipped, and the old snapshot and store byte-identical. They exercise the mapper, migration, signing, export and PIN code against the state that 4.0.4 wrote.
+
+**Correction, 8 November 2026:** this note previously said G5 ran the app's launch clean-ups. The test scheme passes `-UNITTEST`, and `AppDelegate` returns before URL handling and launch clean-up. These results therefore do not establish the effects of normal app startup or WalletConnect initialization, which occurs after unlock. Separate real-launch checks for the replacement build are recorded in [2026.11.8's note](testflight-4.2.1-2026.11.8.md).
 
 ## Not verified
 
