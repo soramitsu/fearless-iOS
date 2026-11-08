@@ -57,6 +57,68 @@ final class PinContinuityTests: XCTestCase {
         func close() { window.isHidden = true; window.rootViewController = nil }
     }
 
+    func testNormalSizePinUsesLargeKeysAndCentersContentAcrossWindowSizes() async throws {
+        let sizes = [CGSize(width: 320, height: 568), CGSize(width: 393, height: 852),
+                     CGSize(width: 852, height: 393), CGSize(width: 834, height: 1194)]
+        for size in sizes {
+            for mode in [PinView.Mode.create, .securedInput] {
+                let fixture = try show(
+                    language: "en", category: .large, mode: mode, cancellable: false,
+                    heading: mode == .create ? "setup" : "empty", size: size,
+                    idiom: size.width == 834 ? .pad : .phone
+                )
+                defer { fixture.close() }
+                await Task.yield()
+                fixture.window.layoutIfNeeded()
+                try assertLayout(fixture)
+                let numpad = try XCTUnwrap(fixture.pin.numpadView)
+                XCTAssertEqual(numpad.intrinsicContentSize.width, 260, accuracy: 1)
+                XCTAssertEqual(fixture.pin.verticalSpacing, 48)
+                for key in controls(fixture) {
+                    XCTAssertEqual(key.bounds.width, 72, accuracy: 1)
+                    XCTAssertEqual(key.bounds.height, 72, accuracy: 1)
+                }
+                let content = try XCTUnwrap(fixture.controller.topLabel.superview)
+                let rect = content.convert(content.bounds, to: fixture.scroll)
+                XCTAssertEqual(rect.midY, fixture.scroll.contentSize.height / 2, accuracy: 1)
+                XCTAssertGreaterThanOrEqual(rect.minY, 15)
+                if size.height > 800 {
+                    XCTAssertEqual(fixture.scroll.contentSize.height, fixture.scroll.bounds.height, accuracy: 1)
+                }
+                capture(fixture, name: "sizing-\(Int(size.width))x\(Int(size.height))-mode\(mode.rawValue)")
+                try assertControlsReachable(fixture)
+            }
+        }
+    }
+
+    func testPinResizesWithoutLosingInputOrChangingNormalSpacing() async throws {
+        let fixture = try show(language: "en", category: .large, cancellable: false,
+                               size: CGSize(width: 393, height: 852))
+        defer { fixture.close() }
+        await Task.yield()
+        try enter("12", in: fixture)
+        let originalSpacing = fixture.pin.verticalSpacing
+        if #available(iOS 17.0, *) {
+            fixture.window.traitOverrides.preferredContentSizeCategory = .accessibilityExtraExtraExtraLarge
+        }
+        for size in [CGSize(width: 320, height: 568), CGSize(width: 852, height: 393)] {
+            fixture.window.frame.size = size
+            for _ in 0 ..< 3 { await Task.yield() }
+            fixture.window.layoutIfNeeded()
+            try assertLayout(fixture)
+            try assertControlsReachable(fixture)
+        }
+        if #available(iOS 17.0, *) { fixture.window.traitOverrides.preferredContentSizeCategory = .large }
+        fixture.window.frame.size = CGSize(width: 393, height: 852)
+        for _ in 0 ..< 3 { await Task.yield() }
+        fixture.window.layoutIfNeeded()
+        XCTAssertEqual(fixture.pin.numpadView?.keyRadius, 36)
+        XCTAssertEqual(fixture.pin.verticalSpacing, originalSpacing)
+        XCTAssertEqual(originalSpacing, 48)
+        try enter("3456123456", in: fixture)
+        XCTAssertEqual(fixture.presenter.pins, ["123456"])
+    }
+
     func testProductionPinModesFitAllLocalesAtNormalAndMaximumType() async throws {
         for language in ["en", "ru", "ja", "zh-Hans", "id", "pt-PT", "tr", "vi"] {
             for category in [UIContentSizeCategory.large, .accessibilityExtraExtraExtraLarge] {
@@ -280,7 +342,8 @@ final class PinContinuityTests: XCTestCase {
 
     private func show(
         language: String, category: UIContentSizeCategory, mode: PinView.Mode = .create,
-        cancellable: Bool = true, heading: String = "setup"
+        cancellable: Bool = true, heading: String = "setup",
+        size: CGSize = CGSize(width: 320, height: 568), idiom: UIUserInterfaceIdiom = .phone
     ) throws -> Fixture {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         let presenter = Presenter()
@@ -296,9 +359,13 @@ final class PinContinuityTests: XCTestCase {
             return R.string.localizable.pincodeSetupTopTitle(preferredLanguages: locale.rLanguages)
         }
         let window = UIWindow(windowScene: scene)
-        window.frame = CGRect(x: 0, y: 0, width: 320, height: 568)
+        window.frame = CGRect(origin: .zero, size: size)
         window.overrideUserInterfaceStyle = .dark
-        if #available(iOS 17.0, *) { window.traitOverrides.preferredContentSizeCategory = category }
+        if #available(iOS 17.0, *) {
+            window.traitOverrides.preferredContentSizeCategory = category
+            window.traitOverrides.userInterfaceIdiom = idiom
+            window.traitOverrides.horizontalSizeClass = idiom == .pad ? .regular : .compact
+        }
         window.traitCollection.performAsCurrent {
             window.rootViewController = controller
             controller.loadViewIfNeeded()
@@ -336,6 +403,11 @@ final class PinContinuityTests: XCTestCase {
             try reveal(control, in: fixture)
             XCTAssertGreaterThanOrEqual(control.bounds.width, 48)
             XCTAssertGreaterThanOrEqual(control.bounds.height, 48)
+            for label in descendants(control).compactMap({ $0 as? UILabel }) {
+                let rect = label.convert(label.bounds, to: control)
+                XCTAssertTrue(control.bounds.insetBy(dx: -1, dy: -1).contains(rect),
+                              "The full digit must fit inside its key at every text size: \(rect)")
+            }
         }
         let buttons = descendants(fixture.controller.view).compactMap { $0 as? UIButton }
         if fixture.controller.cancellable {
