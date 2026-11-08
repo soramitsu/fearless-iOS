@@ -24,12 +24,6 @@ final class AboutViewLayout: UIView {
         return label
     }()
 
-    private let gradientView: GradientView = {
-        let gradient = GradientView()
-        gradient.startColor = .clear
-        return gradient
-    }()
-
     private let headerContainer = UIView()
 
     let tableView: UITableView = {
@@ -113,11 +107,6 @@ final class AboutViewLayout: UIView {
             make.edges.equalToSuperview()
         }
         tableView.tableHeaderView = headerContainer
-
-        headerContainer.addSubview(gradientView)
-        gradientView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
 
         let logoRow = UIView()
         headerContainer.addSubview(logoRow)

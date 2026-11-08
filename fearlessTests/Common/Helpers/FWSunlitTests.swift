@@ -586,6 +586,10 @@ final class FWWingsViewTests: XCTestCase {
         XCTAssertEqual(launch.size.width / launch.size.height, 480.0 / 200.0, accuracy: 0.01)
     }
 
+    func testAboutListShowsTheLitPageThroughItsCells() {
+        XCTAssertEqual(AboutTableViewCell(style: .default, reuseIdentifier: nil).backgroundColor, .clear)
+    }
+
     func testGlowLeavesWithReducedEffectsAndTheMarkStays() throws {
         let settings = try effects()
         let wings = FWWingsView(effects: settings)

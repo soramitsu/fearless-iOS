@@ -67,6 +67,8 @@ final class PinContinuityTests: XCTestCase {
                 let wings = try XCTUnwrap(descendants(fixture.controller.view).compactMap { $0 as? FWWingsView }.first)
                 XCTAssertGreaterThanOrEqual(wings.bounds.width / fixture.window.bounds.width, 0.8)
                 XCTAssertEqual(wings.bounds.width / wings.bounds.height, FWWingsView.aspectRatio, accuracy: 0.03)
+                let glow = wings.convert(wings.glowFrame, to: fixture.scroll)
+                XCTAssertGreaterThanOrEqual(glow.minY, fixture.scroll.contentOffset.y, "The scroll view must not cut the light")
                 let labels = try XCTUnwrap(fixture.controller.topLabel.superview).subviews.compactMap { $0 as? UILabel }
                     .filter { !$0.isHidden }
                 for label in labels {

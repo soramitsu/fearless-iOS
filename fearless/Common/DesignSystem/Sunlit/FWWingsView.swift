@@ -9,6 +9,9 @@ final class FWWingsView: UIView {
     static let aspectRatio: CGFloat = 480 / 132
     /// Keeps the mark from taking over a tablet's height.
     static let maximumWidth: CGFloat = 480
+    /// How far the glow reaches above and below the mark. Pages keep at least this much room above it, because
+    /// their scroll views would otherwise cut the light in a straight line.
+    static let glowOverhang: CGFloat = 16
 
     let imageView = UIImageView()
     private let glow = CAGradientLayer()
@@ -17,6 +20,8 @@ final class FWWingsView: UIView {
 
     /// Whether the sun's glow is showing behind the mark.
     var isGlowing: Bool { !glow.isHidden }
+    /// The glow's frame in this view's coordinates.
+    var glowFrame: CGRect { glow.frame }
 
     init(effects: FWEffects = .shared) {
         self.effects = effects
@@ -28,10 +33,10 @@ final class FWWingsView: UIView {
         glow.type = .radial
         glow.colors = [
             FWSunlit.Palette.sun.withAlphaComponent(0.55),
-            FWSunlit.Palette.brand.withAlphaComponent(0.18),
+            FWSunlit.Palette.brand.withAlphaComponent(0.24),
             FWSunlit.Palette.brand.withAlphaComponent(0)
         ].map(\.cgColor)
-        glow.locations = [0, 0.45, 1]
+        glow.locations = [0, 0.6, 1]
         glow.startPoint = CGPoint(x: 0.5, y: 0.5)
         glow.endPoint = CGPoint(x: 1, y: 1)
         glow.opacity = FWSunBadgeView.restingGlow
@@ -68,8 +73,8 @@ final class FWWingsView: UIView {
         super.layoutSubviews()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        // The light runs along the wings and fades before it reaches the text above and below the mark.
-        glow.frame = bounds.insetBy(dx: -bounds.width * 0.1, dy: -bounds.height * 0.55)
+        // The light runs along the wings and fades out before the page's text and scroll edges.
+        glow.frame = bounds.insetBy(dx: -bounds.width * 0.1, dy: -Self.glowOverhang)
         CATransaction.commit()
     }
 
