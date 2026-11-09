@@ -13,6 +13,8 @@ Users** group contains the build. No external group was assigned.
 - The owner chose this build for the public release on 8 November. It replaced
   2026.11.8 in App Review as submission `0f4f11e5-0547-4e8a-bfc9-3b9fc1795d98`
   at 11:39 UTC, in the normal queue.
+- On 9 November 2026.11.10 replaced it in App Review. 2026.11.9 was not reviewed and
+  was never published. See `testflight-4.2.1-2026.11.10.md`.
 
 The PIN keypad restores 72-point normal-size keys, comfortable spacing and
 vertical centering. Short screens and large text can scroll without hiding
@@ -58,12 +60,13 @@ are in `__objc_classlist`, and Iroha Connect's release policy is off.
 |---|---|---|
 | 2 `SolanaSendServiceTests` | Use-after-free, below | Fixed in `46097e14f` |
 | 44 needing a window | The test host that started after those crashes, following a 14-minute pause, had no `UIWindowScene` | 44/44 pass in a fresh host |
-| 2 timeouts, chain node and TON WebKit page | The Mac's load average was over 400 | Pass in a fresh host and in the rerun |
+| 2 timeouts, chain node and TON WebKit page | Probably load: the Mac's load average was over 400 | Pass in a fresh host and in the rerun |
 | 1 seed-share | The test needs a Debug-only entry | Test now asserts the entry is absent in Release (`8dfefeaa2`) |
 
 A host also started with no window scene once with no crash, after its simulator
 sat idle for about 45 minutes, so idling is the likely trigger. Long runs now
-reboot the simulator first.
+reboot the simulator first. On iOS 18.1 that reboot hides the on-screen keyboard and
+fails three keyboard tests; see `testflight-4.2.1-2026.11.10.md`.
 
 **The use-after-free.** Swift 6.4.2 at `-O` makes
 `SolanaTransactionBroadcaster.retry` destroy the snapshot and then retain
@@ -91,10 +94,10 @@ restarts. The extra skip is the 113,989-row migration test, because that rebuild
 left out its flag; it passed in the first Release run and in the gate, and the fix
 does not touch Core Data.
 
-**Status.** Automatic release was set at 15:57 UTC and put back to manual at 19:03
-UTC when this was found, so an approval cannot publish the build. Project policy
-keeps a real failure blocking, so shipping 2026.11.9 with this fault or replacing
-it with a rebuilt 2026.11.10 is the owner's decision.
+**Status.** Automatic release was set at 13:46 UTC and put back to manual at 19:03
+UTC when this was found, so an approval could not publish the build. Project policy
+keeps a real failure blocking, so the owner decided between shipping 2026.11.9 with
+this fault and replacing it with a rebuilt 2026.11.10. They chose the rebuild.
 
 ### Not run
 
