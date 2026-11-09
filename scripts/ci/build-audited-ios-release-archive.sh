@@ -91,8 +91,10 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # pairing and PIN-gated EVM and Polkadot signing.
 # 2026.11.9 restores comfortable PIN keys, spacing and vertical centering,
 # with scrolling on short screens and at large text sizes.
+# 2026.11.10 keeps the Solana transfer snapshot alive while retry copies its
+# signature, which Swift 6.4.2 otherwise frees first at -O.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.11.9"
+readonly EXPECTED_BUILD="2026.11.10"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -113,7 +115,7 @@ Preconditions:
     distributed 4.2.0 (2026.7.28) source commit, directly or through its
     squash into master (#1305); a fresh clone gets that pull request's head
     with `git fetch origin refs/pull/1305/head`;
-  - App Store Connect read-only uniqueness check for 4.2.1 (2026.11.9);
+  - App Store Connect read-only uniqueness check for 4.2.1 (2026.11.10);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
