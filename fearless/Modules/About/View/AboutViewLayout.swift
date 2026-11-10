@@ -4,18 +4,10 @@ import SoraUI
 final class AboutViewLayout: UIView {
     // MARK: - UI
 
-    private let backgroundImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.image = R.image.backgroundImage()
-        return imageView
-    }()
+    /// The page and the stacked lockup whose crest lights it (sun-lit redesign, Yatagarasu brand).
+    private let sunlitBackground = FWSunlitBackgroundView()
 
-    private let logoImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.iconFearlessBig()
-        return imageView
-    }()
+    private let logoImageView = FWLockupView()
 
     private let aboutTitle: UILabel = {
         let label = UILabel()
@@ -24,12 +16,6 @@ final class AboutViewLayout: UIView {
         label.adjustsFontForContentSizeCategory = true
         label.textColor = R.color.colorWhite()
         return label
-    }()
-
-    private let gradientView: GradientView = {
-        let gradient = GradientView()
-        gradient.startColor = .clear
-        return gradient
     }()
 
     private let headerContainer = UIView()
@@ -96,13 +82,15 @@ final class AboutViewLayout: UIView {
             headerContainer.frame = frame
             tableView.tableHeaderView = headerContainer
         }
+        sunlitBackground.sunCenter = logoImageView.convert(logoImageView.crestCenterPoint, to: self)
     }
 
     // MARK: - Private methods
 
     private func setupLayout() {
-        addSubview(backgroundImageView)
-        backgroundImageView.snp.makeConstraints { make in
+        backgroundColor = FWSunlit.Palette.background
+        addSubview(sunlitBackground)
+        sunlitBackground.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
@@ -112,22 +100,22 @@ final class AboutViewLayout: UIView {
         }
         tableView.tableHeaderView = headerContainer
 
-        headerContainer.addSubview(gradientView)
-        gradientView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        let logoRow = UIView()
+        headerContainer.addSubview(logoRow)
+        logoRow.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().offset(20)
         }
-
-        headerContainer.addSubview(logoImageView)
+        logoRow.addSubview(logoImageView)
         logoImageView.snp.makeConstraints { make in
-            make.width.equalTo(142)
-            make.height.equalTo(61)
-            make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(24)
+            logoImageView.makePageConstraints(make)
+            make.top.bottom.equalToSuperview()
         }
 
         headerContainer.addSubview(aboutTitle)
+        aboutTitle.textAlignment = .center
         aboutTitle.snp.makeConstraints { make in
-            make.top.equalTo(logoImageView.snp.bottom).offset(4)
+            make.top.equalTo(logoRow.snp.bottom).offset(12)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().offset(-UIConstants.bigOffset)
         }

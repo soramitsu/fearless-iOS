@@ -36,6 +36,7 @@ open class TriangularedBlurView: UIView {
         didSet {
             removeBlurView()
             addBlurView()
+            blurView?.isHidden = true
             setNeedsLayout()
         }
     }
@@ -45,6 +46,11 @@ open class TriangularedBlurView: UIView {
 
         addBlurView()
         addOverlayView()
+        // Sun-lit redesign: cards are opaque Raised-1 surfaces lit by the key light, not live blur.
+        blurView?.isHidden = true
+        overlayView.fillColor = FWSunlit.Palette.background
+        overlayView.highlightedFillColor = FWSunlit.Palette.backgroundDeep
+        overlayView.fwElevation = .raised1
     }
 
     private func addOverlayView() {
@@ -79,6 +85,7 @@ open class TriangularedBlurView: UIView {
             blurMaskView.cornerCut = cornerCut
             blurMaskView.shadowOpacity = 0.0
             blurMaskView.fillColor = .black
+            blurMaskView.fwElevation = .flat
 
             blurView?.mask = blurMaskView
 

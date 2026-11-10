@@ -10,6 +10,7 @@ class CommonInputView: UIView {
         view.strokeColor = R.color.colorDarkGray()!
         view.highlightedStrokeColor = R.color.colorDarkGray()!
         view.strokeWidth = 1.0
+        view.fwMakeInsetWell()
         return view
     }()
 

@@ -23,12 +23,8 @@ final class ChainAccountViewLayout: UIView {
 
     weak var delegate: ChainAccountViewDelegate?
 
-    private let backgroundImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.image = R.image.backgroundImage()
-        return imageView
-    }()
+    /// The sun-lit page (sun-lit redesign).
+    private let backgroundImageView = FWSunlitBackgroundView()
 
     private let contentView: UIStackView = {
         let view = UIFactory.default.createVerticalStackView()
@@ -40,13 +36,7 @@ final class ChainAccountViewLayout: UIView {
 
     private let navigationBar = UIView()
 
-    let backButton: UIButton = {
-        let button = UIButton()
-        button.setImage(R.image.iconBack(), for: .normal)
-        button.backgroundColor = R.color.colorWhite8()
-        button.layer.cornerRadius = LayoutConstants.accessoryButtonSize / 2
-        return button
-    }()
+    let backButton: UIButton = FWRoundIconButton.make(image: R.image.iconBack(), tint: FWSunlit.Palette.textPrimary)
 
     private let walletNameTitle: UILabel = {
         let label = UILabel()
@@ -102,22 +92,20 @@ final class ChainAccountViewLayout: UIView {
 
     let chainOptionsContentView = UIView()
 
+    /// The asset's actions on one Raised-2 card (sun-lit redesign).
     let actionsView: TriangularedView = {
         let view = TriangularedView()
-        view.fillColor = R.color.colorWhite4()!
-        view.highlightedFillColor = R.color.colorWhite4()!
+        view.fillColor = FWSunlit.Palette.background
+        view.highlightedFillColor = FWSunlit.Palette.background
         view.shadowOpacity = 0
+        view.fwElevation = .raised2
+        view.fwCornerRadius = FWSunlit.Radius.card
         return view
     }()
 
-    let optionsButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.setImage(R.image.iconHorMore(), for: .normal)
-        button.tintColor = R.color.colorWhite()
-        button.backgroundColor = R.color.colorWhite8()
-        button.layer.cornerRadius = LayoutConstants.accessoryButtonSize / 2
-        return button
-    }()
+    let optionsButton: UIButton = FWRoundIconButton.make(
+        image: R.image.iconHorMore(), tint: FWSunlit.Palette.textPrimary
+    )
 
     let selectNetworkButton = SelectedNetworkButton()
 

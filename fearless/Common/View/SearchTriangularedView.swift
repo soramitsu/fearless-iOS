@@ -44,6 +44,7 @@ final class SearchTriangularedView: UIView {
         view.highlightedStrokeColor = R.color.colorPink()!
         view.strokeWidth = 0.5
         view.shadowOpacity = 0
+        view.fwMakeInsetWell()
         return view
     }()
 

@@ -1407,6 +1407,7 @@ pertence à rede certa";
 "welcome.body" = "Custódia própria para Polkadot, Ethereum, TON, Bitcoin, Solana e SORA.";
 "welcome.create" = "Criar uma nova carteira";
 "welcome.restore" = "Já tenho uma carteira";
+"welcome.crow.call" = "Reproduzir o grasnido do corvo";
 
 "import.legacy_ton_phrase" = "Frase de recuperação TON antiga";
 "import.legacy_ton_phrase_placeholder" = "Introduza a sua frase de recuperação TON antiga";

@@ -32,7 +32,8 @@ Native/Sources/scrypt/sse2neon.h	float32x2_t a02 = vset_lane_f32(a0, a22, 1); /*
 Native/Tests/SSFStorageQueryKitTest/StorageRequestPerformerTests.swift	// TODO: - Transfer this model to staking package
 Native/Tests/Starscream/FuzzingTests.swift	//TODO: the rest of them.
 Native/Tests/Starscream/MockServer.swift	//TODO: force disconnect
-
-# Generated TON API client (Packages/TonAPI): placeholder comments from the OpenAPI generator; not hand-written debt.
-Packages/TonAPI/Sources/TonAPI/Types.swift	///   - extra: TODO
+# Generated TonAPI documentation inherited from the pinned OpenAPI specification.
+# Both lines describe AccountEvent.extra; these are upstream documentation placeholders,
+# not unimplemented behavior. Preserve reproducible generation (Packages/TonAPI/README.md).
 Packages/TonAPI/Sources/TonAPI/Types.swift	/// TODO
+Packages/TonAPI/Sources/TonAPI/Types.swift	///   - extra: TODO

@@ -28,6 +28,8 @@ final class ChainAssetListViewController:
     private var expandedZeroTokenIds: Set<String> = []
     private var zeroTokensExpanded = false
     private var usesTokenLens: Bool { viewModel?.lens == .token }
+    /// Rows rise into place the first time the list appears (sun-lit redesign).
+    private let listRise = FWListRise()
     private var tokenSectionCount: Int { usesTokenLens ? (viewModel?.zeroTokenRows.isEmpty == false ? 2 : 1) : 0 }
     private func tokenRows(in section: Int) -> [TokenPortfolioRow] {
         guard let viewModel, usesTokenLens, section < tokenSectionCount else { return [] }
@@ -375,6 +377,21 @@ extension ChainAssetListViewController: UITableViewDelegate {
     func tableView(_: UITableView, estimatedHeightForRowAt _: IndexPath) -> CGFloat {
         93
     }
+
+    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt _: IndexPath) {
+        listRise.cellWillAppear(cell)
+    }
+
+    /// Rows weigh their rim light by their distance to the wallet's sun as they move.
+    func scrollViewDidScroll(_: UIScrollView) {
+        for cell in rootView.tableView.visibleCells {
+            if let row = cell as? ChainAccountBalanceTableCell {
+                row.refreshSunRim()
+            } else if let group = cell as? TokenGroupBalanceTableCell {
+                group.surface.sunRim = FWSunAnchor.shared.sunRim(for: group.surface)
+            }
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -541,7 +558,8 @@ final class AssetNetworkHeaderView: UITableViewHeaderFooterView {
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
-        contentView.backgroundColor = R.color.colorBlack19()
+        // The section title sits on the sun-lit page (the grouped table's headers do not float).
+        contentView.backgroundColor = .clear
         titleLabel.font = .h5Title
         titleLabel.textColor = R.color.colorWhite()
         detailLabel.font = .p2Paragraph

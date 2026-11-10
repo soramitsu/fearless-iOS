@@ -683,7 +683,8 @@ final class TokenLensViewControllerTests: XCTestCase {
 
     @MainActor
     func testGeneratedDesignColorsExistInApplicationBundleForEveryAppearance() throws {
-        XCTAssertEqual(FWTokens.sourceSHA256, "18180aa767b87b8ac0bb767622e172328d95145817a1475a840905eec55b4315")
+        // design/fw.tokens.json after the Yatagarasu pink remap (brand kit tools/apply-tokens.mjs, 2026-11-10).
+        XCTAssertEqual(FWTokens.sourceSHA256, "8ca2b9ccf0134dbd3d2b230d36725b39cffe52c398e1b4ccfd4d5a88799453ac")
         let bundle = Bundle(for: ChainAssetListViewController.self)
         for style in [UIUserInterfaceStyle.light, .dark] {
             for contrast in [UIAccessibilityContrast.normal, .high] {

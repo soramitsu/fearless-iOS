@@ -1,6 +1,9 @@
 import UIKit
 
 class RootViewLayout: UIView {
+    /// The launch screen's white crest, at its size (brand spec 2026-11-10: 120 pt, centred on ink).
+    static let logoSide: CGFloat = 120
+
     let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.backgroundImage()
@@ -35,7 +38,7 @@ class RootViewLayout: UIView {
     func applyLocalization() {
         guard FWAppearance.startupRecoveryRestyled else { return }
         statusLabel.font = .fw(.bodyL, locale: locale, compatibleWith: traitCollection)
-        statusLabel.textColor = R.color.fwTextPrimary()
+        statusLabel.textColor = FWSunlit.Palette.textPrimary
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -49,7 +52,9 @@ class RootViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()
+        // Matches the launch screen: the white crest centred on ink (Yatagarasu brand).
+        backgroundColor = FWSunlit.Palette.background
+        backgroundImageView.isHidden = true
 
         setupLayout()
         applyLocalization()
@@ -73,8 +78,10 @@ class RootViewLayout: UIView {
         }
         addSubview(fearlessLogoImageView)
         addSubview(statusLabel)
+        fearlessLogoImageView.contentMode = .scaleAspectFit
         fearlessLogoImageView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.center.equalTo(safeAreaLayoutGuide)
+            make.width.height.equalTo(Self.logoSide)
         }
 
         statusLabel.snp.makeConstraints { make in
@@ -102,15 +109,22 @@ class RootViewLayout: UIView {
             make.width.equalTo(scroll.frameLayoutGuide).offset(-48)
             make.height.equalTo(scroll.frameLayoutGuide).offset(-48).priority(999)
         }
-        [topSpace, fearlessLogoImageView, statusLabel, bottomSpace].forEach(stack.addArrangedSubview)
-        topSpace.snp.makeConstraints { make in
-            make.height.equalTo(bottomSpace)
-            make.height.greaterThanOrEqualTo(0)
-        }
+        // The crest keeps the launch screen's size and place, so the hand-off from the launch screen never moves it;
+        // the status, when shown, appears below it. Long status text at large sizes lifts the crest and scrolls.
+        let logoRow = UIView()
+        logoRow.addSubview(fearlessLogoImageView)
+        [topSpace, logoRow, statusLabel, bottomSpace].forEach(stack.addArrangedSubview)
+        topSpace.snp.makeConstraints { $0.height.greaterThanOrEqualTo(0) }
         bottomSpace.snp.makeConstraints { $0.height.greaterThanOrEqualTo(0) }
+        logoRow.snp.makeConstraints { make in
+            make.centerY.equalTo(scroll.frameLayoutGuide).priority(.high)
+        }
         fearlessLogoImageView.contentMode = .scaleAspectFit
         fearlessLogoImageView.isAccessibilityElement = false
-        fearlessLogoImageView.snp.makeConstraints { $0.height.equalTo(120) }
+        fearlessLogoImageView.snp.makeConstraints { make in
+            make.top.bottom.centerX.equalToSuperview()
+            make.width.height.equalTo(Self.logoSide)
+        }
         statusLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
 }

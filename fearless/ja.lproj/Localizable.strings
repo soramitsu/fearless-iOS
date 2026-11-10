@@ -1479,6 +1479,7 @@
 "welcome.body" = "Polkadot、Ethereum、TON、Bitcoin、Solana、SORAの資産を自分で管理。";
 "welcome.create" = "新しいウォレットを作成";
 "welcome.restore" = "すでにウォレットを持っている";
+"welcome.crow.call" = "カラスの鳴き声を再生";
 
 "import.legacy_ton_phrase" = "旧形式の TON リカバリーフレーズ";
 "import.legacy_ton_phrase_placeholder" = "旧形式の TON リカバリーフレーズを入力してください";

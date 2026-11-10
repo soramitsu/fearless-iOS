@@ -1446,6 +1446,7 @@ thuộc đúng mạng";
 "welcome.body" = "Tự quản lý tài sản trên Polkadot, Ethereum, TON, Bitcoin, Solana và SORA.";
 "welcome.create" = "Tạo ví mới";
 "welcome.restore" = "Tôi đã có ví";
+"welcome.crow.call" = "Phát tiếng quạ kêu";
 
 "import.legacy_ton_phrase" = "Cụm từ khôi phục TON cũ";
 "import.legacy_ton_phrase_placeholder" = "Nhập cụm từ khôi phục TON cũ của bạn";
