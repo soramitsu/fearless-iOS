@@ -933,14 +933,55 @@ final class LegacyTonConnectViewTests: XCTestCase {
     func testRealWebKitBridgePublishesReleasedProviderAndHandlesStructuredReplies() async throws {
         let coordinator = LegacyTonConnectCoordinator(store: TonConnectFakeSessionStore(values: []), transport: TonConnectFakeTransport(),
                                                        replies: .init(keystore: TonConnectFixtureKeychain()), selectedWallet: { nil })
-        let controller = LegacyTonConnectBrowserViewController(url: URL(string: "https://example.org")!, coordinator: coordinator)
+        // A non-origin start URL avoids starting and cancelling an unrelated
+        // network navigation before the synthetic page; the shipped WebView
+        // configuration and document-start provider injection are unchanged.
+        let controller = LegacyTonConnectBrowserViewController(url: URL(string: "about:blank")!, coordinator: coordinator)
         controller.loadViewIfNeeded()
-        controller.webView.stopLoading()
-        let loaded = expectation(description: "Synthetic WKWebView page")
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .first(where: { $0.activationState == .foregroundActive }))
+        let previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
+        let appeared = expectation(description: "TON browser is displayed in the foreground scene")
+        let navigation = TonConnectTestBrowserNavigationController(rootViewController: controller)
+        navigation.didAppear = { appeared.fulfill() }
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.coordinateSpace.bounds
+        window.rootViewController = navigation
+        defer {
+            controller.webView.stopLoading()
+            controller.webView.navigationDelegate = nil
+            navigation.didAppear = nil
+            window.isHidden = true
+            window.rootViewController = nil
+            previousKeyWindow?.makeKey()
+        }
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+        await fulfillment(of: [appeared], timeout: 10)
+        guard navigation.hasAppeared else { return }
+        guard window.isKeyWindow, !window.isHidden, scene.activationState == .foregroundActive,
+              controller.view.window === window, controller.webView.window === window,
+              controller.webView.bounds.width > 0, controller.webView.bounds.height > 0 else {
+            XCTFail("TON browser must have a nonempty WebView displayed in the active scene")
+            return
+        }
+
+        let loaded = expectation(description: "The intended synthetic WKWebView navigation completes")
         let delegate = TonConnectTestNavigationDelegate { loaded.fulfill() }
         controller.webView.navigationDelegate = delegate
-        controller.webView.loadHTMLString("<!doctype html><html><body>Public TonConnect fixture</body></html>", baseURL: URL(string: "https://example.org")!)
-        await fulfillment(of: [loaded], timeout: 10)
+        delegate.expectedNavigation = try XCTUnwrap(controller.webView.loadHTMLString(
+            "<!doctype html><html><body id='ton-connect-test-fixture'>Public TonConnect fixture</body></html>",
+            baseURL: URL(string: "https://example.org")!
+        ))
+        // WebContent is a separate process: allow bounded startup time in the
+        // full suite, then require the actual navigation outcome, not a sleep.
+        await fulfillment(of: [loaded], timeout: 30)
+        try XCTUnwrap(delegate.outcome, "The intended synthetic navigation did not report an outcome").get()
+        let documentState = try await controller.webView.evaluateJavaScript(
+            "[document.body?.id, document.readyState, document.visibilityState].join('|')"
+        )
+        XCTAssertEqual(documentState as? String, "ton-connect-test-fixture|complete|visible")
+        guard documentState as? String == "ton-connect-test-fixture|complete|visible" else { return }
         let info = try await controller.webView.evaluateJavaScript("JSON.stringify({ version: window.Fearless.tonconnect.protocolVersion, max: window.Fearless.tonconnect.deviceInfo.features[0].maxMessages, appName: window.Fearless.tonconnect.deviceInfo.appName, browser: window.Fearless.tonconnect.isWalletBrowser })")
         let json = try XCTUnwrap((info as? String).flatMap { $0.data(using: .utf8) })
         let object = try XCTUnwrap(JSONSerialization.jsonObject(with: json) as? [String: Any])
@@ -963,10 +1004,47 @@ final class LegacyTonConnectViewTests: XCTestCase {
     }
 }
 
+private final class TonConnectTestBrowserNavigationController: UINavigationController {
+    var didAppear: (() -> Void)?
+    private(set) var hasAppeared = false
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        guard !hasAppeared else { return }
+        hasAppeared = true
+        didAppear?()
+    }
+}
+
 private final class TonConnectTestNavigationDelegate: NSObject, WKNavigationDelegate {
+    var expectedNavigation: WKNavigation?
+    private(set) var outcome: Result<Void, Error>?
     private let loaded: () -> Void
     init(loaded: @escaping () -> Void) { self.loaded = loaded }
-    func webView(_: WKWebView, didFinish _: WKNavigation!) { loaded() }
+
+    private func finish(_ result: Result<Void, Error>, navigation: WKNavigation?) {
+        guard let expectedNavigation, navigation === expectedNavigation, outcome == nil else { return }
+        outcome = result
+        loaded()
+    }
+
+    func webView(_: WKWebView, didFinish navigation: WKNavigation!) {
+        finish(.success(()), navigation: navigation)
+    }
+
+    func webView(_: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        finish(.failure(error), navigation: navigation)
+    }
+
+    func webView(_: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        finish(.failure(error), navigation: navigation)
+    }
+
+    func webViewWebContentProcessDidTerminate(_: WKWebView) {
+        let error = NSError(domain: "TonConnectTestWebContent", code: 1,
+                            userInfo: [NSLocalizedDescriptionKey: "WebContent process terminated while loading the synthetic fixture"])
+        finish(.failure(error), navigation: expectedNavigation)
+    }
 }
 
 
