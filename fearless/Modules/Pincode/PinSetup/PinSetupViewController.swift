@@ -72,6 +72,16 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         applyAdaptiveContentColumnOutsideNavigation()
     }
 
+    override func willMove(toParent parent: UIViewController?) {
+        // UIKit can remove a popped controller from the stack before delivering
+        // viewWillDisappear. Fence queued PIN-save results at the first removal
+        // callback so they cannot navigate from an already removed screen.
+        if parent == nil, self.parent != nil, mode == .create {
+            presenter?.cancel()
+        }
+        super.willMove(toParent: parent)
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         guard isMovingFromParent || isBeingDismissed || navigationController?.isBeingDismissed == true else { return }
