@@ -4416,3 +4416,29 @@ class StakingServiceFactoryProtocolStub:StakingServiceFactoryProtocol, @unchecke
         return DefaultValueRegistry.defaultValue(for: (RewardCalculatorServiceProtocol).self)
     }
 }
+
+
+// MARK: - Hand-written doubles for 'fearless/Common/Protocols/AuthorizationPresentable.swift'
+
+/// Grants every submission at once, for confirm-screen tests that are not about the PIN prompt.
+final class GrantingSubmissionAuthorizer: SubmissionAuthorizing {
+    private(set) var requests = 0
+
+    func authorizeSubmission(from _: ControllerBackedProtocol?, completion: @escaping (Bool) -> Void) {
+        requests += 1
+        completion(true)
+    }
+}
+
+/// Holds each request until the test answers it, as the PIN screen would.
+final class RecordingSubmissionAuthorizer: SubmissionAuthorizing {
+    private(set) var completions: [(Bool) -> Void] = []
+
+    func authorizeSubmission(from _: ControllerBackedProtocol?, completion: @escaping (Bool) -> Void) {
+        completions.append(completion)
+    }
+
+    func answer(_ index: Int, _ authorized: Bool) {
+        completions[index](authorized)
+    }
+}

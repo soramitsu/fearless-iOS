@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 
 final class WalletConnectProposalDataValidating {
     private let basePresentable: SheetAlertPresentable

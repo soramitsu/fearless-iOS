@@ -223,7 +223,8 @@ enum PolkaswapLiquidityPoolServiceAssembly {
         return PolkaswapLiquidityPoolService(
             upstream: SSFPolkaswap.PolkaswapLiquidityPoolServiceAssembly.buildService(
                 for: chain,
-                chainRegistry: chainRegistry
+                chainRegistry: chainRegistry,
+                apyIndexerURL: ApplicationConfig.shared.polkaswapIndexerURL
             ),
             poolStorage: PoolXykStorageDefaultL(storageRequestPerformer: performer),
             chain: chain
@@ -549,7 +550,8 @@ final class ReviewedPolkaswapPoolsOperationService: PoolsOperationService {
         let dataService = PolkaswapLiquidityPoolService(
             upstream: SSFPolkaswap.PolkaswapLiquidityPoolServiceAssembly.buildService(
                 for: chain,
-                chainRegistry: sharedRegistry
+                chainRegistry: sharedRegistry,
+                apyIndexerURL: ApplicationConfig.shared.polkaswapIndexerURL
             ),
             poolStorage: PoolXykStorageDefaultL(storageRequestPerformer: performer),
             chain: chain

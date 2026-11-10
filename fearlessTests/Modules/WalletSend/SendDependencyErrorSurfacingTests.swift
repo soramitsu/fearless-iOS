@@ -1029,7 +1029,8 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
     private func makeConfirmPresenter(
         chainAsset: ChainAsset = ChainAsset(chain: SendDependencyErrorSurfacingTests.bitcoinChain, asset: SendDependencyErrorSurfacingTests.btcAsset),
         receiver: String = "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m",
-        scamInfo: ScamInfo? = nil
+        scamInfo: ScamInfo? = nil,
+        submissionAuthorizer: SubmissionAuthorizing = GrantingSubmissionAuthorizer()
     ) -> ConfirmContext {
         let wireframe = WalletSendConfirmWireframeSpy()
         let view = WalletSendConfirmViewStub()
@@ -1057,7 +1058,8 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
             ),
             scamInfo: scamInfo,
             feeViewModel: nil,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            submissionAuthorizer: submissionAuthorizer
         )
         presenter.view = view
         return ConfirmContext(
@@ -1695,7 +1697,7 @@ extension SendDependencyErrorSurfacingTests {
             walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory(amountFormatterFactory: AssetBalanceFormatterFactory(),
                 assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon)), logger: nil,
             chainAsset: chainAsset, wallet: wallet, call: .transfer(transfer), scamInfo: nil, feeViewModel: nil,
-            localizationManager: LocalizationManager.shared)
+            localizationManager: LocalizationManager.shared, submissionAuthorizer: GrantingSubmissionAuthorizer())
         presenter.view = view
         interactor.presenter = presenter
         return SolanaPipelineContext(presenter: presenter, interactor: interactor, wireframe: wireframe, view: view,
@@ -1929,6 +1931,34 @@ extension SendDependencyErrorSurfacingTests {
         XCTAssertEqual(context.wireframe.completedHashes, [Self.solanaSignature])
         context.presenter.didTapConfirmButton()
         XCTAssertEqual(context.interactor.submittedCount, 1)
+    }
+
+    @MainActor
+    func testConfirmSendsNothingUntilThePinIsEnteredAndACancelKeepsConfirmUsable() {
+        let authorizer = RecordingSubmissionAuthorizer()
+        let context = makeConfirmPresenter(
+            chainAsset: ChainAsset(chain: Self.solanaChain, asset: Self.solAsset),
+            receiver: "HAgk14JpMQLgt6rVgv7cBQFJWFto5Dqxi472uT3DKpqk",
+            submissionAuthorizer: authorizer
+        )
+        var loadingStarts = 0
+        context.view.onStartLoading = { loadingStarts += 1 }
+        context.presenter.didReceiveAccountInfo(result: .success(AccountInfo(ethBalance: 2_000_000_000)), for: context.chainAsset)
+        context.presenter.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: 5000)))
+        let loadingBefore = loadingStarts
+
+        context.presenter.didTapConfirmButton()
+        XCTAssertEqual(authorizer.completions.count, 1)
+        XCTAssertEqual(context.interactor.submittedCount, 0, "Nothing is signed or sent before the PIN")
+        authorizer.answer(0, false)
+        XCTAssertEqual(context.interactor.submittedCount, 0, "A cancelled PIN sends nothing")
+        XCTAssertEqual(loadingStarts, loadingBefore, "and leaves Confirm usable")
+
+        context.presenter.didTapConfirmButton()
+        XCTAssertEqual(authorizer.completions.count, 2)
+        authorizer.answer(1, true)
+        XCTAssertEqual(context.interactor.submittedCount, 1)
+        XCTAssertEqual(loadingStarts, loadingBefore + 1)
     }
 
     @MainActor

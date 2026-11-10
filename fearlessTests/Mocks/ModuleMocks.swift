@@ -10802,6 +10802,16 @@ class MockPinSetupViewProtocol: PinSetupViewProtocol, Cuckoo.ProtocolMock, @unch
         )
     }
 
+    func didReceiveLockout(remaining p0: TimeInterval) {
+        return cuckoo_manager.call(
+            "didReceiveLockout(remaining p0: TimeInterval)",
+            parameters: (p0),
+            escapingParameters: (p0),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.didReceiveLockout(remaining: p0)
+        )
+    }
+
     func didFailSavingPin() {
         return cuckoo_manager.call(
             "didFailSavingPin()",
@@ -10875,6 +10885,14 @@ class MockPinSetupViewProtocol: PinSetupViewProtocol, Cuckoo.ProtocolMock, @unch
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockPinSetupViewProtocol.self,
                 method: "didReceiveWrongPincode()",
+                parameterMatchers: matchers
+            ))
+        }
+
+        func didReceiveLockout<M1: Cuckoo.Matchable>(remaining p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(TimeInterval)> where M1.MatchedType == TimeInterval {
+            let matchers: [Cuckoo.ParameterMatcher<(TimeInterval)>] = [wrap(matchable: p0) { $0 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockPinSetupViewProtocol.self,
+                method: "didReceiveLockout(remaining p0: TimeInterval)",
                 parameterMatchers: matchers
             ))
         }
@@ -10968,6 +10986,17 @@ class MockPinSetupViewProtocol: PinSetupViewProtocol, Cuckoo.ProtocolMock, @unch
         }
 
         @discardableResult
+        func didReceiveLockout<M1: Cuckoo.Matchable>(remaining p0: M1) -> Cuckoo.__DoNotUse<(TimeInterval), Void> where M1.MatchedType == TimeInterval {
+            let matchers: [Cuckoo.ParameterMatcher<(TimeInterval)>] = [wrap(matchable: p0) { $0 }]
+            return cuckoo_manager.verify(
+                "didReceiveLockout(remaining p0: TimeInterval)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @discardableResult
         func didFailSavingPin() -> Cuckoo.__DoNotUse<(), Void> {
             let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return cuckoo_manager.verify(
@@ -11042,6 +11071,10 @@ class PinSetupViewProtocolStub:PinSetupViewProtocol, @unchecked Sendable {
     }
     
     func didReceiveWrongPincode() {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func didReceiveLockout(remaining p0: TimeInterval) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 

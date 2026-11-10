@@ -55,7 +55,9 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder, Hidda
             (navigationController != nil && navigationController?.topViewController !== self)
         let ownedSheet = presentedViewController is SheetAletViewController &&
             scope?.hasOwnedRecoveryPresentation == true
-        if navigatedAway || !ownedSheet {
+        // The PIN screen that authorizes this transfer covers the review without leaving it.
+        let authorizing = presentedViewController is PinSetupViewController
+        if navigatedAway || !(ownedSheet || authorizing) {
             scope?.suspendSendReview()
         }
     }

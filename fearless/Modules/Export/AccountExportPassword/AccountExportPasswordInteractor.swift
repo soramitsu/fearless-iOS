@@ -143,16 +143,13 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
     private func saveExportedFile(_ content: String, address: String) throws -> URL {
         // A share sheet can outlive a later export attempt. Each model owns its
         // bytes even when another chain or password produces the same filename.
-        let directory = exportDirectory.appendingPathComponent("fearless-json-" + UUID().uuidString, isDirectory: true)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        do {
-            let file = directory.appendingPathComponent(address + ".json")
-            try content.write(to: file, atomically: true, encoding: .utf8)
-            return file
-        } catch {
-            try? FileManager.default.removeItem(at: directory)
-            throw error
-        }
+        // The directory has complete data protection and is removed when the export
+        // screen closes (or at the next launch).
+        try SensitiveExportFiles.write(
+            Data(content.utf8),
+            fileName: address + ".json",
+            temporaryDirectory: exportDirectory
+        )
     }
 
     private func createExportOperation(

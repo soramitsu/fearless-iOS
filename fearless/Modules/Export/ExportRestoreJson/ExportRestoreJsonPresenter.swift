@@ -30,6 +30,11 @@ final class ExportRestoreJsonPresenter {
         self.localizationManager = localizationManager
     }
 
+    deinit {
+        // The encrypted keystore files exist only for this screen's share sheet.
+        models.forEach { SensitiveExportFiles.remove($0.fileURL) }
+    }
+
     private func activateExport(models: [RestoreJson]) {
         guard !isLeaving, !backupPending else { return }
         let items: [JsonExportAction] = [.file, .text]

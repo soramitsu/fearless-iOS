@@ -30,6 +30,8 @@ final class CheckPincodeViewLayout: UIView {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorWhite()
+        label.numberOfLines = 0
+        label.textAlignment = .center
         return label
     }()
 
@@ -45,6 +47,13 @@ final class CheckPincodeViewLayout: UIView {
             if locale != oldValue {
                 applyLocalization()
             }
+        }
+    }
+
+    /// Seconds left in a PIN lockout; the title shows the countdown instead of the prompt while it is set.
+    var lockoutRemaining: TimeInterval? {
+        didSet {
+            applyLocalization()
         }
     }
 
@@ -65,8 +74,15 @@ final class CheckPincodeViewLayout: UIView {
 
 private extension CheckPincodeViewLayout {
     func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .pincodeEnterPinCode(preferredLanguages: locale.rLanguages)
+        if let lockoutRemaining = lockoutRemaining {
+            titleLabel.text = R.string.localizable.pincodeLockoutMessage(
+                PinLockoutCountdown.format(lockoutRemaining),
+                preferredLanguages: locale.rLanguages
+            )
+        } else {
+            titleLabel.text = R.string.localizable
+                .pincodeEnterPinCode(preferredLanguages: locale.rLanguages)
+        }
         navigationTitleLabel.text = R.string.localizable
             .pincodeEnterPinCode(preferredLanguages: locale.rLanguages)
     }
@@ -91,6 +107,7 @@ private extension CheckPincodeViewLayout {
 
         titleLabel.snp.makeConstraints { make in
             make.centerX.equalTo(safeAreaLayoutGuide)
+            make.leading.greaterThanOrEqualTo(safeAreaLayoutGuide).offset(UIConstants.horizontalInset)
         }
     }
 

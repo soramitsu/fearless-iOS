@@ -41,6 +41,10 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
     private var viewModel: MultipleExportGenericViewModelProtocol?
     private var adaptiveLayout: ExportGenericAdaptiveLayout?
     private var backupFailureView: UIView?
+    private lazy var captureGuard = SecretCaptureGuard(
+        owner: self,
+        languages: { [weak self] in self?.selectedLocale.rLanguages }
+    )
 
     private var shouldShowAdvanced: Bool {
         guard let option = viewModel?.option, let flow = viewModel?.flow else {
@@ -128,10 +132,22 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         setAdvancedContainer(visibility: shouldShowAdvanced)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        captureGuard.start()
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         presenter.didLoadView()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        captureGuard.stop()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -242,6 +258,9 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
         }
 
         optionViews = views
+        // A recovery phrase, raw seed or private key; a JSON keystore is encrypted.
+        let showsSecret = viewModel.option == .mnemonic || viewModel.option == .seed
+        captureGuard.protect(showsSecret ? views : [])
 
         advancedContainerViews?.forEach { view in
             view.isHidden = !expandableControl.isActivated
@@ -750,5 +769,165 @@ extension ExportGenericViewController: ExportGenericViewProtocol {
         }
 
         updateFromViewModel(locale)
+    }
+}
+
+/// Keeps a recovery phrase, raw seed or private key out of screen recordings and mirrored
+/// displays, and warns after a screenshot. A screen that shows a secret owns one guard,
+/// passes it the views that hold the secret after every rebuild, and runs it while visible.
+/// Covers exist only while the screen is captured, so the normal layout is never changed.
+final class SecretCaptureGuard: SheetAlertPresentable {
+    private struct Secret {
+        weak var view: UIView?
+    }
+
+    private weak var owner: ControllerBackedProtocol?
+    private let languages: () -> [String]?
+    private let notificationCenter: NotificationCenter
+    private let isCaptured: (UIViewController) -> Bool
+    private var secrets: [Secret] = []
+    private var covers: [UIView] = []
+    private var observers: [NSObjectProtocol] = []
+
+    init(
+        owner: ControllerBackedProtocol,
+        languages: @escaping () -> [String]?,
+        notificationCenter: NotificationCenter = .default,
+        isCaptured: @escaping (UIViewController) -> Bool = SecretCaptureGuard.isScreenCaptured
+    ) {
+        self.owner = owner
+        self.languages = languages
+        self.notificationCenter = notificationCenter
+        self.isCaptured = isCaptured
+    }
+
+    deinit {
+        observers.forEach { notificationCenter.removeObserver($0) }
+    }
+
+    /// True while the screen is recorded, mirrored or sent over AirPlay.
+    static func isScreenCaptured(_ controller: UIViewController) -> Bool {
+        controller.viewIfLoaded?.window?.windowScene?.screen.isCaptured ?? UIScreen.main.isCaptured
+    }
+
+    /// Replaces the protected views; call it whenever the screen rebuilds them.
+    func protect(_ views: [UIView]) {
+        removeCovers()
+        secrets = views.map { Secret(view: $0) }
+        update()
+    }
+
+    func start() {
+        if observers.isEmpty {
+            observers = [
+                notificationCenter.addObserver(
+                    forName: UIScreen.capturedDidChangeNotification,
+                    object: nil,
+                    queue: nil
+                ) { [weak self] _ in
+                    guard Thread.isMainThread else {
+                        DispatchQueue.main.async { self?.update() }
+                        return
+                    }
+                    self?.update()
+                },
+                notificationCenter.addObserver(
+                    forName: UIApplication.userDidTakeScreenshotNotification,
+                    object: nil,
+                    queue: nil
+                ) { [weak self] _ in
+                    DispatchQueue.main.async { self?.warnAfterScreenshot() }
+                }
+            ]
+        }
+        update()
+    }
+
+    func stop() {
+        observers.forEach { notificationCenter.removeObserver($0) }
+        observers.removeAll()
+    }
+
+    /// Covers every protected view while the screen is captured and removes the covers after.
+    func update() {
+        removeCovers()
+        guard let controller = owner?.controller, isCaptured(controller) else {
+            return
+        }
+        let note = R.string.localizable.secretCaptureHidden(preferredLanguages: languages())
+        for secret in secrets {
+            guard let view = secret.view, let host = view.superview else {
+                continue
+            }
+            let cover = SecretCaptureCover(note: note)
+            host.addSubview(cover)
+            NSLayoutConstraint.activate([
+                cover.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                cover.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                cover.topAnchor.constraint(equalTo: view.topAnchor),
+                cover.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+            // Nothing under the cover is read aloud into the recording either.
+            view.accessibilityElementsHidden = true
+            covers.append(cover)
+        }
+    }
+
+    private func removeCovers() {
+        covers.forEach { $0.removeFromSuperview() }
+        covers.removeAll()
+        secrets.forEach { $0.view?.accessibilityElementsHidden = false }
+    }
+
+    private func warnAfterScreenshot() {
+        // Never stacks on, or blocks, a sheet or transition the screen itself started.
+        guard let owner, owner.controller.viewIfLoaded?.window != nil,
+              owner.controller.presentedViewController == nil,
+              owner.controller.transitionCoordinator == nil,
+              secrets.contains(where: { $0.view?.window != nil })
+        else {
+            return
+        }
+        let preferredLanguages = languages()
+        present(
+            message: R.string.localizable.secretScreenshotMessage(preferredLanguages: preferredLanguages),
+            title: R.string.localizable.commonNoScreenshotTitle(preferredLanguages: preferredLanguages),
+            closeAction: R.string.localizable.commonClose(preferredLanguages: preferredLanguages),
+            from: owner
+        )
+    }
+}
+
+private final class SecretCaptureCover: UIView {
+    init(note: String) {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = R.color.colorBlack19()
+        clipsToBounds = true
+
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = note
+        label.textColor = R.color.colorWhite()
+        label.textAlignment = .center
+        label.numberOfLines = 3
+        label.font = UIFont.preferredFont(forTextStyle: .footnote)
+        label.adjustsFontForContentSizeCategory = true
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.5
+        label.accessibilityIdentifier = "SecretCaptureNote"
+        addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: UIConstants.horizontalInset),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -UIConstants.horizontalInset),
+            label.topAnchor.constraint(greaterThanOrEqualTo: topAnchor),
+            label.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor)
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

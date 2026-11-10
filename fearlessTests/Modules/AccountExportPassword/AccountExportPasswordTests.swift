@@ -113,14 +113,67 @@ class AccountExportPasswordTests: XCTestCase {
 
         presenter.setup()
 
-        inputViewModel?.inputHandler.changeValue(to: Constants.validSrKeystorePassword)
-        confirmationViewModel?.inputHandler.changeValue(to: Constants.validSrKeystorePassword)
+        // A new export needs the 8-character minimum; "test5" only opens the old fixtures.
+        let exportPassword = "public-export-password"
+        inputViewModel?.inputHandler.changeValue(to: exportPassword)
+        confirmationViewModel?.inputHandler.changeValue(to: exportPassword)
 
         presenter.proceed()
 
         // then
 
         wait(for: [expectation], timeout: 15)
+    }
+}
+
+final class AccountExportPasswordMinimumLengthTests: XCTestCase {
+    private final class Interactor: AccountExportPasswordInteractorInputProtocol {
+        var exports = 0
+        func exportAccount(address _: String, password _: String, chain _: ChainModel, wallet _: MetaAccountModel) {
+            exports += 1
+        }
+
+        func exportWallet(wallet _: MetaAccountModel, accounts _: [ChainAccountInfo], password _: String) {
+            exports += 1
+        }
+    }
+
+    func testShortPasswordIsRefusedBeforeAnyKeyIsRead() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 0, addressPrefix: UInt16(0))
+        let presenter = AccountExportPasswordPresenter(
+            flow: .single(chain: chain, address: "address", wallet: wallet),
+            localizationManager: LocalizationManager.shared
+        )
+        let view = MockAccountExportPasswordViewProtocol()
+        view.enableDefaultImplementation(AccountExportPasswordViewProtocolStub())
+        let interactor = Interactor()
+        presenter.view = view
+        presenter.interactor = interactor
+
+        var password: InputViewModelProtocol?
+        var confirmation: InputViewModelProtocol?
+        var errors: [AccountExportPasswordError] = []
+        stub(view) { stub in
+            when(stub.controller.get).thenReturn(UIViewController())
+            when(stub.setPasswordInputViewModel(any(InputViewModelProtocol.self))).then { password = $0 }
+            when(stub.setPasswordConfirmationViewModel(any(InputViewModelProtocol.self))).then { confirmation = $0 }
+            when(stub.set(error: any(AccountExportPasswordError.self))).then { errors.append($0) }
+        }
+
+        presenter.setup()
+        password?.inputHandler.changeValue(to: "1234567")
+        confirmation?.inputHandler.changeValue(to: "1234567")
+        presenter.proceed()
+
+        XCTAssertEqual(interactor.exports, 0)
+        XCTAssertEqual(errors.count, 1)
+        if case .passwordTooShort? = errors.first {} else { XCTFail("Expected passwordTooShort") }
+
+        password?.inputHandler.changeValue(to: "12345678")
+        confirmation?.inputHandler.changeValue(to: "12345678")
+        presenter.proceed()
+        XCTAssertEqual(interactor.exports, 1)
     }
 }
 

@@ -8,6 +8,31 @@ import UIKit
 import LocalAuthentication
 import XCTest
 
+/// Biometric enrollment as the PIN holder last vouched for it, without LAContext or the device Keychain.
+private final class EnrollmentStub: BiometryEnrollmentGuarding {
+    var trusted = true
+    private(set) var trustCalls = 0
+    func isCurrentEnrollmentTrusted() -> Bool { trusted }
+    func trustCurrentEnrollment() {
+        trustCalls += 1
+        trusted = true
+    }
+}
+
+/// Wall and monotonic clocks that move only when a test moves them.
+private final class LockoutClocks {
+    var now: TimeInterval = 1_800_000_000
+    var uptime: TimeInterval = 10000
+    func advance(_ seconds: TimeInterval) {
+        now += seconds
+        uptime += seconds
+    }
+
+    func limiter(_ keystore: KeystoreProtocol) -> PincodeAttemptLimiter {
+        PincodeAttemptLimiter(keystore: keystore, now: { self.now }, uptime: { self.uptime })
+    }
+}
+
 /// Presentation/input continuity only; this fixture never opens the keystore or signs.
 @MainActor
 final class PinContinuityTests: XCTestCase {
@@ -30,6 +55,68 @@ final class PinContinuityTests: XCTestCase {
         let pin: PinView
         let scroll: UIScrollView
         func close() { window.isHidden = true; window.rootViewController = nil }
+    }
+
+    func testNormalSizePinUsesLargeKeysAndCentersContentAcrossWindowSizes() async throws {
+        let sizes = [CGSize(width: 320, height: 568), CGSize(width: 393, height: 852),
+                     CGSize(width: 852, height: 393), CGSize(width: 834, height: 1194)]
+        for size in sizes {
+            for mode in [PinView.Mode.create, .securedInput] {
+                let fixture = try show(
+                    language: "en", category: .large, mode: mode, cancellable: false,
+                    heading: mode == .create ? "setup" : "empty", size: size,
+                    idiom: size.width == 834 ? .pad : .phone
+                )
+                defer { fixture.close() }
+                await Task.yield()
+                fixture.window.layoutIfNeeded()
+                try assertLayout(fixture)
+                let numpad = try XCTUnwrap(fixture.pin.numpadView)
+                XCTAssertEqual(numpad.intrinsicContentSize.width, 260, accuracy: 1)
+                XCTAssertEqual(fixture.pin.verticalSpacing, 48)
+                for key in controls(fixture) {
+                    XCTAssertEqual(key.bounds.width, 72, accuracy: 1)
+                    XCTAssertEqual(key.bounds.height, 72, accuracy: 1)
+                }
+                let content = try XCTUnwrap(fixture.controller.topLabel.superview)
+                let rect = content.convert(content.bounds, to: fixture.scroll)
+                XCTAssertEqual(rect.midY, fixture.scroll.contentSize.height / 2, accuracy: 1)
+                XCTAssertGreaterThanOrEqual(rect.minY, 15)
+                if size.height > 800 {
+                    XCTAssertEqual(fixture.scroll.contentSize.height, fixture.scroll.bounds.height, accuracy: 1)
+                }
+                capture(fixture, name: "sizing-\(Int(size.width))x\(Int(size.height))-mode\(mode.rawValue)")
+                try assertControlsReachable(fixture)
+            }
+        }
+    }
+
+    func testPinResizesWithoutLosingInputOrChangingNormalSpacing() async throws {
+        let fixture = try show(language: "en", category: .large, cancellable: false,
+                               size: CGSize(width: 393, height: 852))
+        defer { fixture.close() }
+        await Task.yield()
+        try enter("12", in: fixture)
+        let originalSpacing = fixture.pin.verticalSpacing
+        if #available(iOS 17.0, *) {
+            fixture.window.traitOverrides.preferredContentSizeCategory = .accessibilityExtraExtraExtraLarge
+        }
+        for size in [CGSize(width: 320, height: 568), CGSize(width: 852, height: 393)] {
+            fixture.window.frame.size = size
+            for _ in 0 ..< 3 { await Task.yield() }
+            fixture.window.layoutIfNeeded()
+            try assertLayout(fixture)
+            try assertControlsReachable(fixture)
+        }
+        if #available(iOS 17.0, *) { fixture.window.traitOverrides.preferredContentSizeCategory = .large }
+        fixture.window.frame.size = CGSize(width: 393, height: 852)
+        for _ in 0 ..< 3 { await Task.yield() }
+        fixture.window.layoutIfNeeded()
+        XCTAssertEqual(fixture.pin.numpadView?.keyRadius, 36)
+        XCTAssertEqual(fixture.pin.verticalSpacing, originalSpacing)
+        XCTAssertEqual(originalSpacing, 48)
+        try enter("3456123456", in: fixture)
+        XCTAssertEqual(fixture.presenter.pins, ["123456"])
     }
 
     func testProductionPinModesFitAllLocalesAtNormalAndMaximumType() async throws {
@@ -195,9 +282,68 @@ final class PinContinuityTests: XCTestCase {
         try assertLayout(fixture)
     }
 
+    func testLockoutTurnsDigitsOffShowsTimeLeftAndTurnsThemBackOn() async throws {
+        let fixture = try show(language: "en", category: .large, mode: .securedInput, heading: "empty")
+        defer { fixture.close() }
+        await Task.yield()
+        fixture.controller.didChangeAccessoryState(enabled: true, availableBiometryType: .faceId)
+        fixture.controller.didReceiveLockout(remaining: 0.5)
+        let digits = controls(fixture).filter { Int($0.imageWithTitleView?.title ?? "") != nil }
+        XCTAssertEqual(digits.count, 10)
+        XCTAssertTrue(digits.allSatisfy { !$0.isEnabled })
+        let backspace = try XCTUnwrap(controls(fixture).first { $0.accessibilityIdentifier == "BackspaceAccessibilityId" })
+        XCTAssertFalse(backspace.isEnabled)
+        let biometry = try XCTUnwrap(controls(fixture).first {
+            $0.accessibilityIdentifier == PinViewConfigurator.biometryKeyAccessibilityId
+        })
+        XCTAssertTrue(biometry.isEnabled, "A trusted face or finger stays available during a lockout")
+        let message = R.string.localizable.pincodeLockoutMessage("0:01", preferredLanguages: ["en"])
+        let labels = descendants(fixture.controller.view).compactMap { $0 as? UILabel }
+        XCTAssertTrue(labels.contains { $0.text == message })
+        capture(fixture, name: "en-lockout")
+        for digit in "123456" {
+            try XCTUnwrap(digits.first { $0.imageWithTitleView?.title == String(digit) }).sendActions(for: .touchUpInside)
+        }
+        XCTAssertTrue(fixture.presenter.pins.isEmpty, "Input that reaches the pad during a lockout is not submitted")
+
+        try await Task.sleep(nanoseconds: 1_300_000_000)
+        XCTAssertTrue(digits.allSatisfy(\.isEnabled))
+        XCTAssertFalse(labels.contains { $0.text == message })
+        try enter("123456", in: fixture)
+        XCTAssertEqual(fixture.presenter.pins, ["123456"])
+    }
+
+    func testCheckPincodeScreenAlsoLocksAndCountsDown() async throws {
+        let presenter = Presenter()
+        let localization = try XCTUnwrap(LocalizationManager(localization: "en"))
+        let controller = CheckPincodeViewController(presenter: presenter, localizationManager: localization)
+        controller.loadViewIfNeeded()
+        controller.didReceiveLockout(remaining: 61)
+        XCTAssertEqual(
+            controller.rootView.titleLabel.text,
+            R.string.localizable.pincodeLockoutMessage("1:01", preferredLanguages: ["en"])
+        )
+        let keys = controller.rootView.pinView.numpadView?.subviews.compactMap { $0 as? RoundedButton } ?? []
+        let digits = keys.filter { Int($0.imageWithTitleView?.title ?? "") != nil }
+        XCTAssertEqual(digits.count, 10)
+        XCTAssertTrue(digits.allSatisfy { !$0.isEnabled })
+        for digit in "123456" {
+            try XCTUnwrap(digits.first { $0.imageWithTitleView?.title == String(digit) }).sendActions(for: .touchUpInside)
+        }
+        XCTAssertTrue(presenter.pins.isEmpty)
+    }
+
+    func testLockoutTimeReadsInMinutesAndSecondsRoundedUp() {
+        XCTAssertEqual(PinLockoutCountdown.format(0.2), "0:01")
+        XCTAssertEqual(PinLockoutCountdown.format(59.01), "1:00")
+        XCTAssertEqual(PinLockoutCountdown.format(298.3), "4:59")
+        XCTAssertEqual(PinLockoutCountdown.format(3600), "60:00")
+    }
+
     private func show(
         language: String, category: UIContentSizeCategory, mode: PinView.Mode = .create,
-        cancellable: Bool = true, heading: String = "setup"
+        cancellable: Bool = true, heading: String = "setup",
+        size: CGSize = CGSize(width: 320, height: 568), idiom: UIUserInterfaceIdiom = .phone
     ) throws -> Fixture {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         let presenter = Presenter()
@@ -213,9 +359,13 @@ final class PinContinuityTests: XCTestCase {
             return R.string.localizable.pincodeSetupTopTitle(preferredLanguages: locale.rLanguages)
         }
         let window = UIWindow(windowScene: scene)
-        window.frame = CGRect(x: 0, y: 0, width: 320, height: 568)
+        window.frame = CGRect(origin: .zero, size: size)
         window.overrideUserInterfaceStyle = .dark
-        if #available(iOS 17.0, *) { window.traitOverrides.preferredContentSizeCategory = category }
+        if #available(iOS 17.0, *) {
+            window.traitOverrides.preferredContentSizeCategory = category
+            window.traitOverrides.userInterfaceIdiom = idiom
+            window.traitOverrides.horizontalSizeClass = idiom == .pad ? .regular : .compact
+        }
         window.traitCollection.performAsCurrent {
             window.rootViewController = controller
             controller.loadViewIfNeeded()
@@ -253,6 +403,11 @@ final class PinContinuityTests: XCTestCase {
             try reveal(control, in: fixture)
             XCTAssertGreaterThanOrEqual(control.bounds.width, 48)
             XCTAssertGreaterThanOrEqual(control.bounds.height, 48)
+            for label in descendants(control).compactMap({ $0 as? UILabel }) {
+                let rect = label.convert(label.bounds, to: control)
+                XCTAssertTrue(control.bounds.insetBy(dx: -1, dy: -1).contains(rect),
+                              "The full digit must fit inside its key at every text size: \(rect)")
+            }
         }
         let buttons = descendants(fixture.controller.view).compactMap { $0 as? UIButton }
         if fixture.controller.cancellable {
@@ -360,7 +515,9 @@ final class LocalAuthOwnershipTests: XCTestCase {
         func didFailSavingPin() {}
         var wrongPins = 0
         var resets = 0
+        var lockouts: [TimeInterval] = []
         var dismissalBegan = false
+        func didReceiveLockout(remaining: TimeInterval) { lockouts.append(remaining) }
         override var isBeingDismissed: Bool { dismissalBegan || super.isBeingDismissed }
         func resetAuthenticationInput() { resets += 1 }
         func didRequestBiometryUsage(biometryType _: AvailableBiometryType, completionBlock _: @escaping (Bool) -> Void) {}
@@ -383,8 +540,10 @@ final class LocalAuthOwnershipTests: XCTestCase {
     private final class Output: LocalAuthInteractorOutputProtocol {
         var completions = 0
         var wrongPins = 0
+        var lockouts: [TimeInterval] = []
         var states: [LocalAuthInteractor.LocalAuthState] = []
         func didEnterWrongPincode() { wrongPins += 1 }
+        func didReceiveLockout(remaining: TimeInterval) { XCTAssertTrue(Thread.isMainThread); lockouts.append(remaining) }
         func didChangeState(to state: LocalAuthInteractor.LocalAuthState) { XCTAssertTrue(Thread.isMainThread); states.append(state) }
         func didCompleteAuth() { XCTAssertTrue(Thread.isMainThread); completions += 1 }
         func didUnexpectedFail() { XCTFail("Unexpected authentication failure") }
@@ -401,10 +560,18 @@ final class LocalAuthOwnershipTests: XCTestCase {
         let secrets = Secrets()
         let settings = Settings()
         let biometry = Biometry()
+        let enrollment = EnrollmentStub()
+        let clocks = LockoutClocks()
+        let keystore = InMemoryKeychain()
+        let limiter: PincodeAttemptLimiter
         let interactor: LocalAuthInteractor
         init(biometric: Bool = false) {
             settings.biometryEnabled = biometric
-            interactor = LocalAuthInteractor(secretManager: secrets, settingsManager: settings, biometryAuth: biometry, locale: Locale(identifier: "en"))
+            limiter = clocks.limiter(keystore)
+            interactor = LocalAuthInteractor(
+                secretManager: secrets, settingsManager: settings, biometryAuth: biometry, locale: Locale(identifier: "en"),
+                attemptLimiter: limiter, enrollmentGuard: enrollment
+            )
         }
     }
 
@@ -687,6 +854,149 @@ final class LocalAuthOwnershipTests: XCTestCase {
         }
     }
 
+    // MARK: - Wrong-PIN lockout and biometric enrollment
+
+    private func enterWrongPins(_ count: Int, into f: Fixture) async throws {
+        for _ in 0 ..< count {
+            let index = f.secrets.loads.count
+            f.interactor.process(pin: "000000")
+            f.secrets.answer(index, "123456")
+            try await settle()
+        }
+    }
+
+    func testSixthWrongPinLocksAndLockedGuessesAreNeverCompared() async throws {
+        let f = Fixture()
+        let output = Output()
+        f.interactor.startAuth(with: output)
+        try await enterWrongPins(5, into: f)
+        XCTAssertEqual(output.wrongPins, 5)
+        XCTAssertTrue(output.lockouts.isEmpty, "Five attempts are free")
+        try await enterWrongPins(1, into: f)
+        XCTAssertEqual(output.lockouts, [60])
+
+        f.interactor.process(pin: "123456")
+        try await settle()
+        XCTAssertEqual(f.secrets.loads.count, 6, "A guess during the lockout never reads the stored PIN")
+        XCTAssertEqual(output.lockouts, [60, 60])
+        XCTAssertEqual(output.completions, 0)
+
+        f.clocks.advance(60)
+        f.interactor.process(pin: "123456")
+        f.secrets.answer(6, "123456")
+        try await settle()
+        XCTAssertEqual(output.completions, 1)
+        XCTAssertEqual(f.limiter.registerFailure(), 0, "A correct PIN clears the count")
+        XCTAssertTrue(try f.keystore.checkKey(for: fearless.KeystoreTag.pincodeAttempts.rawValue))
+        XCTAssertFalse(try f.keystore.checkKey(for: fearless.KeystoreTag.pincode.rawValue), "The limiter never touches the PIN")
+    }
+
+    func testScreenOpenedDuringLockoutShowsItAndUnreadableStoredPinIsNotCounted() async throws {
+        let f = Fixture()
+        for _ in 0 ..< 7 { f.limiter.registerFailure() }
+        f.clocks.advance(100)
+        let output = Output()
+        f.interactor.startAuth(with: output)
+        try await settle()
+        XCTAssertEqual(output.lockouts, [200])
+
+        let fresh = Fixture()
+        let freshOutput = Output()
+        fresh.interactor.startAuth(with: freshOutput)
+        for index in 0 ..< 8 {
+            fresh.interactor.process(pin: "123456")
+            fresh.secrets.answer(index, nil)
+            try await settle()
+        }
+        XCTAssertEqual(freshOutput.wrongPins, 8)
+        XCTAssertTrue(freshOutput.lockouts.isEmpty, "A Keychain read failure is not the user's guess")
+    }
+
+    func testChangedEnrollmentAsksForThePinOnceAndThenTrustsTheNewOne() async throws {
+        let f = Fixture(biometric: true)
+        f.enrollment.trusted = false
+        let output = Output()
+        f.interactor.startAuth(with: output)
+        try await settle()
+        XCTAssertTrue(f.biometry.replies.isEmpty, "No prompt for an enrollment the PIN holder has not vouched for")
+        XCTAssertFalse(f.interactor.allowManualBiometryAuth)
+        XCTAssertEqual(f.interactor.state, .waitingPincode)
+        f.interactor.process(pin: "123456")
+        f.secrets.answer(0, "123456")
+        try await settle()
+        XCTAssertEqual(output.completions, 1)
+        XCTAssertEqual(f.enrollment.trustCalls, 1)
+        XCTAssertTrue(f.interactor.allowManualBiometryAuth)
+    }
+
+    func testEnrollmentChangedDuringThePromptCannotAuthorize() async throws {
+        let f = Fixture(biometric: true)
+        let output = Output()
+        f.interactor.startAuth(with: output)
+        XCTAssertEqual(f.biometry.replies.count, 1)
+        f.enrollment.trusted = false
+        f.biometry.answer(0, true)
+        try await settle()
+        XCTAssertEqual(output.completions, 0)
+        XCTAssertEqual(f.interactor.state, .waitingPincode)
+    }
+
+    func testReturningToAnAppAlreadyOnTheUnlockPinDoesNotStackAnotherOne() throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        defer { window.rootViewController = nil }
+        let unlock = PinSetupViewController(nib: R.nib.pinSetupViewController)
+        unlock.presenter = LocalAuthPresenter(wireframe: MainWireframe(), interactor: Fixture().interactor)
+        window.rootViewController = unlock
+        XCTAssertTrue(FearlessApplication.isShowingUnlockPin(in: window))
+        let authorization = PinSetupViewController(nib: R.nib.pinSetupViewController)
+        authorization.presenter = ScreenAuthorizationPresenter(wireframe: Wireframe(), interactor: Fixture().interactor)
+        window.rootViewController = authorization
+        XCTAssertFalse(FearlessApplication.isShowingUnlockPin(in: window), "A transfer authorization is not the app lock")
+        window.rootViewController = UIViewController()
+        XCTAssertFalse(FearlessApplication.isShowingUnlockPin(in: window))
+    }
+
+    func testAuthorizationScreenShowsTheLockoutAndCancelStillDeclines() async throws {
+        let f = Fixture()
+        let wireframe = Wireframe()
+        let presenter = ScreenAuthorizationPresenter(wireframe: wireframe, interactor: f.interactor)
+        let view = View()
+        presenter.didLoad(view: view)
+        for index in 0 ..< 6 {
+            presenter.submit(pin: "000000")
+            f.secrets.answer(index, "123456")
+            try await settle()
+        }
+        XCTAssertEqual(view.wrongPins, 6)
+        XCTAssertEqual(view.lockouts, [60])
+        presenter.submit(pin: "123456")
+        try await settle()
+        XCTAssertEqual(f.secrets.loads.count, 6)
+        XCTAssertEqual(view.lockouts, [60, 60])
+        presenter.cancel()
+        XCTAssertEqual(wireframe.results, [false], "Cancel during a lockout declines the submission")
+    }
+
+    func testTrustedBiometryStillWorksDuringLockoutAndLeavesTheCountInPlace() async throws {
+        let f = Fixture(biometric: true)
+        let output = Output()
+        f.interactor.startAuth(with: output)
+        f.biometry.answer(0, false)
+        try await settle()
+        try await enterWrongPins(6, into: f)
+        XCTAssertEqual(output.lockouts, [60])
+        f.interactor.startAuth(with: output)
+        try await settle()
+        XCTAssertEqual(output.lockouts, [60, 60], "Retrying biometrics keeps the countdown on screen")
+        f.biometry.answer(1, true)
+        try await settle()
+        XCTAssertEqual(output.completions, 1)
+        XCTAssertEqual(f.enrollment.trustCalls, 0, "Only a correct PIN vouches for an enrollment")
+        f.clocks.advance(60)
+        XCTAssertEqual(f.limiter.registerFailure(), 300, "A biometric success does not clear wrong PINs")
+    }
+
     private func show(_ presenter: PinSetupPresenterProtocol, language: String, in window: UIWindow) throws -> PinSetupViewController {
         let controller = PinSetupViewController(nib: R.nib.pinSetupViewController)
         controller.presenter = presenter
@@ -742,6 +1052,7 @@ final class PinPersistenceTests: XCTestCase {
     private final class Secrets: SecretStoreManagerProtocol {
         var saves: [(String, DispatchQueue, (Bool) -> Void)] = []
         var savedPin: String? = "111111"
+        var onSaveReply: ((String) -> Void)?
         func saveSecret(_ secret: SecretDataRepresentable, for identifier: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void) {
             XCTAssertEqual(identifier, KeystoreTag.pincode.rawValue)
             let pin = secret.asSecretData().flatMap { String(data: $0, encoding: .utf8) } ?? ""
@@ -750,7 +1061,12 @@ final class PinPersistenceTests: XCTestCase {
         func answer(_ index: Int, _ success: Bool) {
             let (pin, queue, completion) = saves[index]
             if success { savedPin = pin }
-            queue.async { completion(success) }
+            let record = onSaveReply
+            queue.async {
+                record?("save.reply.beforeCompletion")
+                completion(success)
+                record?("save.reply.afterCompletion")
+            }
         }
         func loadSecret(for _: String, completionQueue: DispatchQueue, completionBlock: @escaping (SecretDataRepresentable?) -> Void) { completionQueue.async { completionBlock(self.savedPin) } }
         func removeSecret(for _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) { XCTFail("PIN persistence must not remove secrets") }
@@ -796,8 +1112,65 @@ final class PinPersistenceTests: XCTestCase {
     }
     private final class Wireframe: PinSetupWireframeProtocol {
         var main = 0
-        func showMain(from _: PinSetupViewProtocol?) { main += 1 }
+        var onShowMain: (() -> Void)?
+        func showMain(from _: PinSetupViewProtocol?) { main += 1; onShowMain?() }
         func showSignup(from _: PinSetupViewProtocol?) {}
+    }
+    private final class LifecycleObservedPinController: PinSetupViewController {
+        var hasAppeared = false
+        var removalBegan = false
+        var hasDisappeared = false
+        var recordEvent: ((String) -> Void)?
+
+        override func willMove(toParent parent: UIViewController?) {
+            recordEvent?("pin.willMove.toParent=\(parent != nil)")
+            super.willMove(toParent: parent)
+        }
+
+        override func didMove(toParent parent: UIViewController?) {
+            super.didMove(toParent: parent)
+            recordEvent?("pin.didMove.toParent=\(parent != nil)")
+        }
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            hasAppeared = true
+            recordEvent?("pin.didAppear")
+        }
+
+        override func viewWillDisappear(_ animated: Bool) {
+            removalBegan = isMovingFromParent || isBeingDismissed || navigationController?.isBeingDismissed == true
+            recordEvent?("pin.willDisappear.beforeSuper")
+            super.viewWillDisappear(animated)
+            recordEvent?("pin.willDisappear.afterSuper")
+        }
+
+        override func viewDidDisappear(_ animated: Bool) {
+            super.viewDidDisappear(animated)
+            hasDisappeared = true
+            recordEvent?("pin.didDisappear")
+        }
+    }
+    private final class LifecycleObservedNavigation: FearlessNavigationController {
+        var hasAppeared = false
+        private(set) weak var lastShown: UIViewController?
+        var recordEvent: ((String) -> Void)?
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            hasAppeared = true
+            recordEvent?("navigation.didAppear")
+        }
+
+        override func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+            super.navigationController(navigationController, willShow: viewController, animated: animated)
+            recordEvent?("navigation.willShow.\(type(of: viewController))")
+        }
+
+        func navigationController(_: UINavigationController, didShow viewController: UIViewController, animated _: Bool) {
+            lastShown = viewController
+            recordEvent?("navigation.didShow.\(type(of: viewController))")
+        }
     }
     private func settle() async throws { try await Task.sleep(nanoseconds: 100_000_000) }
 
@@ -1083,21 +1456,113 @@ final class PinPersistenceTests: XCTestCase {
     }
 
     func testActualNavigationPopFencesPendingPinChangeCompletion() async throws {
-        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
-        let window = UIWindow(windowScene: scene); window.frame = CGRect(x: 0, y: 0, width: 320, height: 568)
-        defer { window.isHidden = true; window.rootViewController = nil }
+        try await assertNavigationPopFencesPendingPinChangeCompletion(animated: false)
+    }
+
+    func testActualAnimatedNavigationPopFencesPendingPinChangeCompletion() async throws {
+        try await assertNavigationPopFencesPendingPinChangeCompletion(animated: true)
+    }
+
+    private func assertNavigationPopFencesPendingPinChangeCompletion(animated: Bool) async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .first(where: { $0.activationState == .foregroundActive }))
+        let previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.coordinateSpace.bounds
         let secrets = Secrets(); let interactor = PinChangeInteractor(secretManager: secrets); let wireframe = Wireframe()
         let presenter = PinSetupPresenter(interactor: interactor, wireframe: wireframe); interactor.presenter = presenter
-        let controller = PinSetupViewController(nib: R.nib.pinSetupViewController)
+        let controller = LifecycleObservedPinController(nib: R.nib.pinSetupViewController)
         controller.presenter = presenter; controller.mode = .create
         controller.localizationManager = try XCTUnwrap(LocalizationManager(localization: "en"))
-        let root = UIViewController(); let navigation = UINavigationController(rootViewController: root)
+        let root = UIViewController(); let navigation = LifecycleObservedNavigation(rootViewController: root)
+        var events: [String] = []
+        let started = ProcessInfo.processInfo.systemUptime
+        let record: (String) -> Void = { [weak controller, weak navigation, weak interactor] event in
+            let elapsed = ProcessInfo.processInfo.systemUptime - started
+            let inStack = controller.map { item in navigation?.viewControllers.contains(where: { $0 === item }) == true } ?? false
+            events.append(String(format: "%.6f", elapsed) + " " + event +
+                " inStack=\(inStack) parent=\(controller?.parent != nil) moving=\(controller?.isMovingFromParent == true)" +
+                " removalBegan=\(controller?.removalBegan == true) disappeared=\(controller?.hasDisappeared == true)" +
+                " presenterAttached=\(interactor?.presenter != nil) transition=\(navigation?.transitionCoordinator != nil)")
+        }
+        controller.recordEvent = record
+        navigation.recordEvent = record
+        let saveReplyDelivered = expectation(description: "Pending PIN save callback is delivered")
+        secrets.onSaveReply = { event in
+            record(event)
+            if event == "save.reply.afterCompletion" { saveReplyDelivered.fulfill() }
+        }
+        wireframe.onShowMain = { record("wireframe.showMain") }
+        defer {
+            record("test.cleanup")
+            let attachment = XCTAttachment(string: events.joined(separator: "\n"))
+            attachment.name = "pin-pop-lifecycle-" + (animated ? "animated" : "nonanimated")
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            controller.recordEvent = nil; navigation.recordEvent = nil
+            secrets.onSaveReply = nil; wireframe.onShowMain = nil
+            window.isHidden = true; window.rootViewController = nil
+            previousKeyWindow?.makeKey()
+        }
         window.rootViewController = navigation; window.makeKeyAndVisible(); window.layoutIfNeeded()
-        navigation.pushViewController(controller, animated: false); window.layoutIfNeeded()
-        try tapDigits("123456123456", controller: controller, window: window)
+        for _ in 0 ..< 100 {
+            if navigation.hasAppeared, navigation.lastShown === root, navigation.transitionCoordinator == nil { break }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        guard navigation.hasAppeared, navigation.lastShown === root, navigation.transitionCoordinator == nil else {
+            XCTFail("The production navigation root must finish appearing before the PIN push")
+            return
+        }
+        navigation.pushViewController(controller, animated: true)
+        for _ in 0 ..< 100 {
+            if controller.hasAppeared, navigation.lastShown === controller, navigation.transitionCoordinator == nil { break }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        guard controller.hasAppeared, navigation.lastShown === controller, navigation.transitionCoordinator == nil else {
+            XCTFail("The PIN push and actual appearance must finish before input")
+            return
+        }
+        XCTAssertTrue(controller.navigationControlling === navigation)
+        XCTAssertTrue(window.isKeyWindow)
+        XCTAssertTrue(controller.view.window === window)
+        record("input.begin")
+        // Each actual control action gets its own event-loop opportunity, as on
+        // the production screen; only the pending save acknowledgement is held.
+        for digit in "123456123456" {
+            try tapDigits(String(digit), controller: controller, window: window)
+            await withCheckedContinuation { continuation in
+                DispatchQueue.main.async { continuation.resume() }
+            }
+        }
         XCTAssertEqual(secrets.saves.count, 1)
-        navigation.popViewController(animated: false)
-        secrets.answer(0, true); try await settle()
+        guard secrets.saves.count == 1 else { return }
+        XCTAssertTrue(interactor.presenter === presenter)
+        XCTAssertTrue(navigation.isNavigationBarHidden)
+        XCTAssertFalse(controller.view.isUserInteractionEnabled)
+        record("pop.before")
+        let popped = navigation.popViewController(animated: animated)
+        record("pop.returned")
+        // Do not wait for UIKit disappearance callbacks before delivering the
+        // save. Their ordering is diagnostic; stale navigation is the contract.
+        secrets.answer(0, true)
+        record("save.reply.queued")
+        XCTAssertTrue(popped === controller)
+        XCTAssertFalse(navigation.viewControllers.contains(where: { $0 === controller }))
+        await fulfillment(of: [saveReplyDelivered], timeout: 5)
+        // Drain the presenter's queued delivery after the save callback, without
+        // inserting a time delay that could postpone that callback until removal.
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
+        }
+        for _ in 0 ..< 100 {
+            if controller.hasDisappeared, navigation.lastShown === root, navigation.transitionCoordinator == nil { break }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        record("departure.observed")
+        XCTAssertTrue(controller.removalBegan, "Completed removal must run the PIN screen's departure lifecycle")
+        XCTAssertTrue(controller.hasDisappeared)
+        XCTAssertTrue(navigation.lastShown === root)
+        XCTAssertNil(interactor.presenter, "Completed departure must cancel the pending PIN attempt")
         XCTAssertTrue(navigation.topViewController === root)
         XCTAssertEqual(wireframe.main, 0)
         XCTAssertEqual(secrets.savedPin, "123456")
@@ -1105,10 +1570,48 @@ final class PinPersistenceTests: XCTestCase {
         XCTAssertEqual(secrets.saves.count, 1)
     }
 
+    func testSavedPinClearsWrongAttemptsAndTrustsEnrollmentOnlyWhenBiometryIsChosen() async throws {
+        for enable in [true, false] {
+            let secrets = Secrets(); secrets.savedPin = nil
+            let biometry = Biometry(); biometry.availableBiometryType = .touchId
+            let keystore = InMemoryKeychain()
+            let limiter = PincodeAttemptLimiter(keystore: keystore)
+            for _ in 0 ..< 9 { limiter.registerFailure() }
+            let enrollment = EnrollmentStub(); enrollment.trusted = false
+            let output = Output()
+            let interactor = PinSetupInteractor(
+                secretManager: secrets, settingsManager: Settings(), biometryAuth: biometry, locale: Locale(identifier: "en"),
+                attemptLimiter: limiter, enrollmentGuard: enrollment
+            )
+            interactor.presenter = output
+            interactor.process(pin: "123456")
+            output.decisions[0](enable)
+            XCTAssertGreaterThan(limiter.remainingLockout(), 0, "Nothing changes before the PIN is stored")
+            secrets.answer(0, true); try await settle()
+            XCTAssertEqual(output.saved, 1)
+            XCTAssertEqual(limiter.remainingLockout(), 0)
+            XCTAssertFalse(try keystore.checkKey(for: fearless.KeystoreTag.pincodeAttempts.rawValue))
+            XCTAssertEqual(enrollment.trustCalls, enable ? 1 : 0)
+        }
+
+        let secrets = Secrets(); let keystore = InMemoryKeychain()
+        let limiter = PincodeAttemptLimiter(keystore: keystore)
+        for _ in 0 ..< 6 { limiter.registerFailure() }
+        let change = PinChangeInteractor(secretManager: secrets, attemptLimiter: limiter); let output = Output()
+        change.presenter = output; change.process(pin: "654321")
+        XCTAssertGreaterThan(limiter.remainingLockout(), 0)
+        secrets.answer(0, true); try await settle()
+        XCTAssertEqual(output.saved, 1)
+        XCTAssertEqual(limiter.remainingLockout(), 0)
+    }
+
     func testAcknowledgedChangedPinAuthenticatesAndOldPinDoesNot() async throws {
         let secrets = Secrets(); let interactor = PinChangeInteractor(secretManager: secrets); let output = Output()
         interactor.presenter = output; interactor.process(pin: "123456"); secrets.answer(0, true); try await settle()
-        let auth = LocalAuthInteractor(secretManager: secrets, settingsManager: Settings(), biometryAuth: Biometry(), locale: Locale(identifier: "en"))
+        let auth = LocalAuthInteractor(
+            secretManager: secrets, settingsManager: Settings(), biometryAuth: Biometry(), locale: Locale(identifier: "en"),
+            attemptLimiter: PincodeAttemptLimiter(keystore: InMemoryKeychain()), enrollmentGuard: EnrollmentStub()
+        )
         final class AuthOutput: LocalAuthInteractorOutputProtocol {
             var complete = 0; var wrong = 0
             func didCompleteAuth() { complete += 1 }
@@ -1205,7 +1708,10 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
         }
         func make(wireframe: ScreenAuthorizationWireframeProtocol, cancellable: Bool) -> PinSetupViewProtocol? {
             let attempt = Attempt()
-            let interactor = LocalAuthInteractor(secretManager: attempt.secrets, settingsManager: settings, biometryAuth: attempt.biometry, locale: localization.selectedLocale)
+            let interactor = LocalAuthInteractor(
+                secretManager: attempt.secrets, settingsManager: settings, biometryAuth: attempt.biometry, locale: localization.selectedLocale,
+                attemptLimiter: PincodeAttemptLimiter(keystore: InMemoryKeychain()), enrollmentGuard: EnrollmentStub()
+            )
             let result = PinViewFactory.createScreenAuthorizationView(with: wireframe, cancellable: cancellable, interactor: interactor, localizationManager: localization)
             attempt.controller = result as? PinSetupViewController
             attempts.append(attempt)
@@ -1475,6 +1981,13 @@ final class BiometryContextOwnershipTests: XCTestCase {
         override func invalidate() { invalidations += 1 }
     }
 
+    func testUnavailableBiometryHasNoEnrollmentState() {
+        let context = Context()
+        context.available = false
+        XCTAssertNil(BiometryAuth.currentEnrollmentState(context: context))
+        XCTAssertEqual(context.invalidations, 1)
+    }
+
     func testUnavailableContextReturnsFalseWithoutEvaluatingAndCancellationCanRetireIt() async throws {
         for cancelled in [false, true] {
             let context = Context()
@@ -1562,5 +2075,286 @@ final class BiometryContextOwnershipTests: XCTestCase {
         try await Task.sleep(nanoseconds: 100_000_000)
         XCTAssertTrue(firstResults.isEmpty)
         XCTAssertEqual(secondResults, [true], "The current context succeeds once, regardless of old or duplicate replies")
+    }
+}
+
+/// Lockout schedule, clock handling and persistence of the wrong-PIN count with controlled clocks and an in-memory
+/// Keychain.
+final class PincodeLockoutPolicyTests: XCTestCase {
+    func testFiveFreeAttemptsThenOneFiveFifteenAndSixtyMinutes() {
+        XCTAssertEqual(
+            (1 ... 10).map(PincodeLockoutPolicy.lockoutDuration(afterFailures:)),
+            [0, 0, 0, 0, 0, 60, 300, 900, 3600, 3600]
+        )
+        let clocks = LockoutClocks()
+        let limiter = clocks.limiter(InMemoryKeychain())
+        for _ in 0 ..< 5 {
+            XCTAssertEqual(limiter.registerFailure(), 0)
+            XCTAssertEqual(limiter.remainingLockout(), 0)
+        }
+        XCTAssertEqual(limiter.registerFailure(), 60)
+        XCTAssertEqual(limiter.remainingLockout(), 60)
+        clocks.advance(59)
+        XCTAssertEqual(limiter.remainingLockout(), 1)
+        clocks.advance(1)
+        XCTAssertEqual(limiter.remainingLockout(), 0)
+        XCTAssertEqual(limiter.registerFailure(), 300)
+        clocks.advance(300)
+        XCTAssertEqual(limiter.registerFailure(), 900)
+        clocks.advance(900)
+        XCTAssertEqual(limiter.registerFailure(), 3600)
+        clocks.advance(3600)
+        XCTAssertEqual(limiter.registerFailure(), 3600)
+    }
+
+    func testCountSurvivesRestartsAndOnlyAResetClearsIt() throws {
+        let keystore = InMemoryKeychain()
+        let clocks = LockoutClocks()
+        for _ in 0 ..< 6 { clocks.limiter(keystore).registerFailure() }
+        clocks.advance(10)
+        let restarted = clocks.limiter(keystore)
+        XCTAssertEqual(restarted.remainingLockout(), 50)
+        clocks.advance(50)
+        XCTAssertEqual(restarted.registerFailure(), 300, "The 7th wrong PIN after a restart still escalates")
+        restarted.reset()
+        XCTAssertFalse(try keystore.checkKey(for: fearless.KeystoreTag.pincodeAttempts.rawValue))
+        XCTAssertEqual(clocks.limiter(keystore).registerFailure(), 0)
+    }
+
+    func testSettingTheClockForwardOrBackCannotShortenALockout() {
+        let clocks = LockoutClocks()
+        let limiter = clocks.limiter(InMemoryKeychain())
+        for _ in 0 ..< 9 { limiter.registerFailure() }
+        clocks.advance(600)
+        clocks.now += 7200
+        XCTAssertEqual(limiter.remainingLockout(), 3000, "The monotonic clock still counts 50 minutes")
+        clocks.now -= 86400
+        XCTAssertEqual(limiter.remainingLockout(), 3000, "A clock set behind the last wrong PIN is ignored")
+        clocks.advance(2999)
+        XCTAssertEqual(limiter.remainingLockout(), 1)
+        clocks.advance(1)
+        XCTAssertEqual(limiter.remainingLockout(), 0)
+    }
+
+    func testRebootRestartsAnUnfinishedLockoutButNotOneSeenToEnd() {
+        let keystore = InMemoryKeychain()
+        let clocks = LockoutClocks()
+        for _ in 0 ..< 6 { clocks.limiter(keystore).registerFailure() }
+        clocks.now += 3600
+        clocks.uptime = 5
+        XCTAssertEqual(clocks.limiter(keystore).remainingLockout(), 60, "Nothing vouches for the time across a reboot")
+        clocks.advance(60)
+        XCTAssertEqual(clocks.limiter(keystore).remainingLockout(), 0)
+        clocks.now += 10
+        clocks.uptime = 1
+        XCTAssertEqual(clocks.limiter(keystore).remainingLockout(), 0, "A lockout seen to end stays ended")
+        XCTAssertEqual(clocks.limiter(keystore).registerFailure(), 300, "The count still escalates")
+    }
+
+    func testUnreadableKeychainStillCountsInThisProcess() {
+        final class FailingKeystore: KeystoreProtocol {
+            func addKey(_: Data, with _: String) throws { throw KeystoreError.unexpectedFail }
+            func updateKey(_: Data, with _: String) throws { throw KeystoreError.unexpectedFail }
+            func fetchKey(for _: String) throws -> Data { throw KeystoreError.unexpectedFail }
+            func checkKey(for _: String) throws -> Bool { throw KeystoreError.unexpectedFail }
+            func deleteKey(for _: String) throws { throw KeystoreError.unexpectedFail }
+        }
+        let clocks = LockoutClocks()
+        let limiter = clocks.limiter(FailingKeystore())
+        for _ in 0 ..< 5 { limiter.registerFailure() }
+        XCTAssertEqual(limiter.registerFailure(), 60)
+        XCTAssertEqual(limiter.remainingLockout(), 60)
+    }
+
+    func testPinComparisonMatchesOnlyTheSameDigits() {
+        XCTAssertTrue(PincodeComparison.matches("123456", "123456"))
+        XCTAssertFalse(PincodeComparison.matches("123457", "123456"))
+        XCTAssertFalse(PincodeComparison.matches("12345", "123456"))
+        XCTAssertFalse(PincodeComparison.matches("", "123456"))
+    }
+}
+
+final class BiometryEnrollmentGuardTests: XCTestCase {
+    private func enrollment(_ bytes: [UInt8], source: String = BiometryEnrollment.stateHashSource) -> BiometryEnrollment {
+        BiometryEnrollment(source: source, state: Data(bytes))
+    }
+
+    func testAnUpgradedInstallKeepsBiometricAccessAndIsHeldToThatEnrollment() throws {
+        let keystore = InMemoryKeychain()
+        var state: BiometryEnrollment? = enrollment([1, 2, 3])
+        let guardian = BiometryEnrollmentGuard(keystore: keystore, currentState: { state })
+
+        XCTAssertTrue(guardian.isCurrentEnrollmentTrusted(), "An install from before the check must not be forced to a PIN it may have forgotten")
+        let stored = try keystore.fetchKey(for: fearless.KeystoreTag.biometryEnrollment.rawValue)
+        XCTAssertEqual(try JSONDecoder().decode(BiometryEnrollment.self, from: stored), enrollment([1, 2, 3]))
+
+        state = enrollment([9])
+        XCTAssertFalse(guardian.isCurrentEnrollmentTrusted(), "A face or finger was added or removed after the record")
+        state = nil
+        XCTAssertFalse(guardian.isCurrentEnrollmentTrusted(), "An unreadable state is never trusted")
+        guardian.trustCurrentEnrollment()
+        state = enrollment([1, 2, 3])
+        XCTAssertTrue(guardian.isCurrentEnrollmentTrusted(), "An unreadable state never replaces the record")
+    }
+
+    func testOnlyAPinHolderCanAcceptAChangedEnrollment() {
+        let keystore = InMemoryKeychain()
+        var state: BiometryEnrollment? = enrollment([1])
+        let guardian = BiometryEnrollmentGuard(keystore: keystore, currentState: { state })
+        guardian.trustCurrentEnrollment()
+
+        state = enrollment([2])
+        XCTAssertFalse(guardian.isCurrentEnrollmentTrusted())
+        XCTAssertFalse(guardian.isCurrentEnrollmentTrusted(), "Asking again does not wear the check down")
+        guardian.trustCurrentEnrollment()
+        XCTAssertTrue(guardian.isCurrentEnrollmentTrusted())
+    }
+
+    func testTheIOS18FingerprintAPIDoesNotLockOutAnExistingEnrollment() {
+        let keystore = InMemoryKeychain()
+        var state: BiometryEnrollment? = enrollment([7, 7], source: BiometryEnrollment.domainStateSource)
+        let guardian = BiometryEnrollmentGuard(keystore: keystore, currentState: { state })
+        guardian.trustCurrentEnrollment()
+
+        state = enrollment([4, 2], source: BiometryEnrollment.stateHashSource)
+        XCTAssertTrue(guardian.isCurrentEnrollmentTrusted(), "Same enrollment, new API bytes after the iOS update")
+        state = enrollment([5, 5], source: BiometryEnrollment.stateHashSource)
+        XCTAssertFalse(guardian.isCurrentEnrollmentTrusted(), "From then on the new bytes are what it is held to")
+    }
+
+    func testARecordFromAnUnknownFormatIsReplacedNotTrustedBlindly() throws {
+        let keystore = InMemoryKeychain()
+        try keystore.saveKey(Data([1, 2, 3]), with: fearless.KeystoreTag.biometryEnrollment.rawValue)
+        let guardian = BiometryEnrollmentGuard(keystore: keystore, currentState: { BiometryEnrollment(source: "x", state: Data([1])) })
+        XCTAssertTrue(guardian.isCurrentEnrollmentTrusted())
+        let stored = try keystore.fetchKey(for: fearless.KeystoreTag.biometryEnrollment.rawValue)
+        XCTAssertEqual(try JSONDecoder().decode(BiometryEnrollment.self, from: stored).state, Data([1]))
+    }
+}
+
+final class BackgroundSessionLockPolicyTests: XCTestCase {
+    func testFiveMinutesAwayOrAClockThatRestartedAsksForThePin() {
+        XCTAssertEqual(UtilityConstants.backgroundSessionDropTimeInSeconds, 300)
+        XCTAssertFalse(BackgroundSessionLockPolicy.requiresPin(enteredBackgroundAt: 100, now: 399.9))
+        XCTAssertTrue(BackgroundSessionLockPolicy.requiresPin(enteredBackgroundAt: 100, now: 400))
+        XCTAssertTrue(BackgroundSessionLockPolicy.requiresPin(enteredBackgroundAt: 100, now: 99), "A reboot restarted the clock")
+    }
+
+    func testMonotonicClockMovesForward() {
+        let first = MonotonicClock.uptime()
+        let second = MonotonicClock.uptime()
+        XCTAssertGreaterThan(first, 0)
+        XCTAssertGreaterThanOrEqual(second, first)
+    }
+}
+
+/// The shared authorization asked right before any submission that moves funds or changes staking.
+@MainActor
+final class SubmissionAuthorizerTests: XCTestCase {
+    private final class Host: UIViewController, ControllerBackedProtocol {
+        var appeared = false
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            appeared = true
+        }
+    }
+
+    private final class AuthorizationView: UIViewController, PinSetupViewProtocol {
+        func didRequestBiometryUsage(biometryType _: AvailableBiometryType, completionBlock _: @escaping (Bool) -> Void) {}
+        func didChangeAccessoryState(enabled _: Bool, availableBiometryType _: AvailableBiometryType) {}
+        func didFailSavingPin() {}
+        func didReceiveWrongPincode() {}
+    }
+
+    private func showHost() async throws -> (Host, UIWindow) {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        let host = Host()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        try await waitUntil("The confirm screen must appear before anything is presented on it") { host.appeared }
+        return (host, window)
+    }
+
+    private func close(_ window: UIWindow) {
+        window.isHidden = true
+        window.rootViewController = nil
+    }
+
+    private func waitUntil(_ description: String, _ condition: () -> Bool) async throws {
+        for _ in 0 ..< 100 {
+            if condition() { return }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        XCTFail(description)
+    }
+
+    func testWithoutAVisibleScreenNothingIsAuthorized() {
+        var results: [Bool] = []
+        SubmissionAuthorizer { _ in AuthorizationView() }.authorizeSubmission(from: nil) { results.append($0) }
+        SubmissionAuthorizer { _ in AuthorizationView() }.authorizeSubmission(from: Host()) { results.append($0) }
+        XCTAssertEqual(results, [false, false])
+    }
+
+    func testCancelReportsFalseLeavesTheScreenAndAFreshRequestCanSucceed() async throws {
+        let (host, window) = try await showHost()
+        defer { close(window) }
+        var created: [AuthorizationView] = []
+        let authorizer = SubmissionAuthorizer { _ in
+            let view = AuthorizationView()
+            created.append(view)
+            return view
+        }
+        var results: [Bool] = []
+        authorizer.authorizeSubmission(from: host) { results.append($0) }
+        XCTAssertTrue(host.presentedViewController === created.first)
+        authorizer.authorizeSubmission(from: host) { results.append($0) }
+        XCTAssertEqual(results, [false], "A second request while one is open is refused, not queued")
+        try await waitUntil("Authorization finishes presenting") { host.transitionCoordinator == nil }
+
+        authorizer.showAuthorizationCompletion(with: false)
+        try await waitUntil("Cancel completes") { results.count == 2 }
+        XCTAssertEqual(results, [false, false])
+        XCTAssertNil(host.presentedViewController)
+
+        authorizer.authorizeSubmission(from: host) { results.append($0) }
+        XCTAssertTrue(host.presentedViewController === created.last)
+        XCTAssertEqual(created.count, 2)
+        try await waitUntil("Authorization finishes presenting") { host.transitionCoordinator == nil }
+        authorizer.showAuthorizationCompletion(with: true)
+        try await waitUntil("Success completes after dismissal") { results.count == 3 }
+        XCTAssertEqual(results, [false, false, true])
+        XCTAssertNil(host.presentedViewController)
+    }
+
+    func testWaitsForAPresentationAlreadyMovingInsteadOfStrandingConfirm() async throws {
+        let (host, window) = try await showHost()
+        defer { close(window) }
+        let sheet = UIViewController()
+        host.present(sheet, animated: true)
+        var results: [Bool] = []
+        let authorizer = SubmissionAuthorizer { _ in AuthorizationView() }
+        authorizer.authorizeSubmission(from: host) { results.append($0) }
+        try await waitUntil("Authorization appears once the sheet settles") {
+            sheet.presentedViewController is AuthorizationView && sheet.transitionCoordinator == nil
+        }
+        XCTAssertTrue(results.isEmpty)
+        authorizer.showAuthorizationCompletion(with: true)
+        try await waitUntil("Success completes") { results == [true] }
+    }
+
+    func testPerformAuthorizedRunsTheActionOnlyOnSuccess() {
+        final class Fixed: SubmissionAuthorizing {
+            let result: Bool
+            init(_ result: Bool) { self.result = result }
+            func authorizeSubmission(from _: ControllerBackedProtocol?, completion: @escaping (Bool) -> Void) {
+                completion(result)
+            }
+        }
+        var runs = 0
+        Fixed(false).performAuthorized(from: nil) { runs += 1 }
+        XCTAssertEqual(runs, 0)
+        Fixed(true).performAuthorized(from: nil) { runs += 1 }
+        XCTAssertEqual(runs, 1)
     }
 }

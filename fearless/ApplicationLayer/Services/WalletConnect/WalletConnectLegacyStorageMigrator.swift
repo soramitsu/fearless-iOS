@@ -8,16 +8,15 @@ struct WalletConnectLegacySession: Codable, Equatable {
     let expiryDate: Date?
 }
 
-/// App side of the move from the app sandbox into the WalletConnect app group.
+/// Records which sessions releases up to 4.1.0 left outside the app group, for the reconnect notice.
 ///
 /// Every public release with WalletConnect (3.0.5 up to 4.0.5 and 4.1.0) used WalletConnectSwiftV2 without an
-/// app group: sessions and pairings in `UserDefaults.standard`, keys in the default keychain access group.
-/// Reown moves all of it into the group by itself when its stores are first created
-/// (`CodableStore.migrateIfNeeded`, `ClientIdStorage.migrateIfNeeded` and `KeychainStorage` on read), which
-/// `WalletConnectLegacyStorageContinuityTests` proves against fixtures in the exact layouts those releases
-/// wrote, so this type copies nothing. Reown does drop sessions that expired while the old version was
-/// installed, so before the SDK is configured this records which legacy sessions existed. The Connections
-/// screen uses the record to ask the user, once, to reconnect apps whose sessions did not carry over.
+/// app group: sessions and pairings in `UserDefaults.standard`, keys in the default keychain access group. 4.2.x
+/// ran Reown, which moved them into the group. The app's own client (`FearlessWalletConnect`) carries over the
+/// sessions both left behind (`LegacyWalletConnectImporter`) and copies or moves nothing in their storage; it leaves
+/// out sessions that expired while the old version was installed. This type records which legacy sessions existed,
+/// so the Connections screen can ask the user, once, to reconnect apps whose sessions did not carry over.
+/// `WalletConnectLegacyStorageContinuityTests` proves both against fixtures in the exact layouts those releases wrote.
 ///
 /// It only reads the legacy storage and never writes to or deletes from the SDK's keys.
 final class WalletConnectLegacyStorageMigrator {
@@ -49,7 +48,7 @@ final class WalletConnectLegacyStorageMigrator {
         self.logger = logger
     }
 
-    /// Must run before the WalletConnect SDK is configured, because the SDK moves the legacy entries away.
+    /// Runs before the WalletConnect client starts, which may end carried-over sessions and remove their records.
     func recordLegacySessionsIfNeeded() {
         guard
             legacyDefaults.object(forKey: Self.legacySessionsKey) == nil,
@@ -92,7 +91,7 @@ final class WalletConnectLegacyStorageMigrator {
     }
 
     /// Legacy sessions that are not active now, either because they expired before the upgrade or because the
-    /// SDK could not read them.
+    /// client could not read them.
     func legacySessionsNeedingReconnect(activeTopics: Set<String>) -> [WalletConnectLegacySession] {
         recordedLegacySessions().filter { !activeTopics.contains($0.topic) }
     }

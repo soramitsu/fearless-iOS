@@ -20,6 +20,7 @@ final class CrossChainConfirmationPresenter {
 
     private let teleportData: CrossChainConfirmationData
     private let viewModelFactory: CrossChainConfirmationViewModelFactoryProtocol
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     // MARK: - Constructors
 
@@ -28,12 +29,14 @@ final class CrossChainConfirmationPresenter {
         viewModelFactory: CrossChainConfirmationViewModelFactoryProtocol,
         interactor: CrossChainConfirmationInteractorInput,
         router: CrossChainConfirmationRouterInput,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
         self.teleportData = teleportData
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
+        self.submissionAuthorizer = submissionAuthorizer
         self.localizationManager = localizationManager
     }
 
@@ -79,8 +82,10 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationViewOutput {
             }
             return
         }
-        view?.didStartLoading()
-        interactor.submit(confirmingRepeat: false)
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            self?.view?.didStartLoading()
+            self?.interactor.submit(confirmingRepeat: false)
+        }
     }
 }
 
@@ -188,8 +193,10 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutpu
                 guard sendAgain, let self else {
                     return
                 }
-                self.view?.didStartLoading()
-                self.interactor.submit(confirmingRepeat: true)
+                self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                    self?.view?.didStartLoading()
+                    self?.interactor.submit(confirmingRepeat: true)
+                }
             },
             icon: R.image.iconWarningBig()
         )

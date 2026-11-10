@@ -20,6 +20,8 @@ CASE_ENV=()
 CASE_ARGS=()
 
 cleanup() {
+  # An EXIT trap's own success can hide a crash, so only reaching the end passes.
+  local status=$?
   local pid
 
   if [[ -f "$TEMPORARY_DIR/all-pids" ]]; then
@@ -31,8 +33,13 @@ cleanup() {
   fi
   chmod -R u+w "$TEMPORARY_DIR" >/dev/null 2>&1 || true
   rm -r "$TEMPORARY_DIR"
+  if [[ "$COMPLETED" != "1" && "$status" == "0" ]]; then
+    status=1
+  fi
+  exit "$status"
 }
 
+COMPLETED=0
 trap cleanup EXIT
 
 fail() {
@@ -228,7 +235,7 @@ prepare_case() {
   <key>CFBundleExecutable</key>
   <string>fearless</string>
   <key>CFBundleShortVersionString</key>
-  <string>4.2.0</string>
+  <string>4.2.1</string>
   <key>CFBundleVersion</key>
   <string>2026.7.28</string>
   <key>FearlessBuildConfiguration</key>
@@ -427,6 +434,12 @@ if [[ "${1:-}" == "nm" ]]; then
     CDCustomChainNode CDMetaAccount
   )
   for class_name in "${classes[@]}"; do
+    # Like a real Release binary: these two internal classes have private
+    # symbols, which only an `nm` without -g lists.
+    if [[ "${2:-}" == "-gj" ]] &&
+      [[ "$class_name" == "CDTonConnectedApp" || "$class_name" == "CDTonDapp" ]]; then
+      continue
+    fi
     if [[ "$class_name" != "${FAKE_MISSING_MANAGED_CLASS:-}" ]]; then
       printf '%s\n' "_OBJC_CLASS_\$_$class_name"
     fi
@@ -620,6 +633,26 @@ cmp -s "$ARTIFACTS_DIR/source-before.sha256" "$ARTIFACTS_DIR/source-after-run.sh
   fail "full-rehearsal source manifests differ"
 printf '%s\n' "[coredata-simulator-rehearsal-test] PASS: full first-launch/relaunch contract"
 
+# The one Core Data complaint the scan accepts. Real logs write it under the
+# com.apple.coredata:error category, which the failure pattern matches by itself.
+known_complaint='[com.apple.coredata:error] CoreData: fault: Declared Objective-C type "[String]" for attribute named purchaseProviders is not valid'
+
+prepare_case "full-rehearsal-known-model-complaint"
+CASE_ENV=("FAKE_LOG_CONTENT=FEARLESS_STARTUP_READY
+$known_complaint
+${known_complaint/fault: /}
+${known_complaint/purchaseProviders/assets}
+${known_complaint/purchaseProviders/availableAssets}
+${known_complaint/purchaseProviders/availableSources}
+${known_complaint/purchaseProviders/forceSmartIds}")
+if ! run_case "full-rehearsal-known-model-complaint"; then
+  sed -n '1,160p' "$CASE_DIR/stderr" >&2
+  fail "the known model complaint was rejected"
+fi
+assert_contains "PASSED: first launch and relaunch each reached a usable startup route" "$CASE_DIR/stdout"
+printf '%s\n' \
+  "[coredata-simulator-rehearsal-test] PASS: full rehearsal beside the known model complaint"
+
 prepare_case "missing-acknowledgement"
 CASE_ARGS=(
   --simulator-udid "$SIMULATOR_UDID"
@@ -809,6 +842,22 @@ prepare_case "fatal-coredata-log"
 CASE_ENV=("FAKE_LOG_CONTENT=CoreData persistent store migration failed with an incompatible model")
 expect_failure "fatal Core Data log" "fatal migration/Core Data marker"
 
+prepare_case "model-complaint-other-attribute"
+CASE_ENV=("FAKE_LOG_CONTENT=FEARLESS_STARTUP_READY
+${known_complaint/purchaseProviders/walletSecret}")
+expect_failure "model complaint for another attribute" "fatal migration/Core Data marker"
+
+prepare_case "model-complaint-other-type"
+CASE_ENV=("FAKE_LOG_CONTENT=FEARLESS_STARTUP_READY
+${known_complaint/\[String\]/NSData}")
+expect_failure "model complaint for another type" "fatal migration/Core Data marker"
+
+prepare_case "model-complaint-hides-no-failure"
+CASE_ENV=("FAKE_LOG_CONTENT=FEARLESS_STARTUP_READY
+$known_complaint
+CoreData persistent store migration failed with an incompatible model")
+expect_failure "real failure beside the model complaint" "fatal migration/Core Data marker"
+
 prepare_case "wallet-key-mutated"
 CASE_ENV=("FAKE_MUTATE_USER_KEY=1")
 expect_failure "wallet key mutation" "changed protected wallet identities, keys, or relationships"
@@ -871,4 +920,5 @@ printf '%s\n' \
   "[coredata-simulator-rehearsal-test] PASS (rejected): override without harness"
 
 printf '%s\n' \
-  "[coredata-simulator-rehearsal-test] PASS: 2 positive + 43 negative/adversarial contracts"
+  "[coredata-simulator-rehearsal-test] PASS: 3 positive + 46 negative/adversarial contracts"
+COMPLETED=1

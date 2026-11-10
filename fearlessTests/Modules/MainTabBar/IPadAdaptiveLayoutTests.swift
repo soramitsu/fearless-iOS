@@ -123,10 +123,13 @@ final class AdaptiveLayoutTests: XCTestCase {
 
         host.anchorPopover(of: share)
 
-        let popover = share.popoverPresentationController
-        XCTAssertTrue(popover?.sourceView === host.view)
-        XCTAssertEqual(popover?.sourceRect, CGRect(x: 400, y: 300, width: 0, height: 0))
-        XCTAssertEqual(popover?.permittedArrowDirections, [])
+        guard let popover = share.popoverPresentationController else {
+            assertOnlyAnIPhoneHasNoPopover()
+            return
+        }
+        XCTAssertTrue(popover.sourceView === host.view)
+        XCTAssertEqual(popover.sourceRect, CGRect(x: 400, y: 300, width: 0, height: 0))
+        XCTAssertEqual(popover.permittedArrowDirections, [])
     }
 
     func testExistingSourceViewAnchorIsKept() {
@@ -135,13 +138,23 @@ final class AdaptiveLayoutTests: XCTestCase {
         let anchor = UIView(frame: CGRect(x: 10, y: 10, width: 44, height: 44))
         host.view.addSubview(anchor)
         let share = UIActivityViewController(activityItems: ["fearless"], applicationActivities: nil)
-        share.popoverPresentationController?.sourceView = anchor
-        share.popoverPresentationController?.sourceRect = anchor.bounds
+        guard let popover = share.popoverPresentationController else {
+            assertOnlyAnIPhoneHasNoPopover()
+            return
+        }
+        popover.sourceView = anchor
+        popover.sourceRect = anchor.bounds
 
         host.anchorPopover(of: share)
 
-        XCTAssertTrue(share.popoverPresentationController?.sourceView === anchor)
-        XCTAssertEqual(share.popoverPresentationController?.sourceRect, anchor.bounds)
+        XCTAssertTrue(popover.sourceView === anchor)
+        XCTAssertEqual(popover.sourceRect, anchor.bounds)
+    }
+
+    /// An iPhone before iOS 26 gives a share sheet no popover, so there is nothing to
+    /// anchor. An iPad must have one: presenting it unanchored raises an exception.
+    private func assertOnlyAnIPhoneHasNoPopover() {
+        XCTAssertEqual(UIDevice.current.userInterfaceIdiom, .phone)
     }
 
     func testNonPopoverPresentationsAreLeftAlone() {

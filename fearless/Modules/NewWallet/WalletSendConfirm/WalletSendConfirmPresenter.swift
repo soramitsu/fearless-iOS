@@ -74,6 +74,7 @@ final class WalletSendConfirmPresenter {
     private let wallet: MetaAccountModel
     private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     private let scamInfo: ScamInfo?
+    private let submissionAuthorizer: SubmissionAuthorizing
     private var feeViewModel: BalanceViewModelProtocol?
 
     private var balance: Decimal?
@@ -122,7 +123,8 @@ final class WalletSendConfirmPresenter {
         call: SendConfirmTransferCall,
         scamInfo: ScamInfo?,
         feeViewModel: BalanceViewModelProtocol?,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -135,6 +137,8 @@ final class WalletSendConfirmPresenter {
         self.wallet = wallet
         self.scamInfo = scamInfo
         self.feeViewModel = chainAsset.chain.isTonCompatibilityChain ? nil : feeViewModel
+        // Every stored property first: assigning `localizationManager` already uses `self`.
+        self.submissionAuthorizer = submissionAuthorizer
         self.localizationManager = localizationManager
         if let feeViewModel, !chainAsset.chain.isTonCompatibilityChain {
             fee = Decimal(string: feeViewModel.amount)
@@ -366,26 +370,34 @@ final class WalletSendConfirmPresenter {
                 locale: selectedLocale
             )
         ]).runValidation { [weak self] in
-            guard let strongSelf = self else { return }
-            if strongSelf.isSolanaTransfer {
-                guard strongSelf.solanaReviewGeneration == generation,
-                      strongSelf.beginSolanaAttempt() else { return }
+            guard let self = self else { return }
+            // The PIN, or a trusted biometric, is asked right before anything is signed or sent.
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                guard let strongSelf = self else { return }
+                if strongSelf.isSolanaTransfer {
+                    guard strongSelf.solanaReviewGeneration == generation,
+                          strongSelf.beginSolanaAttempt() else { return }
+                }
+                let admittedGeneration = strongSelf.solanaReviewGeneration
+                strongSelf.view?.didStartLoading()
+                guard !strongSelf.isSolanaTransfer ||
+                    (strongSelf.solanaReviewActive &&
+                        strongSelf.solanaReviewGeneration == admittedGeneration) else { return }
+                strongSelf.interactor.submitExtrinsic()
             }
-            let admittedGeneration = strongSelf.solanaReviewGeneration
-            strongSelf.view?.didStartLoading()
-            guard !strongSelf.isSolanaTransfer ||
-                (strongSelf.solanaReviewActive &&
-                    strongSelf.solanaReviewGeneration == admittedGeneration) else { return }
-            strongSelf.interactor.submitExtrinsic()
         }
     }
 
     private func submitXorlessTransfer() {
-        guard !isSolanaTransfer || beginSolanaAttempt() else { return }
-        let generation = solanaReviewGeneration
-        view?.didStartLoading()
-        guard !isSolanaTransfer || (solanaReviewActive && solanaReviewGeneration == generation) else { return }
-        interactor.submitExtrinsic()
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            guard let self = self else { return }
+            guard !self.isSolanaTransfer || self.beginSolanaAttempt() else { return }
+            let generation = self.solanaReviewGeneration
+            self.view?.didStartLoading()
+            guard !self.isSolanaTransfer ||
+                (self.solanaReviewActive && self.solanaReviewGeneration == generation) else { return }
+            self.interactor.submitExtrinsic()
+        }
     }
 
     private func checkLoadingState() {

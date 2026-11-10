@@ -2258,17 +2258,20 @@ final class PolkamarktMarketDetailViewController: UIViewController {
     private var history: [PolkamarktHistoryPoint] = []
     private var claimable: PolkamarktClaimable?
     private var accountCapability: PolkamarktAccountCapability?
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     init(
         market: PolkamarktMarket,
         currentBlock: String,
         capabilities: PolkamarktRuntimeCapabilities,
-        service: PolkamarktLiveService
+        service: PolkamarktLiveService,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
         self.market = market
         self.currentBlock = currentBlock
         self.capabilities = capabilities
         self.service = service
+        self.submissionAuthorizer = submissionAuthorizer
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -2445,31 +2448,43 @@ final class PolkamarktMarketDetailViewController: UIViewController {
         )
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Confirm", style: .default) { [weak self] _ in
-            Task {
-                do {
-                    guard MultiChainFeaturePolicy.current.polkamarktMutationsEnabled else {
-                        throw PolkamarktServiceError.actionsPaused
-                    }
-                    guard let self else { return }
-                    let capability = await self.service.accountCapability()
-                    if let reason = capability.failureReason(
-                        requiredCollateral: mutation.requiredCollateral,
-                        requiredFee: requiredFee
-                    ) {
-                        throw PolkamarktServiceError.unavailable(reason)
-                    }
-                    let hash = try await mutationService.submit(mutation)
-                    await MainActor.run {
-                        self.presentMessage(title: "Submitted", message: "SORA extrinsic \(hash)")
-                    }
-                } catch {
-                    await MainActor.run {
-                        self?.presentMessage(title: "Transaction failed", message: error.localizedDescription)
-                    }
-                }
+            guard let self else { return }
+            // The PIN, or a trusted biometric, is asked right before the trade is signed.
+            self.submissionAuthorizer.performAuthorized(from: self) { [weak self] in
+                self?.submit(mutation: mutation, mutationService: mutationService, requiredFee: requiredFee)
             }
         })
         present(alert, animated: true)
+    }
+
+    private func submit(
+        mutation: PolkamarktMutation,
+        mutationService: PolkamarktMutationService,
+        requiredFee: BigUInt
+    ) {
+        Task { [weak self] in
+            do {
+                guard MultiChainFeaturePolicy.current.polkamarktMutationsEnabled else {
+                    throw PolkamarktServiceError.actionsPaused
+                }
+                guard let self else { return }
+                let capability = await self.service.accountCapability()
+                if let reason = capability.failureReason(
+                    requiredCollateral: mutation.requiredCollateral,
+                    requiredFee: requiredFee
+                ) {
+                    throw PolkamarktServiceError.unavailable(reason)
+                }
+                let hash = try await mutationService.submit(mutation)
+                await MainActor.run {
+                    self.presentMessage(title: "Submitted", message: "SORA extrinsic \(hash)")
+                }
+            } catch {
+                await MainActor.run {
+                    self?.presentMessage(title: "Transaction failed", message: error.localizedDescription)
+                }
+            }
+        }
     }
 
     private func requestClaim(creator: Bool) {
@@ -2546,6 +2561,8 @@ final class PolkamarktMarketDetailViewController: UIViewController {
         return NSDecimalNumber(decimal: decimal).stringValue
     }
 }
+
+extension PolkamarktMarketDetailViewController: ControllerBackedProtocol {}
 
 extension PolkamarktMarketDetailViewController: UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in _: UITableView) -> Int { Section.allCases.count }

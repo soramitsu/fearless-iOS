@@ -42,6 +42,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
     private let chain: ChainModel
     private let inputData: LiquidityPoolSupplyConfirmInputData
     private let viewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory
+    private let submissionAuthorizer: SubmissionAuthorizing
     private var didSubmitTransactionClosure: (String) -> Void
 
     private var apyInfo: PoolApyInfo?
@@ -77,8 +78,10 @@ final class LiquidityPoolSupplyConfirmPresenter {
         inputData: LiquidityPoolSupplyConfirmInputData,
         wallet: MetaAccountModel,
         viewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory,
-        didSubmitTransactionClosure: @escaping (String) -> Void
+        didSubmitTransactionClosure: @escaping (String) -> Void,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.router = router
         self.dataValidatingFactory = dataValidatingFactory
@@ -281,9 +284,10 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
             slippage: inputData.slippageTolerance
         )
 
-        interactor.submit(supplyLiquidityInfo: supplyLiquidityInfo)
-
-        changeViewLoadingState(true)
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            self?.interactor.submit(supplyLiquidityInfo: supplyLiquidityInfo)
+            self?.changeViewLoadingState(true)
+        }
     }
 
     func didLoad(view: LiquidityPoolSupplyConfirmViewInput) {

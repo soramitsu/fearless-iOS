@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 import SoraFoundation
 import SSFModels
 import SSFUtils
@@ -7,101 +7,74 @@ import SoraKeystore
 
 protocol WalletConnectSessionViewModelFactory {
     func buildViewModel(
-        wallets: [MetaAccountModel],
-        chains: [ChainModel],
+        signingRequest: WalletConnectSigningRequest,
         balanceInfo: WalletBalanceInfos?,
         locale: Locale
-    ) async throws -> WalletConnectSessionViewModel
+    ) -> WalletConnectSessionViewModel
 }
 
 final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewModelFactory {
-    private let request: Request
     private let session: Session?
-    private let walletConnectModelFactory: WalletConnectModelFactory
-    private let walletConnectPayloaFactory: WalletConnectPayloadFactory
+    private let verification: WalletConnectVerification
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
     private let accountScoreFetcher: AccountStatisticsFetching
     private let settings: SettingsManagerProtocol
 
     init(
-        request: Request,
         session: Session?,
-        walletConnectModelFactory: WalletConnectModelFactory,
-        walletConnectPayloaFactory: WalletConnectPayloadFactory,
+        verification: WalletConnectVerification,
         assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
         accountScoreFetcher: AccountStatisticsFetching,
         settings: SettingsManagerProtocol
     ) {
-        self.request = request
         self.session = session
-        self.walletConnectModelFactory = walletConnectModelFactory
-        self.walletConnectPayloaFactory = walletConnectPayloaFactory
+        self.verification = verification
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
         self.accountScoreFetcher = accountScoreFetcher
         self.settings = settings
     }
 
     func buildViewModel(
-        wallets: [MetaAccountModel],
-        chains: [ChainModel],
+        signingRequest: WalletConnectSigningRequest,
         balanceInfo: WalletBalanceInfos?,
         locale: Locale
-    ) async throws -> WalletConnectSessionViewModel {
+    ) -> WalletConnectSessionViewModel {
         var dApp: String?
         if let session = session {
-            dApp = URL(string: session.peer.url)?.host
+            dApp = verification.website(claimed: session.peer.url)
         }
 
-        let payload = try await prepareSignPayload(chains: chains)
-        let wallet = try findWallet(for: payload.address, wallets: wallets, chains: chains)
         let walletViewModel = createWalletViewModel(
-            wallet: wallet,
+            wallet: signingRequest.wallet,
             balanceInfo: balanceInfo,
             locale: locale
         )
 
         return WalletConnectSessionViewModel(
             dApp: dApp,
+            verification: verification.title(for: locale),
+            verificationColor: verification.color,
             warning: createWarning(locale: locale),
             walletViewModel: walletViewModel,
-            payload: payload,
-            wallet: wallet
+            messagePreview: messagePreview(for: signingRequest),
+            signingRequest: signingRequest
         )
     }
 
     // MARK: - Private methods
 
-    private func prepareSignPayload(
-        chains: [ChainModel]
-    ) async throws -> WalletConnectPayload {
-        let method = try walletConnectModelFactory.parseMethod(from: request)
-        let chain = try walletConnectModelFactory.resolveChain(for: request.chainId, chains: chains)
-        let payload = try await walletConnectPayloaFactory.createTransactionPayload(
-            request: request,
-            method: method,
-            chain: chain
-        )
-
-        return payload
-    }
-
-    private func findWallet(
-        for address: String?,
-        wallets: [MetaAccountModel],
-        chains: [ChainModel]
-    ) throws -> MetaAccountModel {
-        let blockchain = request.chainId
-        let chain = try walletConnectModelFactory.resolveChain(for: blockchain, chains: chains)
-
-        let wallet = wallets.first { wallet in
-            let accountRequest = chain.accountRequest()
-            let walletAddress = wallet.fetch(for: accountRequest)?.toAddress()
-            return walletAddress?.lowercased() == address?.lowercased()
+    private func messagePreview(for signingRequest: WalletConnectSigningRequest) -> String {
+        switch signingRequest.content {
+        case let .ethereumMessage(message), let .polkadotMessage(message):
+            return message.displayText
+        case let .ethereumTypedData(typedData):
+            return [typedData.domainName, typedData.primaryType]
+                .compactMap { $0 }
+                .filter { !$0.isEmpty }
+                .joined(separator: " · ")
+        case .ethereumTransaction, .polkadotTransaction:
+            return signingRequest.preview
         }
-        guard let wallet = wallet else {
-            throw AutoNamespacesError.requiredAccountsNotSatisfied
-        }
-        return wallet
     }
 
     private func createWalletViewModel(
@@ -157,7 +130,9 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
 
     private func createWarning(locale: Locale) -> NSAttributedString {
         let warningLabel = R.string.localizable.commonWarningCapitalized(preferredLanguages: locale.rLanguages)
-        let warningMessage = R.string.localizable.walletConnectSignWarningMessage(preferredLanguages: locale.rLanguages)
+        // A domain mismatch, or a site Verify could not check, is the more specific warning.
+        let warningMessage = verification.warning(for: locale) ??
+            R.string.localizable.walletConnectSignWarningMessage(preferredLanguages: locale.rLanguages)
         let warningFullString = [warningLabel, warningMessage].joined(separator: " ")
         let warning = NSMutableAttributedString(string: warningFullString)
 

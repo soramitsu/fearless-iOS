@@ -131,6 +131,107 @@ extension AuthorizationPresentable {
     }
 }
 
+/// Asks for the PIN, or a biometric the PIN holder trusted, immediately before an operation that moves funds or
+/// changes staking. A cancelled or failed authorization reports `false`: the caller then submits nothing and leaves
+/// its confirm screen as it was.
+protocol SubmissionAuthorizing: AnyObject {
+    func authorizeSubmission(from view: ControllerBackedProtocol?, completion: @escaping (Bool) -> Void)
+}
+
+extension SubmissionAuthorizing {
+    /// Runs `action` only after a fresh successful authorization.
+    func performAuthorized(from view: ControllerBackedProtocol?, _ action: @escaping () -> Void) {
+        authorizeSubmission(from: view) { authorized in
+            if authorized {
+                action()
+            }
+        }
+    }
+}
+
+/// Presents the screen-authorization module (PIN pad with the trusted-biometric prompt) over the confirm screen.
+/// Each confirm screen owns one instance.
+final class SubmissionAuthorizer: SubmissionAuthorizing, AuthorizationPresentable {
+    private final class PresentingHost: ControllerBackedProtocol {
+        let controller: UIViewController
+        var isSetup: Bool { controller.isViewLoaded }
+
+        init(controller: UIViewController) {
+            self.controller = controller
+        }
+    }
+
+    private static let presentationRetries = 20
+    private static let retryInterval: TimeInterval = 0.1
+
+    private let viewFactory: (ScreenAuthorizationWireframeProtocol) -> PinSetupViewProtocol?
+    private var pendingCompletion: ((Bool) -> Void)?
+
+    init(
+        viewFactory: @escaping (ScreenAuthorizationWireframeProtocol) -> PinSetupViewProtocol? = {
+            PinViewFactory.createScreenAuthorizationView(with: $0, cancellable: true)
+        }
+    ) {
+        self.viewFactory = viewFactory
+    }
+
+    func createAuthorizationView(
+        with wireframe: ScreenAuthorizationWireframeProtocol,
+        cancellable _: Bool
+    ) -> PinSetupViewProtocol? {
+        viewFactory(wireframe)
+    }
+
+    func authorizeSubmission(from view: ControllerBackedProtocol?, completion: @escaping (Bool) -> Void) {
+        guard pendingCompletion == nil, let source = view?.controller else {
+            completion(false)
+            return
+        }
+        pendingCompletion = completion
+        present(from: source, retriesLeft: Self.presentationRetries)
+    }
+
+    private func present(from source: UIViewController, retriesLeft: Int) {
+        guard source.viewIfLoaded?.window != nil else {
+            finish(false)
+            return
+        }
+        var host = source
+        while let presented = host.presentedViewController, !presented.isBeingDismissed {
+            host = presented
+        }
+        // UIKit drops a presentation started while another one is still moving, which would strand Confirm.
+        guard host.presentedViewController == nil, host.transitionCoordinator == nil, !host.isBeingPresented else {
+            guard retriesLeft > 0 else {
+                finish(false)
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + Self.retryInterval) { [weak self, weak source] in
+                guard let self = self else { return }
+                guard let source = source else {
+                    self.finish(false)
+                    return
+                }
+                self.present(from: source, retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+        authorize(animated: true, cancellable: true, from: PresentingHost(controller: host)) { [weak self] result in
+            self?.finish(result)
+        }
+        // A presentation UIKit refused never calls back: release the request so Confirm stays usable.
+        if pendingCompletion != nil, host.presentedViewController == nil {
+            showAuthorizationCompletion(with: false)
+        }
+    }
+
+    private func finish(_ result: Bool) {
+        let completion = pendingCompletion
+        pendingCompletion = nil
+        completion?(result)
+    }
+}
+
 extension AuthorizationPresentable {
     func showAuthorizationCompletion(with result: Bool) {
         guard let completionBlock, let authorizationView else {

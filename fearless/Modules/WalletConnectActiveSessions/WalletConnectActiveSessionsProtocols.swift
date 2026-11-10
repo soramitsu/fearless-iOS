@@ -1,4 +1,4 @@
-import WalletConnectSign
+import FearlessWalletConnect
 typealias WalletConnectActiveSessionsModuleCreationResult = (
     view: WalletConnectActiveSessionsViewInput,
     input: WalletConnectActiveSessionsModuleInput

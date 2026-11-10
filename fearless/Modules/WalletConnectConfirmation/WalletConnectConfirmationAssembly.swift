@@ -7,10 +7,12 @@ final class WalletConnectConfirmationAssembly {
     ) -> WalletConnectConfirmationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
+        let authorizer = WalletConnectSigningAuthorizer()
         let interactor = WalletConnectConfirmationInteractor(
             walletConnect: WalletConnectServiceImpl.shared,
             inputData: inputData,
-            signer: WalletConnectSignerImpl(wallet: inputData.wallet)
+            signer: WalletConnectSignerImpl(),
+            authorizer: authorizer
         )
         let router = WalletConnectConfirmationRouter()
 
@@ -26,6 +28,7 @@ final class WalletConnectConfirmationAssembly {
             output: presenter,
             localizationManager: localizationManager
         )
+        authorizer.view = view
 
         return (view, presenter)
     }

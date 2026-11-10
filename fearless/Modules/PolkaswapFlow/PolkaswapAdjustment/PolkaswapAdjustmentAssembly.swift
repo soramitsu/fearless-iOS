@@ -25,7 +25,7 @@ final class PolkaswapAdjustmentAssembly {
             return nil
         }
         let localizationManager = LocalizationManager.shared
-        let operationManager = OperationManagerFacade.sharedManager
+        let operationManager = makeOperationManager()
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
 
@@ -118,6 +118,15 @@ final class PolkaswapAdjustmentAssembly {
         presenter.bannersModuleInput = bannersModule.input
 
         return (view, presenter)
+    }
+
+    /// Fees and pair checks get their own queue, so a backlog elsewhere in the app cannot hold them back.
+    private static func makeOperationManager() -> OperationManagerProtocol {
+        let operationQueue = OperationQueue()
+        operationQueue.name = "jp.co.soramitsu.fearless.polkaswap"
+        operationQueue.qualityOfService = .userInitiated
+        operationQueue.maxConcurrentOperationCount = 8
+        return OperationManager(operationQueue: operationQueue)
     }
 
     // MARK: - Cofigure Modules

@@ -36,6 +36,49 @@ class NativeSourceTests(unittest.TestCase):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(value)
 
+    def make_source_packages(self, modify=None, revision=None):
+        packages = self.root / "SourcePackages"
+        checkout = packages / "checkouts" / "upstream"
+        checkout.mkdir(parents=True)
+        subprocess.run(["git", "init", "-q"], cwd=checkout, check=True)
+        (checkout / "Source.swift").write_text("let value = 1\n")
+        subprocess.run(["git", "add", "Source.swift"], cwd=checkout, check=True)
+        subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q", "-m", "pin"],
+            cwd=checkout, check=True,
+        )
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=checkout, check=True, capture_output=True).stdout.decode().strip()
+        pin = {"identity": "upstream", "location": "https://github.com/example/upstream.git", "state": {"revision": revision or head}}
+        for path in VERIFIER.RESOLVED_PATHS:
+            self.write(path, json.dumps({"pins": [pin], "version": 3}))
+        if modify:
+            modify(checkout)
+        return packages
+
+    def test_resolved_checkout_at_its_pin_passes(self):
+        packages = self.make_source_packages()
+        self.assertEqual(VERIFIER.verify(self.root, source_packages=packages)["verifiedCheckouts"], 1)
+
+    def test_modified_resolved_checkout_is_rejected(self):
+        packages = self.make_source_packages(modify=lambda c: (c / "Source.swift").write_text("let value = 2\n"))
+        with self.assertRaisesRegex(ValueError, "differs from its pinned commit"):
+            VERIFIER.verify(self.root, source_packages=packages)
+
+    def test_added_file_in_resolved_checkout_is_rejected(self):
+        packages = self.make_source_packages(modify=lambda c: (c / "Injected.swift").write_text("// injected\n"))
+        with self.assertRaisesRegex(ValueError, "differs from its pinned commit"):
+            VERIFIER.verify(self.root, source_packages=packages)
+
+    def test_checkout_at_another_commit_is_rejected(self):
+        packages = self.make_source_packages(revision="b" * 40)
+        with self.assertRaisesRegex(ValueError, "pinned bbbbbbbbbbbb"):
+            VERIFIER.verify(self.root, source_packages=packages)
+
+    def test_missing_checkout_is_rejected(self):
+        packages = self.make_source_packages(modify=lambda c: subprocess.run(["rm", "-rf", str(c)], check=True))
+        with self.assertRaisesRegex(ValueError, "Missing resolved checkout"):
+            VERIFIER.verify(self.root, source_packages=packages)
+
     def test_owned_sources_and_pinned_external_dependencies_pass(self):
         self.assertEqual(VERIFIER.verify(self.root)["nativeBinaryFiles"], 1)
 

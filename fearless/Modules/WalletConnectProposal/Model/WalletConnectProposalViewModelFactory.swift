@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 import SSFModels
 
 protocol WalletConnectProposalViewModelFactory {
@@ -26,12 +26,15 @@ protocol WalletConnectProposalViewModelFactory {
 final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalViewModelFactory {
     private let walletConnectModelFactory: WalletConnectModelFactory
     private let status: WalletConnectProposalPresenter.SessionStatus
+    private let verification: WalletConnectVerification?
 
     init(
         status: WalletConnectProposalPresenter.SessionStatus,
+        verification: WalletConnectVerification? = nil,
         walletConnectModelFactory: WalletConnectModelFactory
     ) {
         self.status = status
+        self.verification = verification
         self.walletConnectModelFactory = walletConnectModelFactory
     }
 
@@ -71,8 +74,20 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
 
         let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
 
+        // What WalletConnect Verify reports about the app, right below it.
+        let verificationCell = verification.map { verification in
+            WalletConnectProposalCellModel.dAppInfo(
+                WalletConnectProposalCellModel.DetailsViewModel(
+                    title: R.string.localizable.walletConnectVerifyTitle(preferredLanguages: locale.rLanguages),
+                    subtitle: verification.title(for: locale),
+                    icon: nil
+                )
+            )
+        }
+
         let infoCells = [
             WalletConnectProposalCellModel.dAppInfo(dApp),
+            verificationCell,
             WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks),
             WalletConnectProposalCellModel(requiredExpandableViewModel: requiredExpandable),
             WalletConnectProposalCellModel(optionalNetworksCaseViewModel: optionalNetworks),
@@ -173,7 +188,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
     ) -> WalletConnectProposalCellModel.DetailsViewModel {
         WalletConnectProposalCellModel.DetailsViewModel(
             title: proposal.proposer.name,
-            subtitle: URL(string: proposal.proposer.url)?.host ?? proposal.proposer.url,
+            subtitle: (verification ?? .unverified).website(claimed: proposal.proposer.url),
             icon: RemoteImageViewModel(string: proposal.proposer.icons.first)
         )
     }

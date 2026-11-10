@@ -13,6 +13,7 @@ final class StakingRebondConfirmationPresenter {
     let chainAsset: ChainAsset
     let logger: LoggerProtocol?
     private let wallet: MetaAccountModel
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var priceData: PriceData? {
         chainAsset.asset.getPrice(for: wallet.selectedCurrency)
@@ -26,8 +27,10 @@ final class StakingRebondConfirmationPresenter {
         chainAsset: ChainAsset,
         viewModelState: StakingRebondConfirmationViewModelState,
         wallet: MetaAccountModel,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.wireframe = wireframe
         self.confirmViewModelFactory = confirmViewModelFactory
@@ -62,13 +65,16 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationPresenter
     func confirm() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: viewModelState.dataValidators(locale: locale)).runValidation { [weak self] in
-            guard let strongSelf = self else {
-                return
+            guard let self = self else { return }
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
+
+                strongSelf.view?.didStartLoading()
+
+                strongSelf.interactor.submit(builderClosure: strongSelf.viewModelState.builderClosure)
             }
-
-            strongSelf.view?.didStartLoading()
-
-            strongSelf.interactor.submit(builderClosure: strongSelf.viewModelState.builderClosure)
         }
     }
 

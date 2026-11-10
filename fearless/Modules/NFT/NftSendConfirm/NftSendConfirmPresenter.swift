@@ -18,6 +18,7 @@ final class NftSendConfirmPresenter {
     private var fee: Decimal?
     private let logger: LoggerProtocol?
     private let nftViewModelFactory: NftSendConfirmViewModelFactoryProtocol
+    private let submissionAuthorizer: SubmissionAuthorizing
     private var balance: Decimal?
     private var priceData: PriceData?
 
@@ -34,8 +35,10 @@ final class NftSendConfirmPresenter {
         nft: NFT,
         logger: LoggerProtocol?,
         nftViewModelFactory: NftSendConfirmViewModelFactoryProtocol,
-        dataValidatingFactory: SendDataValidatingFactory
+        dataValidatingFactory: SendDataValidatingFactory,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.router = router
         self.scamInfo = scamInfo
@@ -133,8 +136,6 @@ extension NftSendConfirmPresenter: NftSendConfirmViewOutput {
     }
 
     func didConfirmButtonTapped() {
-        view?.didStartLoading()
-
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: {}),
             dataValidatingFactory.canPayFeeAndAmount(
@@ -145,11 +146,15 @@ extension NftSendConfirmPresenter: NftSendConfirmViewOutput {
             )
 
         ]).runValidation { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.interactor.submitExtrinsic(
-                nft: strongSelf.nft,
-                receiverAddress: strongSelf.receiverAddress
-            )
+            guard let self = self else { return }
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.view?.didStartLoading()
+                strongSelf.interactor.submitExtrinsic(
+                    nft: strongSelf.nft,
+                    receiverAddress: strongSelf.receiverAddress
+                )
+            }
         }
     }
 }

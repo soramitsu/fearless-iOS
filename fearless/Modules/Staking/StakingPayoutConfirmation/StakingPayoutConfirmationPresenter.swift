@@ -15,6 +15,7 @@ final class StakingPayoutConfirmationPresenter {
     private let logger: LoggerProtocol?
     private let viewModelState: StakingPayoutConfirmationViewModelState
     private let wallet: MetaAccountModel
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
@@ -23,8 +24,10 @@ final class StakingPayoutConfirmationPresenter {
         chainAsset: ChainAsset,
         logger: LoggerProtocol? = nil,
         viewModelState: StakingPayoutConfirmationViewModelState,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.balanceViewModelFactory = balanceViewModelFactory
         self.payoutConfirmViewModelFactory = payoutConfirmViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
@@ -62,11 +65,14 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
         DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
+            guard let self = self else { return }
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
 
-            strongSelf.interactor.submitPayout(builderClosure: strongSelf.viewModelState.builderClosure)
+                strongSelf.interactor.submitPayout(builderClosure: strongSelf.viewModelState.builderClosure)
+            }
         }
     }
 

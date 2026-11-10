@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Fails unless the production Release build is a fresh App Store Connect
-# successor for 4.2.0 and every release tool pins that same build.
+# successor for 4.2.x and every release tool pins that same build.
 #
 # App Store Connect orders CFBundleVersion by numeric components, so
 # 2026.10.1 follows 2026.9.6 even though it sorts before it as text. A build
@@ -15,9 +15,9 @@ set -euo pipefail
 readonly LOG_PREFIX="[ios-build-number]"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "${1:-$SCRIPT_DIR/..}" && pwd -P)"
-readonly EXPECTED_MARKETING_VERSION="4.2.0"
-# Builds already uploaded for 4.2.0. Add each newly consumed build here.
-readonly CONSUMED_BUILDS="2026.7.26 2026.7.28 2026.8.10 2026.8.13 2026.8.14 2026.8.34 2026.9.6 2026.11.1 2026.11.2 2026.11.3 2026.11.4"
+readonly EXPECTED_MARKETING_VERSION="4.2.1"
+# Builds already uploaded for 4.2.x. Add each newly consumed build here.
+readonly CONSUMED_BUILDS="2026.7.26 2026.7.28 2026.8.10 2026.8.13 2026.8.14 2026.8.34 2026.9.6 2026.11.1 2026.11.2 2026.11.3 2026.11.4 2026.11.5 2026.11.6 2026.11.7 2026.11.8 2026.11.9 2026.11.10"
 
 python3 - "$REPO_ROOT" "$EXPECTED_MARKETING_VERSION" "$CONSUMED_BUILDS" "$LOG_PREFIX" <<'PYTHON'
 import json

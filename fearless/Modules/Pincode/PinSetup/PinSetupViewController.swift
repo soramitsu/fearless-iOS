@@ -3,6 +3,15 @@ import SoraUI
 import SoraFoundation
 
 class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDependable {
+    private enum PadMetrics {
+        static let keyRadius: CGFloat = 36
+        static let minimumKeyRadius: CGFloat = 28
+        static let maximumKeyRadius: CGFloat = 52
+        static let horizontalSpacing: CGFloat = 22
+        static let verticalSpacing: CGFloat = 15
+        static let fieldsToPadSpacing: CGFloat = 48
+    }
+
     var presenter: PinSetupPresenterProtocol!
     var mode = PinView.Mode.create
 
@@ -31,6 +40,11 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
     private var authorizationDeparturePending = false
     private let contentScrollView = UIScrollView()
     private let saveErrorLabel = UILabel()
+    private var lockoutRemaining: TimeInterval?
+    private var digitsLineHeight: CGFloat = 0
+    private lazy var lockoutCountdown = PinLockoutCountdown(onChange: { [weak self] remaining in
+        self?.applyLockout(remaining: remaining)
+    })
 
     @IBOutlet var topLabel: UILabel!
 
@@ -56,6 +70,16 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         applyAdaptiveContentColumnOutsideNavigation()
+    }
+
+    override func willMove(toParent parent: UIViewController?) {
+        // UIKit can remove a popped controller from the stack before delivering
+        // viewWillDisappear. Fence queued PIN-save results at the first removal
+        // callback so they cannot navigate from an already removed screen.
+        if parent == nil, self.parent != nil, mode == .create {
+            presenter?.cancel()
+        }
+        super.willMove(toParent: parent)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -122,7 +146,12 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
     private func updateTitleLabelState() {
         let languages = localizationManager?.preferredLocalizations
 
-        if pinView.mode == .create {
+        if let lockoutRemaining = lockoutRemaining {
+            titleLabel.text = R.string.localizable.pincodeLockoutMessage(
+                PinLockoutCountdown.format(lockoutRemaining),
+                preferredLanguages: languages
+            )
+        } else if pinView.mode == .create {
             if pinView.creationState == .normal {
                 titleLabel.text = R.string.localizable
                     .createNewPincode(preferredLanguages: languages)
@@ -197,21 +226,39 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         contentScrollView.translatesAutoresizingMaskIntoConstraints = false
         contentScrollView.contentInsetAdjustmentBehavior = .never
         contentScrollView.alwaysBounceVertical = false
-        contentScrollView.addSubview(content)
+        // The page is at least as tall as the scroll view, and the PIN content sits in
+        // its middle. Content taller than the screen (large text) still scrolls.
+        let page = UIView()
+        page.translatesAutoresizingMaskIntoConstraints = false
+        page.addSubview(content)
+        contentScrollView.addSubview(page)
         view.addSubview(contentScrollView)
         NSLayoutConstraint.activate([
             contentScrollView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
             contentScrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             contentScrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             contentScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            content.leadingAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.leadingAnchor, constant: 16),
-            content.trailingAnchor.constraint(
-                equalTo: contentScrollView.contentLayoutGuide.trailingAnchor, constant: -16
-            ),
-            content.topAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.topAnchor, constant: 16),
-            content.bottomAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.bottomAnchor, constant: -16),
-            content.widthAnchor.constraint(equalTo: contentScrollView.frameLayoutGuide.widthAnchor, constant: -32)
+            page.leadingAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.leadingAnchor),
+            page.trailingAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.trailingAnchor),
+            page.topAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.topAnchor),
+            page.bottomAnchor.constraint(equalTo: contentScrollView.contentLayoutGuide.bottomAnchor),
+            page.widthAnchor.constraint(equalTo: contentScrollView.frameLayoutGuide.widthAnchor),
+            page.heightAnchor.constraint(greaterThanOrEqualTo: contentScrollView.frameLayoutGuide.heightAnchor),
+            content.leadingAnchor.constraint(equalTo: page.leadingAnchor, constant: 16),
+            content.trailingAnchor.constraint(equalTo: page.trailingAnchor, constant: -16),
+            content.topAnchor.constraint(greaterThanOrEqualTo: page.topAnchor, constant: 16),
+            content.bottomAnchor.constraint(lessThanOrEqualTo: page.bottomAnchor, constant: -16),
+            content.centerYAnchor.constraint(equalTo: page.centerYAnchor)
         ])
+        // Without this the page could grow past its content and leave the PIN mid-way down a scroll.
+        let hug = page.heightAnchor.constraint(equalTo: contentScrollView.frameLayoutGuide.heightAnchor)
+        hug.priority = .defaultLow
+        hug.isActive = true
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        applyPadSize()
     }
 
     private func updateTypography() {
@@ -225,11 +272,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
             for: .monospacedDigitSystemFont(ofSize: 25, weight: weight), compatibleWith: traitCollection
         )
         pinView.numpadView?.titleFont = digits
-        pinView.numpadView?.keyRadius = max(28, ceil(digits.lineHeight / 2 + 8))
-        pinView.numpadView?.horizontalSpacing = 12
-        pinView.numpadView?.verticalSpacing = 12
-        pinView.verticalSpacing = 24
-        pinView.invalidateLayout()
+        digitsLineHeight = digits.lineHeight
         view.setNeedsLayout()
     }
 
@@ -246,6 +289,43 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
 
     @objc func actionCancel() {
         presenter.cancel()
+    }
+
+    // MARK: Lockout
+
+    private func applyLockout(remaining: TimeInterval?) {
+        lockoutRemaining = remaining
+        if remaining == nil {
+            pinView.setPinEntryEnabled(true)
+        }
+        updateTitleLabelState()
+    }
+}
+
+private extension PinSetupViewController {
+    /// The phone-sized keypad: 72 pt keys, larger with larger text, never wider than the content column.
+    func applyPadSize() {
+        guard let numpad = pinView.numpadView else { return }
+        let available = contentScrollView.bounds.width - 32
+        guard available > 0 else { return }
+        let horizontalSpacing = PadMetrics.horizontalSpacing
+        let preferred = max(
+            UIFontMetrics(forTextStyle: .title2)
+                .scaledValue(for: PadMetrics.keyRadius, compatibleWith: traitCollection),
+            ceil(digitsLineHeight / 2 + 8)
+        )
+        let fitsWidth = floor((available - 2 * horizontalSpacing) / 6)
+        let radius = max(PadMetrics.minimumKeyRadius, min(preferred, PadMetrics.maximumKeyRadius, fitsWidth))
+        guard numpad.keyRadius != radius || numpad.horizontalSpacing != horizontalSpacing ||
+            numpad.verticalSpacing != PadMetrics.verticalSpacing ||
+            pinView.verticalSpacing != PadMetrics.fieldsToPadSpacing else { return }
+        numpad.keyRadius = radius
+        numpad.horizontalSpacing = horizontalSpacing
+        numpad.verticalSpacing = PadMetrics.verticalSpacing
+        pinView.verticalSpacing = PadMetrics.fieldsToPadSpacing
+        numpad.invalidateIntrinsicContentSize()
+        pinView.invalidateLayout()
+        view.setNeedsLayout()
     }
 }
 
@@ -311,6 +391,13 @@ extension PinSetupViewController: PinSetupViewProtocol {
         }
     }
 
+    func didReceiveLockout(remaining: TimeInterval) {
+        guard remaining > 0 else { return }
+        pinView.setPinEntryEnabled(false)
+        lockoutCountdown.start(remaining: remaining)
+        UIAccessibility.post(notification: .announcement, argument: titleLabel.text)
+    }
+
     func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType) {
         pinView?.numpadView?.supportsAccessoryControl = enabled
         pinView?.numpadView?.accessoryIcon = availableBiometryType.accessoryIcon?.tinted(
@@ -322,7 +409,11 @@ extension PinSetupViewController: PinSetupViewProtocol {
 extension PinSetupViewController: PinViewDelegate {
     func didFailConfirmation(pinView _: PinView) {}
 
-    func didCompleteInput(pinView _: PinView, result: String) {
+    func didCompleteInput(pinView: PinView, result: String) {
+        guard lockoutRemaining == nil else {
+            pinView.reset(shouldAnimateError: false)
+            return
+        }
         presenter.submit(pin: result)
     }
 

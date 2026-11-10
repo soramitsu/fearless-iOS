@@ -1,7 +1,6 @@
 import Foundation
 import IrohaCrypto
 import RobinHood
-import sorawallet
 
 enum PolkaswapAPYServiceError: Swift.Error {
     case unexpectedError
@@ -29,7 +28,7 @@ extension PolkaswapAPYServiceDefault: PolkaswapAPYService {
         let apyInfo = try await worker.getAPYInfo()
 
         for apy in apyInfo {
-            apyCache[apy.id] = apy.sbApy?.decimalValue
+            apyCache[apy.id] = apy.strategicBonusApy
         }
 
         if let apy = apyCache[reservesId] {

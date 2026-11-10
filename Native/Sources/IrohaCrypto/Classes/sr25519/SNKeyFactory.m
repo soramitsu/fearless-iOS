@@ -89,7 +89,7 @@
 
     sr25519_derive_public_soft(publicKeyBytes, parentPublicKey.rawData.bytes, chaincode.bytes);
 
-    NSData *publicKeyData = [NSData dataWithBytes:publicKeyBytes length:SR25519_KEYPAIR_SIZE];
+    NSData *publicKeyData = [NSData dataWithBytes:publicKeyBytes length:SR25519_PUBLIC_SIZE];
 
     return [[SNPublicKey alloc] initWithRawData:publicKeyData error:error];
 }

@@ -17,6 +17,7 @@ final class ControllerAccountConfirmationPresenter {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let logger: LoggerProtocol?
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var stashAccountItem: ChainAccountResponse?
     private var fee: Decimal?
@@ -31,8 +32,10 @@ final class ControllerAccountConfirmationPresenter {
         iconGenerator: IconGenerating,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.controllerAccountItem = controllerAccountItem
         self.chain = chain
         self.asset = asset
@@ -131,8 +134,11 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            self?.view?.didStartLoading()
-            self?.interactor.confirm()
+            guard let self = self else { return }
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                self?.view?.didStartLoading()
+                self?.interactor.confirm()
+            }
         }
     }
 

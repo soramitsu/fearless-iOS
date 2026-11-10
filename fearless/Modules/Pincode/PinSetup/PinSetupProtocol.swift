@@ -12,6 +12,8 @@ protocol PinSetupViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
 
     func didReceiveWrongPincode()
     func resetAuthenticationInput()
+    /// Turns PIN entry off and counts down `remaining` seconds; entry turns back on when the countdown ends.
+    func didReceiveLockout(remaining: TimeInterval)
 }
 
 protocol PinSetupPresenterProtocol: AnyObject {
@@ -54,6 +56,7 @@ protocol PinViewFactoryProtocol: AnyObject {
 
 extension PinSetupViewProtocol {
     func resetAuthenticationInput() {}
+    func didReceiveLockout(remaining _: TimeInterval) {}
 }
 
 extension PinSetupPresenterProtocol {
