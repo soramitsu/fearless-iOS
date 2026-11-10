@@ -183,9 +183,9 @@ final class FWDesignSystemTests: XCTestCase {
         ))
         context.translateBy(x: -view.bounds.midX, y: -view.bounds.midY)
         view.layer.render(in: context)
-        // Sun-lit redesign: wells are bgDeep (#0E1024). `render(in:)` ignores masks, so the rim gradient
-        // adds a faint lift; the inner shadow must still leave the centre at the well colour.
-        let well: [Int] = [14, 16, 36, 255]
+        // Sun-lit redesign, Yatagarasu palette: wells are bgDeep (#0C0722). `render(in:)` ignores masks, so the rim
+        // gradient adds a faint lift; the inner shadow must still leave the centre at the well colour.
+        let well: [Int] = [12, 7, 34, 255]
         for (channel, expected) in zip(pixel.map(Int.init), well) {
             XCTAssertEqual(channel, expected, accuracy: 6, "An inset shadow must not cover the entire fill")
         }
