@@ -496,6 +496,37 @@ final class StartupRecoveryPresentationTests: XCTestCase {
         capture(window, name: "recovery-before-load-en-to-ru-AX5")
     }
 
+    /// The launch screen draws the white crest at 120 pt in the middle of the safe area; the startup screen that
+    /// replaces it keeps the crest exactly there, with or without its status line, so the hand-off never moves it.
+    func testRootCrestStaysWhereTheLaunchScreenDrawsIt() async throws {
+        let localization = try XCTUnwrap(LocalizationManager(localization: "en"))
+        let presenter = RootPresenter(localizationManager: localization, startViewHelper: RecoveryStartViewHelper())
+        let controller = RootViewController(presenter: presenter, localizationManager: localization)
+        presenter.view = controller
+        let window = try show(controller, category: .large)
+        defer { close(window); presenter.view = nil }
+        for size in [CGSize(width: 320, height: 568), CGSize(width: 402, height: 874)] {
+            window.frame.size = size
+            for running in [false, true] {
+                if running {
+                    presenter.didUpdateSetup(.running(.userStorageMigration))
+                } else {
+                    controller.didReceive(state: .plain)
+                }
+                await settle(window)
+                let crest = controller.rootView.fearlessLogoImageView
+                let frame = crest.convert(crest.bounds, to: window)
+                let safe = window.bounds.inset(by: window.safeAreaInsets)
+                let context = "\(size) status shown: \(running)"
+                XCTAssertEqual(frame.width, RootViewLayout.logoSide, accuracy: 0.5, context)
+                XCTAssertEqual(frame.height, RootViewLayout.logoSide, accuracy: 0.5, context)
+                XCTAssertEqual(frame.midX, safe.midX, accuracy: 0.5, context)
+                XCTAssertEqual(frame.midY, safe.midY, accuracy: 0.5, context)
+                XCTAssertEqual(crest.image, R.image.logo(), context)
+            }
+        }
+    }
+
     func testRootLiveLocaleTypeWidthAndPhase() async throws {
         guard FWAppearance.startupRecoveryRestyled else { return }
         let localization = try XCTUnwrap(LocalizationManager(localization: "en"))

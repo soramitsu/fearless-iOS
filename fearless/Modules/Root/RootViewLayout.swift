@@ -109,15 +109,16 @@ class RootViewLayout: UIView {
             make.width.equalTo(scroll.frameLayoutGuide).offset(-48)
             make.height.equalTo(scroll.frameLayoutGuide).offset(-48).priority(999)
         }
-        // The crest keeps the launch screen's size and centre; the status, when shown, sits below it.
+        // The crest keeps the launch screen's size and place, so the hand-off from the launch screen never moves it;
+        // the status, when shown, appears below it. Long status text at large sizes lifts the crest and scrolls.
         let logoRow = UIView()
         logoRow.addSubview(fearlessLogoImageView)
         [topSpace, logoRow, statusLabel, bottomSpace].forEach(stack.addArrangedSubview)
-        topSpace.snp.makeConstraints { make in
-            make.height.equalTo(bottomSpace)
-            make.height.greaterThanOrEqualTo(0)
-        }
+        topSpace.snp.makeConstraints { $0.height.greaterThanOrEqualTo(0) }
         bottomSpace.snp.makeConstraints { $0.height.greaterThanOrEqualTo(0) }
+        logoRow.snp.makeConstraints { make in
+            make.centerY.equalTo(scroll.frameLayoutGuide).priority(.high)
+        }
         fearlessLogoImageView.contentMode = .scaleAspectFit
         fearlessLogoImageView.isAccessibilityElement = false
         fearlessLogoImageView.snp.makeConstraints { make in
