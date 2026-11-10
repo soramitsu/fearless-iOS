@@ -1487,6 +1487,7 @@ Euro cash";
 "welcome.body" = "Самостоятельное хранение активов в Polkadot, Ethereum, TON, Bitcoin, Solana и SORA.";
 "welcome.create" = "Создать новый кошелёк";
 "welcome.restore" = "У меня уже есть кошелёк";
+"welcome.crow.call" = "Воспроизвести крик вороны";
 
 "import.legacy_ton_phrase" = "Фраза восстановления старого TON-кошелька";
 "import.legacy_ton_phrase_placeholder" = "Введите фразу восстановления TON-кошелька старого формата";

@@ -1444,6 +1444,7 @@ ait olduğundan emin olun.";
 "welcome.body" = "Polkadot, Ethereum, TON, Bitcoin, Solana ve SORA varlıklarınızın kontrolü sizde.";
 "welcome.create" = "Yeni cüzdan oluştur";
 "welcome.restore" = "Zaten bir cüzdanım var";
+"welcome.crow.call" = "Karganın sesini çal";
 
 "import.legacy_ton_phrase" = "Eski TON kurtarma ifadesi";
 "import.legacy_ton_phrase_placeholder" = "Eski TON kurtarma ifadenizi girin";

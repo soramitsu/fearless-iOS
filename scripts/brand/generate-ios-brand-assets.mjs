@@ -1,148 +1,174 @@
 #!/usr/bin/env node
-// Rasterises the approved winged-sun badge into every iOS brand asset (app icons, launch art, in-app marks).
+// Builds every iOS brand asset from the shared Yatagarasu brand kit (approved by the owner on 2026-11-10).
 //
-// The wing, disc and keyline paths are never redrawn, re-serialised or re-coloured: each output embeds the
-// master SVG text and only changes the background treatment around the mark (spec 2026-11-08, section 1).
-// Masters: design/brand/winged-sun-badge-lines.svg (>= 48 px) and winged-sun-badge.svg (< 48 px), copied
-// from fearless-wallet-web 1275e1a6 src/assets/brand/ and pinned by SHA-256 below.
+// The kit (brand/yatagarasu in the workspace, generated from design/yatagarasu-20261110 package r3) is never committed;
+// its manifest.json SHA-256 is pinned below and every kit file this script reads must match that manifest. App icons,
+// the vector masters and the welcome hero media are copied byte for byte. Fixed-size slots embed the master's drawing
+// (everything inside its <svg>) verbatim inside a new frame; the crest and wordmark paths are never redrawn, warped or
+// re-serialised, and every output that carries them is checked against the master's path text.
 //
-// Requires sharp 0.35 (librsvg). Usage:
-//   SHARP_MODULE=/path/to/node_modules/sharp node scripts/brand/generate-ios-brand-assets.mjs [--check]
-// --check renders in memory and fails if any output differs from design/brand/ios-brand-assets.manifest.json.
+// Usage:
+//   node scripts/brand/generate-ios-brand-assets.mjs [--kit <dir>]           write the assets and the manifest
+//   node scripts/brand/generate-ios-brand-assets.mjs [--kit <dir>] --check   fail if anything differs
+//   node scripts/brand/generate-ios-brand-assets.mjs --check --no-kit        committed files against the manifest only
+// The kit defaults to $FEARLESS_BRAND_KIT, else the nearest brand/yatagarasu above this checkout. Without a kit,
+// --check still verifies the committed assets against design/brand/ios-brand-assets.manifest.json.
+// No renderer is involved: the outputs are pure functions of the kit's bytes, so any machine reproduces them.
 
 import { createHash } from 'node:crypto';
-import { createRequire } from 'node:module';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ASSETS = join(ROOT, 'fearless', 'Assets.xcassets');
+const MEDIA = join(ROOT, 'fearless', 'Brand');
 const MANIFEST = join(ROOT, 'design', 'brand', 'ios-brand-assets.manifest.json');
-const MASTERS = {
-  lines: { file: 'winged-sun-badge-lines.svg', sha256: '9756447ca43921b8098a52cd860e08dc78910bf23fcfe0e04ec1be036853d4d8' },
-  plain: { file: 'winged-sun-badge.svg', sha256: 'ff65329596da5e829c1b704fb8bb89d59ae8065fe6f72d68ba30e368f3b00e89' },
-};
-const BG = '#151831';
+const KIT_NAME = 'fearless-yatagarasu-brand-kit';
+const KIT_MANIFEST_SHA256 = '70771ec29c8607b1964a966066affb15bb02a2032973227d7f7d2ae3c80c048b';
 
-const require = createRequire(import.meta.url);
-const sharp = require(process.env.SHARP_MODULE || 'sharp');
-const check = process.argv.includes('--check');
+// Brand colours (kit tokens/colors.json). Solar gold and pink light the badge's glow, as FWSunlit's sun does.
+const INK = '#120A2E';
+const PINK = '#E6006F';
+const GOLD = '#FFC24A';
+const SKY = '#8B5CFF';
+
 const sha256 = (data) => createHash('sha256').update(data).digest('hex');
+const args = process.argv.slice(2);
+const check = args.includes('--check');
 
-function master(kind) {
-  const { file, sha256: pinned } = MASTERS[kind];
-  const text = readFileSync(join(ROOT, 'design', 'brand', file), 'utf8');
-  const actual = sha256(Buffer.from(text, 'utf8'));
-  if (actual !== pinned) throw new Error(`${file}: sha256 ${actual} is not the approved ${pinned}`);
-  return text;
+function findKit() {
+  const flag = args.indexOf('--kit');
+  if (flag >= 0) return resolve(args[flag + 1]);
+  if (process.env.FEARLESS_BRAND_KIT) return resolve(process.env.FEARLESS_BRAND_KIT);
+  for (let dir = ROOT; dir !== dirname(dir); dir = dirname(dir)) {
+    const candidate = join(dir, 'brand', 'yatagarasu');
+    if (existsSync(join(candidate, 'manifest.json'))) return candidate;
+  }
+  return null;
 }
 
-const marks = { lines: master('lines'), plain: master('plain') };
-const markPaths = Object.fromEntries(Object.entries(marks).map(([kind, text]) => [
-  kind, ['badge-wings', 'badge-disc-keyline', 'badge-disc'].map((id) => {
-    const match = text.match(new RegExp(`<path id="${id}"[^>]*/>`));
-    if (!match) throw new Error(`${MASTERS[kind].file}: no ${id} path`);
-    return match[0];
-  }),
-]));
+// --no-kit checks only the committed files against the manifest, as a checkout without the workspace kit does.
+const KIT = args.includes('--no-kit') ? null : findKit();
 
-// The badge's circle carries the gradient; the icon fills the whole square with the same gradient instead.
-function fullBleed(kind) {
-  const text = marks[kind];
-  const circle = text.match(/<path d="M256 512C[^"]*" (fill="url\(#[^)]+\)")\/>/);
-  if (!circle) throw new Error(`${MASTERS[kind].file}: badge circle not found`);
-  const square = text.replace(circle[0], `<rect width="512" height="512" ${circle[1]}/>`);
-  assertMarkIntact(kind, square);
-  return square;
+function verifyCommitted() {
+  const pinned = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+  const bad = Object.entries(pinned.outputs).filter(([path, hash]) => {
+    const file = join(ROOT, path);
+    return !existsSync(file) || sha256(readFileSync(file)) !== hash;
+  });
+  const stray = ownedDirectories(pinned.outputs).flatMap((dir) => readdirSync(join(ROOT, dir))
+    .map((name) => join(dir, name)).filter((path) => !(path in pinned.outputs)));
+  if (bad.length || stray.length) {
+    console.error(`committed brand assets differ from ${relative(ROOT, MANIFEST)}:\n${[...bad.map(([p]) => p), ...stray.map((p) => `${p} (not generated)`)].join('\n')}`);
+    process.exit(1);
+  }
+  console.log(`${Object.keys(pinned.outputs).length} committed outputs match the manifest (no kit found, so not regenerated)`);
 }
 
-function assertMarkIntact(kind, svg) {
-  for (const path of markPaths[kind]) {
-    if (!svg.includes(path)) throw new Error('mark path changed');
+/// Imageset and media directories whose every file the generator owns.
+function ownedDirectories(outputs) {
+  return [...new Set(Object.keys(outputs).map(dirname).filter((dir) => !dir.endsWith('.appiconset')))];
+}
+
+if (!KIT) {
+  if (!check) throw new Error('brand kit not found: pass --kit <dir> or set FEARLESS_BRAND_KIT');
+  verifyCommitted();
+  process.exit(0);
+}
+
+// ---- The kit, pinned
+
+const kitManifestBytes = readFileSync(join(KIT, 'manifest.json'));
+if (sha256(kitManifestBytes) !== KIT_MANIFEST_SHA256) {
+  throw new Error(`${KIT}/manifest.json: sha256 ${sha256(kitManifestBytes)} is not the approved ${KIT_MANIFEST_SHA256}`);
+}
+const kitManifest = JSON.parse(kitManifestBytes);
+if (kitManifest.kit !== KIT_NAME) throw new Error(`unexpected kit ${kitManifest.kit}`);
+const kitHashes = Object.fromEntries(kitManifest.files.map(({ path, sha256: hash }) => [path, hash]));
+const consumed = {};
+
+function kitFile(path) {
+  const expected = kitHashes[path];
+  if (!expected) throw new Error(`${path} is not in the kit manifest`);
+  const bytes = readFileSync(join(KIT, path));
+  if (sha256(bytes) !== expected) throw new Error(`${path}: sha256 ${sha256(bytes)} differs from the kit manifest`);
+  consumed[path] = expected;
+  return bytes;
+}
+
+const kitText = (path) => kitFile(path).toString('utf8');
+/// A master's drawing: everything inside its <svg> element, reused verbatim inside new frames.
+const inner = (svg) => svg.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+const pathData = (svg) => [...svg.matchAll(/ d="([^"]+)"/g)].map((match) => match[1]);
+
+const masters = {
+  crest: kitText('svg/launch-crest.svg'),
+  lockup: kitText('masters/fearless-lockup-stacked.svg'),
+  badge: kitText('svg/crest-badge.svg'),
+  badgeSmall: kitText('svg/crest-badge-small.svg'),
+};
+if (masters.crest !== kitText('masters/fearless-crest.svg')) throw new Error('the launch crest is not the master crest');
+
+/// Every path of `master` must appear in `svg` with its exact text.
+function assertDrawingIntact(svg, master, label) {
+  const paths = pathData(master);
+  if (!paths.length) throw new Error(`${label}: master has no paths`);
+  for (const d of paths) {
+    if (!svg.includes(` d="${d}"`)) throw new Error(`${label}: a master path changed`);
   }
 }
 
-const markFor = (pixels) => (pixels < 48 ? 'plain' : 'lines');
-
-async function rasterSVG(svg, width, height, { opaque = false } = {}) {
-  const viewBox = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
-  const density = Math.max(72, 72 * Math.max(width / Number(viewBox[1]), height / Number(viewBox[2])) * 2);
-  let image = sharp(Buffer.from(svg), { density }).resize(width, height, { fit: 'fill' });
-  image = opaque ? image.flatten({ background: BG }).removeAlpha() : image.ensureAlpha();
-  return image.png({ compressionLevel: 9, adaptiveFiltering: false, palette: false }).toBuffer();
-}
-
-/// The badge (circle included) in a transparent canvas, centred or anchored to the bottom-right corner,
-/// optionally with the sun's glow behind it.
-function badgeCanvas(kind, canvasWidth, canvasHeight, badgeSide, { glow = false, inset = null } = {}) {
-  const text = marks[kind];
-  const inner = text.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
-  const scale = badgeSide / 512;
-  const x = inset === null ? (canvasWidth - badgeSide) / 2 : canvasWidth - badgeSide - inset;
-  const y = inset === null ? (canvasHeight - badgeSide) / 2 : canvasHeight - badgeSide - inset;
-  const glowRadius = badgeSide * 0.8;
-  const glowLayer = glow ? `<defs><radialGradient id="fwglow" cx="${x + badgeSide / 2}" cy="${y + badgeSide / 2}" r="${glowRadius}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#EE2233" stop-opacity="0.55"/><stop offset="0.45" stop-color="#EE0077" stop-opacity="0.18"/><stop offset="1" stop-color="#EE0077" stop-opacity="0"/></radialGradient></defs><rect width="${canvasWidth}" height="${canvasHeight}" fill="url(#fwglow)"/>` : '';
-  const svg = `<svg width="${canvasWidth}" height="${canvasHeight}" viewBox="0 0 ${canvasWidth} ${canvasHeight}" fill="none" xmlns="http://www.w3.org/2000/svg">${glowLayer}<g transform="translate(${x} ${y}) scale(${scale})">${inner}</g></svg>`;
-  assertMarkIntact(kind, svg);
-  return svg;
-}
-
-// The wide mark's frame in master units: the wings' span and the keyline disc's height, centred on the disc.
-const WINGS_BOX = { x: 15, y: 191.5, width: 482, height: 132.4 };
-
-/// The wings, joint and disc at full span, without the badge's circle, for pages with room for them. The paths
-/// are the master's own text; only the circle behind them is gone. Optionally the sun's glow, along the wings.
-function wingsCanvas(kind, canvasWidth, canvasHeight, wingsWidth, { glow = false } = {}) {
-  const gradient = marks[kind].match(/<linearGradient[\s\S]*?<\/linearGradient>/);
-  if (!gradient) throw new Error(`${MASTERS[kind].file}: no gradient`);
-  const scale = wingsWidth / WINGS_BOX.width;
-  const x = (canvasWidth - wingsWidth) / 2 - WINGS_BOX.x * scale;
-  const y = (canvasHeight - WINGS_BOX.height * scale) / 2 - WINGS_BOX.y * scale;
-  const centreX = canvasWidth / 2;
-  const centreY = canvasHeight / 2;
-  const glowGradient = glow ? `<radialGradient id="fwglow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(${centreX} ${centreY}) scale(${centreX} ${centreY})"><stop offset="0" stop-color="#EE2233" stop-opacity="0.55"/><stop offset="0.45" stop-color="#EE0077" stop-opacity="0.18"/><stop offset="1" stop-color="#EE0077" stop-opacity="0"/></radialGradient>` : '';
-  const glowLayer = glow ? `<rect width="${canvasWidth}" height="${canvasHeight}" fill="url(#fwglow)"/>` : '';
-  const svg = `<svg width="${canvasWidth}" height="${canvasHeight}" viewBox="0 0 ${canvasWidth} ${canvasHeight}" fill="none" xmlns="http://www.w3.org/2000/svg"><defs>${gradient[0]}${glowGradient}</defs>${glowLayer}<g transform="translate(${x} ${y}) scale(${scale})">${markPaths[kind].join('')}</g></svg>`;
-  assertMarkIntact(kind, svg);
-  return svg;
-}
-
-/// The sun-lit page: bg, the sun bounce (brand 18 %, halving every 0.6 widths) and the violet sky.
-function pageSVG(width, height) {
-  const sunX = width * 0.5;
-  const sunY = height * 0.21;
-  const reach = 1.44 * width;
-  const stops = [0, 0.25, 0.5, 0.75].map((t) => `<stop offset="${t}" stop-color="#EE0077" stop-opacity="${(0.18 * 2 ** (-2.4 * t)).toFixed(4)}"/>`).join('');
-  const sky = 0.55 * Math.hypot(width, height);
-  return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="b" cx="${sunX}" cy="${sunY}" r="${reach}" gradientUnits="userSpaceOnUse">${stops}<stop offset="1" stop-color="#EE0077" stop-opacity="0"/></radialGradient><radialGradient id="s" cx="${width}" cy="${height}" r="${sky}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8B5CFF" stop-opacity="0.10"/><stop offset="1" stop-color="#8B5CFF" stop-opacity="0"/></radialGradient></defs><rect width="${width}" height="${height}" fill="${BG}"/><rect width="${width}" height="${height}" fill="url(#s)"/><rect width="${width}" height="${height}" fill="url(#b)"/></svg>`;
-}
+// ---- Outputs
 
 const outputs = [];
-const record = (path, data) => outputs.push({ path, data });
+const record = (path, data) => outputs.push({ path, data: Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf8') });
+const contents = (images, properties) => `${JSON.stringify({ images, info: { author: 'xcode', version: 1 }, ...(properties ? { properties } : {}) }, null, 2)}\n`;
+const VECTOR = { 'preserves-vector-representation': true, 'template-rendering-intent': 'original' };
 
-async function appIcons(set) {
-  const contents = JSON.parse(readFileSync(join(ASSETS, `${set}.appiconset`, 'Contents.json'), 'utf8'));
-  const seen = new Set();
-  for (const image of contents.images) {
-    if (!image.filename || seen.has(image.filename)) continue;
-    seen.add(image.filename);
-    const points = Number(image.size.split('x')[0]);
-    const pixels = Math.round(points * Number(image.scale.replace('x', '')));
-    record(join(ASSETS, `${set}.appiconset`, image.filename), await rasterSVG(fullBleed(markFor(pixels)), pixels, pixels, { opaque: true }));
-  }
+/// A single-scale vector imageset holding `svg`.
+function vectorImageset(name, svg) {
+  record(join(ASSETS, `${name}.imageset`, `${name}.svg`), svg);
+  record(join(ASSETS, `${name}.imageset`, 'Contents.json'), contents([{ filename: `${name}.svg`, idiom: 'universal' }], VECTOR));
 }
 
-const IMAGESETS = [
-  // New sun-lit marks.
-  { name: 'fwSunBadge', width: 160, height: 160, badge: 160 },
-  { name: 'fwSunBadgeSmall', width: 32, height: 32, badge: 32 },
-  { name: 'fwSunGlow', width: 240, height: 240, badge: 128, glow: true },
-  // The wide mark for pages with room for the full span; FWWingsView adds the glow.
-  { name: 'fwWings', width: 480, height: 132, wings: 480 },
-  // The launch art keeps its name and shows the wide mark with its glow.
-  { name: 'logo', width: 480, height: 200, wings: 470, glow: true },
-  // Old bird assets keep their names and point sizes; the badge replaces the bird.
+// 1. App icons: the kit's opaque rasters, one per pixel size, under each set's existing filenames.
+function appIcons(set, prefix) {
+  const json = JSON.parse(readFileSync(join(ASSETS, `${set}.appiconset`, 'Contents.json'), 'utf8'));
+  const seen = new Set();
+  for (const image of json.images) {
+    if (!image.filename || seen.has(image.filename)) continue;
+    seen.add(image.filename);
+    const pixels = Math.round(Number(image.size.split('x')[0]) * Number(image.scale.replace('x', '')));
+    record(join(ASSETS, `${set}.appiconset`, image.filename), kitFile(`png/${prefix}/${prefix}-${pixels}.png`));
+  }
+}
+appIcons('AppIcon', 'app-icon');
+appIcons('AppIconDev', 'app-icon-dev');
+
+// 2. Marks copied byte for byte. `logo` is the launch screen's and the root screen's white crest; the stacked lockup
+// is the full-page mark (PIN, welcome, onboarding start, About); the badge fills round slots such as the wallet hero.
+vectorImageset('logo', masters.crest);
+vectorImageset('fwLockupStacked', masters.lockup);
+vectorImageset('fwCrestBadge', masters.badge);
+
+// 3. Fixed-size slots. Older screens size themselves from these images' point sizes, so each keeps its name and size
+// and shows the badge inside it. Slots under 32 pt (under 64 px at 2x) take the small crest, per the kit's rule.
+const glowDefs = (cx, cy, r) => `<radialGradient id="fwglow" cx="${cx}" cy="${cy}" r="${r}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${GOLD}" stop-opacity="0.55"/><stop offset="0.45" stop-color="${PINK}" stop-opacity="0.18"/><stop offset="1" stop-color="${PINK}" stop-opacity="0"/></radialGradient>`;
+
+function badgeFrame({ width, height, badge, glow = false, inset = null }) {
+  const master = badge < 32 ? masters.badgeSmall : masters.badge;
+  const x = inset === null ? (width - badge) / 2 : width - badge - inset;
+  const y = inset === null ? (height - badge) / 2 : height - badge - inset;
+  const cx = x + badge / 2;
+  const cy = y + badge / 2;
+  const light = glow ? `<defs>${glowDefs(cx, cy, badge * 0.8)}</defs><rect width="${width}" height="${height}" fill="url(#fwglow)"/>` : '';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Fearless">${light}<g transform="translate(${x} ${y}) scale(${badge / 512})">${inner(master)}</g></svg>\n`;
+  assertDrawingIntact(svg, master, `${width}x${height}`);
+  return svg;
+}
+
+const FIXED_SLOTS = [
   { name: 'iconFearlessBig', width: 142, height: 61, badge: 61 },
   { name: 'iconFearlessLog', width: 246, height: 122, badge: 122 },
   { name: 'iconFearlessRounded', width: 40, height: 40, badge: 40 },
@@ -153,62 +179,62 @@ const IMAGESETS = [
   { name: 'qrFearless', width: 96, height: 43, badge: 43 },
   // The backup banner's art sits in its bottom-right corner, clear of the banner's text and button.
   { name: 'FearlessBanner', width: 175, height: 139, badge: 64, glow: true, inset: 16 },
+  // The NFT media placeholder: the badge in its own warm light.
+  { name: 'fwCrestBadgeGlow', width: 240, height: 240, badge: 128, glow: true },
 ];
+for (const slot of FIXED_SLOTS) vectorImageset(slot.name, badgeFrame(slot));
 
-async function imagesets() {
-  for (const set of IMAGESETS) {
-    const images = [];
-    for (const scale of [1, 2, 3]) {
-      const width = Math.round(set.width * scale);
-      const height = Math.round(set.height * scale);
-      const badge = set.badge * scale;
-      const inset = set.inset === undefined ? null : set.inset * scale;
-      const svg = set.wings
-        ? wingsCanvas('lines', width, height, set.wings * scale, { glow: set.glow })
-        : badgeCanvas(markFor(badge), width, height, badge, { glow: set.glow, inset });
-      const filename = `${set.name}@${scale}x.png`;
-      record(join(ASSETS, `${set.name}.imageset`, filename), await rasterSVG(svg, width, height));
-      images.push({ filename, idiom: 'universal', scale: `${scale}x` });
-    }
-    record(join(ASSETS, `${set.name}.imageset`, 'Contents.json'), Buffer.from(`${JSON.stringify({ images, info: { author: 'xcode', version: 1 } }, null, 2)}\n`));
-  }
-  const page = [];
-  for (const scale of [2, 3]) {
-    const filename = `backgroundImage@${scale}x.png`;
-    record(join(ASSETS, 'backgroundImage.imageset', filename), await rasterSVG(pageSVG(375 * scale, 812 * scale), 375 * scale, 812 * scale, { opaque: true }));
-    page.push({ filename, idiom: 'universal', scale: `${scale}x` });
-  }
-  record(join(ASSETS, 'backgroundImage.imageset', 'Contents.json'), Buffer.from(`${JSON.stringify({ images: page, info: { author: 'xcode', version: 1 } }, null, 2)}\n`));
+// 4. The page paint older screens show behind their content: ink, the brand bounce from the top (pink at 18 %, halving
+// every 0.6 widths) and the violet sky from the bottom-right corner, as FWSunlitBackgroundView paints it.
+function pageSVG(width, height) {
+  const reach = 1.44 * width;
+  const stops = [0, 0.25, 0.5, 0.75].map((t) => `<stop offset="${t}" stop-color="${PINK}" stop-opacity="${(0.18 * 2 ** (-2.4 * t)).toFixed(4)}"/>`).join('');
+  const sky = 0.55 * Math.hypot(width, height);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><defs><radialGradient id="b" cx="${width * 0.5}" cy="${(height * 0.21).toFixed(2)}" r="${reach.toFixed(2)}" gradientUnits="userSpaceOnUse">${stops}<stop offset="1" stop-color="${PINK}" stop-opacity="0"/></radialGradient><radialGradient id="s" cx="${width}" cy="${height}" r="${sky.toFixed(2)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${SKY}" stop-opacity="0.10"/><stop offset="1" stop-color="${SKY}" stop-opacity="0"/></radialGradient></defs><rect width="${width}" height="${height}" fill="${INK}"/><rect width="${width}" height="${height}" fill="url(#s)"/><rect width="${width}" height="${height}" fill="url(#b)"/></svg>\n`;
 }
+vectorImageset('backgroundImage', pageSVG(375, 812));
 
-await appIcons('AppIcon');
-await appIcons('AppIconDev');
-await imagesets();
+// 5. The welcome hero: the looping crow (muted, no audio track), the call (with sound), its poster, and the call's
+// sound alone for Reduce Motion. Copied byte for byte into the app bundle.
+const HERO = {
+  'welcome-idle.mp4': 'hero/welcome-idle.mp4',
+  'welcome-caw.mp4': 'hero/welcome-caw.mp4',
+  'welcome-poster.webp': 'hero/welcome-poster.webp',
+  'welcome-caw.m4a': 'audio/caw.m4a',
+};
+for (const [name, path] of Object.entries(HERO)) record(join(MEDIA, name), kitFile(path));
+
+// ---- Manifest, write or check
 
 const manifest = {
   generator: 'scripts/brand/generate-ios-brand-assets.mjs',
-  masters: Object.values(MASTERS),
-  renderer: { sharp: sharp.versions?.sharp ?? null, librsvg: sharp.versions?.rsvg ?? null, vips: sharp.versions?.vips ?? null },
+  kit: {
+    name: KIT_NAME,
+    manifestSha256: KIT_MANIFEST_SHA256,
+    designManifestSha256: kitManifest.source?.designManifestSha256 ?? null,
+    files: Object.fromEntries(Object.entries(consumed).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))),
+  },
   outputs: Object.fromEntries(outputs.map(({ path, data }) => [relative(ROOT, path), sha256(data)])),
 };
+const manifestText = `${JSON.stringify(manifest, null, 2)}\n`;
+const owned = ownedDirectories(manifest.outputs);
 
 if (check) {
-  const pinned = JSON.parse(readFileSync(MANIFEST, 'utf8'));
-  const stale = [...new Set([...Object.keys(manifest.outputs), ...Object.keys(pinned.outputs)])].filter((path) => {
-    const hash = manifest.outputs[path];
-    const asset = join(ROOT, path);
-    return !hash || pinned.outputs[path] !== hash || !existsSync(asset) || sha256(readFileSync(asset)) !== hash;
-  });
-  if (stale.length) {
-    console.error(`differs from the manifest (renderer ${JSON.stringify(manifest.renderer)}):\n${stale.join('\n')}`);
+  const stale = outputs.filter(({ path, data }) => !existsSync(path) || !readFileSync(path).equals(data)).map(({ path }) => relative(ROOT, path));
+  const stray = owned.flatMap((dir) => (existsSync(join(ROOT, dir)) ? readdirSync(join(ROOT, dir)) : [])
+    .map((name) => join(dir, name)).filter((path) => !(path in manifest.outputs)));
+  const manifestStale = !existsSync(MANIFEST) || readFileSync(MANIFEST, 'utf8') !== manifestText;
+  if (stale.length || stray.length || manifestStale) {
+    console.error(`brand assets differ from the kit:\n${[...stale, ...stray.map((p) => `${p} (not generated)`), ...(manifestStale ? [relative(ROOT, MANIFEST)] : [])].join('\n')}`);
     process.exit(1);
   }
-  console.log(`${outputs.length} outputs match the manifest`);
+  console.log(`${outputs.length} outputs match the kit (${Object.keys(consumed).length} kit files, manifest ${KIT_MANIFEST_SHA256.slice(0, 12)}…)`);
 } else {
+  for (const dir of owned) rmSync(join(ROOT, dir), { recursive: true, force: true });
   for (const { path, data } of outputs) {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, data);
   }
-  writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);
-  console.log(`wrote ${outputs.length} outputs and ${relative(ROOT, MANIFEST)}`);
+  writeFileSync(MANIFEST, manifestText);
+  console.log(`wrote ${outputs.length} outputs from ${Object.keys(consumed).length} kit files and ${relative(ROOT, MANIFEST)}`);
 }

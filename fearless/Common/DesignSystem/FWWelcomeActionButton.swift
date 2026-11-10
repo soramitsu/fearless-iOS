@@ -122,11 +122,14 @@ final class FWWelcomeActionButton: UIButton {
         fillMask.path = path.cgPath
         let colors: [UIColor]
         switch style {
-        case .primary: colors = [FWSunlit.Palette.gradientStart, FWSunlit.Palette.gradientEnd]
+        case .primary:
+            // Brand pink, pressed pink while held (brand spec 2026-11-10).
+            let top = isHighlighted ? FWSunlit.Palette.brandPressed : FWSunlit.Palette.gradientStart
+            colors = [top, FWSunlit.Palette.gradientEnd]
         case .secondary, .link: colors = [.clear, .clear]
         }
         fill.colors = colors.map(\.cgColor)
-        fill.opacity = isHighlighted ? 0.86 : 1
+        fill.opacity = isHighlighted && style != .primary ? 0.86 : 1
         label.textColor = style == .primary ? .white : FWSunlit.Palette.textPrimary
         // Primary: the 1 pt top highlight of an emissive surface; secondary rims come from its surface.
         let normalStroke: UIColor = style == .primary

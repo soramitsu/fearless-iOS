@@ -1432,6 +1432,7 @@ akan muncul di sini";
 "welcome.body" = "Kelola aset Anda sendiri di Polkadot, Ethereum, TON, Bitcoin, Solana, dan SORA.";
 "welcome.create" = "Buat dompet baru";
 "welcome.restore" = "Saya sudah punya dompet";
+"welcome.crow.call" = "Putar suara gagak";
 
 "import.legacy_ton_phrase" = "Frasa pemulihan TON lama";
 "import.legacy_ton_phrase_placeholder" = "Masukkan frasa pemulihan TON lama Anda";

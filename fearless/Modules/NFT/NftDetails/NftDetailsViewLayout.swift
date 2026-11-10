@@ -230,7 +230,7 @@ final class NftDetailsViewLayout: UIView {
             mediaView.bind(mediaURL: imageUrl, animating: true)
         } else {
             mediaView.contentMode = .scaleAspectFit
-            mediaView.image = R.image.fwSunGlow()
+            mediaView.image = R.image.fwCrestBadgeGlow()
         }
 
         switch viewModel.nftType {

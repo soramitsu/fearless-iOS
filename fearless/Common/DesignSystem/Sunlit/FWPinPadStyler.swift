@@ -236,31 +236,37 @@ private final class FWWeakTarget: NSObject {
     }
 }
 
-/// A PIN screen's sun-lit scene: the page light, the winged sun at full span that lights it, and the styled
-/// keypad. The screen adds `wingsRow` to its content; the row keeps the page light and the key rims on its sun.
+/// A PIN screen's sun-lit scene: the page light, the stacked lockup whose crest lights it, and the styled keypad.
+/// The screen adds `lockupRow` to its content; the row keeps the page light and the key rims on the crest.
 final class FWPinScreenSunlit {
+    /// The lockup's tallest share of the window, so the keypad keeps its room on short phones and in landscape.
+    static let lockupHeightFraction: CGFloat = 0.2
+
     let styler: FWPinPadStyler
-    let wings = FWWingsView()
+    let lockup: FWLockupView
     private let background = FWSunlitBackgroundView()
-    private(set) lazy var wingsRow: UIView = FWLayoutReportingView { [weak self] in self?.lightScene() }
+    private(set) lazy var lockupRow: UIView = FWLayoutReportingView { [weak self] in self?.lightScene() }
 
     init(pinView: PinView, effects: FWEffects = .shared) {
         styler = FWPinPadStyler(pinView: pinView, effects: effects)
-        wings.isAccessibilityElement = false
-        wingsRow.addSubview(wings)
-        wings.snp.makeConstraints { make in
-            wings.makeWideConstraints(make)
+        lockup = FWLockupView(effects: effects)
+        // The PIN screen's heading names the task; the mark is decoration here.
+        lockup.isAccessibilityElement = false
+        lockup.maximumHeightFraction = Self.lockupHeightFraction
+        lockupRow.addSubview(lockup)
+        lockup.snp.makeConstraints { make in
+            lockup.makePageConstraints(make)
             make.top.bottom.equalToSuperview()
         }
     }
 
-    /// Adds the wings row to `content` and the page light behind everything in `rootView`.
+    /// Adds the lockup row to `content` and the page light behind everything in `rootView`.
     func attach(to content: UIStackView, in rootView: UIView) {
         installLight(in: rootView)
-        content.insertArrangedSubview(wingsRow, at: 0)
+        content.insertArrangedSubview(lockupRow, at: 0)
     }
 
-    /// The page light behind everything in `rootView`, for screens that place `wingsRow` themselves.
+    /// The page light behind everything in `rootView`, for screens that place `lockupRow` themselves.
     func installLight(in rootView: UIView) {
         rootView.backgroundColor = FWSunlit.Palette.background
         rootView.insertSubview(background, at: 0)
@@ -270,7 +276,7 @@ final class FWPinScreenSunlit {
 
     private func lightScene() {
         guard let root = background.superview else { return }
-        let sunCenter = wings.convert(CGPoint(x: wings.bounds.midX, y: wings.bounds.midY), to: root)
+        let sunCenter = lockup.convert(lockup.crestCenterPoint, to: root)
         background.sunCenter = sunCenter
         styler.applySunRim(sunCenter: sunCenter, in: root)
     }

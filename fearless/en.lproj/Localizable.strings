@@ -1492,6 +1492,7 @@ belongs to the right network";
 "welcome.body" = "Self-custody for Polkadot, Ethereum, TON, Bitcoin, Solana and SORA.";
 "welcome.create" = "Create a new wallet";
 "welcome.restore" = "I already have a wallet";
+"welcome.crow.call" = "Play the crow's call";
 
 "import.legacy_ton_phrase" = "Legacy TON recovery phrase";
 "import.legacy_ton_phrase_placeholder" = "Enter your native TON recovery phrase";

@@ -1,14 +1,8 @@
 import UIKit
 
 final class OnboardingStartViewLayout: UIView {
-    /// The winged sun at full span lighting the page (sun-lit redesign; replaces the animated bird).
-    private let mediaView: FWWingsView = {
-        let view = FWWingsView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Fearless Wallet"
-        view.accessibilityTraits = .image
-        return view
-    }()
+    /// The stacked lockup whose crest lights the page (Yatagarasu brand; the welcome screen carries the crow).
+    private let mediaView = FWLockupView()
 
     private let sunlitBackground = FWSunlitBackgroundView()
 
@@ -64,21 +58,20 @@ final class OnboardingStartViewLayout: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        let sunCenter = CGPoint(x: mediaView.bounds.midX, y: mediaView.bounds.midY)
-        sunlitBackground.sunCenter = mediaView.convert(sunCenter, to: self)
+        sunlitBackground.sunCenter = mediaView.convert(mediaView.crestCenterPoint, to: self)
     }
 
     private func setupLayout() {
         backgroundColor = FWSunlit.Palette.background
         addSubview(sunlitBackground)
         sunlitBackground.snp.makeConstraints { make in make.edges.equalToSuperview() }
-        let wingsRow = UIView()
-        wingsRow.addSubview(mediaView)
+        let lockupRow = UIView()
+        lockupRow.addSubview(mediaView)
         mediaView.snp.makeConstraints { make in
-            mediaView.makeWideConstraints(make)
+            mediaView.makePageConstraints(make)
             make.top.bottom.equalToSuperview()
         }
-        stackView.addArrangedSubview(wingsRow)
+        stackView.addArrangedSubview(lockupRow)
         stackView.addArrangedSubview(label)
 
         addSubview(stackView)

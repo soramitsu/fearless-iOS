@@ -57,23 +57,28 @@ final class PinContinuityTests: XCTestCase {
         func close() { window.isHidden = true; window.rootViewController = nil }
     }
 
-    func testWingsSpanMostOfThePinPageAtNormalAndMaximumType() async throws {
+    func testLockupHeadsThePinPageAtNormalAndMaximumType() async throws {
         for category in [UIContentSizeCategory.large, .accessibilityExtraExtraExtraLarge] {
             for mode in [PinView.Mode.create, .securedInput] {
                 let fixture = try show(language: "en", category: category, mode: mode, cancellable: false, heading: "setup")
                 defer { fixture.close() }
                 await Task.yield()
                 fixture.window.layoutIfNeeded()
-                let wings = try XCTUnwrap(descendants(fixture.controller.view).compactMap { $0 as? FWWingsView }.first)
-                XCTAssertGreaterThanOrEqual(wings.bounds.width / fixture.window.bounds.width, 0.8)
-                XCTAssertEqual(wings.bounds.width / wings.bounds.height, FWWingsView.aspectRatio, accuracy: 0.03)
-                let glow = wings.convert(wings.glowFrame, to: fixture.scroll)
+                let lockup = try XCTUnwrap(descendants(fixture.controller.view).compactMap { $0 as? FWLockupView }.first)
+                let share = lockup.bounds.width / fixture.window.bounds.width
+                XCTAssertGreaterThanOrEqual(share, 0.4)
+                XCTAssertLessThanOrEqual(share, FWLockupView.widthFraction + 0.01)
+                XCTAssertLessThanOrEqual(
+                    lockup.bounds.height, fixture.window.bounds.height * FWPinScreenSunlit.lockupHeightFraction + 1
+                )
+                XCTAssertEqual(lockup.bounds.width / lockup.bounds.height, FWLockupView.aspectRatio, accuracy: 0.03)
+                let glow = lockup.convert(lockup.glowFrame, to: fixture.scroll)
                 XCTAssertGreaterThanOrEqual(glow.minY, fixture.scroll.contentOffset.y, "The scroll view must not cut the light")
                 let labels = try XCTUnwrap(fixture.controller.topLabel.superview).subviews.compactMap { $0 as? UILabel }
                     .filter { !$0.isHidden }
                 for label in labels {
                     let top = label.convert(label.bounds, to: fixture.scroll).minY
-                    XCTAssertLessThanOrEqual(wings.convert(wings.bounds, to: fixture.scroll).maxY, top, "The wings stay above the text")
+                    XCTAssertLessThanOrEqual(lockup.convert(lockup.bounds, to: fixture.scroll).maxY, top, "The lockup stays above the text")
                 }
             }
         }

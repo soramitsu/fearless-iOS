@@ -1,23 +1,16 @@
 {
   "images": [
     {
-      "filename": "iconFearlessBig@1x.png",
-      "idiom": "universal",
-      "scale": "1x"
-    },
-    {
-      "filename": "iconFearlessBig@2x.png",
-      "idiom": "universal",
-      "scale": "2x"
-    },
-    {
-      "filename": "iconFearlessBig@3x.png",
-      "idiom": "universal",
-      "scale": "3x"
+      "filename": "iconFearlessBig.svg",
+      "idiom": "universal"
     }
   ],
   "info": {
     "author": "xcode",
     "version": 1
+  },
+  "properties": {
+    "preserves-vector-representation": true,
+    "template-rendering-intent": "original"
   }
 }

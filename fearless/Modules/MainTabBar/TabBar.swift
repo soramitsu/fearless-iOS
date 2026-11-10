@@ -135,8 +135,9 @@ final class TabBarSunlitWell {
 
     static func applyColors(to tabBar: UITabBar, appearance: UITabBarAppearance) {
         appearance.stackedLayoutAppearance.normal.iconColor = FWSunlit.Palette.textTertiary
-        appearance.stackedLayoutAppearance.selected.iconColor = FWSunlit.Palette.brand
-        tabBar.tintColor = FWSunlit.Palette.brand
+        // The active tab is pink; its label and icon use the text pink, which keeps 4.5:1 on the bar.
+        appearance.stackedLayoutAppearance.selected.iconColor = FWSunlit.Palette.brandText
+        tabBar.tintColor = FWSunlit.Palette.brandText
         tabBar.unselectedItemTintColor = FWSunlit.Palette.textTertiary
     }
 

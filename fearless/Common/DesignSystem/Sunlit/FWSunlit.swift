@@ -1,30 +1,35 @@
 import UIKit
 
 /// "Sun-lit neumorphism" (mobile redesign spec, 2026-11-08): one world, one light.
-/// A key light from the top-left, the brand sun as an emissive bounce light and a faint violet sky
-/// from the bottom-right. Dark only. Colours here are the spec's sRGB token table; the asset-catalog
-/// colour sets that legacy screens read are kept equal to them (see `FWSunlitTests`).
+/// A key light from the top-left, the brand badge as an emissive bounce light and a faint violet sky
+/// from the bottom-right. Dark only. Colours follow the Yatagarasu brand (2026-11-10, kit tokens/colors.json):
+/// ink surfaces, pink actions, the warm ember of the crest's halo. The asset-catalog colour sets that legacy
+/// screens read are kept equal to them (see `FWSunlitTests`).
 enum FWSunlit {
     enum Palette {
-        /// Page and every neumorphic surface: neumorphism needs one base.
-        static let background = FWSunlit.color(0x151831)
-        /// Inset wells, input fields and pressed controls.
-        static let backgroundDeep = FWSunlit.color(0x0E1024)
-        /// Primary actions and selection.
-        static let brand = FWSunlit.color(0xEE0077)
-        /// The badge gradient, used by primary buttons and the app icon.
-        static let gradientStart = FWSunlit.color(0xF5046B)
-        static let gradientEnd = FWSunlit.color(0x78003F)
-        /// The disc: emissive accents only.
-        static let sun = FWSunlit.color(0xEE2233)
-        /// Edge catching the sun bounce.
+        /// Page and every neumorphic surface: neumorphism needs one base. Brand ink.
+        static let background = FWSunlit.color(0x120A2E)
+        /// Inset wells, input fields and pressed controls: ink darkened in the old navy ratio (as on Android).
+        static let backgroundDeep = FWSunlit.color(0x0C0722)
+        /// Primary actions and active navigation: brand pink.
+        static let brand = FWSunlit.color(0xE6006F)
+        /// A pressed primary action: the primary fill's lower pink (brand spec, kit revision 70771ec).
+        static let brandPressed = FWSunlit.color(0xA8005A)
+        /// Brand pink for text and active tab labels, which need 4.5:1 on ink (the design's tab bar pink).
+        static let brandText = FWSunlit.color(0xFF4FA3)
+        /// The primary fill under white labels: 5.2:1 at the top. Brand pink itself stays off buttons with text.
+        static let gradientStart = FWSunlit.color(0xD6006A)
+        static let gradientEnd = FWSunlit.color(0xA8005A)
+        /// The solar motif's gold (brand spec): the core of the badge's and the crest's halo. Emissive accents only.
+        static let sun = FWSunlit.color(0xFFC24A)
+        /// Edge catching the bounce light.
         static let sunRim = FWSunlit.color(0xFF3D8E)
         /// Ambient sky.
         static let violet = FWSunlit.color(0x8B5CFF)
         /// Key-light shadow.
         static let shadow = FWSunlit.color(0x05060F)
-        static let textPrimary = FWSunlit.color(0xEEF0FA)
-        static let textSecondary = FWSunlit.color(0xA9AECB)
+        static let textPrimary = FWSunlit.color(0xFAF6FF)
+        static let textSecondary = FWSunlit.color(0xCFC4E6)
         /// Large or auxiliary text only (at least 3:1 on `bg`).
         static let textTertiary = FWSunlit.color(0x7F86AA)
         static let priceUp = FWSunlit.color(0x3DF2B0)

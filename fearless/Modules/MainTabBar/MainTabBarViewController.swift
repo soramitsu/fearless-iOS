@@ -118,7 +118,7 @@ final class MainTabBarViewController: UITabBarController {
                 .font: UIFont.systemFont(ofSize: 12, weight: .medium)
             ]
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                .foregroundColor: FWSunlit.Palette.brand,
+                .foregroundColor: FWSunlit.Palette.brandText,
                 .font: UIFont.systemFont(ofSize: 12, weight: .semibold)
             ]
             TabBarSunlitWell.applyColors(to: tabBar, appearance: appearance)

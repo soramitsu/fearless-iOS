@@ -1,4 +1,5 @@
 @testable import fearless
+import SnapKit
 import UIKit
 import XCTest
 
@@ -9,17 +10,20 @@ final class FWSunlitTests: XCTestCase {
 
     func testPaletteMatchesTheSpecTokenTable() {
         let expected: [(UIColor, UInt32)] = [
-            (FWSunlit.Palette.background, 0x151831),
-            (FWSunlit.Palette.backgroundDeep, 0x0E1024),
-            (FWSunlit.Palette.brand, 0xEE0077),
-            (FWSunlit.Palette.gradientStart, 0xF5046B),
-            (FWSunlit.Palette.gradientEnd, 0x78003F),
-            (FWSunlit.Palette.sun, 0xEE2233),
+            // Yatagarasu brand (2026-11-10): ink, pink, the kit's primary fill and pressed pink, text pink, solar gold.
+            (FWSunlit.Palette.background, 0x120A2E),
+            (FWSunlit.Palette.backgroundDeep, 0x0C0722),
+            (FWSunlit.Palette.brand, 0xE6006F),
+            (FWSunlit.Palette.brandPressed, 0xA8005A),
+            (FWSunlit.Palette.brandText, 0xFF4FA3),
+            (FWSunlit.Palette.gradientStart, 0xD6006A),
+            (FWSunlit.Palette.gradientEnd, 0xA8005A),
+            (FWSunlit.Palette.sun, 0xFFC24A),
             (FWSunlit.Palette.sunRim, 0xFF3D8E),
             (FWSunlit.Palette.violet, 0x8B5CFF),
             (FWSunlit.Palette.shadow, 0x05060F),
-            (FWSunlit.Palette.textPrimary, 0xEEF0FA),
-            (FWSunlit.Palette.textSecondary, 0xA9AECB),
+            (FWSunlit.Palette.textPrimary, 0xFAF6FF),
+            (FWSunlit.Palette.textSecondary, 0xCFC4E6),
             (FWSunlit.Palette.textTertiary, 0x7F86AA),
             (FWSunlit.Palette.priceUp, 0x3DF2B0),
             (FWSunlit.Palette.priceDown, 0xFF9F57),
@@ -38,24 +42,32 @@ final class FWSunlitTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(FWSunlit.contrast(FWSunlit.Palette.textPrimary, surface), 4.5)
             XCTAssertGreaterThanOrEqual(FWSunlit.contrast(FWSunlit.Palette.textSecondary, surface), 4.5)
             XCTAssertGreaterThanOrEqual(FWSunlit.contrast(FWSunlit.Palette.textTertiary, surface), 3)
+            // Pink text (the active tab's label) is the design's lighter pink: brand pink itself is under 4.5:1.
+            XCTAssertGreaterThanOrEqual(FWSunlit.contrast(FWSunlit.Palette.brandText, surface), 4.5)
+            XCTAssertLessThan(FWSunlit.contrast(FWSunlit.Palette.brand, surface), 4.5)
             for status in [FWSunlit.Palette.success, FWSunlit.Palette.warning, FWSunlit.Palette.danger] {
                 XCTAssertGreaterThanOrEqual(FWSunlit.contrast(status, surface), 4.5)
             }
         }
-        // Primary buttons: white 16 pt semibold (large text) over the badge gradient.
-        XCTAssertGreaterThanOrEqual(FWSunlit.contrast(.white, FWSunlit.Palette.gradientStart), 3)
-        XCTAssertGreaterThanOrEqual(FWSunlit.contrast(.white, FWSunlit.color(0xB6025A)), 4.5, "gradient midpoint")
+        // Primary buttons: white 16 pt semibold (large text) over the pink gradient, pressed or not.
+        XCTAssertGreaterThanOrEqual(FWSunlit.contrast(.white, FWSunlit.Palette.gradientStart), 4.5)
+        XCTAssertGreaterThanOrEqual(FWSunlit.contrast(.white, FWSunlit.Palette.brandPressed), 4.5)
+        XCTAssertGreaterThanOrEqual(FWSunlit.contrast(.white, FWSunlit.color(0xBF0062)), 4.5, "gradient midpoint")
+        XCTAssertGreaterThanOrEqual(FWSunlit.contrast(.white, FWSunlit.Palette.gradientStart), 5.035, "kit contract floor")
         XCTAssertEqual(FWSunlit.contrast(.black, .white), 21, accuracy: 0.01)
     }
 
     func testLegacyColourSetsSitOnTheSunlitPalette() {
         let expected: [(UIColor?, UInt32)] = [
-            (R.color.colorBlack19(), 0x151831),
-            (R.color.colorSemiBlack(), 0x151831),
-            (R.color.colorBlack(), 0x0E1024),
-            (R.color.colorPink(), 0xEE0077),
-            (R.color.colorWhite(), 0xEEF0FA),
-            (R.color.colorLightGray(), 0xA9AECB),
+            (R.color.colorBlack19(), 0x120A2E),
+            (R.color.colorSemiBlack(), 0x120A2E),
+            (R.color.colorBlack(), 0x0C0722),
+            (R.color.colorPink(), 0xE6006F),
+            (R.color.colorHighlightedPink(), 0xA8005A),
+            (R.color.colorAccentGradientStart(), 0xD6006A),
+            (R.color.colorAccentGradientEnd(), 0xA8005A),
+            (R.color.colorWhite(), 0xFAF6FF),
+            (R.color.colorLightGray(), 0xCFC4E6),
             (R.color.colorStrokeGray(), 0x7F86AA),
             (R.color.colorGreen(), 0x3DF2B0),
             (R.color.colorRed(), 0xFF6B5E),
@@ -385,12 +397,12 @@ final class FWSunlitPaintTests: XCTestCase {
         )
         painter.apply(.init(elevation: .raised2, pressed: true))
         XCTAssertEqual(visibleShadows(painter), [painter.innerShadow])
-        XCTAssertEqual(painter.fill.fillColor.flatMap { FWSunlit.hex(of: UIColor(cgColor: $0)) }, 0x0E1024)
+        XCTAssertEqual(painter.fill.fillColor.flatMap { FWSunlit.hex(of: UIColor(cgColor: $0)) }, 0x0C0722)
         painter.apply(.init(elevation: .inset, focused: true, interactive: true))
         XCTAssertEqual(visibleShadows(painter), [painter.innerShadow])
         XCTAssertFalse(painter.ring.isHidden)
         XCTAssertEqual(painter.ring.lineWidth, 2)
-        XCTAssertEqual(painter.ring.strokeColor.flatMap { FWSunlit.hex(of: UIColor(cgColor: $0)) }, 0xEE0077)
+        XCTAssertEqual(painter.ring.strokeColor.flatMap { FWSunlit.hex(of: UIColor(cgColor: $0)) }, 0xE6006F)
         painter.apply(.init(elevation: .inset, error: true))
         XCTAssertEqual(painter.ring.strokeColor.flatMap { FWSunlit.hex(of: UIColor(cgColor: $0)) }, 0xFF6B5E)
     }
@@ -405,7 +417,7 @@ final class FWSunlitPaintTests: XCTestCase {
         painter.apply(.init(elevation: .emissive))
         XCTAssertFalse(painter.emissive.isHidden)
         XCTAssertEqual(visibleShadows(painter), [painter.keyShadow])
-        XCTAssertEqual(painter.keyShadow.shadowColor.flatMap { FWSunlit.hex(of: UIColor(cgColor: $0)) }, 0xEE0077)
+        XCTAssertEqual(painter.keyShadow.shadowColor.flatMap { FWSunlit.hex(of: UIColor(cgColor: $0)) }, 0xE6006F)
         XCTAssertEqual(painter.keyShadow.shadowOffset, CGSize(width: 0, height: 8))
         XCTAssertTrue(painter.highlightShadow.isHidden)
     }
@@ -517,11 +529,11 @@ final class FWSunlitPaintTests: XCTestCase {
     }
 }
 
-/// The winged sun at full span on the pages with room for it.
+/// The stacked lockup (Yatagarasu crest over the wordmark) on the full-page brand screens.
 @MainActor
-final class FWWingsViewTests: XCTestCase {
+final class FWLockupViewTests: XCTestCase {
     private func effects() throws -> FWEffects {
-        let suite = "fw-wings-" + UUID().uuidString
+        let suite = "fw-lockup-" + UUID().uuidString
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         addTeardownBlock { defaults.removePersistentDomain(forName: suite) }
         return FWEffects(defaults: defaults, notificationCenter: NotificationCenter()) { .init() }
@@ -541,28 +553,44 @@ final class FWWingsViewTests: XCTestCase {
         return window
     }
 
-    private func pages() -> [(String, () -> UIView)] {
+    private enum Room { case free, heightCapped, aboveKeypad }
+
+    /// Pages and how their room limits the lockup.
+    private func pages() -> [(String, Room, () -> UIView)] {
         [
-            ("unlock", { CheckPincodeViewLayout() }),
-            ("welcome", { FWWelcomeView(mode: .introduction) }),
-            ("wallet choice", { FWWelcomeView(mode: .walletChoice) }),
-            ("start", { OnboardingStartViewLayout() }),
-            ("about", { AboutViewLayout() })
+            ("unlock", .aboveKeypad, { CheckPincodeViewLayout() }),
+            ("welcome", .heightCapped, { FWWelcomeView(mode: .introduction) }),
+            ("wallet choice", .heightCapped, { FWWelcomeView(mode: .walletChoice) }),
+            ("start", .free, { OnboardingStartViewLayout() }),
+            ("about", .free, { AboutViewLayout() })
         ]
     }
 
-    func testWingsSpanMostOfEveryFullPageAtEveryPhoneWidth() throws {
-        for (name, make) in pages() {
+    func testLockupTakesAboutHalfOfEveryFullPageAtEveryPhoneWidth() throws {
+        let height: CGFloat = 844
+        for (name, room, make) in pages() {
             for width: CGFloat in [320, 375, 402, 440] {
                 let page = make()
-                let window = try host(page, width: width)
+                let window = try host(page, width: width, height: height)
                 defer { window.isHidden = true; window.rootViewController = nil }
                 let context = "\(name) at \(width)"
-                let wings = try XCTUnwrap(descendants(page).compactMap { $0 as? FWWingsView }.first, context)
-                XCTAssertNotNil(wings.imageView.image, context)
-                XCTAssertGreaterThanOrEqual(wings.bounds.width / width, 0.8, context)
-                XCTAssertEqual(wings.bounds.width / wings.bounds.height, FWWingsView.aspectRatio, accuracy: 0.03, context)
-                let frame = wings.convert(wings.bounds, to: window)
+                let lockup = try XCTUnwrap(descendants(page).compactMap { $0 as? FWLockupView }.first, context)
+                XCTAssertNotNil(lockup.imageView.image, context)
+                XCTAssertEqual(lockup.accessibilityLabel, "Fearless", context)
+                let target = min((width * FWLockupView.widthFraction).rounded(.down), FWLockupView.maximumWidth)
+                switch room {
+                case .free:
+                    XCTAssertEqual(lockup.bounds.width, target, accuracy: 1, context)
+                case .heightCapped:
+                    let capped = (height * FWWelcomeView.lockupHeightFraction).rounded(.down) * FWLockupView.aspectRatio
+                    XCTAssertEqual(lockup.bounds.width, min(target, capped), accuracy: 1, context)
+                case .aboveKeypad:
+                    // The unlock keypad keeps its owner-verified place; the lockup fills the room above the heading.
+                    XCTAssertLessThanOrEqual(lockup.bounds.width, target + 1, context)
+                    XCTAssertGreaterThanOrEqual(lockup.bounds.width, 96, context)
+                }
+                XCTAssertEqual(lockup.bounds.width / lockup.bounds.height, FWLockupView.aspectRatio, accuracy: 0.03, context)
+                let frame = lockup.convert(lockup.bounds, to: window)
                 XCTAssertGreaterThanOrEqual(frame.minX, 0, context)
                 XCTAssertLessThanOrEqual(frame.maxX, width, context)
                 XCTAssertEqual(frame.midX, width / 2, accuracy: 1, context)
@@ -570,35 +598,101 @@ final class FWWingsViewTests: XCTestCase {
         }
     }
 
-    func testWingsStopAtTheirMaximumWidthOnATablet() throws {
+    func testLockupStopsAtItsMaximumWidthOnATablet() throws {
         let page = CheckPincodeViewLayout()
         let window = try host(page, width: 1024, height: 1366)
         defer { window.isHidden = true; window.rootViewController = nil }
-        let wings = try XCTUnwrap(descendants(page).compactMap { $0 as? FWWingsView }.first)
-        XCTAssertEqual(wings.bounds.width, FWWingsView.maximumWidth, accuracy: 1)
+        let lockup = try XCTUnwrap(descendants(page).compactMap { $0 as? FWLockupView }.first)
+        XCTAssertEqual(lockup.bounds.width, FWLockupView.maximumWidth, accuracy: 1)
     }
 
-    func testArtworkMatchesTheDeclaredAspectAndIsTheWideMark() throws {
-        let image = try XCTUnwrap(R.image.fwWings())
-        XCTAssertEqual(image.size.width / image.size.height, FWWingsView.aspectRatio, accuracy: 0.01)
-        XCTAssertEqual(image.size.width, FWWingsView.maximumWidth, accuracy: 1)
-        let launch = try XCTUnwrap(R.image.logo())
-        XCTAssertEqual(launch.size.width / launch.size.height, 480.0 / 200.0, accuracy: 0.01)
+    func testUnlockKeepsItsKeypadInPlaceAndFitsTheLockupAboveTheHeading() throws {
+        for size in [CGSize(width: 320, height: 568), CGSize(width: 393, height: 852)] {
+            let page = CheckPincodeViewLayout()
+            let window = try host(page, width: size.width, height: size.height)
+            defer { window.isHidden = true; window.rootViewController = nil }
+            let context = "\(size)"
+            let lockup = try XCTUnwrap(descendants(page).compactMap { $0 as? FWLockupView }.first, context)
+            let frame = lockup.convert(lockup.bounds, to: page)
+            let title = page.titleLabel.convert(page.titleLabel.bounds, to: page)
+            let bar = page.navigationBar.convert(page.navigationBar.bounds, to: page)
+            XCTAssertEqual(page.pinView.center.y, page.bounds.midY + 48, accuracy: 1, "The keypad stays put \(context)")
+            XCTAssertLessThanOrEqual(frame.maxY, title.minY - 15.5, context)
+            XCTAssertGreaterThanOrEqual(frame.minY, bar.maxY + 7.5, context)
+            if lockup.bounds.height > 1 {
+                XCTAssertEqual(lockup.bounds.width / lockup.bounds.height, FWLockupView.aspectRatio, accuracy: 0.03, context)
+            }
+        }
     }
 
-    func testAboutListShowsTheLitPageThroughItsCells() {
-        XCTAssertEqual(AboutTableViewCell(style: .default, reuseIdentifier: nil).backgroundColor, .clear)
+    func testArtworkIsTheKitsStackedLockupCrestAndBadge() throws {
+        let lockup = try XCTUnwrap(R.image.fwLockupStacked())
+        XCTAssertEqual(lockup.size.width / lockup.size.height, FWLockupView.aspectRatio, accuracy: 0.001)
+        let crest = try XCTUnwrap(R.image.logo())
+        XCTAssertEqual(crest.size.width, crest.size.height, accuracy: 0.01, "The launch crest is square")
+        let badge = try XCTUnwrap(R.image.fwCrestBadge())
+        XCTAssertEqual(badge.size.width, badge.size.height, accuracy: 0.01)
+        // Fixed-size slots keep the point sizes older screens lay out from.
+        let slots: [(UIImage?, CGSize)] = [
+            (R.image.iconBirdGreen(), CGSize(width: 32, height: 32)),
+            (R.image.iconFearlessRounded(), CGSize(width: 40, height: 40)),
+            (R.image.iconFearlessSmall(), CGSize(width: 24, height: 24)),
+            (R.image.fearlessRoundedIconSmall(), CGSize(width: 16, height: 16)),
+            (R.image.fearlessPink(), CGSize(width: 50, height: 26)),
+            (R.image.qrFearless(), CGSize(width: 96, height: 43)),
+            (R.image.fearlessBanner(), CGSize(width: 175, height: 139)),
+            (R.image.fwCrestBadgeGlow(), CGSize(width: 240, height: 240)),
+            (R.image.backgroundImage(), CGSize(width: 375, height: 812))
+        ]
+        for (image, size) in slots {
+            let image = try XCTUnwrap(image, "\(size)")
+            XCTAssertEqual(image.size.width, size.width, accuracy: 0.01)
+            XCTAssertEqual(image.size.height, size.height, accuracy: 0.01)
+        }
     }
 
     func testGlowLeavesWithReducedEffectsAndTheMarkStays() throws {
         let settings = try effects()
-        let wings = FWWingsView(effects: settings)
-        XCTAssertTrue(wings.isGlowing)
+        let lockup = FWLockupView(effects: settings)
+        XCTAssertTrue(lockup.isGlowing)
         settings.userChoice = .reduced
-        XCTAssertFalse(wings.isGlowing)
-        XCTAssertNotNil(wings.imageView.image)
-        XCTAssertEqual(wings.imageView.alpha, 1)
+        XCTAssertFalse(lockup.isGlowing)
+        XCTAssertNotNil(lockup.imageView.image)
+        XCTAssertEqual(lockup.imageView.alpha, 1)
         settings.userChoice = .automatic
-        XCTAssertTrue(wings.isGlowing)
+        XCTAssertTrue(lockup.isGlowing)
+        XCTAssertFalse(FWLockupView(effects: settings, glows: false).isGlowing, "The welcome's crow is its light")
+    }
+
+    func testGlowCentresOnTheCrestAndStaysInsideItsOverhang() throws {
+        let page = UIView(frame: CGRect(x: 0, y: 0, width: 600, height: 800))
+        let lockup = FWLockupView(effects: try effects())
+        page.addSubview(lockup)
+        lockup.snp.makeConstraints { make in
+            lockup.makePageConstraints(make)
+            make.top.equalToSuperview().offset(40)
+        }
+        page.layoutIfNeeded()
+        XCTAssertEqual(lockup.bounds.width, FWLockupView.maximumWidth, accuracy: 0.5, "Widest case")
+        XCTAssertEqual(lockup.glowFrame.midX, lockup.crestCenterPoint.x, accuracy: 0.5)
+        XCTAssertEqual(lockup.glowFrame.midY, lockup.crestCenterPoint.y, accuracy: 0.5)
+        XCTAssertGreaterThanOrEqual(lockup.glowFrame.minY, -FWLockupView.glowOverhang)
+    }
+
+    func testArtworkSizeNeverSizesTheLockup() throws {
+        let page = UIView(frame: CGRect(x: 0, y: 0, width: 320, height: 800))
+        let lockup = FWLockupView(effects: try effects())
+        page.addSubview(lockup)
+        lockup.snp.makeConstraints { make in
+            lockup.makePageConstraints(make)
+            make.top.equalToSuperview()
+        }
+        page.layoutIfNeeded()
+        XCTAssertEqual(lockup.bounds.width, 320 * FWLockupView.widthFraction, accuracy: 0.5)
+        XCTAssertEqual(lockup.bounds.width / lockup.bounds.height, FWLockupView.aspectRatio, accuracy: 0.01)
+    }
+
+    func testAboutListShowsTheLitPageThroughItsCells() {
+        XCTAssertEqual(AboutTableViewCell(style: .default, reuseIdentifier: nil).backgroundColor, .clear)
     }
 }

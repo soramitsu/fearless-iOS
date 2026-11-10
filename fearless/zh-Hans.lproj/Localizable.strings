@@ -1443,6 +1443,7 @@
 "welcome.body" = "自主保管 Polkadot、Ethereum、TON、Bitcoin、Solana 和 SORA 上的资产。";
 "welcome.create" = "创建新钱包";
 "welcome.restore" = "我已有钱包";
+"welcome.crow.call" = "播放乌鸦的叫声";
 
 "import.legacy_ton_phrase" = "旧版 TON 恢复助记词";
 "import.legacy_ton_phrase_placeholder" = "输入旧版 TON 恢复助记词";

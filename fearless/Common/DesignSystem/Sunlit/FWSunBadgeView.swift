@@ -1,8 +1,9 @@
 import UIKit
 
-/// The winged-sun badge as the scene's emissive light (spec sections 2 and 4). While the wallet syncs a
-/// thin arc of light sweeps around it (its length is the progress when known); when the sync finishes the
-/// glow blooms once; when networks cannot be reached the sun dims and a small warning dot appears.
+/// The round crest badge (Yatagarasu brand 2026-11-10) as the scene's emissive light, its "sun" (redesign spec
+/// sections 2 and 4). While the wallet syncs a thin arc of light sweeps around it (its length is the progress when
+/// known); when the sync finishes the glow blooms once; when networks cannot be reached the badge dims and a small
+/// warning dot appears.
 final class FWSunBadgeView: UIView {
     let imageView = UIImageView()
     private let glow = CAGradientLayer()
@@ -24,7 +25,7 @@ final class FWSunBadgeView: UIView {
         self.effects = effects
         super.init(frame: .zero)
         isUserInteractionEnabled = false
-        imageView.image = R.image.fwSunBadge()
+        imageView.image = R.image.fwCrestBadge()
         imageView.contentMode = .scaleAspectFit
         imageView.isAccessibilityElement = false
         imageView.layer.shadowColor = FWSunlit.Palette.gradientEnd.cgColor

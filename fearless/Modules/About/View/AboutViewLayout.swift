@@ -4,16 +4,10 @@ import SoraUI
 final class AboutViewLayout: UIView {
     // MARK: - UI
 
-    /// The page and the winged sun that lights it, at full span (sun-lit redesign).
+    /// The page and the stacked lockup whose crest lights it (sun-lit redesign, Yatagarasu brand).
     private let sunlitBackground = FWSunlitBackgroundView()
 
-    private let logoImageView: FWWingsView = {
-        let view = FWWingsView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Fearless Wallet"
-        view.accessibilityTraits = .image
-        return view
-    }()
+    private let logoImageView = FWLockupView()
 
     private let aboutTitle: UILabel = {
         let label = UILabel()
@@ -88,9 +82,7 @@ final class AboutViewLayout: UIView {
             headerContainer.frame = frame
             tableView.tableHeaderView = headerContainer
         }
-        sunlitBackground.sunCenter = logoImageView.convert(
-            CGPoint(x: logoImageView.bounds.midX, y: logoImageView.bounds.midY), to: self
-        )
+        sunlitBackground.sunCenter = logoImageView.convert(logoImageView.crestCenterPoint, to: self)
     }
 
     // MARK: - Private methods
@@ -116,7 +108,7 @@ final class AboutViewLayout: UIView {
         }
         logoRow.addSubview(logoImageView)
         logoImageView.snp.makeConstraints { make in
-            logoImageView.makeWideConstraints(make)
+            logoImageView.makePageConstraints(make)
             make.top.bottom.equalToSuperview()
         }
 

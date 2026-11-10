@@ -1,12 +1,12 @@
 // FWTokens.swift: GENERATED from config/design/fw.tokens.json; do not edit.
-// sha256 18180aa767b87b8ac0bb767622e172328d95145817a1475a840905eec55b4315
+// sha256 8ca2b9ccf0134dbd3d2b230d36725b39cffe52c398e1b4ccfd4d5a88799453ac
 // Regenerate: node scripts/design/gen-fw-tokens.mjs --ios <checkout>
 import UIKit
 
 /// Neon Glass tokens that are not colours. Colours are the generated colorsets in
 /// Assets.xcassets/colors/FW, read through R.color.fw*().
 enum FWTokens {
-    static let sourceSHA256 = "18180aa767b87b8ac0bb767622e172328d95145817a1475a840905eec55b4315"
+    static let sourceSHA256 = "8ca2b9ccf0134dbd3d2b230d36725b39cffe52c398e1b4ccfd4d5a88799453ac"
 
     struct Gradient {
         let colors: [UIColor]
@@ -71,7 +71,7 @@ enum FWTokens {
                 colors: [
                     UIColor(red: 1, green: 1, blue: 1, alpha: 0.22),
                     UIColor(red: 1, green: 1, blue: 1, alpha: 0.06),
-                    UIColor(red: 1, green: 0, blue: 0.6039, alpha: 0.28),
+                    UIColor(red: 0.902, green: 0, blue: 0.4353, alpha: 0.28),
                 ],
                 locations: [0, 0.42, 1],
                 angle: 135
@@ -81,7 +81,7 @@ enum FWTokens {
         static var accent: Gradient {
             Gradient(
                 colors: [
-                    UIColor(red: 1, green: 0, blue: 0.6039, alpha: 0.75),
+                    UIColor(red: 0.902, green: 0, blue: 0.4353, alpha: 0.75),
                     UIColor(red: 0.5451, green: 0.3608, blue: 1, alpha: 0.55),
                     UIColor(red: 0.1804, green: 0.902, blue: 1, alpha: 0.65),
                 ],
@@ -93,8 +93,8 @@ enum FWTokens {
         static var primaryFill: Gradient {
             Gradient(
                 colors: [
-                    UIColor(red: 0.8392, green: 0, blue: 0.498, alpha: 1),
-                    UIColor(red: 0.6392, green: 0, blue: 0.4157, alpha: 1),
+                    UIColor(red: 0.8392, green: 0, blue: 0.4157, alpha: 1),
+                    UIColor(red: 0.6588, green: 0, blue: 0.3529, alpha: 1),
                 ],
                 locations: [0, 1],
                 angle: 180
