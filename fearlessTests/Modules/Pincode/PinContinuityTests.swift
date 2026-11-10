@@ -114,8 +114,12 @@ final class PinContinuityTests: XCTestCase {
     }
 
     func testPinResizesWithoutLosingInputOrChangingNormalSpacing() async throws {
-        let fixture = try show(language: "en", category: .large, cancellable: false,
-                               size: CGSize(width: 393, height: 852))
+        let fixture = try show(
+            language: "en",
+            category: .large,
+            cancellable: false,
+            size: CGSize(width: 393, height: 852)
+        )
         defer { fixture.close() }
         await Task.yield()
         try enter("12", in: fixture)
@@ -427,8 +431,10 @@ final class PinContinuityTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(control.bounds.height, 48)
             for label in descendants(control).compactMap({ $0 as? UILabel }) {
                 let rect = label.convert(label.bounds, to: control)
-                XCTAssertTrue(control.bounds.insetBy(dx: -1, dy: -1).contains(rect),
-                              "The full digit must fit inside its key at every text size: \(rect)")
+                XCTAssertTrue(
+                    control.bounds.insetBy(dx: -1, dy: -1).contains(rect),
+                    "The full digit must fit inside its key at every text size: \(rect)"
+                )
             }
         }
         let buttons = descendants(fixture.controller.view).compactMap { $0 as? UIButton }
@@ -483,7 +489,6 @@ final class PinContinuityTests: XCTestCase {
     }
 }
 
-
 /// Actual authentication state/presenters with controlled public secret and biometric replies.
 /// No device keychain or LAContext is used by these ownership tests.
 @MainActor
@@ -493,10 +498,12 @@ final class LocalAuthOwnershipTests: XCTestCase {
         func loadSecret(for _: String, completionQueue: DispatchQueue, completionBlock: @escaping (SecretDataRepresentable?) -> Void) {
             loads.append((completionQueue, completionBlock))
         }
+
         func answer(_ index: Int, _ pin: String?) {
             let (queue, completion) = loads[index]
             queue.async { completion(pin) }
         }
+
         func saveSecret(_: SecretDataRepresentable, for _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) { XCTFail("Authentication must not save a secret") }
         func removeSecret(for _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) { XCTFail("Authentication must not remove a secret") }
         func checkSecret(for _: String, completionQueue _: DispatchQueue, completionBlock: @escaping (Bool) -> Void) { completionBlock(true) }
@@ -527,6 +534,7 @@ final class LocalAuthOwnershipTests: XCTestCase {
         func authenticate(localizedReason _: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void) {
             replies.append((completionQueue, completionBlock))
         }
+
         func answer(_ index: Int, _ result: Bool) {
             let (queue, completion) = replies[index]
             queue.async { completion(result) }
@@ -1079,16 +1087,19 @@ final class PinPersistenceTests: XCTestCase {
             let pin = secret.asSecretData().flatMap { String(data: $0, encoding: .utf8) } ?? ""
             saves.append((pin, completionQueue, completionBlock))
         }
+
         func answer(_ index: Int, _ success: Bool) {
             let (pin, queue, completion) = saves[index]
             if success { savedPin = pin }
             queue.async { completion(success) }
         }
+
         func loadSecret(for _: String, completionQueue: DispatchQueue, completionBlock: @escaping (SecretDataRepresentable?) -> Void) { completionQueue.async { completionBlock(self.savedPin) } }
         func removeSecret(for _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) { XCTFail("PIN persistence must not remove secrets") }
         func checkSecret(for _: String, completionQueue _: DispatchQueue, completionBlock: @escaping (Bool) -> Void) { completionBlock(savedPin != nil) }
         func checkSecret(for _: String) -> Bool { savedPin != nil }
     }
+
     private final class Settings: SettingsManagerProtocol {
         private var values: [String: Any] = [:]
         func set(value: Bool, for key: String) { values[key] = value }
@@ -1106,12 +1117,14 @@ final class PinPersistenceTests: XCTestCase {
         func removeValue(for key: String) { values.removeValue(forKey: key) }
         func removeAll() { values.removeAll() }
     }
+
     private final class Biometry: BiometryAuthProtocol {
         var availableBiometryType = AvailableBiometryType.none
         var replies: [(DispatchQueue, (Bool) -> Void)] = []
         func authenticate(localizedReason _: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void) { replies.append((completionQueue, completionBlock)) }
         func answer(_ index: Int, _ result: Bool) { let (queue, completion) = replies[index]; queue.async { completion(result) } }
     }
+
     private final class Output: PinSetupInteractorOutputProtocol {
         var saved = 0
         var decisions: [(Bool) -> Void] = []
@@ -1120,17 +1133,20 @@ final class PinPersistenceTests: XCTestCase {
         func didStartWaitingBiometryDecision(type _: AvailableBiometryType, completionBlock: @escaping (Bool) -> Void) { decisions.append(completionBlock) }
         func didChangeState(to state: PinSetupInteractor.PinSetupState) { states.append(state) }
     }
+
     private final class View: UIViewController, PinSetupViewProtocol {
         func didFailSavingPin() {}
         func didRequestBiometryUsage(biometryType _: AvailableBiometryType, completionBlock _: @escaping (Bool) -> Void) {}
         func didChangeAccessoryState(enabled _: Bool, availableBiometryType _: AvailableBiometryType) {}
         func didReceiveWrongPincode() {}
     }
+
     private final class Wireframe: PinSetupWireframeProtocol {
         var main = 0
         func showMain(from _: PinSetupViewProtocol?) { main += 1 }
         func showSignup(from _: PinSetupViewProtocol?) {}
     }
+
     private func settle() async throws { try await Task.sleep(nanoseconds: 100_000_000) }
 
     func testFailedSetupDoesNotCompleteAndCanRetry() async throws {
@@ -1386,6 +1402,7 @@ final class PinPersistenceTests: XCTestCase {
             control.sendActions(for: .touchUpInside); window.layoutIfNeeded()
         }
     }
+
     private func capture(_ window: UIWindow, name: String) {
         let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in XCTAssertTrue(window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)) }
         let attachment = XCTAttachment(image: image); attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
@@ -1502,10 +1519,12 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
         func loadSecret(for _: String, completionQueue: DispatchQueue, completionBlock: @escaping (SecretDataRepresentable?) -> Void) {
             loads.append((completionQueue, completionBlock))
         }
+
         func answer(_ index: Int, _ pin: String?) {
             let (queue, completion) = loads[index]
             queue.async { completion(pin) }
         }
+
         func saveSecret(_: SecretDataRepresentable, for _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) { XCTFail("Authentication must not save a secret") }
         func removeSecret(for _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) { XCTFail("Authentication must not remove a secret") }
         func checkSecret(for _: String, completionQueue _: DispatchQueue, completionBlock: @escaping (Bool) -> Void) { completionBlock(true) }
@@ -1538,12 +1557,12 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
         func authenticate(localizedReason _: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void) {
             replies.append((completionQueue, completionBlock))
         }
+
         func answer(_ index: Int, _ result: Bool) {
             let (queue, completion) = replies[index]
             queue.async { completion(result) }
         }
     }
-
 
     private final class ProfileData: ProfileInteractorInputProtocol {
         func setup(with _: ProfileInteractorOutputProtocol) {}
@@ -1575,6 +1594,7 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
             localization = try XCTUnwrap(LocalizationManager(localization: language))
             settings.biometryEnabled = biometric
         }
+
         func make(wireframe: ScreenAuthorizationWireframeProtocol, cancellable: Bool) -> PinSetupViewProtocol? {
             let attempt = Attempt()
             let interactor = LocalAuthInteractor(
@@ -1627,7 +1647,7 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
     }
 
     private func waitUntil(_ description: String, _ condition: () -> Bool) async throws {
-        for _ in 0..<100 {
+        for _ in 0 ..< 100 {
             if condition() { return }
             try await Task.sleep(nanoseconds: 50_000_000)
         }
@@ -1642,8 +1662,8 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
         try await waitUntil("A finished authorization must release Profile's next tap") { !fixture.wireframe.isAuthorizing }
         let table = fixture.profile.rootView.tableView
         var selected: IndexPath?
-        for section in 0..<table.numberOfSections {
-            for row in 0..<table.numberOfRows(inSection: section) {
+        for section in 0 ..< table.numberOfSections {
+            for row in 0 ..< table.numberOfRows(inSection: section) {
                 let index = IndexPath(row: row, section: section)
                 // Ask the table for the row: calling the data source directly dequeues outside a table
                 // request, and UIKit raises when a later open() dequeues the same index path again.
@@ -1849,12 +1869,12 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
 @MainActor
 final class BiometryContextOwnershipTests: XCTestCase {
     private final class Context: LAContext {
-        var replies: [@Sendable (Bool, Error?) -> Void] = []
+        var replies: [@Sendable(Bool, Error?) -> Void] = []
         var invalidations = 0
         var available = true
         override var biometryType: LABiometryType { .faceID }
         override func canEvaluatePolicy(_: LAPolicy, error _: NSErrorPointer) -> Bool { available }
-        override func evaluatePolicy(_: LAPolicy, localizedReason _: String, reply: @escaping @Sendable (Bool, Error?) -> Void) { replies.append(reply) }
+        override func evaluatePolicy(_: LAPolicy, localizedReason _: String, reply: @escaping @Sendable(Bool, Error?) -> Void) { replies.append(reply) }
         override func invalidate() { invalidations += 1 }
     }
 
