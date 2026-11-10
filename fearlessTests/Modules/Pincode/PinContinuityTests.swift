@@ -1109,6 +1109,26 @@ final class PinPersistenceTests: XCTestCase {
         func showMain(from _: PinSetupViewProtocol?) { main += 1 }
         func showSignup(from _: PinSetupViewProtocol?) {}
     }
+    private final class LifecycleObservedPinController: PinSetupViewController {
+        var hasAppeared = false
+        var removalBegan = false
+        var hasDisappeared = false
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            hasAppeared = true
+        }
+
+        override func viewWillDisappear(_ animated: Bool) {
+            removalBegan = isMovingFromParent || isBeingDismissed || navigationController?.isBeingDismissed == true
+            super.viewWillDisappear(animated)
+        }
+
+        override func viewDidDisappear(_ animated: Bool) {
+            super.viewDidDisappear(animated)
+            hasDisappeared = true
+        }
+    }
     private func settle() async throws { try await Task.sleep(nanoseconds: 100_000_000) }
 
     func testFailedSetupDoesNotCompleteAndCanRetry() async throws {
@@ -1398,16 +1418,31 @@ final class PinPersistenceTests: XCTestCase {
         defer { window.isHidden = true; window.rootViewController = nil }
         let secrets = Secrets(); let interactor = PinChangeInteractor(secretManager: secrets); let wireframe = Wireframe()
         let presenter = PinSetupPresenter(interactor: interactor, wireframe: wireframe); interactor.presenter = presenter
-        let controller = PinSetupViewController(nib: R.nib.pinSetupViewController)
+        let controller = LifecycleObservedPinController(nib: R.nib.pinSetupViewController)
         controller.presenter = presenter; controller.mode = .create
         controller.localizationManager = try XCTUnwrap(LocalizationManager(localization: "en"))
         let root = UIViewController(); let navigation = UINavigationController(rootViewController: root)
         window.rootViewController = navigation; window.makeKeyAndVisible(); window.layoutIfNeeded()
         navigation.pushViewController(controller, animated: false); window.layoutIfNeeded()
+        // A real user cannot submit before the screen appears. Layout alone does
+        // not establish appearance, and an unseen controller may receive no departure.
+        for _ in 0 ..< 100 {
+            if controller.hasAppeared { break }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        guard controller.hasAppeared else {
+            XCTFail("PIN screen must finish appearing before input and navigation")
+            return
+        }
         try tapDigits("123456123456", controller: controller, window: window)
         XCTAssertEqual(secrets.saves.count, 1)
-        navigation.popViewController(animated: false)
+        XCTAssertTrue(interactor.presenter === presenter)
+        XCTAssertTrue(navigation.popViewController(animated: false) === controller)
+        XCTAssertTrue(controller.removalBegan, "The real navigation pop must begin the PIN screen's departure")
+        XCTAssertNil(interactor.presenter, "Departure must cancel the pending write before pop returns")
+        // Release immediately: waiting here would conceal a late cancellation.
         secrets.answer(0, true); try await settle()
+        XCTAssertTrue(controller.hasDisappeared)
         XCTAssertTrue(navigation.topViewController === root)
         XCTAssertEqual(wireframe.main, 0)
         XCTAssertEqual(secrets.savedPin, "123456")
