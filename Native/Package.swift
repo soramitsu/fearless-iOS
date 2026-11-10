@@ -406,6 +406,7 @@ let package = Package(
             dependencies: [
                 "SSFUtils",
                 "SSFModels",
+                "Starscream",
                 "RuntimeMetadataFixtures",
                 "BigInt"
             ]

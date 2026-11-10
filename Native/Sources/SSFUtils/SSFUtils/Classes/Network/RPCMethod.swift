@@ -10,6 +10,7 @@ public enum RPCMethod {
     public static let getBlockHash = "chain_getBlockHash"
     public static let submitExtrinsic = "author_submitExtrinsic"
     public static let submitAndWatchExtrinsic = "author_submitAndWatchExtrinsic"
+    public static let unwatchExtrinsic = "author_unwatchExtrinsic"
     public static let paymentInfo = "payment_queryFeeDetails"
     public static let getRuntimeVersion = "chain_getRuntimeVersion"
     public static let getRuntimeMetadata = "state_getMetadata"
