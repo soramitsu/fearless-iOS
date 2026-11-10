@@ -1672,7 +1672,8 @@ final class PinPersistenceTests: XCTestCase {
     }
 }
 
-extension ProfileWireframe: AuthorizationAccessible {}
+/// Profile's wireframe keeps its pending authorization where `AuthorizationAccessible` reads it.
+extension ProfileWireframe: @retroactive AuthorizationAccessible {}
 
 @MainActor
 final class ProfileAuthorizationLifecycleTests: XCTestCase {

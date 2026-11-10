@@ -48,6 +48,9 @@ CI note
 - Coverage: maintain/raise coverage for changed code.
 - New code policy: whenever you add a function, add at least one unit test covering it.
 - UIKit layout and hit-testing changes (for example `MainTabBar`): run the tests on the newest iOS runtime and on one runtime older than iOS 26 (for example iOS 18.x), because the deployment target is iOS 15.0. Host test windows in the app's `UIWindowScene`; a scene-less `UIWindow` gets no UIKit layout or transition passes on iOS 18.
+- Build `fearless.tests` for the simulator with its normal signing. `CODE_SIGNING_ALLOWED=NO` drops the simulator entitlements, and 11 keychain and app-group tests then fail.
+- A new simulator takes the Mac's language, and text fallback, `Locale.current` and copy follow it. To run as the GitHub job does (iOS 26.2, English), pass `-testLanguage en -testRegion US`; a test that depends on a language should set it.
+- Unless the system pasteboard itself is under test, inject a `PasteboardStringAccessing` rather than reading `UIPasteboard.general`: when its content came from another app, such as the Mac clipboard that Simulator syncs, a read waits for a paste-permission answer.
 
 ## Commit & Pull Requests
 - Commits: concise, imperative subjects; reference issues (`#123`). Conventional Commit prefixes (`feat:`, `fix:`, `refactor:`) encouraged.

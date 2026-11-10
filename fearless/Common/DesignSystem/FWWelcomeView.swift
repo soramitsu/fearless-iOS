@@ -191,7 +191,9 @@ final class FWWelcomeView: UIView {
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .center
         paragraph.minimumLineHeight = UIFont.fwLineHeight(role, locale: locale, compatibleWith: traitCollection)
-        label.attributedText = NSAttributedString(string: text, attributes: [.font: font, .paragraphStyle: paragraph])
+        label.attributedText = NSAttributedString(string: text, attributes: [
+            .font: font, .paragraphStyle: paragraph, .fwLanguage: locale.fwTextLanguage
+        ])
     }
 }
 

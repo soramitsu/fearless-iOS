@@ -75,6 +75,7 @@ final class WalletSendConfirmPresenter {
     private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     private let scamInfo: ScamInfo?
     private let submissionAuthorizer: SubmissionAuthorizing
+    private let pasteboard: PasteboardStringAccessing
     private var feeViewModel: BalanceViewModelProtocol?
 
     private var balance: Decimal?
@@ -124,10 +125,12 @@ final class WalletSendConfirmPresenter {
         scamInfo: ScamInfo?,
         feeViewModel: BalanceViewModelProtocol?,
         localizationManager: LocalizationManagerProtocol,
-        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer(),
+        pasteboard: PasteboardStringAccessing = UIPasteboard.general
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
+        self.pasteboard = pasteboard
         self.accountViewModelFactory = accountViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.walletSendConfirmViewModelFactory = walletSendConfirmViewModelFactory
@@ -419,6 +422,7 @@ final class WalletSendConfirmPresenter {
             return false
         }
 
+        let pasteboard = pasteboard
         let copyAction = SheetAlertPresentableAction(
             title: tonRecoveryLocalizedString(
                 key: "ton.transfer.unknown.copy_hash",
@@ -426,7 +430,7 @@ final class WalletSendConfirmPresenter {
             ),
             style: .pinkBackgroundWhiteText
         ) {
-            UIPasteboard.general.string = recovery.messageHashHex
+            pasteboard.string = recovery.messageHashHex
         }
         let messageTemplate = tonRecoveryLocalizedString(
             key: "ton.transfer.unknown.message",
@@ -524,13 +528,14 @@ final class WalletSendConfirmPresenter {
     }
 
     private func bitcoinCopyAction(_ recovery: BitcoinUnresolvedTransferModel) -> SheetAlertPresentableAction {
-        SheetAlertPresentableAction(
+        let pasteboard = pasteboard
+        return SheetAlertPresentableAction(
             title: recoveryLocalizedString(
                 key: "bitcoin.transfer.copy_txid",
                 fallback: "Copy transaction ID"
             )
         ) {
-            UIPasteboard.general.string = recovery.txid
+            pasteboard.string = recovery.txid
         }
     }
 
@@ -712,7 +717,7 @@ final class WalletSendConfirmPresenter {
             )
         ) { [weak self] in
             guard let self, self.solanaReviewActive, self.solanaRecoveryReceipt == receipt else { return }
-            UIPasteboard.general.string = signature
+            self.pasteboard.string = signature
         }
     }
 

@@ -371,7 +371,11 @@ final class OnboardingStartTests: XCTestCase {
             let paragraph = NSMutableParagraphStyle()
             paragraph.alignment = .center
             paragraph.minimumLineHeight = 40
-            let text = NSAttributedString(string: "新しいウォレットを作成", attributes: [.font: font, .paragraphStyle: paragraph])
+            // Tagged Japanese, as the Welcome screen tags it: untagged kanji follow the device
+            // language and take Chinese forms (PingFang SC) on a device set to English.
+            let text = NSAttributedString(string: "新しいウォレットを作成", attributes: [
+                .font: font, .paragraphStyle: paragraph, .fwLanguage: Locale(identifier: "ja").fwTextLanguage
+            ])
             label.attributedText = text
             let names = glyphFontNames(text)
             if index < 2 {
