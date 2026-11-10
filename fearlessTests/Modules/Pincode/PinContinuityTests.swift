@@ -1052,6 +1052,7 @@ final class PinPersistenceTests: XCTestCase {
     private final class Secrets: SecretStoreManagerProtocol {
         var saves: [(String, DispatchQueue, (Bool) -> Void)] = []
         var savedPin: String? = "111111"
+        var onSaveReply: ((String) -> Void)?
         func saveSecret(_ secret: SecretDataRepresentable, for identifier: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void) {
             XCTAssertEqual(identifier, KeystoreTag.pincode.rawValue)
             let pin = secret.asSecretData().flatMap { String(data: $0, encoding: .utf8) } ?? ""
@@ -1060,7 +1061,12 @@ final class PinPersistenceTests: XCTestCase {
         func answer(_ index: Int, _ success: Bool) {
             let (pin, queue, completion) = saves[index]
             if success { savedPin = pin }
-            queue.async { completion(success) }
+            let record = onSaveReply
+            queue.async {
+                record?("save.reply.beforeCompletion")
+                completion(success)
+                record?("save.reply.afterCompletion")
+            }
         }
         func loadSecret(for _: String, completionQueue: DispatchQueue, completionBlock: @escaping (SecretDataRepresentable?) -> Void) { completionQueue.async { completionBlock(self.savedPin) } }
         func removeSecret(for _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) { XCTFail("PIN persistence must not remove secrets") }
@@ -1106,27 +1112,64 @@ final class PinPersistenceTests: XCTestCase {
     }
     private final class Wireframe: PinSetupWireframeProtocol {
         var main = 0
-        func showMain(from _: PinSetupViewProtocol?) { main += 1 }
+        var onShowMain: (() -> Void)?
+        func showMain(from _: PinSetupViewProtocol?) { main += 1; onShowMain?() }
         func showSignup(from _: PinSetupViewProtocol?) {}
     }
     private final class LifecycleObservedPinController: PinSetupViewController {
         var hasAppeared = false
         var removalBegan = false
         var hasDisappeared = false
+        var recordEvent: ((String) -> Void)?
+
+        override func willMove(toParent parent: UIViewController?) {
+            recordEvent?("pin.willMove.toParent=\(parent != nil)")
+            super.willMove(toParent: parent)
+        }
+
+        override func didMove(toParent parent: UIViewController?) {
+            super.didMove(toParent: parent)
+            recordEvent?("pin.didMove.toParent=\(parent != nil)")
+        }
 
         override func viewDidAppear(_ animated: Bool) {
             super.viewDidAppear(animated)
             hasAppeared = true
+            recordEvent?("pin.didAppear")
         }
 
         override func viewWillDisappear(_ animated: Bool) {
             removalBegan = isMovingFromParent || isBeingDismissed || navigationController?.isBeingDismissed == true
+            recordEvent?("pin.willDisappear.beforeSuper")
             super.viewWillDisappear(animated)
+            recordEvent?("pin.willDisappear.afterSuper")
         }
 
         override func viewDidDisappear(_ animated: Bool) {
             super.viewDidDisappear(animated)
             hasDisappeared = true
+            recordEvent?("pin.didDisappear")
+        }
+    }
+    private final class LifecycleObservedNavigation: FearlessNavigationController {
+        var hasAppeared = false
+        private(set) weak var lastShown: UIViewController?
+        var recordEvent: ((String) -> Void)?
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            hasAppeared = true
+            recordEvent?("navigation.didAppear")
+        }
+
+        override func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+            super.navigationController(navigationController, willShow: viewController, animated: animated)
+            recordEvent?("navigation.willShow.\(type(of: viewController))")
+        }
+
+        func navigationController(_: UINavigationController, didShow viewController: UIViewController, animated _: Bool) {
+            lastShown = viewController
+            recordEvent?("navigation.didShow.\(type(of: viewController))")
         }
     }
     private func settle() async throws { try await Task.sleep(nanoseconds: 100_000_000) }
@@ -1413,36 +1456,113 @@ final class PinPersistenceTests: XCTestCase {
     }
 
     func testActualNavigationPopFencesPendingPinChangeCompletion() async throws {
-        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
-        let window = UIWindow(windowScene: scene); window.frame = CGRect(x: 0, y: 0, width: 320, height: 568)
-        defer { window.isHidden = true; window.rootViewController = nil }
+        try await assertNavigationPopFencesPendingPinChangeCompletion(animated: false)
+    }
+
+    func testActualAnimatedNavigationPopFencesPendingPinChangeCompletion() async throws {
+        try await assertNavigationPopFencesPendingPinChangeCompletion(animated: true)
+    }
+
+    private func assertNavigationPopFencesPendingPinChangeCompletion(animated: Bool) async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .first(where: { $0.activationState == .foregroundActive }))
+        let previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.coordinateSpace.bounds
         let secrets = Secrets(); let interactor = PinChangeInteractor(secretManager: secrets); let wireframe = Wireframe()
         let presenter = PinSetupPresenter(interactor: interactor, wireframe: wireframe); interactor.presenter = presenter
         let controller = LifecycleObservedPinController(nib: R.nib.pinSetupViewController)
         controller.presenter = presenter; controller.mode = .create
         controller.localizationManager = try XCTUnwrap(LocalizationManager(localization: "en"))
-        let root = UIViewController(); let navigation = UINavigationController(rootViewController: root)
+        let root = UIViewController(); let navigation = LifecycleObservedNavigation(rootViewController: root)
+        var events: [String] = []
+        let started = ProcessInfo.processInfo.systemUptime
+        let record: (String) -> Void = { [weak controller, weak navigation, weak interactor] event in
+            let elapsed = ProcessInfo.processInfo.systemUptime - started
+            let inStack = controller.map { item in navigation?.viewControllers.contains(where: { $0 === item }) == true } ?? false
+            events.append(String(format: "%.6f", elapsed) + " " + event +
+                " inStack=\(inStack) parent=\(controller?.parent != nil) moving=\(controller?.isMovingFromParent == true)" +
+                " removalBegan=\(controller?.removalBegan == true) disappeared=\(controller?.hasDisappeared == true)" +
+                " presenterAttached=\(interactor?.presenter != nil) transition=\(navigation?.transitionCoordinator != nil)")
+        }
+        controller.recordEvent = record
+        navigation.recordEvent = record
+        let saveReplyDelivered = expectation(description: "Pending PIN save callback is delivered")
+        secrets.onSaveReply = { event in
+            record(event)
+            if event == "save.reply.afterCompletion" { saveReplyDelivered.fulfill() }
+        }
+        wireframe.onShowMain = { record("wireframe.showMain") }
+        defer {
+            record("test.cleanup")
+            let attachment = XCTAttachment(string: events.joined(separator: "\n"))
+            attachment.name = "pin-pop-lifecycle-" + (animated ? "animated" : "nonanimated")
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            controller.recordEvent = nil; navigation.recordEvent = nil
+            secrets.onSaveReply = nil; wireframe.onShowMain = nil
+            window.isHidden = true; window.rootViewController = nil
+            previousKeyWindow?.makeKey()
+        }
         window.rootViewController = navigation; window.makeKeyAndVisible(); window.layoutIfNeeded()
-        navigation.pushViewController(controller, animated: false); window.layoutIfNeeded()
-        // A real user cannot submit before the screen appears. Layout alone does
-        // not establish appearance, and an unseen controller may receive no departure.
         for _ in 0 ..< 100 {
-            if controller.hasAppeared { break }
+            if navigation.hasAppeared, navigation.lastShown === root, navigation.transitionCoordinator == nil { break }
             try await Task.sleep(nanoseconds: 50_000_000)
         }
-        guard controller.hasAppeared else {
-            XCTFail("PIN screen must finish appearing before input and navigation")
+        guard navigation.hasAppeared, navigation.lastShown === root, navigation.transitionCoordinator == nil else {
+            XCTFail("The production navigation root must finish appearing before the PIN push")
             return
         }
-        try tapDigits("123456123456", controller: controller, window: window)
+        navigation.pushViewController(controller, animated: true)
+        for _ in 0 ..< 100 {
+            if controller.hasAppeared, navigation.lastShown === controller, navigation.transitionCoordinator == nil { break }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        guard controller.hasAppeared, navigation.lastShown === controller, navigation.transitionCoordinator == nil else {
+            XCTFail("The PIN push and actual appearance must finish before input")
+            return
+        }
+        XCTAssertTrue(controller.navigationControlling === navigation)
+        XCTAssertTrue(window.isKeyWindow)
+        XCTAssertTrue(controller.view.window === window)
+        record("input.begin")
+        // Each actual control action gets its own event-loop opportunity, as on
+        // the production screen; only the pending save acknowledgement is held.
+        for digit in "123456123456" {
+            try tapDigits(String(digit), controller: controller, window: window)
+            await withCheckedContinuation { continuation in
+                DispatchQueue.main.async { continuation.resume() }
+            }
+        }
         XCTAssertEqual(secrets.saves.count, 1)
+        guard secrets.saves.count == 1 else { return }
         XCTAssertTrue(interactor.presenter === presenter)
-        XCTAssertTrue(navigation.popViewController(animated: false) === controller)
-        XCTAssertTrue(controller.removalBegan, "The real navigation pop must begin the PIN screen's departure")
-        XCTAssertNil(interactor.presenter, "Departure must cancel the pending write before pop returns")
-        // Release immediately: waiting here would conceal a late cancellation.
-        secrets.answer(0, true); try await settle()
+        XCTAssertTrue(navigation.isNavigationBarHidden)
+        XCTAssertFalse(controller.view.isUserInteractionEnabled)
+        record("pop.before")
+        let popped = navigation.popViewController(animated: animated)
+        record("pop.returned")
+        // Do not wait for UIKit disappearance callbacks before delivering the
+        // save. Their ordering is diagnostic; stale navigation is the contract.
+        secrets.answer(0, true)
+        record("save.reply.queued")
+        XCTAssertTrue(popped === controller)
+        XCTAssertFalse(navigation.viewControllers.contains(where: { $0 === controller }))
+        await fulfillment(of: [saveReplyDelivered], timeout: 5)
+        // Drain the presenter's queued delivery after the save callback, without
+        // inserting a time delay that could postpone that callback until removal.
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
+        }
+        for _ in 0 ..< 100 {
+            if controller.hasDisappeared, navigation.lastShown === root, navigation.transitionCoordinator == nil { break }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        record("departure.observed")
+        XCTAssertTrue(controller.removalBegan, "Completed removal must run the PIN screen's departure lifecycle")
         XCTAssertTrue(controller.hasDisappeared)
+        XCTAssertTrue(navigation.lastShown === root)
+        XCTAssertNil(interactor.presenter, "Completed departure must cancel the pending PIN attempt")
         XCTAssertTrue(navigation.topViewController === root)
         XCTAssertEqual(wireframe.main, 0)
         XCTAssertEqual(secrets.savedPin, "123456")
