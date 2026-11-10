@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Validate iOS-owned configuration and ensure nested asset URLs are self-contained."""
+import hashlib
 import json
 from pathlib import Path
+import re
 import sys
 from urllib.parse import unquote, urlsplit
 
@@ -9,6 +11,10 @@ REPOSITORY = "fearless-iOS"
 BASE = "https://raw.githubusercontent.com/soramitsu/" + REPOSITORY + "/master/remote-config/"
 RETIRED = ("/soramitsu/shared-features-utils/", "/soramitsu/fearless-utils/")
 BUNDLED_CONFIG = Path("fearless/Modules/LiquidityPools/LiquidityPoolDetails/Resources")
+# Pins each file under remote-config/ (sources[].path, relative to remote-config/) to the SHA-256 of its bytes
+# (ownedSha256). An edit re-pins the file and appends a corrections entry in the same commit.
+IMPORTS = Path("config/remote-config-imports.json")
+SHA256 = re.compile("[0-9a-f]{64}")
 # Staking of these relays moved to their Asset Hubs (AssetHubStakingRoute in the app). The v13 lists the app reads
 # mark only each hub's native token, as "assetHub": builds without Asset Hub staking read that as no staking.
 MIGRATED_RELAYS = {
@@ -45,12 +51,64 @@ def check_asset_hub_staking(document, source, failures):
             failures.append(source + ": no pool staking or crowdloans on relay or Asset Hub " + chain_id[:8])
 
 
+def is_chain_keyed(file, root):
+    """Chain lists (chains/v*/chains*.json), chain types (chains/all_chains_types.json) and their bundled fallbacks."""
+    if file.parent == root / BUNDLED_CONFIG:
+        return file.name in ("chains.json", "types.json")
+    if file.parent.name == "chains":
+        return file.name == "all_chains_types.json"
+    return file.parent.parent.name == "chains" and file.name in ("chains.json", "chains_dev.json")
+
+
+def check_unique_chain_ids(document, source, failures):
+    """ChainSyncService.sanitizingRemoteChains refuses a whole chain list that repeats a chainId: the build keeps only
+    its app-owned chains. The chain types readers (ChainsTypesSyncService, SnapshotHotBootBuilder) keep the last entry
+    of a repeated chainId and drop the others without a word."""
+    seen = set()
+    for chain in document if isinstance(document, list) else []:
+        chain_id = chain.get("chainId") if isinstance(chain, dict) else None
+        if not isinstance(chain_id, str):
+            continue
+        if chain_id in seen:
+            failures.append(source + ": chainId " + chain_id[:8] + " is listed more than once")
+        seen.add(chain_id)
+
+
+def check_pins(root, inventory, failures):
+    """Every file the imports manifest pins exists under remote-config/ and still has its ownedSha256."""
+    try:
+        sources = json.loads((root / IMPORTS).read_text())["sources"]
+        if not isinstance(sources, list):
+            raise TypeError("sources is not a list")
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        failures.append(str(IMPORTS) + ": cannot read the pins: " + str(error))
+        return 0
+    pinned = set()
+    for entry in sources:
+        path = entry.get("path") if isinstance(entry, dict) else None
+        pin = entry.get("ownedSha256") if isinstance(entry, dict) else None
+        if not isinstance(path, str) or not isinstance(pin, str) or not SHA256.fullmatch(pin):
+            failures.append(str(IMPORTS) + ": malformed pin " + json.dumps(entry)[:160])
+            continue
+        if path in pinned:
+            failures.append(str(IMPORTS) + ": remote-config/" + path + " is pinned more than once")
+        pinned.add(path)
+        # The inventory holds exact-case paths of files inside remote-config/, so "../" and case slips count as missing.
+        if path not in inventory:
+            failures.append(str(IMPORTS) + ": pinned file remote-config/" + path + " is missing")
+            continue
+        digest = hashlib.sha256((root / "remote-config" / path).read_bytes()).hexdigest()
+        if digest != pin:
+            failures.append(str(IMPORTS) + ": remote-config/" + path + " has SHA-256 " + digest + ", pinned " + pin)
+    return len(pinned)
+
+
 def validate(root):
     root = Path(root).resolve()
     config = root / "remote-config"
     inventory = {path.relative_to(config).as_posix() for path in config.rglob("*") if path.is_file()}
     failures = []
-    counts = {"documents": 0, "ownedReferences": 0}
+    counts = {"documents": 0, "ownedReferences": 0, "pinnedFiles": 0}
 
     def visit(value, source):
         if isinstance(value, dict):
@@ -80,8 +138,11 @@ def validate(root):
             visit(document, file.relative_to(root))
             if file.parent.name == "v13" and file.name in ("chains.json", "chains_dev.json"):
                 check_asset_hub_staking(document, str(file.relative_to(root)), failures)
+            if is_chain_keyed(file, root):
+                check_unique_chain_ids(document, str(file.relative_to(root)), failures)
         except (ValueError, UnicodeError) as error:
             failures.append(str(file.relative_to(root)) + ": " + str(error))
+    counts["pinnedFiles"] = check_pins(root, inventory, failures)
     if counts["documents"] == 0:
         failures.append("No owned configuration documents found")
     if failures:

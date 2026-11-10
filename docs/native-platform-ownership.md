@@ -6,7 +6,7 @@ Public CocoaPods and external Swift packages remain pinned by the committed lock
 
 `config/native-sources.json` records the reviewed import commits and the exact prebuilt native slices. First-party source is editable app code. The existing SSF module names are retained to preserve Swift API, stored-model, and serialization compatibility; they do not indicate a separate repository dependency. Swift/C/Rust tests, fixtures, and native build/provenance scripts live with their implementation.
 
-`config/remote-config-imports.json` records initial data imports, nested URL rewrites, and explicit artwork corrections. Production data includes route retirement and the lcDOT GeneralKey length fix; development has its independent configuration. Future data changes are reviewed in this app repository. Legacy public data URLs remain hosted for older installed apps until those consumers can be retired.
+`config/remote-config-imports.json` records initial data imports, nested URL rewrites, and explicit artwork corrections. It pins every file under `remote-config/` by SHA-256 (`ownedSha256`), and `scripts/verify-remote-config.py` fails on a missing file or a stale pin, so an edit re-pins the file and appends a `corrections` entry in the same commit. Production data includes route retirement and the lcDOT GeneralKey length fix; development has its independent configuration. Future data changes are reviewed in this app repository. Legacy public data URLs remain hosted for older installed apps until those consumers can be retired.
 
 Validation:
 
