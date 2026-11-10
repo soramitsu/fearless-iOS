@@ -5,71 +5,19 @@ set -euo pipefail
 # minimum deployment target and surfacing any "only available in iOS X" diagnostics.
 #
 # Usage:
-#   scripts/check-availability.sh [SCHEME] [WORKSPACE]
+#   scripts/check-availability.sh [SCHEME] [WORKSPACE] [DESTINATION]
 # Defaults:
 #   SCHEME=fearless
 #   WORKSPACE=fearless.xcworkspace
+#   DESTINATION=${AVAILABILITY_DESTINATION:-generic/platform=iOS Simulator}
+# Compilation needs an SDK, not a booted or registered simulator.
 
 SCHEME="${1:-fearless}"
 WORKSPACE="${2:-fearless.xcworkspace}"
-
-pick_latest_iphone() {
-  local list
-  list=$(xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true)
-  list=$(printf '%s\n' "$list" | grep -vi "unavailable" || true)
-  for gen in $(seq 25 -1 8); do
-    for variant in "iPhone ${gen}" "iPhone ${gen} Pro" "iPhone ${gen} Pro Max"; do
-      if printf '%s\n' "$list" | grep -Fq "$variant"; then
-        echo "$variant"
-        return 0
-      fi
-    done
-  done
-  printf '%s\n' "$list" | grep -F "iPhone " | head -n1 | cut -d '(' -f1 | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' || true
-}
-
-pick_device_udid_by_name() {
-  local name="$1"
-  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk -v n="$name" '
-    index($0, n) > 0 {
-      if (tolower($0) ~ /unavailable/) next
-      if (match($0, /[A-Fa-f0-9-]{36}/)) {
-        print substr($0, RSTART, RLENGTH)
-        exit
-      }
-    }
-  '
-}
-
-pick_any_iphone_udid() {
-  (xcrun simctl list devices available 2>/dev/null || xcrun simctl list devices 2>/dev/null || true) | awk '
-    /iPhone/ {
-      if (tolower($0) ~ /unavailable/) next
-      if (match($0, /[A-Fa-f0-9-]{36}/)) {
-        print substr($0, RSTART, RLENGTH)
-        exit
-      }
-    }
-  '
-}
-
-DEST=""
-DEV_NAME=$(pick_latest_iphone || true)
-if [[ -n "${DEV_NAME:-}" ]]; then
-  DEV_ID=$(pick_device_udid_by_name "${DEV_NAME}" || true)
-fi
-if [[ -z "${DEV_ID:-}" ]]; then
-  DEV_ID=$(pick_any_iphone_udid || true)
-fi
-if [[ -n "${DEV_ID:-}" ]]; then
-  DEST="platform=iOS Simulator,id=${DEV_ID}"
-else
-  echo "No concrete available iPhone simulator found for availability check." >&2
-  exit 1
-fi
+DEST="${3:-${AVAILABILITY_DESTINATION:-generic/platform=iOS Simulator}}"
 
 echo "==> Availability check: scheme=${SCHEME} dest=${DEST}"
-mkdir -p build || true
+mkdir -p build
 set +e
 xcodebuild \
   -workspace "${WORKSPACE}" \
@@ -77,16 +25,27 @@ xcodebuild \
   -configuration Debug \
   -destination "${DEST}" \
   CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
-  clean build | tee build/availability.raw.log
-rc=$?
+  clean build 2>&1 | tee build/availability.raw.log
+statuses=("${PIPESTATUS[@]}")
 set -e
 
 # Scan for common availability diagnostics
+availability_rc=0
 if grep -E "is only available in iOS [0-9]+\.[0-9]+ or newer" build/availability.raw.log >/dev/null 2>&1; then
-  echo "\n[availability] Potential availability violations detected:" >&2
+  printf '\n[availability] Potential availability violations detected:\n' >&2
   grep -nE "is only available in iOS [0-9]+\.[0-9]+ or newer" build/availability.raw.log | head -n 100 >&2 || true
-  exit 2
+  availability_rc=2
 fi
 
+# Keep the compiler's failure status even when it also reports availability errors.
+if (( statuses[0] != 0 )); then
+  printf '[availability] Build failed (exit %s).\n' "${statuses[0]}" >&2
+  exit "${statuses[0]}"
+fi
+if (( statuses[1] != 0 )); then
+  printf '[availability] Could not retain the build log (exit %s).\n' "${statuses[1]}" >&2
+  exit "${statuses[1]}"
+fi
+(( availability_rc == 0 )) || exit "$availability_rc"
+
 echo "==> Availability check passed"
-exit $rc
