@@ -672,16 +672,18 @@ class CaptureControllerTests(unittest.TestCase):
 
     def test_safe_upgrade_release_and_its_predecessor_are_allowlisted(self) -> None:
         self.assertEqual(CAPTURE.SOLANA_RETRY_LIFETIME_FIX_BUILD_NUMBER, "2026.11.10")
-        self.assertEqual(CAPTURE.SAFE_UPGRADE_BUILD_NUMBER, "2026.11.11")
+        self.assertEqual(CAPTURE.PIN_LIFECYCLE_FIX_BUILD_NUMBER, "2026.11.11")
+        self.assertEqual(CAPTURE.SAFE_UPGRADE_BUILD_NUMBER, "2026.11.12")
         self.assertEqual(
-            CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS[-3:], ("2026.11.9", "2026.11.10", "2026.11.11")
+            CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS[-3:], ("2026.11.10", "2026.11.11", "2026.11.12")
         )
         self.assertEqual(
             len(set(CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS)),
             len(CAPTURE.SUPPORTED_CAPTURE_BUILD_NUMBERS),
         )
         self.assertEqual(CAPTURE.marketing_version_for(CAPTURE.SOLANA_RETRY_LIFETIME_FIX_BUILD_NUMBER), "4.2.1")
-        self.assertEqual(CAPTURE.marketing_version_for(CAPTURE.SAFE_UPGRADE_BUILD_NUMBER), "4.2.1")
+        self.assertEqual(CAPTURE.marketing_version_for(CAPTURE.PIN_LIFECYCLE_FIX_BUILD_NUMBER), "4.2.1")
+        self.assertEqual(CAPTURE.marketing_version_for(CAPTURE.SAFE_UPGRADE_BUILD_NUMBER), "4.2.2")
         self.assertEqual(CAPTURE.marketing_version_for(CAPTURE.APP_REVIEW_SUBMISSION_BUILD_NUMBER), "4.2.0")
         release = CAPTURE.AppIdentity(
             CAPTURE.EXPECTED_BUNDLE_IDENTIFIER,

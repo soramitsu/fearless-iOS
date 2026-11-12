@@ -235,7 +235,7 @@ prepare_case() {
   <key>CFBundleExecutable</key>
   <string>fearless</string>
   <key>CFBundleShortVersionString</key>
-  <string>4.2.1</string>
+  <string>4.2.2</string>
   <key>CFBundleVersion</key>
   <string>2026.7.28</string>
   <key>FearlessBuildConfiguration</key>
