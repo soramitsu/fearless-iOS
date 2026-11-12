@@ -19,6 +19,14 @@ final class FWRollingLabel: UILabel {
     private var changeID = 0
     private var hidesOwnText = false
     private(set) var isAnimatingChange = false
+    private var countLink: CADisplayLink?
+    private var countRun: FWCountUp.Run?
+    private var countStart: CFTimeInterval = 0
+    private var countDuration: TimeInterval = FWCountUp.duration
+    private var pendingCountUp: String?
+
+    /// True while the value counts up to its final text.
+    var isCounting: Bool { countRun != nil }
 
     init(effects: FWEffects = .shared) {
         self.effects = effects
@@ -34,7 +42,12 @@ final class FWRollingLabel: UILabel {
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
-        if window == nil { finishChange() }
+        if window == nil {
+            finishChange()
+        } else if let pending = pendingCountUp {
+            pendingCountUp = nil
+            countUp(to: pending)
+        }
     }
 
     @available(*, unavailable)
@@ -210,7 +223,53 @@ final class FWRollingLabel: UILabel {
         }
     }
 
+    // MARK: - Count up
+
+    /// Counts from zero to `newText` over `duration` (kit v3 "living balance": the total's first reveal after
+    /// launch). VoiceOver and copying always read the final value. Reduced motion and Calm show it at once; a text
+    /// whose number cannot be reproduced exactly is shown at once too.
+    func countUp(to newText: String, duration: TimeInterval = FWCountUp.duration) {
+        finishChange()
+        guard let run = FWCountUp.Run(final: newText),
+              case .full = FWMotionPolicy.current(effects: effects, calm: calm).style(for: .balanceChange) else {
+            text = newText
+            return
+        }
+        guard window != nil else {
+            text = newText
+            pendingCountUp = newText
+            return
+        }
+        countRun = run
+        countStart = CACurrentMediaTime()
+        countDuration = duration
+        accessibilityLabel = newText
+        text = run.text(progress: 0)
+        let link = CADisplayLink(target: FWCountUpTarget(label: self), selector: #selector(FWCountUpTarget.tick))
+        link.add(to: .main, forMode: .common)
+        countLink = link
+    }
+
+    fileprivate func countTick() {
+        guard let run = countRun else { return }
+        let progress = min(1, (CACurrentMediaTime() - countStart) / max(0.01, countDuration))
+        text = run.text(progress: progress)
+        if progress >= 1 { stopCount() }
+    }
+
+    private func stopCount() {
+        countLink?.invalidate()
+        countLink = nil
+        if let run = countRun {
+            text = run.final
+            accessibilityLabel = nil
+        }
+        countRun = nil
+    }
+
     private func finishChange() {
+        stopCount()
+        pendingCountUp = nil
         changeID += 1
         layer.removeAllAnimations()
         overlay?.removeFromSuperview()
@@ -225,6 +284,100 @@ final class FWRollingLabel: UILabel {
         isAnimatingChange = false
         if let settledColor = settledColor {
             textColor = settledColor
+        }
+    }
+}
+
+/// Breaks the display link's strong reference to the label.
+private final class FWCountUpTarget: NSObject {
+    weak var label: FWRollingLabel?
+
+    init(label: FWRollingLabel) {
+        self.label = label
+        super.init()
+    }
+
+    @objc func tick() {
+        label?.countTick()
+    }
+}
+
+/// The count of a formatted amount from zero to its value, keeping its affixes, marks and fraction digits.
+enum FWCountUp {
+    static let duration: TimeInterval = 0.6
+
+    struct Run: Equatable {
+        let final: String
+        let prefix: String
+        let suffix: String
+        let value: Decimal
+        let fractionDigits: Int
+        let decimalMark: Character?
+        let groupMark: Character?
+
+        /// Nil when the text has no number, or its number cannot be written back exactly.
+        init?(final: String) {
+            let characters = Array(final)
+            guard let first = characters.firstIndex(where: \.isWholeNumber),
+                  let last = characters.lastIndex(where: \.isWholeNumber) else { return nil }
+            let core = Array(characters[first ... last])
+            let marks = core.filter { !$0.isWholeNumber }
+            let points = marks.filter { $0 == "." || $0 == "," }
+            var decimal: Character?
+            if Set(points).count > 1 {
+                decimal = points.last
+            } else if let mark = points.first, points.count == 1, let index = core.firstIndex(of: mark) {
+                decimal = core.distance(from: index, to: core.endIndex) - 1 == 3 && marks.count == 1 ? nil : mark
+            }
+            let integerPart = decimal.flatMap { mark in core.lastIndex(of: mark).map { Array(core[..<$0]) } } ?? core
+            let fractionPart = decimal.flatMap { mark in core.lastIndex(of: mark).map { Array(core[($0 + 1)...]) } } ?? []
+            let groups = Set(integerPart.filter { !$0.isWholeNumber })
+            guard groups.count <= 1, fractionPart.allSatisfy(\.isWholeNumber) else { return nil }
+            let integerDigits = String(integerPart.filter(\.isWholeNumber))
+            let fractionDigits = String(fractionPart)
+            guard let value = Decimal(
+                string: integerDigits + (fractionDigits.isEmpty ? "" : "." + fractionDigits),
+                locale: Locale(identifier: "en_US_POSIX")
+            ) else { return nil }
+            self.final = final
+            prefix = String(characters[..<first])
+            suffix = String(characters[(last + 1)...])
+            self.value = value
+            self.fractionDigits = fractionDigits.count
+            decimalMark = decimal
+            groupMark = groups.first
+            guard text(at: value) == final else { return nil }
+        }
+
+        /// The text at `progress` of the count (0–1), easing out.
+        func text(progress: Double) -> String {
+            let clamped = min(1, max(0, progress))
+            guard clamped < 1 else { return final }
+            let eased = 1 - pow(1 - clamped, 3)
+            return text(at: value * Decimal(eased))
+        }
+
+        /// `amount` written as the final text writes its number.
+        func text(at amount: Decimal) -> String {
+            var scaled = amount * pow(Decimal(10), fractionDigits)
+            var rounded = Decimal()
+            NSDecimalRound(&rounded, &scaled, 0, .down)
+            var digits = NSDecimalNumber(decimal: max(0, rounded)).stringValue
+            if digits.count <= fractionDigits {
+                digits = String(repeating: "0", count: fractionDigits - digits.count + 1) + digits
+            }
+            let integer = String(digits.dropLast(fractionDigits))
+            let fraction = String(digits.suffix(fractionDigits))
+            var grouped = integer
+            if let groupMark {
+                grouped = ""
+                for (index, character) in integer.enumerated() {
+                    if index > 0, (integer.count - index) % 3 == 0 { grouped.append(groupMark) }
+                    grouped.append(character)
+                }
+            }
+            let number = fractionDigits > 0 ? grouped + String(decimalMark ?? ".") + fraction : grouped
+            return prefix + number + suffix
         }
     }
 }

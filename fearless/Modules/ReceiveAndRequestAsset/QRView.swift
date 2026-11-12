@@ -11,6 +11,8 @@ final class QRView: UIView {
     }
 
     let qrImageView = UIImageView()
+    /// Kit v3 design pass: the well's lit rim, gold on the upper-left fading through pink.
+    private let rim = FWLitRimLayer()
 
     private let well: FWNeuView = {
         let view = FWNeuView()
@@ -49,6 +51,15 @@ final class QRView: UIView {
 
     func configure() {
         backgroundColor = .clear
+        rim.cornerRadiusValue = LayoutConstants.wellRadius
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        rim.frame = well.bounds
+        CATransaction.commit()
     }
 
     func setupLayout() {
@@ -56,6 +67,7 @@ final class QRView: UIView {
         well.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        well.layer.addSublayer(rim)
 
         addSubview(field)
         field.snp.makeConstraints { make in

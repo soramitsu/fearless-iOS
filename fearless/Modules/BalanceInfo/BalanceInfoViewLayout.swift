@@ -82,7 +82,13 @@ final class BalanceInfoViewLayout: UIView {
 
     func bind(viewModel: BalanceInfoViewModel?) {
         priceLabel.attributedText = viewModel?.dayChangeAttributedString
-        balanceLabel.setText(viewModel?.balanceString, animated: true)
+        if portfolioLocale != nil, let balance = viewModel?.balanceString,
+           FWLivingBalance.claimFirstReveal(previous: balanceLabel.text, new: balance) {
+            // Kit v3 "living balance": the wallet total counts up from zero on its first reveal after launch.
+            balanceLabel.countUp(to: balance)
+        } else {
+            balanceLabel.setText(viewModel?.balanceString, animated: true)
+        }
         filteredPartLabel.text = viewModel?.filteredPartString
         filteredPartLabel.isHidden = viewModel?.filteredPartString == nil
 
@@ -215,5 +221,16 @@ extension BalanceInfoViewLayout: SkeletonLoadable {
                 size: incomeSize
             )
         ]
+    }
+}
+
+/// The wallet total counts up from zero once per launch, the first time it shows a value.
+enum FWLivingBalance {
+    private static var counted = false
+
+    static func claimFirstReveal(previous: String?, new: String) -> Bool {
+        guard !counted, previous?.isEmpty != false, !new.isEmpty else { return false }
+        counted = true
+        return true
     }
 }

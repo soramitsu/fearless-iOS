@@ -188,7 +188,8 @@ enum FWSunlit {
         static let syncFailedSunAlpha: CGFloat = 0.6
         static let listRise: TimeInterval = 0.22
         static let listStagger: TimeInterval = 0.03
-        static let listRiseDistance: CGFloat = 8
+        /// Kit v3 design pass: rows rise 12 pt as they enter.
+        static let listRiseDistance: CGFloat = 12
         static let listMaxRows = 8
         static let tabSlide: TimeInterval = 0.26
         static let pendingBreath: TimeInterval = 1.4

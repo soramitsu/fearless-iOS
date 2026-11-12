@@ -1,12 +1,22 @@
 import UIKit
 
 /// The light "well" under the selected tab (spec section 4: it slides under the new tab with a 260 ms
-/// spring). An inset rounded well with a small brand dot below it; touches pass through to the tab.
+/// spring). An inset rounded well in a soft pink glow, with a small gold dot (kit v3 design pass); touches pass
+/// through to the tab. Where the system draws its own selection the well hides and the glow and dot remain.
 final class FWTabWellView: UIView {
     static let size = CGSize(width: 56, height: 46)
     let well: FWNeuView
     let dot = UIView()
+    let glow = CAGradientLayer()
     private let effects: FWEffects
+
+    /// The system draws the selection (iOS 26 and later): the dot sits inside the top of its pill.
+    var systemDrawsSelection = false {
+        didSet {
+            well.isHidden = systemDrawsSelection
+            setNeedsLayout()
+        }
+    }
 
     init(effects: FWEffects = .shared) {
         self.effects = effects
@@ -17,9 +27,14 @@ final class FWTabWellView: UIView {
         well.isUserInteractionEnabled = false
         well.style = .inset
         well.shape = { UIBezierPath(roundedRect: $0, cornerRadius: FWSunlit.Radius.tabWell) }
+        glow.type = .radial
+        glow.colors = [FWSunlit.Palette.brand.withAlphaComponent(0.34), FWSunlit.Palette.brand.withAlphaComponent(0)]
+            .map(\.cgColor)
+        glow.locations = [0, 1]
+        layer.addSublayer(glow)
         addSubview(well)
-        dot.backgroundColor = FWSunlit.Palette.brand
-        dot.layer.shadowColor = FWSunlit.Palette.brand.cgColor
+        dot.backgroundColor = FWSunlit.Palette.sun
+        dot.layer.shadowColor = FWSunlit.Palette.sun.cgColor
         dot.layer.shadowOpacity = 0.9
         dot.layer.shadowRadius = 4
         dot.layer.shadowOffset = .zero
@@ -35,8 +50,13 @@ final class FWTabWellView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         well.frame = bounds
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        glow.frame = bounds.insetBy(dx: -bounds.width * 0.45, dy: -bounds.height * 0.55)
+        CATransaction.commit()
         let dotSide: CGFloat = 5
-        dot.frame = CGRect(x: bounds.midX - dotSide / 2, y: bounds.maxY + 2, width: dotSide, height: dotSide)
+        let dotY = systemDrawsSelection ? bounds.minY + 3 : bounds.maxY + 2
+        dot.frame = CGRect(x: bounds.midX - dotSide / 2, y: dotY, width: dotSide, height: dotSide)
         dot.layer.cornerRadius = dotSide / 2
         dot.layer.shadowPath = UIBezierPath(ovalIn: dot.bounds).cgPath
     }

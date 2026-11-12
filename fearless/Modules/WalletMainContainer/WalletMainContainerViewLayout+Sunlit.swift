@@ -5,6 +5,10 @@ import UIKit
 /// badge as the emissive light source, its sync arc, and the round Send, Receive, Buy and Swap actions.
 final class WalletHomeSunlitParts {
     let background = FWSunlitBackgroundView()
+    /// Kit v3: two soft drifting glows over the page, and the sunset sky under the balance.
+    let aurora = FWAuroraView()
+    let skyCard = FWSkyCardView()
+    var arrivalObservation: NSObjectProtocol?
 
     let heroSurface: FWNeuView = {
         let view = FWNeuView()
@@ -52,6 +56,7 @@ final class WalletHomeSunlitParts {
 
     init() {
         sendButton.emissive = true
+        sendButton.sheen = true
         sendButton.accessibilityIdentifier = "walletHomeSend"
         receiveButton.accessibilityIdentifier = "walletHomeReceive"
         buyButton.accessibilityIdentifier = "walletHomeBuy"
@@ -86,6 +91,16 @@ extension WalletMainContainerViewLayout {
         addSubview(sunlit.background)
         sunlit.background.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+        }
+        addSubview(sunlit.aurora)
+        sunlit.aurora.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        // Tokens arriving light the balance card in gold.
+        sunlit.arrivalObservation = NotificationCenter.default.addObserver(
+            forName: FWArrivalAnnouncer.didAnnounce, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.sunlit.skyCard.pulse()
         }
         sunlit.offsetObservation = headerScrollView.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
             self?.updateSunPosition()
@@ -150,6 +165,20 @@ extension WalletMainContainerViewLayout {
         FWSunAnchor.shared.update(sunView: sun)
         for button in sunlit.actionButtons {
             button.sunRim = FWSunAnchor.shared.sunRim(for: button.surface)
+        }
+        // The sky's sun sits behind the badge; the scrim is at full strength from the balance down.
+        let card = sunlit.skyCard
+        card.sunCenter = sun.convert(CGPoint(x: sun.bounds.midX, y: sun.bounds.midY), to: card)
+        card.textTop = walletBalanceViewContainer.convert(CGPoint.zero, to: card).y
+        card.drift = -headerScrollView.contentOffset.y * 0.12
+    }
+
+    /// The sunset sky fills the hero card, under the badge and the balance. Added (not inserted at index 0) so its
+    /// layer sits above the surface's own paint layers; the balance stack is added after it.
+    func installSkyCard() {
+        sunlit.heroSurface.addSubview(sunlit.skyCard)
+        sunlit.skyCard.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
 

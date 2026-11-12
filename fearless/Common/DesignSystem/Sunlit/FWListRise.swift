@@ -1,6 +1,6 @@
 import UIKit
 
-/// A list's first appearance: rows fade in and rise 8 pt, staggered 30 ms, at most eight rows, 220 ms each
+/// A list's first appearance: rows fade in and rise 12 pt (kit v3), staggered 30 ms, at most eight rows, 220 ms each
 /// (spec section 4). Rows that appear later, by scrolling or reloads, show at once. Reduced motion, Calm
 /// and Reduced effects show every row at once.
 final class FWListRise {

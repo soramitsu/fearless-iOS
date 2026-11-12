@@ -83,12 +83,17 @@ final class TabBarBackgroundView: UIView {
         return view
     }()
 
+    /// Kit v3: the glass capsule's lit rim.
+    let rim = FWLitRimLayer()
+
     init() {
         super.init(frame: .zero)
         backgroundColor = .clear
         clipsToBounds = false
         isUserInteractionEnabled = false
         addSubview(surface)
+        rim.cornerRadiusValue = FWSunlit.Radius.tabBar
+        surface.layer.addSublayer(rim)
     }
 
     @available(*, unavailable)
@@ -107,6 +112,10 @@ final class TabBarBackgroundView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         surface.frame = Self.capsuleFrame(in: bounds, bottomInset: safeAreaInsets.bottom)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        rim.frame = surface.bounds
+        CATransaction.commit()
     }
 }
 
@@ -151,12 +160,23 @@ final class TabBarSunlitWell {
     func update(in tabBar: UITabBar, selectedIndex: Int, animated: Bool) {
         guard tabBar.bounds.width > 0 else { return }
         view.bounds = CGRect(origin: .zero, size: FWTabWellView.size)
-        let center = Self.wellCenter(
+        var center = Self.wellCenter(
             in: tabBar.bounds, bottomInset: tabBar.safeAreaInsets.bottom, selectedIndex: selectedIndex
         )
-        let visible = Self.showsWell(selectedIndex: selectedIndex, systemDrawsSelection: Self.systemDrawsSelection)
+        // The glow and its gold dot mark every selected tab but the Polkaswap orb; the inset well itself shows only
+        // where the system draws no selection of its own.
+        var visible = Self.showsActiveGlow(selectedIndex: selectedIndex)
+        if Self.systemDrawsSelection, visible {
+            // From iOS 26 the system lays the items out itself, not in equal slots: follow the selected item's frame.
+            if let frame = Self.systemItemFrame(in: tabBar, title: tabBar.selectedItem?.title) {
+                center = CGPoint(x: frame.midX, y: frame.midY)
+            } else {
+                visible = false
+            }
+        }
         if let target = target, target.center == center, target.visible == visible { return }
         target = (center, visible)
+        view.systemDrawsSelection = Self.systemDrawsSelection
         view.move(to: center, visible: visible, animated: animated && placed)
         placed = true
     }
@@ -165,6 +185,30 @@ final class TabBarSunlitWell {
     static var systemDrawsSelection: Bool {
         if #available(iOS 26.0, *) { return true }
         return false
+    }
+
+    /// The drawn frame of the tab item titled `title`, in the tab bar's coordinates: the widest visible view with that
+    /// accessibility label (the item, rather than its label inside it). Nil when the system draws none.
+    static func systemItemFrame(in tabBar: UITabBar, title: String?) -> CGRect? {
+        guard let title, !title.isEmpty else { return nil }
+        var best: CGRect?
+        func visit(_ view: UIView) {
+            for subview in view.subviews where !subview.isHidden && subview.alpha > 0.01 {
+                if subview.accessibilityLabel == title, subview.bounds.width >= 24,
+                   subview.bounds.width < tabBar.bounds.width / 2 {
+                    let frame = subview.convert(subview.bounds, to: tabBar)
+                    if frame.width > (best?.width ?? 0) { best = frame }
+                }
+                visit(subview)
+            }
+        }
+        visit(tabBar)
+        return best
+    }
+
+    /// The selected tab's glow and gold dot: never under the raised Polkaswap orb, which carries its own light.
+    static func showsActiveGlow(selectedIndex: Int) -> Bool {
+        selectedIndex != MainTabBarDestination.polkaswap.rawValue
     }
 
     /// The well marks the selected tab only where the system draws no selection of its own, and never under

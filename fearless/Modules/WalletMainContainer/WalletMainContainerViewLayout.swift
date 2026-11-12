@@ -299,6 +299,7 @@ final class WalletMainContainerViewLayout: UIView {
             make.size.equalTo(Constants.sunSize)
         }
 
+        installSkyCard()
         sunlit.heroSurface.addSubview(walletBalanceVStackView)
         walletBalanceVStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(14)

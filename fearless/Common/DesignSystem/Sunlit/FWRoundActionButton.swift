@@ -7,11 +7,17 @@ enum FWPress {
     static let releaseEvents: UIControl.Event = [.touchUpInside, .touchUpOutside, .touchCancel, .touchDragExit]
 
     static func apply(
-        _ pressed: Bool, to control: UIView, surface: FWNeuView?, effects: FWEffects = .shared, calm: Bool = false
+        _ pressed: Bool,
+        to control: UIView,
+        surface: FWNeuView?,
+        effects: FWEffects = .shared,
+        calm: Bool = false,
+        pressedScale: CGFloat? = nil
     ) {
         surface?.setPressed(pressed, animated: true)
         let policy = FWMotionPolicy.current(effects: effects, calm: calm)
-        let scale = pressed ? policy.pressScale : 1
+        let allowed = policy.pressScale == 1 ? 1 : (pressedScale ?? policy.pressScale)
+        let scale = pressed ? allowed : 1
         let transform = scale == 1 ? CGAffineTransform.identity : CGAffineTransform(scaleX: scale, y: scale)
         guard control.transform != transform else { return }
         if pressed {
@@ -37,6 +43,19 @@ final class FWRoundActionButton: UIControl {
     private let effects: FWEffects
     private var locale = Locale.current
     static let diameter: CGFloat = 60
+    /// Round actions press deeper than other controls, with a spring back (kit v3 design pass).
+    static let pressedScale: CGFloat = 0.94
+    /// The primary action's slow sheen: one sweep every 6 s.
+    static let sheenPeriod: TimeInterval = 6
+    static let sheenSweep: TimeInterval = 0.9
+    private let sheenLayer = CAGradientLayer()
+    private let sheenMask = CAShapeLayer()
+    private var effectsObservation: NSObjectProtocol?
+
+    /// The pink primary action carries a slow sheen while motion is allowed.
+    var sheen = false {
+        didSet { updateSheen() }
+    }
 
     var emissive = false {
         didSet { applyStyle() }
@@ -83,7 +102,64 @@ final class FWRoundActionButton: UIControl {
         }
         isAccessibilityElement = true
         accessibilityTraits = .button
+        sheenLayer.colors = [UIColor(white: 1, alpha: 0), UIColor(white: 1, alpha: 0.32), UIColor(white: 1, alpha: 0)]
+            .map(\.cgColor)
+        sheenLayer.startPoint = CGPoint(x: 0, y: 0.15)
+        sheenLayer.endPoint = CGPoint(x: 1, y: 0.85)
+        sheenLayer.locations = [-0.6, -0.4, -0.2]
+        sheenLayer.mask = sheenMask
+        sheenLayer.isHidden = true
+        surface.layer.addSublayer(sheenLayer)
+        effectsObservation = effects.notificationCenter.addObserver(
+            forName: FWEffects.didChange, object: effects, queue: .main
+        ) { [weak self] _ in self?.updateSheen() }
         applyStyle()
+    }
+
+    deinit {
+        if let effectsObservation { effects.notificationCenter.removeObserver(effectsObservation) }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        sheenLayer.frame = surface.bounds
+        sheenMask.frame = surface.bounds
+        sheenMask.path = UIBezierPath(ovalIn: surface.bounds).cgPath
+        CATransaction.commit()
+        // Keep the sheen above the surface's paint and below the icon.
+        surface.bringSubviewToFront(iconView)
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        updateSheen()
+    }
+
+    /// A crisp tap when a round action is pressed (phones; the user's Haptic feedback switch applies).
+    override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+        FWFeedback.shared.play(.commit)
+        return super.beginTracking(touch, with: event)
+    }
+
+    private func updateSheen() {
+        sheenLayer.removeAnimation(forKey: "fw.sheen")
+        let animates = sheen && isEnabled && window != nil && !FWMotionPolicy.current(effects: effects).isRestricted
+        sheenLayer.isHidden = !animates
+        guard animates else { return }
+        let sweep = CABasicAnimation(keyPath: "locations")
+        sweep.fromValue = [-0.6, -0.4, -0.2]
+        sweep.toValue = [1.2, 1.4, 1.6]
+        sweep.duration = Self.sheenSweep
+        sweep.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        let period = CAAnimationGroup()
+        period.animations = [sweep]
+        period.duration = Self.sheenPeriod
+        period.repeatCount = .infinity
+        period.beginTime = CACurrentMediaTime() + 2
+        period.isRemovedOnCompletion = false
+        sheenLayer.add(period, forKey: "fw.sheen")
     }
 
     @available(*, unavailable)
@@ -101,12 +177,17 @@ final class FWRoundActionButton: UIControl {
     override var isHighlighted: Bool {
         didSet {
             guard isHighlighted != oldValue else { return }
-            FWPress.apply(isHighlighted, to: surface, surface: surface, effects: effects)
+            FWPress.apply(
+                isHighlighted, to: surface, surface: surface, effects: effects, pressedScale: Self.pressedScale
+            )
         }
     }
 
     override var isEnabled: Bool {
-        didSet { applyStyle() }
+        didSet {
+            applyStyle()
+            updateSheen()
+        }
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
