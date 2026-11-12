@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		67349FEF448D984C4D36FD1B /* solar-geometry.json in Resources */ = {isa = PBXBuildFile; fileRef = E08FAC1267B1F2963300974A /* solar-geometry.json */; };
+		656E1EFAF71D8C25974D27D8 /* feedback-haptics.json in Resources */ = {isa = PBXBuildFile; fileRef = BF31BF93C6C57E8A753A2180 /* feedback-haptics.json */; };
+		D555A2EA5B0C31A7CBEA49D6 /* feedback-receive.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5D67BCAFFFC725FE32AA652C /* feedback-receive.m4a */; };
+		339AB0F9B0149906FF33F958 /* feedback-send.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 8E5EF2F389F00F85850899BE /* feedback-send.m4a */; };
+		1D61303693FBE975C6497395 /* launch-timeline.json in Resources */ = {isa = PBXBuildFile; fileRef = 534C0207A3F65232205686E8 /* launch-timeline.json */; };
+		01D20E52302CA6BB7715D33A /* launch-ignite.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = CC412F9C0AA05544DF37FCBF /* launch-ignite.mp4 */; };
 		398DADA6F480F47EF35082DC /* SunlitScreenLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F990376DF364C713395F9A4A /* SunlitScreenLogicTests.swift */; };
 		B1DFF439B3A469DC2FB83870 /* PortfolioActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C06C0C1BDECF88535A1CA96 /* PortfolioActionButton.swift */; };
 		557A5EF31140D4049E270B55 /* FWSunlitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5D794AAC90AAC8B8CC20B1 /* FWSunlitTests.swift */; };
@@ -3321,6 +3327,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E08FAC1267B1F2963300974A /* solar-geometry.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = solar-geometry.json; sourceTree = "<group>"; };
+		BF31BF93C6C57E8A753A2180 /* feedback-haptics.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedback-haptics.json; sourceTree = "<group>"; };
+		5D67BCAFFFC725FE32AA652C /* feedback-receive.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = feedback-receive.m4a; sourceTree = "<group>"; };
+		8E5EF2F389F00F85850899BE /* feedback-send.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = feedback-send.m4a; sourceTree = "<group>"; };
+		534C0207A3F65232205686E8 /* launch-timeline.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = launch-timeline.json; sourceTree = "<group>"; };
+		CC412F9C0AA05544DF37FCBF /* launch-ignite.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = launch-ignite.mp4; sourceTree = "<group>"; };
 		F990376DF364C713395F9A4A /* SunlitScreenLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SunlitScreenLogicTests.swift; sourceTree = "<group>"; };
 		6C06C0C1BDECF88535A1CA96 /* PortfolioActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Modules/NewWallet/ChainAssetList/Views/PortfolioActionButton.swift; sourceTree = SOURCE_ROOT; };
 		0B5D794AAC90AAC8B8CC20B1 /* FWSunlitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWSunlitTests.swift; sourceTree = "<group>"; };
@@ -16137,6 +16149,12 @@
 		BFF0DA06462689868ACBE8F5 /* Brand */ = {
 			isa = PBXGroup;
 			children = (
+				E08FAC1267B1F2963300974A /* solar-geometry.json */,
+				BF31BF93C6C57E8A753A2180 /* feedback-haptics.json */,
+				5D67BCAFFFC725FE32AA652C /* feedback-receive.m4a */,
+				8E5EF2F389F00F85850899BE /* feedback-send.m4a */,
+				534C0207A3F65232205686E8 /* launch-timeline.json */,
+				CC412F9C0AA05544DF37FCBF /* launch-ignite.mp4 */,
 				4AAFC3E6A83028C59ED71052 /* welcome-idle.mp4 */,
 				7CEAE56AC3625839C09AF276 /* welcome-caw.mp4 */,
 				C0AF628317C2143D2683E069 /* welcome-caw.m4a */,
@@ -16321,6 +16339,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				67349FEF448D984C4D36FD1B /* solar-geometry.json in Resources */,
+				656E1EFAF71D8C25974D27D8 /* feedback-haptics.json in Resources */,
+				D555A2EA5B0C31A7CBEA49D6 /* feedback-receive.m4a in Resources */,
+				339AB0F9B0149906FF33F958 /* feedback-send.m4a in Resources */,
+				1D61303693FBE975C6497395 /* launch-timeline.json in Resources */,
+				01D20E52302CA6BB7715D33A /* launch-ignite.mp4 in Resources */,
 				FA714002ABCDEF0123456789 /* PrivacyInfo.xcprivacy in Resources */,
 				8490142324A93027008F705E /* sora-Bold.otf in Resources */,
 				841937872544772F00CFA50C /* animatedBg.gif in Resources */,

@@ -25,7 +25,8 @@ const ASSETS = join(ROOT, 'fearless', 'Assets.xcassets');
 const MEDIA = join(ROOT, 'fearless', 'Brand');
 const MANIFEST = join(ROOT, 'design', 'brand', 'ios-brand-assets.manifest.json');
 const KIT_NAME = 'fearless-yatagarasu-brand-kit';
-const KIT_MANIFEST_SHA256 = '70771ec29c8607b1964a966066affb15bb02a2032973227d7f7d2ae3c80c048b';
+// Kit v3 (2026-11-13) adds the launch, feel and sound files; every v2 file is byte-identical.
+const KIT_MANIFEST_SHA256 = 'e49da29bbf91dc96d2afe3772b5ec50acc23bc28ff4af500aff0ff7f631ddb84';
 
 // Brand colours (kit tokens/colors.json). Solar gold and pink light the badge's glow, as FWSunlit's sun does.
 const INK = '#120A2E';
@@ -203,6 +204,23 @@ const HERO = {
   'welcome-caw.m4a': 'audio/caw.m4a',
 };
 for (const [name, path] of Object.entries(HERO)) record(join(MEDIA, name), kitFile(path));
+
+// 6. Launch, feel and sound (kit v3, SPEC "Launch, feel and sound"): the Ignite launch clip (no audio track) and its
+// timeline, the two transfer sounds, the haptic patterns timed to them and the solar geometry the send success screen
+// draws. Copied byte for byte into the app bundle.
+const FEEL = {
+  'launch-ignite.mp4': 'hero/launch-ignite.mp4',
+  'launch-timeline.json': 'hero/launch-timeline.json',
+  'feedback-send.m4a': 'audio/send.m4a',
+  'feedback-receive.m4a': 'audio/receive.m4a',
+  'feedback-haptics.json': 'tokens/haptics.json',
+  'solar-geometry.json': 'tokens/solar-geometry.json',
+};
+for (const [name, path] of Object.entries(FEEL)) record(join(MEDIA, name), kitFile(path));
+
+// 7. The sunset sky behind the wallet's balance, byte for byte.
+record(join(ASSETS, 'fwSkyCard.imageset', 'sky-card.jpg'), kitFile('png/sky/sky-card.jpg'));
+record(join(ASSETS, 'fwSkyCard.imageset', 'Contents.json'), contents([{ filename: 'sky-card.jpg', idiom: 'universal' }]));
 
 // ---- Manifest, write or check
 

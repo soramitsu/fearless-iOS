@@ -2,10 +2,14 @@
   "generator": "scripts/brand/generate-ios-brand-assets.mjs",
   "kit": {
     "name": "fearless-yatagarasu-brand-kit",
-    "manifestSha256": "70771ec29c8607b1964a966066affb15bb02a2032973227d7f7d2ae3c80c048b",
+    "manifestSha256": "e49da29bbf91dc96d2afe3772b5ec50acc23bc28ff4af500aff0ff7f631ddb84",
     "designManifestSha256": "8d33fd9b996e8fac5149f264de336a0735e23559916b6d98705f755d6f56eea5",
     "files": {
       "audio/caw.m4a": "5094385060c15d02a391fc082b255d78a966434b7a22e1aa6151e21d79371fc6",
+      "audio/receive.m4a": "ac85389cbf68db5a1c4e75ae685c6b26e7dfefc132e38eb17215189924678811",
+      "audio/send.m4a": "f1fb4969c2e4bdd8eeb93352ae10d6e39c884b297e44ffb7122c7f5ed4b8e8be",
+      "hero/launch-ignite.mp4": "feae6a992e9385c89f6ca84e96e0cd3381e9ec16075974147b2f23424ad53fea",
+      "hero/launch-timeline.json": "310a7a84148ede4bfcaeca479f5e46522d9e591299687cae3c2055ba101b2f4d",
       "hero/welcome-caw.mp4": "48ae947b681e9e801f09211779bbb9973234d3a79101b53a61b4939d77dbca1f",
       "hero/welcome-idle.mp4": "5a58764e1f06f5825bb5acba26832286ba8c3718b307cb37260b3c4e392cf114",
       "hero/welcome-poster.webp": "d15dc23aabf7972e807816d80fe9419eb3e3a8e46db4541656d3bc201f7a3eed",
@@ -41,9 +45,12 @@
       "png/app-icon/app-icon-76.png": "f7bba72c47fcf4d5aeacbabd09fc6f41c3578e97e352eef9ae361cf8d31d2409",
       "png/app-icon/app-icon-80.png": "afa89d25bda90d35271c92c6d03181367f59ec4f05478b5fe5e80213176748ad",
       "png/app-icon/app-icon-87.png": "7b2f2b45ae236de968dfc2acee89d613dc88dd0889caadbc6b3abc31e85180b7",
+      "png/sky/sky-card.jpg": "aebc70bd5eaaad6dd2961a64d0fb3846d51ed7783d953379fc5f4517e81ef753",
       "svg/crest-badge-small.svg": "cc2bce14632d0d24eedcb578e47fadc4852478a01b67fa0d81c2d99b37bad004",
       "svg/crest-badge.svg": "7bb8f75f8df17f72b36fe783bf5f35f31f7d9e53b1025b7d8fe2ae42824e240c",
-      "svg/launch-crest.svg": "0dddb03fc97971d0c9226e6ed052565dfe52e75681b1df99f5b3c356f75bede5"
+      "svg/launch-crest.svg": "0dddb03fc97971d0c9226e6ed052565dfe52e75681b1df99f5b3c356f75bede5",
+      "tokens/haptics.json": "4e0a0189294975f09b749115a6132d31408bf0f01f2a3cd80d21a2b55b05b426",
+      "tokens/solar-geometry.json": "0e544952f4cd25efc4483a3ef0e8b43c3e570aa7fb98b69ecee725c9aaa29648"
     }
   },
   "outputs": {
@@ -119,6 +126,14 @@
     "fearless/Brand/welcome-idle.mp4": "5a58764e1f06f5825bb5acba26832286ba8c3718b307cb37260b3c4e392cf114",
     "fearless/Brand/welcome-caw.mp4": "48ae947b681e9e801f09211779bbb9973234d3a79101b53a61b4939d77dbca1f",
     "fearless/Brand/welcome-poster.webp": "d15dc23aabf7972e807816d80fe9419eb3e3a8e46db4541656d3bc201f7a3eed",
-    "fearless/Brand/welcome-caw.m4a": "5094385060c15d02a391fc082b255d78a966434b7a22e1aa6151e21d79371fc6"
+    "fearless/Brand/welcome-caw.m4a": "5094385060c15d02a391fc082b255d78a966434b7a22e1aa6151e21d79371fc6",
+    "fearless/Brand/launch-ignite.mp4": "feae6a992e9385c89f6ca84e96e0cd3381e9ec16075974147b2f23424ad53fea",
+    "fearless/Brand/launch-timeline.json": "310a7a84148ede4bfcaeca479f5e46522d9e591299687cae3c2055ba101b2f4d",
+    "fearless/Brand/feedback-send.m4a": "f1fb4969c2e4bdd8eeb93352ae10d6e39c884b297e44ffb7122c7f5ed4b8e8be",
+    "fearless/Brand/feedback-receive.m4a": "ac85389cbf68db5a1c4e75ae685c6b26e7dfefc132e38eb17215189924678811",
+    "fearless/Brand/feedback-haptics.json": "4e0a0189294975f09b749115a6132d31408bf0f01f2a3cd80d21a2b55b05b426",
+    "fearless/Brand/solar-geometry.json": "0e544952f4cd25efc4483a3ef0e8b43c3e570aa7fb98b69ecee725c9aaa29648",
+    "fearless/Assets.xcassets/fwSkyCard.imageset/sky-card.jpg": "aebc70bd5eaaad6dd2961a64d0fb3846d51ed7783d953379fc5f4517e81ef753",
+    "fearless/Assets.xcassets/fwSkyCard.imageset/Contents.json": "e0bda77bef6951de89817de1b1910e55a2c7b7bac80c6214d11a934058d80922"
   }
 }
