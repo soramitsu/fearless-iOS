@@ -14,7 +14,11 @@ final class AllDoneViewLayout: UIView {
         static let contentStackViewTopOffset: CGFloat = 76
         static let spacing24: CGFloat = 24
         static let spacing16: CGFloat = 16
-        static let solarGeometrySize: CGFloat = 236
+        /// The send success ignite around the mark: 2.2 times the mark's dark disc, drawn with its stars inside the frame.
+        static let solarGeometrySize: CGFloat = 176
+        static let solarGeometryRadiusFraction: CGFloat = 0.85
+        /// The figure ends at least this far above the title.
+        static let solarGeometryClearance: CGFloat = 16
     }
 
     var copyOnTap: (() -> Void)?
@@ -44,10 +48,26 @@ final class AllDoneViewLayout: UIView {
     let solarGeometryView: FWSolarGeometryView = {
         let view = FWSolarGeometryView()
         view.isHidden = true
+        view.radiusFraction = Constants.solarGeometryRadiusFraction
         return view
     }()
 
-    private let imageViewContainer = UIView()
+    /// The space between the mark and the title when the solar geometry shows: the figure, centred on the mark,
+    /// must end `solarGeometryClearance` above the title.
+    static var solarGeometryTitleSpacing: CGFloat {
+        max(Constants.spacing24, Constants.solarGeometrySize / 2 - Constants.imageViewContainerSize / 2 + Constants.solarGeometryClearance)
+    }
+
+    static var solarGeometrySide: CGFloat { Constants.solarGeometrySize }
+    static var markSide: CGFloat { Constants.imageViewContainerSize }
+
+    /// A send success screen: makes room under the mark for the figure before the first layout, so nothing moves when
+    /// it ignites.
+    func reserveSolarGeometryRoom() {
+        contentStackView.setCustomSpacing(Self.solarGeometryTitleSpacing, after: imageViewContainer)
+    }
+
+    let imageViewContainer = UIView()
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -56,7 +76,7 @@ final class AllDoneViewLayout: UIView {
         return imageView
     }()
 
-    private let titleLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textAlignment = .center

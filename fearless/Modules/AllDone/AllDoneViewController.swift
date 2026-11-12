@@ -41,6 +41,9 @@ final class AllDoneViewController: UIViewController, ViewHolder, UIAdaptivePrese
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        if celebration == .send {
+            rootView.reserveSolarGeometryRoom()
+        }
         output.didLoad(view: self)
         setup()
     }

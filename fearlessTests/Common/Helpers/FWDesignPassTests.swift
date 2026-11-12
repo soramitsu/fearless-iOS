@@ -1,4 +1,5 @@
 @testable import fearless
+import SoraFoundation
 import UIKit
 import XCTest
 
@@ -148,4 +149,73 @@ final class FWSkyCardContrastTests: XCTestCase {
         }
         return brightest
     }
+}
+
+/// The send success ignite stays centred on the mark and ends at least 16 pt above the title, on the smallest and the
+/// largest supported phones and at the largest accessibility text size, while drawing and once settled.
+@MainActor
+final class AllDoneSolarGeometryLayoutTests: XCTestCase {
+    func testTheFigureIsCentredOnTheMarkAndClearOfTheTitle() throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let snapshots = ProcessInfo.processInfo.environment["FW_LAYOUT_SNAPSHOT_DIR"].map { URL(fileURLWithPath: $0) }
+        let sizes = [CGSize(width: 375, height: 667), CGSize(width: 402, height: 874), CGSize(width: 440, height: 956)]
+        for size in sizes {
+            for category in [UIContentSizeCategory.large, .accessibilityExtraExtraExtraLarge] {
+                let window = UIWindow(windowScene: scene)
+                window.frame = CGRect(origin: .zero, size: size)
+                if #available(iOS 17.0, *) {
+                    window.traitOverrides.preferredContentSizeCategory = category
+                }
+                let controller = AllDoneViewController(
+                    output: AllDoneOutputStub(),
+                    localizationManager: LocalizationManager.shared,
+                    celebration: .send,
+                    feedback: FeedbackRecorder()
+                )
+                window.rootViewController = controller
+                window.makeKeyAndVisible()
+                let layout = controller.rootView
+                layout.bind(AllDoneViewModel(
+                    title: "All done", description: "You can return to the app",
+                    extrinsicHash: "0x5f0d7a91c2e4b8", isWalletConnectResult: false
+                ))
+                layout.setNeedsLayout()
+                layout.layoutIfNeeded()
+                let label = "\(Int(size.width))x\(Int(size.height)) \(category.rawValue)"
+                for (state, progress, alpha) in [("drawing", 0.55, CGFloat(1)), ("settled", 1.0, CGFloat(0.25))] {
+                    layout.solarGeometryView.isHidden = false
+                    layout.solarGeometryView.alpha = alpha
+                    layout.solarGeometryView.setProgress(progress)
+                    let figure = layout.solarGeometryView.convert(layout.solarGeometryView.bounds, to: layout)
+                    let mark = layout.imageViewContainer.convert(layout.imageViewContainer.bounds, to: layout)
+                    let title = layout.titleLabel.convert(layout.titleLabel.bounds, to: layout)
+                    XCTAssertEqual(figure.midX, mark.midX, accuracy: 0.5, "\(label) \(state)")
+                    XCTAssertEqual(figure.midY, mark.midY, accuracy: 0.5, "\(label) \(state)")
+                    XCTAssertFalse(figure.intersects(title), "\(label) \(state): figure \(figure) meets title \(title)")
+                    XCTAssertLessThanOrEqual(figure.maxY + 16, title.minY + 0.5, "\(label) \(state)")
+                    // The drawn ring keeps at least 1.6 times the mark's dark disc.
+                    XCTAssertGreaterThanOrEqual(layout.solarGeometryView.radius * 2, 1.6 * mark.width, "\(label) \(state)")
+                    if let snapshots {
+                        let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
+                            window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+                        }
+                        let name = "all-done-\(Int(size.width))x\(Int(size.height))-\(category == .large ? "default" : "ax5")-\(state).png"
+                        try image.pngData()?.write(to: snapshots.appendingPathComponent(name))
+                    }
+                }
+                window.isHidden = true
+            }
+        }
+        XCTAssertEqual(AllDoneViewLayout.solarGeometryTitleSpacing, 64)
+        XCTAssertGreaterThanOrEqual(AllDoneViewLayout.solarGeometrySide, 1.6 * AllDoneViewLayout.markSide)
+    }
+}
+
+private final class AllDoneOutputStub: AllDoneViewOutput {
+    func didLoad(view _: AllDoneViewInput) {}
+    func dismiss() {}
+    func didCopyTapped() {}
+    func presentationControllerWillDismiss() {}
+    func explorerButtonDidTapped() {}
+    func shareButtonDidTapped() {}
 }
