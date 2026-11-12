@@ -1584,3 +1584,8 @@ akan muncul di sini";
 "tonconnect.disabled" = "TON Connect dijeda untuk sementara. Coba lagi nanti.";
 "tonconnect.domain.mismatch" = "Mengaku sebagai %@. Ini tidak terverifikasi.";
 "tonconnect.proof.refused" = "Tautan ini berasal dari %1$@ tetapi mengaku sebagai %2$@. Masuk ditolak.";
+
+/* Kit v3 feel: Settings switches and the arrival banner. */
+"fw.feedback.sound_effects" = "Efek suara";
+"fw.feedback.haptic_feedback" = "Umpan balik haptik";
+"fw.feedback.tokens_received" = "%@ diterima";

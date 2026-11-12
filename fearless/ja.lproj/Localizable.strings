@@ -1617,3 +1617,8 @@
 "tonconnect.disabled" = "TON Connect は一時停止中です。後でもう一度お試しください。";
 "tonconnect.domain.mismatch" = "%@ を名乗っていますが、確認されていません。";
 "tonconnect.proof.refused" = "このリンクは %1$@ からのものですが、%2$@ を名乗っています。サインインを拒否しました。";
+
+/* Kit v3 feel: Settings switches and the arrival banner. */
+"fw.feedback.sound_effects" = "効果音";
+"fw.feedback.haptic_feedback" = "触覚フィードバック";
+"fw.feedback.tokens_received" = "%@ を受け取りました";

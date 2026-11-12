@@ -76,6 +76,7 @@ final class WalletSendConfirmPresenter {
     private let scamInfo: ScamInfo?
     private let submissionAuthorizer: SubmissionAuthorizing
     private let pasteboard: PasteboardStringAccessing
+    private let feedback: FWFeedbackPlaying
     private var feeViewModel: BalanceViewModelProtocol?
 
     private var balance: Decimal?
@@ -126,8 +127,10 @@ final class WalletSendConfirmPresenter {
         feeViewModel: BalanceViewModelProtocol?,
         localizationManager: LocalizationManagerProtocol,
         submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer(),
-        pasteboard: PasteboardStringAccessing = UIPasteboard.general
+        pasteboard: PasteboardStringAccessing = UIPasteboard.general,
+        feedback: FWFeedbackPlaying = FWFeedback.shared
     ) {
+        self.feedback = feedback
         self.interactor = interactor
         self.wireframe = wireframe
         self.pasteboard = pasteboard
@@ -1178,6 +1181,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             }
 
             if case let TransferServiceError.bitcoinTransferNotSent(reason) = error {
+                feedback.play(.failure)
                 presentBitcoinTransferNotSent(reason)
                 return
             }
@@ -1192,9 +1196,13 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             }
 
             if case let TransferServiceError.solanaTransferNotSent(reason) = error {
+                feedback.play(.failure)
                 presentSolanaTransferNotSent(reason)
                 return
             }
+
+            // From here on the transfer definitely failed or was rejected: the system's error touch.
+            feedback.play(.failure)
 
             if let reason = SendUnavailableReason(transferError: error) {
                 presentSendUnavailable(reason)

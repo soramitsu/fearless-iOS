@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4D06413D22AAC003D91242 /* FWLaunchFeelTests.swift */; };
+		0F4C9AC13672AC58335B09D6 /* FWArrival.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4579FDDA7FBDCB471B93CF50 /* FWArrival.swift */; };
+		433F433D35A016B135D40A35 /* FWSolarGeometryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0849BB20E26DBBD45B5E9E /* FWSolarGeometryView.swift */; };
+		286E143C1830A4D6C9BE1ACC /* FWLaunchIgnite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46809F33FFAD8712DEB718AB /* FWLaunchIgnite.swift */; };
+		291C4AC26D942D01B0C8620D /* FWFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F90962509B58ECC2801E82 /* FWFeedback.swift */; };
 		67349FEF448D984C4D36FD1B /* solar-geometry.json in Resources */ = {isa = PBXBuildFile; fileRef = E08FAC1267B1F2963300974A /* solar-geometry.json */; };
 		656E1EFAF71D8C25974D27D8 /* feedback-haptics.json in Resources */ = {isa = PBXBuildFile; fileRef = BF31BF93C6C57E8A753A2180 /* feedback-haptics.json */; };
 		D555A2EA5B0C31A7CBEA49D6 /* feedback-receive.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5D67BCAFFFC725FE32AA652C /* feedback-receive.m4a */; };
@@ -3327,6 +3332,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BB4D06413D22AAC003D91242 /* FWLaunchFeelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWLaunchFeelTests.swift; sourceTree = "<group>"; };
+		4579FDDA7FBDCB471B93CF50 /* FWArrival.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWArrival.swift; sourceTree = "<group>"; };
+		ED0849BB20E26DBBD45B5E9E /* FWSolarGeometryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWSolarGeometryView.swift; sourceTree = "<group>"; };
+		46809F33FFAD8712DEB718AB /* FWLaunchIgnite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWLaunchIgnite.swift; sourceTree = "<group>"; };
+		D8F90962509B58ECC2801E82 /* FWFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWFeedback.swift; sourceTree = "<group>"; };
 		E08FAC1267B1F2963300974A /* solar-geometry.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = solar-geometry.json; sourceTree = "<group>"; };
 		BF31BF93C6C57E8A753A2180 /* feedback-haptics.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = feedback-haptics.json; sourceTree = "<group>"; };
 		5D67BCAFFFC725FE32AA652C /* feedback-receive.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = feedback-receive.m4a; sourceTree = "<group>"; };
@@ -6724,6 +6734,10 @@
 		28202754D498E7CA0BDD8266 /* Sunlit */ = {
 			isa = PBXGroup;
 			children = (
+				4579FDDA7FBDCB471B93CF50 /* FWArrival.swift */,
+				ED0849BB20E26DBBD45B5E9E /* FWSolarGeometryView.swift */,
+				46809F33FFAD8712DEB718AB /* FWLaunchIgnite.swift */,
+				D8F90962509B58ECC2801E82 /* FWFeedback.swift */,
 				DD4DFAC50DB5CC299D9E0C20 /* FWListRise.swift */,
 				51344D0160AE81D7B66B0468 /* FWMotion.swift */,
 				C1E1FCBFD1783B6AA2DAD7B1 /* FWPinPadStyler.swift */,
@@ -11212,6 +11226,7 @@
 		84F4A90E25500119000CF0A3 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				BB4D06413D22AAC003D91242 /* FWLaunchFeelTests.swift */,
 				84155DF2253A1DBA00A27058 /* SchedulerTests.swift */,
 				84CE69EC25667A5600559427 /* ByteLengthEncodingTests.swift */,
 				84452F5C25D5CB3B00F47EC5 /* FileManagerTests.swift */,
@@ -16775,6 +16790,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F4C9AC13672AC58335B09D6 /* FWArrival.swift in Sources */,
+				433F433D35A016B135D40A35 /* FWSolarGeometryView.swift in Sources */,
+				286E143C1830A4D6C9BE1ACC /* FWLaunchIgnite.swift in Sources */,
+				291C4AC26D942D01B0C8620D /* FWFeedback.swift in Sources */,
 				BFCED379EB92EA70D07AF417 /* AdaptiveLayout.swift in Sources */,
 				1C0A34010000000000000001 /* IrohaConnectModels.swift in Sources */,
 				1C0A34010000000000000002 /* IrohaConnectWireCodec.swift in Sources */,
@@ -19579,6 +19598,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */,
 				BE0E1F65FD1C9E2C70F06984 /* IPadAdaptiveLayoutTests.swift in Sources */,
 				9F85B1FB416AB5622C560377 /* ABIEventDecodingRegressionTests.swift in Sources */,
 				B8629766D501EF7F3DDE20F0 /* TonNFTPreviewRegressionTests.swift in Sources */,

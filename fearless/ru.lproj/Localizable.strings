@@ -1625,3 +1625,8 @@ Euro cash";
 "tonconnect.disabled" = "TON Connect временно приостановлен. Повторите попытку позже.";
 "tonconnect.domain.mismatch" = "Выдаёт себя за %@. Это не подтверждено.";
 "tonconnect.proof.refused" = "Эта ссылка пришла с %1$@, но выдаёт себя за %2$@. Вход отклонён.";
+
+/* Kit v3 feel: Settings switches and the arrival banner. */
+"fw.feedback.sound_effects" = "Звуковые эффекты";
+"fw.feedback.haptic_feedback" = "Тактильный отклик";
+"fw.feedback.tokens_received" = "Получено: %@";

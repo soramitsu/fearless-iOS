@@ -32,6 +32,8 @@ enum ProfileOption: UInt, CaseIterable {
     case irohaConnect
     case previousData
     case emergencyMaterial
+    case soundEffects
+    case hapticFeedback
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -43,6 +45,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
     private let accountScoreFetcher: AccountStatisticsFetching
     private let irohaConnectPolicy: IrohaConnectReleasePolicy
+    private let feedbackSettings: FWFeedbackSettings
 
     // MARK: - Constructors
 
@@ -51,8 +54,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         biometry: BiometryAuthProtocol,
         settings: SettingsManagerProtocol,
         accountScoreFetcher: AccountStatisticsFetching,
-        irohaConnectPolicy: IrohaConnectReleasePolicy = .production
+        irohaConnectPolicy: IrohaConnectReleasePolicy = .production,
+        feedbackSettings: FWFeedbackSettings = .shared
     ) {
+        self.feedbackSettings = feedbackSettings
         self.iconGenerator = iconGenerator
         self.biometry = biometry
         self.settings = settings
@@ -180,6 +185,24 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 )
             case .irohaConnect:
                 return irohaConnectPolicy.isEnabled ? createIrohaConnectViewModel() : nil
+            case .soundEffects:
+                return ProfileOptionViewModel(
+                    title: FWFeelText.string("fw.feedback.sound_effects", locale: locale),
+                    icon: UIImage(systemName: "speaker.wave.2"),
+                    accessoryTitle: nil,
+                    accessoryImage: nil,
+                    accessoryType: .switcher(feedbackSettings.soundEnabled),
+                    option: .soundEffects
+                )
+            case .hapticFeedback:
+                return ProfileOptionViewModel(
+                    title: FWFeelText.string("fw.feedback.haptic_feedback", locale: locale),
+                    icon: UIImage(systemName: "hand.tap"),
+                    accessoryTitle: nil,
+                    accessoryImage: nil,
+                    accessoryType: .switcher(feedbackSettings.hapticsEnabled),
+                    option: .hapticFeedback
+                )
             }
         }
     }

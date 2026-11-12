@@ -88,6 +88,8 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder, Hidda
     }
 
     @objc private func continueButtonClicked() {
+        // The final Send control: a crisp tap before the result is known (kit v3 feel).
+        FWFeedback.shared.play(.commit)
         presenter.didTapConfirmButton()
     }
 

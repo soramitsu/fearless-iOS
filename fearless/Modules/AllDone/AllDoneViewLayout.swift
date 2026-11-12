@@ -14,6 +14,7 @@ final class AllDoneViewLayout: UIView {
         static let contentStackViewTopOffset: CGFloat = 76
         static let spacing24: CGFloat = 24
         static let spacing16: CGFloat = 16
+        static let solarGeometrySize: CGFloat = 236
     }
 
     var copyOnTap: (() -> Void)?
@@ -38,6 +39,15 @@ final class AllDoneViewLayout: UIView {
         stack.distribution = .fill
         return stack
     }()
+
+    /// The send success ignite: the solar geometry drawing itself around the mark (kit v3).
+    let solarGeometryView: FWSolarGeometryView = {
+        let view = FWSolarGeometryView()
+        view.isHidden = true
+        return view
+    }()
+
+    private let imageViewContainer = UIView()
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -123,6 +133,12 @@ final class AllDoneViewLayout: UIView {
 
     // MARK: - Public methods
 
+    /// Draws the solar geometry around the mark over 0.9 s, then lets it settle to 25 %.
+    func igniteSolarGeometry() {
+        solarGeometryView.isHidden = false
+        solarGeometryView.ignite(duration: 0.9, settleOpacity: 0.25)
+    }
+
     func bind(_ viewModel: AllDoneViewModel) {
         titleLabel.text = viewModel.title
         descriptionLabel.text = viewModel.description
@@ -204,7 +220,6 @@ final class AllDoneViewLayout: UIView {
             make.trailing.equalTo(safeAreaLayoutGuide).inset(Constants.closeButtonInset)
         }
 
-        let imageViewContainer = UIView()
         imageViewContainer.backgroundColor = R.color.colorBlack()
         imageViewContainer.layer.cornerRadius = Constants.imageViewContainerSize / 2
         imageViewContainer.layer.shadowColor = R.color.colorPink()!.cgColor
@@ -220,6 +235,7 @@ final class AllDoneViewLayout: UIView {
             make.size.equalTo(Constants.imageViewSize)
         }
 
+        addSubview(solarGeometryView)
         addSubview(contentStackView)
         contentStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(Constants.contentStackViewTopOffset)
@@ -228,6 +244,10 @@ final class AllDoneViewLayout: UIView {
         }
 
         contentStackView.addArrangedSubview(imageViewContainer)
+        solarGeometryView.snp.makeConstraints { make in
+            make.center.equalTo(imageViewContainer)
+            make.size.equalTo(Constants.solarGeometrySize)
+        }
         contentStackView.setCustomSpacing(Constants.spacing24, after: imageViewContainer)
         contentStackView.addArrangedSubview(titleLabel)
         contentStackView.setCustomSpacing(Constants.spacing16, after: titleLabel)

@@ -62,7 +62,7 @@ final class ProfileViewController: UIViewController, ViewHolder, AdaptiveFullWid
             case .security:
                 return [.changePincode, .biometry]
             case .preferences:
-                return [.currency, .language, .polkaswapDisclaimer, .accountScore]
+                return [.currency, .language, .polkaswapDisclaimer, .accountScore, .soundEffects, .hapticFeedback]
             case .advanced:
                 return [.previousData, .emergencyMaterial]
             case .about:

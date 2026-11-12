@@ -16,7 +16,8 @@ final class CrossChainConfirmationRouter: CrossChainConfirmationRouterInput {
             chainAsset: chainAsset,
             hashString: hash,
             title: title,
-            description: description
+            description: description,
+            celebration: .send
         )?.view.controller
         controller?.modalPresentationStyle = .custom
 

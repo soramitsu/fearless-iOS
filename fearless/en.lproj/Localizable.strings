@@ -1630,3 +1630,8 @@ belongs to the right network";
 "tonconnect.disabled" = "TON Connect is paused for now. Try again later.";
 "tonconnect.domain.mismatch" = "Claims to be %@. This is not verified.";
 "tonconnect.proof.refused" = "This link comes from %1$@ but claims to be %2$@. Sign-in was refused.";
+
+/* Kit v3 feel: Settings switches and the arrival banner. */
+"fw.feedback.sound_effects" = "Sound effects";
+"fw.feedback.haptic_feedback" = "Haptic feedback";
+"fw.feedback.tokens_received" = "%@ received";

@@ -21,6 +21,7 @@ final class CrossChainConfirmationPresenter {
     private let teleportData: CrossChainConfirmationData
     private let viewModelFactory: CrossChainConfirmationViewModelFactoryProtocol
     private let submissionAuthorizer: SubmissionAuthorizing
+    private let feedback: FWFeedbackPlaying
 
     // MARK: - Constructors
 
@@ -30,8 +31,10 @@ final class CrossChainConfirmationPresenter {
         interactor: CrossChainConfirmationInteractorInput,
         router: CrossChainConfirmationRouterInput,
         localizationManager: LocalizationManagerProtocol,
-        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer(),
+        feedback: FWFeedbackPlaying = FWFeedback.shared
     ) {
+        self.feedback = feedback
         self.teleportData = teleportData
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
@@ -135,6 +138,8 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutpu
             guard let view = view else {
                 return
             }
+            // The transfer failed or was rejected: the system's error touch.
+            feedback.play(.failure)
 
             // These carry the exact reason, such as a changed destination fee or the wrong network; the generic
             // presenter knows neither type and would only say that the transaction failed.

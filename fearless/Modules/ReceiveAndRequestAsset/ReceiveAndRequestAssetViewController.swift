@@ -83,6 +83,7 @@ final class ReceiveAndRequestAssetViewController: UIViewController, ViewHolder, 
             }
         }
         rootView.copyButton.addAction { [weak self] in
+            FWFeedback.shared.play(.commit)
             UIPasteboard.general.string = self?.rootView.addressLabel.text
             self?.output.close()
         }

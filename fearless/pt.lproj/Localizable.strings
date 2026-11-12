@@ -1544,3 +1544,8 @@ pertence à rede certa";
 "tonconnect.disabled" = "O TON Connect está pausado no momento. Tente novamente mais tarde.";
 "tonconnect.domain.mismatch" = "Diz ser %@. Isso não foi verificado.";
 "tonconnect.proof.refused" = "Este link vem de %1$@, mas diz ser %2$@. O login foi recusado.";
+
+/* Kit v3 feel: Settings switches and the arrival banner. */
+"fw.feedback.sound_effects" = "Efeitos sonoros";
+"fw.feedback.haptic_feedback" = "Feedback tátil";
+"fw.feedback.tokens_received" = "%@ recebido";

@@ -1595,3 +1595,8 @@
 "tonconnect.disabled" = "TON Connect 暂时停用，请稍后再试。";
 "tonconnect.domain.mismatch" = "自称是 %@，但未经验证。";
 "tonconnect.proof.refused" = "此链接来自 %1$@，却自称是 %2$@。已拒绝登录。";
+
+/* Kit v3 feel: Settings switches and the arrival banner. */
+"fw.feedback.sound_effects" = "音效";
+"fw.feedback.haptic_feedback" = "触感反馈";
+"fw.feedback.tokens_received" = "已收到 %@";

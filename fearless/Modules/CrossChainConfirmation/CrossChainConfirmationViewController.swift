@@ -49,6 +49,8 @@ final class CrossChainConfirmationViewController: UIViewController, ViewHolder, 
             self?.output.backButtonDidTapped()
         }
         rootView.confirmButton.addAction { [weak self] in
+            // The final Confirm control: a crisp tap before the result is known (kit v3 feel).
+            FWFeedback.shared.play(.commit)
             self?.output.confirmButtonTapped()
         }
     }

@@ -9,14 +9,21 @@ final class AllDoneViewController: UIViewController, ViewHolder, UIAdaptivePrese
     // MARK: Private properties
 
     private let output: AllDoneViewOutput
+    private let celebration: FWTransferCelebration?
+    private let feedback: FWFeedbackPlaying
+    private var celebrated = false
 
     // MARK: - Constructor
 
     init(
         output: AllDoneViewOutput,
-        localizationManager: LocalizationManagerProtocol?
+        localizationManager: LocalizationManagerProtocol?,
+        celebration: FWTransferCelebration? = nil,
+        feedback: FWFeedbackPlaying = FWFeedback.shared
     ) {
         self.output = output
+        self.celebration = celebration
+        self.feedback = feedback
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }
@@ -36,6 +43,15 @@ final class AllDoneViewController: UIViewController, ViewHolder, UIAdaptivePrese
         super.viewDidLoad()
         output.didLoad(view: self)
         setup()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // An accepted transfer: the send sound and touch, with the solar geometry igniting around the mark.
+        guard celebration == .send, !celebrated else { return }
+        celebrated = true
+        feedback.play(.send)
+        rootView.igniteSolarGeometry()
     }
 
     override func viewDidDisappear(_ animated: Bool) {

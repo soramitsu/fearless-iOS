@@ -1596,3 +1596,8 @@ ait olduğundan emin olun.";
 "tonconnect.disabled" = "TON Connect şu anda duraklatıldı. Daha sonra tekrar deneyin.";
 "tonconnect.domain.mismatch" = "%@ olduğunu iddia ediyor. Bu doğrulanmadı.";
 "tonconnect.proof.refused" = "Bu bağlantı %1$@ adresinden geliyor ancak %2$@ olduğunu iddia ediyor. Giriş reddedildi.";
+
+/* Kit v3 feel: Settings switches and the arrival banner. */
+"fw.feedback.sound_effects" = "Ses efektleri";
+"fw.feedback.haptic_feedback" = "Dokunsal geri bildirim";
+"fw.feedback.tokens_received" = "%@ alındı";

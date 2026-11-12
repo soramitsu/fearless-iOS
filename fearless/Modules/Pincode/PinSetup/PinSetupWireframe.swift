@@ -1,7 +1,8 @@
 import UIKit
 
 class PinSetupWireframe: PinSetupWireframeProtocol {
-    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
+    /// The wallet lands after an unlock: a crossfade while it settles from 1.06 to 1 (kit v3 launch, part 1).
+    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = FWLandingAnimationCoordinator()
 
     func showMain(from view: PinSetupViewProtocol?) {
         let presentingWindow = view?.controller.view.window as? ApplicationStatusPresentable

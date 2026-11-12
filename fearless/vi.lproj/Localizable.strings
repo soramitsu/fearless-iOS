@@ -1598,3 +1598,8 @@ thuộc đúng mạng";
 "tonconnect.disabled" = "TON Connect tạm thời bị dừng. Vui lòng thử lại sau.";
 "tonconnect.domain.mismatch" = "Tự nhận là %@. Điều này chưa được xác minh.";
 "tonconnect.proof.refused" = "Liên kết này đến từ %1$@ nhưng tự nhận là %2$@. Đăng nhập đã bị từ chối.";
+
+/* Kit v3 feel: Settings switches and the arrival banner. */
+"fw.feedback.sound_effects" = "Hiệu ứng âm thanh";
+"fw.feedback.haptic_feedback" = "Phản hồi xúc giác";
+"fw.feedback.tokens_received" = "Đã nhận %@";
