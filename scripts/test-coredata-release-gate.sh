@@ -7,7 +7,17 @@ readonly GATE="$SCRIPT_DIR/ci/run-coredata-release-gate.sh"
 readonly CDMETAACCOUNT_CODABLE_TEST="$SCRIPT_DIR/storage/test-cdmetaaccount-codable-contract.sh"
 TEMPORARY_DIR="$(mktemp -d "${TMPDIR:-/private/tmp}/fearless-coredata-gate-tests.XXXXXX")"
 readonly TEMPORARY_DIR
-trap 'rm -rf "$TEMPORARY_DIR"' EXIT
+COMPLETED=0
+cleanup() {
+  # An EXIT trap's own success can hide a crash, so only reaching the end passes.
+  local status=$?
+  rm -rf "$TEMPORARY_DIR"
+  if [[ "$COMPLETED" != "1" && "$status" == "0" ]]; then
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 
 readonly FIXTURE_ROOT="$TEMPORARY_DIR/repository"
 readonly BIN_DIR="$TEMPORARY_DIR/bin"
@@ -251,7 +261,13 @@ JSON
 fi
 
 if [[ "${1:-}" == "xcresulttool" ]]; then
-  if printf '%s\n' "$@" | grep -Fqx "tests"; then
+  # Check the arguments in-process: under pipefail, `printf | grep -q` reports
+  # failure when grep exits before printf has written the remaining lines.
+  requests_tests=0
+  for argument in "$@"; do
+    [[ "$argument" != "tests" ]] || requests_tests=1
+  done
+  if [[ "$requests_tests" == "1" ]]; then
     case "${FAKE_TESTS_MODE:-valid}" in
       tool-failure)
         exit 1
@@ -327,7 +343,7 @@ PY
     fi
     previous="$argument"
   done
-  default_total=424
+  default_total=483
   if [[ "$result_path" == *"/copied-phone.xcresult" ]]; then
     default_total=2
   fi
@@ -380,7 +396,7 @@ if ! run_gate "valid-core"; then
   fail "valid core gate was rejected"
 fi
 assert_output_contains "PASSED requested Core Data Release gate" "$RUN_DIRECTORY/stdout"
-assert_output_contains "exactly 424 Release -O tests" "$RUN_DIRECTORY/stdout"
+assert_output_contains "exactly 483 Release -O tests" "$RUN_DIRECTORY/stdout"
 assert_argument_once "-workspace"
 assert_argument_once "$CANONICAL_WORKSPACE"
 assert_argument_once "-scheme"
@@ -698,7 +714,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "unreadable-test-inventory" "could not read the executed test identities"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=424"
+  "FAKE_TOTAL_TESTS=483"
   "FAKE_PASSED_TESTS=242"
   "FAKE_FAILED_TESTS=1"
   "FAKE_RESULT=Failed"
@@ -708,7 +724,7 @@ GATE_ARGS=(--stage core --simulator-udid "$SIMULATOR_UDID")
 expect_failure "failed-summary" "zero-failure/zero-skip"
 
 CASE_ENV=(
-  "FAKE_TOTAL_TESTS=424"
+  "FAKE_TOTAL_TESTS=483"
   "FAKE_PASSED_TESTS=242"
   "FAKE_EXPECTED_FAILURES=1"
 )
@@ -853,3 +869,4 @@ printf '%s\n' \
 
 printf '%s\n' \
   "[coredata-release-gate-test] PASS: 6 positive contracts + 50 negative/adversarial cases"
+COMPLETED=1
