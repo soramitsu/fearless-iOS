@@ -62,6 +62,12 @@ final class FWRollingLabel: UILabel {
 
     /// Shows `newText`; animates only a change between two non-empty values on screen.
     func setText(_ newText: String?, animated: Bool) {
+        // A new value while the first count runs: the count carries on from where it is to the new value.
+        if let run = countRun, let newText, newText != run.final, animated, FWCountUp.Run(final: newText) != nil {
+            let current = run.value(progress: countProgress)
+            countUp(to: newText, from: current)
+            return
+        }
         let oldText = text
         guard newText != oldText else { return }
         finishChange()
@@ -228,7 +234,7 @@ final class FWRollingLabel: UILabel {
     /// Counts from zero to `newText` over `duration` (kit v3 "living balance": the total's first reveal after
     /// launch). VoiceOver and copying always read the final value. Reduced motion and Calm show it at once; a text
     /// whose number cannot be reproduced exactly is shown at once too.
-    func countUp(to newText: String, duration: TimeInterval = FWCountUp.duration) {
+    func countUp(to newText: String, from start: Decimal = 0, duration: TimeInterval = FWCountUp.duration) {
         finishChange()
         guard let run = FWCountUp.Run(final: newText),
               case .full = FWMotionPolicy.current(effects: effects, calm: calm).style(for: .balanceChange) else {
@@ -240,19 +246,23 @@ final class FWRollingLabel: UILabel {
             pendingCountUp = newText
             return
         }
-        countRun = run
+        countRun = run.starting(at: start)
         countStart = CACurrentMediaTime()
         countDuration = duration
         accessibilityLabel = newText
-        text = run.text(progress: 0)
+        text = countRun?.text(progress: 0)
         let link = CADisplayLink(target: FWCountUpTarget(label: self), selector: #selector(FWCountUpTarget.tick))
         link.add(to: .main, forMode: .common)
         countLink = link
     }
 
+    private var countProgress: Double {
+        min(1, (CACurrentMediaTime() - countStart) / max(0.01, countDuration))
+    }
+
     fileprivate func countTick() {
         guard let run = countRun else { return }
-        let progress = min(1, (CACurrentMediaTime() - countStart) / max(0.01, countDuration))
+        let progress = countProgress
         text = run.text(progress: progress)
         if progress >= 1 { stopCount() }
     }
@@ -314,6 +324,21 @@ enum FWCountUp {
         let fractionDigits: Int
         let decimalMark: Character?
         let groupMark: Character?
+        /// Where the count starts; zero for the first reveal, the shown value when a new value arrives mid-count.
+        private(set) var start: Decimal = 0
+
+        func starting(at value: Decimal) -> Run {
+            var run = self
+            run.start = max(0, value)
+            return run
+        }
+
+        /// The value shown at `progress` of the count (0–1), easing out.
+        func value(progress: Double) -> Decimal {
+            let clamped = min(1, max(0, progress))
+            let eased = 1 - pow(1 - clamped, 3)
+            return start + (value - start) * Decimal(eased)
+        }
 
         /// Nil when the text has no number, or its number cannot be written back exactly.
         init?(final: String) {
@@ -351,10 +376,8 @@ enum FWCountUp {
 
         /// The text at `progress` of the count (0–1), easing out.
         func text(progress: Double) -> String {
-            let clamped = min(1, max(0, progress))
-            guard clamped < 1 else { return final }
-            let eased = 1 - pow(1 - clamped, 3)
-            return text(at: value * Decimal(eased))
+            guard progress < 1 else { return final }
+            return text(at: value(progress: progress))
         }
 
         /// `amount` written as the final text writes its number.

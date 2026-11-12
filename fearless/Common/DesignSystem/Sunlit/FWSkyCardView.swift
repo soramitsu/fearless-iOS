@@ -16,7 +16,7 @@ enum FWFeel {
     /// The sun in the sky card's image, as a fraction of its size.
     static let skySun = CGPoint(x: 0.519, y: 0.375)
     /// The scrim over the sky: lighter around the badge, strong enough under text that every text colour keeps 4.5:1.
-    static let scrimTop: CGFloat = 0.42
+    static let scrimTop: CGFloat = 0.3
     static let scrimText: CGFloat = 0.82
     static let scrimBottom: CGFloat = 0.88
 }

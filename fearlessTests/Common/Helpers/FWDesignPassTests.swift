@@ -31,6 +31,10 @@ final class FWCountUpTests: XCTestCase {
             XCTAssertTrue(text.hasPrefix("$"))
         }
         XCTAssertEqual(run.text(at: 1234.5), "$1,234.50")
+        // A new value mid-count: the count carries on from the shown value.
+        let retarget = run.starting(at: 5000)
+        XCTAssertEqual(retarget.text(progress: 0), "$5,000.00")
+        XCTAssertEqual(retarget.text(progress: 1), "$12,814.22")
         XCTAssertEqual(run.text(at: 999.999), "$999.99")
     }
 
