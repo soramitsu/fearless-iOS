@@ -80,6 +80,37 @@ final class FWSkyCardContrastTests: XCTestCase {
         }
     }
 
+    /// A radial gradient with no end point has no radius and paints nothing: the aurora's glows must show.
+    func testTheAuroraGlowsActuallyPaint() throws {
+        let aurora = FWAuroraView()
+        aurora.frame = CGRect(x: 0, y: 0, width: 400, height: 800)
+        aurora.layoutIfNeeded()
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        let image = UIGraphicsImageRenderer(size: aurora.bounds.size, format: format).image { context in
+            UIColor.black.setFill()
+            context.fill(aurora.bounds)
+            aurora.layer.render(in: context.cgContext)
+        }
+        let cgImage = try XCTUnwrap(image.cgImage)
+        let data = try XCTUnwrap(cgImage.dataProvider?.data)
+        let bytes = try XCTUnwrap(CFDataGetBytePtr(data))
+        func brightest(atX x: Int, y: Int) -> UInt8 {
+            let offset = y * cgImage.bytesPerRow + x * (cgImage.bitsPerPixel / 8)
+            // Opaque bitmaps carry one padding byte, first or last: the smaller of the two maxima skips it.
+            let first = max(bytes[offset], bytes[offset + 1], bytes[offset + 2])
+            let last = max(bytes[offset + 1], bytes[offset + 2], bytes[offset + 3])
+            return min(first, last)
+        }
+        // The pink glow's centre (20 % across, 18 % down) and the ember's (85 %, 55 %) are lit; each stays faint.
+        for (x, y) in [(80, 144), (340, 440)] {
+            let value = brightest(atX: x, y: y)
+            XCTAssertGreaterThan(value, 12, "(\(x), \(y))")
+            XCTAssertLessThan(value, 60, "(\(x), \(y))")
+        }
+    }
+
     /// The highest relative luminance among the card's pixels from `top` down, away from the rim.
     private static func brightestLuminance(in view: UIView, below top: CGFloat) -> CGFloat? {
         let size = view.bounds.size

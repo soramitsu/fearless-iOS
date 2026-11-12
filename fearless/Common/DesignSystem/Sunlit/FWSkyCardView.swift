@@ -159,6 +159,9 @@ final class FWSkyCardView: UIView {
         scrim.endPoint = CGPoint(x: 0.5, y: 1)
         clipView.layer.addSublayer(scrim)
         glow.type = .radial
+        // A radial gradient's radius runs from its start point to its end point: here, the frame's edge.
+        glow.startPoint = CGPoint(x: 0.5, y: 0.5)
+        glow.endPoint = CGPoint(x: 1, y: 1)
         glow.colors = [FWSunlit.Palette.sun.withAlphaComponent(0.42), FWSunlit.Palette.sun.withAlphaComponent(0)].map(\.cgColor)
         glow.locations = [0, 1]
         glow.opacity = 0
@@ -261,6 +264,8 @@ final class FWAuroraView: UIView {
         backgroundColor = .clear
         for (layer, color) in [(pink, FWSunlit.Palette.brand), (ember, FWFeel.ember)] {
             layer.type = .radial
+            layer.startPoint = CGPoint(x: 0.5, y: 0.5)
+            layer.endPoint = CGPoint(x: 1, y: 1)
             layer.colors = [color.withAlphaComponent(FWFeel.auroraAlpha), color.withAlphaComponent(0)].map(\.cgColor)
             layer.locations = [0, 1]
             self.layer.addSublayer(layer)

@@ -28,6 +28,8 @@ final class FWTabWellView: UIView {
         well.style = .inset
         well.shape = { UIBezierPath(roundedRect: $0, cornerRadius: FWSunlit.Radius.tabWell) }
         glow.type = .radial
+        glow.startPoint = CGPoint(x: 0.5, y: 0.5)
+        glow.endPoint = CGPoint(x: 1, y: 1)
         glow.colors = [FWSunlit.Palette.brand.withAlphaComponent(0.34), FWSunlit.Palette.brand.withAlphaComponent(0)]
             .map(\.cgColor)
         glow.locations = [0, 1]
