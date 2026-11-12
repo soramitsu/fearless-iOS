@@ -42,8 +42,11 @@ final class FWCountUpTests: XCTestCase {
     }
 
     func testTheFirstRevealIsClaimedOnce() {
-        // Claimed by the first real value after launch only; later values roll.
-        _ = FWLivingBalance.claimFirstReveal(previous: nil, new: "$1.00")
+        // A zero total ("$0" before prices load) is never the reveal; the first value above zero after launch is, and
+        // only once: later values roll.
+        XCTAssertFalse(FWLivingBalance.claimFirstReveal(previous: nil, new: "$0"))
+        XCTAssertFalse(FWLivingBalance.claimFirstReveal(previous: "$0.00", new: "—"))
+        _ = FWLivingBalance.claimFirstReveal(previous: "$0", new: "$1.00")
         XCTAssertFalse(FWLivingBalance.claimFirstReveal(previous: nil, new: "$2.00"))
         XCTAssertFalse(FWLivingBalance.claimFirstReveal(previous: "$1.00", new: "$2.00"))
     }

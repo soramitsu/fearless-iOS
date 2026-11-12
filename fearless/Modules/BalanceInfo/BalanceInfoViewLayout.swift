@@ -224,12 +224,14 @@ extension BalanceInfoViewLayout: SkeletonLoadable {
     }
 }
 
-/// The wallet total counts up from zero once per launch, the first time it shows a value.
+/// The wallet total counts up from zero once per launch, the first time it shows a value above zero: before prices
+/// load it may read "$0", and the count then runs from that zero to the real value.
 enum FWLivingBalance {
     private static var counted = false
 
     static func claimFirstReveal(previous: String?, new: String) -> Bool {
-        guard !counted, previous?.isEmpty != false, !new.isEmpty else { return false }
+        guard !counted, let value = FWDigitRoll.numericValue(new), value > 0 else { return false }
+        if let previous, !previous.isEmpty, (FWDigitRoll.numericValue(previous) ?? 0) != 0 { return false }
         counted = true
         return true
     }
