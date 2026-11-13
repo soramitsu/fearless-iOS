@@ -43,7 +43,7 @@ configurations = objects[targets[0]['buildConfigurationList']]['buildConfigurati
 release = [objects[key]['buildSettings'] for key in configurations if objects[key].get('name') == 'Release']
 assert len(release) == 1, 'production Release configuration must be unique'
 assert release[0]['CURRENT_PROJECT_VERSION'] == builds[0], 'archive/project build drift'
-assert release[0]['MARKETING_VERSION'] == '4.2.1', 'archive/project marketing version drift'
+assert release[0]['MARKETING_VERSION'] == '4.2.2', 'archive/project marketing version drift'
 PYTHON
 
 # Command-line build-setting overrides apply to every target in a workspace.

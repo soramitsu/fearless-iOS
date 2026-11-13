@@ -476,7 +476,13 @@ final class ChainRegistry {
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
-    private lazy var readLock = ReaderWriterLock()
+    // Every read and write of the state below goes through this lock. A `lazy var`
+    // would create it on first use, and two threads can then each create one.
+    private let readLock = ReaderWriterLock()
+    // Socket state changes arrive on the queue shared by every chain's socket. They
+    // look the chain up here, so that queue never waits for a chain list update.
+    private let connectionStateQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry.connection-state")
+    private let chainsTypesLock = NSLock()
 
     private var substrateConnectionPool: ConnectionPool? {
         connectionPools.first(where: { $0 is ConnectionPool }) as? ConnectionPool
@@ -489,10 +495,17 @@ final class ChainRegistry {
     // MARK: - State
 
     private var chains: [ChainModel] = []
-    private(set) var chainsTypesMap: [String: Data] = [:]
+    private var storedChainsTypesMap: [String: Data] = [:]
     private var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
-    private(set) var tonApiClientFactory: TonAPIClientFactory?
+    private var tonApiClientFactory: TonAPIClientFactory?
     private var tonApiChainId: ChainModel.Id?
+
+    // The types sync publishes this from its own queue while chains are being set up.
+    var chainsTypesMap: [String: Data] {
+        chainsTypesLock.lock()
+        defer { chainsTypesLock.unlock() }
+        return storedChainsTypesMap
+    }
 
     // MARK: - Constructor
 
@@ -836,7 +849,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func performHotBoot() {
-        guard chains.isEmpty else { return }
+        guard readLock.concurrentlyRead({ chains.isEmpty }) else { return }
         snapshotHotBootBuilder.startHotBoot()
     }
 
@@ -1063,14 +1076,26 @@ private extension ChainRegistry {
 
 extension ChainRegistry: ConnectionPoolDelegate {
     func webSocketDidChangeState(chainId: SSFModels.ChainModel.Id, state: SSFUtils.WebSocketEngine.State) {
-        guard let changedStateChain = chains.first(where: { chain in
-            chain.chainId == chainId
-        }) else {
-            return
-        }
+        // This runs on the socket queue while a chain list update can be running.
+        // 4.2.1 read `chains` here without the lock and crashed at launch when the
+        // update replaced the array mid-read. Waiting for the lock here would hold up
+        // every socket, so the lookup moves to the registry's own serial queue, which
+        // also keeps one chain's state changes in order.
+        connectionStateQueue.async { [weak self] in
+            guard let self else {
+                return
+            }
 
-        let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
-        eventCenter.notify(with: reconnectedEvent)
+            let changedStateChain = self.readLock.concurrentlyRead {
+                self.chains.first(where: { $0.chainId == chainId })
+            }
+
+            guard let changedStateChain else {
+                return
+            }
+
+            self.eventCenter.notify(with: ChainReconnectingEvent(chain: changedStateChain, state: state))
+        }
     }
 }
 
@@ -1078,7 +1103,9 @@ extension ChainRegistry: ConnectionPoolDelegate {
 
 extension ChainRegistry: EventVisitorProtocol {
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
-        chainsTypesMap = event.versioningMap
+        chainsTypesLock.lock()
+        storedChainsTypesMap = event.versioningMap
+        chainsTypesLock.unlock()
     }
 }
 
@@ -1090,7 +1117,9 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         usedRuntimePaths _: [String: [String]],
         runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
     ) async throws -> SSFRuntimeCodingService.RuntimeProviderProtocol {
-        guard let chain = chains.first(where: { $0.chainId == chainId }) else {
+        let chain = readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
+
+        guard let chain else {
             throw ChainRegistryError.chainUnavailable(chainId: chainId)
         }
         let chainTypes = chainsTypesMap[chainId]

@@ -22,7 +22,8 @@ final class AccountInfoUpdatingService {
 
     private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
 
-    private lazy var readLock = ReaderWriterLock()
+    // Created with the service: a lazily created lock can be created twice by two first callers.
+    private let readLock = ReaderWriterLock()
 
     private lazy var chainConnectionVisibilityHelper = {
         ChainConnectionVisibilityHelper()
