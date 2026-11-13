@@ -8,7 +8,7 @@ umask 077
 
 readonly LOG_PREFIX="[ios-release-archive]"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
-readonly EXPECTED_VERSION="4.2.2"
+readonly EXPECTED_VERSION="4.2.3"
 readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 # master took the 4.2.0 line as one squash commit (#1305), which drops that
 # ancestry. Its tree is exactly the tree of the pull request head, which
@@ -98,7 +98,8 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # Reconfirm successor uniqueness read-only immediately before archive.
 # Apple released 4.2.1 (2026.11.11), which closes that version to new uploads;
 # 2026.11.12 ships the launch-crash fix as 4.2.2.
-readonly EXPECTED_BUILD="2026.11.12"
+# 4.2.3 keeps that fix and ships the Yatagarasu redesign and Ignite launch.
+readonly EXPECTED_BUILD="2026.11.13"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -119,7 +120,7 @@ Preconditions:
     distributed 4.2.0 (2026.7.28) source commit, directly or through its
     squash into master (#1305); a fresh clone gets that pull request's head
     with `git fetch origin refs/pull/1305/head`;
-  - App Store Connect read-only uniqueness check for 4.2.2 (2026.11.12);
+  - App Store Connect read-only uniqueness check for 4.2.3 (2026.11.13);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 

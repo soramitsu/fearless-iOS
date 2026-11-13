@@ -10,7 +10,7 @@ umask 077
 readonly LOG_PREFIX="[ios-signed-release-audit]"
 readonly EXPECTED_TEAM="YLWWUD25VZ"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
-readonly EXPECTED_VERSION="4.2.2"
+readonly EXPECTED_VERSION="4.2.3"
 readonly EXPECTED_MINIMUM_OS="15.0"
 readonly EXPECTED_BITCOIN_SUPPORT_CONTRACT="bip84-mainnet-v1"
 readonly EXPECTED_BITCOIN_SERVICE_CONTRACT="mempool-space-public-esplora-v1"
