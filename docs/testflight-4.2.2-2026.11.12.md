@@ -1,6 +1,8 @@
 # Fearless iOS 4.2.2 (2026.11.12)
 
-Apple accepted this build for normal App Review on 13 November 2026 at 01:21:40 UTC. App Store Connect reported `WAITING_FOR_REVIEW` with `AFTER_APPROVAL` selected. Apple will publish the version after approval.
+Apple accepted this build for normal App Review on 13 November 2026 at 01:21:40 UTC. App Store Connect reported `WAITING_FOR_REVIEW` with `AFTER_APPROVAL` selected.
+
+Before review began, the same version record was renumbered 4.2.3 and its build replaced by the branded 2026.11.13. That build's source contains this fix. It went to review at 14:16:38 UTC as submission `1a0c829d-5361-46a3-b9f9-fa4b3ba841bf`, and the 4.2.2 submission closed. Build 2026.11.12 was never reviewed. It remains valid on TestFlight.
 
 | Release identity | Value |
 | --- | --- |
