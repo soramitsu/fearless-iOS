@@ -734,9 +734,9 @@ final class SubstrateStorageClassResolutionTests: XCTestCase {
         )
 
         let modelURL = try XCTUnwrap(
-            appBundle.url(
-                forResource: "SubstrateDataModel",
-                withExtension: "momd"
+            SubstrateStorageVersion.version8.modelURL(
+                in: appBundle,
+                modelDirectory: SubstrateStorageParams.modelDirectory
             )
         )
         let settings = CoreDataPersistentSettings(
