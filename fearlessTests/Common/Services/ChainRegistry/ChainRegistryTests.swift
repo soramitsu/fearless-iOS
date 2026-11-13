@@ -1304,7 +1304,6 @@ extension ChainRegistryTests {
         for round in 1 ... rounds {
             XCTAssertTrue(observable.send(try (0 ..< chainCount).map { .update(newItem: try chain($0, round: round)) }))
         }
-        let lastNode = try makeNode("stress-\(chainCount - 1)-\(rounds)")
 
         let callCounter = LockedCounter()
         let stop = LockedCounter()
@@ -1324,9 +1323,9 @@ extension ChainRegistryTests {
             }
         }
 
-        try waitForCondition(timeout: 120) {
-            registry.getChain(for: "state-stress-\(chainCount - 1)")?.selectedNode == lastNode
-        }
+        // The provider hands each batch to the registry on a concurrent queue, so the rounds can be
+        // applied in any order. Wait for every batch (the insert and each round), not for the last node.
+        try waitForCondition(timeout: 120) { eventCenter.chainsSetupCompletedCount >= rounds + 1 }
         stop.increment()
         XCTAssertEqual(readers.wait(timeout: .now() + 30), .success)
 
@@ -1335,6 +1334,13 @@ extension ChainRegistryTests {
         XCTAssertGreaterThan(calls, 0)
         try waitForCondition(timeout: 60) { eventCenter.reconnectingEvents.count == calls }
         XCTAssertEqual(registry.availableChains.count, chainCount)
+
+        // Whatever order the rounds were applied in, each chain ends on the node of one of them.
+        for index in 0 ..< chainCount {
+            let sentNodes = try (1 ... rounds).map { try makeNode("stress-\(index)-\($0)") }
+            let node = try XCTUnwrap(registry.getChain(for: "state-stress-\(index)")?.selectedNode)
+            XCTAssertTrue(sentNodes.contains(node), "state-stress-\(index) ended on \(node.name)")
+        }
     }
 
     func testChainTypesPublishedWhileTheyAreReadAreNeverTorn() {
@@ -1579,6 +1585,7 @@ private final class LockedIssuesListener: NetworkIssuesCenterListener, ChainsIss
 private final class RecordingEventCenter: EventCenterProtocol {
     private let lock = NSLock()
     private var events: [ChainReconnectingEvent] = []
+    private var setupCompletions = 0
 
     var reconnectingEvents: [ChainReconnectingEvent] {
         lock.lock()
@@ -1586,14 +1593,22 @@ private final class RecordingEventCenter: EventCenterProtocol {
         return events
     }
 
-    func notify(with event: EventProtocol) {
-        guard let event = event as? ChainReconnectingEvent else {
-            return
-        }
-
+    /// The registry posts one setup completion for each batch of chain changes it applies.
+    var chainsSetupCompletedCount: Int {
         lock.lock()
-        events.append(event)
-        lock.unlock()
+        defer { lock.unlock() }
+        return setupCompletions
+    }
+
+    func notify(with event: EventProtocol) {
+        lock.lock()
+        defer { lock.unlock() }
+
+        if let event = event as? ChainReconnectingEvent {
+            events.append(event)
+        } else if event is ChainsSetupCompleted {
+            setupCompletions += 1
+        }
     }
 
     func add(
