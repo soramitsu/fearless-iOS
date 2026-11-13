@@ -872,7 +872,8 @@ extension ChainRegistry: ChainRegistryProtocol {
 
         chainProvider.addObserver(
             self,
-            deliverOn: DispatchQueue.global(qos: .userInitiated),
+            // Submit writes in provider order so an older node update cannot overwrite a newer one.
+            deliverOn: processingQueue,
             executing: updateClosure,
             failing: failureClosure,
             options: options

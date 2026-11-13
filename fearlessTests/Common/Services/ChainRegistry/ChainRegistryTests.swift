@@ -1324,11 +1324,15 @@ extension ChainRegistryTests {
             }
         }
 
-        try waitForCondition(timeout: 120) {
-            registry.getChain(for: "state-stress-\(chainCount - 1)")?.selectedNode == lastNode
+        do {
+            defer {
+                stop.increment()
+                XCTAssertEqual(readers.wait(timeout: .now() + 30), .success)
+            }
+            try waitForCondition(timeout: 120) {
+                registry.getChain(for: "state-stress-\(chainCount - 1)")?.selectedNode == lastNode
+            }
         }
-        stop.increment()
-        XCTAssertEqual(readers.wait(timeout: .now() + 30), .success)
 
         // A chain being updated is never missing from a list read under the lock, so no call is dropped.
         let calls = callCounter.value
