@@ -244,17 +244,22 @@ final class ChainRegistryTests: XCTestCase {
     ) throws -> T {
         let deadline = Date().addingTimeInterval(timeout)
 
-        while Date() < deadline {
+        // Look at the state before the deadline: one run-loop turn can outlast the whole budget. XCTest records issues
+        // (such as the Thread Performance Checker's) from this run loop and symbolicates them in process, which took
+        // up to 11 s right after a fresh build, while the registry kept working on its own queues.
+        while true {
             if let value = valueProvider() {
                 return value
+            }
+
+            guard Date() < deadline else {
+                throw ChainRegistryTestError.timeout
             }
 
             RunLoop.current.run(
                 until: Date().addingTimeInterval(0.01)
             )
         }
-
-        throw ChainRegistryTestError.timeout
     }
 
     private func waitForCondition(
@@ -370,7 +375,7 @@ private final class ChainRegistryTestObservable:
     DataProviderRepositoryObservable {
     typealias Model = ChainModel
 
-    private let condition = NSCondition()
+    private let lock = NSLock()
     private weak var observer: AnyObject?
     private var deliveryQueue: DispatchQueue?
     private var updateBlock: (([DataProviderChange<ChainModel>]) -> Void)?
@@ -388,45 +393,55 @@ private final class ChainRegistryTestObservable:
         deliverOn queue: DispatchQueue,
         executing updateBlock: @escaping ([DataProviderChange<ChainModel>]) -> Void
     ) {
-        condition.lock()
+        lock.lock()
         self.observer = observer
         deliveryQueue = queue
         self.updateBlock = updateBlock
-        condition.broadcast()
-        condition.unlock()
+        lock.unlock()
     }
 
     func removeObserver(_ observer: AnyObject) {
-        condition.lock()
+        lock.lock()
         if self.observer === observer {
             self.observer = nil
             deliveryQueue = nil
             updateBlock = nil
         }
-        condition.unlock()
+        lock.unlock()
     }
 
+    /// Polls on the run loop instead of blocking: the provider attaches from its utility-QoS queue, and a test thread
+    /// blocked on that queue is a priority inversion the Thread Performance Checker reports. XCTest then records the
+    /// report on the test thread, and symbolicating it took up to 11 s right after a fresh build.
     func waitUntilObserverAttached(timeout: TimeInterval = 5) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
 
-        condition.lock()
-        defer { condition.unlock() }
+        while true {
+            if isObserverAttached {
+                return true
+            }
 
-        while observer == nil || deliveryQueue == nil || updateBlock == nil {
-            guard condition.wait(until: deadline) else {
+            guard Date() < deadline else {
                 return false
             }
-        }
 
-        return true
+            RunLoop.current.run(until: Date().addingTimeInterval(0.01))
+        }
+    }
+
+    private var isObserverAttached: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return observer != nil && deliveryQueue != nil && updateBlock != nil
     }
 
     @discardableResult
     func send(_ changes: [DataProviderChange<ChainModel>]) -> Bool {
-        condition.lock()
+        lock.lock()
         let queue = deliveryQueue
         let block = updateBlock
-        condition.unlock()
+        lock.unlock()
 
         guard let queue, let block else {
             return false
