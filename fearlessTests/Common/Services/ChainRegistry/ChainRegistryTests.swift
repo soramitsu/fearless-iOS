@@ -180,9 +180,9 @@ final class ChainRegistryTests: XCTestCase {
         provider.removeObserver(registry)
     }
 
-    private func makeChainProvider()
+    private func makeChainProvider(storedChains: [ChainModel] = [])
         -> (StreamableProvider<ChainModel>, ChainRegistryTestObservable) {
-        let repository = ChainRegistryTestRepository()
+        let repository = ChainRegistryTestRepository(storedChains: storedChains)
         let observable = ChainRegistryTestObservable()
         let source = fearless.EmptyStreamableSource<ChainModel>()
 
@@ -310,6 +310,13 @@ private final class ChainRegistryTestRepository:
     DataProviderRepositoryProtocol {
     typealias Model = ChainModel
 
+    /// What each new subscription reads from the store before it observes changes.
+    private let storedChains: [ChainModel]
+
+    init(storedChains: [ChainModel] = []) {
+        self.storedChains = storedChains
+    }
+
     func fetchOperation(
         by _: @escaping () throws -> [String],
         options _: RepositoryFetchOptions
@@ -327,7 +334,8 @@ private final class ChainRegistryTestRepository:
     func fetchAllOperation(
         with _: RepositoryFetchOptions
     ) -> BaseOperation<[ChainModel]> {
-        ClosureOperation { [] }
+        let chains = storedChains
+        return ClosureOperation { chains }
     }
 
     func fetchOperation(
@@ -474,6 +482,13 @@ private final class RecordingConnectionFactory: ConnectionFactoryProtocol {
         lock.lock()
         defer { lock.unlock() }
         return urls
+    }
+
+    /// The first node of each connection made for one chain, in the order they were made.
+    func connectedURLs(forChain chainId: ChainModel.Id) -> [URL] {
+        lock.lock()
+        defer { lock.unlock() }
+        return connections.filter { $0.connectionName == chainId }.compactMap(\.url)
     }
 
     func createConnection(
@@ -1448,7 +1463,8 @@ extension ChainRegistryTests {
         provider: StreamableProvider<ChainModel>,
         connectionFactory: ConnectionFactoryProtocol,
         eventCenter: EventCenterProtocol,
-        hotBootBuilder: SnapshotHotBootBuilderProtocol = NoopSnapshotHotBootBuilder()
+        hotBootBuilder: SnapshotHotBootBuilderProtocol = NoopSnapshotHotBootBuilder(),
+        subscriptionFactory: SpecVersionSubscriptionFactoryProtocol? = nil
     ) -> ChainRegistry {
         ChainRegistry(
             snapshotHotBootBuilder: hotBootBuilder,
@@ -1458,10 +1474,137 @@ extension ChainRegistryTests {
             runtimeSyncService: makeRuntimeSyncService(),
             chainsTypesSyncService: NoopChainsTypesSyncService(),
             chainProvider: provider,
-            specVersionSubscriptionFactory: makeSubscriptionFactory(),
+            specVersionSubscriptionFactory: subscriptionFactory ?? makeSubscriptionFactory(),
             networkIssuesCenter: NoopNetworkIssuesCenter(),
             eventCenter: eventCenter
         )
+    }
+}
+
+// MARK: - Chain change batches applied in the order they were saved
+
+extension ChainRegistryTests {
+    /// The provider reads the store's changes in order. The registry must apply the batches in that order,
+    /// or an older node update can overwrite a newer one.
+    func testBackToBackUpdateBatchesLeaveEveryChainOnTheLastRoundsNode() throws {
+        let (provider, observable) = makeChainProvider()
+        let chainCount = 8
+        let rounds = 60
+        let connectionFactory = RecordingConnectionFactory()
+        let eventCenter = RecordingEventCenter()
+        let registry = makeSubstrateRegistry(
+            provider: provider,
+            connectionFactory: connectionFactory,
+            eventCenter: eventCenter
+        )
+        defer { provider.removeObserver(registry) }
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        func node(_ index: Int, round: Int) throws -> ChainNodeModel {
+            try makeNode("batch-order-\(index)-\(round)")
+        }
+
+        func chain(_ index: Int, round: Int) throws -> ChainModel {
+            makeChain(identifier: "batch-order-\(index)", disabled: false, node: try node(index, round: round))
+        }
+
+        // The insert and every round reach the provider back to back. Each round gives every chain a new node.
+        XCTAssertTrue(observable.send(try (0 ..< chainCount).map { .insert(newItem: try chain($0, round: 0)) }))
+        for round in 1 ... rounds {
+            XCTAssertTrue(observable.send(try (0 ..< chainCount).map { .update(newItem: try chain($0, round: round)) }))
+        }
+        // One setup completion per batch applied, in whatever order they were applied.
+        try waitForCondition(timeout: 60) { eventCenter.chainsSetupCompletedCount >= rounds + 1 }
+
+        XCTAssertEqual(registry.availableChains.count, chainCount)
+        for index in 0 ..< chainCount {
+            let chainId = "batch-order-\(index)"
+            let nodeURLs = try (0 ... rounds).map { try node(index, round: $0).url }
+            let lastNode = try node(index, round: rounds)
+            XCTAssertEqual(registry.getChain(for: chainId)?.selectedNode, lastNode)
+
+            // Each round reconnects the chain, so its connections show the order the rounds were applied in.
+            let appliedRounds = connectionFactory.connectedURLs(forChain: chainId).map { url in
+                nodeURLs.firstIndex(of: url) ?? -1
+            }
+            XCTAssertEqual(appliedRounds, Array(0 ... rounds), "\(chainId) applied the rounds out of order")
+        }
+    }
+
+    /// An insert can reach the registry after the chain is set up: an update that overtook its insert did so
+    /// before the batches were applied in order. The insert must replace the chain, not add a second entry.
+    func testUpdateAppliedBeforeTheInsertLeavesExactlyOneEntryPerChain() throws {
+        let (provider, observable) = makeChainProvider()
+        let eventCenter = RecordingEventCenter()
+        let registry = makeSubstrateRegistry(
+            provider: provider,
+            connectionFactory: RecordingConnectionFactory(),
+            eventCenter: eventCenter
+        )
+        defer { provider.removeObserver(registry) }
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        let chainIds = (0 ..< 4).map { "update-before-insert-\($0)" }
+        let updates = try chainIds.map { makeChain(identifier: $0, disabled: false, node: try makeNode("\($0)-update")) }
+        let inserts = try chainIds.map { makeChain(identifier: $0, disabled: false, node: try makeNode("\($0)-insert")) }
+
+        XCTAssertTrue(observable.send(updates.map { .update(newItem: $0) }))
+        try waitForCondition { eventCenter.chainsSetupCompletedCount == 1 }
+        XCTAssertEqual(registry.availableChains.count, chainIds.count)
+
+        XCTAssertTrue(observable.send(inserts.map { .insert(newItem: $0) }))
+        try waitForCondition { eventCenter.chainsSetupCompletedCount == 2 }
+
+        XCTAssertEqual(registry.availableChains.map(\.chainId).sorted(), chainIds.sorted())
+        for insert in inserts {
+            // The insert was applied last: the chain takes its node and connects to it.
+            XCTAssertEqual(registry.getChain(for: insert.chainId)?.selectedNode, insert.selectedNode)
+            XCTAssertEqual(
+                (registry.getConnection(for: insert.chainId) as? MockConnection)?.url,
+                insert.selectedNode?.url
+            )
+        }
+    }
+
+    /// The main screen subscribes after a cold boot already has, and each new subscription delivers every stored
+    /// chain as an insert. A chain that did not change keeps its one entry, connection and runtime subscription.
+    func testSubscribingAgainKeepsOneEntryAndOneConnectionPerChain() throws {
+        let chains = try (0 ..< 4).map { index in
+            makeChain(
+                identifier: "subscribe-again-\(index)",
+                disabled: false,
+                node: try makeNode("subscribe-again-\(index)")
+            )
+        }
+        let (provider, _) = makeChainProvider(storedChains: chains)
+        let connectionFactory = RecordingConnectionFactory()
+        let eventCenter = RecordingEventCenter()
+        let subscriptionFactory = makeSubscriptionFactory()
+        let registry = makeSubstrateRegistry(
+            provider: provider,
+            connectionFactory: connectionFactory,
+            eventCenter: eventCenter,
+            subscriptionFactory: subscriptionFactory
+        )
+        defer { provider.removeObserver(registry) }
+
+        registry.subscribeToChains()
+        try waitForCondition { eventCenter.chainsSetupCompletedCount == 1 }
+        let connections = chains.map { registry.getConnection(for: $0.chainId) as? MockConnection }
+
+        registry.subscribeToChains()
+        try waitForCondition { eventCenter.chainsSetupCompletedCount == 2 }
+
+        XCTAssertEqual(registry.availableChains.map(\.chainId).sorted(), chains.map(\.chainId).sorted())
+        XCTAssertEqual(connectionFactory.requestedURLs.count, chains.count, "an unchanged chain must not reconnect")
+        for (chain, connection) in zip(chains, connections) {
+            XCTAssertNotNil(connection)
+            XCTAssertTrue((registry.getConnection(for: chain.chainId) as? MockConnection) === connection)
+            XCTAssertEqual(connection?.disconnectCallCount, 0)
+        }
+        verify(subscriptionFactory, times(chains.count)).createSubscription(for: any(), connection: any())
     }
 }
 
@@ -1583,6 +1726,7 @@ private final class LockedIssuesListener: NetworkIssuesCenterListener, ChainsIss
 private final class RecordingEventCenter: EventCenterProtocol {
     private let lock = NSLock()
     private var events: [ChainReconnectingEvent] = []
+    private var setupCompletions = 0
 
     var reconnectingEvents: [ChainReconnectingEvent] {
         lock.lock()
@@ -1590,14 +1734,22 @@ private final class RecordingEventCenter: EventCenterProtocol {
         return events
     }
 
-    func notify(with event: EventProtocol) {
-        guard let event = event as? ChainReconnectingEvent else {
-            return
-        }
-
+    /// The registry posts one setup completion for each batch of chain changes it applies.
+    var chainsSetupCompletedCount: Int {
         lock.lock()
-        events.append(event)
-        lock.unlock()
+        defer { lock.unlock() }
+        return setupCompletions
+    }
+
+    func notify(with event: EventProtocol) {
+        lock.lock()
+        defer { lock.unlock() }
+
+        if let event = event as? ChainReconnectingEvent {
+            events.append(event)
+        } else if event is ChainsSetupCompleted {
+            setupCompletions += 1
+        }
     }
 
     func add(
