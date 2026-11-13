@@ -14,7 +14,8 @@ final class EthereumConnectionPool: ConnectionPoolProtocol {
     private let nodeFetching: EthereumNodeFetchingProtocol
     private let catalogOrder: EthereumNodeCatalogOrderProtocol
 
-    private lazy var lock = NSLock()
+    // Created with the pool: a lazily created lock can be created twice by two first callers.
+    private let lock = NSLock()
 
     init(
         nodeFetching: EthereumNodeFetchingProtocol =
