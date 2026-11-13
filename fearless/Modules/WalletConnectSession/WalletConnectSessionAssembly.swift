@@ -1,5 +1,5 @@
 import UIKit
-import WalletConnectSign
+import FearlessWalletConnect
 import SoraFoundation
 import SoraUI
 import RobinHood
@@ -10,6 +10,7 @@ enum WalletConnectSessionAssembly {
     static func configureModule(
         request: Request,
         session: Session?,
+        verification: WalletConnectVerification,
         onGoToConfirmation: ((WalletConnectConfirmationInputData) -> Void)?
     ) -> WalletConnectSessionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -34,13 +35,9 @@ enum WalletConnectSessionAssembly {
         )
         let router = WalletConnectSessionRouter(onGoToConfirmation: onGoToConfirmation)
 
-        let walletConnectModelFactory = WalletConnectModelFactoryImpl()
-        let walletConnectPayloaFactory = WalletConnectPayloadFactoryImpl()
         let viewModelFactory = WalletConnectSessionViewModelFactoryImpl(
-            request: request,
             session: session,
-            walletConnectModelFactory: walletConnectModelFactory,
-            walletConnectPayloaFactory: walletConnectPayloaFactory,
+            verification: verification,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
             accountScoreFetcher: accountScoreFetcher,
             settings: SettingsManager.shared
@@ -48,8 +45,9 @@ enum WalletConnectSessionAssembly {
         let presenter = WalletConnectSessionPresenter(
             request: request,
             session: session,
+            verification: verification,
             viewModelFactory: viewModelFactory,
-            walletConnectModelFactory: walletConnectModelFactory,
+            preparer: WalletConnectRequestPreparer(),
             logger: logger,
             interactor: interactor,
             router: router,

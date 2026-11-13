@@ -36,7 +36,11 @@ final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
     ) {
         let presenter = view?.controller.navigationController?.presentingViewController
 
-        let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: title)?.view.controller
+        let controller = AllDoneAssembly.configureModule(
+            chainAsset: chainAsset,
+            hashString: title,
+            celebration: .send
+        )?.view.controller
         controller?.modalPresentationStyle = .custom
 
         let factory = ModalSheetBlurPresentationFactory(

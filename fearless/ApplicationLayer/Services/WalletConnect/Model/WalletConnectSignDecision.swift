@@ -1,6 +1,5 @@
 import Foundation
-import WalletConnectSign
-import Commons
+import FearlessWalletConnect
 
 enum WalletConnectSignDecision {
     case signed(request: Request, signature: AnyCodable)

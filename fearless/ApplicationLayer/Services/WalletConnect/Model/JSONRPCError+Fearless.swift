@@ -1,5 +1,5 @@
 import Foundation
-import JSONRPC
+import FearlessWalletConnect
 
 extension JSONRPCError {
     // SignReasonCode

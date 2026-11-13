@@ -48,8 +48,10 @@ Path(path).write_text('\n'.join(lines))
 PYTHON
 }
 
-release_build="$(bash "$CHECK" "$REPO_ROOT" | sed -nE 's/.*Release 4\.2\.0 \(([0-9.]+)\).*/\1/p')"
-[[ -n "$release_build" ]] || {
+check_output="$(bash "$CHECK" "$REPO_ROOT")" || check_output=""
+release_version="$(sed -nE 's/.*Release ([0-9]+\.[0-9]+\.[0-9]+) \(([0-9.]+)\).*/\1/p' <<<"$check_output")"
+release_build="$(sed -nE 's/.*Release ([0-9]+\.[0-9]+\.[0-9]+) \(([0-9.]+)\).*/\2/p' <<<"$check_output")"
+[[ -n "$release_version" && -n "$release_build" ]] || {
   printf '[ios-build-number-test] the repository itself does not pass the check\n' >&2
   exit 1
 }
@@ -110,24 +112,24 @@ run_reject() {
 prepare_case canonical
 run_pass canonical
 
-# App Store Connect compares numeric components, not text: 2026.11.10 follows
-# the latest consumed build 2026.11.4 and 2026.9.10 precedes it, although text
+# App Store Connect compares numeric components, not text: 2026.11.14 follows
+# the latest consumed build 2026.11.12 and 2026.9.10 precedes it, although text
 # order puts the 2026.9.x builds last.
 prepare_case numeric-successor
-set_all_pins 2026.11.10
+set_all_pins 2026.11.14
 run_pass numeric-successor
 
 prepare_case text-successor-only
 set_all_pins 2026.9.10
-run_reject text-successor-only "2026.9.10 is not greater than latest consumed build 2026.11.4"
+run_reject text-successor-only "2026.9.10 is not greater than latest consumed build 2026.11.12"
 
 prepare_case reused-latest-build
-set_all_pins 2026.11.4
-run_reject reused-latest-build "2026.11.4 is not greater than latest consumed build 2026.11.4"
+set_all_pins 2026.11.12
+run_reject reused-latest-build "2026.11.12 is not greater than latest consumed build 2026.11.12"
 
 prepare_case reused-iroha-build
 set_all_pins 2026.8.34
-run_reject reused-iroha-build "2026.8.34 is not greater than latest consumed build 2026.11.4"
+run_reject reused-iroha-build "2026.8.34 is not greater than latest consumed build 2026.11.12"
 
 prepare_case release-listed-as-predecessor
 replace_line scripts/audit-testflight-upgrade-usability-gate.py \
@@ -138,8 +140,8 @@ run_reject release-listed-as-predecessor "is not greater than latest consumed bu
 prepare_case project-drift
 replace_line fearless.xcodeproj/project.pbxproj \
   "				CURRENT_PROJECT_VERSION = $release_build;" \
-  "				CURRENT_PROJECT_VERSION = 2026.11.6;"
-run_reject project-drift "pins $release_build, but the Release target builds 2026.11.6"
+  "				CURRENT_PROJECT_VERSION = 2026.11.14;"
+run_reject project-drift "pins $release_build, but the Release target builds 2026.11.14"
 
 prepare_case jenkins-drift
 replace_line Jenkinsfile \
@@ -152,16 +154,16 @@ replace_line fastlane/.env.example "TESTFLIGHT_BUILD=$release_build" "TESTFLIGHT
 run_reject fastlane-env-drift "fastlane/.env.example pins 2026.9.6"
 
 prepare_case fastlane-version-drift
-replace_line fastlane/.env.example "TESTFLIGHT_VERSION=4.2.0" "TESTFLIGHT_VERSION=4.1.0"
-run_reject fastlane-version-drift "TESTFLIGHT_VERSION must be 4.2.0"
+replace_line fastlane/.env.example "TESTFLIGHT_VERSION=$release_version" "TESTFLIGHT_VERSION=4.1.0"
+run_reject fastlane-version-drift "TESTFLIGHT_VERSION must be $release_version"
 
 prepare_case readme-drift
-python3 - "$case_root/fastlane/README.md" "$release_build" <<'PYTHON'
+python3 - "$case_root/fastlane/README.md" "$release_build" "$release_version" <<'PYTHON'
 import sys
 from pathlib import Path
-path, build = sys.argv[1:]
+path, build, version = sys.argv[1:]
 source = Path(path).read_text()
-marker = f'ios publish_archive \\\n  version:4.2.0 \\\n  build:{build}\n'
+marker = f'ios publish_archive \\\n  version:{version} \\\n  build:{build}\n'
 assert source.count(marker) == 1
 Path(path).write_text(source.replace(marker, marker.replace(build, '2026.8.34')))
 PYTHON
@@ -194,8 +196,8 @@ run_reject capture-not-allowlisted "does not allowlist SAFE_UPGRADE_BUILD_NUMBER
 
 prepare_case wrong-marketing-version
 replace_line fearless.xcodeproj/project.pbxproj \
-  "				MARKETING_VERSION = 4.2.0;" "				MARKETING_VERSION = 4.1.9;"
-run_reject wrong-marketing-version "MARKETING_VERSION must be 4.2.0"
+  "				MARKETING_VERSION = $release_version;" "				MARKETING_VERSION = 4.1.9;"
+run_reject wrong-marketing-version "MARKETING_VERSION must be $release_version"
 
 prepare_case non-canonical-build
 set_all_pins 2026.10.1-rc

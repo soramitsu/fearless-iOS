@@ -97,7 +97,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .currency:
             guard let selectedWallet = selectedWallet else { return }
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
-        case .biometry, .accountScore:
+        case .biometry, .accountScore, .soundEffects, .hapticFeedback:
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
@@ -129,6 +129,12 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 
             let event = AccountScoreSettingsChanged()
             eventCenter.notify(with: event)
+        case .soundEffects:
+            FWFeedbackSettings.shared.soundEnabled = isOn
+        case .hapticFeedback:
+            FWFeedbackSettings.shared.hapticsEnabled = isOn
+            // A touch when it comes on, so the switch shows what it does.
+            if isOn { FWFeedback.shared.play(.commit) }
         default:
             break
         }

@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 import SSFModels
 
 protocol WalletConnectModelFactory {

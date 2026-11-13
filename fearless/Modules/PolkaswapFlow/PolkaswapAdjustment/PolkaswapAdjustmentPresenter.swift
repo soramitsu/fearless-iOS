@@ -4,15 +4,31 @@ import BigInt
 import SSFModels
 
 enum PolkaswapQuoteResponsePolicy {
+    /// Shows a reply that answers the question on screen now, unless a newer reply to it is shown already.
+    ///
+    /// Every SORA block asks the same question again. Accepting only the newest request's reply (2026.11.5) threw
+    /// away every reply that took longer than a block, so a slow round trip kept the quote off screen indefinitely.
     static func shouldAccept(
         response: PolkaswapQuoteParams,
         latest: PolkaswapQuoteParams?,
+        lastAccepted: PolkaswapQuoteParams?,
         currentFromAssetId: String?,
         currentToAssetId: String?
     ) -> Bool {
-        response == latest &&
-            response.fromAssetId == currentFromAssetId &&
+        guard
+            let latest,
+            response.asksSameQuote(as: latest),
+            response.fromAssetId == currentFromAssetId,
             response.toAssetId == currentToAssetId
+        else {
+            return false
+        }
+
+        guard let lastAccepted, lastAccepted.asksSameQuote(as: response) else {
+            return true
+        }
+
+        return response.issueOrder > lastAccepted.issueOrder
     }
 }
 
@@ -25,7 +41,10 @@ final class PolkaswapAdjustmentPresenter {
 
     private enum Constants {
         static let slippadgeTolerance: Float = 0.5
-        static let quotesRequestDelay: CGFloat = 0.8
+        /// Waits for typing to pause; the quote itself takes a few hundred milliseconds.
+        static let quotesRequestDelay: CGFloat = 0.3
+        /// A block refresh adds no request while a reply this recent is still awaited.
+        static let quoteRefreshPatience: TimeInterval = 10
     }
 
     // MARK: Private properties
@@ -52,6 +71,9 @@ final class PolkaswapAdjustmentPresenter {
     private var detailsViewModel: PolkaswapAdjustmentDetailsViewModel?
     private var quotesWorkItem: DispatchWorkItem?
     private var latestQuoteParams: PolkaswapQuoteParams?
+    private var lastAcceptedQuoteParams: PolkaswapQuoteParams?
+    private var quoteIssueOrder: UInt64 = 0
+    private var awaitedQuoteSince: Date?
 
     private var slippadgeTolerance: Float = Constants.slippadgeTolerance
     private var selectedLiquiditySourceType: LiquiditySourceType {
@@ -215,24 +237,71 @@ final class PolkaswapAdjustmentPresenter {
         return balanceViewModelFactory
     }
 
+    /// A changed pair, amount, direction or market: the shown quote no longer applies, so ask again.
     private func fetchQuotes() {
         quotesWorkItem?.cancel()
         quotesWorkItem = nil
         latestQuoteParams = nil
+        awaitedQuoteSince = nil
         invalidateCalculatedQuote()
 
+        guard let quoteParams = makeCurrentQuoteParams() else {
+            return
+        }
+        latestQuoteParams = quoteParams
+
+        let task = DispatchWorkItem { [weak self] in
+            self?.sendQuoteRequest(quoteParams)
+        }
+        quotesWorkItem = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
+    }
+
+    /// A new SORA block may move prices. Ask the same question again, but keep the shown quote and any request
+    /// already on its way: cancelling them on every block is what kept quotes from ever arriving.
+    private func refreshQuotesForNewBlock() {
+        guard quotesWorkItem == nil else {
+            // The user is still typing; that request is about to go out.
+            return
+        }
+
+        if let awaitedQuoteSince, Date().timeIntervalSince(awaitedQuoteSince) < Constants.quoteRefreshPatience {
+            return
+        }
+
+        guard let quoteParams = makeCurrentQuoteParams() else {
+            return
+        }
+
+        if let latestQuoteParams, !latestQuoteParams.asksSameQuote(as: quoteParams) {
+            // The inputs changed without passing through fetchQuotes(); treat it as a new question.
+            fetchQuotes()
+            return
+        }
+
+        latestQuoteParams = quoteParams
+        sendQuoteRequest(quoteParams)
+    }
+
+    private func sendQuoteRequest(_ quoteParams: PolkaswapQuoteParams) {
+        quotesWorkItem = nil
+        awaitedQuoteSince = Date()
+        interactor.fetchQuotes(with: quoteParams)
+    }
+
+    private func makeCurrentQuoteParams() -> PolkaswapQuoteParams? {
         guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
               let marketSourcer = marketSource
         else {
-            return
+            return nil
         }
 
         guard
             let swapFromAssetId = swapFromChainAsset.asset.currencyId,
             let swapToAssetId = swapToChainAsset.asset.currencyId
         else {
-            return
+            return nil
         }
 
         let amount: String
@@ -242,7 +311,7 @@ final class PolkaswapAdjustmentPresenter {
                 balance = xorBalanceMinusFee
             }
             guard let fromAmountDecimal = swapFromInputResult?.absoluteValue(from: balance ?? .zero) else {
-                return
+                return nil
             }
             let bigUIntValue = fromAmountDecimal.toSubstrateAmount(
                 precision: Int16(swapFromChainAsset.asset.precision)
@@ -250,7 +319,7 @@ final class PolkaswapAdjustmentPresenter {
             amount = String(bigUIntValue)
         } else {
             guard let toAmountDecimal = swapToInputResult?.absoluteValue(from: swapToBalance ?? .zero) else {
-                return
+                return nil
             }
             let bigUIntValue = toAmountDecimal.toSubstrateAmount(
                 precision: Int16(swapToChainAsset.asset.precision)
@@ -258,23 +327,17 @@ final class PolkaswapAdjustmentPresenter {
             amount = String(bigUIntValue)
         }
 
-        let liquiditySources = marketSourcer.getRemoteMarketSources()
+        quoteIssueOrder &+= 1
 
-        let quoteParams = PolkaswapQuoteParams(
+        return PolkaswapQuoteParams(
+            issueOrder: quoteIssueOrder,
             fromAssetId: swapFromAssetId,
             toAssetId: swapToAssetId,
             amount: amount,
             swapVariant: swapVariant,
-            liquiditySources: liquiditySources,
+            liquiditySources: marketSourcer.getRemoteMarketSources(),
             filterMode: selectedLiquiditySourceType.filterMode
         )
-        latestQuoteParams = quoteParams
-
-        let task = DispatchWorkItem { [weak self] in
-            self?.interactor.fetchQuotes(with: quoteParams)
-        }
-        quotesWorkItem = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
     }
 
     private func subscribeToPoolUpdates() {
@@ -437,6 +500,7 @@ final class PolkaswapAdjustmentPresenter {
         quotesWorkItem?.cancel()
         quotesWorkItem = nil
         latestQuoteParams = nil
+        awaitedQuoteSince = nil
         invalidateCalculatedQuote()
         calcalatedAmounts = nil
         swapFromInputResult = nil
@@ -916,9 +980,14 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     }
 
     func didReceiveSwapValues(_ valuesMap: [SwapValues], params: PolkaswapQuoteParams, errors: [Error]) {
+        if let latestQuoteParams, params.issueOrder >= latestQuoteParams.issueOrder {
+            awaitedQuoteSince = nil
+        }
+
         guard PolkaswapQuoteResponsePolicy.shouldAccept(
             response: params,
             latest: latestQuoteParams,
+            lastAccepted: lastAcceptedQuoteParams,
             currentFromAssetId: swapFromChainAsset?.asset.currencyId,
             currentToAssetId: swapToChainAsset?.asset.currencyId
         ) else {
@@ -926,13 +995,20 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         }
 
         errors.forEach { logger.error("\($0)") }
-        provideAmount(params: params, quotes: valuesMap)
-        if valuesMap.isEmpty, errors.isNotEmpty {
-            invalidateParams()
-            let title = R.string.localizable
-                .polkaswapQuotesNotAvailable(preferredLanguages: selectedLocale.rLanguages)
-            router.present(message: nil, title: title, closeAction: nil, from: view)
+
+        guard valuesMap.isNotEmpty else {
+            // A failed block refresh keeps the quote on screen; the next block asks again.
+            if errors.isNotEmpty, calcalatedAmounts == nil {
+                invalidateParams()
+                let title = R.string.localizable
+                    .polkaswapQuotesNotAvailable(preferredLanguages: selectedLocale.rLanguages)
+                router.present(message: nil, title: title, closeAction: nil, from: view)
+            }
+            return
         }
+
+        lastAcceptedQuoteParams = params
+        provideAmount(params: params, quotes: valuesMap)
     }
 
     func didReceiveSettings(settings: PolkaswapRemoteSettings?) {
@@ -948,8 +1024,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     }
 
     func updateQuotes() {
-        calcalatedAmounts = nil
-        fetchQuotes()
+        refreshQuotesForNewBlock()
     }
 
     func didReceiveDisclaimer(isRead: Bool) {

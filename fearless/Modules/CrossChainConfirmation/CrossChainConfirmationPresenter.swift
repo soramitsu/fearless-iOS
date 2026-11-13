@@ -20,6 +20,8 @@ final class CrossChainConfirmationPresenter {
 
     private let teleportData: CrossChainConfirmationData
     private let viewModelFactory: CrossChainConfirmationViewModelFactoryProtocol
+    private let submissionAuthorizer: SubmissionAuthorizing
+    private let feedback: FWFeedbackPlaying
 
     // MARK: - Constructors
 
@@ -28,12 +30,16 @@ final class CrossChainConfirmationPresenter {
         viewModelFactory: CrossChainConfirmationViewModelFactoryProtocol,
         interactor: CrossChainConfirmationInteractorInput,
         router: CrossChainConfirmationRouterInput,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer(),
+        feedback: FWFeedbackPlaying = FWFeedback.shared
     ) {
+        self.feedback = feedback
         self.teleportData = teleportData
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
+        self.submissionAuthorizer = submissionAuthorizer
         self.localizationManager = localizationManager
     }
 
@@ -79,8 +85,10 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationViewOutput {
             }
             return
         }
-        view?.didStartLoading()
-        interactor.submit(confirmingRepeat: false)
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            self?.view?.didStartLoading()
+            self?.interactor.submit(confirmingRepeat: false)
+        }
     }
 }
 
@@ -130,6 +138,8 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutpu
             guard let view = view else {
                 return
             }
+            // The transfer failed or was rejected: the system's error touch.
+            feedback.play(.failure)
 
             // These carry the exact reason, such as a changed destination fee or the wrong network; the generic
             // presenter knows neither type and would only say that the transaction failed.
@@ -188,8 +198,10 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutpu
                 guard sendAgain, let self else {
                     return
                 }
-                self.view?.didStartLoading()
-                self.interactor.submit(confirmingRepeat: true)
+                self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                    self?.view?.didStartLoading()
+                    self?.interactor.submit(confirmingRepeat: true)
+                }
             },
             icon: R.image.iconWarningBig()
         )

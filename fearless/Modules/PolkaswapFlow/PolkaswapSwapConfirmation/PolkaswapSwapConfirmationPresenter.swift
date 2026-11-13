@@ -11,6 +11,7 @@ final class PolkaswapSwapConfirmationPresenter {
     private var params: PolkaswapPreviewParams
     private let viewModelFactory: PolkaswapSwapConfirmationViewModelFactoryProtocol
     private let completeClosure: (() -> Void)?
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     // MARK: - Constructors
 
@@ -20,13 +21,15 @@ final class PolkaswapSwapConfirmationPresenter {
         interactor: PolkaswapSwapConfirmationInteractorInput,
         router: PolkaswapSwapConfirmationRouterInput,
         completeClosure: (() -> Void)?,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
         self.params = params
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
         self.completeClosure = completeClosure
+        self.submissionAuthorizer = submissionAuthorizer
         self.localizationManager = localizationManager
     }
 
@@ -62,8 +65,10 @@ extension PolkaswapSwapConfirmationPresenter: PolkaswapSwapConfirmationViewOutpu
             return
         }
 
-        view?.didStartLoading()
-        interactor.submit()
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            self?.view?.didStartLoading()
+            self?.interactor.submit()
+        }
     }
 }
 

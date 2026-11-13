@@ -10,6 +10,10 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
     private var substrateDerivationPathModel: InputViewModelProtocol?
     private var ethereumDerivationPathModel: InputViewModelProtocol?
     private var isFirstLayoutCompleted: Bool = false
+    private lazy var captureGuard = SecretCaptureGuard(
+        owner: self,
+        languages: { [weak self] in self?.locale.rLanguages }
+    )
 
     private var locale: Locale {
         localizationManager?.selectedLocale ?? Locale.current
@@ -42,11 +46,13 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupKeyboardHandler()
+        captureGuard.start()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()
+        captureGuard.stop()
     }
 
     override func viewDidLayoutSubviews() {
@@ -153,6 +159,7 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         setupMnemonicViewIfNeeded()
 
         rootView.mnemonicView?.bind(words: mnemonic, columnsCount: 2)
+        captureGuard.protect(rootView.mnemonicView.map { [$0] } ?? [])
     }
 
     func set(chainType: AccountCreateChainType) {

@@ -141,11 +141,48 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         let address = wallet.ethereumAddress?.toHex(includePrefix: true)
         router.presentAccountScore(address: address, from: view)
     }
+
+    func didTapHomeAction(_ action: WalletHomeAction) {
+        switch action {
+        case .send, .receive, .buy:
+            router.showAssetPicker(from: view, wallet: wallet, action: action, output: self)
+        case .swap:
+            router.showSwap(from: view)
+        }
+    }
+}
+
+// MARK: - SelectAssetModuleOutput
+
+extension WalletMainContainerPresenter: SelectAssetModuleOutput {
+    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?) {
+        guard let chainAsset = chainAsset, let action = contextTag.flatMap(WalletHomeAction.init(rawValue:)) else {
+            return
+        }
+        // The picker dismisses itself right after answering; the next screen opens once it has gone.
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            switch action {
+            case .send:
+                self.router.showSendFlow(from: self.view, wallet: self.wallet, initialData: .chainAsset(chainAsset))
+            case .receive:
+                self.router.showReceive(from: self.view, wallet: self.wallet, chainAsset: chainAsset)
+            case .buy:
+                self.router.showAssetDetails(from: self.view, chainAsset: chainAsset)
+            case .swap:
+                break
+            }
+        }
+    }
 }
 
 // MARK: - WalletMainContainerInteractorOutput
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
+    func didReceive(syncUpdate: WalletSyncUpdate) {
+        view?.didReceive(syncUpdate: syncUpdate)
+    }
+
     func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [SSFModels.ChainModel])) {
         selectedNetworkManagmentFilter = tuple.select
 

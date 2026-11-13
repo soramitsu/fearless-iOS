@@ -14,6 +14,11 @@ final class AllDoneViewLayout: UIView {
         static let contentStackViewTopOffset: CGFloat = 76
         static let spacing24: CGFloat = 24
         static let spacing16: CGFloat = 16
+        /// The send success ignite around the mark: 2.2 times the mark's dark disc, drawn with its stars inside the frame.
+        static let solarGeometrySize: CGFloat = 176
+        static let solarGeometryRadiusFraction: CGFloat = 0.85
+        /// The figure ends at least this far above the title.
+        static let solarGeometryClearance: CGFloat = 16
     }
 
     var copyOnTap: (() -> Void)?
@@ -39,6 +44,31 @@ final class AllDoneViewLayout: UIView {
         return stack
     }()
 
+    /// The send success ignite: the solar geometry drawing itself around the mark (kit v3).
+    let solarGeometryView: FWSolarGeometryView = {
+        let view = FWSolarGeometryView()
+        view.isHidden = true
+        view.radiusFraction = Constants.solarGeometryRadiusFraction
+        return view
+    }()
+
+    /// The space between the mark and the title when the solar geometry shows: the figure, centred on the mark,
+    /// must end `solarGeometryClearance` above the title.
+    static var solarGeometryTitleSpacing: CGFloat {
+        max(Constants.spacing24, Constants.solarGeometrySize / 2 - Constants.imageViewContainerSize / 2 + Constants.solarGeometryClearance)
+    }
+
+    static var solarGeometrySide: CGFloat { Constants.solarGeometrySize }
+    static var markSide: CGFloat { Constants.imageViewContainerSize }
+
+    /// A send success screen: makes room under the mark for the figure before the first layout, so nothing moves when
+    /// it ignites.
+    func reserveSolarGeometryRoom() {
+        contentStackView.setCustomSpacing(Self.solarGeometryTitleSpacing, after: imageViewContainer)
+    }
+
+    let imageViewContainer = UIView()
+
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.fearlessPink()
@@ -46,7 +76,7 @@ final class AllDoneViewLayout: UIView {
         return imageView
     }()
 
-    private let titleLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -122,6 +152,12 @@ final class AllDoneViewLayout: UIView {
     }
 
     // MARK: - Public methods
+
+    /// Draws the solar geometry around the mark over 0.9 s, then lets it settle to 25 %.
+    func igniteSolarGeometry() {
+        solarGeometryView.isHidden = false
+        solarGeometryView.ignite(duration: 0.9, settleOpacity: 0.25)
+    }
 
     func bind(_ viewModel: AllDoneViewModel) {
         titleLabel.text = viewModel.title
@@ -204,7 +240,6 @@ final class AllDoneViewLayout: UIView {
             make.trailing.equalTo(safeAreaLayoutGuide).inset(Constants.closeButtonInset)
         }
 
-        let imageViewContainer = UIView()
         imageViewContainer.backgroundColor = R.color.colorBlack()
         imageViewContainer.layer.cornerRadius = Constants.imageViewContainerSize / 2
         imageViewContainer.layer.shadowColor = R.color.colorPink()!.cgColor
@@ -220,6 +255,7 @@ final class AllDoneViewLayout: UIView {
             make.size.equalTo(Constants.imageViewSize)
         }
 
+        addSubview(solarGeometryView)
         addSubview(contentStackView)
         contentStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(Constants.contentStackViewTopOffset)
@@ -228,6 +264,10 @@ final class AllDoneViewLayout: UIView {
         }
 
         contentStackView.addArrangedSubview(imageViewContainer)
+        solarGeometryView.snp.makeConstraints { make in
+            make.center.equalTo(imageViewContainer)
+            make.size.equalTo(Constants.solarGeometrySize)
+        }
         contentStackView.setCustomSpacing(Constants.spacing24, after: imageViewContainer)
         contentStackView.addArrangedSubview(titleLabel)
         contentStackView.setCustomSpacing(Constants.spacing16, after: titleLabel)

@@ -9,6 +9,10 @@ final class WalletMainContainerViewLayout: UIView {
         static let splitMinimumWidth: CGFloat = 860
         static let splitHeaderWidth: CGFloat = 360
         static let splitSpacing: CGFloat = 24
+        static let sunSize: CGFloat = 88
+        /// Height the asset list keeps below the header; the header scrolls inside the rest.
+        static let assetViewportMinimum: CGFloat = 220
+        static let heroPadding: CGFloat = 20
     }
 
     /// Where the wallet header and the asset list go: stacked at full width (iPhone
@@ -27,14 +31,10 @@ final class WalletMainContainerViewLayout: UIView {
         }
     }
 
-    private let backgroundImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.image = R.image.backgroundImage()
-        return imageView
-    }()
+    /// The sun-lit page, hero card, sun and round actions (see WalletMainContainerViewLayout+Sunlit).
+    let sunlit = WalletHomeSunlitParts()
 
-    private let contentView: UIStackView = {
+    let contentView: UIStackView = {
         let view = UIFactory.default.createVerticalStackView()
         view.alignment = .center
         return view
@@ -42,6 +42,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     let headerScrollView = UIScrollView()
     private var headerHeightLimit: Constraint?
+    private var accessibleNetworkWidth: Constraint?
 
     // MARK: - Navigation view properties
 
@@ -66,25 +67,8 @@ final class WalletMainContainerViewLayout: UIView {
 
     let selectNetworkButton = SelectedNetworkButton()
 
-    let scanQRButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = R.color.colorWhite8()
-        button.setImage(R.image.iconScanQr(), for: .normal)
-        button.layer.cornerRadius = Constants.accessoryButtonSize / 2
-        button.clipsToBounds = true
-        return button
-    }()
-
-    let searchButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = R.color.colorWhite8()
-        button.setImage(R.image.iconSearchWhite(), for: .normal)
-        button.layer.cornerRadius = Constants.accessoryButtonSize / 2
-        button.clipsToBounds = true
-        return button
-    }()
-
-    // MARK: - Wallet balance view
+    let scanQRButton = FWRoundIconButton.make(image: R.image.iconScanQr())
+    let searchButton = FWRoundIconButton.make(image: R.image.iconSearchWhite())
 
     private let walletBalanceVStackView = UIFactory.default.createVerticalStackView(spacing: 4)
     let walletBalanceViewContainer = UIView()
@@ -102,13 +86,10 @@ final class WalletMainContainerViewLayout: UIView {
 
     let pageViewControllerContainer = UIView()
 
-    let pageViewController: UIPageViewController = {
-        let pageController = UIPageViewController(
-            transitionStyle: .scroll,
-            navigationOrientation: .horizontal
-        )
-        return pageController
-    }()
+    let pageViewController: UIPageViewController = .init(
+        transitionStyle: .scroll,
+        navigationOrientation: .horizontal
+    )
 
     // MARK: - Lifecycle
 
@@ -116,6 +97,7 @@ final class WalletMainContainerViewLayout: UIView {
         super.init(frame: frame)
         setupLayout()
         updateHeaderScrolling()
+        updateTopRowAxis()
         applyLocalization()
     }
 
@@ -127,12 +109,14 @@ final class WalletMainContainerViewLayout: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         updateHeaderScrolling()
+        updateTopRowAxis()
         updateTypography()
     }
 
     override func layoutSubviews() {
         updatePlacement()
         super.layoutSubviews()
+        updateSunPosition()
     }
 
     override func safeAreaInsetsDidChange() {
@@ -142,6 +126,11 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func updateHeaderScrolling() {
+        if traitCollection.preferredContentSizeCategory.isAccessibilityCategory {
+            accessibleNetworkWidth?.activate()
+        } else {
+            accessibleNetworkWidth?.deactivate()
+        }
         // Side by side, the header always scrolls within the window's height.
         if placement == .split || FWAppearance.walletHeaderRestyled ||
             traitCollection.preferredContentSizeCategory.isAccessibilityCategory {
@@ -169,7 +158,13 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     func addBalance(_ view: UIView) {
-        (view as? BalanceInfoViewLayout)?.configurePortfolioPresentation(locale: locale)
+        if let balance = view as? BalanceInfoViewLayout {
+            balance.configurePortfolioPresentation(locale: locale)
+            balance.onLoadingChange = { [weak self] loading in
+                self?.setBalanceLoading(loading)
+            }
+            setBalanceLoading(balance.isLoadingTotal)
+        }
         walletBalanceViewContainer.addSubview(view)
         view.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -188,6 +183,7 @@ final class WalletMainContainerViewLayout: UIView {
             R.string.localizable.nftsStub(preferredLanguages: locale.rLanguages)
         ]
         segmentedControl.setSegmentItems(localizedItems)
+        localizeActions()
         guard FWAppearance.walletHeaderRestyled else { return }
         switchWalletButton.accessibilityLabel = PortfolioHeaderText.string("ux.switch_wallet", locale: locale)
         selectNetworkButton.accessibilityLabel = PortfolioHeaderText.string("ux.choose_network", locale: locale)
@@ -214,10 +210,7 @@ final class WalletMainContainerViewLayout: UIView {
     // MARK: - Private layout methods
 
     private func setupLayout() {
-        addSubview(backgroundImageView)
-        backgroundImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        installSunlitPage()
 
         headerScrollView.contentInsetAdjustmentBehavior = .never
         addSubview(headerScrollView)
@@ -229,6 +222,7 @@ final class WalletMainContainerViewLayout: UIView {
 
         setupNavigationViewLayout()
         setupWalletBalanceLayout()
+        setupActionsLayout()
         setupSegmentedLayout()
         setupListLayout()
 
@@ -240,25 +234,29 @@ final class WalletMainContainerViewLayout: UIView {
         identityRow.axis = .horizontal
         identityRow.alignment = .center
         identityRow.spacing = 12
+        arrangeTopRow(identity: identityRow, title: walletNameTitle)
         switchWalletButton.snp.makeConstraints { make in
             make.size.equalTo(Constants.walletIconSize)
         }
-        let toolsRow = UIStackView(arrangedSubviews: [UIView(), searchButton, scanQRButton])
-        toolsRow.axis = .horizontal
-        toolsRow.alignment = .center
-        toolsRow.spacing = 8
         selectNetworkButton.snp.makeConstraints { make in
             make.height.greaterThanOrEqualTo(Constants.accessoryButtonSize)
             make.width.greaterThanOrEqualTo(Constants.accessoryButtonSize)
         }
-        [searchButton, scanQRButton].forEach { button in
+        for button in [searchButton, scanQRButton] {
             button.snp.makeConstraints { make in make.size.equalTo(Constants.accessoryButtonSize) }
         }
-        let headerStack = UIStackView(arrangedSubviews: [identityRow, selectNetworkButton, toolsRow])
+        let networkRow = UIStackView(arrangedSubviews: [selectNetworkButton, UIView()])
+        networkRow.axis = .horizontal
+        networkRow.alignment = .center
+        let headerStack = UIStackView(arrangedSubviews: [sunlit.topRow, networkRow])
         headerStack.axis = .vertical
         headerStack.spacing = 12
         navigationContainerView.addSubview(headerStack)
         headerStack.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        selectNetworkButton.snp.makeConstraints { make in
+            accessibleNetworkWidth = make.width.equalTo(navigationContainerView).constraint
+        }
+        accessibleNetworkWidth?.deactivate()
         contentView.addArrangedSubview(navigationContainerView)
         navigationContainerView.snp.makeConstraints { make in
             make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
@@ -290,15 +288,28 @@ final class WalletMainContainerViewLayout: UIView {
 
         walletBalanceVStackView.distribution = .fill
         walletBalanceVStackView.alignment = .center
+        walletBalanceVStackView.addArrangedSubview(sunlit.sunBadge)
         walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
         walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
         walletBalanceVStackView.addArrangedSubview(accountScoreView)
+        walletBalanceVStackView.setCustomSpacing(6, after: sunlit.sunBadge)
+        walletBalanceVStackView.setCustomSpacing(10, after: walletBalanceViewContainer)
         walletBalanceVStackView.setCustomSpacing(4, after: addressCopyableLabel)
+        sunlit.sunBadge.snp.makeConstraints { make in
+            make.size.equalTo(Constants.sunSize)
+        }
 
-        contentView.setCustomSpacing(20, after: navigationContainerView)
-        contentView.addArrangedSubview(walletBalanceVStackView)
+        installSkyCard()
+        sunlit.heroSurface.addSubview(walletBalanceVStackView)
         walletBalanceVStackView.snp.makeConstraints { make in
-            make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(14)
+            make.bottom.equalToSuperview().inset(16)
+            make.leading.trailing.equalToSuperview().inset(Constants.heroPadding)
+        }
+        contentView.setCustomSpacing(16, after: navigationContainerView)
+        contentView.addArrangedSubview(sunlit.heroSurface)
+        sunlit.heroSurface.snp.makeConstraints { make in
+            make.width.equalTo(contentView.snp.width).offset(-2.0 * FWSunlit.Spacing.gutter)
         }
         walletBalanceViewContainer.snp.makeConstraints { make in
             make.width.equalTo(walletBalanceVStackView)
@@ -306,7 +317,7 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupSegmentedLayout() {
-        contentView.setCustomSpacing(20, after: walletBalanceVStackView)
+        contentView.setCustomSpacing(20, after: sunlit.actionsStack)
         contentView.addArrangedSubview(segmentContainer)
         segmentContainer.addSubview(segmentedControl)
         segmentedControl.snp.makeConstraints { make in
@@ -355,7 +366,7 @@ private extension WalletMainContainerViewLayout {
                 make.leading.trailing.equalToSuperview()
                 make.height.equalTo(contentView.snp.height).priority(.high)
                 headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
-                    .multipliedBy(0.55).constraint
+                    .offset(-Constants.assetViewportMinimum).constraint
             }
             pageViewControllerContainer.snp.remakeConstraints { make in
                 make.top.equalTo(headerScrollView.snp.bottom).offset(8)
@@ -370,7 +381,7 @@ private extension WalletMainContainerViewLayout {
                 make.width.lessThanOrEqualTo(AdaptiveLayout.contentColumnWidth)
                 make.height.equalTo(contentView.snp.height).priority(.high)
                 headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
-                    .multipliedBy(0.55).constraint
+                    .offset(-Constants.assetViewportMinimum).constraint
             }
             pageViewControllerContainer.snp.remakeConstraints { make in
                 make.top.equalTo(headerScrollView.snp.bottom).offset(8)

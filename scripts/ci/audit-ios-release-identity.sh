@@ -40,7 +40,7 @@ readonly INFO_PLIST_FILE="${IOS_RELEASE_INFO_PLIST_FILE:-$REPO_ROOT/fearless/Inf
 readonly WALLET_CONNECT_SERVICE_FILE="${IOS_RELEASE_WALLET_CONNECT_SERVICE_FILE:-$REPO_ROOT/fearless/ApplicationLayer/Services/WalletConnect/WalletConnectService.swift}"
 readonly EXPECTED_BUNDLE_ID="${IOS_EXPECTED_BUNDLE_ID:-jp.co.soramitsu.fearlesswallet}"
 readonly EXPECTED_DEBUG_BUNDLE_ID="${IOS_EXPECTED_DEBUG_BUNDLE_ID:-jp.co.soramitsu.fearlesswallet.dev}"
-readonly EXPECTED_VERSION="${IOS_EXPECTED_MARKETING_VERSION:-4.2.0}"
+readonly EXPECTED_VERSION="${IOS_EXPECTED_MARKETING_VERSION:-4.2.3}"
 readonly EXPECTED_BUILD="${IOS_EXPECTED_BUILD_NUMBER:-}"
 [[ "$EXPECTED_BUILD" =~ ^[1-9][0-9]{0,3}(\.[0-9]{1,2}){0,2}$ ]] ||
   fail "IOS_EXPECTED_BUILD_NUMBER must be an explicit canonical CFBundleVersion"

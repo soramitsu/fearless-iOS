@@ -1,3 +1,4 @@
+import CoreText
 import UIKit
 
 enum FWFontStyle: CaseIterable {
@@ -62,11 +63,15 @@ extension UIFont {
             } else {
                 let medium = bold || recipe.face == .hud
                 let mono = UIFont(name: medium ? "JetBrainsMono-Medium" : "JetBrainsMono-Regular", size: recipe.size)
-                if bold, recipe.face == .hud, let descriptor = mono?.fontDescriptor.withSymbolicTraits(.traitBold) {
+                let boldHud = bold && recipe.face == .hud
+                if boldHud, let descriptor = mono?.fontDescriptor.withSymbolicTraits(.traitBold) {
                     base = UIFont(descriptor: descriptor, size: recipe.size)
+                } else if boldHud {
+                    // The bundled family stops at Medium, the HUD's normal weight, so Bold Text
+                    // takes the heavier system face rather than leaving the HUD unchanged.
+                    base = .monospacedSystemFont(ofSize: recipe.size, weight: .semibold)
                 } else {
-                    let fallbackWeight: Weight = bold && recipe.face == .hud ? .semibold : (medium ? .medium : .regular)
-                    base = mono ?? .monospacedSystemFont(ofSize: recipe.size, weight: fallbackWeight)
+                    base = mono ?? .monospacedSystemFont(ofSize: recipe.size, weight: medium ? .medium : .regular)
                 }
             }
         default:
@@ -86,5 +91,18 @@ extension UIFont {
             fw(style, locale: locale, compatibleWith: traits).lineHeight,
             UIFontMetrics(forTextStyle: recipe.metric).scaledValue(for: line, compatibleWith: traits)
         )
+    }
+}
+
+extension NSAttributedString.Key {
+    /// The language of the text. CoreText picks fallback glyphs by it, so kanji in Japanese text
+    /// keep their Japanese forms on a device whose own language is not Japanese.
+    static let fwLanguage = NSAttributedString.Key(kCTLanguageAttributeName as String)
+}
+
+extension Locale {
+    /// Tag for `NSAttributedString.Key.fwLanguage`, for example "ja", "zh-Hans" or "pt-PT".
+    var fwTextLanguage: String {
+        Locale.canonicalLanguageIdentifier(from: identifier)
     }
 }

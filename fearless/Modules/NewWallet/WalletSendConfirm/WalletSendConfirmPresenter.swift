@@ -74,6 +74,9 @@ final class WalletSendConfirmPresenter {
     private let wallet: MetaAccountModel
     private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     private let scamInfo: ScamInfo?
+    private let submissionAuthorizer: SubmissionAuthorizing
+    private let pasteboard: PasteboardStringAccessing
+    private let feedback: FWFeedbackPlaying
     private var feeViewModel: BalanceViewModelProtocol?
 
     private var balance: Decimal?
@@ -122,10 +125,15 @@ final class WalletSendConfirmPresenter {
         call: SendConfirmTransferCall,
         scamInfo: ScamInfo?,
         feeViewModel: BalanceViewModelProtocol?,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer(),
+        pasteboard: PasteboardStringAccessing = UIPasteboard.general,
+        feedback: FWFeedbackPlaying = FWFeedback.shared
     ) {
+        self.feedback = feedback
         self.interactor = interactor
         self.wireframe = wireframe
+        self.pasteboard = pasteboard
         self.accountViewModelFactory = accountViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.walletSendConfirmViewModelFactory = walletSendConfirmViewModelFactory
@@ -135,6 +143,8 @@ final class WalletSendConfirmPresenter {
         self.wallet = wallet
         self.scamInfo = scamInfo
         self.feeViewModel = chainAsset.chain.isTonCompatibilityChain ? nil : feeViewModel
+        // Every stored property first: assigning `localizationManager` already uses `self`.
+        self.submissionAuthorizer = submissionAuthorizer
         self.localizationManager = localizationManager
         if let feeViewModel, !chainAsset.chain.isTonCompatibilityChain {
             fee = Decimal(string: feeViewModel.amount)
@@ -366,26 +376,34 @@ final class WalletSendConfirmPresenter {
                 locale: selectedLocale
             )
         ]).runValidation { [weak self] in
-            guard let strongSelf = self else { return }
-            if strongSelf.isSolanaTransfer {
-                guard strongSelf.solanaReviewGeneration == generation,
-                      strongSelf.beginSolanaAttempt() else { return }
+            guard let self = self else { return }
+            // The PIN, or a trusted biometric, is asked right before anything is signed or sent.
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                guard let strongSelf = self else { return }
+                if strongSelf.isSolanaTransfer {
+                    guard strongSelf.solanaReviewGeneration == generation,
+                          strongSelf.beginSolanaAttempt() else { return }
+                }
+                let admittedGeneration = strongSelf.solanaReviewGeneration
+                strongSelf.view?.didStartLoading()
+                guard !strongSelf.isSolanaTransfer ||
+                    (strongSelf.solanaReviewActive &&
+                        strongSelf.solanaReviewGeneration == admittedGeneration) else { return }
+                strongSelf.interactor.submitExtrinsic()
             }
-            let admittedGeneration = strongSelf.solanaReviewGeneration
-            strongSelf.view?.didStartLoading()
-            guard !strongSelf.isSolanaTransfer ||
-                (strongSelf.solanaReviewActive &&
-                    strongSelf.solanaReviewGeneration == admittedGeneration) else { return }
-            strongSelf.interactor.submitExtrinsic()
         }
     }
 
     private func submitXorlessTransfer() {
-        guard !isSolanaTransfer || beginSolanaAttempt() else { return }
-        let generation = solanaReviewGeneration
-        view?.didStartLoading()
-        guard !isSolanaTransfer || (solanaReviewActive && solanaReviewGeneration == generation) else { return }
-        interactor.submitExtrinsic()
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            guard let self = self else { return }
+            guard !self.isSolanaTransfer || self.beginSolanaAttempt() else { return }
+            let generation = self.solanaReviewGeneration
+            self.view?.didStartLoading()
+            guard !self.isSolanaTransfer ||
+                (self.solanaReviewActive && self.solanaReviewGeneration == generation) else { return }
+            self.interactor.submitExtrinsic()
+        }
     }
 
     private func checkLoadingState() {
@@ -407,6 +425,7 @@ final class WalletSendConfirmPresenter {
             return false
         }
 
+        let pasteboard = pasteboard
         let copyAction = SheetAlertPresentableAction(
             title: tonRecoveryLocalizedString(
                 key: "ton.transfer.unknown.copy_hash",
@@ -414,7 +433,7 @@ final class WalletSendConfirmPresenter {
             ),
             style: .pinkBackgroundWhiteText
         ) {
-            UIPasteboard.general.string = recovery.messageHashHex
+            pasteboard.string = recovery.messageHashHex
         }
         let messageTemplate = tonRecoveryLocalizedString(
             key: "ton.transfer.unknown.message",
@@ -512,13 +531,14 @@ final class WalletSendConfirmPresenter {
     }
 
     private func bitcoinCopyAction(_ recovery: BitcoinUnresolvedTransferModel) -> SheetAlertPresentableAction {
-        SheetAlertPresentableAction(
+        let pasteboard = pasteboard
+        return SheetAlertPresentableAction(
             title: recoveryLocalizedString(
                 key: "bitcoin.transfer.copy_txid",
                 fallback: "Copy transaction ID"
             )
         ) {
-            UIPasteboard.general.string = recovery.txid
+            pasteboard.string = recovery.txid
         }
     }
 
@@ -700,7 +720,7 @@ final class WalletSendConfirmPresenter {
             )
         ) { [weak self] in
             guard let self, self.solanaReviewActive, self.solanaRecoveryReceipt == receipt else { return }
-            UIPasteboard.general.string = signature
+            self.pasteboard.string = signature
         }
     }
 
@@ -1161,6 +1181,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             }
 
             if case let TransferServiceError.bitcoinTransferNotSent(reason) = error {
+                feedback.play(.failure)
                 presentBitcoinTransferNotSent(reason)
                 return
             }
@@ -1175,9 +1196,13 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             }
 
             if case let TransferServiceError.solanaTransferNotSent(reason) = error {
+                feedback.play(.failure)
                 presentSolanaTransferNotSent(reason)
                 return
             }
+
+            // From here on the transfer definitely failed or was rejected: the system's error touch.
+            feedback.play(.failure)
 
             if let reason = SendUnavailableReason(transferError: error) {
                 presentSendUnavailable(reason)

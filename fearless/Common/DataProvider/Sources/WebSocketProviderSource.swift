@@ -165,7 +165,10 @@ final class WebSocketProviderSource<T: Decodable & Equatable>: DataProviderSourc
         mutex.lock()
 
         if let subscriptionId = subscriptionId {
-            engine.cancelForIdentifier(subscriptionId)
+            // cancelForIdentifier only withdraws an unanswered request; an established
+            // subscription keeps running on the node until it is unsubscribed. The
+            // engine removes the handler even when it cannot send the request.
+            try? engine.unsubsribe(subscriptionId)
         }
 
         subscriptionId = nil

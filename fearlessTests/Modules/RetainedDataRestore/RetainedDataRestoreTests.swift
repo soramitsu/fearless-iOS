@@ -1,6 +1,8 @@
 import CoreData
 @testable import fearless
+import SoraFoundation
 import SoraKeystore
+import struct SSFUtils.ScryptParameters
 import XCTest
 
 final class RetainedDataRestoreTests: XCTestCase {
@@ -388,5 +390,288 @@ final class EmergencyWalletMaterialShareTests: XCTestCase {
         // The user must still be able to take the material to a recovery tool.
         XCTAssertFalse(excluded.contains(.airDrop))
         XCTAssertFalse(excluded.contains(.mail))
+    }
+}
+
+final class EmergencyWalletMaterialEncryptionTests: XCTestCase {
+    private let password = "correct horse battery"
+    private let material = EmergencyWalletMaterial(
+        records: [
+            .init(tag: "0f5e-entropy", bytesBase64: "AAH/"),
+            .init(tag: "0f5e0011-substrateSecretKey", bytesBase64: "+/8=")
+        ],
+        unreadableTags: ["0f5e-seed"]
+    )
+
+    /// Produced by `scripts/recovery/decrypt-emergency-material.py` (OpenSSL scrypt and its
+    /// own standard-library scrypt agree) for salt 0x01 * 32, nonce 0x02 * 24, N=1024, r=8, p=1.
+    /// Equality proves the app's C scrypt + TweetNacl output opens with the open-source tool.
+    private let pythonEncoded = "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEABAAAAQAAAAgAAAACAgICAgICAgICAgICAgICAgICAgICAgIEFQ0wibxzc/nnqpl/IbMou4PXE5pqJ9X8/vT7GNjaYJlrHNg51czqf6w9vXSBSVVfTioTGfaxniKttota18U7ZFm5kJjlQgV+0YTkFzXPBgm+Te9qlEP3vVAFIJ1ZI1oMHBxuwGrT+MVzevDBCUtSXR6E5NHEUzqqSuBynzca1lCs6y469JBJja8zBBXNX2iGNef5QU93nSOa/KGwOMqBH8HOWlOSAlvifaMMecFZO+ym30vuczbGPFiyXnRBJDHkfM0NB/vxVC5CTyUV"
+
+    private func fixedEncryptor() -> EmergencyWalletMaterialEncryptor {
+        EmergencyWalletMaterialEncryptor(
+            makeScryptParameters: {
+                try ScryptParameters(salt: Data(repeating: 1, count: 32), scryptN: 1024, scryptP: 1, scryptR: 8)
+            },
+            makeNonce: { Data(repeating: 2, count: 24) }
+        )
+    }
+
+    func testFileMatchesTheOpenSourceDecryptorVectorAndRoundTrips() throws {
+        let file = try fixedEncryptor().encrypt(material, password: password)
+        let envelope = try JSONDecoder().decode(EncryptedEmergencyWalletMaterial.self, from: file)
+
+        XCTAssertEqual(envelope.format, "fearless-emergency-material-encrypted-v1")
+        XCTAssertEqual(envelope.encoding, ["scrypt", "xsalsa20-poly1305"])
+        XCTAssertEqual(envelope.records, 2)
+        XCTAssertEqual(envelope.unreadable, 1)
+        XCTAssertEqual(envelope.encoded, pythonEncoded)
+        XCTAssertEqual(try EmergencyWalletMaterialEncryptor.decrypt(file, password: password), material)
+    }
+
+    func testDefaultParametersAreRandomAndStillOpen() throws {
+        let first = try EmergencyWalletMaterialEncryptor().encrypt(material, password: password)
+        let second = try EmergencyWalletMaterialEncryptor().encrypt(material, password: password)
+
+        XCTAssertNotEqual(first, second)
+        XCTAssertEqual(try EmergencyWalletMaterialEncryptor.decrypt(first, password: password), material)
+        let envelope = try JSONDecoder().decode(EncryptedEmergencyWalletMaterial.self, from: first)
+        let encoded = try XCTUnwrap(Data(base64Encoded: envelope.encoded))
+        let parameters = try ScryptParameters(data: encoded)
+        XCTAssertEqual(parameters.scryptN, 32768)
+        XCTAssertEqual(parameters.scryptR, 8)
+        XCTAssertEqual(parameters.scryptP, 1)
+    }
+
+    func testFileNeverCarriesASecretOrTagInTheClear() throws {
+        let file = try fixedEncryptor().encrypt(material, password: password)
+        let text = String(decoding: file, as: UTF8.self)
+
+        for leaked in ["0f5e-entropy", "AAH/", "+/8=", "substrateSecretKey", "0f5e-seed"] {
+            XCTAssertFalse(text.contains(leaked), leaked)
+        }
+    }
+
+    func testShortPasswordsAreRefusedAndWrongPasswordsDoNotOpen() throws {
+        XCTAssertThrowsError(try fixedEncryptor().encrypt(material, password: "1234567")) { error in
+            XCTAssertEqual(error as? EmergencyWalletMaterialEncryptionError, .weakPassword)
+        }
+
+        let file = try fixedEncryptor().encrypt(material, password: password)
+        XCTAssertThrowsError(try EmergencyWalletMaterialEncryptor.decrypt(file, password: password + "!")) { error in
+            XCTAssertEqual(error as? EmergencyWalletMaterialEncryptionError, .wrongPasswordOrDamagedFile)
+        }
+
+        var tampered = try JSONSerialization.jsonObject(with: file) as? [String: Any] ?? [:]
+        var encoded = try XCTUnwrap(Data(base64Encoded: tampered["encoded"] as? String ?? ""))
+        encoded[encoded.count - 1] ^= 0x01
+        tampered["encoded"] = encoded.base64EncodedString()
+        let tamperedFile = try JSONSerialization.data(withJSONObject: tampered)
+        XCTAssertThrowsError(try EmergencyWalletMaterialEncryptor.decrypt(tamperedFile, password: password))
+    }
+
+    func testExportFilesLiveInTheirOwnDirectoryAndAreRemovedWithIt() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let file = try SensitiveExportFiles.write(Data("sealed".utf8), fileName: "export.json", temporaryDirectory: root)
+        XCTAssertTrue(file.deletingLastPathComponent().lastPathComponent.hasPrefix(SensitiveExportFiles.directoryPrefix))
+        XCTAssertEqual(try Data(contentsOf: file), Data("sealed".utf8))
+
+        SensitiveExportFiles.remove(file)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: file.deletingLastPathComponent().path))
+
+        let outsider = root.appendingPathComponent("keep.json")
+        try Data().write(to: outsider)
+        SensitiveExportFiles.remove(outsider)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: outsider.path), "Only export directories are ever removed")
+    }
+
+    func testLaunchCleanupRemovesSecretLeftoversAndNothingElse() throws {
+        let manager = FileManager.default
+        let root = manager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let temporary = root.appendingPathComponent("tmp", isDirectory: true)
+        let inbox = root.appendingPathComponent("Inbox", isDirectory: true)
+        try manager.createDirectory(at: temporary, withIntermediateDirectories: true)
+        try manager.createDirectory(at: inbox, withIntermediateDirectories: true)
+        defer { try? manager.removeItem(at: root) }
+
+        let legacyExport = temporary.appendingPathComponent("fearless-json-\(UUID().uuidString)", isDirectory: true)
+        try manager.createDirectory(at: legacyExport, withIntermediateDirectories: true)
+        try Data("{}".utf8).write(to: legacyExport.appendingPathComponent("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY.json"))
+        let export = temporary.appendingPathComponent(SensitiveExportFiles.directoryPrefix + UUID().uuidString, isDirectory: true)
+        try manager.createDirectory(at: export, withIntermediateDirectories: true)
+        let removable = [
+            "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY.json",
+            "cnTkNjrs9F3YUoQkwgwHRzcFMvFpmMdmxjAFnWnd3jaJwzmKP.json",
+            "0x52908400098527886E0F7030069857D2E4169EE7.json"
+        ]
+        let kept = ["notes.json", "image.png", "0x1234.json", "fearless-other"]
+        for name in removable + kept {
+            try Data().write(to: temporary.appendingPathComponent(name))
+        }
+        let now = Date()
+        let oldInbox = inbox.appendingPathComponent("old-keystore.json")
+        try Data("{}".utf8).write(to: oldInbox)
+        try manager.setAttributes([.modificationDate: now.addingTimeInterval(-2 * 60 * 60)], ofItemAtPath: oldInbox.path)
+        // An "Open in Fearless" still importing must keep its file.
+        let freshInbox = inbox.appendingPathComponent("fresh-keystore.json")
+        try Data("{}".utf8).write(to: freshInbox)
+        try manager.setAttributes([.modificationDate: now.addingTimeInterval(-60)], ofItemAtPath: freshInbox.path)
+
+        let removed = SensitiveExportFiles.removeLeftovers(
+            fileManager: manager,
+            temporaryDirectory: temporary,
+            inboxDirectory: inbox,
+            now: now
+        )
+
+        XCTAssertEqual(removed, removable.count + 3)
+        let remaining = Set(try manager.contentsOfDirectory(atPath: temporary.path))
+        XCTAssertEqual(remaining, Set(kept))
+        XCTAssertEqual(try manager.contentsOfDirectory(atPath: inbox.path), ["fresh-keystore.json"])
+    }
+}
+
+final class WalletSecretEraserTests: XCTestCase {
+    func testForgottenWalletLosesExactlyItsOwnSecrets() throws {
+        let keystore = InMemoryKeychain()
+        let chainAccount = AccountGenerator.generateChainAccount()
+        let removed = AccountGenerator.generateMetaAccount(with: [chainAccount])
+        let kept = AccountGenerator.generateMetaAccount()
+        let replacedChainKey = removed.metaId + Data(repeating: 0xAB, count: 32).toHex() + "-substrateSecretKey"
+        let orphan = UUID().uuidString + "-entropy"
+
+        let removedTags = [
+            KeystoreTagV2.entropyTagForMetaId(removed.metaId),
+            KeystoreTagV2.substrateSecretKeyTagForMetaId(removed.metaId),
+            KeystoreTagV2.ethereumSecretKeyTagForMetaId(removed.metaId),
+            KeystoreTagV2.universalWalletSecretSourceTagForMetaId(removed.metaId),
+            KeystoreTagV2.substrateSecretKeyTagForMetaId(removed.metaId, accountId: chainAccount.accountId),
+            KeystoreTagV2.substrateDerivationTagForMetaId(removed.metaId, accountId: chainAccount.accountId),
+            replacedChainKey
+        ]
+        let keptTags = [
+            KeystoreTagV2.entropyTagForMetaId(kept.metaId),
+            KeystoreTagV2.substrateSecretKeyTagForMetaId(kept.metaId),
+            orphan,
+            KeystoreTagV2.pincode.rawValue,
+            removed.metaId + "-notAWalletSuffix"
+        ]
+        for tag in removedTags + keptTags {
+            try keystore.saveKey(Data(tag.utf8), with: tag)
+        }
+
+        let eraser = WalletSecretEraser(keystore: keystore, storedTags: { removedTags + keptTags })
+        let erased = eraser.eraseSecrets(of: [removed], remainingMetaIds: [kept.metaId])
+
+        XCTAssertEqual(erased, removedTags.count)
+        for tag in removedTags {
+            XCTAssertFalse(try keystore.checkKey(for: tag), tag)
+        }
+        for tag in keptTags {
+            XCTAssertTrue(try keystore.checkKey(for: tag), tag)
+        }
+    }
+
+    func testNothingIsErasedForAWalletThatStillHasARow() throws {
+        let keystore = InMemoryKeychain()
+        let wallet = AccountGenerator.generateMetaAccount()
+        let tag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        try keystore.saveKey(Data([1]), with: tag)
+
+        let erased = WalletSecretEraser(keystore: keystore, storedTags: { [tag] })
+            .eraseSecrets(of: [wallet], remainingMetaIds: [wallet.metaId])
+
+        XCTAssertEqual(erased, 0)
+        XCTAssertTrue(try keystore.checkKey(for: tag))
+    }
+
+    func testTagsAnotherStoredWalletCouldOwnAreKept() throws {
+        let keystore = InMemoryKeychain()
+        let removed = AccountGenerator.generateMetaAccount()
+        // An identifier that extends the removed one: its tags also start with the removed prefix.
+        let longerMetaId = removed.metaId + "ab"
+        let foreignTag = longerMetaId + "-entropy"
+        try keystore.saveKey(Data([2]), with: foreignTag)
+
+        let erased = WalletSecretEraser(keystore: keystore, storedTags: { [foreignTag] })
+            .eraseSecrets(of: [removed], remainingMetaIds: [longerMetaId])
+
+        XCTAssertEqual(erased, 0)
+        XCTAssertTrue(try keystore.checkKey(for: foreignTag))
+    }
+
+    func testEnumerationFailureStillRemovesTheExactTags() throws {
+        let keystore = InMemoryKeychain()
+        let wallet = AccountGenerator.generateMetaAccount()
+        let tag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+        try keystore.saveKey(Data([3]), with: tag)
+
+        struct EnumerationFailed: Error {}
+        let erased = WalletSecretEraser(keystore: keystore, storedTags: { throw EnumerationFailed() })
+            .eraseSecrets(of: [wallet], remainingMetaIds: [])
+
+        XCTAssertEqual(erased, 1)
+        XCTAssertFalse(try keystore.checkKey(for: tag))
+    }
+}
+
+final class WalletRemovalSafetyTests: XCTestCase {
+    func testAWalletThatWasNeverBackedUpKeepsItsKeysWhenRemoved() throws {
+        let keystore = InMemoryKeychain()
+        let backedUp = AccountGenerator.generateMetaAccount()
+        let neverBackedUp = AccountGenerator.generateMetaAccount().replacingIsBackuped(false)
+        let backedUpTag = KeystoreTagV2.entropyTagForMetaId(backedUp.metaId)
+        let unbackedTag = KeystoreTagV2.entropyTagForMetaId(neverBackedUp.metaId)
+        try keystore.saveKey(Data([1]), with: backedUpTag)
+        try keystore.saveKey(Data([2]), with: unbackedTag)
+
+        let erased = WalletSecretEraser(keystore: keystore, storedTags: { [backedUpTag, unbackedTag] })
+            .eraseSecrets(of: [backedUp, neverBackedUp], remainingMetaIds: [])
+
+        XCTAssertEqual(erased, 1)
+        XCTAssertFalse(try keystore.checkKey(for: backedUpTag))
+        XCTAssertTrue(try keystore.checkKey(for: unbackedTag), "A mistaken removal of an unbacked wallet must stay recoverable")
+    }
+
+    private final class Interactor: WalletOptionInteractorInput {
+        var deletions = 0
+        func setup(with _: WalletOptionInteractorOutput) {}
+        func deleteWallet() { deletions += 1 }
+    }
+
+    private final class Router: WalletOptionRouterInput {
+        var sheets: [SheetAlertPresentableViewModel] = []
+        func present(viewModel: SheetAlertPresentableViewModel, from _: ControllerBackedProtocol?) { sheets.append(viewModel) }
+        func showWalletDetails(from _: ControllerBackedProtocol?, for _: MetaAccountModel) {}
+        func showExportWallet(from _: ControllerBackedProtocol?, wallet _: ManagedMetaAccountModel) {}
+        func showChangeWalletName(from _: ControllerBackedProtocol?, for _: MetaAccountModel) {}
+    }
+
+    func testForgettingAWalletNeedsAFreshAuthorization() throws {
+        let wallet = ManagedMetaAccountModel(info: AccountGenerator.generateMetaAccount(), isSelected: false, order: 1)
+        let interactor = Interactor()
+        let router = Router()
+        let authorizer = RecordingSubmissionAuthorizer()
+        let presenter = WalletOptionPresenter(
+            wallet: wallet,
+            interactor: interactor,
+            router: router,
+            localizationManager: LocalizationManager.shared,
+            submissionAuthorizer: authorizer
+        )
+
+        presenter.deleteWalletDidTap()
+        let remove = try XCTUnwrap(router.sheets.last?.actions.last?.handler)
+        remove()
+        XCTAssertEqual(interactor.deletions, 0, "Confirming the sheet alone must not erase anything")
+        authorizer.answer(0, false)
+        XCTAssertEqual(interactor.deletions, 0, "A cancelled PIN removes nothing")
+
+        remove()
+        authorizer.answer(1, true)
+        XCTAssertEqual(interactor.deletions, 1)
     }
 }

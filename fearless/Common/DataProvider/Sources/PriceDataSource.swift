@@ -2,7 +2,6 @@ import Foundation
 import RobinHood
 import SoraKeystore
 import SSFModels
-import sorawallet
 
 enum PriceDataSourceError: Swift.Error {
     case memoryError

@@ -2,6 +2,10 @@ import Foundation
 
 enum KeystoreTag: String, CaseIterable {
     case pincode
+    /// Consecutive wrong PINs and the lockout they started. Never wallet material.
+    case pincodeAttempts
+    /// The biometric enrollment the PIN holder last vouched for. Never wallet material.
+    case biometryEnrollment
 
     static func secretKeyTagForAddress(_ address: String) -> String { address + "-" + "secretKey" }
     static func entropyTagForAddress(_ address: String) -> String { address + "-" + "entropy" }

@@ -102,12 +102,9 @@ extension ChainModel {
 
         switch chainBaseType {
         case .substrate:
-            let namespace = "polkadot"
-            let knownChainCaip2ChainId = Caip2ChainId(
-                namespace: namespace,
-                reference: chainId
-            )
-            return knownChainCaip2ChainId.reference.hasPrefix(caip2ChainId.reference) && namespace == caip2ChainId.namespace
+            // CAIP-13: the reference is exactly the first 32 hex characters of the genesis hash. A shorter reference
+            // would match several chains (an empty one, every chain), so only the exact one does.
+            return caip2ChainId.namespace == "polkadot" && caip2ChainId.reference == polkadotCaip2Reference
         case .ethereum:
             let namespace = "eip155"
             let knownChainCaip2ChainId = Caip2ChainId(
@@ -116,6 +113,21 @@ extension ChainModel {
             )
             return caip2ChainId == knownChainCaip2ChainId
         }
+    }
+}
+
+extension ChainModel {
+    /// The CAIP-13 reference of a Substrate chain: the first 32 hex characters of its genesis hash, lowercase. Nil
+    /// when the chain id is not a 32-byte genesis hash.
+    var polkadotCaip2Reference: String? {
+        var genesis = chainId.lowercased()
+        if genesis.hasPrefix("0x") {
+            genesis.removeFirst(2)
+        }
+        guard genesis.count == 64, genesis.allSatisfy(\.isHexDigit) else {
+            return nil
+        }
+        return String(genesis.prefix(32))
     }
 }
 

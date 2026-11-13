@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 import SoraFoundation
 import SSFQRService
 
@@ -90,7 +90,7 @@ extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewO
 // MARK: - WalletConnectActiveSessionsInteractorOutput
 
 extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsInteractorOutput {
-    func didReceive(sessions: [WalletConnectSign.Session]) {
+    func didReceive(sessions: [FearlessWalletConnect.Session]) {
         self.sessions = sessions
         provideViewModel()
     }

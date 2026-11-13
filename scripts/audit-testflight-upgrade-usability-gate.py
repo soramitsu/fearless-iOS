@@ -17,8 +17,8 @@ from typing import Any
 
 
 EXPECTED_BUNDLE_ID = "jp.co.soramitsu.fearlesswallet"
-EXPECTED_VERSION = "4.2.0"
-EXPECTED_BUILD = "2026.11.5"
+EXPECTED_VERSION = "4.2.3"
+EXPECTED_BUILD = "2026.11.13"
 EXPECTED_PREVIOUS_BUILDS = (
     "2026.8.15",
     "2026.8.17",
@@ -44,6 +44,14 @@ EXPECTED_PREVIOUS_BUILDS = (
     "2026.11.2",
     "2026.11.3",
     "2026.11.4",
+    "2026.11.5",
+    "2026.11.6",
+    "2026.11.7",
+    "2026.11.8",
+    "2026.11.9",
+    "2026.11.10",
+    "2026.11.11",
+    "2026.11.12",
 )
 EXPECTED_BASE_SOURCE_COMMIT = "2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 MINIMUM_USABILITY_SECONDS = 300

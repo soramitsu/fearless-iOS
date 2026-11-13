@@ -20,12 +20,11 @@ class BaseNavigationBar: BaseTopBar {
         UIFactory.default.createIndicatorView()
     }()
 
+    /// A Raised-1 round button lit from the top-left (sun-lit redesign).
     let backButton: UIButton = {
-        let button = UIButton()
+        let button = FWRoundIconButton.make(image: R.image.iconBack(), tint: FWSunlit.Palette.textPrimary)
         button.setImage(R.image.iconBack(), for: .normal)
         button.accessibilityLabel = NSLocalizedString("ux.back", value: "Back", comment: "Navigation action")
-        button.layer.masksToBounds = true
-        button.backgroundColor = R.color.colorWhite8()
         button.layer.cornerRadius = LayoutConstants.backButtonSize / 2
         return button
     }()

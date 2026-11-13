@@ -19,6 +19,7 @@ class CommonInputViewV2: UIView {
         view.highlightedStrokeColor = R.color.colorWhite8()!
         view.strokeWidth = Constants.strokeWidth
         view.layer.shadowOpacity = 0
+        view.fwMakeInsetWell()
 
         return view
     }()

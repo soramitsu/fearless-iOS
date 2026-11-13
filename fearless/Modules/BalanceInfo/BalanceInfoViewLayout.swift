@@ -13,8 +13,9 @@ final class BalanceInfoViewLayout: UIView {
 
     private let balanceContainerView = UIFactory.default.createHorizontalStackView(spacing: UIConstants.defaultOffset)
 
-    private let balanceLabel: UILabel = {
-        let label = UILabel()
+    /// The changed digits of a new total roll into place (sun-lit redesign).
+    private let balanceLabel: FWRollingLabel = {
+        let label = FWRollingLabel()
         label.font = .h1Title
         label.lineBreakMode = .byCharWrapping
         label.textAlignment = .center
@@ -36,6 +37,9 @@ final class BalanceInfoViewLayout: UIView {
 
     private let vStackView = UIFactory.default.createVerticalStackView(spacing: 2)
     private var portfolioLocale: Locale?
+    /// Told when the total starts or stops loading; the wallet's sun shows it as sync activity.
+    var onLoadingChange: ((Bool) -> Void)?
+    var isLoadingTotal: Bool { skeletonView != nil }
     private var skeletonView: SkrullableView?
 
     override init(frame: CGRect) {
@@ -56,8 +60,9 @@ final class BalanceInfoViewLayout: UIView {
             vStackView.insertArrangedSubview(balanceContainerView, at: 0)
             filteredPartLabel.setContentCompressionResistancePriority(.required, for: .vertical)
             balanceLabel.accessibilityTraits.insert(.header)
-            balanceLabel.textColor = R.color.fwTextPrimary()
-            filteredPartLabel.textColor = R.color.fwTextSecondary()
+            balanceLabel.textColor = FWSunlit.Palette.textPrimary
+            balanceLabel.settledColor = FWSunlit.Palette.textPrimary
+            filteredPartLabel.textColor = FWSunlit.Palette.textSecondary
         }
         portfolioLocale = locale
         updatePortfolioTypography()
@@ -77,7 +82,13 @@ final class BalanceInfoViewLayout: UIView {
 
     func bind(viewModel: BalanceInfoViewModel?) {
         priceLabel.attributedText = viewModel?.dayChangeAttributedString
-        balanceLabel.text = viewModel?.balanceString
+        if portfolioLocale != nil, let balance = viewModel?.balanceString,
+           FWLivingBalance.claimFirstReveal(previous: balanceLabel.text, new: balance) {
+            // Kit v3 "living balance": the wallet total counts up from zero on its first reveal after launch.
+            balanceLabel.countUp(to: balance)
+        } else {
+            balanceLabel.setText(viewModel?.balanceString, animated: true)
+        }
         filteredPartLabel.text = viewModel?.filteredPartString
         filteredPartLabel.isHidden = viewModel?.filteredPartString == nil
 
@@ -88,6 +99,7 @@ final class BalanceInfoViewLayout: UIView {
         } else {
             stopLoadingIfNeeded()
         }
+        onLoadingChange?(viewModel == nil)
     }
 
     private func setupLayout() {
@@ -209,5 +221,18 @@ extension BalanceInfoViewLayout: SkeletonLoadable {
                 size: incomeSize
             )
         ]
+    }
+}
+
+/// The wallet total counts up from zero once per launch, the first time it shows a value above zero: before prices
+/// load it may read "$0", and the count then runs from that zero to the real value.
+enum FWLivingBalance {
+    private static var counted = false
+
+    static func claimFirstReveal(previous: String?, new: String) -> Bool {
+        guard !counted, let value = FWDigitRoll.numericValue(new), value > 0 else { return false }
+        if let previous, !previous.isEmpty, (FWDigitRoll.numericValue(previous) ?? 0) != 0 { return false }
+        counted = true
+        return true
     }
 }

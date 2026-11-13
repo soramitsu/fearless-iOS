@@ -31,6 +31,11 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     private let selectedWallet: () -> MetaAccountModel?
     private let networkSelection: () -> String
     private let approval: ((String, String) async throws -> Bool)?
+    /// The remote veto (`RemoteKillSwitch.tonConnect`); an absent key keeps TON Connect on.
+    private let isEnabled: () -> Bool
+    /// The remote signing veto (`RemoteKillSwitch.tonDappSigning`): transactions and `ton_proof` sign-ins, as on
+    /// Android. An absent key keeps signing on.
+    private let isSigningEnabled: () -> Bool
     private var ready = false
     private var queuedURL: URL?
     private var approving = false
@@ -49,7 +54,9 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
                 .createMetaAccountRepository(for: nil, sortDescriptors: [])
             guard let wallet = try await repository.fetchAsync(by: id) else { throw LegacyTonConnectError.unavailableWallet }
             return wallet
-        }
+        },
+        isEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonConnectEnabled },
+        isSigningEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonDappSigningEnabled }
     ) {
         self.store = store
         self.transport = transport
@@ -58,6 +65,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         self.networkSelection = networkSelection
         self.approval = approval
         self.walletLoader = walletLoader
+        self.isEnabled = isEnabled
+        self.isSigningEnabled = isSigningEnabled
         service = LegacyTonConnectService(store: store, replies: replies, transport: transport)
         super.init()
     }
@@ -98,6 +107,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         }
         Task { @MainActor in
             do {
+                guard isEnabled() else { throw LegacyTonConnectError.disabled }
                 let link = try LegacyTonConnectProtocol.parseLink(url)
                 guard let wallet = selectedWallet() else { throw LegacyTonConnectError.unavailableWallet }
                 let manifest = try await transport.manifest(at: link.request.manifestUrl)
@@ -108,22 +118,31 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         }
     }
 
+    /// `pageOrigin` is the verified page of the in-app browser that asked; a link has none.
     @MainActor
     func connect(
         walletId: String, clientId: String, request: LegacyTonConnectConnectRequest,
-        manifest: LegacyTonConnectManifest, connectionType: String
+        manifest: LegacyTonConnectManifest, connectionType: String, pageOrigin: URL? = nil
     ) async throws -> Data {
         guard ready else { throw LegacyTonConnectError.unavailableWallet }
+        guard isEnabled() else { throw LegacyTonConnectError.disabled }
         _ = try request.validated()
         _ = try manifest.validated()
         guard ["http", "js"].contains(connectionType),
               connectionType == "js" || LegacyTonConnectProtocol.clientKey(clientId) != nil else {
             throw LegacyTonConnectError.invalidRequest
         }
+        // A link's manifest can name any site. Unless the host that served it (or the page that
+        // asked) vouches for that site, the prompt and the stored session name the serving host.
+        let voucher = pageOrigin ?? request.manifestUrl
+        let isVouched = LegacyTonConnectProtocol.isVouched(claimed: manifest.url, by: voucher)
+        guard let appURL = isVouched ? manifest.url : LegacyTonConnectProtocol.origin(voucher).flatMap({ URL(string: $0) }) else {
+            throw LegacyTonConnectError.invalidRequest
+        }
         let wallet = try await walletLoader(walletId)
         guard let account = wallet.legacyTonAccount else { throw LegacyTonConnectError.unavailableWallet }
         let existing = try await service.sessions(walletId: walletId).first {
-            $0.connectionType == connectionType && LegacyTonConnectProtocol.origin($0.appUrl) == LegacyTonConnectProtocol.origin(manifest.url) &&
+            $0.connectionType == connectionType && LegacyTonConnectProtocol.origin($0.appUrl) == LegacyTonConnectProtocol.origin(appURL) &&
                 ($0.clientId.lowercased() == clientId.lowercased() || connectionType == "js")
         }
         let session: LegacyTonConnectSession
@@ -132,9 +151,10 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         } else {
             let pair = try NaclBox.keyPair()
             session = LegacyTonConnectSession(
-                identifier: walletId + "-" + manifest.url.absoluteString + "-" + UUID().uuidString,
-                walletId: walletId, clientId: connectionType == "js" ? UUID().uuidString : clientId.lowercased(), appUrl: manifest.url, name: manifest.name,
-                iconUrl: manifest.iconUrl, publicKey: pair.publicKey, privateKey: pair.secretKey, connectionType: connectionType
+                identifier: walletId + "-" + appURL.absoluteString + "-" + UUID().uuidString,
+                walletId: walletId, clientId: connectionType == "js" ? UUID().uuidString : clientId.lowercased(), appUrl: appURL,
+                name: isVouched ? manifest.name : (appURL.host ?? manifest.name),
+                iconUrl: isVouched ? manifest.iconUrl : nil, publicKey: pair.publicKey, privateKey: pair.secretKey, connectionType: connectionType
             )
         }
         let context: LegacyTonConnectSessionContext
@@ -147,10 +167,35 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
             )
         }
         let network = context.network
-        let manifestSource = LegacyTonConnectProtocol.origin(request.manifestUrl) == LegacyTonConnectProtocol.origin(manifest.url)
-            ? "" : "\nManifest: \(request.manifestUrl.absoluteString)"
-        let details = "Application: \(manifest.url.absoluteString)\(manifestSource)\nWallet: \(wallet.name)\nAccount: \(account.address)\nNetwork: \(network == "-3" ? "TON Testnet" : "TON Mainnet")" +
-            (request.items.contains(where: { $0.name == "ton_proof" }) ? "\nThe application also requests proof of wallet ownership." : "")
+        let requestsProof = request.items.contains(where: { $0.name == "ton_proof" })
+        // A sign-in proof is a signature: the signing veto refuses it before any prompt.
+        guard !requestsProof || isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
+        if !isVouched, requestsProof {
+            // Refused before any prompt: a sign-in proof for the claimed site would let this link
+            // log in to it as the user. The application hears why instead of waiting.
+            let refused = try JSONSerialization.data(withJSONObject: [
+                "event": "connect_error", "id": UInt64(Date().timeIntervalSince1970),
+                "payload": ["code": 3, "message": "The manifest url is not on the host that serves the manifest"]
+            ])
+            if connectionType == "http" {
+                try? await transport.send(refused, session: session, bridge: context.bridgeURL, topic: "connect")
+            }
+            throw LegacyTonConnectError.unverifiedApplication(claimedHost: manifest.url.host ?? "", sourceHost: voucher.host ?? "")
+        }
+        let headline: String
+        if isVouched {
+            let manifestSource = LegacyTonConnectProtocol.origin(request.manifestUrl) == LegacyTonConnectProtocol.origin(manifest.url)
+                ? "" : "\nManifest: \(request.manifestUrl.absoluteString)"
+            headline = "Application: \(manifest.url.absoluteString)\(manifestSource)"
+        } else {
+            let warning = R.string.localizable.tonconnectDomainMismatch(
+                manifest.url.absoluteString,
+                preferredLanguages: LegacyTonConnectProtocol.languages
+            )
+            headline = "Application: \(appURL.absoluteString)\n\(warning)"
+        }
+        let details = "\(headline)\nWallet: \(wallet.name)\nAccount: \(account.address)\nNetwork: \(network == "-3" ? "TON Testnet" : "TON Mainnet")" +
+            (requestsProof ? "\nThe application also requests proof of wallet ownership." : "")
         guard try await approve(title: "Connect TON wallet", details: details) else {
             let declined = try JSONSerialization.data(withJSONObject: ["event": "connect_error", "id": UInt64(Date().timeIntervalSince1970), "payload": ["code": 300, "message": "Connection declined"]])
             if connectionType == "http" {
@@ -160,10 +205,13 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         }
         let current = try await walletLoader(walletId)
         guard ready, current.legacyTonAccount == account else { throw LegacyTonConnectError.unavailableWallet }
+        guard isEnabled() else { throw LegacyTonConnectError.disabled }
+        guard !requestsProof || isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
         let credentials = try account.signingCredentials(keystore: keystore, metaId: walletId)
         let response = try LegacyTonConnectProtocol.connectEvent(
             account: account, privateKey: credentials.legacyNativePrivateKey,
-            network: network, request: request, manifest: manifest, timestamp: UInt64(Date().timeIntervalSince1970)
+            network: network, request: request, manifest: manifest, timestamp: UInt64(Date().timeIntervalSince1970),
+            vouchedBy: pageOrigin
         )
         try await service.save(session: session, context: context)
         if connectionType == "http" {
@@ -210,6 +258,9 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     @MainActor
     func process(session: LegacyTonConnectSession, network: String, request: LegacyTonConnectRPCRequest) async throws -> LegacyTonConnectRPCOutcome {
+        // A vetoed request is answered at once (`LegacyTonConnectService`) and never signed.
+        guard isEnabled() else { throw LegacyTonConnectError.disabled }
+        guard isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
         guard ready, let encoded = request.params.first else { throw LegacyTonConnectError.unavailableWallet }
         let wallet = try await walletLoader(session.walletId)
         guard let account = wallet.legacyTonAccount else { throw LegacyTonConnectError.unavailableWallet }
@@ -230,6 +281,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         let current = try await walletLoader(session.walletId)
         guard ready, current.legacyTonAccount == account,
               try await store.sessions().contains(session) else { throw LegacyTonConnectError.invalidSession }
+        guard isEnabled() else { throw LegacyTonConnectError.disabled }
+        guard isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
         let result = try await sender.sendTonConnect(transfer, feeQuote: quote, legacyAccount: account) { [keystore] in
             try account.signingCredentials(keystore: keystore, metaId: session.walletId)
         }
@@ -314,6 +367,10 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     @MainActor
     func presentSessions(from presenting: UIViewController) {
+        guard isEnabled() else {
+            present(error: LegacyTonConnectError.disabled)
+            return
+        }
         let view = LegacyTonConnectSessionsViewController(coordinator: self)
         presenting.present(FearlessNavigationController(rootViewController: view), animated: true)
     }
@@ -331,9 +388,12 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     @MainActor
     func connectJS(request: LegacyTonConnectConnectRequest, origin: URL) async throws -> Data {
         guard ready, let wallet = selectedWallet() else { throw LegacyTonConnectError.unavailableWallet }
+        guard isEnabled() else { throw LegacyTonConnectError.disabled }
         let manifest = try await transport.manifest(at: request.manifestUrl)
         guard LegacyTonConnectProtocol.origin(manifest.url) == LegacyTonConnectProtocol.origin(origin) else { throw LegacyTonConnectError.invalidRequest }
-        return try await connect(walletId: wallet.metaId, clientId: "", request: request, manifest: manifest, connectionType: "js")
+        return try await connect(
+            walletId: wallet.metaId, clientId: "", request: request, manifest: manifest, connectionType: "js", pageOrigin: origin
+        )
     }
 
     @MainActor

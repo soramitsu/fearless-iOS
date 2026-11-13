@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectUtils
+import FearlessWalletConnect
 import SSFModels
 
 struct WalletConnectChainsResolution {

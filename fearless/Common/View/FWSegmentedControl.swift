@@ -23,18 +23,22 @@ final class FWSegmentedControl: UIControl {
     }
 
     var sliderAnimationDuration: TimeInterval {
-        0.2
+        FWMotionPolicy.current().isRestricted ? 0 : 0.2
     }
 
     // MARK: - Private properties
 
+    /// Sun-lit redesign: an inset track with a Raised-1 thumb under the selected segment.
     private let containerView: TriangularedView = {
         let containerView = TriangularedView()
         containerView.fillColor = R.color.colorWhite8()!
         containerView.highlightedFillColor = R.color.colorWhite8()!
         containerView.shadowOpacity = 0
+        containerView.fwMakeInsetWell()
         return containerView
     }()
+
+    private let thumb = FWNeuView.segmentThumb()
 
     private let backgroundView = UIView()
     private let selectedContainerView = UIView()
@@ -137,10 +141,15 @@ final class FWSegmentedControl: UIControl {
         containerView.addSubview(backgroundView)
         backgroundView.frame = frame
 
+        if thumb.superview !== containerView {
+            containerView.insertSubview(thumb, at: 0)
+            sliderView.thumb = thumb
+        }
+
         containerView.addSubview(selectedContainerView)
         selectedContainerView.frame = frame
         selectedContainerView.layer.mask = sliderView.sliderMaskView.layer
-        selectedContainerView.backgroundColor = R.color.colorWhite16()
+        selectedContainerView.backgroundColor = .clear
 
         containerView.addSubview(sliderView)
         sliderView.frame = CGRect(
@@ -276,16 +285,22 @@ final class FWSegmentedControl: UIControl {
 
     class SliderView: UIView {
         fileprivate let sliderMaskView = TriangularedView()
+        /// The raised thumb follows the slider, inside the same animations.
+        fileprivate weak var thumb: UIView?
 
         override var frame: CGRect {
             didSet {
                 sliderMaskView.frame = frame
+                // The control can lay out before it has segments. Insetting a zero-width rect
+                // produces CGRect.null, which must never become a view's geometry.
+                thumb?.frame = frame.width > 6 && frame.height > 6 ? frame.insetBy(dx: 3, dy: 3) : .zero
             }
         }
 
         override var center: CGPoint {
             didSet {
                 sliderMaskView.center = center
+                thumb?.center = center
             }
         }
 

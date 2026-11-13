@@ -55,7 +55,9 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder, Hidda
             (navigationController != nil && navigationController?.topViewController !== self)
         let ownedSheet = presentedViewController is SheetAletViewController &&
             scope?.hasOwnedRecoveryPresentation == true
-        if navigatedAway || !ownedSheet {
+        // The PIN screen that authorizes this transfer covers the review without leaving it.
+        let authorizing = presentedViewController is PinSetupViewController
+        if navigatedAway || !(ownedSheet || authorizing) {
             scope?.suspendSendReview()
         }
     }
@@ -86,6 +88,8 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder, Hidda
     }
 
     @objc private func continueButtonClicked() {
+        // The final Send control: a crisp tap before the result is known (kit v3 feel).
+        FWFeedback.shared.play(.commit)
         presenter.didTapConfirmButton()
     }
 

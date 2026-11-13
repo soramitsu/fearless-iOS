@@ -115,7 +115,7 @@ archive = {
 app = {
     "CFBundleExecutable": "fearless",
     "CFBundleIdentifier": bundle,
-    "CFBundleShortVersionString": "4.2.0",
+    "CFBundleShortVersionString": "4.2.3",
     "CFBundleVersion": "2026.10.1",
     "FearlessBuildConfiguration": "Release",
     "FearlessBitcoinSupportContract": "bip84-mainnet-v1",

@@ -58,6 +58,9 @@ final class ChainAssetListPresenter {
     private let presentationScope = PortfolioCallbackScope()
     private let walletActionScope = PortfolioCallbackScope()
     private var presentedViewModel: ChainAssetListViewModel?
+    /// Tokens arriving (kit v3 feel): balances that grow from a value already known play the receive feedback.
+    private let arrivals = FWArrivalDetector()
+    private let arrivalAnnouncer: FWArrivalAnnouncing
 
     // MARK: - Constructors
 
@@ -66,8 +69,10 @@ final class ChainAssetListPresenter {
         router: ChainAssetListRouterInput,
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
-        viewModelFactory: ChainAssetListViewModelFactoryProtocol
+        viewModelFactory: ChainAssetListViewModelFactoryProtocol,
+        arrivalAnnouncer: FWArrivalAnnouncing = FWArrivalAnnouncer.shared
     ) {
+        self.arrivalAnnouncer = arrivalAnnouncer
         self.interactor = interactor
         self.router = router
         self.wallet = wallet
@@ -689,6 +694,27 @@ extension ChainAssetListPresenter {
     }
 }
 
+// MARK: - Tokens arriving
+
+private extension ChainAssetListPresenter {
+    /// The token amount an arrival compares: free plus reserved, in the asset's smallest unit.
+    static func arrivalAmount(_ accountInfo: AccountInfo??) -> Decimal? {
+        guard let info = accountInfo ?? nil else { return nil }
+        return Decimal(string: String(info.data.total))
+    }
+
+    func noteArrivalIfNeeded(accountInfo: AccountInfo?, chainAsset: ChainAsset, assetKey: String) {
+        let walletId = wallet.metaId
+        let grew = arrivals.observe(
+            key: FWArrivalDetector.key(walletId: walletId, assetKey: assetKey),
+            amount: Self.arrivalAmount(accountInfo),
+            hidden: !AssetVisibilityPreferenceStore.isSelectable(walletId: walletId, chainAsset: chainAsset)
+        )
+        guard grew else { return }
+        arrivalAnnouncer.announce(symbol: chainAsset.asset.symbol.uppercased(), locale: selectedLocale)
+    }
+}
+
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
@@ -707,6 +733,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func handleWalletChanged(wallet: MetaAccountModel) {
         walletActionScope.invalidate()
         presentedViewModel = nil
+        arrivals.reset()
         let request = presentationScope.invalidate()
         lock.exclusivelyWrite { [weak self] in
             self?.wallet = wallet
@@ -759,6 +786,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 self.accountInfos[key] = accountInfo
             }
             provideViewModel()
+            noteArrivalIfNeeded(accountInfo: accountInfo, chainAsset: chainAsset, assetKey: key)
 
         case let .failure(error):
             Logger.shared.customError(error)
@@ -786,6 +814,11 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
             let key = chainAsset.uniqueKey(accountId: accountId)
             newDict[key] = initialDict.value
+            // Values already known before this update: never announced as arrivals themselves.
+            arrivals.seed(
+                key: FWArrivalDetector.key(walletId: wallet.metaId, assetKey: key),
+                amount: Self.arrivalAmount(initialDict.value)
+            )
         }
 
         lock.exclusivelyWrite { [weak self] in

@@ -8,7 +8,7 @@ umask 077
 
 readonly LOG_PREFIX="[ios-release-archive]"
 readonly EXPECTED_BUNDLE="jp.co.soramitsu.fearlesswallet"
-readonly EXPECTED_VERSION="4.2.0"
+readonly EXPECTED_VERSION="4.2.3"
 readonly EXPECTED_BASE_SOURCE_COMMIT="2e45e55dc03ad904598e730cfb5994fb5c1072dc"
 # master took the 4.2.0 line as one squash commit (#1305), which drops that
 # ancestry. Its tree is exactly the tree of the pull request head, which
@@ -79,9 +79,27 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # with the Receive sheet showing its QR code and address on iPhone, and
 # corrected Send and history titles. 2026.11.5 fixes stale wallet account
 # switches, selection and rename writes, and scopes account edit events to
-# the wallet each screen displays.
+# the wallet each screen displays; it went to TestFlight and App Review.
+# 2026.11.6 makes Polkaswap usable again: a compact token search field,
+# quotes that arrive while blocks refresh them, and a reachable Confirm.
+# Apple approved 4.2.0 (2026.11.5), which closes that version to new
+# uploads, so 2026.11.6 ships as 4.2.1; it went to TestFlight and App Review.
+# 2026.11.7 replaced it in review: no closed-source code (sorawallet,
+# WalletConnect) and the key-exposure fixes, including the encrypted
+# emergency export; it went to TestFlight and App Review. 2026.11.8
+# replaces it: WalletConnect back through the in-repo client, with wc:
+# pairing and PIN-gated EVM and Polkadot signing.
+# 2026.11.9 restores comfortable PIN keys, spacing and vertical centering,
+# with scrolling on short screens and at large text sizes.
+# 2026.11.10 keeps the Solana transfer snapshot alive while retry copies its
+# signature, which Swift 6.4.2 otherwise frees first at -O.
+# 2026.11.11 fences pending PIN-save results before navigation removes their
+# screen, including when UIKit delivers disappearance callbacks later.
 # Reconfirm successor uniqueness read-only immediately before archive.
-readonly EXPECTED_BUILD="2026.11.5"
+# Apple released 4.2.1 (2026.11.11), which closes that version to new uploads;
+# 2026.11.12 ships the launch-crash fix as 4.2.2.
+# 4.2.3 keeps that fix and ships the Yatagarasu redesign and Ignite launch.
+readonly EXPECTED_BUILD="2026.11.13"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -102,7 +120,7 @@ Preconditions:
     distributed 4.2.0 (2026.7.28) source commit, directly or through its
     squash into master (#1305); a fresh clone gets that pull request's head
     with `git fetch origin refs/pull/1305/head`;
-  - App Store Connect read-only uniqueness check for 4.2.0 (2026.11.5);
+  - App Store Connect read-only uniqueness check for 4.2.3 (2026.11.13);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
@@ -279,4 +297,4 @@ bash "$SCRIPT_DIR/audit-ios-signed-release-artifact.sh" \
   --receipt "$receipt"
 
 printf '%s\n' \
-  "$LOG_PREFIX PASS: local 4.2.0 ($EXPECTED_BUILD) archive is bound to clean HEAD $source_commit"
+  "$LOG_PREFIX PASS: local $EXPECTED_VERSION ($EXPECTED_BUILD) archive is bound to clean HEAD $source_commit"

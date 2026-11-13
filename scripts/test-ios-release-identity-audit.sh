@@ -40,7 +40,7 @@ jq -n '[
     target: "fearless",
     buildSettings: {
       PRODUCT_BUNDLE_IDENTIFIER: "jp.co.soramitsu.fearlesswallet",
-      MARKETING_VERSION: "4.2.0",
+      MARKETING_VERSION: "4.2.3",
       CURRENT_PROJECT_VERSION: "2026.10.1",
       IPHONEOS_DEPLOYMENT_TARGET: "15.0",
       CODE_SIGN_ENTITLEMENTS: "fearless/WalletConnect.entitlements",
@@ -364,7 +364,7 @@ run_reject hardcoded-bundle-version \
 
 hardcoded_version_plist="$FIXTURES/hardcoded-version.plist"
 cp "$REPO_ROOT/fearless/Info.plist" "$hardcoded_version_plist"
-plutil -replace CFBundleShortVersionString -string 4.2.0 \
+plutil -replace CFBundleShortVersionString -string 4.2.3 \
   "$hardcoded_version_plist"
 run_reject hardcoded-marketing-version \
   run_audit "$settings" "$scheme" "$entitlements" "$hardcoded_version_plist"

@@ -12,6 +12,13 @@ final class SelectedNetworkButton: UIControl {
 
     private let iconImageView = UIImageView()
     private var usesWrappingTypography = false
+    private let container = UIFactory.default.createHorizontalStackView(spacing: 4)
+    private let iconsRow = UIStackView()
+    private var usesAccessibleLayout = false
+
+    private var accessibleLayout: Bool {
+        usesWrappingTypography && traitCollection.preferredContentSizeCategory.isAccessibilityCategory
+    }
 
     private let title: UILabel = {
         let label = UILabel()
@@ -44,14 +51,21 @@ final class SelectedNetworkButton: UIControl {
     func applyTypography(_ font: UIFont) {
         title.font = font
         usesWrappingTypography = true
+        updateArrangement()
         setNeedsLayout()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateArrangement()
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
         // A tall multiline capsule would clip the title's first and last lines. Keep
         // the ordinary 44-point control's curvature while allowing its height to grow.
-        layer.cornerRadius = usesWrappingTypography ? min(22, bounds.height / 2) : bounds.height / 2
+        let normalRadius = usesWrappingTypography ? min(22, bounds.height / 2) : bounds.height / 2
+        layer.cornerRadius = accessibleLayout ? 8 : normalRadius
         clipsToBounds = true
     }
 
@@ -72,15 +86,14 @@ final class SelectedNetworkButton: UIControl {
         isAccessibilityElement = true
         accessibilityTraits = .button
         backgroundColor = R.color.colorWhite8()
-        let container = UIFactory.default.createHorizontalStackView(spacing: 4)
         container.alignment = .center
         addSubview(container)
         container.addArrangedSubview(iconImageView)
         container.addArrangedSubview(title)
         container.addArrangedSubview(dropTraingleImageView)
 
-        [container, iconImageView, title, dropTraingleImageView].forEach {
-            $0.isUserInteractionEnabled = false
+        for item in [container, iconImageView, title, dropTraingleImageView] {
+            item.isUserInteractionEnabled = false
         }
 
         container.snp.makeConstraints { make in
@@ -93,6 +106,24 @@ final class SelectedNetworkButton: UIControl {
 
         dropTraingleImageView.snp.makeConstraints { make in
             make.size.equalTo(10)
+        }
+    }
+
+    /// Give large text the full control width; the small symbols share a separate row.
+    private func updateArrangement() {
+        guard usesAccessibleLayout != accessibleLayout else { return }
+        usesAccessibleLayout = accessibleLayout
+        container.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        iconsRow.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        container.axis = accessibleLayout ? .vertical : .horizontal
+        container.alignment = accessibleLayout ? .fill : .center
+        if accessibleLayout {
+            iconsRow.axis = .horizontal
+            iconsRow.alignment = .center
+            [iconImageView, UIView(), dropTraingleImageView].forEach(iconsRow.addArrangedSubview)
+            [iconsRow, title].forEach(container.addArrangedSubview)
+        } else {
+            [iconImageView, title, dropTraingleImageView].forEach(container.addArrangedSubview)
         }
     }
 }

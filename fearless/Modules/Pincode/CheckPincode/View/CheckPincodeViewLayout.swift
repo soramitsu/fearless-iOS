@@ -30,6 +30,8 @@ final class CheckPincodeViewLayout: UIView {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorWhite()
+        label.numberOfLines = 0
+        label.textAlignment = .center
         return label
     }()
 
@@ -40,6 +42,9 @@ final class CheckPincodeViewLayout: UIView {
         return view
     }()
 
+    /// Sun-lit scene: the lockup's crest lights the page; raised keys and dots that fill from the key light.
+    lazy var sunlit = FWPinScreenSunlit(pinView: pinView)
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -48,10 +53,17 @@ final class CheckPincodeViewLayout: UIView {
         }
     }
 
+    /// Seconds left in a PIN lockout; the title shows the countdown instead of the prompt while it is set.
+    var lockoutRemaining: TimeInterval? {
+        didSet {
+            applyLocalization()
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = .black
+        backgroundColor = FWSunlit.Palette.background
         setupLayout()
         applyLocalization()
         setupAccessibilityIdentifiers()
@@ -65,16 +77,27 @@ final class CheckPincodeViewLayout: UIView {
 
 private extension CheckPincodeViewLayout {
     func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .pincodeEnterPinCode(preferredLanguages: locale.rLanguages)
+        if let lockoutRemaining = lockoutRemaining {
+            titleLabel.text = R.string.localizable.pincodeLockoutMessage(
+                PinLockoutCountdown.format(lockoutRemaining),
+                preferredLanguages: locale.rLanguages
+            )
+        } else {
+            titleLabel.text = R.string.localizable
+                .pincodeEnterPinCode(preferredLanguages: locale.rLanguages)
+        }
         navigationTitleLabel.text = R.string.localizable
             .pincodeEnterPinCode(preferredLanguages: locale.rLanguages)
     }
 
     func setupLayout() {
+        sunlit.installLight(in: self)
         addSubview(navigationBar)
+        addSubview(sunlit.lockupRow)
         addSubview(titleLabel)
         addSubview(pinView)
+        pinView.numpadView?.keyRadius = 34
+        sunlit.styler.apply()
 
         navigationBar.setCenterViews([navigationTitleLabel])
 
@@ -91,6 +114,13 @@ private extension CheckPincodeViewLayout {
 
         titleLabel.snp.makeConstraints { make in
             make.centerX.equalTo(safeAreaLayoutGuide)
+            make.leading.greaterThanOrEqualTo(safeAreaLayoutGuide).offset(UIConstants.horizontalInset)
+        }
+
+        sunlit.lockupRow.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
+            make.top.greaterThanOrEqualTo(navigationBar.snp.bottom).offset(8)
+            make.bottom.equalTo(titleLabel.snp.top).offset(-16)
         }
     }
 

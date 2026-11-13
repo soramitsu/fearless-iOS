@@ -1,0 +1,21 @@
+{
+  "note": "Digests of reviewed CocoaPods sources and build-phase executables; see scripts/deps/verify-pods.py",
+  "pods": {
+    "Charts": "b2ae712564b1ad33e13a211708f7a3a48cc965cb41aefbd5a843b02271aa7e94",
+    "CocoaLumberjack": "6918107c0d9ea2e61e759bf3c683f0fb63d5bef6a4a1c8ebb3516560701a2196",
+    "Cuckoo": "65260108ef0f4e8383598065b3a18dc2f986c565abd44d68d9f8b0b7e8e4199b",
+    "FireMock": "f170526e4ed6eaa6aa5dfa4ec20f081432614a3f9a3dd346259b353e8e7ae938",
+    "MediaView": "902c992d804b5563b2b1bc6efc3506fed0b937dc471da4f76b4d5a5a38168f54",
+    "R.swift.Library": "4228a698259acdccd3e115b30e60cb1c229afc7ac14f9be132f1c8ccdd8ee77b",
+    "SVGKit": "d18249c84ca7c6e9db2eea5f3caa4e10f435a9f7848521a0fc614759e3755470",
+    "SoraFoundation": "e9821c72d7308a5f4ef28d9a30ae2b46743ae77df6dbffef02400e09981bf6de",
+    "SoraKeystore": "b7d7086d6dcc9c45c731962f9953647b3ff42c2e9abb8b7b0eaa5e986a7929bd",
+    "SoraUI": "e3fbfddaa8405313c0a0537232bbca03f2ad7071fd64eddb0b2db2806f9b8822",
+    "SwiftAlgorithms": "99e3c14fe112d34654974f42d7597fc3b53df992715ad9854914fb8a701440a5"
+  },
+  "schema": 1,
+  "tools": {
+    "R.swift/rswift": "a742ada73d6660512cc5d65abb839e7b635fa49df5ad838512f5c0ddac014fde",
+    "SwiftFormat/CommandLineTool/swiftformat": "da13be292292a51b2db25c67116f964e88f12b8ca387c2ec25b03313a4168334"
+  }
+}

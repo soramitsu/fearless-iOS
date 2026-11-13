@@ -22,6 +22,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         rootPresenter = presenter
         presenter.loadOnLaunch()
         rootWindow.makeKeyAndVisible()
+        // The Ignite launch covers the start flow above and zooms into its first screen; it changes nothing below.
+        FWLaunchIgnite.installIfNeeded(over: rootWindow, in: windowScene)
+        FWFeedback.shared.prepare()
+        #if DEBUG
+            FWFeelDebugSeams.install()
+        #endif
 
         // Scene apps receive launch URLs here, not in AppDelegate launch options.
         // Defer delivery until root setup has installed its full handler list.

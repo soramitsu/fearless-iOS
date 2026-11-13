@@ -53,13 +53,15 @@ final class TokenGroupBalanceTableCell: SwipableTableViewCell {
     private let iconView = UIImageView()
     private let chevron = UIImageView()
     private let labels = UIStackView()
+    /// Sun-lit row: a Raised-1 surface whose top rim weakens with distance from the sun.
+    let surface = FWRowSunlit.rowSurface()
+    private let sunlit = FWRowSunlit()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .clear
         selectionStyle = .none
-        cloudView.backgroundColor = UIColor(named: "fwSurfaceRaised")
-        cloudView.layer.cornerRadius = FWTokens.Radius.m
+        installSunlitSurface()
         labels.axis = .vertical
         labels.spacing = FWTokens.Spacing.s4
         let values = FWAppearance.portfolioListRestyled ? [fiatLabel, amountLabel] : [amountLabel, fiatLabel]
@@ -67,7 +69,7 @@ final class TokenGroupBalanceTableCell: SwipableTableViewCell {
             label.numberOfLines = 0
             label.lineBreakMode = .byWordWrapping
             label.adjustsFontForContentSizeCategory = true
-            label.textColor = UIColor(named: "fwTextPrimary")
+            label.textColor = FWSunlit.Palette.textPrimary
             label.setContentCompressionResistancePriority(.required, for: .vertical)
             labels.addArrangedSubview(label)
         }
@@ -76,10 +78,10 @@ final class TokenGroupBalanceTableCell: SwipableTableViewCell {
         networksLabel.font = .p2Paragraph
         fiatLabel.font = .p2Paragraph
         pricingLabel.font = .p2Paragraph
-        networksLabel.textColor = UIColor(named: "fwTextSecondary")
-        pricingLabel.textColor = UIColor(named: "fwTextSecondary")
+        networksLabel.textColor = FWSunlit.Palette.textSecondary
+        pricingLabel.textColor = FWSunlit.Palette.textSecondary
         iconView.contentMode = .scaleAspectFit
-        chevron.tintColor = UIColor(named: "fwTextSecondary")
+        chevron.tintColor = FWSunlit.Palette.textTertiary
         cloudView.addSubview(iconView)
         cloudView.addSubview(labels)
         cloudView.addSubview(chevron)
@@ -87,6 +89,7 @@ final class TokenGroupBalanceTableCell: SwipableTableViewCell {
             make.leading.top.equalToSuperview().inset(16)
             make.size.equalTo(32)
         }
+        sunlit.installWell(behind: iconView, in: cloudView, growth: 8)
         labels.snp.makeConstraints { make in
             make.leading.equalTo(iconView.snp.trailing).offset(12)
             make.top.bottom.equalToSuperview().inset(16)
@@ -116,6 +119,9 @@ final class TokenGroupBalanceTableCell: SwipableTableViewCell {
     func bind(_ row: TokenGroupRowViewModel, expanded: Bool, locale: Locale) {
         updateTypography()
         let model = row.model
+        sunlit.show(
+            value: row.fiatText, for: model.id, flashing: fiatLabel, settledColor: FWSunlit.Palette.textPrimary
+        )
         symbolLabel.text = model.symbol
         networksLabel.text = model.isSingleNetwork ? model.children.first?.networkName : String(
             format: PortfolioStrings.text("portfolio.network_count", locale: locale),
@@ -206,5 +212,19 @@ final class TokenGroupBalanceTableCell: SwipableTableViewCell {
         guard let onActivate else { return false }
         onActivate()
         return true
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        surface.sunRim = FWSunAnchor.shared.sunRim(for: surface, fallback: FWRowSunlit.fallbackRim)
+    }
+}
+
+extension TokenGroupBalanceTableCell {
+    private func installSunlitSurface() {
+        cloudView.backgroundColor = .clear
+        cloudView.layer.cornerRadius = FWSunlit.Radius.row
+        cloudView.insertSubview(surface, at: 0)
+        surface.snp.makeConstraints { make in make.edges.equalToSuperview() }
     }
 }

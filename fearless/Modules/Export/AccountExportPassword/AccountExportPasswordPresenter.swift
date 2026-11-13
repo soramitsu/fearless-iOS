@@ -21,12 +21,19 @@ final class AccountExportPasswordPresenter {
     private var isDeparturePending = false
     private var warningPresented = false
     private var deferredExport: Result<[RestoreJson], Error>?
+    /// Encrypted keystore files written for this screen and not yet handed to the share
+    /// screen, which removes the files it receives. These are removed when this screen goes.
+    private var unclaimedFiles: Set<URL> = []
 
     let flow: ExportFlow
 
     init(flow: ExportFlow, localizationManager: LocalizationManagerProtocol) {
         self.flow = flow
         self.localizationManager = localizationManager
+    }
+
+    deinit {
+        unclaimedFiles.forEach { SensitiveExportFiles.remove($0) }
     }
 }
 
@@ -86,11 +93,20 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
     func didLeaveView() {
         isLeaving = true
         deferredExport = nil
+        unclaimedFiles.forEach { SensitiveExportFiles.remove($0) }
+        unclaimedFiles.removeAll()
     }
 
     func proceed() {
         guard !isLeaving, !isDeparturePending, !isExporting else { return }
         let password = passwordInputViewModel.inputHandler.normalizedValue
+
+        // The file holds the account's secret key encrypted with this password, so it
+        // needs the same minimum as a Google Drive backup to resist offline guessing.
+        guard NSPredicate.backupPassword.evaluate(with: password) else {
+            view?.set(error: .passwordTooShort)
+            return
+        }
 
         guard password == confirmationViewModel.inputHandler.normalizedValue else {
             view?.set(error: .passwordMismatch)
@@ -119,12 +135,23 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
 
 extension AccountExportPasswordPresenter: AccountExportPasswordInteractorOutputProtocol {
     func didExport(jsons: [RestoreJson]) {
-        guard finishExport(.success(jsons)) else { return }
+        unclaimedFiles.formUnion(jsons.map(\.fileURL))
+        guard finishExport(.success(jsons)) else {
+            if isLeaving { didLeaveView() }
+            return
+        }
+        hand(jsons)
         wireframe.showJSONExport(jsons, flow: flow, from: view)
     }
 
     func didReceive(error: Error) {
-        guard finishExport(.failure(error)) else { return }
+        if let batch = error as? AccountExportBatchError {
+            unclaimedFiles.formUnion(batch.available.map(\.fileURL))
+        }
+        guard finishExport(.failure(error)) else {
+            if isLeaving { didLeaveView() }
+            return
+        }
         if let batch = error as? AccountExportBatchError {
             presentIncompleteExport(batch)
             return
@@ -151,6 +178,11 @@ private extension AccountExportPasswordPresenter {
         return true
     }
 
+    /// The share screen owns these files from now on and removes them when it closes.
+    func hand(_ jsons: [RestoreJson]) {
+        unclaimedFiles.subtract(jsons.map(\.fileURL))
+    }
+
     func presentIncompleteExport(_ error: AccountExportBatchError) {
         let locale = localizationManager.selectedLocale
         let path = Bundle.main.path(forResource: localizationManager.selectedLocalization, ofType: "lproj")
@@ -170,6 +202,7 @@ private extension AccountExportPasswordPresenter {
                 handlerAfterDismissal: true
             ) { [weak self] in
                 guard let self, !self.isLeaving, !self.isDeparturePending else { return }
+                self.hand(error.available)
                 self.wireframe.showJSONExport(error.available, flow: self.flow, from: self.view)
             }
         ]

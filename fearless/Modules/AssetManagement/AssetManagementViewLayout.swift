@@ -18,7 +18,7 @@ final class AssetManagementViewLayout: UIView {
 
     let doneButton: PortfolioActionButton = {
         let button = PortfolioActionButton()
-        button.configuration?.background.backgroundColor = .clear
+        button.emphasis = .plain
         button.configuration?.baseForegroundColor = R.color.colorPink()
         button.contentHorizontalAlignment = .leading
         return button

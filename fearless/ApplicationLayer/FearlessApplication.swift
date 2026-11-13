@@ -2,8 +2,24 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 
+/// Decides whether returning from the background needs the PIN, from monotonic clock readings.
+enum BackgroundSessionLockPolicy {
+    /// True after `limit` seconds away, and also when the clock reads earlier than when the app left: only a reboot
+    /// restarts the monotonic clock, and nothing then vouches for the time away.
+    static func requiresPin(
+        enteredBackgroundAt start: TimeInterval,
+        now: TimeInterval,
+        limit: TimeInterval = UtilityConstants.backgroundSessionDropTimeInSeconds
+    ) -> Bool {
+        let elapsed = now - start
+        return elapsed < 0 || elapsed >= limit
+    }
+}
+
 class FearlessApplication: UIApplication {
-    private lazy var goneBackgroundTimestamp = Date().timeIntervalSince1970
+    /// Monotonic time when the app entered the background. The wall clock is not used: setting it back must not
+    /// keep a backgrounded wallet unlocked.
+    private var backgroundEnteredUptime: TimeInterval?
     private var timerToDetectInactivity: Timer?
     private var applicationHandler: ApplicationHandler?
 
@@ -44,27 +60,59 @@ class FearlessApplication: UIApplication {
         guard secretManager.checkSecret(for: KeystoreTag.pincode.rawValue) else {
             return
         }
-        let window = SceneWindowFinder.activeWindow()
-        if let window = window {
-            guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
-                return
-            }
-
-            window.rootViewController?.dismiss(animated: false)
-            window.rootViewController?.present(pincodeViewController, animated: false)
+        Self.presentLock(on: SceneWindowFinder.mainWindow()) {
+            PinViewFactory.createPinCheckView()?.controller
         }
+    }
+
+    /// Puts the unlock PIN on the app's own window and records the lock. The key window may be a prompt above the app
+    /// (a WalletConnect request): that window is hidden while the app is locked, so the PIN never goes there.
+    /// Returns the PIN screen, or nil when one is already shown or there is no window.
+    @discardableResult
+    static func presentLock(
+        on window: UIWindow?,
+        lockState: ApplicationLockState = .shared,
+        makePin: () -> UIViewController?
+    ) -> UIViewController? {
+        guard let window = window else {
+            return nil
+        }
+        // The unlock PIN is already on screen; another one on top would ask for the PIN twice.
+        guard !isShowingUnlockPin(in: window), let pincodeViewController = makePin() else {
+            return nil
+        }
+
+        window.rootViewController?.dismiss(animated: false)
+        window.rootViewController?.present(pincodeViewController, animated: false)
+        // Prompts in their own windows, such as WalletConnect requests, stay
+        // behind the PIN screen until it is unlocked.
+        lockState.lock(with: pincodeViewController)
+        return pincodeViewController
+    }
+
+    static func isShowingUnlockPin(in window: UIWindow) -> Bool {
+        var controllers = [window.rootViewController].compactMap { $0 }
+        while let presented = controllers.last?.presentedViewController {
+            controllers.append(presented)
+        }
+        return controllers.contains { ($0 as? PinSetupViewController)?.presenter is LocalAuthPresenter }
     }
 }
 
 extension FearlessApplication: ApplicationHandlerDelegate {
     func didReceiveDidEnterBackground(notification _: Notification) {
         timerToDetectInactivity?.invalidate()
-        goneBackgroundTimestamp = Date().timeIntervalSince1970
+        backgroundEnteredUptime = MonotonicClock.uptime()
     }
 
     func didReceiveWillEnterForeground(notification _: Notification) {
         resetTimer()
-        if Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
+        guard let enteredBackground = backgroundEnteredUptime else {
+            return
+        }
+        backgroundEnteredUptime = nil
+        let now = MonotonicClock.uptime()
+        if BackgroundSessionLockPolicy.requiresPin(enteredBackgroundAt: enteredBackground, now: now) {
             dropSession()
         }
     }

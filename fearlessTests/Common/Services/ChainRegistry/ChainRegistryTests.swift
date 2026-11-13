@@ -1220,3 +1220,452 @@ extension ChainRegistryTests {
         provider.removeObserver(registry)
     }
 }
+
+// MARK: - Launch crash of 4.2.1 (2026.11.11): shared state read off its lock
+
+extension ChainRegistryTests {
+    /// The shipped build read the chain list on the socket queue without the registry's lock,
+    /// while a chain update was replacing that list on another thread, and trapped at launch.
+    func testSocketStateChangeDuringChainUpdateReadsTheListOnlyAfterTheUpdate() throws {
+        let (provider, observable) = makeChainProvider()
+        let first = makeChain(identifier: "state-race-first", disabled: false, node: try makeNode("first"))
+        let second = makeChain(identifier: "state-race-second", disabled: false, node: try makeNode("second"))
+        let connectionFactory = BlockingConnectionFactory(blockedConnectionName: second.chainId)
+        let eventCenter = RecordingEventCenter()
+        let registry = makeSubstrateRegistry(
+            provider: provider,
+            connectionFactory: connectionFactory,
+            eventCenter: eventCenter
+        )
+        defer {
+            connectionFactory.release()
+            provider.removeObserver(registry)
+        }
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        XCTAssertTrue(observable.send([.insert(newItem: first), .insert(newItem: second)]))
+        // The update now waits inside the registry's write: the first chain is in the list, the second is not.
+        XCTAssertTrue(connectionFactory.waitUntilBlocked())
+
+        let returned = DispatchSemaphore(value: 0)
+        DispatchQueue(label: "chain-registry-tests.socket-state").async {
+            registry.webSocketDidChangeState(chainId: first.chainId, state: .connected)
+            returned.signal()
+        }
+        XCTAssertEqual(
+            returned.wait(timeout: .now() + 5),
+            .success,
+            "the socket queue must not wait for a chain update"
+        )
+
+        Thread.sleep(forTimeInterval: 0.3)
+        XCTAssertTrue(
+            eventCenter.reconnectingEvents.isEmpty,
+            "the chain list must not be read while an update is replacing it"
+        )
+
+        connectionFactory.release()
+        try waitForCondition { eventCenter.reconnectingEvents.count == 1 }
+        let event = try XCTUnwrap(eventCenter.reconnectingEvents.first)
+        XCTAssertEqual(event.chain.chainId, first.chainId)
+        guard case .connected = event.state else {
+            return XCTFail("unexpected state \(event.state)")
+        }
+        XCTAssertNotNil(registry.getChain(for: second.chainId))
+    }
+
+    func testSocketStateChangesRacingChainUpdatesAreEachPublishedFromACompleteList() throws {
+        let (provider, observable) = makeChainProvider()
+        let chainCount = 24
+        let rounds = 40
+        let eventCenter = RecordingEventCenter()
+        let registry = makeSubstrateRegistry(
+            provider: provider,
+            connectionFactory: RecordingConnectionFactory(),
+            eventCenter: eventCenter
+        )
+        defer { provider.removeObserver(registry) }
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+
+        func chain(_ index: Int, round: Int) throws -> ChainModel {
+            makeChain(
+                identifier: "state-stress-\(index)",
+                disabled: false,
+                node: try makeNode("stress-\(index)-\(round)")
+            )
+        }
+
+        XCTAssertTrue(observable.send(try (0 ..< chainCount).map { .insert(newItem: try chain($0, round: 0)) }))
+        try waitForCondition { registry.availableChains.count == chainCount }
+
+        // Each round gives every chain a new node: the registry takes the chain out of its list and adds it back.
+        for round in 1 ... rounds {
+            XCTAssertTrue(observable.send(try (0 ..< chainCount).map { .update(newItem: try chain($0, round: round)) }))
+        }
+        let lastNode = try makeNode("stress-\(chainCount - 1)-\(rounds)")
+
+        let callCounter = LockedCounter()
+        let stop = LockedCounter()
+        let readers = DispatchGroup()
+        for reader in 0 ..< 4 {
+            DispatchQueue.global().async(group: readers) {
+                var call = 0
+                while stop.value == 0 {
+                    registry.webSocketDidChangeState(
+                        chainId: "state-stress-\((reader + call) % chainCount)",
+                        state: .connected
+                    )
+                    callCounter.increment()
+                    call += 1
+                    usleep(100)
+                }
+            }
+        }
+
+        do {
+            defer {
+                stop.increment()
+                XCTAssertEqual(readers.wait(timeout: .now() + 30), .success)
+            }
+            try waitForCondition(timeout: 120) {
+                registry.getChain(for: "state-stress-\(chainCount - 1)")?.selectedNode == lastNode
+            }
+        }
+
+        // A chain being updated is never missing from a list read under the lock, so no call is dropped.
+        let calls = callCounter.value
+        XCTAssertGreaterThan(calls, 0)
+        try waitForCondition(timeout: 60) { eventCenter.reconnectingEvents.count == calls }
+        XCTAssertEqual(registry.availableChains.count, chainCount)
+    }
+
+    func testChainTypesPublishedWhileTheyAreReadAreNeverTorn() {
+        let (provider, _) = makeChainProvider()
+        let registry = makeSubstrateRegistry(
+            provider: provider,
+            connectionFactory: RecordingConnectionFactory(),
+            eventCenter: NoopEventCenter()
+        )
+        let maps: [[String: Data]] = (0 ..< 8).map { index in
+            ["types-\(index)": Data(repeating: UInt8(index), count: 64)]
+        }
+        let mismatches = LockedCounter()
+
+        DispatchQueue.concurrentPerform(iterations: 8) { worker in
+            for iteration in 0 ..< 2000 {
+                if worker.isMultiple(of: 2) {
+                    let event = RuntimeChainsTypesSyncCompleted(versioningMap: maps[(worker + iteration) % maps.count])
+                    registry.processRuntimeChainsTypesSyncCompleted(event: event)
+                } else {
+                    let map = registry.chainsTypesMap
+                    if !map.isEmpty, !maps.contains(map) {
+                        mismatches.increment()
+                    }
+                }
+            }
+        }
+
+        XCTAssertEqual(mismatches.value, 0)
+        XCTAssertTrue(maps.contains(registry.chainsTypesMap))
+    }
+
+    func testHotBootStartsOnlyWhileNoChainIsLoaded() throws {
+        let (provider, observable) = makeChainProvider()
+        let hotBootBuilder = CountingSnapshotHotBootBuilder()
+        let registry = makeSubstrateRegistry(
+            provider: provider,
+            connectionFactory: RecordingConnectionFactory(),
+            eventCenter: NoopEventCenter(),
+            hotBootBuilder: hotBootBuilder
+        )
+        defer { provider.removeObserver(registry) }
+
+        registry.performHotBoot()
+        XCTAssertEqual(hotBootBuilder.startCount, 1)
+
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+        let chain = makeChain(identifier: "hot-boot-chain", disabled: false, node: try makeNode("hot-boot"))
+        XCTAssertTrue(observable.send([.insert(newItem: chain)]))
+        try waitForCondition { registry.getChain(for: chain.chainId) != nil }
+
+        registry.performHotBoot()
+        XCTAssertEqual(hotBootBuilder.startCount, 1)
+    }
+
+    /// The socket stack the app runs at launch: each chain's real socket reports that it is connecting on
+    /// the socket queue while the registry is still adding the rest of the list.
+    func testRealSocketsReportingStateDuringTheStartupChainLoadArePublishedForEveryChain() throws {
+        let (provider, observable) = makeChainProvider()
+        // Nothing listens on the discard port of the test host, so every socket fails at once and retries.
+        let chains = try (0 ..< 40).map { index in
+            makeChain(
+                identifier: "startup-load-\(index)",
+                disabled: false,
+                node: ChainNodeModel(
+                    url: try XCTUnwrap(URL(string: "ws://127.0.0.1:9/startup-load-\(index)")),
+                    name: "Local \(index)",
+                    apikey: nil
+                )
+            )
+        }
+        let chainIds = Set(chains.map(\.chainId))
+        let eventCenter = RecordingEventCenter()
+        let registry = makeSubstrateRegistry(
+            provider: provider,
+            connectionFactory: ConnectionFactory(logger: Logger.shared),
+            eventCenter: eventCenter
+        )
+        registry.subscribeToChains()
+        XCTAssertTrue(observable.waitUntilObserverAttached())
+        defer {
+            // Deleting the chains disconnects their sockets and stops the retries.
+            observable.send(chains.map { .delete(deletedIdentifier: $0.chainId) })
+            try? waitForCondition { registry.availableChains.isEmpty }
+            provider.removeObserver(registry)
+        }
+
+        XCTAssertTrue(observable.send(chains.map { .insert(newItem: $0) }))
+
+        try waitForCondition(timeout: 30) {
+            chainIds.isSubset(of: Set(eventCenter.reconnectingEvents.map(\.chain.chainId)))
+        }
+        XCTAssertTrue(Set(eventCenter.reconnectingEvents.map(\.chain.chainId)).isSubset(of: chainIds))
+        XCTAssertEqual(registry.availableChains.count, chains.count)
+    }
+
+    private func makeNode(_ name: String) throws -> ChainNodeModel {
+        ChainNodeModel(
+            url: try XCTUnwrap(URL(string: "wss://\(name).example")),
+            name: name,
+            apikey: nil
+        )
+    }
+
+    private func makeSubstrateRegistry(
+        provider: StreamableProvider<ChainModel>,
+        connectionFactory: ConnectionFactoryProtocol,
+        eventCenter: EventCenterProtocol,
+        hotBootBuilder: SnapshotHotBootBuilderProtocol = NoopSnapshotHotBootBuilder()
+    ) -> ChainRegistry {
+        ChainRegistry(
+            snapshotHotBootBuilder: hotBootBuilder,
+            runtimeProviderPool: makeRuntimeProviderPool(),
+            connectionPools: [ConnectionPool(connectionFactory: connectionFactory)],
+            chainSyncService: NoopChainSyncService(),
+            runtimeSyncService: makeRuntimeSyncService(),
+            chainsTypesSyncService: NoopChainsTypesSyncService(),
+            chainProvider: provider,
+            specVersionSubscriptionFactory: makeSubscriptionFactory(),
+            networkIssuesCenter: NoopNetworkIssuesCenter(),
+            eventCenter: eventCenter
+        )
+    }
+}
+
+final class IssuesCenterConcurrencyTests: XCTestCase {
+    /// Screens add and remove listeners while the event queue publishes issues.
+    func testAppNetworkListenersCanChangeWhileIssuesArePublished() {
+        let center = NetworkIssuesCenter.shared
+        let chains = ChainModelGenerator.generate(count: 4)
+        let chainIds = Set(chains.map(\.chainId))
+        let steady = LockedIssuesListener()
+        center.addIssuesListener(steady, getExisting: false)
+        defer { center.removeIssuesListener(steady) }
+
+        DispatchQueue.concurrentPerform(iterations: 6) { worker in
+            for iteration in 0 ..< 400 {
+                if worker == 0 {
+                    // Issues are published from one queue in the app.
+                    let chain = chains[iteration % chains.count]
+                    let state: WebSocketEngine.State = (iteration / chains.count).isMultiple(of: 2) ? .notReachable : .connected
+                    center.processChainReconnecting(event: ChainReconnectingEvent(chain: chain, state: state))
+                } else {
+                    let listener = LockedIssuesListener()
+                    center.addIssuesListener(listener, getExisting: true)
+                    center.removeIssuesListener(listener)
+                }
+            }
+        }
+
+        chains.forEach { center.processChainReconnecting(event: ChainReconnectingEvent(chain: $0, state: .notReachable)) }
+        XCTAssertTrue(chainIds.isSubset(of: steady.lastNetworkChainIds))
+        let late = LockedIssuesListener()
+        center.addIssuesListener(late, getExisting: true)
+        defer { center.removeIssuesListener(late) }
+        XCTAssertTrue(chainIds.isSubset(of: late.lastNetworkChainIds))
+
+        chains.forEach { center.processChainReconnecting(event: ChainReconnectingEvent(chain: $0, state: .connected)) }
+        XCTAssertTrue(chainIds.isDisjoint(with: steady.lastNetworkChainIds))
+        XCTAssertTrue(chainIds.isDisjoint(with: late.lastNetworkChainIds))
+    }
+
+    func testAppChainListenersCanChangeWhileIssuesArePublished() {
+        let center = ChainsIssuesCenter(
+            wallet: AccountGenerator.generateMetaAccount(),
+            networkIssuesCenter: NoopNetworkIssuesCenter(),
+            eventCenter: EventCenter(),
+            missingAccountHelper: NoMissingAccounts(),
+            accountInfoFetcher: NoIssueAccountInfo()
+        )
+        let steady = LockedIssuesListener()
+        center.addIssuesListener(steady, getExisting: false)
+        let publishes = 400
+
+        DispatchQueue.concurrentPerform(iterations: 6) { worker in
+            for _ in 0 ..< publishes {
+                if worker == 0 {
+                    center.handleChainsWithIssues([])
+                } else {
+                    let listener = LockedIssuesListener()
+                    center.addIssuesListener(listener, getExisting: true)
+                    center.removeIssuesListener(listener)
+                }
+            }
+        }
+
+        XCTAssertEqual(steady.chainIssuesNotificationCount, publishes)
+        center.removeIssuesListener(steady)
+        center.handleChainsWithIssues([])
+        XCTAssertEqual(steady.chainIssuesNotificationCount, publishes)
+    }
+}
+
+private final class LockedCounter {
+    private let lock = NSLock()
+    private var count = 0
+
+    var value: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return count
+    }
+
+    func increment() {
+        lock.lock()
+        count += 1
+        lock.unlock()
+    }
+}
+
+private final class LockedIssuesListener: NetworkIssuesCenterListener, ChainsIssuesCenterListener {
+    private let lock = NSLock()
+    private var networkChainIds: Set<ChainModel.Id> = []
+    private var chainIssuesNotifications = 0
+
+    var lastNetworkChainIds: Set<ChainModel.Id> {
+        lock.lock()
+        defer { lock.unlock() }
+        return networkChainIds
+    }
+
+    var chainIssuesNotificationCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return chainIssuesNotifications
+    }
+
+    func handleChainsWithIssues(_ chains: [ChainModel]) {
+        lock.lock()
+        networkChainIds = Set(chains.map(\.chainId))
+        lock.unlock()
+    }
+
+    func handleChainsIssues(_: [ChainIssue]) {
+        lock.lock()
+        chainIssuesNotifications += 1
+        lock.unlock()
+    }
+}
+
+private final class RecordingEventCenter: EventCenterProtocol {
+    private let lock = NSLock()
+    private var events: [ChainReconnectingEvent] = []
+
+    var reconnectingEvents: [ChainReconnectingEvent] {
+        lock.lock()
+        defer { lock.unlock() }
+        return events
+    }
+
+    func notify(with event: EventProtocol) {
+        guard let event = event as? ChainReconnectingEvent else {
+            return
+        }
+
+        lock.lock()
+        events.append(event)
+        lock.unlock()
+    }
+
+    func add(
+        observer _: EventVisitorProtocol,
+        dispatchIn _: DispatchQueue?
+    ) {}
+
+    func remove(observer _: EventVisitorProtocol) {}
+}
+
+/// Parks the creation of one chain's connection, which keeps the registry inside its chain update.
+private final class BlockingConnectionFactory: ConnectionFactoryProtocol {
+    private let blockedConnectionName: String
+    private let blocked = DispatchSemaphore(value: 0)
+    private let gate = DispatchSemaphore(value: 0)
+    private let lock = NSLock()
+    private var connections: [MockConnection] = []
+    private var isReleased = false
+
+    init(blockedConnectionName: String) {
+        self.blockedConnectionName = blockedConnectionName
+    }
+
+    func createConnection(
+        connectionName: String?,
+        for urls: [URL],
+        delegate _: WebSocketEngineDelegate
+    ) throws -> ChainConnection {
+        if connectionName == blockedConnectionName {
+            blocked.signal()
+            _ = gate.wait(timeout: .now() + 30)
+        }
+
+        let connection = MockConnection()
+        connection.connectionName = connectionName
+        connection.url = urls.first
+
+        lock.lock()
+        connections.append(connection)
+        lock.unlock()
+
+        return connection
+    }
+
+    func waitUntilBlocked(timeout: TimeInterval = 10) -> Bool {
+        blocked.wait(timeout: .now() + timeout) == .success
+    }
+
+    func release() {
+        lock.lock()
+        let isFirstRelease = !isReleased
+        isReleased = true
+        lock.unlock()
+
+        if isFirstRelease {
+            gate.signal()
+        }
+    }
+}
+
+private final class CountingSnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
+    private let counter = LockedCounter()
+
+    var startCount: Int {
+        counter.value
+    }
+
+    func startHotBoot() {
+        counter.increment()
+    }
+}

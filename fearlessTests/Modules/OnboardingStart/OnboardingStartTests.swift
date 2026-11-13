@@ -1,4 +1,5 @@
 @testable import fearless
+import AVFoundation
 import CoreText
 import SoraFoundation
 import UIKit
@@ -370,7 +371,11 @@ final class OnboardingStartTests: XCTestCase {
             let paragraph = NSMutableParagraphStyle()
             paragraph.alignment = .center
             paragraph.minimumLineHeight = 40
-            let text = NSAttributedString(string: "新しいウォレットを作成", attributes: [.font: font, .paragraphStyle: paragraph])
+            // Tagged Japanese, as the Welcome screen tags it: untagged kanji follow the device
+            // language and take Chinese forms (PingFang SC) on a device set to English.
+            let text = NSAttributedString(string: "新しいウォレットを作成", attributes: [
+                .font: font, .paragraphStyle: paragraph, .fwLanguage: Locale(identifier: "ja").fwTextLanguage
+            ])
             label.attributedText = text
             let names = glyphFontNames(text)
             if index < 2 {
@@ -428,5 +433,190 @@ final class OnboardingStartTests: XCTestCase {
                 add(attachment)
             }
         }
+    }
+}
+
+/// The welcome's animated crow and its call (Yatagarasu brand, 2026-11-10).
+@MainActor
+final class FWWelcomeHeroTests: XCTestCase {
+    private final class SystemBox {
+        var state = FWEffects.SystemState()
+    }
+
+    private let system = SystemBox()
+
+    private func effects(reduceMotion: Bool) throws -> FWEffects {
+        let suite = "fw-hero-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suite) }
+        system.state.reduceMotion = reduceMotion
+        let box = system
+        return FWEffects(defaults: defaults, notificationCenter: NotificationCenter()) { box.state }
+    }
+
+    private func host(_ view: UIView, size: CGSize = CGSize(width: 393, height: 852)) throws -> UIWindow {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        window.frame = CGRect(origin: .zero, size: size)
+        let controller = UIViewController()
+        controller.view = view
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+        addTeardownBlock { window.isHidden = true; window.rootViewController = nil }
+        return window
+    }
+
+    private func spin(until condition: () -> Bool, timeout: TimeInterval = 5) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition(), Date() < deadline {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+        }
+    }
+
+    func testBundleCarriesTheKitsHeroMedia() throws {
+        let media = FWWelcomeHeroView.Media.bundled
+        for url in [media.loop, media.call, media.sound, media.poster] {
+            let url = try XCTUnwrap(url)
+            XCTAssertTrue(FileManager.default.fileExists(atPath: url.path), url.lastPathComponent)
+        }
+        let poster = try XCTUnwrap(media.poster.flatMap { UIImage(contentsOfFile: $0.path) })
+        XCTAssertEqual(poster.size.width / poster.size.height, 720.0 / 1560.0, accuracy: 0.001)
+    }
+
+    func testTheCallHasSoundAndTheLoopHasNone() async throws {
+        let media = FWWelcomeHeroView.Media.bundled
+        let call = AVURLAsset(url: try XCTUnwrap(media.call))
+        let loop = AVURLAsset(url: try XCTUnwrap(media.loop))
+        let callAudio = try await call.loadTracks(withMediaType: .audio)
+        let loopAudio = try await loop.loadTracks(withMediaType: .audio)
+        XCTAssertFalse(callAudio.isEmpty, "The call plays with sound")
+        XCTAssertTrue(loopAudio.isEmpty, "The muted loop never needs the audio session")
+        let loopDuration = try await loop.load(.duration).seconds
+        let callDuration = try await call.load(.duration).seconds
+        XCTAssertEqual(loopDuration, 12, accuracy: 0.05)
+        XCTAssertEqual(callDuration, 3, accuracy: 0.05)
+    }
+
+    func testFootageFillsThePageAnchoredToTheTop() {
+        for size in [CGSize(width: 393, height: 852), CGSize(width: 320, height: 568), CGSize(width: 834, height: 1194),
+                     CGSize(width: 390, height: 700), CGSize(width: 360, height: 900)] {
+            let bounds = CGRect(origin: .zero, size: size)
+            let frame = FWWelcomeHeroView.footageFrame(in: bounds)
+            XCTAssertEqual(frame.minY, 0, "\(size)")
+            XCTAssertEqual(frame.midX, bounds.midX, accuracy: 0.01, "\(size)")
+            XCTAssertEqual(frame.width / frame.height, 720.0 / 1560.0, accuracy: 0.0001, "\(size)")
+            XCTAssertTrue(frame.insetBy(dx: -0.01, dy: -0.01).contains(bounds), "aspect-fill covers \(size)")
+            XCTAssertTrue(abs(frame.width - size.width) < 0.01 || abs(frame.height - size.height) < 0.01, "\(size)")
+        }
+    }
+
+    func testLoopPlaysMutedOnScreenAndPausesOffScreenAndInTheBackground() throws {
+        let lifecycle = NotificationCenter()
+        let hero = FWWelcomeHeroView(effects: try effects(reduceMotion: false), lifecycle: lifecycle)
+        XCTAssertFalse(hero.isLooping, "Nothing plays before the hero is on screen")
+        let page = UIView()
+        let window = try host(page)
+        hero.frame = page.bounds
+        page.addSubview(hero)
+        hero.layoutIfNeeded()
+        XCTAssertTrue(hero.isLooping)
+        XCTAssertEqual(hero.loopLayer.player?.isMuted, true)
+        XCTAssertTrue(hero.accessibilityElementsHidden, "The footage is decorative")
+        XCTAssertNotNil(hero.posterView.image, "The poster stays under the video as its fallback")
+        XCTAssertEqual(hero.loopLayer.frame, FWWelcomeHeroView.footageFrame(in: hero.bounds))
+        lifecycle.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        XCTAssertFalse(hero.isLooping)
+        lifecycle.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        XCTAssertTrue(hero.isLooping)
+        hero.removeFromSuperview()
+        XCTAssertFalse(hero.isLooping, "Off screen the loop pauses")
+        page.addSubview(hero)
+        XCTAssertNotNil(hero.window ?? window)
+        XCTAssertTrue(hero.isLooping)
+    }
+
+    func testReduceMotionShowsThePosterAndNeverAutoplays() throws {
+        let settings = try effects(reduceMotion: true)
+        let hero = FWWelcomeHeroView(effects: settings)
+        _ = try host(hero)
+        XCTAssertTrue(hero.showsPosterOnly)
+        XCTAssertFalse(hero.isLooping)
+        XCTAssertNil(hero.loopLayer.player)
+        XCTAssertNotNil(hero.posterView.image)
+        system.state.reduceMotion = false
+        settings.refresh()
+        XCTAssertTrue(hero.isLooping, "Turning Reduce Motion off starts the loop")
+        system.state.reduceMotion = true
+        settings.refresh()
+        XCTAssertFalse(hero.isLooping)
+        XCTAssertNil(hero.loopLayer.player)
+    }
+
+    func testTheCallPlaysOnceWithSoundAndIgnoresTapsWhileItPlays() throws {
+        let hero = FWWelcomeHeroView(effects: try effects(reduceMotion: false))
+        _ = try host(hero)
+        let before = AVAudioSession.sharedInstance().category
+        hero.playCall()
+        XCTAssertTrue(hero.isPlayingCall)
+        let player = try XCTUnwrap(hero.callLayer.player)
+        XCTAssertFalse(player.isMuted)
+        XCTAssertEqual(player.volume, 1)
+        XCTAssertEqual(AVAudioSession.sharedInstance().category, .ambient, "The silent switch mutes the call")
+        hero.playCall()
+        XCTAssertTrue(hero.callLayer.player === player, "A second tap during the call is ignored")
+        spin { hero.loopLayer.opacity == 0 && hero.callLayer.presentation()?.opacity == 1 }
+        XCTAssertEqual(hero.callLayer.opacity, 1, "Crossfaded into the call")
+        NotificationCenter.default.post(name: .AVPlayerItemDidPlayToEndTime, object: player.currentItem)
+        spin { !hero.isPlayingCall }
+        XCTAssertFalse(hero.isPlayingCall)
+        XCTAssertEqual(hero.loopLayer.opacity, 1, "Crossfaded back to the loop")
+        XCTAssertNil(hero.callLayer.player)
+        XCTAssertTrue(hero.isLooping)
+        XCTAssertEqual(AVAudioSession.sharedInstance().category, before, "The previous audio category is back")
+    }
+
+    func testTheCallStopsWhenTheAppGoesToTheBackground() throws {
+        let lifecycle = NotificationCenter()
+        let hero = FWWelcomeHeroView(effects: try effects(reduceMotion: false), lifecycle: lifecycle)
+        _ = try host(hero)
+        hero.playCall()
+        XCTAssertTrue(hero.isPlayingCall)
+        lifecycle.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        XCTAssertFalse(hero.isPlayingCall)
+        XCTAssertNil(hero.callLayer.player)
+        XCTAssertEqual(hero.callLayer.opacity, 0)
+        XCTAssertEqual(hero.loopLayer.opacity, 1)
+        XCTAssertFalse(hero.isLooping)
+    }
+
+    func testReduceMotionPlaysTheCallsSoundAloneOverThePoster() throws {
+        let hero = FWWelcomeHeroView(effects: try effects(reduceMotion: true))
+        _ = try host(hero)
+        hero.playCall()
+        XCTAssertTrue(hero.isPlayingCall)
+        XCTAssertNil(hero.callLayer.player, "No footage moves")
+        XCTAssertNil(hero.loopLayer.player)
+        hero.playCall()
+        XCTAssertNil(hero.callLayer.player)
+        spin(until: { !hero.isPlayingCall }, timeout: 8)
+        XCTAssertFalse(hero.isPlayingCall, "The sound ends on its own")
+    }
+
+    func testWelcomeOffersTheCallAsALabelledButtonOverTheCrow() throws {
+        let view = FWWelcomeView(mode: .walletChoice, effects: try effects(reduceMotion: false))
+        view.locale = Locale(identifier: "en")
+        _ = try host(view)
+        XCTAssertEqual(view.callButton.accessibilityLabel, "Play the crow's call")
+        XCTAssertTrue(view.callButton.accessibilityTraits.contains(.button))
+        XCTAssertTrue(view.callButton.accessibilityTraits.contains(.playsSound))
+        XCTAssertTrue(view.hero.accessibilityElementsHidden)
+        XCTAssertEqual(view.lockup.accessibilityLabel, "Fearless")
+        let button = view.callButton.convert(view.callButton.bounds, to: view)
+        XCTAssertGreaterThanOrEqual(button.height, view.bounds.height * 0.3, "The crow is the tap target")
+        let lockup = view.lockup.convert(view.lockup.bounds, to: view)
+        XCTAssertGreaterThanOrEqual(lockup.minY, button.maxY - 0.5, "The lockup sits below the crow")
+        view.callButton.sendActions(for: .touchUpInside)
+        XCTAssertTrue(view.hero.isPlayingCall)
     }
 }
