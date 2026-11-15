@@ -137,6 +137,7 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
             guard let self = self else { return }
             self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
                 self?.view?.didStartLoading()
+                FWTransferEvents.report(.authorised, to: self?.view)
                 self?.interactor.confirm()
             }
         }
@@ -227,6 +228,7 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationI
             return
         }
 
+        FWTransferEvents.report(FWTransferEvents.extrinsic(result), to: view)
         switch result {
         case .success:
             wireframe.complete(from: view)

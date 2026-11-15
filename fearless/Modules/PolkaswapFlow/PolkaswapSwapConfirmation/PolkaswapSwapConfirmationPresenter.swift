@@ -67,6 +67,7 @@ extension PolkaswapSwapConfirmationPresenter: PolkaswapSwapConfirmationViewOutpu
 
         submissionAuthorizer.performAuthorized(from: view) { [weak self] in
             self?.view?.didStartLoading()
+            FWTransferEvents.report(.authorised, to: self?.view)
             self?.interactor.submit()
         }
     }
@@ -77,6 +78,7 @@ extension PolkaswapSwapConfirmationPresenter: PolkaswapSwapConfirmationViewOutpu
 extension PolkaswapSwapConfirmationPresenter: PolkaswapSwapConfirmationInteractorOutput {
     func didReceive(extrinsicResult: SubmitExtrinsicResult) {
         view?.didStopLoading()
+        FWTransferEvents.report(FWTransferEvents.extrinsic(extrinsicResult), to: view)
 
         switch extrinsicResult {
         case let .success(hash):

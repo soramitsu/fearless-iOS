@@ -665,3 +665,166 @@ final class FWLoaderAndMarksTests: XCTestCase {
         XCTAssertFalse(marks.isBandMoving)
     }
 }
+
+// MARK: - The seal on the cross-chain, swap and staking confirms
+
+/// A confirm screen whose loading is the app's full-page loader, wired exactly as the staking confirms are.
+private final class LoaderConfirmScreen: UIViewController, LoadableViewProtocol, FWTransferSealShowing {
+    func didReachTransferStage(_ stage: FWSealStage) {
+        FWTransferSeal.reach(stage, in: view)
+    }
+
+    func didBreakTransfer() {
+        FWTransferSeal.breakSeal(in: view)
+    }
+}
+
+private final class SealSpy: FWTransferSealShowing {
+    private(set) var calls: [String] = []
+
+    func didReachTransferStage(_ stage: FWSealStage) {
+        calls.append("stage:\(stage.name)")
+    }
+
+    func didBreakTransfer() {
+        calls.append("break")
+    }
+
+    func didEndTransfer() {
+        calls.append("end")
+    }
+}
+
+private final class SwapOutputStub: PolkaswapSwapConfirmationViewOutput {
+    func didLoad(view _: PolkaswapSwapConfirmationViewInput) {}
+    func didTapBackButton() {}
+    func didTapConfirmButton() {}
+}
+
+final class FWTransferSealFlowTests: XCTestCase {
+    private struct Failure: Error {}
+
+    private func window() throws -> UIWindow {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        window.frame = CGRect(x: 0, y: 0, width: 402, height: 874)
+        window.isHidden = false
+        return window
+    }
+
+    private func spinRunLoop(_ seconds: TimeInterval) {
+        RunLoop.main.run(until: Date().addingTimeInterval(seconds))
+    }
+
+    func testEachFlowsRealEventsLightOnlyTheStagesTheyKnow() {
+        // The final press, authorised: every flow knows only this before the result.
+        XCTAssertEqual(FWTransferEvent.authorised.stage, .ready)
+        // Cross-chain: included and awaiting the bridge, or accepted but unconfirmed, both mean the network took it.
+        XCTAssertEqual(FWTransferEvents.crossChain(.success(.awaitingBridge(extrinsicHash: "0x1"))), .accepted)
+        XCTAssertEqual(FWTransferEvents.crossChain(.success(.unconfirmed(extrinsicHash: nil))), .accepted)
+        XCTAssertEqual(FWTransferEvents.crossChain(.failure(Failure())), .definiteFailure)
+        // Swap and staking (bond extra, unbond, rebond, redeem, payee, controller, payout): a hash, or a failure.
+        XCTAssertEqual(FWTransferEvents.extrinsic(.success("0x2")), .accepted)
+        XCTAssertEqual(FWTransferEvents.extrinsic(.failure(Failure())), .definiteFailure)
+        // Payouts may come back as a list of hashes.
+        XCTAssertEqual(FWTransferEvents.payouts(["0x3", "0x4"]), .accepted)
+        XCTAssertEqual(FWTransferEvents.payouts([]), .outcomeUnknown)
+        // Acceptance draws the rest at once: signed and sent are never reported on their own.
+        XCTAssertEqual(FWTransferEvent.accepted.stage, .accepted)
+        XCTAssertNil(FWTransferEvent.definiteFailure.stage)
+        XCTAssertTrue(FWTransferEvent.definiteFailure.breaks)
+        XCTAssertNil(FWTransferEvent.outcomeUnknown.stage)
+        XCTAssertFalse(FWTransferEvent.outcomeUnknown.breaks)
+    }
+
+    func testReportingIsSynchronousAndANoOpForScreensWithoutASeal() {
+        let spy = SealSpy()
+        FWTransferEvents.report(.authorised, to: spy)
+        FWTransferEvents.report(FWTransferEvents.extrinsic(.success("0x5")), to: spy)
+        FWTransferEvents.report(.definiteFailure, to: spy)
+        FWTransferEvents.report(.outcomeUnknown, to: spy)
+        XCTAssertEqual(spy.calls, ["stage:ready", "stage:accepted", "break"], "each call lands before report returns")
+        FWTransferEvents.report(.authorised, to: UIViewController())
+        FWTransferEvents.report(.accepted, to: nil)
+    }
+
+    func testAButtonSpinnerScreenShowsTheSealOnInkAndFadesItWithoutHoldingTheResult() throws {
+        let window = try window()
+        defer { window.isHidden = true }
+        let screen = PolkaswapSwapConfirmationViewController(output: SwapOutputStub(), localizationManager: nil)
+        window.rootViewController = screen
+        window.layoutIfNeeded()
+        let framesBefore = screen.view.subviews.map(\.frame)
+
+        screen.didStartLoading()
+        FWTransferEvents.report(.authorised, to: screen)
+        let overlay = try XCTUnwrap(FWTransferSeal.overlay(in: screen.view))
+        XCTAssertFalse(overlay.isUserInteractionEnabled, "the seal never takes a touch")
+        XCTAssertEqual(overlay.backgroundColor?.cgColor.alpha ?? 0, FWSealOverlayView.inkAlpha, accuracy: 0.001)
+        let seal = try XCTUnwrap(FWTransferSeal.sealView(in: screen.view))
+        XCTAssertEqual(seal.bounds.width, FWTransferSeal.side)
+        XCTAssertEqual(Array(screen.view.subviews.dropLast().map(\.frame)), framesBefore, "nothing else moves")
+
+        // The result: loading stops, the network accepted it. Both return at once; the presenter shows its success
+        // in this same turn while the seal draws on and fades on the next.
+        screen.didStopLoading()
+        FWTransferEvents.report(.accepted, to: screen)
+        XCTAssertNotNil(overlay.superview, "still there in this turn: nothing waited for it")
+        spinRunLoop(0.6)
+        XCTAssertNil(overlay.superview, "gone after its fade")
+        XCTAssertNotNil(FWSealRecord.shared.recent(), "the stage reached is kept for a success screen")
+    }
+
+    func testADefiniteFailureBreaksTheSealBesideTheAppsError() throws {
+        let window = try window()
+        defer { window.isHidden = true }
+        let screen = PolkaswapSwapConfirmationViewController(output: SwapOutputStub(), localizationManager: nil)
+        window.rootViewController = screen
+        window.layoutIfNeeded()
+        FWTransferEvents.report(.authorised, to: screen)
+        let seal = try XCTUnwrap(FWTransferSeal.sealView(in: screen.view))
+        let overlay = try XCTUnwrap(FWTransferSeal.overlay(in: screen.view))
+        screen.didStopLoading()
+        FWTransferEvents.report(FWTransferEvents.extrinsic(.failure(Failure())), to: screen)
+        XCTAssertTrue(seal.isSealBroken)
+        XCTAssertTrue(overlay.isBreaking, "the break, not the plain fade")
+        XCTAssertNil(FWSealRecord.shared.recent(), "a broken transfer leaves nothing for a success screen")
+        spinRunLoop(1.5)
+        XCTAssertNil(overlay.superview)
+    }
+
+    func testTheLoaderScreensPutTheSealInTheLoadersPlace() throws {
+        let window = try window()
+        defer { window.isHidden = true }
+        let screen = LoaderConfirmScreen()
+        window.rootViewController = screen
+        window.layoutIfNeeded()
+        screen.didStartLoading()
+        FWTransferEvents.report(.authorised, to: screen)
+        let loader = try XCTUnwrap(FWTransferSeal.loadingView(in: screen.view))
+        let seal = try XCTUnwrap(FWTransferSeal.sealView(in: screen.view))
+        XCTAssertTrue(seal.superview === loader)
+        XCTAssertNil(FWTransferSeal.overlay(in: screen.view), "no ink overlay where the loader is")
+        XCTAssertTrue(loader.subviews.filter { $0 !== seal }.allSatisfy(\.isHidden), "the comets give way to the seal")
+        FWTransferEvents.report(.accepted, to: screen)
+        screen.didStopLoading()
+        XCTAssertNotNil(seal.superview, "it leaves with the loader's own fade")
+    }
+
+    func testReducedMotionShowsTheStageReachedStill() throws {
+        let defaults = UserDefaults(suiteName: "FWTransferSealFlowTests")!
+        defaults.removePersistentDomain(forName: "FWTransferSealFlowTests")
+        let effects = FWEffects(defaults: defaults, notificationCenter: NotificationCenter()) { .init(reduceMotion: true) }
+        let seal = FWSolarGeometryView(effects: effects)
+        seal.frame = CGRect(x: 0, y: 0, width: 176, height: 176)
+        seal.layoutIfNeeded()
+        seal.showSeal(stage: .idle)
+        seal.advanceSeal(to: .ready)
+        XCTAssertEqual(seal.sealQ, 1)
+        XCTAssertFalse(seal.isSealAnimating)
+        seal.advanceSeal(to: .accepted)
+        XCTAssertEqual(seal.sealQ, 4)
+        XCTAssertEqual(seal.sealP, 1)
+        XCTAssertFalse(seal.isSealAnimating)
+    }
+}

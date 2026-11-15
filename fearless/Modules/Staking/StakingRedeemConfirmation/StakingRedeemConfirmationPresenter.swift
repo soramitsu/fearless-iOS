@@ -69,6 +69,7 @@ extension StakingRedeemConfirmationPresenter: StakingRedeemConfirmationPresenter
                 }
 
                 strongSelf.view?.didStartLoading()
+                FWTransferEvents.report(.authorised, to: strongSelf.view)
 
                 strongSelf.interactor.submit(builderClosure: strongSelf.viewModelState.builderClosure)
             }
@@ -95,6 +96,7 @@ extension StakingRedeemConfirmationPresenter: StakingRedeemConfirmationInteracto
             return
         }
 
+        FWTransferEvents.report(FWTransferEvents.extrinsic(result), to: view)
         switch result {
         case .success:
             wireframe.complete(from: view)

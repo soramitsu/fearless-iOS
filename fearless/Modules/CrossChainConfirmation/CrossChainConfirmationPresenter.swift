@@ -87,6 +87,7 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationViewOutput {
         }
         submissionAuthorizer.performAuthorized(from: view) { [weak self] in
             self?.view?.didStartLoading()
+            FWTransferEvents.report(.authorised, to: self?.view)
             self?.interactor.submit(confirmingRepeat: false)
         }
     }
@@ -97,6 +98,7 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationViewOutput {
 extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutput {
     func didTransfer(result: Result<ReviewedCrossChainSubmissionResult, Error>) {
         view?.didStopLoading()
+        FWTransferEvents.report(FWTransferEvents.crossChain(result), to: view)
 
         switch result {
         case let .success(.awaitingBridge(extrinsicHash)):
@@ -200,6 +202,7 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutpu
                 }
                 self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
                     self?.view?.didStartLoading()
+                    FWTransferEvents.report(.authorised, to: self?.view)
                     self?.interactor.submit(confirmingRepeat: true)
                 }
             },

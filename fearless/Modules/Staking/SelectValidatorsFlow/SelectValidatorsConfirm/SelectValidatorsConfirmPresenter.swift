@@ -205,18 +205,21 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
 
     func didStartNomination() {
         view?.didStartLoading()
+        FWTransferEvents.report(.authorised, to: view)
     }
 
     func didCompleteNomination(txHash: String) {
         logger?.info("Did send nomination: \(txHash)")
 
         view?.didStopLoading()
+        FWTransferEvents.report(.accepted, to: view)
 
         wireframe.complete(chainAsset: chainAsset, txHash: txHash, from: view)
     }
 
     func didFailNomination(error: Error) {
         view?.didStopLoading()
+        FWTransferEvents.report(.definiteFailure, to: view)
 
         handle(error: error)
     }

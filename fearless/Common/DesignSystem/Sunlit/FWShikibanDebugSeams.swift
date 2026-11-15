@@ -15,7 +15,11 @@ import UIKit
     /// None of this exists in release builds.
     enum FWShikibanDebugSeams {
         static let prefix = "jp.co.soramitsu.fearless.debug."
-        static let names = ["seal", "sealfail", "dial", "dialfail", "loader", "loaderfill", "tick"]
+        static let names = [
+            "seal", "sealfail", "dial", "dialfail", "loader", "loaderfill", "tick",
+            "sealflow.swap", "sealflow.swapfail", "sealflow.crosschain", "sealflow.crosschainfail",
+            "sealflow.staking", "sealflow.stakingfail"
+        ]
         /// Posted on the default centre with `failures` (Int) for the wallet home's dial.
         static let syncNotification = Notification.Name("FWShikibanDebugSync")
         /// Posted on the default centre for the value tick.
@@ -51,6 +55,12 @@ import UIKit
             case "loader": runLoader(fill: false)
             case "loaderfill": runLoader(fill: true)
             case "tick": NotificationCenter.default.post(name: tickNotification, object: nil)
+            case "sealflow.swap": FWSealFlowDebug.run(.swap, fails: false)
+            case "sealflow.swapfail": FWSealFlowDebug.run(.swap, fails: true)
+            case "sealflow.crosschain": FWSealFlowDebug.run(.crossChain, fails: false)
+            case "sealflow.crosschainfail": FWSealFlowDebug.run(.crossChain, fails: true)
+            case "sealflow.staking": FWSealFlowDebug.run(.staking, fails: false)
+            case "sealflow.stakingfail": FWSealFlowDebug.run(.staking, fails: true)
             default: break
             }
         }
@@ -113,6 +123,97 @@ import UIKit
                 )
                 top.present(controller, animated: true)
             }
+        }
+    }
+
+    /// `sealflow.<swap|crosschain|staking>[fail]`: the real confirm screen of the flow (empty of data: its presenter is
+    /// a stub) presented over the current one, then the presenter's own sequence replayed against it: loading starts
+    /// with `.authorised`, then 2.4 s later loading stops and the result is reported (a hash, or a definite failure),
+    /// followed by what the flow's router shows: cross-chain's success screen with the ignite, swap's plain success
+    /// screen, staking's "Transaction submitted" notice, or the app's "transaction failed" error.
+    enum FWSealFlowDebug {
+        enum Flow { case swap, crossChain, staking }
+
+        final class Stub: PolkaswapSwapConfirmationViewOutput, CrossChainConfirmationViewOutput,
+            StakingRebondConfirmationPresenterProtocol {
+            func didLoad(view _: PolkaswapSwapConfirmationViewInput) {}
+            func didTapBackButton() {}
+            func didTapConfirmButton() {}
+            func didLoad(view _: CrossChainConfirmationViewInput) {}
+            func backButtonDidTapped() {}
+            func confirmButtonTapped() {}
+            func setup() {}
+            func confirm() {}
+            func selectAccount() {}
+        }
+
+        final class Router: BaseErrorPresentable, SheetAlertPresentable, ErrorPresentable, ModalAlertPresenting {}
+
+        private static let stub = Stub()
+        private static let router = Router()
+
+        static func run(_ flow: Flow, fails: Bool) {
+            guard let top = topController else { return }
+            let screen: UIViewController & LoadableViewProtocol & ControllerBackedProtocol
+            switch flow {
+            case .swap:
+                screen = PolkaswapSwapConfirmationViewController(output: stub, localizationManager: LocalizationManager.shared)
+            case .crossChain:
+                screen = CrossChainConfirmationViewController(output: stub, localizationManager: LocalizationManager.shared)
+            case .staking:
+                screen = StakingRebondConfirmationViewController(presenter: stub, localizationManager: LocalizationManager.shared)
+            }
+            let navigation = UINavigationController(rootViewController: screen)
+            navigation.modalPresentationStyle = .fullScreen
+            top.present(navigation, animated: false)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                screen.didStartLoading()
+                FWTransferEvents.report(.authorised, to: screen)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.6) {
+                screen.didStopLoading()
+                FWTransferEvents.report(fails ? .definiteFailure : .accepted, to: screen)
+                if fails {
+                    router.presentExtrinsicFailed(from: screen, locale: LocalizationManager.shared.selectedLocale)
+                    return
+                }
+                switch flow {
+                case .crossChain:
+                    let done = AllDoneAssembly.configureModule(chainAsset: nil, hashString: "0x5f0d…debug", celebration: .send)?
+                        .view.controller
+                    navigation.dismiss(animated: true) {
+                        guard let done else { return }
+                        done.modalPresentationStyle = .custom
+                        done.modalTransitioningFactory = ModalSheetBlurPresentationFactory(
+                            configuration: ModalSheetPresentationConfiguration.fearlessBlur
+                        )
+                        top.present(done, animated: true)
+                    }
+                case .swap:
+                    guard let done = AllDoneAssembly.configureModule(chainAsset: nil, hashString: "0x5f0d…debug")?
+                        .view.controller else { return }
+                    done.modalPresentationStyle = .custom
+                    done.modalTransitioningFactory = ModalSheetBlurPresentationFactory(
+                        configuration: ModalSheetPresentationConfiguration.fearlessBlur
+                    )
+                    screen.present(done, animated: true)
+                case .staking:
+                    let title = R.string.localizable.commonTransactionSubmitted(
+                        preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+                    )
+                    navigation.dismiss(animated: true) {
+                        router.presentSuccessNotification(title, from: top as? ControllerBackedProtocol, completion: nil)
+                    }
+                }
+            }
+        }
+
+        private static var topController: UIViewController? {
+            var top = SceneWindowFinder.mainWindow()?.rootViewController
+            while let presented = top?.presentedViewController {
+                top = presented
+            }
+            return top
         }
     }
 #endif

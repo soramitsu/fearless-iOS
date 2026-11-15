@@ -73,6 +73,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
                 }
 
                 strongSelf.view?.didStartLoading()
+                FWTransferEvents.report(.authorised, to: strongSelf.view)
 
                 strongSelf.interactor.submit(builderClosure: strongSelf.viewModelState.builderClosure)
             }
@@ -101,6 +102,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmModelStateListener 
             return
         }
 
+        FWTransferEvents.report(FWTransferEvents.extrinsic(result), to: view)
         switch result {
         case let .success(result):
             wireframe.complete(on: view, hash: result, chainAsset: chainAsset)

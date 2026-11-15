@@ -200,3 +200,16 @@ extension SelectValidatorsConfirmViewController {
         }
     }
 }
+
+// MARK: - The seal (kit v4)
+
+extension SelectValidatorsConfirmViewController: FWTransferSealShowing {
+    /// The seal takes the app's full-page loader's place, and leaves with it.
+    func didReachTransferStage(_ stage: FWSealStage) {
+        FWTransferSeal.reach(stage, in: view)
+    }
+
+    func didBreakTransfer() {
+        FWTransferSeal.breakSeal(in: view)
+    }
+}

@@ -109,6 +109,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmPresenterPr
                 guard let rewardDestination = self?.rewardDestination, let stashItem = self?.stashItem else { return }
 
                 self?.view?.didStartLoading()
+                FWTransferEvents.report(.authorised, to: self?.view)
 
                 self?.interactor.submit(rewardDestination: rewardDestination.accountAddress, for: stashItem)
             }
@@ -193,6 +194,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
             return
         }
 
+        FWTransferEvents.report(FWTransferEvents.extrinsic(result), to: view)
         switch result {
         case .success:
             wireframe.complete(from: view)

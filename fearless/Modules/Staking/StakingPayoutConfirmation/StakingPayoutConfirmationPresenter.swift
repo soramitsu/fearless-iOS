@@ -101,6 +101,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
 
     func didStartPayout() {
         view?.didStartLoading()
+        FWTransferEvents.report(.authorised, to: view)
     }
 
     func didCompletePayout(txHashes: [String]) {
@@ -109,11 +110,13 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
         }
 
         view?.didStopLoading()
+        FWTransferEvents.report(FWTransferEvents.payouts(txHashes), to: view)
 
         wireframe.complete(from: view)
     }
 
     func didCompletePayout(result: SubmitExtrinsicResult) {
+        FWTransferEvents.report(FWTransferEvents.extrinsic(result), to: view)
         switch result {
         case let .success(txHash):
             logger?.info("Did send payouts \(txHash)")
@@ -130,6 +133,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
 
     func didFailPayout(error: Error) {
         view?.didStopLoading()
+        FWTransferEvents.report(.definiteFailure, to: view)
 
         handle(error: error)
     }

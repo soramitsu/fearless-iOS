@@ -72,6 +72,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationPrese
                 }
 
                 strongSelf.view?.didStartLoading()
+                FWTransferEvents.report(.authorised, to: strongSelf.view)
 
                 strongSelf.interactor.submit(builderClosure: builderClosure)
             }
@@ -94,6 +95,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
             return
         }
 
+        FWTransferEvents.report(FWTransferEvents.extrinsic(result), to: view)
         switch result {
         case let .success(hash):
             wireframe.complete(from: view, chainAsset: chainAsset, extrinsicHash: hash)
