@@ -223,3 +223,15 @@ private final class FWWelcomeBackingView: UIView {
         CATransaction.commit()
     }
 }
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension FWWelcomeView {
+    /// 0 the lockup, 1 the main control, 2 the rest. The crow footage behind stays put, as the screen's background.
+    var flightTiers: [FWFlightTier] {
+        let rest: [UIView] = [titleLabel, bodyLabel, restoreButton, preinstalledButton, recoveryButton, termsButton,
+                              privacyButton, callButton]
+        return [FWFlightTier(view: lockup, tier: 0), FWFlightTier(view: primaryButton, tier: 1)]
+            + rest.map { FWFlightTier(view: $0, tier: 2) }
+    }
+}

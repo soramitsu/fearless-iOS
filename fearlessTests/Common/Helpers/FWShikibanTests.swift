@@ -259,6 +259,47 @@ final class FWLaunchFlightTests: XCTestCase {
         XCTAssertTrue(feedback.played.isEmpty)
     }
 
+    func testAScreenPutInPlaceMidFlightFliesFromThere() throws {
+        let tokens = try XCTUnwrap(FWShikiban.bundled)
+        let replacement = UIView(frame: CGRect(x: 0, y: 200, width: 402, height: 300))
+        root.addSubview(replacement)
+        let splash = NSObject(), welcome = NSObject()
+        var current: NSObject = splash
+        let flight = try makeFlight(feedback: FeedbackRecorder())
+        flight.currentScreen = { (ObjectIdentifier(current), { [FWFlightTier(view: replacement, tier: 0)] }) }
+        flight.advance(byMs: 300)
+        XCTAssertEqual(replacement.transform, .identity)
+        current = welcome
+        flight.advance(byMs: 335)
+        XCTAssertEqual(card.transform, .identity, "the old screen is left at rest")
+        XCTAssertEqual(Double(replacement.transform.a), tokens.tierScale(0, 635.0 / 1270), accuracy: 1e-6)
+        flight.advance(byMs: 1000)
+        XCTAssertEqual(replacement.transform, .identity)
+    }
+
+    func testTheWelcomeDeclaresItsMarkMainControlAndRest() throws {
+        final class Output: OnboardingStartViewOutput {
+            func didLoad(view _: OnboardingStartViewInput) {}
+            func didTapStartButton() {}
+        }
+        let output = Output()
+        let controller = OnboardingStartViewController(
+            output: output, localizationManager: nil, welcomeAppearanceEnabled: true
+        )
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+        let window = UIWindow(windowScene: scene)
+        window.frame = root.bounds
+        window.rootViewController = controller
+        window.isHidden = false
+        defer { window.isHidden = true }
+        window.layoutIfNeeded()
+        let tiers = FWFlightTierFinder.tiers(in: controller)
+        let welcome = try XCTUnwrap(controller.welcomeView)
+        XCTAssertTrue(tiers.contains { $0.view === welcome.lockup && $0.tier == 0 })
+        XCTAssertTrue(tiers.contains { $0.view === welcome.primaryButton && $0.tier == 1 })
+        XCTAssertFalse(tiers.contains { $0.view === controller.view }, "not one piece")
+    }
+
     func testAScreenThatDeclaresNothingFliesAsOnePiece() {
         let controller = UIViewController()
         controller.loadViewIfNeeded()
@@ -301,7 +342,10 @@ final class FWLaunchFlightTests: XCTestCase {
         FWLandingAnimationCoordinator(effects: effects).animateTransition(to: controller, in: window)
         XCTAssertTrue(window.rootViewController === controller)
         XCTAssertNil(controller.view.layer.animation(forKey: FWLanding.animationKey))
-        XCTAssertNotNil(window.layer.animation(forKey: "window.root.transition"), "the crossfade stays")
+        // Core Animation keeps a transition under kCATransition whatever key it was added with.
+        let fade = window.layer.animation(forKey: kCATransition) as? CATransition
+        XCTAssertEqual(fade?.type, .fade, "the crossfade stays")
+        XCTAssertEqual(fade?.duration ?? 0, FWLaunchTimeline.reducedLandingCrossfade, accuracy: 1e-9)
     }
 }
 

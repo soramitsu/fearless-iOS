@@ -1,3 +1,4 @@
+import os
 import UIKit
 
 // MARK: - Tiers
@@ -130,7 +131,11 @@ struct FWTierPlan {
 final class FWLaunchFlight: NSObject {
     private let tokens: FWShikiban
     private weak var cover: UIView?
-    private let plan: FWTierPlan
+    private var plan: FWTierPlan
+    private let focus: CGPoint
+    /// Re-reads the first screen when the start flow replaces it mid-flight (a slow start that outlasted the hold).
+    var currentScreen: (() -> (id: ObjectIdentifier?, tiers: () -> [FWFlightTier]))?
+    private var screenID: ObjectIdentifier?
     private let focusInCover: CGPoint
     private let feedback: FWFeedbackPlaying
     private let onCleared: () -> Void
@@ -150,6 +155,10 @@ final class FWLaunchFlight: NSObject {
     private var arrived = false
     private var cleared = false
     private(set) var isFinished = false
+    #if DEBUG
+        private var loggedBucket = -1
+        static let log = OSLog(subsystem: "jp.co.soramitsu.fearless", category: "launch")
+    #endif
 
     private struct GateLayers {
         let glow: CAShapeLayer
@@ -171,6 +180,7 @@ final class FWLaunchFlight: NSObject {
         self.tokens = tokens
         self.cover = cover
         plan = FWTierPlan(tiers: tiers, focus: focus)
+        self.focus = focus
         focusInCover = cover.convert(focus, from: nil)
         self.feedback = feedback
         self.onCleared = onCleared
@@ -198,24 +208,22 @@ final class FWLaunchFlight: NSObject {
         let star = FWShikiban.color(colors.star).cgColor
         // Far gates first, so a near gate's glow lies over them.
         for _ in tokens.gates {
-            func stroke(_ color: CGColor, screen: Bool) -> CAShapeLayer {
+            func stroke(_ color: CGColor) -> CAShapeLayer {
                 let layer = CAShapeLayer()
                 layer.fillColor = nil
                 layer.strokeColor = color
                 layer.lineCap = .round
                 layer.lineJoin = .round
-                if screen { layer.compositingFilter = "screenBlendMode" }
                 return layer
             }
             let corners = CAShapeLayer()
             corners.fillColor = star
             corners.strokeColor = nil
-            corners.compositingFilter = "screenBlendMode"
             let layers = GateLayers(
-                glow: stroke(glow, screen: true),
-                core: stroke(core, screen: false),
-                innerGlow: stroke(glow, screen: true),
-                innerCore: stroke(core, screen: false),
+                glow: stroke(glow),
+                core: stroke(core),
+                innerGlow: stroke(glow),
+                innerCore: stroke(core),
                 corners: corners
             )
             gateLayers.append(layers)
@@ -274,11 +282,31 @@ final class FWLaunchFlight: NSObject {
             finish()
             return
         }
+        #if DEBUG
+            let bucket = Int(ms / 100)
+            if bucket != loggedBucket {
+                loggedBucket = bucket
+                os_log(
+                    "FW_FLIGHT t=%{public}.0f cleared=%{public}d overlay=%{public}@", log: Self.log, type: .default,
+                    ms, cleared ? 1 : 0, cover?.window?.isHidden == false ? "shown" : "gone"
+                )
+            }
+        #endif
         if !arrived, ms >= 1000 {
             arrived = true
             feedback.play(.launchArrive)
         }
         let u = FWShikiban.clamp01(ms / duration)
+        if let current = currentScreen?() {
+            if screenID == nil {
+                screenID = current.id
+            } else if current.id != screenID {
+                // The start flow put its first real screen in place: it flies from here on.
+                plan.restore()
+                screenID = current.id
+                plan = FWTierPlan(tiers: current.tiers(), focus: focus)
+            }
+        }
         plan.apply(
             scaleForTier: { CGFloat(tokens.tierScale($0, u)) },
             opacityForTier: { CGFloat(tokens.tierOpacity($0, atMs: ms)) }
@@ -376,6 +404,9 @@ final class FWLaunchFlight: NSObject {
     /// Ends the flight at once: every tier at rest, the display link gone.
     func finish() {
         guard !isFinished else { return }
+        #if DEBUG
+            os_log("FW_FLIGHT finish t=%{public}.0f", log: Self.log, type: .default, elapsedMs)
+        #endif
         isFinished = true
         link?.invalidate()
         link = nil
@@ -395,6 +426,9 @@ final class FWLaunchFlight: NSObject {
     /// Stops without the arrival touch (the app went to the background, or the overlay gave up).
     func cancel() {
         guard !isFinished else { return }
+        #if DEBUG
+            os_log("FW_FLIGHT cancel t=%{public}.0f", log: Self.log, type: .default, elapsedMs)
+        #endif
         isFinished = true
         link?.invalidate()
         link = nil

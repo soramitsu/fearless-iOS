@@ -88,10 +88,6 @@ extension OnboardingStartViewController: Localizable {
 extension OnboardingStartViewController: FWFlightTiered {
     /// The welcome: 0 the lockup, 1 the main control, 2 the rest. The older layout flies as one piece.
     var flightTiers: [FWFlightTier] {
-        guard let welcome = welcomeView else { return [] }
-        let rest: [UIView] = [welcome.titleLabel, welcome.bodyLabel, welcome.restoreButton, welcome.preinstalledButton,
-                              welcome.recoveryButton, welcome.termsButton, welcome.privacyButton, welcome.callButton]
-        return [FWFlightTier(view: welcome.lockup, tier: 0), FWFlightTier(view: welcome.primaryButton, tier: 1)]
-            + rest.map { FWFlightTier(view: $0, tier: 2) }
+        welcomeView?.flightTiers ?? []
     }
 }

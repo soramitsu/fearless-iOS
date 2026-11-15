@@ -1,4 +1,5 @@
 import AVFoundation
+import os
 import UIKit
 
 /// The kit's launch timeline (`launch-timeline.json`, kit v3) and the hand-off timings of the SPEC's part 1.
@@ -190,6 +191,7 @@ final class FWLaunchIgnite: NSObject {
     private let feedback: FWFeedbackPlaying
     private let tokens: FWShikiban?
     private var flight: FWLaunchFlight?
+    private var windowBackground: UIColor?
     private var player: AVPlayer?
     private var readyObservation: NSKeyValueObservation?
     private var boundaryObserver: Any?
@@ -389,9 +391,27 @@ final class FWLaunchIgnite: NSObject {
             onCleared: { [weak self] in self?.releaseOverlay() },
             onFinished: { [weak self] in self?.finish() }
         )
+        flight.currentScreen = { [weak mainWindow] in
+            guard let mainWindow, let root = mainWindow.rootViewController else { return (nil, { [] }) }
+            return (ObjectIdentifier(root), {
+                mainWindow.layoutIfNeeded()
+                return FWFlightTierFinder.tiers(in: root)
+            })
+        }
+        // A screen that flies as one piece shows the window behind it: ink, never black.
+        windowBackground = mainWindow.backgroundColor
+        mainWindow.backgroundColor = FWSunlit.Palette.background
         self.flight = flight
         if skipped { flight.skip() }
         flight.start()
+        #if DEBUG
+            os_log(
+                "FW_FLIGHT start root=%{public}@ tiers=%{public}@",
+                log: OSLog(subsystem: "jp.co.soramitsu.fearless", category: "launch"), type: .default,
+                mainWindow.rootViewController.map { String(describing: type(of: $0)) } ?? "nil",
+                tiers.map { "\(type(of: $0.view)):\($0.tier)" }.joined(separator: ",")
+            )
+        #endif
     }
 
     /// The opening has cleared the view: the overlay and the player go; the tiers keep landing.
@@ -431,6 +451,7 @@ final class FWLaunchIgnite: NSObject {
         phase = .finished
         stopTimers()
         if let flight, !flight.isFinished { flight.cancel() }
+        if flight != nil { mainWindow.backgroundColor = windowBackground }
         flight = nil
         observations.forEach(NotificationCenter.default.removeObserver)
         observations = []
