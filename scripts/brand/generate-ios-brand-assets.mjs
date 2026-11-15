@@ -25,8 +25,9 @@ const ASSETS = join(ROOT, 'fearless', 'Assets.xcassets');
 const MEDIA = join(ROOT, 'fearless', 'Brand');
 const MANIFEST = join(ROOT, 'design', 'brand', 'ios-brand-assets.manifest.json');
 const KIT_NAME = 'fearless-yatagarasu-brand-kit';
-// Kit v3 (2026-11-13) adds the launch, feel and sound files; every v2 file is byte-identical.
-const KIT_MANIFEST_SHA256 = 'e49da29bbf91dc96d2afe3772b5ec50acc23bc28ff4af500aff0ff7f631ddb84';
+// Kit v3 (2026-11-13) adds the launch, feel and sound files; kit v4 (2026-11-15) adds the shikiban tokens. Every
+// earlier file is byte-identical.
+const KIT_MANIFEST_SHA256 = '19675ac743881b28bcae83a24f3ee15702c5a8af2b7a5d901c858848c4d74cd7';
 
 // Brand colours (kit tokens/colors.json). Solar gold and pink light the badge's glow, as FWSunlit's sun does.
 const INK = '#120A2E';
@@ -217,6 +218,10 @@ const FEEL = {
   'solar-geometry.json': 'tokens/solar-geometry.json',
 };
 for (const [name, path] of Object.entries(FEEL)) record(join(MEDIA, name), kitFile(path));
+
+// 6b. Shikiban (kit v4, SPEC "Shikiban: depth, instruments and sacred geometry"): every number of the launch flight, the
+// sync dial, the seal, the loader and the asanoha lattice. Copied byte for byte; the app reads it, never retypes it.
+record(join(MEDIA, 'shikiban.json'), kitFile('tokens/shikiban.json'));
 
 // 7. The sunset sky behind the wallet's balance, byte for byte.
 record(join(ASSETS, 'fwSkyCard.imageset', 'sky-card.jpg'), kitFile('png/sky/sky-card.jpg'));
