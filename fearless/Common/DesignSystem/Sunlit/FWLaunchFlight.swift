@@ -290,6 +290,9 @@ final class FWLaunchFlight: NSObject {
                     "FW_FLIGHT t=%{public}.0f cleared=%{public}d overlay=%{public}@", log: Self.log, type: .default,
                     ms, cleared ? 1 : 0, cover?.window?.isHidden == false ? "shown" : "gone"
                 )
+                if ProcessInfo.processInfo.arguments.contains("-FWFlightSnapshots"), bucket % 2 == 0 {
+                    snapshot(name: "flight-\(bucket * 100)")
+                }
             }
         #endif
         if !arrived, ms >= 1000 {
@@ -394,6 +397,22 @@ final class FWLaunchFlight: NSObject {
             NSNumber(value: Double((radius + CGFloat($0.offset) * (outer - radius)) / outer))
         }
     }
+
+    #if DEBUG
+        /// `-FWFlightSnapshots`: what the windows show, composited in order, saved to the app's tmp folder.
+        private func snapshot(name: String) {
+            guard let scene = cover?.window?.windowScene else { return }
+            let windows = scene.windows.filter { !$0.isHidden }.sorted { $0.windowLevel < $1.windowLevel }
+            let bounds = scene.screen.bounds
+            let image = UIGraphicsImageRenderer(bounds: bounds).image { _ in
+                for window in windows {
+                    window.drawHierarchy(in: window.frame, afterScreenUpdates: false)
+                }
+            }
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).png")
+            try? image.pngData()?.write(to: url)
+        }
+    #endif
 
     static func farthestCorner(from point: CGPoint, in bounds: CGRect) -> CGFloat {
         let dx = max(point.x - bounds.minX, bounds.maxX - point.x)
