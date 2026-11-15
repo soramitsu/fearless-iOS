@@ -82,12 +82,14 @@ final class BalanceInfoViewLayout: UIView {
 
     func bind(viewModel: BalanceInfoViewModel?) {
         priceLabel.attributedText = viewModel?.dayChangeAttributedString
+        let previous = balanceLabel.text
         if portfolioLocale != nil, let balance = viewModel?.balanceString,
            FWLivingBalance.claimFirstReveal(previous: balanceLabel.text, new: balance) {
             // Kit v3 "living balance": the wallet total counts up from zero on its first reveal after launch.
             balanceLabel.countUp(to: balance)
         } else {
             balanceLabel.setText(viewModel?.balanceString, animated: true)
+            tickTotalIfChanged(from: previous, to: viewModel?.balanceString)
         }
         filteredPartLabel.text = viewModel?.filteredPartString
         filteredPartLabel.isHidden = viewModel?.filteredPartString == nil
@@ -102,7 +104,33 @@ final class BalanceInfoViewLayout: UIView {
         onLoadingChange?(viewModel == nil)
     }
 
+    /// Kit v4 value tick: the wallet total keeps its count and gains the line alone, after its first display.
+    private func tickTotalIfChanged(from old: String?, to new: String?) {
+        guard portfolioLocale != nil, let old, !old.isEmpty, let new, old != new,
+              FWDigitRoll.isSameFormat(old, new) else { return }
+        FWValueTick.line(under: balanceLabel, direction: FWDigitRoll.direction(from: Array(old), to: Array(new)))
+    }
+
+    #if DEBUG
+        private static var debugTickObservation: NSObjectProtocol?
+
+        /// The `tick` debug seam reaches the total too: one unit more in its last digit, through `bind`'s path.
+        private func observeDebugTick() {
+            Self.debugTickObservation.map(NotificationCenter.default.removeObserver)
+            Self.debugTickObservation = NotificationCenter.default.addObserver(
+                forName: FWShikibanDebugSeams.tickNotification, object: nil, queue: .main
+            ) { [weak self] _ in
+                guard let self, let old = self.balanceLabel.text, let new = FWRowSunlit.bumped(old) else { return }
+                self.balanceLabel.setText(new, animated: true)
+                self.tickTotalIfChanged(from: old, to: new)
+            }
+        }
+    #endif
+
     private func setupLayout() {
+        #if DEBUG
+            observeDebugTick()
+        #endif
         balanceContainerView.addArrangedSubview(balanceLabel)
 
         vStackView.alignment = .fill

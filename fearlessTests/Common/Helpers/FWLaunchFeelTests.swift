@@ -18,20 +18,18 @@ final class FWLaunchTimelineTests: XCTestCase {
         XCTAssertEqual(timeline.background, "#120A2E")
     }
 
+    /// Kit v4 replaced v3's zoom (2.55 s, 1.18 → 1) and its 1.06 → 1 landing with the launch flight and the tiered
+    /// landing (FWShikibanTests); the rest of v3 part 1 stands.
     func testHandOffTimesFollowTheSpec() {
-        XCTAssertEqual(FWLaunchTimeline.handOffStart, 2.55)
-        XCTAssertEqual(FWLaunchTimeline.underneathStartScale, 1.18)
-        XCTAssertEqual(FWLaunchTimeline.underneathDuration, 0.55)
-        XCTAssertEqual(FWLaunchTimeline.overlayFadeStart, 2.7)
-        XCTAssertEqual(FWLaunchTimeline.overlayFadeDuration, 0.45)
-        XCTAssertEqual(FWLaunchTimeline.overlayEndScale, 1.6)
-        XCTAssertEqual(FWLaunchTimeline.arriveHapticTime, 2.6)
-        XCTAssertEqual(FWLaunchTimeline.skipDuration, 0.3)
         XCTAssertEqual(FWLaunchTimeline.stallLimit, 1)
-        XCTAssertEqual(FWLaunchTimeline.landingStartScale, 1.06)
-        XCTAssertEqual(FWLaunchTimeline.landingDuration, 0.35)
-        XCTAssertLessThan(FWLaunchTimeline.handOffStart, FWLaunchTimeline.kitV3.durationSeconds)
-        XCTAssertGreaterThan(FWLaunchTimeline.handOffStart, FWLaunchTimeline.kitV3.holdSeconds)
+        XCTAssertEqual(FWLaunchTimeline.crestCrossfade, 0.3)
+        XCTAssertEqual(FWLaunchTimeline.kitV3.zoomStartSeconds, FWLaunchTimeline.kitV3.holdSeconds)
+        XCTAssertEqual(FWLaunchTimeline.landingCrossfade, 0.128)
+        XCTAssertEqual(FWLaunchTimeline.reducedLandingCrossfade, 0.3)
+        // The flight starts at the hold point and lasts longer than the clip's remaining 0.9 s: the clip stays on its
+        // last frame under the corona.
+        let flight = (FWShikiban.bundled?.flight.durationMs ?? 0) / 1000
+        XCTAssertGreaterThan(FWLaunchTimeline.kitV3.zoomStartSeconds + flight, FWLaunchTimeline.kitV3.durationSeconds)
     }
 
     func testVideoFrameCoversEveryScreenAndCentresTheFocusAsFarAsItCan() {

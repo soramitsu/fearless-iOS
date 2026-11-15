@@ -112,6 +112,8 @@ final class FWSkyCardView: UIView {
     let geometryView: FWSolarGeometryView
     let scrim = CAGradientLayer()
     let rim = FWLitRimLayer()
+    /// Kit v4: the composition marks and the asanoha lattice with its band of light, over the scrim, under the text.
+    let marks: FWHeroMarksView
     private let glow = CAGradientLayer()
     private let effects: FWEffects
     private var observation: NSObjectProtocol?
@@ -136,6 +138,7 @@ final class FWSkyCardView: UIView {
     init(effects: FWEffects = .shared) {
         self.effects = effects
         geometryView = FWSolarGeometryView(effects: effects)
+        marks = FWHeroMarksView(effects: effects)
         super.init(frame: .zero)
         isUserInteractionEnabled = false
         isAccessibilityElement = false
@@ -166,6 +169,7 @@ final class FWSkyCardView: UIView {
         glow.locations = [0, 1]
         glow.opacity = 0
         clipView.layer.addSublayer(glow)
+        clipView.addSubview(marks)
         rim.cornerRadiusValue = FWSunlit.Radius.card
         layer.addSublayer(rim)
         observation = effects.notificationCenter.addObserver(
@@ -211,6 +215,7 @@ final class FWSkyCardView: UIView {
         let reach = max(bounds.width, bounds.height) * 0.75
         glow.frame = CGRect(x: sun.x - reach, y: sun.y - reach, width: reach * 2, height: reach * 2)
         rim.frame = bounds
+        marks.frame = bounds
         CATransaction.commit()
     }
 

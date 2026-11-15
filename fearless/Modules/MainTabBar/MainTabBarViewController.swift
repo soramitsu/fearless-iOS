@@ -409,3 +409,12 @@ extension MainTabBarViewController: Localizable {
         updateAccessibleTabs()
     }
 }
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension MainTabBarViewController: FWFlightTiered {
+    /// The tab bar flies with the header, at tier 2; the selected tab declares the rest.
+    var flightTiers: [FWFlightTier] {
+        [FWFlightTier(view: tabBar, tier: 2)]
+    }
+}

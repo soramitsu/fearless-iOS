@@ -236,3 +236,15 @@ extension BaseNavigationBar {
         label.setContentCompressionResistancePriority(expanded ? .required : .defaultHigh, for: .vertical)
     }
 }
+
+// MARK: - The seal (kit v4)
+
+extension WalletSendConfirmViewController: FWTransferSealShowing {
+    func didReachTransferStage(_ stage: FWSealStage) {
+        FWTransferSeal.reach(stage, in: loadableContentView)
+    }
+
+    func didBreakTransfer() {
+        FWTransferSeal.breakSeal(in: loadableContentView)
+    }
+}

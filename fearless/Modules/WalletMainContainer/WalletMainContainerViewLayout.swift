@@ -13,6 +13,7 @@ final class WalletMainContainerViewLayout: UIView {
         /// Height the asset list keeps below the header; the header scrolls inside the rest.
         static let assetViewportMinimum: CGFloat = 220
         static let heroPadding: CGFloat = 20
+        static let dialInset: CGFloat = 24
     }
 
     /// Where the wallet header and the asset list go: stacked at full width (iPhone
@@ -306,6 +307,14 @@ final class WalletMainContainerViewLayout: UIView {
             make.bottom.equalToSuperview().inset(16)
             make.leading.trailing.equalToSuperview().inset(Constants.heroPadding)
         }
+        // Kit v4: the sync dial is the card's instrument, inside its top-right registration bracket. It takes no
+        // height from the header, which would push the round actions' labels under the list.
+        sunlit.heroSurface.addSubview(sunlit.syncDial)
+        sunlit.syncDial.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(Constants.dialInset)
+            make.trailing.equalToSuperview().inset(Constants.dialInset)
+            make.leading.greaterThanOrEqualTo(sunlit.sunBadge.snp.trailing).offset(8)
+        }
         contentView.setCustomSpacing(16, after: navigationContainerView)
         contentView.addArrangedSubview(sunlit.heroSurface)
         sunlit.heroSurface.snp.makeConstraints { make in
@@ -334,6 +343,21 @@ final class WalletMainContainerViewLayout: UIView {
             make.edges.equalToSuperview()
         }
         placeHeaderAndList()
+    }
+}
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension WalletMainContainerViewLayout {
+    /// 0 the balance card, 1 the round actions, 2 the header, 4 the list (the tab bar and the list's segment control
+    /// are declared by their own controllers).
+    var flightTiers: [FWFlightTier] {
+        [
+            FWFlightTier(view: sunlit.heroSurface, tier: 0),
+            FWFlightTier(view: sunlit.actionsStack, tier: 1),
+            FWFlightTier(view: navigationContainerView, tier: 2),
+            FWFlightTier(view: pageViewControllerContainer, tier: 4)
+        ]
     }
 }
 

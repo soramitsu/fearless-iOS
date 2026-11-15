@@ -122,6 +122,9 @@ final class TokenGroupBalanceTableCell: SwipableTableViewCell {
         sunlit.show(
             value: row.fiatText, for: model.id, flashing: fiatLabel, settledColor: FWSunlit.Palette.textPrimary
         )
+        #if DEBUG
+            sunlit.observeDebugTick(label: fiatLabel, settledColor: FWSunlit.Palette.textPrimary)
+        #endif
         symbolLabel.text = model.symbol
         networksLabel.text = model.isSingleNetwork ? model.children.first?.networkName : String(
             format: PortfolioStrings.text("portfolio.network_count", locale: locale),

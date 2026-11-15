@@ -311,6 +311,9 @@ extension ChainAccountBalanceTableCell {
             value: text, for: viewModel.chainAsset.chainAssetId.id,
             flashing: priceView.valueLabel, settledColor: priceView.valueLabel.textColor
         )
+        #if DEBUG
+            sunlit.observeDebugTick(label: priceView.valueLabel, settledColor: priceView.valueLabel.textColor)
+        #endif
     }
 
     /// Re-reads the row's distance to the sun (layout and scrolling).

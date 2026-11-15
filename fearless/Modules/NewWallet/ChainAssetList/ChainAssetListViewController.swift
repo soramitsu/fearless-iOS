@@ -724,3 +724,12 @@ extension ChainAssetListViewController: EmptyStateDelegate {
         return viewModel.displayState.rows.isEmpty
     }
 }
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension ChainAssetListViewController: FWFlightTiered {
+    /// The Tokens / Networks control, at tier 3 inside the list's tier 4.
+    var flightTiers: [FWFlightTier] {
+        [FWFlightTier(view: rootView.lensControl, tier: 3)]
+    }
+}

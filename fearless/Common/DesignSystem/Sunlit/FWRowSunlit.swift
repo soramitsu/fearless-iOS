@@ -17,6 +17,11 @@ final class FWRowSunlit {
 
     private var key: String?
     private var value: String?
+    #if DEBUG
+        private weak var debugLabel: UILabel?
+        private var debugSettledColor: UIColor?
+        private var debugObservation: NSObjectProtocol?
+    #endif
 
     /// A Raised-1 rounded surface for a row.
     static func rowSurface() -> FWNeuView {
@@ -56,5 +61,33 @@ final class FWRowSunlit {
         guard key == newKey, let old = value, let new = newValue, old != new else { return }
         let direction = FWDigitRoll.direction(from: Array(old), to: Array(new))
         FWValueFlash.flash(label, direction: direction, settledColor: settledColor)
+        // Kit v4: the new text comes in from below or above and a line sweeps under it, once per row in 3 s.
+        FWValueTick.tick(label, direction: direction, key: newKey)
     }
+
+    #if DEBUG
+        /// The `tick` debug seam: the row shows a value one unit higher in its last digit, through `show`.
+        func observeDebugTick(label: UILabel, settledColor: UIColor?) {
+            debugLabel = label
+            debugSettledColor = settledColor
+            guard debugObservation == nil else { return }
+            debugObservation = NotificationCenter.default.addObserver(
+                forName: FWShikibanDebugSeams.tickNotification, object: nil, queue: .main
+            ) { [weak self] _ in
+                guard let self, let label = self.debugLabel, label.window != nil, let key = self.key,
+                      let old = self.value, let new = Self.bumped(old) else { return }
+                label.text = new
+                self.show(value: new, for: key, flashing: label, settledColor: self.debugSettledColor)
+            }
+        }
+
+        static func bumped(_ text: String) -> String? {
+            guard let index = text.lastIndex(where: \.isWholeNumber), let digit = text[index].wholeNumberValue else {
+                return nil
+            }
+            var copy = text
+            copy.replaceSubrange(index ... index, with: String((digit + 1) % 10))
+            return digit == 9 ? nil : copy
+        }
+    #endif
 }

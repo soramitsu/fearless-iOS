@@ -386,6 +386,7 @@ final class WalletSendConfirmPresenter {
                 }
                 let admittedGeneration = strongSelf.solanaReviewGeneration
                 strongSelf.view?.didStartLoading()
+                (strongSelf.view as? FWTransferSealShowing)?.didReachTransferStage(.ready)
                 guard !strongSelf.isSolanaTransfer ||
                     (strongSelf.solanaReviewActive &&
                         strongSelf.solanaReviewGeneration == admittedGeneration) else { return }
@@ -400,6 +401,7 @@ final class WalletSendConfirmPresenter {
             guard !self.isSolanaTransfer || self.beginSolanaAttempt() else { return }
             let generation = self.solanaReviewGeneration
             self.view?.didStartLoading()
+            (self.view as? FWTransferSealShowing)?.didReachTransferStage(.ready)
             guard !self.isSolanaTransfer ||
                 (self.solanaReviewActive && self.solanaReviewGeneration == generation) else { return }
             self.interactor.submitExtrinsic()
@@ -1146,6 +1148,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
         switch result {
         case let .success(hash):
+            (view as? FWTransferSealShowing)?.didReachTransferStage(.accepted)
             completeTransferAfterVisibleReceipt(hash: hash)
         case let .failure(error):
             guard let view = view else {
@@ -1182,6 +1185,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
             if case let TransferServiceError.bitcoinTransferNotSent(reason) = error {
                 feedback.play(.failure)
+                (view as? FWTransferSealShowing)?.didBreakTransfer()
                 presentBitcoinTransferNotSent(reason)
                 return
             }
@@ -1197,12 +1201,14 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
             if case let TransferServiceError.solanaTransferNotSent(reason) = error {
                 feedback.play(.failure)
+                (view as? FWTransferSealShowing)?.didBreakTransfer()
                 presentSolanaTransferNotSent(reason)
                 return
             }
 
             // From here on the transfer definitely failed or was rejected: the system's error touch.
             feedback.play(.failure)
+            (view as? FWTransferSealShowing)?.didBreakTransfer()
 
             if let reason = SendUnavailableReason(transferError: error) {
                 presentSendUnavailable(reason)

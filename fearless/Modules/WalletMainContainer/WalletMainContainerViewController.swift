@@ -175,3 +175,12 @@ extension UIPageViewController.NavigationDirection {
         }
     }
 }
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension WalletMainContainerViewController: FWFlightTiered {
+    var flightTiers: [FWFlightTier] {
+        let list = (rootView.pageViewController.viewControllers?.first as? FWFlightTiered)?.flightTiers ?? []
+        return rootView.flightTiers + list
+    }
+}

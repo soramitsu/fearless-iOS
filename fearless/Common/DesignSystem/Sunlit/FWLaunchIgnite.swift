@@ -24,17 +24,6 @@ struct FWLaunchTimeline: Decodable, Equatable {
 
     /// The clip's pixel size (720 × 1560).
     static let videoSize = CGSize(width: 720, height: 1560)
-    /// The screen underneath starts zooming in here.
-    static let handOffStart: TimeInterval = 2.55
-    static let underneathStartScale: CGFloat = 1.18
-    static let underneathDuration: TimeInterval = 0.55
-    /// The overlay scales up and fades out from here.
-    static let overlayFadeStart: TimeInterval = 2.7
-    static let overlayFadeDuration: TimeInterval = 0.45
-    static let overlayEndScale: CGFloat = 1.6
-    static let arriveHapticTime: TimeInterval = 2.6
-    /// A tap jumps straight to the zoom, which then takes this long.
-    static let skipDuration: TimeInterval = 0.3
     /// The launch screen's crest fades out while the clip fades up from ink.
     static let crestCrossfade: TimeInterval = 0.3
     /// A clip that will not start, or stops advancing, for longer than this is dropped with a plain fade.
@@ -42,9 +31,9 @@ struct FWLaunchTimeline: Decodable, Equatable {
     /// Startup slower than this past the hold point is revealed anyway: the start screen then shows its own
     /// "keep Fearless open" status, which the overlay must not hide.
     static let holdLimit: TimeInterval = 3.0
-    /// A later unlock lands in the wallet with this smaller zoom.
-    static let landingStartScale: CGFloat = 1.06
-    static let landingDuration: TimeInterval = 0.35
+    /// A later unlock: the old screen crossfades this fast while the tiers land (kit v4); 0.3 s under reduced motion.
+    static let landingCrossfade: TimeInterval = 0.128
+    static let reducedLandingCrossfade: TimeInterval = 0.3
 
     /// Used when the bundled timeline cannot be read: the kit v3 values.
     static let kitV3 = FWLaunchTimeline(
@@ -111,6 +100,28 @@ enum FWLaunchSchedule {
         screenReady || heldFor >= FWLaunchTimeline.holdLimit ? .resume : .hold
     }
 
+    /// What happens at the clip's `zoomStartSeconds` (kit v4: the flight starts there, or when the hold releases).
+    enum FlightStep: Equatable {
+        case startFlight
+        case hold
+    }
+
+    static func atZoomStart(screenReady: Bool) -> FlightStep {
+        screenReady ? .startFlight : .hold
+    }
+
+    /// A tap starts the flight at once (skipped) or plays the rest of it 2.5 times faster.
+    enum TapStep: Equatable {
+        case startFlightSkipped
+        case speedUp
+        case ignore
+    }
+
+    static func onTap(flightRunning: Bool, finished: Bool) -> TapStep {
+        if finished { return .ignore }
+        return flightRunning ? .speedUp : .startFlightSkipped
+    }
+
     /// The clip is stalled when it should be moving and has not moved for longer than the limit.
     static func isStalled(lastProgress: TimeInterval, now: TimeInterval, held: Bool) -> Bool {
         !held && now - lastProgress > FWLaunchTimeline.stallLimit
@@ -155,7 +166,8 @@ enum FWLaunchReadiness {
 
 /// The Ignite launch (brand kit v3, "Launch, feel and sound", part 1): an overlay window over the normal start flow.
 /// The start flow (PIN, welcome, wallet) loads underneath exactly as before; the overlay only covers it and then
-/// zooms into it. It never delays, reorders or replaces authentication, and it is silent.
+/// reveals it. It never delays, reorders or replaces authentication, and it is silent. Kit v4 replaces the v3 zoom
+/// with the launch flight (`FWLaunchFlight`): gates over the clip, the mirror opening, and the screen's tiers flying up.
 final class FWLaunchIgnite: NSObject {
     /// True while an overlay is on screen. Sounds wait until it is gone: a launch never makes a sound.
     private(set) static var isShowing = false
@@ -176,6 +188,8 @@ final class FWLaunchIgnite: NSObject {
     private let overlay = FWLaunchOverlayViewController()
     private let timeline: FWLaunchTimeline
     private let feedback: FWFeedbackPlaying
+    private let tokens: FWShikiban?
+    private var flight: FWLaunchFlight?
     private var player: AVPlayer?
     private var readyObservation: NSKeyValueObservation?
     private var boundaryObserver: Any?
@@ -222,6 +236,7 @@ final class FWLaunchIgnite: NSObject {
         self.mainWindow = mainWindow
         self.timeline = timeline
         self.feedback = feedback
+        tokens = FWShikiban.bundled
         overlayWindow = UIWindow(windowScene: scene)
         super.init()
         // Below the WalletConnect windows and the app-switcher cover, above the start flow. Never key, so text fields
@@ -255,9 +270,7 @@ final class FWLaunchIgnite: NSObject {
             guard layer.isReadyForDisplay else { return }
             DispatchQueue.main.async { self?.firstFrameReady() }
         }
-        let times = [timeline.holdSeconds, FWLaunchTimeline.handOffStart].map {
-            NSValue(time: CMTime(seconds: $0, preferredTimescale: 600))
-        }
+        let times = [NSValue(time: CMTime(seconds: timeline.zoomStartSeconds, preferredTimescale: 600))]
         boundaryObserver = player.addBoundaryTimeObserver(forTimes: times, queue: .main) { [weak self] in
             self?.boundaryReached()
         }
@@ -279,19 +292,14 @@ final class FWLaunchIgnite: NSObject {
     }
 
     private func boundaryReached() {
-        guard let player else { return }
-        let time = player.currentTime().seconds
-        switch phase {
-        case .playing where time < FWLaunchTimeline.handOffStart - 0.05:
-            if FWLaunchSchedule.atHoldPoint(screenReady: screenReady) == .hold {
-                player.pause()
-                player.seek(to: CMTime(seconds: timeline.holdSeconds, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero)
-                phase = .holding(since: ProcessInfo.processInfo.systemUptime)
-            }
-        case .playing:
-            handOff(duration: nil)
-        default:
-            break
+        guard let player, case .playing = phase else { return }
+        switch FWLaunchSchedule.atZoomStart(screenReady: screenReady) {
+        case .startFlight:
+            startFlight(skipped: false)
+        case .hold:
+            player.pause()
+            player.seek(to: CMTime(seconds: timeline.zoomStartSeconds, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero)
+            phase = .holding(since: ProcessInfo.processInfo.systemUptime)
         }
     }
 
@@ -334,70 +342,64 @@ final class FWLaunchIgnite: NSObject {
                 abandon()
                 return
             }
+            // The hold releases: the clip plays on under the flight.
             phase = .playing
             lastProgressTime = now
             lastClipTime = player.currentTime().seconds
             player.play()
+            startFlight(skipped: false)
         case .handingOff, .finished:
             break
         }
     }
 
     private func skip() {
-        switch phase {
-        case .waitingForFirstFrame, .playing, .holding:
-            handOff(duration: FWLaunchTimeline.skipDuration)
-        case .handingOff, .finished:
+        switch FWLaunchSchedule.onTap(flightRunning: flight != nil && phase == .handingOff, finished: phase == .finished) {
+        case .startFlightSkipped:
+            guard phase != .handingOff else { return }
+            startFlight(skipped: true)
+        case .speedUp:
+            flight?.skip()
+        case .ignore:
             break
         }
     }
 
-    /// The zoom: the screen underneath comes in from 1.18 while the overlay scales up and fades out around the
-    /// dive's focus point. `duration` is set for a tap, which jumps straight to it.
-    private func handOff(duration: TimeInterval?) {
+    /// The launch flight (kit v4 part 1): gates over the clip, the mirror opening on the first screen, whose tiers fly
+    /// up about the dive's focus. The overlay goes once the opening clears the view; the tiers land at exactly 1.
+    /// `skipped` (a tap) plays the whole flight 2.5 times faster. Without the kit tokens, a plain fade.
+    private func startFlight(skipped: Bool) {
+        guard let tokens else {
+            abandon()
+            return
+        }
         phase = .handingOff
         stopTimers()
         player?.play()
-        let bounds = mainWindow.bounds
-        let focus = FWLaunchTimeline.focusPoint(in: bounds, focus: timeline.focus.phone)
-        let center = CGPoint(x: bounds.midX, y: bounds.midY)
-        let underneath = duration ?? FWLaunchTimeline.underneathDuration
-        let fadeDelay = duration == nil ? FWLaunchTimeline.overlayFadeStart - FWLaunchTimeline.handOffStart : 0
-        let fade = duration ?? FWLaunchTimeline.overlayFadeDuration
+        overlay.fadeCrest(duration: FWLaunchTimeline.crestCrossfade)
+        mainWindow.layoutIfNeeded()
+        let focus = FWLaunchTimeline.focusPoint(in: mainWindow.bounds, focus: timeline.focus.phone)
+        let tiers = FWFlightTierFinder.tiers(in: mainWindow.rootViewController)
+        let flight = FWLaunchFlight(
+            tokens: tokens,
+            cover: overlay.view,
+            tiers: tiers,
+            focus: focus,
+            feedback: feedback,
+            onCleared: { [weak self] in self?.releaseOverlay() },
+            onFinished: { [weak self] in self?.finish() }
+        )
+        self.flight = flight
+        if skipped { flight.skip() }
+        flight.start()
+    }
 
-        let decelerate = CAMediaTimingFunction(controlPoints: 0.16, 0.84, 0.3, 1)
-        let zoom = CABasicAnimation(keyPath: "transform")
-        zoom.fromValue = FWLaunchTimeline.scale(FWLaunchTimeline.underneathStartScale, about: focus, center: center)
-        zoom.toValue = CATransform3DIdentity
-        let appear = CABasicAnimation(keyPath: "opacity")
-        appear.fromValue = 0
-        appear.toValue = 1
-        let group = CAAnimationGroup()
-        group.animations = [zoom, appear]
-        group.duration = underneath
-        group.timingFunction = decelerate
-        mainWindow.layer.add(group, forKey: "fw.launch.landing")
-
-        let hapticDelay = duration == nil ? FWLaunchTimeline.arriveHapticTime - FWLaunchTimeline.handOffStart : 0
-        DispatchQueue.main.asyncAfter(deadline: .now() + hapticDelay) { [feedback] in
-            feedback.play(.launchArrive)
-        }
-
-        guard let overlayView = overlay.viewIfLoaded else {
-            finish()
-            return
-        }
-        let overlayFocus = overlayView.convert(focus, from: mainWindow)
-        UIView.animate(withDuration: fade, delay: fadeDelay, options: [.curveEaseIn, .beginFromCurrentState]) {
-            overlayView.layer.transform = FWLaunchTimeline.scale(
-                FWLaunchTimeline.overlayEndScale,
-                about: overlayFocus,
-                center: CGPoint(x: overlayView.bounds.midX, y: overlayView.bounds.midY)
-            )
-            overlayView.alpha = 0
-        } completion: { [weak self] _ in
-            self?.finish()
-        }
+    /// The opening has cleared the view: the overlay and the player go; the tiers keep landing.
+    private func releaseOverlay() {
+        player?.pause()
+        player = nil
+        overlay.detach()
+        overlayWindow.isHidden = true
     }
 
     /// The clip could not load or stalled: a plain fade to whatever is underneath.
@@ -428,6 +430,8 @@ final class FWLaunchIgnite: NSObject {
         guard phase != .finished else { return }
         phase = .finished
         stopTimers()
+        if let flight, !flight.isFinished { flight.cancel() }
+        flight = nil
         observations.forEach(NotificationCenter.default.removeObserver)
         observations = []
         player?.pause()
@@ -499,29 +503,32 @@ final class FWLaunchOverlayViewController: UIViewController {
     }
 }
 
-/// A later unlock lands in the wallet: the old screen crossfades while the wallet settles from 1.06 to 1 (0.35 s).
+/// A later unlock lands in the wallet (kit v4 part 1, "later arrivals"): the old screen crossfades out quickly while
+/// the new screen's tiers come up from `flight.landingFrom[k]` to 1 about the dive's focus (`FWLanding`). No gates.
 /// Reduced motion keeps the crossfade alone.
 final class FWLandingAnimationCoordinator: RootControllerAnimationCoordinatorProtocol {
     private let effects: FWEffects
+    private let tokens: FWShikiban?
 
-    init(effects: FWEffects = .shared) {
+    init(effects: FWEffects = .shared, tokens: FWShikiban? = .bundled) {
         self.effects = effects
+        self.tokens = tokens
     }
 
     func animateTransition(to controller: UIViewController, in window: UIWindow) {
         let restricted = FWMotionPolicy.current(effects: effects).isRestricted
         let fade = CATransition()
         fade.type = .fade
-        fade.duration = restricted ? 0.3 : FWLaunchTimeline.landingDuration
+        fade.duration = restricted || tokens == nil
+            ? FWLaunchTimeline.reducedLandingCrossfade
+            : FWLaunchTimeline.landingCrossfade
         fade.timingFunction = CAMediaTimingFunction(name: .easeOut)
         window.rootViewController = controller
         window.layer.add(fade, forKey: "window.root.transition")
-        guard !restricted else { return }
-        let settle = CABasicAnimation(keyPath: "transform.scale")
-        settle.fromValue = FWLaunchTimeline.landingStartScale
-        settle.toValue = 1
-        settle.duration = FWLaunchTimeline.landingDuration
-        settle.timingFunction = CAMediaTimingFunction(controlPoints: 0.16, 0.84, 0.3, 1)
-        controller.view.layer.add(settle, forKey: "fw.landing.settle")
+        guard !restricted, let tokens else { return }
+        window.layoutIfNeeded()
+        let timeline = FWLaunchTimeline.bundled() ?? .kitV3
+        let focus = FWLaunchTimeline.focusPoint(in: window.bounds, focus: timeline.focus.phone)
+        FWLanding.animate(tiers: FWFlightTierFinder.tiers(in: controller), focus: focus, tokens: tokens)
     }
 }

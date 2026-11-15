@@ -458,3 +458,15 @@ extension PinSetupViewController: Localizable {
         }
     }
 }
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension PinSetupViewController: FWFlightTiered {
+    /// 0 the mark, 1 the PIN pad, 2 the rest.
+    var flightTiers: [FWFlightTier] {
+        guard isViewLoaded else { return [] }
+        let rest: [UIView?] = [topLabel, titleLabel, navigationBar]
+        return [FWFlightTier(view: sunlit.lockupRow, tier: 0), FWFlightTier(view: pinView, tier: 1)]
+            + rest.compactMap { $0 }.map { FWFlightTier(view: $0, tier: 2) }
+    }
+}

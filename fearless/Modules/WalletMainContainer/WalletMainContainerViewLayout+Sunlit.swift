@@ -8,7 +8,10 @@ final class WalletHomeSunlitParts {
     /// Kit v3: two soft drifting glows over the page, and the sunset sky under the balance.
     let aurora = FWAuroraView()
     let skyCard = FWSkyCardView()
+    /// Kit v4: the sync dial under the balance, with the count while syncing.
+    let syncDial = FWSyncDialRow()
     var arrivalObservation: NSObjectProtocol?
+    var debugSyncObservation: NSObjectProtocol?
 
     let heroSurface: FWNeuView = {
         let view = FWNeuView()
@@ -21,6 +24,7 @@ final class WalletHomeSunlitParts {
     let sunBadge: FWSunBadgeView = {
         let view = FWSunBadgeView()
         view.isAccessibilityElement = false
+        view.showsSyncArc = false
         return view
     }()
 
@@ -102,6 +106,13 @@ extension WalletMainContainerViewLayout {
         ) { [weak self] _ in
             self?.sunlit.skyCard.pulse()
         }
+        #if DEBUG
+            sunlit.debugSyncObservation = NotificationCenter.default.addObserver(
+                forName: FWShikibanDebugSeams.syncNotification, object: nil, queue: .main
+            ) { [weak self] notification in
+                self?.runDebugSync(failures: notification.userInfo?["failures"] as? Int ?? 0)
+            }
+        #endif
         sunlit.offsetObservation = headerScrollView.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
             self?.updateSunPosition()
         }
@@ -203,6 +214,10 @@ extension WalletMainContainerViewLayout {
     }
 
     private func showSyncState() {
+        let animated = window != nil
+        sunlit.syncDial.locale = locale
+        sunlit.syncDial.set(FWDialModel.from(tracker: sunlit.syncTracker), animated: animated)
+        sunlit.skyCard.geometryView.setHeavenPlate(syncing: sunlit.syncTracker.isSyncing, animated: animated)
         let state = sunlit.syncTracker.state
         guard state != sunlit.sunBadge.syncState else { return }
         sunlit.sunBadge.setSyncState(state, animated: window != nil)
@@ -212,4 +227,23 @@ extension WalletMainContainerViewLayout {
             sunlit.background.bounceIntensity = 1
         }
     }
+
+    #if DEBUG
+        /// The `dial` debug seam: 14 synthetic networks answering over 3.2 s through the real tracker and dial;
+        /// `failures` of them give up instead.
+        func runDebugSync(failures: Int) {
+            sunlit.syncTracker = FWSyncTracker()
+            let total = 14
+            for index in 0 ..< total {
+                apply(syncUpdate: .connection(chainId: "debug-\(index)", .connecting))
+            }
+            for index in 0 ..< total {
+                let delay = 3.2 * pow(Double(index + 1) / Double(total), 1.25)
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                    let failed = index >= total - failures
+                    self?.apply(syncUpdate: .connection(chainId: "debug-\(index)", failed ? .unreachable : .connected))
+                }
+            }
+        }
+    #endif
 }

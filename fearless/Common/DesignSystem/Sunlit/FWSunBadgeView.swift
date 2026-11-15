@@ -17,6 +17,12 @@ final class FWSunBadgeView: UIView {
     /// Calm surfaces never animate beyond press feedback.
     var calm = false { didSet { applyEffects() } }
 
+    /// Kit v4: where the sync dial reports the sync (the wallet home), the badge keeps its glow, bloom and failure dim
+    /// but draws no arc of its own.
+    var showsSyncArc = true {
+        didSet { if !showsSyncArc { arc.isHidden = true; arc.removeAnimation(forKey: "turn") } }
+    }
+
     /// The default arc while the progress is unknown.
     static let indeterminateArc: CGFloat = 0.23
     static let restingGlow: Float = 0.85
@@ -143,6 +149,7 @@ final class FWSunBadgeView: UIView {
     // MARK: - Sync arc
 
     private func showArc(progress: Double?, policy: FWMotionPolicy) {
+        guard showsSyncArc else { return }
         let length = progress.map { CGFloat(max(0.04, min(1, $0))) } ?? Self.indeterminateArc
         CATransaction.begin()
         CATransaction.setDisableActions(true)

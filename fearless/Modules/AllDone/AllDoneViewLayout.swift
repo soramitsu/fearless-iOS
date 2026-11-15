@@ -153,10 +153,18 @@ final class AllDoneViewLayout: UIView {
 
     // MARK: - Public methods
 
-    /// Draws the solar geometry around the mark over 0.9 s, then lets it settle to 25 %.
-    func igniteSolarGeometry() {
+    /// Draws the solar geometry around the mark, then lets it settle to 25 %. After a transfer whose seal the confirm
+    /// screen drew (kit v4), the figure continues from the stage that seal reached: the remaining sides quickly, then
+    /// the ignite from 0.41 over 720 ms. Otherwise the kit v3 ignite over 0.9 s.
+    func igniteSolarGeometry(sealRecord: FWSealRecord = .shared) {
         solarGeometryView.isHidden = false
-        solarGeometryView.ignite(duration: 0.9, settleOpacity: 0.25)
+        guard let reached = sealRecord.recent() else {
+            solarGeometryView.ignite(duration: 0.9, settleOpacity: 0.25)
+            return
+        }
+        sealRecord.reset()
+        solarGeometryView.showSeal(stage: reached)
+        solarGeometryView.advanceSeal(to: .accepted)
     }
 
     func bind(_ viewModel: AllDoneViewModel) {

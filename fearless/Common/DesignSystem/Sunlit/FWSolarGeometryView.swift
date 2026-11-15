@@ -96,6 +96,10 @@ struct FWSolarGeometry: Decodable, Equatable {
 /// Draws the solar geometry and ignites it: every stroke draws over its window of the ignite, the core over a soft
 /// glow, the stars pop in at their moments, and the tick ring turns slowly. Decorative: hidden from assistive
 /// technologies. Reduced motion shows the finished figure.
+///
+/// Kit v4 adds two uses. The seal: the figure drawn by a transfer's stages (`showSeal`, `advanceSeal`, `breakSeal`),
+/// with a cyan comet on the stroke the transfer waits for. The heaven plate: while the wallet syncs, the tick ring
+/// turns 14 times faster and the figure brightens by half again (`setHeavenPlate`).
 final class FWSolarGeometryView: UIView {
     /// How strongly each group shows, 0–1. The sky card keeps the lattice faint behind its text.
     var groupOpacity: [String: Float] = [:] {
@@ -114,16 +118,19 @@ final class FWSolarGeometryView: UIView {
 
     private let geometry: FWSolarGeometry?
     private let effects: FWEffects
+    private let tokens: FWShikiban?
     private let content = CALayer()
     private let tickLayer = CAShapeLayer()
     private var strokeLayers: [(stroke: FWSolarGeometry.Stroke, core: CAShapeLayer, glow: CAShapeLayer)] = []
+    private var groupIndices: [Int] = []
     private var starLayers: [(star: FWSolarGeometry.Star, layer: CALayer)] = []
     private(set) var isIgnited = false
     private var turning = false
 
-    init(geometry: FWSolarGeometry? = .bundled, effects: FWEffects = .shared) {
+    init(geometry: FWSolarGeometry? = .bundled, effects: FWEffects = .shared, tokens: FWShikiban? = .bundled) {
         self.geometry = geometry
         self.effects = effects
+        self.tokens = tokens
         super.init(frame: .zero)
         isUserInteractionEnabled = false
         isAccessibilityElement = false
@@ -150,6 +157,7 @@ final class FWSolarGeometryView: UIView {
         guard let geometry else { return }
         let core = FWSolarGeometry.color(geometry.colors.core)
         let glow = FWSolarGeometry.color(geometry.colors.glow)
+        var counts: [String: Int] = [:]
         for stroke in geometry.strokes {
             let glowLayer = CAShapeLayer()
             glowLayer.fillColor = nil
@@ -162,6 +170,8 @@ final class FWSolarGeometryView: UIView {
             content.addSublayer(glowLayer)
             content.addSublayer(coreLayer)
             strokeLayers.append((stroke, coreLayer, glowLayer))
+            groupIndices.append(counts[stroke.group, default: 0])
+            counts[stroke.group, default: 0] += 1
         }
         tickLayer.fillColor = core.withAlphaComponent(0.85).cgColor
         tickLayer.strokeColor = nil
@@ -174,6 +184,16 @@ final class FWSolarGeometryView: UIView {
             content.addSublayer(layer)
             starLayers.append((star, layer))
         }
+        let flight = FWShikiban.color(tokens?.colors.flight ?? "#38E8E0")
+        cometTrace.fillColor = nil
+        cometTrace.strokeColor = flight.withAlphaComponent(0.22).cgColor
+        cometTrace.lineCap = .round
+        cometTrace.isHidden = true
+        content.addSublayer(cometTrace)
+        cometHead.contents = Self.cometImage(color: flight).cgImage
+        cometHead.compositingFilter = "screenBlendMode"
+        cometHead.isHidden = true
+        content.addSublayer(cometHead)
         setProgress(1)
     }
 
@@ -187,13 +207,10 @@ final class FWSolarGeometryView: UIView {
         let radius = radius
         for (stroke, core, glow) in strokeLayers {
             let path = stroke.path(center: center, radius: radius)?.cgPath
-            let opacity = groupOpacity[stroke.group] ?? 1
             core.path = path
             glow.path = path
             core.lineWidth = max(0.6, CGFloat(geometry.stroke.core * stroke.weight) * radius * 2)
             glow.lineWidth = max(2, CGFloat(geometry.stroke.glow * stroke.weight) * radius)
-            core.opacity = opacity
-            glow.opacity = opacity
         }
         let ticks = UIBezierPath()
         let dot = max(0.5, CGFloat(geometry.ticks.size) * radius)
@@ -210,14 +227,36 @@ final class FWSolarGeometryView: UIView {
         tickLayer.anchorPoint = CGPoint(x: center.x / max(1, bounds.width), y: center.y / max(1, bounds.height))
         tickLayer.frame = bounds
         tickLayer.path = ticks.cgPath
-        tickLayer.opacity = groupOpacity["ticks"] ?? groupOpacity["ring"] ?? 1
         for (star, layer) in starLayers {
             let side = CGFloat(star.size) * radius
             layer.bounds = CGRect(x: 0, y: 0, width: side, height: side)
             layer.position = CGPoint(x: center.x + CGFloat(star.x) * radius, y: center.y + CGFloat(star.y) * radius)
-            layer.opacity = groupOpacity["stars"] ?? 1
+        }
+        cometTrace.frame = bounds
+        let head = radius * 0.15
+        cometHead.bounds = CGRect(x: 0, y: 0, width: head, height: head)
+        applyOpacities()
+        if sealMode {
+            cometStroke = nil
+            applySeal()
         }
         CATransaction.commit()
+    }
+
+    /// Each group's opacity, brightened while the wallet syncs (the heaven plate), never past 1.
+    private func applyOpacities() {
+        let boost = brightness
+        func strength(_ value: Float) -> Float { min(1, value * boost) }
+        for (stroke, core, glow) in strokeLayers {
+            let opacity = strength(groupOpacity[stroke.group] ?? 1)
+            core.opacity = opacity
+            glow.opacity = opacity
+        }
+        let tickBase = strength(groupOpacity["ticks"] ?? groupOpacity["ring"] ?? 1)
+        tickLayer.opacity = sealMode ? tickBase * Float(FWShikiban.clamp01(sealQ)) : tickBase
+        for (_, layer) in starLayers {
+            layer.opacity = strength(groupOpacity["stars"] ?? 1)
+        }
     }
 
     /// Shows the figure as it stands at `progress` (0–1) of the ignite, without animation.
@@ -309,6 +348,359 @@ final class FWSolarGeometryView: UIView {
         tickLayer.add(spin, forKey: "fw.turn")
     }
 
+    var isTurning: Bool {
+        tickLayer.animation(forKey: "fw.turn") != nil
+    }
+
+    // MARK: - The heaven plate (kit v4 part 2)
+
+    /// The tick ring's speed as a multiple of `ticks.turnsPerSecond`, and the figure's brightness factor.
+    private(set) var turnBoost: Double = 1
+    private(set) var brightness: Float = 1
+    private var plateLink: CADisplayLink?
+    private var plateFrom: (boost: Double, brightness: Float) = (1, 1)
+    private var plateTo: (boost: Double, brightness: Float) = (1, 1)
+    private var plateElapsed: Double = 0
+    private var plateLastTimestamp: CFTimeInterval?
+    static let syncTurnBoost = 14.0
+    static let syncBrightness: Float = 1.5
+
+    /// While the wallet syncs the heaven plate turns 14 times faster and the figure brightens by half again; both ease
+    /// back over 720 ms when the sync settles. Reduced motion changes the brightness only, at once.
+    func setHeavenPlate(syncing: Bool, animated: Bool) {
+        let target: (boost: Double, brightness: Float) = syncing ? (Self.syncTurnBoost, Self.syncBrightness) : (1, 1)
+        guard target != plateTo else { return }
+        plateTo = target
+        let restricted = FWMotionPolicy.current(effects: effects).isRestricted
+        guard animated, !restricted, window != nil else {
+            stopPlateLink()
+            applyPlate(boost: target.boost, brightness: target.brightness)
+            return
+        }
+        plateFrom = (turnBoost, brightness)
+        plateElapsed = 0
+        plateLastTimestamp = nil
+        if plateLink == nil {
+            let link = CADisplayLink(target: FWWeakLinkTarget { [weak self] link in self?.stepPlate(link) }, selector: #selector(FWWeakLinkTarget.tick(_:)))
+            link.add(to: .main, forMode: .common)
+            plateLink = link
+        }
+    }
+
+    private func stepPlate(_ link: CADisplayLink) {
+        let delta = plateLastTimestamp.map { min(link.timestamp - $0, 1.0 / 20) * 1000 } ?? 0
+        plateLastTimestamp = link.timestamp
+        plateElapsed += delta
+        let duration = (tokens?.durationsMs.count ?? 0) > 6 ? tokens?.durationsMs[6] ?? 720 : 720
+        let local = FWShikiban.clamp01(plateElapsed / duration)
+        let eased = tokens.map { FWShikiban.bezier($0.easing.glide)(local) } ?? local
+        applyPlate(
+            boost: plateFrom.boost + (plateTo.boost - plateFrom.boost) * eased,
+            brightness: plateFrom.brightness + (plateTo.brightness - plateFrom.brightness) * Float(eased)
+        )
+        if local >= 1 { stopPlateLink() }
+    }
+
+    private func stopPlateLink() {
+        plateLink?.invalidate()
+        plateLink = nil
+    }
+
+    private func applyPlate(boost: Double, brightness: Float) {
+        turnBoost = boost
+        self.brightness = brightness
+        // Re-anchor the ring's clock so a new speed carries on from the angle it shows now.
+        let now = tickLayer.superlayer?.convertTime(CACurrentMediaTime(), from: nil) ?? CACurrentMediaTime()
+        let local = tickLayer.convertTime(CACurrentMediaTime(), from: nil)
+        tickLayer.beginTime = now
+        tickLayer.timeOffset = local
+        tickLayer.speed = Float(boost)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        applyOpacities()
+        CATransaction.commit()
+    }
+
+    // MARK: - The seal (kit v4 part 3)
+
+    private let cometTrace = CAShapeLayer()
+    private let cometHead = CALayer()
+    private var cometStroke: Int?
+    private var sealMode = false
+    private var sealTarget: FWSealStage = .idle
+    private(set) var sealQ: Double = 0
+    private(set) var sealP: Double = 0
+    private(set) var isSealBroken = false
+    private var stepFrom: Double = -1
+    private var stepElapsed: Double = 0
+    private var igniteElapsed: Double = 0
+    private var restElapsed: Double = 0
+    private var sealLink: CADisplayLink?
+    private var sealLastTimestamp: CFTimeInterval?
+    /// The send success screen's figure rests at 25 % after the ignite.
+    var sealRestsAfterIgnite = true
+    /// The figure writes each stage it finishes drawing to `FWSealRecord`, for the success screen to continue.
+    var recordsSealStages = false
+    static let cometKey = "fw.seal.comet"
+
+    private var sealIsRestricted: Bool {
+        FWMotionPolicy.current(effects: effects).isRestricted
+    }
+
+    /// True while the figure still has drawing to do towards the stage it knows.
+    var isSealAnimating: Bool {
+        guard sealMode, !isSealBroken, let tokens else { return false }
+        if sealQ < sealTarget.q - 1e-9 { return true }
+        guard sealTarget == .accepted else { return false }
+        return sealP < 1 - 1e-12 || (sealRestsAfterIgnite && restElapsed < tokens.seal.restMs)
+    }
+
+    /// Shows the figure at `stage` at once: the strokes of the stages reached, the rest of the ignite not yet drawn.
+    func showSeal(stage: FWSealStage) {
+        layer.removeAllAnimations()
+        sealMode = true
+        isSealBroken = false
+        sealTarget = stage
+        sealQ = stage.q
+        sealP = tokens?.sealProgress(.accepted) ?? 0.41
+        stepFrom = -1
+        stepElapsed = 0
+        igniteElapsed = 0
+        restElapsed = 0
+        alpha = 1
+        if stage >= .ready { setTurning(true) }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        applyOpacities()
+        applySeal()
+        CATransaction.commit()
+    }
+
+    /// The transfer reached `stage`: its stroke draws over `seal.stageMs` with `easing.settle` (180 ms when a later
+    /// stage is already known); acceptance then runs the rest of the ignite from 0.41 over `seal.igniteMs` and rests
+    /// at 25 %. Reduced motion shows the strokes of the stages reached at once.
+    func advanceSeal(to stage: FWSealStage) {
+        if !sealMode { showSeal(stage: .idle) }
+        // The same stage again only matters for acceptance, whose ignite may still be to run.
+        guard !isSealBroken, stage > sealTarget || (stage == .accepted && isSealAnimating) else { return }
+        sealTarget = stage
+        if stage >= .ready { setTurning(true) }
+        if sealIsRestricted {
+            sealQ = stage.q
+            if stage == .accepted {
+                sealP = 1
+                if sealRestsAfterIgnite, let tokens {
+                    restElapsed = tokens.seal.restMs
+                    alpha = CGFloat(tokens.seal.restStrength)
+                }
+            }
+            noteDrawn()
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            applyOpacities()
+            applySeal()
+            CATransaction.commit()
+            return
+        }
+        startSealLinkIfNeeded()
+    }
+
+    /// Moves the seal's drawing on by `ms` (the display link calls this; tests call it directly).
+    func stepSeal(byMs ms: Double) {
+        guard sealMode, !isSealBroken, let tokens else { return }
+        var remaining = ms
+        var guardCount = 0
+        let settle = tokens.settle
+        while remaining > 0, guardCount < 32 {
+            guardCount += 1
+            if sealQ < sealTarget.q - 1e-9 {
+                let from = floor(sealQ + 1e-9)
+                if stepFrom != from {
+                    stepFrom = from
+                    stepElapsed = 0
+                }
+                let quick = sealTarget.q > from + 1
+                let duration = quick && tokens.durationsMs.count > 2 ? tokens.durationsMs[2] : tokens.seal.stageMs
+                let use = min(max(0, duration - stepElapsed), remaining)
+                stepElapsed += use
+                remaining -= use
+                let local = FWShikiban.clamp01(stepElapsed / duration)
+                sealQ = from + settle(local)
+                if local >= 1 {
+                    sealQ = from + 1
+                    stepFrom = -1
+                    noteDrawn()
+                }
+            } else if sealTarget == .accepted, sealP < 1 - 1e-12 {
+                let accepted = tokens.sealProgress(.accepted)
+                let use = min(max(0, tokens.seal.igniteMs - igniteElapsed), remaining)
+                igniteElapsed += use
+                remaining -= use
+                let k = FWShikiban.clamp01(igniteElapsed / tokens.seal.igniteMs)
+                sealP = k >= 1 ? 1 : accepted + (1 - accepted) * (1 - (1 - k) * (1 - k))
+            } else if sealTarget == .accepted, sealRestsAfterIgnite, restElapsed < tokens.seal.restMs {
+                let use = min(tokens.seal.restMs - restElapsed, remaining)
+                restElapsed += use
+                remaining -= use
+                let share = FWShikiban.clamp01(restElapsed / tokens.seal.restMs)
+                alpha = CGFloat(1 - (1 - tokens.seal.restStrength) * share)
+            } else {
+                break
+            }
+        }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        applyOpacities()
+        applySeal()
+        CATransaction.commit()
+        if !isSealAnimating { stopSealLink() }
+    }
+
+    /// The transfer failed: the figure turns ember and falls apart over `seal.breakMs` (strokes drop by up to 0.2 of
+    /// the radius and fade). Reduced motion turns it ember and fades it without the fall.
+    func breakSeal(completion: (() -> Void)? = nil) {
+        guard !isSealBroken else { return }
+        isSealBroken = true
+        stopSealLink()
+        cometTrace.isHidden = true
+        cometHead.isHidden = true
+        cometHead.removeAnimation(forKey: Self.cometKey)
+        tickLayer.isHidden = true
+        starLayers.forEach { $0.layer.isHidden = true }
+        let ember = FWShikiban.color(tokens?.colors.failure ?? "#FF5A4D")
+        let duration = (tokens?.seal.breakMs ?? 510) / 1000
+        let fall = Double(radius) * 0.2
+        let restricted = sealIsRestricted
+        CATransaction.begin()
+        CATransaction.setCompletionBlock(completion)
+        for (index, (_, core, glow)) in strokeLayers.enumerated() {
+            core.strokeColor = ember.cgColor
+            glow.strokeColor = ember.withAlphaComponent(0.32).cgColor
+            let drop = restricted ? 0 : fall * (0.4 + Double((index * 37) % 10) / 10)
+            for layer in [core, glow] {
+                let fade = CABasicAnimation(keyPath: "opacity")
+                fade.fromValue = layer.opacity
+                fade.toValue = 0
+                let move = CABasicAnimation(keyPath: "transform.translation.y")
+                move.fromValue = 0
+                move.toValue = drop
+                let group = CAAnimationGroup()
+                group.animations = [fade, move]
+                group.duration = duration
+                group.timingFunction = CAMediaTimingFunction(controlPoints: 0.55, 0, 1, 0.45)
+                group.fillMode = .forwards
+                group.isRemovedOnCompletion = false
+                layer.add(group, forKey: "fw.seal.break")
+            }
+        }
+        CATransaction.commit()
+    }
+
+    /// The drawn share of stroke `index` in `group` (model value), for tests and captures.
+    func strokeEnd(group: String, index: Int) -> CGFloat? {
+        guard let position = strokeLayers.indices.first(where: {
+            strokeLayers[$0].stroke.group == group && groupIndices[$0] == index
+        }) else { return nil }
+        return strokeLayers[position].core.strokeEnd
+    }
+
+    private func noteDrawn() {
+        guard recordsSealStages, let stage = FWSealStage(rawValue: Int(floor(sealQ + 1e-9))) else { return }
+        FWSealRecord.shared.note(stage)
+    }
+
+    private func applySeal() {
+        guard sealMode, let tokens else { return }
+        for (position, (stroke, core, glow)) in strokeLayers.enumerated() {
+            let reveal = stroke.revealStart ... max(stroke.revealStart, stroke.revealEnd)
+            let amount = CGFloat(tokens.sealAmount(
+                group: stroke.group, index: groupIndices[position], reveal: reveal, q: sealQ, p: sealP
+            ))
+            core.strokeEnd = amount
+            glow.strokeEnd = amount
+        }
+        tickLayer.isHidden = isSealBroken || sealQ <= 0
+        let starBase = min(1, (groupOpacity["stars"] ?? 1) * brightness)
+        for (index, (star, layer)) in starLayers.enumerated() {
+            let amount = tokens.sealStarAmount(starIndex: index, starReveal: star.reveal, q: sealQ, p: sealP)
+            layer.isHidden = isSealBroken || amount <= 0
+            layer.opacity = starBase * Float(amount)
+            let scale = CGFloat(0.6 + 0.4 * amount)
+            layer.setAffineTransform(CGAffineTransform(scaleX: scale, y: scale))
+        }
+        updateComet()
+    }
+
+    /// In flight: a cyan comet runs the stroke the transfer is waiting for, over a faint dashed trace of it.
+    private func updateComet() {
+        guard let tokens, let geometry else { return }
+        let settled = floor(sealQ + 1e-6)
+        let waiting = sealMode && !isSealBroken && sealTarget < .accepted && sealQ >= sealTarget.q - 1e-6
+            && !sealIsRestricted && window != nil && bounds.width > 0
+        let pendingRef: FWShikiban.StrokeRef? = settled == 0
+            ? FWShikiban.StrokeRef(group: "ring", index: 0)
+            : FWShikiban.StrokeRef(group: "hexagram", index: Int(settled) - 1)
+        guard waiting, let ref = pendingRef, settled < 4,
+              let position = strokeLayers.indices.first(where: {
+                  strokeLayers[$0].stroke.group == ref.group && groupIndices[$0] == ref.index
+              }),
+              let path = strokeLayers[position].stroke.path(center: figureCenter, radius: radius)?.cgPath else {
+            cometTrace.isHidden = true
+            cometHead.isHidden = true
+            cometHead.removeAnimation(forKey: Self.cometKey)
+            cometStroke = nil
+            return
+        }
+        guard cometStroke != position else { return }
+        cometStroke = position
+        let stroke = strokeLayers[position].stroke
+        cometTrace.path = path
+        cometTrace.lineWidth = max(0.6, CGFloat(geometry.stroke.core * stroke.weight) * radius * 1.5)
+        cometTrace.lineDashPattern = [NSNumber(value: Double(radius * 0.02)), NSNumber(value: Double(radius * 0.045))]
+        cometTrace.isHidden = false
+        cometHead.isHidden = false
+        let run = CAKeyframeAnimation(keyPath: "position")
+        run.path = path
+        run.calculationMode = .paced
+        run.duration = tokens.seal.cometSeconds
+        run.repeatCount = .infinity
+        run.timingFunction = CAMediaTimingFunction(controlPoints: 0.33, 1, 0.68, 1)
+        cometHead.add(run, forKey: Self.cometKey)
+    }
+
+    private func startSealLinkIfNeeded() {
+        guard sealLink == nil, window != nil, isSealAnimating else { return }
+        sealLastTimestamp = nil
+        let link = CADisplayLink(target: FWWeakLinkTarget { [weak self] link in self?.stepSealLink(link) }, selector: #selector(FWWeakLinkTarget.tick(_:)))
+        link.add(to: .main, forMode: .common)
+        sealLink = link
+    }
+
+    private func stepSealLink(_ link: CADisplayLink) {
+        let delta = sealLastTimestamp.map { min(link.timestamp - $0, 1.0 / 20) * 1000 } ?? 0
+        sealLastTimestamp = link.timestamp
+        stepSeal(byMs: delta)
+    }
+
+    private func stopSealLink() {
+        sealLink?.invalidate()
+        sealLink = nil
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window == nil {
+            stopSealLink()
+            stopPlateLink()
+        } else {
+            startSealLinkIfNeeded()
+        }
+        if sealMode {
+            cometStroke = nil
+            updateComet()
+        }
+    }
+
     /// A star: a bright core, a warm glow and eight rays, as the design's star sprite.
     private static func starImage(color: UIColor, glow: UIColor) -> UIImage {
         let side: CGFloat = 64
@@ -338,5 +730,32 @@ final class FWSolarGeometryView: UIView {
                 cg.restoreGState()
             }
         }
+    }
+
+    /// The comet's head: white at the heart, the in-flight cyan, fading to nothing.
+    private static func cometImage(color: UIColor) -> UIImage {
+        let side: CGFloat = 48
+        return UIGraphicsImageRenderer(size: CGSize(width: side, height: side)).image { context in
+            let center = CGPoint(x: side / 2, y: side / 2)
+            let colors = [UIColor.white, color, color.withAlphaComponent(0)].map(\.cgColor)
+            if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: [0, 0.35, 1]) {
+                context.cgContext.drawRadialGradient(
+                    gradient, startCenter: center, startRadius: 0, endCenter: center, endRadius: side / 2, options: []
+                )
+            }
+        }
+    }
+}
+
+/// A display link target that does not keep its owner alive.
+final class FWWeakLinkTarget: NSObject {
+    private let action: (CADisplayLink) -> Void
+
+    init(_ action: @escaping (CADisplayLink) -> Void) {
+        self.action = action
+    }
+
+    @objc func tick(_ link: CADisplayLink) {
+        action(link)
     }
 }
