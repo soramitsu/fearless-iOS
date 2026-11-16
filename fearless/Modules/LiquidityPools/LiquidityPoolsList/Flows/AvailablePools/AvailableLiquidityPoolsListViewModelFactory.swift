@@ -96,8 +96,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
             let tokenPairName = "\(baseAsset.symbol.uppercased())-\(targetAsset.symbol.uppercased())"
 
             let reservesAddress = pair.reservesId
-                .flatMap { try? Data(hexStringSSF: $0) }
-                .flatMap { try? AddressFactory.address(for: $0, chain: chain) }
+                .flatMap { try? LiquidityPoolReservesId.address(from: $0, chain: chain) }
             let rewardTokenNameLabelText = R.string.localizable.lpRewardTokenText(rewardAsset.symbol.uppercased(), preferredLanguages: locale.rLanguages)
             let apyValue = apyInfos?.first(where: { $0.poolId == reservesAddress })?.apy
             let apyLabelText = apyValue.flatMap { NumberFormatter.percentAPY.stringFromDecimal($0) }
