@@ -48,11 +48,14 @@ final class CovJMxRawDataTests: XCTestCase {
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
-        let expected = try XCTUnwrap(String(data: encoder.encode(json), encoding: .utf8))
-        XCTAssertEqual(view.texts, [expected])
+        let expected = try encoder.encode(json)
+        XCTAssertEqual(view.texts.count, 1)
         let text = try XCTUnwrap(view.texts.first)
+        // An unsorted JSONEncoder does not keep object key order between encodings, so compare the parsed objects.
+        let shown = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(text.utf8)) as? NSDictionary)
+        XCTAssertEqual(shown, try XCTUnwrap(JSONSerialization.jsonObject(with: expected) as? NSDictionary))
         XCTAssertTrue(text.contains("\"amount\" : 5"))
-        XCTAssertTrue(text.contains("\n"))
+        XCTAssertTrue(text.contains("\n  \""), "pretty-printed with indented keys")
     }
 
     func testUnencodableValueIsReportedAndCloseDismisses() throws {

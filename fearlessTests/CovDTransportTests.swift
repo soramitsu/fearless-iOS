@@ -208,9 +208,14 @@ final class CovDPolkamarktListTransportTests: XCTestCase {
         // The deep-linked market opens once its snapshot arrives.
         XCTAssertTrue(CovDFixtures.spin(timeout: 10) { navigation.viewControllers.count == 2 })
         let detail = try XCTUnwrap(navigation.topViewController as? PolkamarktMarketDetailViewController)
+        // The pushed screen sets its title in viewDidLoad, which a loaded host may not have reached yet.
+        detail.loadViewIfNeeded()
         XCTAssertEqual(detail.title, "Market #9")
         XCTAssertTrue(Set(CovDURLProtocol.recordedMethods()).isSuperset(of: ["chain_getHeader", "rpc_methods"]))
+        // UINavigationController ignores a pop while the animated push is still running, so let it finish first.
+        XCTAssertTrue(CovDFixtures.spin { navigation.transitionCoordinator == nil })
         navigation.popToRootViewController(animated: false)
+        XCTAssertEqual(navigation.viewControllers.count, 1)
 
         let open = CovDFixtures.cellTexts(table, section: 0)
         XCTAssertEqual(Set(open.compactMap(\.0)), ["Will it rain?", "Snow?"])
@@ -224,7 +229,8 @@ final class CovDPolkamarktListTransportTests: XCTestCase {
         XCTAssertEqual(CovDFixtures.cellTexts(table, section: 0).map(\.0), ["Snow?"])
         XCTAssertEqual(CovDFixtures.cellTexts(table, section: 1).count, 0)
         list.tableView(table, didSelectRowAt: IndexPath(row: 0, section: 0))
-        XCTAssertTrue(CovDFixtures.spin { navigation.viewControllers.count == 2 })
+        XCTAssertTrue(CovDFixtures.spin { navigation.viewControllers.count == 2 && navigation.topViewController !== detail })
+        navigation.topViewController?.loadViewIfNeeded()
         XCTAssertEqual(navigation.topViewController?.title, "Market #7")
     }
 
