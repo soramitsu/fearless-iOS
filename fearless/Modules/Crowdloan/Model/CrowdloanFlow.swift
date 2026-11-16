@@ -92,6 +92,8 @@ extension CustomCrowdloanFlow: Codable {
 extension CustomCrowdloanFlow: Equatable {
     static func == (lhs: CustomCrowdloanFlow, rhs: CustomCrowdloanFlow) -> Bool {
         switch (lhs, rhs) {
+        case let (.unsupported(lhsName), .unsupported(rhsName)):
+            return lhsName == rhsName
         case (.moonbeamMemoFix, .moonbeamMemoFix):
             return true
         case let (.astar(lhsData), .astar(rhsData)):

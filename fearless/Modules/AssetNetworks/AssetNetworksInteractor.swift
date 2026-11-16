@@ -35,10 +35,15 @@ final class AssetNetworksInteractor {
         self.chainSettingsRepository = chainSettingsRepository
     }
 
+    /// The networks whose issues the user muted; read again whenever the issues are, since muting re-sends them.
     private func getChainSettings() {
-        Task {
-            let settings = try await chainSettingsRepository.fetchAll()
-            output?.didReceive(chainSettings: settings)
+        Task { [weak self, chainSettingsRepository] in
+            guard let settings = try? await chainSettingsRepository.fetchAll() else {
+                return
+            }
+            await MainActor.run { [weak self] in
+                self?.output?.didReceive(chainSettings: settings)
+            }
         }
     }
 }
@@ -48,6 +53,7 @@ final class AssetNetworksInteractor {
 extension AssetNetworksInteractor: AssetNetworksInteractorInput {
     func setup(with output: AssetNetworksInteractorOutput) {
         self.output = output
+        // Delivering the existing issues also reads the muted networks.
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         getAvailableChainAssets()
     }
@@ -120,5 +126,6 @@ extension AssetNetworksInteractor: AccountInfoSubscriptionAdapterHandler {
 extension AssetNetworksInteractor: ChainsIssuesCenterListener {
     func handleChainsIssues(_ issues: [ChainIssue]) {
         output?.didReceiveChainsWithIssues(issues)
+        getChainSettings()
     }
 }

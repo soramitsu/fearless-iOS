@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 import SoraFoundation
 
@@ -12,19 +12,24 @@ final class PurchaseWireframe: PurchaseWireframeProtocol {
     }
 
     func complete(from view: PurchaseViewProtocol?) {
-        view?.controller.presentingViewController?.dismiss(animated: true) {
+        // The purchase page is dismissed, so the screen that opened it shows the alert.
+        guard let presentingController = view?.controller.presentingViewController else {
+            return
+        }
+
+        presentingController.dismiss(animated: true) {
             DispatchQueue.main.async {
-                self.presentPurchaseCompletion(from: view)
+                self.presentPurchaseCompletion(from: presentingController)
             }
         }
     }
 
-    private func presentPurchaseCompletion(from view: ControllerBackedProtocol?) {
+    private func presentPurchaseCompletion(from controller: UIViewController) {
         let languages = localizationManager.selectedLocale.rLanguages
         let message = R.string.localizable
             .buyCompleted(preferredLanguages: languages)
 
         let alertController = ModalAlertFactory.createMultilineSuccessAlert(message)
-        view?.controller.present(alertController, animated: true, completion: nil)
+        controller.present(alertController, animated: true, completion: nil)
     }
 }

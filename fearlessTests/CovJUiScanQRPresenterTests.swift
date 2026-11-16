@@ -238,11 +238,7 @@ final class CovJUiScanQRPresenterTests: XCTestCase {
         XCTAssertEqual(f.view.loadingStarts, 1)
 
         let sheet = try XCTUnwrap(f.router.sheets.first)
-        // The presenter's stored `localizationManager` shadows `Localizable`'s, so its locale may be `Locale.current`.
-        let titles = Set([languages, Locale.current.rLanguages].map {
-            R.string.localizable.commonUndefinedErrorMessage(preferredLanguages: $0)
-        })
-        XCTAssertTrue(titles.contains(sheet.title), sheet.title)
+        XCTAssertEqual(sheet.title, R.string.localizable.commonUndefinedErrorMessage(preferredLanguages: languages))
         XCTAssertNil(sheet.message)
         XCTAssertTrue(sheet.actions.isEmpty)
         XCTAssertNil(sheet.closeAction)

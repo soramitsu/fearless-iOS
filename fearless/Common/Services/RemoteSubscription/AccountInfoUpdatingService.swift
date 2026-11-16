@@ -10,6 +10,8 @@ final class AccountInfoUpdatingService {
     struct SubscriptionInfo {
         let subscriptionId: String
         let accountId: AccountId
+        /// The service that attached the subscription holds it, so only that service can end it.
+        let service: WalletRemoteSubscriptionServiceProtocol
     }
 
     private(set) var selectedMetaAccount: MetaAccountModel
@@ -104,7 +106,8 @@ final class AccountInfoUpdatingService {
                 return
             }
 
-            let maybeSubscriptionId = await getRemoteSubscriptionService(for: chainAsset).attachToAccountInfo(
+            let service = getRemoteSubscriptionService(for: chainAsset)
+            let maybeSubscriptionId = await service.attachToAccountInfo(
                 of: accountId,
                 chainAsset: chainAsset,
                 queue: nil,
@@ -114,7 +117,8 @@ final class AccountInfoUpdatingService {
             if let subsciptionId = maybeSubscriptionId {
                 let subscription = SubscriptionInfo(
                     subscriptionId: subsciptionId,
-                    accountId: accountId
+                    accountId: accountId,
+                    service: service
                 )
 
                 setSubscription(subscription, for: chainAsset.uniqueKey(accountId: accountId))
@@ -143,7 +147,7 @@ final class AccountInfoUpdatingService {
             return
         }
 
-        getRemoteSubscriptionService(for: chainAsset).detachFromAccountInfo(
+        subscriptionInfo.service.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
             chainAssetKey: key,
             queue: nil
@@ -169,7 +173,7 @@ final class AccountInfoUpdatingService {
 
         setSubscription(nil, for: key)
 
-        substrateRemoteSubscriptionService.detachFromAccountInfo(
+        subscriptionInfo.service.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
             chainAssetKey: key,
             queue: nil,

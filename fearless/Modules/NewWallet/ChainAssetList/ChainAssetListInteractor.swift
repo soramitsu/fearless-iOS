@@ -403,10 +403,15 @@ final class ChainAssetListInteractor {
         )
     }
 
+    /// The networks whose issues the user muted; read again whenever the issues are, since muting re-sends them.
     private func getChainSettings() {
-        Task {
-            let settings = try await chainSettingsRepository.fetchAll()
-            output?.didReceive(chainSettings: settings)
+        Task { [weak self, chainSettingsRepository] in
+            guard let settings = try? await chainSettingsRepository.fetchAll() else {
+                return
+            }
+            await MainActor.run { [weak self] in
+                self?.output?.didReceive(chainSettings: settings)
+            }
         }
     }
 
@@ -583,6 +588,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         self.output = output
 
         eventCenter.add(observer: self, dispatchIn: .main)
+        // Delivering the existing issues also reads the muted networks.
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
     }
 
@@ -868,5 +874,6 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 extension ChainAssetListInteractor: ChainsIssuesCenterListener {
     func handleChainsIssues(_ issues: [ChainIssue]) {
         output?.didReceiveChainsWithIssues(issues)
+        getChainSettings()
     }
 }

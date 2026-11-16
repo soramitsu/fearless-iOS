@@ -86,6 +86,7 @@ extension AddCustomNodeInteractor: AddCustomNodeInteractorInputProtocol {
             }
         }
 
+        saveOperation.addDependency(fetchNodeOperation)
         saveOperation.addDependency(fetchNetworkOperation)
 
         operationManager.enqueue(operations: [fetchNodeOperation, fetchNetworkOperation, saveOperation], in: .transient)

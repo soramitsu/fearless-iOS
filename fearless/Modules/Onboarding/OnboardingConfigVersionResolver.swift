@@ -27,7 +27,8 @@ final class OnboardingConfigVersionResolver {
             let availableVersions = versionsForConfigs.keys
                 .filter { $0.versionLowerThan(currentAppVersion) }
                 .sorted { $0.versionLowerThan($1) }
-            guard let lastAvailableVersion = availableVersions.first else {
+            // Ascending, so the newest config this app version may show is the last one.
+            guard let lastAvailableVersion = availableVersions.last else {
                 return nil
             }
             availableVersion = lastAvailableVersion

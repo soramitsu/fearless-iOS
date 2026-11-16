@@ -217,7 +217,8 @@ final class CovJMxPurchaseTests: XCTestCase {
 
         PurchaseWireframe(localizationManager: manager).complete(from: page)
 
-        XCTAssertTrue(CovJWait.until(timeout: 3) { root.presentedViewController == nil })
+        // The page closes and the screen that opened it shows the completion alert.
+        XCTAssertTrue(CovJWait.until(timeout: 3) { root.presentedViewController.map { $0 !== page } ?? false })
         CovJWait.drain(0.1)
         XCTAssertNil(page.presentingViewController)
         PurchaseWireframe(localizationManager: manager).complete(from: nil)

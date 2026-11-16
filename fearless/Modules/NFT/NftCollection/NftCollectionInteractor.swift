@@ -42,31 +42,40 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
             return
         }
 
+        guard let address = collection.address else {
+            return
+        }
+
         isReady = false
 
-        Task {
+        let chain = collection.chain
+        let nextId = nextTokenId
+        Task { @MainActor [weak self, nftFetchingService] in
             do {
-                if let address = collection.address {
-                    let nftBatch = try await nftFetchingService.fetchCollectionNfts(
-                        collectionAddress: address,
-                        chain: collection.chain,
-                        nextId: nextTokenId
-                    )
-                    nextTokenId = nftBatch.nextTokenId
-
-                    let availableNfts = nftBatch.nfts?.filter { collection.nfts?.contains($0) != true } ?? []
-                    if let _ = collection.availableNfts {
-                        collection.availableNfts?.append(contentsOf: availableNfts)
-                    } else {
-                        collection.availableNfts = availableNfts
-                    }
-
-                    self.isReady = true
-                    await MainActor.run(body: {
-                        output?.didReceive(collection: collection)
-                    })
-                }
+                let nftBatch = try await nftFetchingService.fetchCollectionNfts(
+                    collectionAddress: address,
+                    chain: chain,
+                    nextId: nextId
+                )
+                self?.didReceive(nftBatch: nftBatch)
+            } catch {
+                // The next scroll asks for this page again.
+                self?.isReady = true
             }
         }
+    }
+
+    private func didReceive(nftBatch: NFTBatch) {
+        nextTokenId = nftBatch.nextTokenId
+
+        let availableNfts = nftBatch.nfts?.filter { collection.nfts?.contains($0) != true } ?? []
+        if collection.availableNfts != nil {
+            collection.availableNfts?.append(contentsOf: availableNfts)
+        } else {
+            collection.availableNfts = availableNfts
+        }
+
+        isReady = true
+        output?.didReceive(collection: collection)
     }
 }

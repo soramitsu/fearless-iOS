@@ -1633,3 +1633,18 @@
 "portfolio.one_list.note" = "すべての資産を一つのリストに表示します。検索またはネットワークを選択してトークンを探せます。";
 "portfolio.one_list.dismiss" = "了解";
 "portfolio.one_list.search_all" = "すべてのネットワークを検索";
+
+/* Keys the app reads through L10n: the QR scanner's permission messages and the settings prompt they open,
+   the transaction directions and the history title. Untranslated text is English, as elsewhere in this file. */
+"common.incoming" = "Incoming";
+"common.outgoing" = "Outgoing";
+"common.not_now" = "Not now";
+"common.open_settings" = "Open settings";
+"history.title" = "履歴";
+"invoice_scan.error.camera_restricted" = "Unfortunately, access to the camera is restricted.";
+"invoice_scan.error.camera_restricted_previously" = "Unfortunately, you denied access to camera previously. Would you like to allow access now?";
+"invoice_scan.error.camera_title" = "Camera Access";
+"invoice_scan.error.gallery_restricted" = "Unfortunately, access to the photos is restricted.";
+"invoice_scan.error.gallery_restricted_previously" = "Unfortunately, you denied access to photos previously. Would you like to allow access now?";
+"invoice_scan.error.gallery_title" = "Photos Access";
+"invoice_scan.error.no_info" = "QR can't be decoded";

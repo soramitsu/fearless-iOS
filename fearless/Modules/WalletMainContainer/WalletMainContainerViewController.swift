@@ -66,7 +66,7 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         }
 
         rootView.addBalance(view)
-        controller.didMove(toParent: self)
+        balanceInfoViewController.didMove(toParent: self)
     }
 
     private func setupPageViewController() {

@@ -1614,3 +1614,18 @@ thuộc đúng mạng";
 "portfolio.one_list.note" = "Tất cả tài sản trong một danh sách. Tìm kiếm hoặc chọn mạng để tìm token.";
 "portfolio.one_list.dismiss" = "Đã hiểu";
 "portfolio.one_list.search_all" = "Tìm trên tất cả mạng";
+
+/* Keys the app reads through L10n: the QR scanner's permission messages and the settings prompt they open,
+   the transaction directions and the history title. Untranslated text is English, as elsewhere in this file. */
+"common.incoming" = "Incoming";
+"common.outgoing" = "Outgoing";
+"common.not_now" = "Not now";
+"common.open_settings" = "Open settings";
+"history.title" = "Lịch sử";
+"invoice_scan.error.camera_restricted" = "Unfortunately, access to the camera is restricted.";
+"invoice_scan.error.camera_restricted_previously" = "Unfortunately, you denied access to camera previously. Would you like to allow access now?";
+"invoice_scan.error.camera_title" = "Camera Access";
+"invoice_scan.error.gallery_restricted" = "Unfortunately, access to the photos is restricted.";
+"invoice_scan.error.gallery_restricted_previously" = "Unfortunately, you denied access to photos previously. Would you like to allow access now?";
+"invoice_scan.error.gallery_title" = "Photos Access";
+"invoice_scan.error.no_info" = "QR can't be decoded";

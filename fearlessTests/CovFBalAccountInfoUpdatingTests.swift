@@ -319,7 +319,7 @@ final class CovFBalAccountInfoResubscriptionTests: XCTestCase {
         XCTAssertTrue(harness.ethereum.detachedIds.isEmpty)
     }
 
-    func testSubscriptionOfAChainThatTurnedEthereumIsDetachedFromTheEthereumService() {
+    func testSubscriptionOfAChainThatTurnedEthereumIsDetachedFromTheServiceThatAttachedIt() {
         let chainId = covFBalChainId()
         let accountId = Data(repeating: 7, count: 32)
         let asset = CovFBalChains.asset()
@@ -328,8 +328,8 @@ final class CovFBalAccountInfoResubscriptionTests: XCTestCase {
         let harness = CovFBalAccountInfoHarness()
         let service = harness.makeService(wallet: CovFBalWallets.withChainAccount(chainId: chainId, accountId: accountId))
         harness.subscribe(service, to: substrateChain, testCase: self)
-        let detached = expectation(description: "ethereum service detaches")
-        harness.ethereum.onDetach = { detached.fulfill() }
+        let detached = expectation(description: "the substrate service, which holds the subscription, detaches it")
+        harness.substrate.onDetach = { detached.fulfill() }
 
         service.processChainsUpdated(event: ChainsUpdatedEvent(updatedChains: [ethereumChain]))
         wait(for: [detached], timeout: 5)
@@ -337,9 +337,9 @@ final class CovFBalAccountInfoResubscriptionTests: XCTestCase {
 
         let key = ChainAsset(chain: substrateChain, asset: asset).uniqueKey(accountId: accountId)
         XCTAssertEqual(harness.substrate.attachedAccountIds, [accountId])
-        XCTAssertEqual(harness.ethereum.detachedIds, ["sub-1"])
-        XCTAssertEqual(harness.ethereum.detachedKeys, [key])
-        XCTAssertTrue(harness.substrate.detachedIds.isEmpty)
+        XCTAssertEqual(harness.substrate.detachedIds, ["sub-1"])
+        XCTAssertEqual(harness.substrate.detachedKeys, [key])
+        XCTAssertTrue(harness.ethereum.detachedIds.isEmpty)
         XCTAssertTrue(harness.ethereum.attachedChainAssets.isEmpty)
         XCTAssertEqual(harness.substrate.attachedChainAssets.count, 1)
     }

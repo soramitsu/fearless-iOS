@@ -58,7 +58,8 @@ final class ScamInfoFetcher: ScamInfoFetching {
     private func fetchAccountScore(address: String) async throws -> ScamInfo? {
         let score: AccountStatisticsResponse? = try await accountScoreFetching.fetchStatistics(address: address)
         let scamInfo: ScamInfo? = score.flatMap {
-            guard ($0.data?.score).or(.zero) < 0.25 else {
+            // No score means Nomis has not rated the address: unknown, not low activity.
+            guard let rating = $0.data?.score, rating < 0.25 else {
                 return nil
             }
 

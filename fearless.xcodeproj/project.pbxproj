@@ -8,6 +8,25 @@
 
 /* Begin PBXBuildFile section */
 		CF5B8F14DEF6A1DE7AA046E8 /* BitcoinIndexerRequestTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */; };
+		35EEBAEFEB03FDE7F3D93DD8 /* AccountInfoSubscriptionDetachRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF42BEE2CE9D115F6294D2A /* AccountInfoSubscriptionDetachRoutingTests.swift */; };
+		039ECC97E16E5631D91B5C57 /* L10nKeyCoverageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D78B1CA0DE10E2A27AC9AC /* L10nKeyCoverageTests.swift */; };
+		1B7E202028298E88003164F8 /* TransactionHistoryItemCallPathRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D094A9F87E2F3DA9B0050B /* TransactionHistoryItemCallPathRoundTripTests.swift */; };
+		9F043CE4F2A97AB0AB424520 /* ScamInfoMissingNomisScoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C80FA105F23959FCB76091D /* ScamInfoMissingNomisScoreTests.swift */; };
+		A923436DBDB22A5205BA2918 /* AssetNetworksCellLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8381A53DBF833BDD50753F2B /* AssetNetworksCellLayoutTests.swift */; };
+		676C6A7D76A3FC914743C73E /* PurchaseCompletionAlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */; };
+		576E4D796D887E2DC4861E4D /* ScanQRPresenterLocaleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */; };
+		B26DA574ED06F78FAE539DCB /* OnboardingConfigNewestVersionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A76D89E8C83A45D25075BC8 /* OnboardingConfigNewestVersionTests.swift */; };
+		901CF615E8BAAC6FD2F464CD /* CustomCrowdloanFlowEqualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CCA00A5D59FF041295BAAE /* CustomCrowdloanFlowEqualityTests.swift */; };
+		743844A78F5F45027EF1F1E2 /* ClaimCrowdloanTokenLocksErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66E9A89FC0D50A7BA7CDAFF /* ClaimCrowdloanTokenLocksErrorTests.swift */; };
+		1E4203E5AF551C53C340CDA3 /* CrowdloanLeaseAmountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE347B66A6CB6AE38673A53C /* CrowdloanLeaseAmountTests.swift */; };
+		6756272ADE105B6E97676280 /* NetworkInfoFailedEditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5275901D249C2E76BFD04339 /* NetworkInfoFailedEditTests.swift */; };
+		079C02629293516CF7E6EFF5 /* AddCustomNodeDuplicateCheckOrderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62584086EB6043ECCBA6D6B /* AddCustomNodeDuplicateCheckOrderTests.swift */; };
+		87DB6D3CE7611C0A579D2665 /* MutedNetworkIssuesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */; };
+		D25C7F20C6B74BA2F470ABBC /* AddressChainDefinerCompletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ECC6F75BA0C54B2B4650312 /* AddressChainDefinerCompletionTests.swift */; };
+		DC944AFAFEA8A384A544AA11 /* WalletDetailsMarkUnusedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2244B939A841C448C98341 /* WalletDetailsMarkUnusedTests.swift */; };
+		B93A7FF0A60035FBB3896A9F /* ChainAccountBuyPickerSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC921036A78E85F23FA61FA /* ChainAccountBuyPickerSelectionTests.swift */; };
+		58B21F8AC60DDDD801035E8D /* ChildControllerContainmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 601815AE091A608E3F98BD17 /* ChildControllerContainmentTests.swift */; };
+		44F8ADBD79F2295B6F50AC7D /* NftCollectionPagingRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A46DAD9C8D88E6A96559DE6 /* NftCollectionPagingRetryTests.swift */; };
 		9DD14768DAC95DFC80240C80 /* CovJWcSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */; };
 		20D8350C2E99704812808C54 /* CovJWcSubstrateCallTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */; };
 		EFD8C6A1101FC9EF081174F5 /* CovJWcSessionViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */; };
@@ -3817,6 +3836,25 @@
 
 /* Begin PBXFileReference section */
 		F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinIndexerRequestTimeoutTests.swift; sourceTree = "<group>"; };
+		9FF42BEE2CE9D115F6294D2A /* AccountInfoSubscriptionDetachRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoSubscriptionDetachRoutingTests.swift; sourceTree = "<group>"; };
+		F8D78B1CA0DE10E2A27AC9AC /* L10nKeyCoverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10nKeyCoverageTests.swift; sourceTree = "<group>"; };
+		C0D094A9F87E2F3DA9B0050B /* TransactionHistoryItemCallPathRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryItemCallPathRoundTripTests.swift; sourceTree = "<group>"; };
+		8C80FA105F23959FCB76091D /* ScamInfoMissingNomisScoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfoMissingNomisScoreTests.swift; sourceTree = "<group>"; };
+		8381A53DBF833BDD50753F2B /* AssetNetworksCellLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksCellLayoutTests.swift; sourceTree = "<group>"; };
+		CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseCompletionAlertTests.swift; sourceTree = "<group>"; };
+		D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanQRPresenterLocaleTests.swift; sourceTree = "<group>"; };
+		6A76D89E8C83A45D25075BC8 /* OnboardingConfigNewestVersionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingConfigNewestVersionTests.swift; sourceTree = "<group>"; };
+		E2CCA00A5D59FF041295BAAE /* CustomCrowdloanFlowEqualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCrowdloanFlowEqualityTests.swift; sourceTree = "<group>"; };
+		F66E9A89FC0D50A7BA7CDAFF /* ClaimCrowdloanTokenLocksErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimCrowdloanTokenLocksErrorTests.swift; sourceTree = "<group>"; };
+		FE347B66A6CB6AE38673A53C /* CrowdloanLeaseAmountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanLeaseAmountTests.swift; sourceTree = "<group>"; };
+		5275901D249C2E76BFD04339 /* NetworkInfoFailedEditTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInfoFailedEditTests.swift; sourceTree = "<group>"; };
+		B62584086EB6043ECCBA6D6B /* AddCustomNodeDuplicateCheckOrderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeDuplicateCheckOrderTests.swift; sourceTree = "<group>"; };
+		E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutedNetworkIssuesTests.swift; sourceTree = "<group>"; };
+		5ECC6F75BA0C54B2B4650312 /* AddressChainDefinerCompletionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressChainDefinerCompletionTests.swift; sourceTree = "<group>"; };
+		9E2244B939A841C448C98341 /* WalletDetailsMarkUnusedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsMarkUnusedTests.swift; sourceTree = "<group>"; };
+		2DC921036A78E85F23FA61FA /* ChainAccountBuyPickerSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountBuyPickerSelectionTests.swift; sourceTree = "<group>"; };
+		601815AE091A608E3F98BD17 /* ChildControllerContainmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildControllerContainmentTests.swift; sourceTree = "<group>"; };
+		5A46DAD9C8D88E6A96559DE6 /* NftCollectionPagingRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCollectionPagingRetryTests.swift; sourceTree = "<group>"; };
 		95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSupportTests.swift; sourceTree = "<group>"; };
 		D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSubstrateCallTextTests.swift; sourceTree = "<group>"; };
 		09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSessionViewsTests.swift; sourceTree = "<group>"; };
@@ -10621,6 +10659,25 @@
 			isa = PBXGroup;
 			children = (
 				F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */,
+				9FF42BEE2CE9D115F6294D2A /* AccountInfoSubscriptionDetachRoutingTests.swift */,
+				F8D78B1CA0DE10E2A27AC9AC /* L10nKeyCoverageTests.swift */,
+				C0D094A9F87E2F3DA9B0050B /* TransactionHistoryItemCallPathRoundTripTests.swift */,
+				8C80FA105F23959FCB76091D /* ScamInfoMissingNomisScoreTests.swift */,
+				8381A53DBF833BDD50753F2B /* AssetNetworksCellLayoutTests.swift */,
+				CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */,
+				D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */,
+				6A76D89E8C83A45D25075BC8 /* OnboardingConfigNewestVersionTests.swift */,
+				E2CCA00A5D59FF041295BAAE /* CustomCrowdloanFlowEqualityTests.swift */,
+				F66E9A89FC0D50A7BA7CDAFF /* ClaimCrowdloanTokenLocksErrorTests.swift */,
+				FE347B66A6CB6AE38673A53C /* CrowdloanLeaseAmountTests.swift */,
+				5275901D249C2E76BFD04339 /* NetworkInfoFailedEditTests.swift */,
+				B62584086EB6043ECCBA6D6B /* AddCustomNodeDuplicateCheckOrderTests.swift */,
+				E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */,
+				5ECC6F75BA0C54B2B4650312 /* AddressChainDefinerCompletionTests.swift */,
+				9E2244B939A841C448C98341 /* WalletDetailsMarkUnusedTests.swift */,
+				2DC921036A78E85F23FA61FA /* ChainAccountBuyPickerSelectionTests.swift */,
+				601815AE091A608E3F98BD17 /* ChildControllerContainmentTests.swift */,
+				5A46DAD9C8D88E6A96559DE6 /* NftCollectionPagingRetryTests.swift */,
 				95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */,
 				D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */,
 				09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */,
@@ -21538,6 +21595,25 @@
 				093821858F35303F070B6E0B /* SoraRewardCalculatorServiceTests.swift in Sources */,
 				953214F23AFBB9354E017DFF /* WalletConnectActiveSessionsSelectionTests.swift in Sources */,
 				9E8CB6EE4904A5A3D7745860 /* WalletTransactionHistoryPeerNameTests.swift in Sources */,
+				44F8ADBD79F2295B6F50AC7D /* NftCollectionPagingRetryTests.swift in Sources */,
+				58B21F8AC60DDDD801035E8D /* ChildControllerContainmentTests.swift in Sources */,
+				B93A7FF0A60035FBB3896A9F /* ChainAccountBuyPickerSelectionTests.swift in Sources */,
+				DC944AFAFEA8A384A544AA11 /* WalletDetailsMarkUnusedTests.swift in Sources */,
+				D25C7F20C6B74BA2F470ABBC /* AddressChainDefinerCompletionTests.swift in Sources */,
+				87DB6D3CE7611C0A579D2665 /* MutedNetworkIssuesTests.swift in Sources */,
+				079C02629293516CF7E6EFF5 /* AddCustomNodeDuplicateCheckOrderTests.swift in Sources */,
+				6756272ADE105B6E97676280 /* NetworkInfoFailedEditTests.swift in Sources */,
+				1E4203E5AF551C53C340CDA3 /* CrowdloanLeaseAmountTests.swift in Sources */,
+				743844A78F5F45027EF1F1E2 /* ClaimCrowdloanTokenLocksErrorTests.swift in Sources */,
+				901CF615E8BAAC6FD2F464CD /* CustomCrowdloanFlowEqualityTests.swift in Sources */,
+				B26DA574ED06F78FAE539DCB /* OnboardingConfigNewestVersionTests.swift in Sources */,
+				576E4D796D887E2DC4861E4D /* ScanQRPresenterLocaleTests.swift in Sources */,
+				676C6A7D76A3FC914743C73E /* PurchaseCompletionAlertTests.swift in Sources */,
+				A923436DBDB22A5205BA2918 /* AssetNetworksCellLayoutTests.swift in Sources */,
+				9F043CE4F2A97AB0AB424520 /* ScamInfoMissingNomisScoreTests.swift in Sources */,
+				1B7E202028298E88003164F8 /* TransactionHistoryItemCallPathRoundTripTests.swift in Sources */,
+				039ECC97E16E5631D91B5C57 /* L10nKeyCoverageTests.swift in Sources */,
+				35EEBAEFEB03FDE7F3D93DD8 /* AccountInfoSubscriptionDetachRoutingTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
