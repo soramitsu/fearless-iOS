@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E5C06ABD869DA843BBBCB82C /* RewardCalculatorFailureDeliveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB71558C4EC1946413D05875 /* RewardCalculatorFailureDeliveryTests.swift */; };
 		46268B075563672A6265E0AA /* IconTitleHeaderViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F782A5C39C3AED49C8E62123 /* IconTitleHeaderViewTests.swift */; };
 		AF367672A0871B92747CE011 /* AnalyticsContainerSegmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46142B232378FC9A8DC597E /* AnalyticsContainerSegmentTests.swift */; };
 		20409C0B42F66C0A0CE5B53E /* AccountFetchingChainAccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE414C7373C8DA1FA1BC43F5 /* AccountFetchingChainAccountTests.swift */; };
@@ -3358,6 +3359,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AB71558C4EC1946413D05875 /* RewardCalculatorFailureDeliveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorFailureDeliveryTests.swift; sourceTree = "<group>"; };
 		F782A5C39C3AED49C8E62123 /* IconTitleHeaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconTitleHeaderViewTests.swift; sourceTree = "<group>"; };
 		E46142B232378FC9A8DC597E /* AnalyticsContainerSegmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContainerSegmentTests.swift; sourceTree = "<group>"; };
 		DE414C7373C8DA1FA1BC43F5 /* AccountFetchingChainAccountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFetchingChainAccountTests.swift; sourceTree = "<group>"; };
@@ -9702,6 +9704,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				AB71558C4EC1946413D05875 /* RewardCalculatorFailureDeliveryTests.swift */,
 				F782A5C39C3AED49C8E62123 /* IconTitleHeaderViewTests.swift */,
 				E46142B232378FC9A8DC597E /* AnalyticsContainerSegmentTests.swift */,
 				DE414C7373C8DA1FA1BC43F5 /* AccountFetchingChainAccountTests.swift */,
@@ -19694,6 +19697,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5C06ABD869DA843BBBCB82C /* RewardCalculatorFailureDeliveryTests.swift in Sources */,
 				46268B075563672A6265E0AA /* IconTitleHeaderViewTests.swift in Sources */,
 				AF367672A0871B92747CE011 /* AnalyticsContainerSegmentTests.swift in Sources */,
 				20409C0B42F66C0A0CE5B53E /* AccountFetchingChainAccountTests.swift in Sources */,

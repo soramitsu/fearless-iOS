@@ -9,7 +9,7 @@ final class SoraRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 
     private struct PendingRequest {
-        let resultClosure: (RewardCalculatorEngineProtocol) -> Void
+        let resultClosure: (Result<RewardCalculatorEngineProtocol, Error>) -> Void
         let queue: DispatchQueue?
     }
 
@@ -27,6 +27,7 @@ final class SoraRewardCalculatorService {
     private var totalStakeByEra: [EraIndex: BigUInt]?
     private var rewardPointsByEra: [EraIndex: EraRewardPoints]?
     private var validatorRewardsByEra: [EraIndex: BigUInt]?
+    private var historyError: Error?
 
     private var swapValues: [SwapValues] = []
     private var swapValueErrors: [Error] = []
@@ -214,7 +215,7 @@ final class SoraRewardCalculatorService {
 
     private func fetchInfoFactory(
         runCompletionIn queue: DispatchQueue?,
-        executing closure: @escaping (RewardCalculatorEngineProtocol) -> Void
+        executing closure: @escaping (Result<RewardCalculatorEngineProtocol, Error>) -> Void
     ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
@@ -223,6 +224,8 @@ final class SoraRewardCalculatorService {
                let rewardPoints = self.rewardPointsByEra,
                let validatorRewards = self.validatorRewardsByEra {
                 self.deliver(totalStake: totalStake, rewardPoints: rewardPoints, validatorRewards: validatorRewards, to: request)
+            } else if let historyError = self.historyError {
+                self.fail(request, with: historyError)
             } else {
                 self.pendingRequests.append(request)
             }
@@ -237,6 +240,7 @@ final class SoraRewardCalculatorService {
     ) {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            fail(request, with: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -272,11 +276,13 @@ final class SoraRewardCalculatorService {
             dispatchInQueueWhenPossible(request.queue) {
                 switch mapOperation.result {
                 case let .success(calculator):
-                    request.resultClosure(calculator)
+                    request.resultClosure(.success(calculator))
                 case let .failure(error):
                     self?.logger?.error("Era stakers info fetch error: \(error)")
+                    request.resultClosure(.failure(error))
                 case .none:
                     self?.logger?.warning("Era stakers info fetch cancelled")
+                    request.resultClosure(.failure(BaseOperationError.parentOperationCancelled))
                 }
             }
         }
@@ -285,6 +291,12 @@ final class SoraRewardCalculatorService {
             operations: durationWrapper.allOperations + [eraOperation, mapOperation],
             in: .transient
         )
+    }
+
+    private func fail(_ request: PendingRequest, with error: Error) {
+        dispatchInQueueWhenPossible(request.queue) {
+            request.resultClosure(.failure(error))
+        }
     }
 
     private func notifyPendingClosures(
@@ -313,6 +325,10 @@ final class SoraRewardCalculatorService {
         let totalStakeRequest = StakingErasTotalStakeRequest()
         let rewardPointsRequest = StakingErasRewardPointsRequest()
         let validatorRewardRequest = StakingErasValidatorRewardRequest()
+
+        syncQueue.async {
+            self.historyError = nil
+        }
 
         Task {
             do {
@@ -370,6 +386,7 @@ final class SoraRewardCalculatorService {
                     self.rewardPointsByEra = fetchedRewardPoints
                     self.validatorRewardsByEra = fetchedValidatorRewards
 
+                    self.historyError = nil
                     self.notifyPendingClosures(
                         with: fetchedTotalStake,
                         rewardPoints: fetchedRewardPoints,
@@ -378,6 +395,14 @@ final class SoraRewardCalculatorService {
                 }
             } catch {
                 logger?.error(error.localizedDescription)
+
+                // Waiting and later requests learn that the history could not be read instead of waiting forever.
+                syncQueue.async {
+                    self.historyError = error
+                    let requests = self.pendingRequests
+                    self.pendingRequests = []
+                    requests.forEach { self.fail($0, with: error) }
+                }
             }
         }
     }
@@ -409,9 +434,10 @@ extension SoraRewardCalculatorService: RewardCalculatorServiceProtocol {
 
     func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
         AwaitOperation { [weak self] in
-            await withCheckedContinuation { continuation in
-                self?.fetchInfoFactory(runCompletionIn: nil) { info in
-                    continuation.resume(with: .success(info))
+            guard let self = self else { throw BaseOperationError.parentOperationCancelled }
+            return try await withCheckedThrowingContinuation { continuation in
+                self.fetchInfoFactory(runCompletionIn: nil) { result in
+                    continuation.resume(with: result)
                 }
             }
         }

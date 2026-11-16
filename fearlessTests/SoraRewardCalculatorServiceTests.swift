@@ -174,6 +174,7 @@ enum SoraRewardServiceFixtureError: Error {
 final class SoraRewardServiceStoragePerformer: SSFStorageQueryKit.StorageRequestPerformer {
     private let lock = NSLock()
     var responses: [String: Any] = [:]
+    var failure: Error?
 
     func performSingle<T: Decodable>(_: SSFStorageQueryKit.StorageRequest, chain _: ChainModel) async throws -> T? { nil }
 
@@ -213,7 +214,9 @@ final class SoraRewardServiceStoragePerformer: SSFStorageQueryKit.StorageRequest
         let name = String(describing: type(of: request))
         lock.lock()
         let json = responses[name]
+        let failure = failure
         lock.unlock()
+        if let failure = failure { throw failure }
         guard let json = json else { return nil }
         return try JSONDecoder().decode([K: T].self, from: JSONSerialization.data(withJSONObject: json))
     }
@@ -353,6 +356,7 @@ struct SoraRewardServiceSettingsRepository: DataProviderRepositoryProtocol {
 
 final class SoraRewardServiceEraStub: EraValidatorServiceProtocol {
     var info = EraStakersInfo(activeEra: 1, validators: [])
+    var failure: Error?
     private let lock = NSLock()
     private var setupCount = 0
 
@@ -372,7 +376,11 @@ final class SoraRewardServiceEraStub: EraValidatorServiceProtocol {
 
     func fetchInfoOperation() -> BaseOperation<EraStakersInfo> {
         let info = info
-        return ClosureOperation { info }
+        let failure = failure
+        return ClosureOperation {
+            if let failure = failure { throw failure }
+            return info
+        }
     }
 }
 
