@@ -41,9 +41,15 @@ enum CovGOperationFixtures {
     }
 
     static func respond<T>(_ operation: NetworkOperation<T>, json: String) throws {
-        let result = operation.resultFactory.createResult(data: Data(json.utf8), response: nil, error: nil)
+        let result = try operation.resultFactory.createResult(data: Data(json.utf8), response: response(), error: nil)
         _ = try result.get()
         operation.result = result
+    }
+
+    static func response() throws -> HTTPURLResponse {
+        try XCTUnwrap(HTTPURLResponse(
+            url: XCTUnwrap(URL(string: "https://fixture.invalid")), statusCode: 200, httpVersion: "HTTP/1.1", headerFields: nil
+        ))
     }
 
     static func query<T>(_ operation: NetworkOperation<T>) throws -> String {
@@ -55,7 +61,7 @@ enum CovGOperationFixtures {
     }
 
     static func checkNetworkFailures<T>(_ operation: NetworkOperation<T>) {
-        XCTAssertThrowsError(try operation.resultFactory.createResult(data: Data("invalid".utf8), response: nil, error: nil).get())
+        XCTAssertThrowsError(try operation.resultFactory.createResult(data: Data("invalid".utf8), response: response(), error: nil).get())
         let error = NSError(domain: "CovG.network", code: 73)
         XCTAssertThrowsError(try operation.resultFactory.createResult(data: nil, response: nil, error: error).get()) {
             XCTAssertEqual(($0 as NSError).code, 73)

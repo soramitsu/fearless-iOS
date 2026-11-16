@@ -44,8 +44,8 @@ final class CovGAlchemyNFTTests: XCTestCase {
     }
 
     func testOwnedNFTsMapPosterAndFallbackThumbnail() throws {
-        let wrapper = factory.fetchNFTs(
-            chain: try CovGOperationFixtures.chain(), address: "owner", excludeFilters: [.init(type: .airdrop)]
+        let wrapper = try factory.fetchNFTs(
+            chain: CovGOperationFixtures.chain(), address: "owner", excludeFilters: [.init(type: .airdrop)]
         )
         let network = try CovGOperationFixtures.network(wrapper, as: AlchemyOwnedNftsResponse.self)
         let request = try network.requestFactory.createRequest()
@@ -65,7 +65,7 @@ final class CovGAlchemyNFTTests: XCTestCase {
 
     func testCollectionNFTsCarryPaginationAndMetadata() throws {
         for nextId in [nil, "token +/"] as [String?] {
-            let wrapper = factory.fetchCollectionNfts(chain: try CovGOperationFixtures.chain(id: "137"), address: "contract", nextId: nextId)
+            let wrapper = try factory.fetchCollectionNfts(chain: CovGOperationFixtures.chain(id: "137"), address: "contract", nextId: nextId)
             let network = try CovGOperationFixtures.network(wrapper, as: AlchemyNftsResponse.self)
             let request = try network.requestFactory.createRequest()
             XCTAssertEqual(request.url?.host, "polygon-mainnet.g.alchemy.com")
@@ -86,7 +86,7 @@ final class CovGAlchemyNFTTests: XCTestCase {
     }
 
     func testOwnersRequestAndMapping() throws {
-        let wrapper = factory.fetchOwners(for: try CovGOperationFixtures.chain(), address: "contract", tokenId: "0x01")
+        let wrapper = try factory.fetchOwners(for: CovGOperationFixtures.chain(), address: "contract", tokenId: "0x01")
         let network = try CovGOperationFixtures.network(wrapper, as: AlchemyOwnersResponse?.self)
         let request = try network.requestFactory.createRequest()
         XCTAssertEqual(request.httpMethod, "GET")
@@ -127,7 +127,7 @@ final class CovGAlchemyNFTTests: XCTestCase {
     }
 
     func testRemoteErrorPropagatesThroughMapping() throws {
-        let wrapper = factory.fetchNFTs(chain: try CovGOperationFixtures.chain(), address: "owner", excludeFilters: [])
+        let wrapper = try factory.fetchNFTs(chain: CovGOperationFixtures.chain(), address: "owner", excludeFilters: [])
         let network = try CovGOperationFixtures.network(wrapper, as: AlchemyOwnedNftsResponse.self)
         network.result = .failure(NSError(domain: "CovG.mapping", code: 91))
         XCTAssertThrowsError(try CovGOperationFixtures.run(wrapper)) { XCTAssertEqual(($0 as NSError).code, 91) }
@@ -168,6 +168,10 @@ final class CovGAlchemyNFTTests: XCTestCase {
         XCTAssertEqual(nft.tokenType, .erc721)
         XCTAssertEqual(nft.collectionName, "Collection")
         XCTAssertEqual(nft.media?.first?.thumbnail, "https://media.invalid/thumb")
-        if let collection = nft.collection { assertCollection(collection) } else { XCTFail("Missing collection") }
+        if let collection = nft.collection {
+            assertCollection(collection)
+        } else {
+            XCTFail("Missing collection")
+        }
     }
 }
