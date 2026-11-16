@@ -9,7 +9,7 @@ final class PortionRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 
     private struct PendingRequest {
-        let resultClosure: (RewardCalculatorEngineProtocol) -> Void
+        let resultClosure: (Result<RewardCalculatorEngineProtocol, Error>) -> Void
         let queue: DispatchQueue?
     }
 
@@ -20,6 +20,7 @@ final class PortionRewardCalculatorService {
 
     private var isActive: Bool = false
     private var snapshot: BigUInt?
+    private var snapshotError: Error?
     private var pendingRequests: [PendingRequest] = []
 
     private let chainAsset: ChainAsset
@@ -61,12 +62,16 @@ final class PortionRewardCalculatorService {
 
     private func fetchInfoFactory(
         runCompletionIn queue: DispatchQueue?,
-        executing closure: @escaping (RewardCalculatorEngineProtocol) -> Void
+        executing closure: @escaping (Result<RewardCalculatorEngineProtocol, Error>) -> Void
     ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
         if let snapshot = snapshot {
             deliver(snapshot: snapshot, to: request, chainId: chainAsset.chain.chainId, assetPrecision: assetPrecision)
+        } else if let snapshotError = snapshotError {
+            dispatchInQueueWhenPossible(request.queue) {
+                request.resultClosure(.failure(snapshotError))
+            }
         } else {
             pendingRequests.append(request)
         }
@@ -109,7 +114,7 @@ final class PortionRewardCalculatorService {
             dispatchInQueueWhenPossible(request.queue) {
                 switch mapOperation.result {
                 case let .success(calculator):
-                    request.resultClosure(calculator)
+                    request.resultClosure(.success(calculator))
                 case let .failure(error):
                     self?.logger?.error("Era stakers info fetch error: \(error)")
                 case .none:
@@ -146,6 +151,17 @@ final class PortionRewardCalculatorService {
         logger?.debug("Fulfilled pendings")
     }
 
+    private func notifyPendingClosures(with error: Error) {
+        let requests = pendingRequests
+        pendingRequests = []
+
+        requests.forEach { request in
+            dispatchInQueueWhenPossible(request.queue) {
+                request.resultClosure(.failure(error))
+            }
+        }
+    }
+
     private func createTotalValidatorRewardsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> {
@@ -172,12 +188,21 @@ final class PortionRewardCalculatorService {
             return
         }
 
+        snapshotError = nil
+
         let runtimeOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let totalValidatorRewardsOperation = createTotalValidatorRewardsOperation(dependingOn: runtimeOperation)
 
         totalValidatorRewardsOperation.targetOperation.completionBlock = { [weak self] in
             do {
                 let result = try totalValidatorRewardsOperation.targetOperation.extractNoCancellableResultData()
+
+                // Without any reward history there is nothing to average; dividing by the empty count trapped.
+                guard !result.isEmpty else {
+                    self?.snapshotError = RewardCalculatorEngineError.missingRewardHistory
+                    self?.notifyPendingClosures(with: RewardCalculatorEngineError.missingRewardHistory)
+                    return
+                }
 
                 let values = result.compactMap { $0.value?.value }
                 let averageTotalValidatorReward = values.reduce(BigUInt.zero, +) / BigUInt(result.count)
@@ -219,9 +244,10 @@ extension PortionRewardCalculatorService: RewardCalculatorServiceProtocol {
 
     func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
         AwaitOperation { [weak self] in
-            await withCheckedContinuation { continuation in
-                self?.fetchInfoFactory(runCompletionIn: nil) { info in
-                    continuation.resume(with: .success(info))
+            guard let self = self else { throw BaseOperationError.parentOperationCancelled }
+            return try await withCheckedThrowingContinuation { continuation in
+                self.fetchInfoFactory(runCompletionIn: nil) { result in
+                    continuation.resume(with: result)
                 }
             }
         }
