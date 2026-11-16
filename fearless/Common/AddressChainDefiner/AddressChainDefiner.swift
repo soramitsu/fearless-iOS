@@ -47,9 +47,9 @@ final class AddressChainDefiner {
 
     func getPossibleChains(for address: String) async -> [ChainModel]? {
         let fetchOperation = chainModelRepository.fetchAllOperation(with: RepositoryFetchOptions())
-        operationManager.enqueue(operations: [fetchOperation], in: .transient)
 
         return await withCheckedContinuation { continuation in
+            // Set before the operation is queued: a fetch that finishes first would never resume the caller.
             fetchOperation.completionBlock = {
                 let chains = try? fetchOperation.extractNoCancellableResultData()
                 let posssibleChains = chains?.filter { [weak self, address] chain in
@@ -61,6 +61,8 @@ final class AddressChainDefiner {
                 }
                 continuation.resume(returning: posssibleChains)
             }
+
+            operationManager.enqueue(operations: [fetchOperation], in: .transient)
         }
     }
 
