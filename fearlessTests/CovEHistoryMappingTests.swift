@@ -319,7 +319,7 @@ extension CovEHistoryMappingTests {
         """, success: false)
         let swapped = AssetTransactionData.createTransaction(from: swap, address: alice, chain: chain, asset: asset)
         XCTAssertEqual(swapped.type, TransactionType.swap.rawValue)
-        XCTAssertEqual(swapped.status, .commited, "Swaps are always shown as committed")
+        XCTAssertEqual(swapped.status, .rejected, "A failed swap is shown as failed (4c06d1d52)")
         XCTAssertEqual(swapped.assetId, "0x03")
         XCTAssertEqual(swapped.peerId, "0x01")
         XCTAssertEqual(swapped.details, "4")
@@ -331,11 +331,21 @@ extension CovEHistoryMappingTests {
         let bridged = AssetTransactionData.createTransaction(from: bridge, address: alice, chain: chain, asset: asset)
         XCTAssertEqual(bridged.type, TransactionType.bridge.rawValue)
         XCTAssertEqual(bridged.transactionId, "bridgeProxy-transferToSidechain")
+        XCTAssertEqual(bridged.status, .commited)
+        let failedBridge = try element("bridgeProxy", "transferToSidechain", data: """
+        {"assetId":"0x04","amount":"6","sidechainAddress":"0xeth","requestHash":"0xreq"}
+        """, success: false)
+        let failedBridged = AssetTransactionData.createTransaction(from: failedBridge, address: alice, chain: chain, asset: asset)
+        XCTAssertEqual(failedBridged.status, .rejected, "A failed bridge transfer is shown as failed (4c06d1d52)")
 
         let other = try element("utility", "batch", data: "{}")
         let extrinsic = AssetTransactionData.createTransaction(from: other, address: alice, chain: chain, asset: asset)
         XCTAssertEqual(extrinsic.type, TransactionType.extrinsic.rawValue)
         XCTAssertEqual(extrinsic.transactionId, "utility-batch")
+        XCTAssertEqual(extrinsic.status, .commited)
+        let failedOther = try element("utility", "batch", data: "{}", success: false)
+        let failedExtrinsic = AssetTransactionData.createTransaction(from: failedOther, address: alice, chain: chain, asset: asset)
+        XCTAssertEqual(failedExtrinsic.status, .rejected, "A failed extrinsic is shown as failed (4c06d1d52)")
 
         let bare: SoraSubsquidHistoryElement = try decode("""
         {"id":"bare"}

@@ -25,8 +25,8 @@ final class CovELeftoverViewsTests: XCTestCase {
         custom.bind(title: "Nominators", icon: nil)
         XCTAssertEqual(customTitle.title, "Nominators")
         XCTAssertNil(customTitle.iconImage)
-        // UITableViewHeaderFooterView ignores `backgroundColor`, so the custom colour path only skips the black backdrop.
-        XCTAssertNil(custom.backgroundView, "a custom colour does not install the black backdrop")
+        // UITableViewHeaderFooterView ignores `backgroundColor`, so the custom colour goes on a background view (2bef7eb88).
+        XCTAssertEqual(custom.backgroundView?.backgroundColor, .red, "a custom colour is shown on the background view")
     }
 
     func testInsettedLabelWidensByItsInsetsAndDrawsInsideThem() throws {

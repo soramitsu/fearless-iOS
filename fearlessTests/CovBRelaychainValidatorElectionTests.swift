@@ -98,13 +98,13 @@ final class CovBRvElectedValidatorsTests: XCTestCase {
         XCTAssertNotNil(result[0].stakeInfo)
         XCTAssertFalse(result[0].hasSlashes)
         XCTAssertFalse(result[0].blocked)
-        // Current behaviour: the perbill commission is read as a token amount with the asset precision (reported).
-        XCTAssertEqual(result[0].commission, 1_000_000)
+        // The perbill commission 100,000,000 is 10 % (19ec2bf41; it was read as a token amount, 1,000,000).
+        XCTAssertEqual(result[0].commission, 0.1)
         guard case .unelected? = result[1].myNomination else { return XCTFail("D is not elected") }
         XCTAssertNil(result[1].stakeInfo)
         XCTAssertTrue(result[1].hasSlashes)
         XCTAssertTrue(result[1].blocked)
-        XCTAssertEqual(result[1].commission, 0.05)
+        XCTAssertEqual(result[1].commission, Decimal(string: "0.000000005"), "5 perbill")
         XCTAssertEqual(result[1].identity?.name, "Dee")
         XCTAssertEqual(fx.storage.requests(.validatorPrefs), [[Fx.validatorA, Fx.validatorC, Fx.validatorD].map { $0.toHex() }])
     }

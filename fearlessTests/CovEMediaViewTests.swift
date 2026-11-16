@@ -38,14 +38,15 @@ final class CovEMediaViewTests: XCTestCase {
 
     func testGifVideoThumbnailAndUnknownFilesStopTheSpinner() throws {
         let gif = directory.appendingPathComponent("loop.gif")
-        try gifData().write(to: gif)
+        let gifBytes = try gifData()
+        try gifBytes.write(to: gif)
         let text = directory.appendingPathComponent("notes.bin")
         try Data("plain text, not media".utf8).write(to: text)
         let missingVideo = directory.appendingPathComponent("clip.mov")
         let missing = directory.appendingPathComponent("missing.dat")
 
         for (url, check) in [
-            (gif, "gifURL"), (missingVideo, nil), (text, nil), (missing, nil)
+            (gif, "gifData"), (missingVideo, nil), (text, nil), (missing, nil)
         ] as [(URL, String?)] {
             let view = UniversalMediaView(frame: CGRect(x: 0, y: 0, width: 120, height: 120))
             let window = CovEHost.window(for: view, frame: view.frame)
@@ -55,7 +56,9 @@ final class CovEMediaViewTests: XCTestCase {
             XCTAssertTrue(indicator.isAnimating)
             XCTAssertTrue(CovEHost.spin(until: { !indicator.isAnimating }, timeout: 10), url.lastPathComponent)
             if let check {
-                XCTAssertEqual(media(of: view, check), url.absoluteString)
+                // The view reads the GIF and hands MediaView its data once every frame has a delay (74e75dec0).
+                XCTAssertEqual(mediaData(of: view, check), gifBytes)
+                XCTAssertNil(media(of: view, "gifURL"))
             } else {
                 XCTAssertNil(media(of: view, "gifURL"))
                 XCTAssertNil(media(of: view, "videoURL"), "\(url.lastPathComponent) is not played")
@@ -80,6 +83,11 @@ final class CovEMediaViewTests: XCTestCase {
         XCTAssertFalse(indicator.isAnimating)
     }
 
+    private func mediaData(of view: UniversalMediaView, _ key: String) -> Data? {
+        guard let media = CovEFind.mirror(view, "media", as: AnyObject.self) else { return nil }
+        return CovEFind.mirror(media, key, as: Data.self)
+    }
+
     private func media(of view: UniversalMediaView, _ key: String) -> String? {
         guard let media = CovEFind.mirror(view, "media", as: AnyObject.self) else { return nil }
         return CovEFind.mirror(media, key, as: String.self)
@@ -101,8 +109,8 @@ final class CovEMediaViewTests: XCTestCase {
         let data = NSMutableData()
         let image = try XCTUnwrap(UIImage(data: pngData())?.cgImage)
         let destination = try XCTUnwrap(CGImageDestinationCreateWithData(data, "com.compuserve.gif" as CFString, 2, nil))
-        // MediaView's GIF decoder reads a zero frame delay as a CFString and crashes on the NSNumber ImageIO returns
-        // (reported as a bug), so the frames carry a real delay.
+        // MediaView's GIF decoder crashes on a zero frame delay; UniversalMediaView shows such a GIF as a still image
+        // (74e75dec0). These frames carry a real delay, so the GIF is handed to MediaView.
         let frame = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: 0.1]] as CFDictionary
         CGImageDestinationAddImage(destination, image, frame)
         CGImageDestinationAddImage(destination, image, frame)

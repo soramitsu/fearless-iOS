@@ -74,8 +74,12 @@ final class CovBAnContainerTests: XCTestCase {
         container.scrollViewDidEndDecelerating(scrollView)
         XCTAssertEqual(container.rootView.segmentedControl.selectedSegmentIndex, 1)
 
+        // Choosing tab 1 scrolls to page 1 (922196907; it always scrolled to page 0).
+        scrollView.contentOffset = .zero
         container.rootView.segmentedControl.sendActions(for: .valueChanged)
-        XCTAssertTrue(CovBAnFixtures.spin { scrollView.contentOffset.x == 0 })
+        let pageOne = scrollView.frame.width
+        XCTAssertTrue(CovBAnFixtures.spin { abs(scrollView.contentOffset.x - pageOne) < 0.5 })
+        XCTAssertEqual(scrollView.contentOffset.x, pageOne, accuracy: 0.5)
         XCTAssertNotNil(window.rootViewController)
     }
 

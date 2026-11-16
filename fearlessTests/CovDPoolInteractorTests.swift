@@ -250,7 +250,7 @@ final class CovDPoolInteractorTests: XCTestCase {
         XCTAssertTrue(missingOutput.errors["users"]?.first is ChainAccountFetchingError)
         XCTAssertTrue(missingOutput.errors["issuance"]?.first is CommonError)
     }
-    func testSupplyConfirmationReportsApyErrorForNativeAvailablePoolAddressFormat() throws {
+    func testSupplyConfirmationDeliversApyForNativeAvailablePoolAddressFormat() throws {
         let fixture = try CovDPoolHarness()
         let address = try fearless.AddressFactory.address(for: fixture.reserveId, chain: fixture.chain)
         let output = CovDPoolOutputSpy()
@@ -261,9 +261,9 @@ final class CovDPoolInteractorTests: XCTestCase {
             accountInfoSubscriptionAdapter: adapter
         )
         interactor.setup(with: output)
-        // The SS58 reserves id is decoded as hex, so the pool's indexed APY (12) is never delivered.
-        XCTAssertTrue(CovDFixtures.spin { output.errors["apy"] != nil || !output.apys.isEmpty })
-        XCTAssertFalse(output.apys.joined().contains { $0.apy == 12 })
+        // The SS58 reserves id is read as an address (b45d21b37; it was decoded as hex), so the indexed APY (12) arrives.
+        XCTAssertTrue(CovDFixtures.spin { output.apys.joined().contains { $0.apy == 12 } })
+        XCTAssertNil(output.errors["apy"])
         XCTAssertEqual(adapter.subscribed.count, fixture.chain.chainAssets.count)
     }
 

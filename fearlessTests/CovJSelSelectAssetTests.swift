@@ -227,6 +227,8 @@ final class CovJSelSelectAssetTests: XCTestCase {
         XCTAssertEqual(view.boundSearch, [.searchAssetPlaceholder])
 
         presenter.didReceiveChainAssets(result: .failure(CovJError("assets")))
+        // The error sheet is presented on the main queue (f34e55f50), so it arrives after this call returns.
+        XCTAssertTrue(CovJWait.until { !router.errors.isEmpty })
         XCTAssertEqual(router.errors.compactMap { $0 as? CovJError }, [CovJError("assets")])
         presenter.didReceiveAccountInfo(result: .failure(CovJError("balance")), for: CovJFixture.chainAsset())
         XCTAssertTrue(CovJWait.until { router.errors.count == 2 })
