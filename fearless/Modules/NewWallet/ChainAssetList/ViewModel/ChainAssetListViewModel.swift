@@ -7,6 +7,16 @@ struct ChainAssetListViewModel {
     let networkSections: [AssetNetworkSectionViewModel]
     var walletId: String?
     var lens: PortfolioLens = .token
+    /// The wallet home's search field and network chips. The search screen has its own field and shows neither.
+    var showsDiscovery = false
+    /// The one-list search field's text, as the list was built with it.
+    var searchText: String = ""
+    /// All networks, the networks the wallet holds something on (largest first), and a chosen Popular or Favorites.
+    var networkChips: [PortfolioNetworkChip] = []
+    /// A search found nothing on the chosen networks: offer to search all of them.
+    var canSearchAllNetworks = false
+    /// A search found nothing at all.
+    var searchFoundNothing = false
     var tokenRows: [TokenGroupRowViewModel] = []
     var zeroTokenRows: [TokenGroupRowViewModel] = []
     var tokenChildCells: [AssetKey: ChainAccountBalanceCellViewModel] = [:]
@@ -19,6 +29,14 @@ struct ChainAssetListViewModel {
     var exclusions: [PortfolioExclusionCaption] = []
     /// Above the list until answered: assets hidden in the previous version now hold funds.
     var hiddenFundsNotice: PortfolioHiddenFundsNotice?
+}
+
+/// A network filter chip. Its identity is the wallet's network filter identifier, the one the header's network
+/// button sets ("all", "popular", "favourite" or a chain id).
+struct PortfolioNetworkChip: Equatable {
+    let id: String
+    let title: String
+    let selected: Bool
 }
 
 struct TokenGroupRowViewModel: Equatable {

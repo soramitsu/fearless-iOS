@@ -1550,3 +1550,13 @@ pertence à rede certa";
 "fw.feedback.sound_effects" = "Efeitos sonoros";
 "fw.feedback.haptic_feedback" = "Feedback tátil";
 "fw.feedback.tokens_received" = "%@ recebido";
+
+/* One list: search and network filters */
+"portfolio.one_list.search" = "Pesquisar tokens e redes";
+"portfolio.one_list.all" = "Todas as redes";
+"portfolio.one_list.popular" = "Populares";
+"portfolio.one_list.favourite" = "Favoritas";
+"portfolio.one_list.more" = "Mais redes";
+"portfolio.one_list.note" = "Todos os seus ativos em uma lista. Pesquise ou escolha uma rede para encontrar um token.";
+"portfolio.one_list.dismiss" = "Entendi";
+"portfolio.one_list.search_all" = "Pesquisar em todas as redes";

@@ -1602,3 +1602,13 @@ ait olduğundan emin olun.";
 "fw.feedback.sound_effects" = "Ses efektleri";
 "fw.feedback.haptic_feedback" = "Dokunsal geri bildirim";
 "fw.feedback.tokens_received" = "%@ alındı";
+
+/* One list: search and network filters */
+"portfolio.one_list.search" = "Token ve ağ ara";
+"portfolio.one_list.all" = "Tüm ağlar";
+"portfolio.one_list.popular" = "Popüler";
+"portfolio.one_list.favourite" = "Favoriler";
+"portfolio.one_list.more" = "Diğer ağlar";
+"portfolio.one_list.note" = "Tüm varlıklarınız tek listede. Token bulmak için arayın veya ağ seçin.";
+"portfolio.one_list.dismiss" = "Anladım";
+"portfolio.one_list.search_all" = "Tüm ağlarda ara";

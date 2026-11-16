@@ -58,6 +58,9 @@ final class ChainAssetListPresenter {
     private let presentationScope = PortfolioCallbackScope()
     private let walletActionScope = PortfolioCallbackScope()
     private var presentedViewModel: ChainAssetListViewModel?
+    /// The wallet home's one list: its own search field and network chips. The search screen drives the
+    /// search through the module input instead.
+    private let showsDiscovery: Bool
     /// Tokens arriving (kit v3 feel): balances that grow from a value already known play the receive feedback.
     private let arrivals = FWArrivalDetector()
     private let arrivalAnnouncer: FWArrivalAnnouncing
@@ -70,8 +73,10 @@ final class ChainAssetListPresenter {
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
         viewModelFactory: ChainAssetListViewModelFactoryProtocol,
+        showsDiscovery: Bool = true,
         arrivalAnnouncer: FWArrivalAnnouncing = FWArrivalAnnouncer.shared
     ) {
+        self.showsDiscovery = showsDiscovery
         self.arrivalAnnouncer = arrivalAnnouncer
         self.interactor = interactor
         self.router = router
@@ -94,7 +99,9 @@ final class ChainAssetListPresenter {
             let shouldRunManageAssetAnimate = self.interactor.shouldRunManageAssetAnimate
             let chainSettings = self.chainSettings
 
-            let viewModel = self.viewModelFactory.buildViewModel(
+            // One list: the token rows are the only grouping. A stored network lens only brings up the
+            // one-time note (see `didSelectLens`).
+            var viewModel = self.viewModelFactory.buildViewModel(
                 wallet: self.wallet,
                 chainAssets: chainAssets,
                 locale: self.selectedLocale,
@@ -104,9 +111,12 @@ final class ChainAssetListPresenter {
                 displayType: self.displayType,
                 chainSettings: chainSettings,
                 networkFilter: self.networkFilter,
-                search: self.searchText,
-                lens: self.collapseStore.lens(walletId: self.wallet.metaId)
+                search: Self.normalizedSearch(self.searchText),
+                lens: .token
             )
+            viewModel.showsDiscovery = self.showsDiscovery
+            // The field's own text: a query is matched without its outer spaces, but the field keeps them.
+            viewModel.searchText = self.searchText ?? ""
 
             presentationScope.deliver(request) {
                 guard self.wallet.metaId == viewModel.walletId else { return }
@@ -114,6 +124,22 @@ final class ChainAssetListPresenter {
                 self.view?.didReceive(viewModel: viewModel)
             }
         }
+    }
+
+    /// A query of spaces is no search.
+    static func normalizedSearch(_ text: String?) -> String? {
+        guard let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
+    }
+
+    /// A search shows its matches across the chosen networks; otherwise one network or the whole portfolio.
+    static func displayType(search: String?, networkFilter: NetworkManagmentFilter?) -> AssetListDisplayType {
+        if normalizedSearch(search) != nil {
+            return .search
+        }
+        return networkFilter?.isChainSelected == true ? .chain : .assetChains
     }
 
     private func showMissingAccountOptions(chain: ChainModel) {
@@ -434,10 +460,34 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
         )
     }
 
-    func didSelectLens(_ lens: PortfolioLens, walletId: String) {
+    /// The list has one grouping now. A wallet that kept the network lens sees the one-time note, and closing it
+    /// (any lens answer) makes the token list its own.
+    func didSelectLens(_: PortfolioLens, walletId: String) {
         guard wallet.metaId == walletId else { return }
-        collapseStore.setLens(lens, walletId: walletId)
+        collapseStore.setLens(.token, walletId: walletId)
         provideViewModel()
+    }
+
+    func didSearch(_ query: String, walletId: String) {
+        guard showsDiscovery, wallet.metaId == walletId else { return }
+        searchText = query
+        displayType = Self.displayType(search: query, networkFilter: networkFilter)
+        provideViewModel()
+    }
+
+    func didSelectNetwork(_ identifier: String, walletId: String) {
+        guard showsDiscovery, wallet.metaId == walletId else { return }
+        let all = NetworkManagmentFilter.all.identifier
+        let selected = (networkFilter ?? .all).identifier
+        let target = identifier == selected ? all : identifier
+        guard target != selected else { return }
+        // The wallet's filter, as the header's network button saves it; the list follows the saved wallet.
+        interactor.selectNetworkFilter(NetworkManagmentFilter(identifier: target), walletId: walletId)
+    }
+
+    func didTapMoreNetworks(walletId: String) {
+        guard showsDiscovery, wallet.metaId == walletId else { return }
+        router.showNetworkPicker(from: view, wallet: wallet)
     }
 
     func didTapTokenAction(actionType: SwipableCellButtonType, groupId: String, walletId: String) {
@@ -718,6 +768,14 @@ private extension ChainAssetListPresenter {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
+    func didFailNetworkFilter(error: Error) {
+        // A wallet switched away while the filter was saving needs no message.
+        if (error as? BaseOperationError) == .parentOperationCancelled {
+            return
+        }
+        router.present(error: error, from: view, locale: selectedLocale)
+    }
+
     func updateViewModel(isInitSearchState _: Bool) {
         provideViewModel()
     }
@@ -726,6 +784,11 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         guard self.wallet.metaId == wallet.metaId else { return }
         lock.exclusivelyWrite { [weak self] in
             self?.wallet = wallet
+        }
+        if showsDiscovery {
+            // A chip or the header's network list saved the wallet's filter.
+            networkFilter = NetworkManagmentFilter(identifier: wallet.networkManagmentFilter)
+            displayType = Self.displayType(search: searchText, networkFilter: networkFilter)
         }
         provideViewModel()
     }
@@ -742,10 +805,17 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             self?.chainsWithIssue = []
             self?.pendingUniversalWalletRecovery = nil
         }
+        if showsDiscovery {
+            // Another wallet starts with an empty search on its own network filter.
+            searchText = nil
+            networkFilter = NetworkManagmentFilter(identifier: wallet.networkManagmentFilter)
+            displayType = Self.displayType(search: nil, networkFilter: networkFilter)
+        }
+        let showsDiscovery = showsDiscovery
         presentationScope.deliver(request) { [weak self] in
             self?.view?.didReceive(viewModel: ChainAssetListViewModel(
                 displayState: .defaultList(cells: [], withAnimate: false), networkSections: [], walletId: wallet.metaId,
-                lens: self?.collapseStore.lens(walletId: wallet.metaId) ?? .token
+                lens: .token, showsDiscovery: showsDiscovery
             ))
         }
     }
@@ -853,36 +923,21 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         networkFilter: NetworkManagmentFilter?
     ) {
         self.networkFilter = networkFilter
-        searchText = filters.compactMap { filter -> String? in
+        let externalSearch = filters.compactMap { filter -> String? in
             if case let .search(text) = filter {
                 return text
             }
 
             return nil
         }.first
-
-        let filteredByChain: Bool
-        if let networkFilter, case .chain = networkFilter {
-            filteredByChain = true
-        } else {
-            filteredByChain = false
+        if let externalSearch {
+            searchText = externalSearch
+        } else if !showsDiscovery {
+            // The search screen cleared its field. On the wallet home the field is the list's own and a
+            // network change keeps its text.
+            searchText = nil
         }
-
-        let searchIsActive = filters.contains(where: { filter in
-            if case ChainAssetsFetching.Filter.search = filter {
-                return true
-            }
-
-            return false
-        })
-
-        if searchIsActive {
-            displayType = .search
-        } else if filteredByChain {
-            displayType = .chain
-        } else {
-            displayType = .assetChains
-        }
+        displayType = Self.displayType(search: searchText, networkFilter: networkFilter)
 
         // Network and search filters are presentation-only. Always keep every
         // enabled network subscribed so discovery cannot be disabled by UI state.

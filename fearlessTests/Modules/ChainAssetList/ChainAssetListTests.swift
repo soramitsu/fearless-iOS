@@ -476,17 +476,139 @@ final class ChainAssetListTests: XCTestCase {
         add(capture)
     }
 
+    /// One list: the token rows are the only grouping, whatever lens a wallet kept, and answering the one-time
+    /// note (any lens answer) stores the token list for that wallet only.
     @MainActor
-    func testPresenterLensChangeRequiresSelectedWallet() throws {
+    func testPresenterKeepsOneTokenListAndTheNoteAnswerStoresTokensForTheSelectedWallet() throws {
         let (presenter, view, _, _, wallet) = try tokenPresenter(fundedCount: 1)
         defer { UserDefaults.standard.removeObject(forKey: "portfolio.lens:\(wallet.metaId)") }
+        PortfolioCollapseStore().setLens(.network, walletId: wallet.metaId)
         presenter.didSelectLens(.network, walletId: "another-wallet")
         drainPortfolioDeliveries()
         XCTAssertEqual(view.models.last?.lens, .token)
+        XCTAssertEqual(PortfolioCollapseStore().lens(walletId: wallet.metaId), .network, "Another wallet's answer")
         presenter.didSelectLens(.network, walletId: wallet.metaId)
         drainPortfolioDeliveries()
-        XCTAssertEqual(view.models.last?.lens, .network)
-        XCTAssertEqual(PortfolioCollapseStore().lens(walletId: wallet.metaId), .network)
+        XCTAssertEqual(view.models.last?.lens, .token)
+        XCTAssertEqual(view.models.last?.showsDiscovery, true)
+        XCTAssertEqual(PortfolioCollapseStore().lens(walletId: wallet.metaId), .token)
+    }
+
+    @MainActor
+    func testOneListSearchAndChipsUseWalletFilterAndRejectStaleWalletActions() throws {
+        let (presenter, view, router, interactor, wallet) = try tokenPresenter(fundedCount: 1)
+        XCTAssertEqual(view.models.last?.networkChips.first?.id, "all")
+        XCTAssertEqual(view.models.last?.networkChips.first?.selected, true)
+        presenter.didSearch("not-a-token", walletId: "stale")
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.searchText, "")
+        presenter.didSearch("not-a-token", walletId: wallet.metaId)
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.searchText, "not-a-token")
+        XCTAssertTrue(view.models.last?.tokenRows.isEmpty == true)
+        XCTAssertEqual(view.models.last?.searchFoundNothing, true)
+        XCTAssertEqual(view.models.last?.canSearchAllNetworks, false, "Every network is searched already")
+        presenter.didSelectNetwork("popular", walletId: "stale")
+        XCTAssertTrue(interactor.networkSelections.isEmpty)
+        presenter.didSelectNetwork("popular", walletId: wallet.metaId)
+        XCTAssertEqual(interactor.networkSelections, ["popular"])
+        // The chip saved the wallet's filter; the list follows the saved wallet and keeps the search.
+        presenter.didReceiveWallet(wallet: wallet.replacingNetworkManagmentFilter("popular"))
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.searchText, "not-a-token")
+        XCTAssertEqual(view.models.last?.networkChips.filter(\.selected).map(\.id), ["popular"])
+        XCTAssertEqual(view.models.last?.canSearchAllNetworks, true)
+        presenter.didSelectNetwork("popular", walletId: wallet.metaId)
+        XCTAssertEqual(interactor.networkSelections, ["popular", "all"], "The chosen chip again shows every network")
+        presenter.didTapMoreNetworks(walletId: "stale")
+        XCTAssertTrue(router.networkPickerWallets.isEmpty)
+        presenter.didTapMoreNetworks(walletId: wallet.metaId)
+        XCTAssertEqual(router.networkPickerWallets, [wallet.metaId])
+        presenter.didReceiveWallet(wallet: wallet.replacingNetworkManagmentFilter("all"))
+        presenter.didSelectNetwork("all", walletId: wallet.metaId)
+        XCTAssertEqual(interactor.networkSelections, ["popular", "all"], "All networks again changes nothing")
+        presenter.didSearch("", walletId: wallet.metaId)
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.searchText, "")
+        XCTAssertEqual(view.models.last?.searchFoundNothing, false)
+        XCTAssertEqual(view.models.last?.lens, .token)
+    }
+
+    @MainActor
+    func testOneListSearchMatchesSymbolAndNameAndSurvivesTheHeadersNetworkChange() throws {
+        let (presenter, view, _, _, wallet) = try tokenPresenter(fundedCount: 3)
+        let all = try XCTUnwrap(view.models.last?.tokenRows.first)
+        let chainId = try XCTUnwrap(all.model.children.first?.chainAsset.chain.chainId)
+        for query in [all.model.symbol.lowercased(), String(all.model.name.prefix(4)), "  " + all.model.symbol + " "] {
+            presenter.didSearch(query, walletId: wallet.metaId)
+            drainPortfolioDeliveries()
+            XCTAssertEqual(view.models.last?.tokenRows.map(\.model.id), [all.model.id], query)
+            XCTAssertEqual(view.models.last?.displayState.isSearch, true, query)
+        }
+        // The header's network button narrows the same list; the field keeps its text.
+        presenter.updateChainAssets(using: [.chainId(chainId)], sorts: [], networkFilter: .chain(chainId))
+        presenter.updateViewModel(isInitSearchState: false) // the interactor's answer
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.searchText, "  " + all.model.symbol + " ")
+        XCTAssertEqual(view.models.last?.tokenRows.flatMap { $0.model.children.map(\.chainAsset.chain.chainId) }, [chainId])
+        presenter.didSearch("   ", walletId: wallet.metaId)
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.displayState.isSearch, false, "Spaces are no search")
+        // Another wallet starts with an empty field on its own filter.
+        let other = AccountGenerator.generateMetaAccount().replacingNetworkManagmentFilter("favourite")
+        presenter.didSearch("usdt", walletId: wallet.metaId)
+        presenter.handleWalletChanged(wallet: other)
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.walletId, other.metaId)
+        XCTAssertEqual(view.models.last?.searchText, "")
+        XCTAssertEqual(view.models.last?.showsDiscovery, true)
+    }
+
+    @MainActor
+    func testSearchScreenListKeepsItsOwnSearchAndNeverTheWalletsFilter() throws {
+        let assets = try SendNetworkFixture.assets()
+            .filter { CanonicalTokenGroupCatalog.bundled.group(for: $0)?.id == "usdt" }
+        let wallet = AccountGenerator.generateMetaAccount()
+        let interactor = ChainAssetListInteractorInputSpy(), router = ChainAssetListRouterSpy(), view = PortfolioViewSpy()
+        let presenter = ChainAssetListPresenter(
+            interactor: interactor,
+            router: router,
+            localizationManager: try XCTUnwrap(LocalizationManager(localization: "en")),
+            wallet: wallet,
+            viewModelFactory: makeFactory(),
+            showsDiscovery: false
+        )
+        presenter.didLoad(view: view)
+        presenter.didReceiveChainAssets(result: .success(assets))
+        assets.forEach { presenter.didReceiveAccountInfo(result: .success(AccountInfo(ethBalance: 1_000_000)), for: $0) }
+        presenter.updateChainAssets(using: [.search("usdt")], sorts: [], networkFilter: nil)
+        presenter.updateViewModel(isInitSearchState: false) // the interactor's answer
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.showsDiscovery, false)
+        XCTAssertEqual(view.models.last?.displayState.isSearch, true)
+        presenter.didSearch("nothing", walletId: wallet.metaId)
+        presenter.didSelectNetwork("popular", walletId: wallet.metaId)
+        presenter.didTapMoreNetworks(walletId: wallet.metaId)
+        presenter.didReceiveWallet(wallet: wallet.replacingNetworkManagmentFilter(assets[0].chain.chainId))
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.searchText, "usdt")
+        XCTAssertEqual(view.models.last?.tokenRows.first?.model.children.count, assets.count, "Every network searched")
+        XCTAssertTrue(interactor.networkSelections.isEmpty)
+        XCTAssertTrue(router.networkPickerWallets.isEmpty)
+        presenter.updateChainAssets(using: [], sorts: [], networkFilter: nil)
+        presenter.updateViewModel(isInitSearchState: false)
+        drainPortfolioDeliveries()
+        XCTAssertEqual(view.models.last?.searchText, "")
+        XCTAssertEqual(view.models.last?.displayState.isSearch, false)
+    }
+
+    @MainActor
+    func testFailedNetworkFilterSaveIsShownButAWalletSwitchedAwayIsNot() throws {
+        let (presenter, _, router, _, _) = try tokenPresenter(fundedCount: 1)
+        presenter.didFailNetworkFilter(error: BaseOperationError.parentOperationCancelled)
+        XCTAssertTrue(router.presentedErrors.isEmpty)
+        presenter.didFailNetworkFilter(error: BaseOperationError.unexpectedDependentResult)
+        XCTAssertEqual(router.presentedErrors.count, 1)
     }
 
     @MainActor
@@ -931,6 +1053,47 @@ final class ChainAssetListTests: XCTestCase {
                 for: UniversalWalletRegistry.taira.chainId
             )
         )
+    }
+
+    /// A chip saves the filter onto the selected wallet as it is after queued saves, so it never writes back an older
+    /// copy over another edit, and leaves a wallet that is no longer selected alone.
+    func testNetworkFilterPersistsLatestWalletAndRejectsChangedSelection() {
+        let storage = UserDataStorageTestFacade()
+        let queue = OperationQueue()
+        let settings = SelectedWalletSettings(storageFacade: storage, operationQueue: queue)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let saved = expectation(description: "initial wallet")
+        settings.save(value: wallet, runningCompletionIn: .main) { _ in saved.fulfill() }
+        // An edit queued just before the chip: the chip must keep it.
+        let renamed = wallet.replacingName("Renamed while filtering")
+        settings.save(value: renamed, runningCompletionIn: .main) { _ in }
+        wait(for: [saved], timeout: Constants.defaultExpectationDuration)
+        let changed = expectation(description: "network selected")
+        ChainAssetListInteractor.persistNetworkFilter(.popular, walletId: wallet.metaId, settings: settings) { result in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertEqual(try? result.get().networkManagmentFilter, "popular")
+            XCTAssertEqual(try? result.get().name, "Renamed while filtering")
+            XCTAssertEqual(try? result.get().chainAccounts, wallet.chainAccounts)
+            changed.fulfill()
+        }
+        wait(for: [changed], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(settings.value?.networkManagmentFilter, "popular")
+        let reopened = SelectedWalletSettings(storageFacade: storage, operationQueue: queue)
+        let loaded = expectation(description: "persisted network")
+        reopened.setup(runningCompletionIn: .main) { result in
+            XCTAssertEqual(try? result.get()?.networkManagmentFilter, "popular")
+            loaded.fulfill()
+        }
+        wait(for: [loaded], timeout: Constants.defaultExpectationDuration)
+        let rejected = expectation(description: "stale wallet rejected")
+        ChainAssetListInteractor.persistNetworkFilter(.all, walletId: "stale", settings: settings) { result in
+            if case .success = result {
+                XCTFail("A wallet that is no longer selected must not change the selected wallet's filter")
+            }
+            rejected.fulfill()
+        }
+        wait(for: [rejected], timeout: Constants.defaultExpectationDuration)
+        XCTAssertEqual(settings.value?.networkManagmentFilter, "popular")
     }
 
     func testStoredSeedAdoptedAccountsPersistAcrossSettingsReload() throws {
@@ -3292,6 +3455,11 @@ private enum StoredSeedAdoptionTestError: Error, Equatable {
 private final class ChainAssetListInteractorInputSpy: ChainAssetListInteractorInput {
     var shouldRunManageAssetAnimate = false
     private(set) var storedSeedAdoptionCalls = 0
+    private(set) var networkSelections: [String] = []
+    func selectNetworkFilter(_ filter: NetworkManagmentFilter, walletId _: String) {
+        networkSelections.append(filter.identifier)
+    }
+
     private(set) var hiddenAssets: [AssetKey] = []
 
     func setup(with _: ChainAssetListInteractorOutput) {}
@@ -3323,6 +3491,11 @@ private final class ChainAssetListInteractorInputSpy: ChainAssetListInteractorIn
 
 private final class ChainAssetListRouterSpy: ChainAssetListRouterInput {
     var fundingOptions: [[PortfolioFundingOption]] = []
+    private(set) var networkPickerWallets: [String] = []
+    func showNetworkPicker(from _: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+        networkPickerWallets.append(wallet.metaId)
+    }
+
     var purchases: [PurchaseAction] = []
     var groupHideViewModels: [SheetAlertPresentableViewModel] = []
     var presentsNativeGroupActions = false

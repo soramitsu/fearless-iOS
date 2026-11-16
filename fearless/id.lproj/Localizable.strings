@@ -1590,3 +1590,13 @@ akan muncul di sini";
 "fw.feedback.sound_effects" = "Efek suara";
 "fw.feedback.haptic_feedback" = "Umpan balik haptik";
 "fw.feedback.tokens_received" = "%@ diterima";
+
+/* One list: search and network filters */
+"portfolio.one_list.search" = "Cari token dan jaringan";
+"portfolio.one_list.all" = "Semua jaringan";
+"portfolio.one_list.popular" = "Populer";
+"portfolio.one_list.favourite" = "Favorit";
+"portfolio.one_list.more" = "Jaringan lainnya";
+"portfolio.one_list.note" = "Semua aset Anda dalam satu daftar. Cari atau pilih jaringan untuk menemukan token.";
+"portfolio.one_list.dismiss" = "Mengerti";
+"portfolio.one_list.search_all" = "Cari di semua jaringan";

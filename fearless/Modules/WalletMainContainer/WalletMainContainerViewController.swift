@@ -73,6 +73,12 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         addChild(rootView.pageViewController)
 
         rootView.pageViewController.setViewControllers([pageControllers[0]], direction: .forward, animated: false)
+        // One list: the balance card folds away while the list's search field has the keyboard.
+        for page in pageControllers {
+            (page as? WalletInlineSearchHosting)?.onInlineSearchActiveChange = { [weak self] active in
+                self?.rootView.setSearchFocused(active, animated: true)
+            }
+        }
     }
 
     private func setupActions() {
@@ -109,7 +115,12 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         output.didTapOnQR()
     }
 
+    /// The asset list's own search field takes the keyboard; another page keeps the search screen.
     @objc private func handleSearchTap() {
+        if let page = rootView.pageViewController.viewControllers?.first as? WalletInlineSearchHosting,
+           page.focusInlineSearch() {
+            return
+        }
         output.didTapSearch()
     }
 

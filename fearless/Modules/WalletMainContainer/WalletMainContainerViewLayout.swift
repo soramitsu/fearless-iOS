@@ -43,6 +43,10 @@ final class WalletMainContainerViewLayout: UIView {
 
     let headerScrollView = UIScrollView()
     private var headerHeightLimit: Constraint?
+    /// One list: while the list's search field has the keyboard, the header shows only its top rows.
+    private var searchFold: Constraint?
+    private(set) var isSearchFocused = false
+    private var appliedSearchFold = false
     private var accessibleNetworkWidth: Constraint?
 
     // MARK: - Navigation view properties
@@ -343,6 +347,71 @@ final class WalletMainContainerViewLayout: UIView {
             make.edges.equalToSuperview()
         }
         placeHeaderAndList()
+        applySearchFold()
+    }
+}
+
+// MARK: - One-list search
+
+extension WalletMainContainerViewLayout {
+    /// While the list's search field has the keyboard, the balance card, the round actions and the segment fold
+    /// away under the top rows so the matches have the page; they come back when the keyboard goes. Side by side
+    /// nothing folds. Under Reduce Motion or Reduced effects the fold happens without movement.
+    func setSearchFocused(_ focused: Bool, animated: Bool) {
+        guard focused != isSearchFocused else { return }
+        isSearchFocused = focused
+        let wasFolded = appliedSearchFold
+        applySearchFold()
+        let folded = appliedSearchFold
+        guard folded != wasFolded else { return }
+        // The views fade with the fold: start from where they were.
+        for view in foldingViews {
+            view.alpha = wasFolded ? 0 : 1
+        }
+        let changes = {
+            for view in self.foldingViews {
+                view.alpha = folded ? 0 : 1
+            }
+            self.layoutIfNeeded()
+        }
+        let style = FWMotionPolicy.current().style(for: .tabChange)
+        guard animated, window != nil, case let .full(duration) = style else {
+            changes()
+            return
+        }
+        UIView.animate(
+            withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0,
+            options: [.beginFromCurrentState, .allowUserInteraction],
+            animations: changes
+        )
+    }
+
+    var isSearchFolded: Bool {
+        isSearchFocused && placement != .split
+    }
+
+    private var foldingViews: [UIView] {
+        [sunlit.heroSurface, sunlit.actionsStack, segmentContainer]
+    }
+
+    private func applySearchFold() {
+        let folded = isSearchFolded
+        if folded {
+            searchFold?.activate()
+            headerScrollView.setContentOffset(.zero, animated: false)
+        } else {
+            searchFold?.deactivate()
+        }
+        headerScrollView.isScrollEnabled = !folded
+        // Only a change of fold touches the folding views, so a launch flight's opacity is never overridden.
+        if appliedSearchFold != folded {
+            appliedSearchFold = folded
+            for view in foldingViews {
+                view.accessibilityElementsHidden = folded
+                view.alpha = folded ? 0 : 1
+            }
+        }
+        setNeedsLayout()
     }
 }
 
@@ -380,6 +449,7 @@ private extension WalletMainContainerViewLayout {
         placement = newPlacement
         placeHeaderAndList()
         updateHeaderScrolling()
+        applySearchFold()
     }
 
     func placeHeaderAndList() {
@@ -391,6 +461,7 @@ private extension WalletMainContainerViewLayout {
                 make.height.equalTo(contentView.snp.height).priority(.high)
                 headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
                     .offset(-Constants.assetViewportMinimum).constraint
+                searchFold = make.height.equalTo(navigationContainerView.snp.height).constraint
             }
             pageViewControllerContainer.snp.remakeConstraints { make in
                 make.top.equalTo(headerScrollView.snp.bottom).offset(8)
@@ -406,6 +477,7 @@ private extension WalletMainContainerViewLayout {
                 make.height.equalTo(contentView.snp.height).priority(.high)
                 headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
                     .offset(-Constants.assetViewportMinimum).constraint
+                searchFold = make.height.equalTo(navigationContainerView.snp.height).constraint
             }
             pageViewControllerContainer.snp.remakeConstraints { make in
                 make.top.equalTo(headerScrollView.snp.bottom).offset(8)
@@ -421,6 +493,8 @@ private extension WalletMainContainerViewLayout {
                 headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
                     .offset(-5).constraint
             }
+            // Side by side, the list has the window's height already.
+            searchFold = nil
             pageViewControllerContainer.snp.remakeConstraints { make in
                 make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
                 make.leading.equalTo(headerScrollView.snp.trailing).offset(Constants.splitSpacing)

@@ -514,6 +514,43 @@ extension ChainAssetListInteractor {
 // MARK: - ChainAssetListInteractorInput
 
 extension ChainAssetListInteractor: ChainAssetListInteractorInput {
+    func selectNetworkFilter(_ filter: NetworkManagmentFilter, walletId: String) {
+        guard wallet.metaId == walletId else { return }
+        Self.persistNetworkFilter(filter, walletId: walletId, settings: walletSettings) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case let .success(saved):
+                self.eventCenter.notify(with: MetaAccountModelChangedEvent(account: saved))
+            case let .failure(error):
+                self.output?.didFailNetworkFilter(error: error)
+            }
+        }
+    }
+
+    /// Saves the network filter onto the selected wallet as it is once queued saves have finished, so a chip
+    /// never writes back an older copy of the wallet over another edit. A wallet that is no longer selected is
+    /// left alone. Completes on the main queue.
+    static func persistNetworkFilter(
+        _ filter: NetworkManagmentFilter,
+        walletId: String,
+        settings: SelectedWalletSettings,
+        completion: @escaping (Result<MetaAccountModel, Error>) -> Void
+    ) {
+        settings.performAfterPendingSaves {
+            guard let current = settings.value, current.metaId == walletId else {
+                DispatchQueue.main.async {
+                    completion(.failure(BaseOperationError.parentOperationCancelled))
+                }
+                return
+            }
+            settings.save(
+                value: current.replacingNetworkManagmentFilter(filter.identifier),
+                runningCompletionIn: .main,
+                completionClosure: completion
+            )
+        }
+    }
+
     var shouldRunManageAssetAnimate: Bool {
         get {
             userDefaultsStorage.shouldRunManageAssetAnimate

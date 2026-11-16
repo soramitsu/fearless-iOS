@@ -15,13 +15,13 @@ final class ChainAssetListViewLayout: UIView {
     var locale: Locale? {
         didSet {
             let locale = locale ?? .current
-            lensControl.setTitle(PortfolioStrings.text("portfolio.lens.tokens", locale: locale), forSegmentAt: 0)
-            lensControl.setTitle(PortfolioStrings.text("portfolio.lens.networks", locale: locale), forSegmentAt: 1)
+            discoveryView.locale = locale
             customOrderLabel.text = PortfolioStrings.text("portfolio.custom_order", locale: locale)
         }
     }
 
-    let lensControl = PortfolioLensControl()
+    /// One list (wallet home): the search field and the network chips above the token rows.
+    let discoveryView = PortfolioDiscoveryView()
 
     let customOrderLabel: UILabel = {
         let label = UILabel()
@@ -263,11 +263,11 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        headerViewContainer.addArrangedSubview(lensControl)
+        headerViewContainer.addArrangedSubview(discoveryView)
         headerViewContainer.addArrangedSubview(customOrderLabel)
-        lensControl.snp.makeConstraints { make in
-            make.width.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.greaterThanOrEqualTo(44)
+        // Full width: the chips scroll under the screen's edges; the field and chips inset themselves like the rows.
+        discoveryView.snp.makeConstraints { make in
+            make.width.equalToSuperview()
         }
         customOrderLabel.snp.makeConstraints { make in
             make.width.equalToSuperview().inset(UIConstants.bigOffset)
