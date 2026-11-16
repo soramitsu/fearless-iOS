@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA38C8F7ECF340BF06F52711 /* CovGAlchemyNFTTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B85D44B5951BBFAB73499A0 /* CovGAlchemyNFTTests.swift */; };
+		B30B8090DDD501DA39D7C877 /* CovGOperationFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FED6B5BEE30615C1459CBA92 /* CovGOperationFixturesTests.swift */; };
 		32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */; };
 		E68D4B36819482799FA4D075 /* shikiban.json in Resources */ = {isa = PBXBuildFile; fileRef = BF4B99F1C37CFF1C42C501F1 /* shikiban.json */; };
 		C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */; };
@@ -3344,6 +3346,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7B85D44B5951BBFAB73499A0 /* CovGAlchemyNFTTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovGAlchemyNFTTests.swift; sourceTree = "<group>"; };
+		FED6B5BEE30615C1459CBA92 /* CovGOperationFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovGOperationFixturesTests.swift; sourceTree = "<group>"; };
 		E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanTests.swift; sourceTree = "<group>"; };
 		BF4B99F1C37CFF1C42C501F1 /* shikiban.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shikiban.json; sourceTree = "<group>"; };
 		F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanDebugSeams.swift; sourceTree = "<group>"; };
@@ -9664,6 +9668,8 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				7B85D44B5951BBFAB73499A0 /* CovGAlchemyNFTTests.swift */,
+				FED6B5BEE30615C1459CBA92 /* CovGOperationFixturesTests.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
 				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
 				1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */,
@@ -19644,6 +19650,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA38C8F7ECF340BF06F52711 /* CovGAlchemyNFTTests.swift in Sources */,
+				B30B8090DDD501DA39D7C877 /* CovGOperationFixturesTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
 				8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */,
