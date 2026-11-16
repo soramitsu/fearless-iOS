@@ -33,10 +33,13 @@ final class BalanceRepositoryCacheWrapper: RepositoryCacheWrapper {
     }
 
     func save(data: T?, identifier: String) throws {
-        lock.concurrentlyRead {
-            guard cache[identifier] != data else {
-                return
-            }
+        // The check has to leave save(); a return inside the read closure only left the closure.
+        let isUnchanged = lock.concurrentlyRead {
+            cache[identifier] == data
+        }
+
+        guard !isUnchanged else {
+            return
         }
 
         let encoded = try encoder.encode(data)
