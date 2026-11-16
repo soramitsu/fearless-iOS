@@ -105,7 +105,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
             make.width.equalToSuperview()
         }
 
-        controller.didMove(toParent: self)
+        balanceInfoViewController.didMove(toParent: self)
     }
 
     private func applyState() {

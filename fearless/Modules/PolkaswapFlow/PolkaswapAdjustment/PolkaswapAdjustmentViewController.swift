@@ -80,7 +80,7 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         }
 
         rootView.addBanners(view)
-        controller.didMove(toParent: self)
+        bannersViewController.didMove(toParent: self)
     }
 
     private func configure() {
