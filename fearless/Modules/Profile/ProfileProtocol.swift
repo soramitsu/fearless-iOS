@@ -45,6 +45,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     )
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
+    func authorizeBiometryEnabling(from view: ProfileViewProtocol?, completion: @escaping (Bool) -> Void)
     func showAbout(from view: ProfileViewProtocol?)
     func logout(from view: ProfileViewProtocol?)
     func showCheckPincode(

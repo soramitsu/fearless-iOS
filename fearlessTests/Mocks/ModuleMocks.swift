@@ -12473,6 +12473,16 @@ class MockProfileWireframeProtocol: ProfileWireframeProtocol, Cuckoo.ProtocolMoc
         )
     }
 
+    func authorizeBiometryEnabling(from p0: ProfileViewProtocol?, completion p1: @escaping (Bool) -> Void) {
+        return cuckoo_manager.call(
+            "authorizeBiometryEnabling(from p0: ProfileViewProtocol?, completion p1: @escaping (Bool) -> Void)",
+            parameters: (p0, p1),
+            escapingParameters: (p0, p1),
+            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
+            defaultCall: __defaultImplStub!.authorizeBiometryEnabling(from: p0, completion: p1)
+        )
+    }
+
     func showAbout(from p0: ProfileViewProtocol?) {
         return cuckoo_manager.call(
             "showAbout(from p0: ProfileViewProtocol?)",
@@ -12631,6 +12641,14 @@ class MockProfileWireframeProtocol: ProfileWireframeProtocol, Cuckoo.ProtocolMoc
                 parameterMatchers: matchers
             ))
         }
+
+        func authorizeBiometryEnabling<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from p0: M1, completion p1: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ProfileViewProtocol?, (Bool) -> Void)> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == (Bool) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, (Bool) -> Void)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self,
+                method: "authorizeBiometryEnabling(from p0: ProfileViewProtocol?, completion p1: @escaping (Bool) -> Void)",
+                parameterMatchers: matchers
+            ))
+        }
         
         func showAbout<M1: Cuckoo.OptionalMatchable>(from p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ProfileViewProtocol?)> where M1.OptionalMatchedType == ProfileViewProtocol {
             let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?)>] = [wrap(matchable: p0) { $0 }]
@@ -12782,6 +12800,17 @@ class MockProfileWireframeProtocol: ProfileWireframeProtocol, Cuckoo.ProtocolMoc
             let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?)>] = [wrap(matchable: p0) { $0 }]
             return cuckoo_manager.verify(
                 "showPincodeChange(from p0: ProfileViewProtocol?)",
+                callMatcher: callMatcher,
+                parameterMatchers: matchers,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        @discardableResult
+        func authorizeBiometryEnabling<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from p0: M1, completion p1: M2) -> Cuckoo.__DoNotUse<(ProfileViewProtocol?, (Bool) -> Void), Void> where M1.OptionalMatchedType == ProfileViewProtocol, M2.MatchedType == (Bool) -> Void {
+            let matchers: [Cuckoo.ParameterMatcher<(ProfileViewProtocol?, (Bool) -> Void)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
+            return cuckoo_manager.verify(
+                "authorizeBiometryEnabling(from p0: ProfileViewProtocol?, completion p1: @escaping (Bool) -> Void)",
                 callMatcher: callMatcher,
                 parameterMatchers: matchers,
                 sourceLocation: sourceLocation
@@ -12951,6 +12980,10 @@ class ProfileWireframeProtocolStub:ProfileWireframeProtocol, @unchecked Sendable
     }
     
     func showPincodeChange(from p0: ProfileViewProtocol?) {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+
+    func authorizeBiometryEnabling(from p0: ProfileViewProtocol?, completion p1: @escaping (Bool) -> Void) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

@@ -123,7 +123,20 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         let option = ProfileOption(rawValue: UInt(index))
         switch option {
         case .biometry:
-            settings.biometryEnabled = isOn
+            guard isOn else {
+                settings.biometryEnabled = false
+                return
+            }
+            // Biometrics stand in for the PIN once on, so turning them on needs the PIN first.
+            wireframe.authorizeBiometryEnabling(from: view) { [weak self] authorized in
+                guard let self = self else { return }
+                if authorized {
+                    self.settings.biometryEnabled = true
+                }
+                self.receiveState()
+            }
+            // The switch shows the stored setting, which stays off until the PIN is confirmed.
+            receiveState()
         case .accountScore:
             settings.accountScoreEnabled = isOn
 

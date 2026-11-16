@@ -962,6 +962,7 @@
 		8467FD4324ED5F46005D486C /* ProfileSectionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD4224ED5F46005D486C /* ProfileSectionTableViewCell.swift */; };
 		8467FD4524ED5F60005D486C /* ProfileSectionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD4424ED5F60005D486C /* ProfileSectionTableViewCell.xib */; };
 		8467FD4C24EEA081005D486C /* ProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD4B24EEA081005D486C /* ProfileTests.swift */; };
+		8EF2A9C7044575ECF0EF1019 /* ProfileBiometryAuthorizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A6C379971C5F8B9160FB0A /* ProfileBiometryAuthorizationTests.swift */; };
 		8467FD5324EFD210005D486C /* UserDataStorageFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5224EFD210005D486C /* UserDataStorageFacade.swift */; };
 		8467FD5524EFD254005D486C /* StorageFacadeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5424EFD254005D486C /* StorageFacadeProtocol.swift */; };
 		8467FD5C24EFDCC9005D486C /* UserDataStorageTestFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */; };
@@ -4308,6 +4309,7 @@
 		8467FD4224ED5F46005D486C /* ProfileSectionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSectionTableViewCell.swift; sourceTree = "<group>"; };
 		8467FD4424ED5F60005D486C /* ProfileSectionTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileSectionTableViewCell.xib; sourceTree = "<group>"; };
 		8467FD4B24EEA081005D486C /* ProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTests.swift; sourceTree = "<group>"; };
+		82A6C379971C5F8B9160FB0A /* ProfileBiometryAuthorizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBiometryAuthorizationTests.swift; sourceTree = "<group>"; };
 		8467FD5224EFD210005D486C /* UserDataStorageFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataStorageFacade.swift; sourceTree = "<group>"; };
 		8467FD5424EFD254005D486C /* StorageFacadeProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageFacadeProtocol.swift; sourceTree = "<group>"; };
 		8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataStorageTestFacade.swift; sourceTree = "<group>"; };
@@ -9327,6 +9329,7 @@
 			isa = PBXGroup;
 			children = (
 				8467FD4B24EEA081005D486C /* ProfileTests.swift */,
+				82A6C379971C5F8B9160FB0A /* ProfileBiometryAuthorizationTests.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -19799,6 +19802,7 @@
 				0A90ED632F74447700F741B6 /* StorageRequestTests.swift in Sources */,
 				A76B05966CE772DD4B822A3C /* AccountCreateTests.swift in Sources */,
 				8467FD4C24EEA081005D486C /* ProfileTests.swift in Sources */,
+				8EF2A9C7044575ECF0EF1019 /* ProfileBiometryAuthorizationTests.swift in Sources */,
 				8432E55124EFDF6100B05B58 /* AccountItemMapperTests.swift in Sources */,
 				847CD46626416D0900E1542F /* SlashesOperationFactoryStub.swift in Sources */,
 				84F4388525DA4F2A00AEDA56 /* NetworkMockManager.swift in Sources */,
