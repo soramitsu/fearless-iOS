@@ -23,7 +23,8 @@ final class AnalyticsStakeViewController:
 
     func reload(viewState: AnalyticsViewState<AnalyticsRewardsViewModel>) {
         self.viewState = viewState
-        rootView.tableView.nsuiIsScrollEnabled = true
+        // Scrolling follows the chart selection alone (didSelectXValue / didUnselect): selecting a value reloads the
+        // view at once, and that reload must keep the table still while the selection is dragged along the chart.
 
         switch viewState {
         case .loading:

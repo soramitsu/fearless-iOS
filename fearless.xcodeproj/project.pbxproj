@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A283AFB3CF976EF1C9A85DDE /* AnalyticsChartSelectionScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFC69AFE7D70A6603682AD0 /* AnalyticsChartSelectionScrollTests.swift */; };
 		29EBAE2FFDBD43A5250DA847 /* LegacyEraStakersFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */; };
 		774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */; };
 		780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */; };
@@ -3367,6 +3368,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4DFC69AFE7D70A6603682AD0 /* AnalyticsChartSelectionScrollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsChartSelectionScrollTests.swift; sourceTree = "<group>"; };
 		B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyEraStakersFetchingTests.swift; sourceTree = "<group>"; };
 		30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncServiceRetryTests.swift; sourceTree = "<group>"; };
 		BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomisJSONDecoderTests.swift; sourceTree = "<group>"; };
@@ -9720,6 +9722,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				4DFC69AFE7D70A6603682AD0 /* AnalyticsChartSelectionScrollTests.swift */,
 				B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */,
 				30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */,
 				BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */,
@@ -19722,6 +19725,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A283AFB3CF976EF1C9A85DDE /* AnalyticsChartSelectionScrollTests.swift in Sources */,
 				29EBAE2FFDBD43A5250DA847 /* LegacyEraStakersFetchingTests.swift in Sources */,
 				774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */,
 				780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */,
