@@ -13,13 +13,13 @@ final class BalanceRepositoryCacheWrapperTests: XCTestCase {
             repository: AnyDataProviderRepository(repository),
             operationManager: InlineOperationManager()
         )
-        let balance = AccountInfo(ethBalance: BigUInt(1_000))
+        let balance = AccountInfo(ethBalance: BigUInt(1000))
 
         try wrapper.save(data: balance, identifier: "eth-balance")
         try wrapper.save(data: balance, identifier: "eth-balance")
         XCTAssertEqual(repository.savedIdentifiers, [["eth-balance"]], "the same balance is not written again")
 
-        try wrapper.save(data: AccountInfo(ethBalance: BigUInt(2_000)), identifier: "eth-balance")
+        try wrapper.save(data: AccountInfo(ethBalance: BigUInt(2000)), identifier: "eth-balance")
         XCTAssertEqual(repository.savedIdentifiers.count, 2, "a changed balance is written")
     }
 }
