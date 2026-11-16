@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A7B99DB6828E23738F7BC0E0 /* CovELeftoverViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40B4C9B7B96C53918983331 /* CovELeftoverViewsTests.swift */; };
 		6DA5AE6C7ABBBF5745479B74 /* CovEDebugSeamsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */; };
 		DC4E2677C3B76B64245D0549 /* CovERowAndSurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */; };
 		9481F841C78400C9A13DF294 /* CovEFeedbackPlayersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */; };
@@ -3372,6 +3373,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D40B4C9B7B96C53918983331 /* CovELeftoverViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovELeftoverViewsTests.swift; sourceTree = "<group>"; };
 		0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEDebugSeamsTests.swift; sourceTree = "<group>"; };
 		79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovERowAndSurfaceTests.swift; sourceTree = "<group>"; };
 		2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEFeedbackPlayersTests.swift; sourceTree = "<group>"; };
@@ -9720,6 +9722,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				D40B4C9B7B96C53918983331 /* CovELeftoverViewsTests.swift */,
 				0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */,
 				79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */,
 				2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */,
@@ -19728,6 +19731,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7B99DB6828E23738F7BC0E0 /* CovELeftoverViewsTests.swift in Sources */,
 				6DA5AE6C7ABBBF5745479B74 /* CovEDebugSeamsTests.swift in Sources */,
 				DC4E2677C3B76B64245D0549 /* CovERowAndSurfaceTests.swift in Sources */,
 				9481F841C78400C9A13DF294 /* CovEFeedbackPlayersTests.swift in Sources */,

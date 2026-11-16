@@ -80,6 +80,38 @@ final class CovEDebugSeamsTests: XCTestCase {
         }
     }
 
+    func testFeelSeamsAnnounceASyntheticArrivalAndShowTheSendSuccessScreen() throws {
+        let (window, root) = try hostMainWindow()
+        defer { close(window, root) }
+        var symbols: [String] = []
+        let observer = NotificationCenter.default.addObserver(
+            forName: FWArrivalAnnouncer.didAnnounce, object: nil, queue: .main
+        ) { note in symbols.append(note.userInfo?["symbol"] as? String ?? "?") }
+        defer { NotificationCenter.default.removeObserver(observer) }
+
+        let canAnnounce = UIApplication.shared.applicationState == .active && !FWLaunchIgnite.isShowing
+        FWFeelDebugSeams.handle(FWFeelDebugSeams.arrival)
+        XCTAssertEqual(symbols, canAnnounce ? ["DOT"] : [], "a known 1.0 growing to 2.5 is an arrival")
+        FWFeelDebugSeams.handle("jp.co.soramitsu.fearless.debug.unknown")
+        XCTAssertNil(root.presentedViewController)
+
+        FWFeelDebugSeams.install()
+        FWFeelDebugSeams.install()
+        CFNotificationCenterPostNotification(
+            CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName(FWFeelDebugSeams.sendSuccess as CFString), nil, nil, true
+        )
+        XCTAssertTrue(
+            CovEHost.spin(until: { root.presentedViewController is AllDoneViewController }, timeout: 10),
+            "the installed seam answers the Darwin notification with the send success screen"
+        )
+
+        let recorder = CovEFeedbackRecorder()
+        let announcer = FWArrivalAnnouncer(feedback: recorder, canAnnounce: { true }, clock: { 100 }, presentBanner: { _ in })
+        DispatchQueue.global().async { announcer.announce(symbol: "KSM", locale: Locale(identifier: "en")) }
+        XCTAssertTrue(CovEHost.spin(until: { symbols.last == "KSM" }), "announcing off the main queue hops back to it")
+        XCTAssertEqual(recorder.patterns, [.receive])
+    }
+
     private func hostMainWindow() throws -> (UIWindow, UIViewController) {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         let window = FearlessWindow(windowScene: scene)
