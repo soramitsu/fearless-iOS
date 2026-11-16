@@ -121,8 +121,7 @@ final class SoraRewardCalculatorService {
 
             quotesOperation.completionBlock = { [weak self, dexId, group] in
                 guard let strongSelf = self else { return }
-                // Quote answers complete concurrently. A barrier on a global queue serialises nothing, so they are
-                // collected on the service's serial queue.
+                // Answers complete concurrently; a barrier on a global queue serialised nothing.
                 strongSelf.syncQueue.sync {
                     do {
                         var result = try quotesOperation.extractNoCancellableResultData()
@@ -220,10 +219,10 @@ final class SoraRewardCalculatorService {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
         syncQueue.async {
-            if let totalStake = self.totalStakeByEra,
-               let rewardPoints = self.rewardPointsByEra,
-               let validatorRewards = self.validatorRewardsByEra {
-                self.deliver(totalStake: totalStake, rewardPoints: rewardPoints, validatorRewards: validatorRewards, to: request)
+            if let stake = self.totalStakeByEra,
+               let points = self.rewardPointsByEra,
+               let rewards = self.validatorRewardsByEra {
+                self.deliver(totalStake: stake, rewardPoints: points, validatorRewards: rewards, to: request)
             } else if let historyError = self.historyError {
                 self.fail(request, with: historyError)
             } else {
@@ -322,89 +321,44 @@ final class SoraRewardCalculatorService {
     }
 
     private func fetchTotalValidatorRewards() {
-        let totalStakeRequest = StakingErasTotalStakeRequest()
-        let rewardPointsRequest = StakingErasRewardPointsRequest()
-        let validatorRewardRequest = StakingErasValidatorRewardRequest()
-
         syncQueue.async {
             self.historyError = nil
         }
 
         Task {
             do {
-                async let totalStake: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(totalStakeRequest, chain: chainAsset.chain)
-                async let rewardPoints: [String: EraRewardPoints]? = try await storageRequestPerformer.performPrefix(rewardPointsRequest, chain: chainAsset.chain)
-                async let validatorRewards: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(validatorRewardRequest, chain: chainAsset.chain)
-
-                let totalStakeValue = try await totalStake
-                let totalStakeByEra = totalStakeValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
-                    var map = partialResult
-
-                    guard let era = EraIndex(key), let value = totalStakeValue?[key]?.value else {
-                        return partialResult
-                    }
-
-                    map[era] = value
-
-                    return map
-                }
-
-                let rewardPointsValue = try await rewardPoints
-                let rewardPointsByEra = rewardPointsValue?.keys.reduce([EraIndex: EraRewardPoints]()) { partialResult, key in
-                    var map = partialResult
-
-                    guard let era = EraIndex(key), let points = rewardPointsValue?[key] else {
-                        return partialResult
-                    }
-
-                    map[era] = points
-
-                    return map
-                }
-
-                let validatorRewardsValue = try await validatorRewards
-                let validatorRewardsByEra = validatorRewardsValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
-                    var map = partialResult
-
-                    guard let era = EraIndex(key), let value = validatorRewardsValue?[key]?.value else {
-                        return partialResult
-                    }
-
-                    map[era] = value
-
-                    return map
-                }
-
-                let fetchedTotalStake = totalStakeByEra.or([:])
-                let fetchedRewardPoints = rewardPointsByEra.or([:])
-                let fetchedValidatorRewards = validatorRewardsByEra.or([:])
-
-                // The history is stored so requests made later are answered too; only the requests already waiting
-                // used to get an answer.
+                let history = try await SoraEraRewardHistory.fetch(storageRequestPerformer, chain: chainAsset.chain)
                 syncQueue.async {
-                    self.totalStakeByEra = fetchedTotalStake
-                    self.rewardPointsByEra = fetchedRewardPoints
-                    self.validatorRewardsByEra = fetchedValidatorRewards
-
-                    self.historyError = nil
-                    self.notifyPendingClosures(
-                        with: fetchedTotalStake,
-                        rewardPoints: fetchedRewardPoints,
-                        validatorRewards: fetchedValidatorRewards
-                    )
+                    self.storeHistory(history)
                 }
             } catch {
                 logger?.error(error.localizedDescription)
-
-                // Waiting and later requests learn that the history could not be read instead of waiting forever.
                 syncQueue.async {
-                    self.historyError = error
-                    let requests = self.pendingRequests
-                    self.pendingRequests = []
-                    requests.forEach { self.fail($0, with: error) }
+                    self.failHistory(error)
                 }
             }
         }
+    }
+
+    /// Keeps the history so requests made later are answered too; only the requests already waiting used to be.
+    private func storeHistory(_ history: SoraEraRewardHistory) {
+        totalStakeByEra = history.totalStakeByEra
+        rewardPointsByEra = history.rewardPointsByEra
+        validatorRewardsByEra = history.validatorRewardsByEra
+        historyError = nil
+        notifyPendingClosures(
+            with: history.totalStakeByEra,
+            rewardPoints: history.rewardPointsByEra,
+            validatorRewards: history.validatorRewardsByEra
+        )
+    }
+
+    /// Waiting and later requests learn that the history could not be read instead of waiting forever.
+    private func failHistory(_ error: Error) {
+        historyError = error
+        let requests = pendingRequests
+        pendingRequests = []
+        requests.forEach { fail($0, with: error) }
     }
 }
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		983E40B47722E5EA4F66F858 /* SoraEraRewardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FD83E50710E8BDDCD4261A /* SoraEraRewardHistory.swift */; };
 		747E9F52BC5104EEB1350957 /* UniversalMediaViewGIFTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A99A19C12F30260361D187B /* UniversalMediaViewGIFTests.swift */; };
 		E5C06ABD869DA843BBBCB82C /* RewardCalculatorFailureDeliveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB71558C4EC1946413D05875 /* RewardCalculatorFailureDeliveryTests.swift */; };
 		46268B075563672A6265E0AA /* IconTitleHeaderViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F782A5C39C3AED49C8E62123 /* IconTitleHeaderViewTests.swift */; };
@@ -3360,6 +3361,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B6FD83E50710E8BDDCD4261A /* SoraEraRewardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraEraRewardHistory.swift; sourceTree = "<group>"; };
 		7A99A19C12F30260361D187B /* UniversalMediaViewGIFTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalMediaViewGIFTests.swift; sourceTree = "<group>"; };
 		AB71558C4EC1946413D05875 /* RewardCalculatorFailureDeliveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorFailureDeliveryTests.swift; sourceTree = "<group>"; };
 		F782A5C39C3AED49C8E62123 /* IconTitleHeaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconTitleHeaderViewTests.swift; sourceTree = "<group>"; };
@@ -11982,6 +11984,7 @@
 		AEF7404C25E6DC6600407D41 /* RewardCalculatorService */ = {
 			isa = PBXGroup;
 			children = (
+				B6FD83E50710E8BDDCD4261A /* SoraEraRewardHistory.swift */,
 				FACD42BA2A5BE91D009975AA /* PortionRewardCalculatorEngine.swift */,
 				FACD42BB2A5BE91D009975AA /* PortionRewardCalculatorService.swift */,
 				67CD40D877E1278172D94916 /* AssetHubRewardCalculatorService.swift */,
@@ -16883,6 +16886,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				983E40B47722E5EA4F66F858 /* SoraEraRewardHistory.swift in Sources */,
 				C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */,
 				0F38ED406EF714A0979D01EC /* FWTransferSeal.swift in Sources */,
 				8A982D23134D2D86960E1C27 /* FWValueTick.swift in Sources */,
