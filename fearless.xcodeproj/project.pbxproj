@@ -7,6 +7,34 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E6AC87AB6FCC4F1FD58854CA /* CovAStakingMiscViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31149CD93EBD6FAB0B327EE /* CovAStakingMiscViewsTests.swift */; };
+		773AF7C1F6DDDE369B84084B /* CovAStakingMainPresenterExtraTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEDC3E2237A045548CE18BE /* CovAStakingMainPresenterExtraTests.swift */; };
+		8F4F8410401B709A297337E6 /* CovANetworkInfoViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD8F9B1664C84D4FE840304A /* CovANetworkInfoViewTests.swift */; };
+		C299AA05C7BC691387DC3952 /* CovAValidatorInfoRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58907A90C36AD2B8EDD56643 /* CovAValidatorInfoRoutingTests.swift */; };
+		5F0B5F3CC1FAC951238EB11C /* CovAStakingMainInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43F6708486F439B46A49EA37 /* CovAStakingMainInteractorTests.swift */; };
+		3774F40ABDA961413EBD0D69 /* CovAStakingMainStateViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D278F0FE8BF077A5C15A0CD0 /* CovAStakingMainStateViewsTests.swift */; };
+		3EC07F10E3398829326FDE8D /* CovAYourValidatorListStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2619C482644E69A590A166 /* CovAYourValidatorListStrategyTests.swift */; };
+		BA56671885602FCD7D08ACD2 /* CovASelectValidatorsConfirmStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC3A30C92D8FE0FFE03C022 /* CovASelectValidatorsConfirmStrategyTests.swift */; };
+		DDC414199361443D218CAF1B /* CovAStakingMainWireframeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B55B7AC43AEB2FFFD801043 /* CovAStakingMainWireframeTests.swift */; };
+		B673D645B441E38819667452 /* CovASelectValidatorsRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490FEBD5F742A8747D597AA8 /* CovASelectValidatorsRoutingTests.swift */; };
+		CBE69E1DFD713DE67EC9D389 /* CovAStakingMainViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A664506F7D3851424B27B82 /* CovAStakingMainViewTests.swift */; };
+		E29033BB3D46EE76F5B9E850 /* CovAStakingMainPresenterFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3E82CB531F55A26164FDEF /* CovAStakingMainPresenterFlowTests.swift */; };
+		8A54FF34EC99385CD2BDC5C0 /* CovAStakingMainPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E42ADFE59BBC5EE8B2B1B62D /* CovAStakingMainPresenterTests.swift */; };
+		98573F040BF11EB3BC9DC2AC /* CovAStakingStateViewModelFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F7BAF5A7DEEFFA8AFA55A7 /* CovAStakingStateViewModelFactoryTests.swift */; };
+		DEF44A065C2B0FACC1F1EA06 /* CovAStakingStateMachineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102D097D71D5A08822FA0967 /* CovAStakingStateMachineTests.swift */; };
+		4EB1D998A71114DFBAE1C35D /* CovAStakingMainFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23ACB284549E90A1195F5AB7 /* CovAStakingMainFixtures.swift */; };
+		05569CA84BA2239EAE5E893A /* CovASelectValidatorsStartTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CC47147F5771DDF48FB0E7B /* CovASelectValidatorsStartTests.swift */; };
+		047B2824E0C0C6AA6200B06C /* CovARecommendedValidatorListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94572157FFD065F50260EA4 /* CovARecommendedValidatorListTests.swift */; };
+		FBC32BEBE6615625837A162D /* CovAValidatorSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5989714FBB61610894E606F5 /* CovAValidatorSearchTests.swift */; };
+		8372ECC9E562E1ECF44DDD6A /* CovASelectedValidatorListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21F87077474E0744591D0DB /* CovASelectedValidatorListTests.swift */; };
+		456C7AC6EA00C33569583EE2 /* CovAValidatorListFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6C132E9A323832CCA7F725 /* CovAValidatorListFilterTests.swift */; };
+		1CD1F89D45AF0C738ECD6E2C /* CovACustomValidatorListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6A15205911CD2FD6F9B442 /* CovACustomValidatorListTests.swift */; };
+		F2D90B44C062C61CEACFABF2 /* CovAYourValidatorListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BFE3B25D76FD9C9F76AACA /* CovAYourValidatorListTests.swift */; };
+		6F2A4BA0A196E70EF33F6A18 /* CovASelectValidatorsConfirmPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADDF207D3C4BCEED2F529E9 /* CovASelectValidatorsConfirmPresenterTests.swift */; };
+		0A2DB8A5AA4FE617E447FAAC /* CovASelectValidatorsConfirmStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D844423E774B8A57779FF29 /* CovASelectValidatorsConfirmStateTests.swift */; };
+		28A93A72F502D2C1564C156E /* CovAValidatorInfoPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B6CABE613D23C7059E02D1 /* CovAValidatorInfoPresenterTests.swift */; };
+		5DBC2425B4E98AB40D0874F7 /* CovAValidatorInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409F106F56516648A04715AC /* CovAValidatorInfoTests.swift */; };
+		1CFFBB1B7EBB0B6C3B936C9B /* CovAStakingFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 632A424138AB57FCB86066BF /* CovAStakingFixtures.swift */; };
 		32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */; };
 		E68D4B36819482799FA4D075 /* shikiban.json in Resources */ = {isa = PBXBuildFile; fileRef = BF4B99F1C37CFF1C42C501F1 /* shikiban.json */; };
 		C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */; };
@@ -3344,6 +3372,34 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F31149CD93EBD6FAB0B327EE /* CovAStakingMiscViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMiscViewsTests.swift; sourceTree = "<group>"; };
+		CDEDC3E2237A045548CE18BE /* CovAStakingMainPresenterExtraTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMainPresenterExtraTests.swift; sourceTree = "<group>"; };
+		FD8F9B1664C84D4FE840304A /* CovANetworkInfoViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovANetworkInfoViewTests.swift; sourceTree = "<group>"; };
+		58907A90C36AD2B8EDD56643 /* CovAValidatorInfoRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAValidatorInfoRoutingTests.swift; sourceTree = "<group>"; };
+		43F6708486F439B46A49EA37 /* CovAStakingMainInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMainInteractorTests.swift; sourceTree = "<group>"; };
+		D278F0FE8BF077A5C15A0CD0 /* CovAStakingMainStateViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMainStateViewsTests.swift; sourceTree = "<group>"; };
+		AF2619C482644E69A590A166 /* CovAYourValidatorListStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAYourValidatorListStrategyTests.swift; sourceTree = "<group>"; };
+		8CC3A30C92D8FE0FFE03C022 /* CovASelectValidatorsConfirmStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovASelectValidatorsConfirmStrategyTests.swift; sourceTree = "<group>"; };
+		4B55B7AC43AEB2FFFD801043 /* CovAStakingMainWireframeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMainWireframeTests.swift; sourceTree = "<group>"; };
+		490FEBD5F742A8747D597AA8 /* CovASelectValidatorsRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovASelectValidatorsRoutingTests.swift; sourceTree = "<group>"; };
+		4A664506F7D3851424B27B82 /* CovAStakingMainViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMainViewTests.swift; sourceTree = "<group>"; };
+		FE3E82CB531F55A26164FDEF /* CovAStakingMainPresenterFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMainPresenterFlowTests.swift; sourceTree = "<group>"; };
+		E42ADFE59BBC5EE8B2B1B62D /* CovAStakingMainPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMainPresenterTests.swift; sourceTree = "<group>"; };
+		60F7BAF5A7DEEFFA8AFA55A7 /* CovAStakingStateViewModelFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingStateViewModelFactoryTests.swift; sourceTree = "<group>"; };
+		102D097D71D5A08822FA0967 /* CovAStakingStateMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingStateMachineTests.swift; sourceTree = "<group>"; };
+		23ACB284549E90A1195F5AB7 /* CovAStakingMainFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingMainFixtures.swift; sourceTree = "<group>"; };
+		7CC47147F5771DDF48FB0E7B /* CovASelectValidatorsStartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovASelectValidatorsStartTests.swift; sourceTree = "<group>"; };
+		B94572157FFD065F50260EA4 /* CovARecommendedValidatorListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovARecommendedValidatorListTests.swift; sourceTree = "<group>"; };
+		5989714FBB61610894E606F5 /* CovAValidatorSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAValidatorSearchTests.swift; sourceTree = "<group>"; };
+		F21F87077474E0744591D0DB /* CovASelectedValidatorListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovASelectedValidatorListTests.swift; sourceTree = "<group>"; };
+		8F6C132E9A323832CCA7F725 /* CovAValidatorListFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAValidatorListFilterTests.swift; sourceTree = "<group>"; };
+		3D6A15205911CD2FD6F9B442 /* CovACustomValidatorListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovACustomValidatorListTests.swift; sourceTree = "<group>"; };
+		E0BFE3B25D76FD9C9F76AACA /* CovAYourValidatorListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAYourValidatorListTests.swift; sourceTree = "<group>"; };
+		FADDF207D3C4BCEED2F529E9 /* CovASelectValidatorsConfirmPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovASelectValidatorsConfirmPresenterTests.swift; sourceTree = "<group>"; };
+		4D844423E774B8A57779FF29 /* CovASelectValidatorsConfirmStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovASelectValidatorsConfirmStateTests.swift; sourceTree = "<group>"; };
+		F6B6CABE613D23C7059E02D1 /* CovAValidatorInfoPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAValidatorInfoPresenterTests.swift; sourceTree = "<group>"; };
+		409F106F56516648A04715AC /* CovAValidatorInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAValidatorInfoTests.swift; sourceTree = "<group>"; };
+		632A424138AB57FCB86066BF /* CovAStakingFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAStakingFixtures.swift; sourceTree = "<group>"; };
 		E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanTests.swift; sourceTree = "<group>"; };
 		BF4B99F1C37CFF1C42C501F1 /* shikiban.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shikiban.json; sourceTree = "<group>"; };
 		F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanDebugSeams.swift; sourceTree = "<group>"; };
@@ -9664,6 +9720,34 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				F31149CD93EBD6FAB0B327EE /* CovAStakingMiscViewsTests.swift */,
+				CDEDC3E2237A045548CE18BE /* CovAStakingMainPresenterExtraTests.swift */,
+				FD8F9B1664C84D4FE840304A /* CovANetworkInfoViewTests.swift */,
+				58907A90C36AD2B8EDD56643 /* CovAValidatorInfoRoutingTests.swift */,
+				43F6708486F439B46A49EA37 /* CovAStakingMainInteractorTests.swift */,
+				D278F0FE8BF077A5C15A0CD0 /* CovAStakingMainStateViewsTests.swift */,
+				AF2619C482644E69A590A166 /* CovAYourValidatorListStrategyTests.swift */,
+				8CC3A30C92D8FE0FFE03C022 /* CovASelectValidatorsConfirmStrategyTests.swift */,
+				4B55B7AC43AEB2FFFD801043 /* CovAStakingMainWireframeTests.swift */,
+				490FEBD5F742A8747D597AA8 /* CovASelectValidatorsRoutingTests.swift */,
+				4A664506F7D3851424B27B82 /* CovAStakingMainViewTests.swift */,
+				FE3E82CB531F55A26164FDEF /* CovAStakingMainPresenterFlowTests.swift */,
+				E42ADFE59BBC5EE8B2B1B62D /* CovAStakingMainPresenterTests.swift */,
+				60F7BAF5A7DEEFFA8AFA55A7 /* CovAStakingStateViewModelFactoryTests.swift */,
+				102D097D71D5A08822FA0967 /* CovAStakingStateMachineTests.swift */,
+				23ACB284549E90A1195F5AB7 /* CovAStakingMainFixtures.swift */,
+				7CC47147F5771DDF48FB0E7B /* CovASelectValidatorsStartTests.swift */,
+				B94572157FFD065F50260EA4 /* CovARecommendedValidatorListTests.swift */,
+				5989714FBB61610894E606F5 /* CovAValidatorSearchTests.swift */,
+				F21F87077474E0744591D0DB /* CovASelectedValidatorListTests.swift */,
+				8F6C132E9A323832CCA7F725 /* CovAValidatorListFilterTests.swift */,
+				3D6A15205911CD2FD6F9B442 /* CovACustomValidatorListTests.swift */,
+				E0BFE3B25D76FD9C9F76AACA /* CovAYourValidatorListTests.swift */,
+				FADDF207D3C4BCEED2F529E9 /* CovASelectValidatorsConfirmPresenterTests.swift */,
+				4D844423E774B8A57779FF29 /* CovASelectValidatorsConfirmStateTests.swift */,
+				F6B6CABE613D23C7059E02D1 /* CovAValidatorInfoPresenterTests.swift */,
+				409F106F56516648A04715AC /* CovAValidatorInfoTests.swift */,
+				632A424138AB57FCB86066BF /* CovAStakingFixtures.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
 				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
 				1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */,
@@ -19644,6 +19728,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E6AC87AB6FCC4F1FD58854CA /* CovAStakingMiscViewsTests.swift in Sources */,
+				773AF7C1F6DDDE369B84084B /* CovAStakingMainPresenterExtraTests.swift in Sources */,
+				8F4F8410401B709A297337E6 /* CovANetworkInfoViewTests.swift in Sources */,
+				C299AA05C7BC691387DC3952 /* CovAValidatorInfoRoutingTests.swift in Sources */,
+				5F0B5F3CC1FAC951238EB11C /* CovAStakingMainInteractorTests.swift in Sources */,
+				3774F40ABDA961413EBD0D69 /* CovAStakingMainStateViewsTests.swift in Sources */,
+				3EC07F10E3398829326FDE8D /* CovAYourValidatorListStrategyTests.swift in Sources */,
+				BA56671885602FCD7D08ACD2 /* CovASelectValidatorsConfirmStrategyTests.swift in Sources */,
+				DDC414199361443D218CAF1B /* CovAStakingMainWireframeTests.swift in Sources */,
+				B673D645B441E38819667452 /* CovASelectValidatorsRoutingTests.swift in Sources */,
+				CBE69E1DFD713DE67EC9D389 /* CovAStakingMainViewTests.swift in Sources */,
+				E29033BB3D46EE76F5B9E850 /* CovAStakingMainPresenterFlowTests.swift in Sources */,
+				8A54FF34EC99385CD2BDC5C0 /* CovAStakingMainPresenterTests.swift in Sources */,
+				98573F040BF11EB3BC9DC2AC /* CovAStakingStateViewModelFactoryTests.swift in Sources */,
+				DEF44A065C2B0FACC1F1EA06 /* CovAStakingStateMachineTests.swift in Sources */,
+				4EB1D998A71114DFBAE1C35D /* CovAStakingMainFixtures.swift in Sources */,
+				05569CA84BA2239EAE5E893A /* CovASelectValidatorsStartTests.swift in Sources */,
+				047B2824E0C0C6AA6200B06C /* CovARecommendedValidatorListTests.swift in Sources */,
+				FBC32BEBE6615625837A162D /* CovAValidatorSearchTests.swift in Sources */,
+				8372ECC9E562E1ECF44DDD6A /* CovASelectedValidatorListTests.swift in Sources */,
+				456C7AC6EA00C33569583EE2 /* CovAValidatorListFilterTests.swift in Sources */,
+				1CD1F89D45AF0C738ECD6E2C /* CovACustomValidatorListTests.swift in Sources */,
+				F2D90B44C062C61CEACFABF2 /* CovAYourValidatorListTests.swift in Sources */,
+				6F2A4BA0A196E70EF33F6A18 /* CovASelectValidatorsConfirmPresenterTests.swift in Sources */,
+				0A2DB8A5AA4FE617E447FAAC /* CovASelectValidatorsConfirmStateTests.swift in Sources */,
+				28A93A72F502D2C1564C156E /* CovAValidatorInfoPresenterTests.swift in Sources */,
+				5DBC2425B4E98AB40D0874F7 /* CovAValidatorInfoTests.swift in Sources */,
+				1CFFBB1B7EBB0B6C3B936C9B /* CovAStakingFixtures.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
 				8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */,
