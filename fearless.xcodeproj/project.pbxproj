@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FE9AC5C8C70157AB6D6B3D2D /* CovDSigningServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 352A472EC890EB811A17599A /* CovDSigningServiceTests.swift */; };
 		B1F4B4F21D51B54287659833 /* CovDPoolListControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFFFCBF3F30CB8E367A5F0E6 /* CovDPoolListControlsTests.swift */; };
 		BAF2BA358776D3F81B70F4FE /* CovDPolkamarktShareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03D9BCE778349B3ABC3D8D2 /* CovDPolkamarktShareTests.swift */; };
 		4FF98BD352C0BC8D3D6D3604 /* CovDAdjustmentControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E6640B72080602ED346497 /* CovDAdjustmentControlsTests.swift */; };
@@ -3383,6 +3384,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		352A472EC890EB811A17599A /* CovDSigningServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDSigningServiceTests.swift; sourceTree = "<group>"; };
 		CFFFCBF3F30CB8E367A5F0E6 /* CovDPoolListControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPoolListControlsTests.swift; sourceTree = "<group>"; };
 		E03D9BCE778349B3ABC3D8D2 /* CovDPolkamarktShareTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkamarktShareTests.swift; sourceTree = "<group>"; };
 		21E6640B72080602ED346497 /* CovDAdjustmentControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDAdjustmentControlsTests.swift; sourceTree = "<group>"; };
@@ -9742,6 +9744,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				352A472EC890EB811A17599A /* CovDSigningServiceTests.swift */,
 				CFFFCBF3F30CB8E367A5F0E6 /* CovDPoolListControlsTests.swift */,
 				E03D9BCE778349B3ABC3D8D2 /* CovDPolkamarktShareTests.swift */,
 				21E6640B72080602ED346497 /* CovDAdjustmentControlsTests.swift */,
@@ -19761,6 +19764,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE9AC5C8C70157AB6D6B3D2D /* CovDSigningServiceTests.swift in Sources */,
 				B1F4B4F21D51B54287659833 /* CovDPoolListControlsTests.swift in Sources */,
 				BAF2BA358776D3F81B70F4FE /* CovDPolkamarktShareTests.swift in Sources */,
 				4FF98BD352C0BC8D3D6D3604 /* CovDAdjustmentControlsTests.swift in Sources */,
