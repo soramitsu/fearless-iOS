@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4EE6FCA29FDE725465E93BC0 /* CovFRemoteSubscriptionRequestsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5311825CBB77E907CD2E386 /* CovFRemoteSubscriptionRequestsTests.swift */; };
+		75B074DA122625E84E818895 /* CovFPayoutMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1B0F2794E755718EECD75A /* CovFPayoutMappingTests.swift */; };
+		782C8725AE7E1079699D181B /* CovFDeprecatedAccountsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEAC42553E6E7799A0531646 /* CovFDeprecatedAccountsTests.swift */; };
+		FC85C9733B76C1EF611A70D3 /* CovFPayoutRewardsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0F3BDB7CE5D452A562353E /* CovFPayoutRewardsTests.swift */; };
+		05D61DFAE82070E0A35D1475 /* CovFStorageFixtureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F03320DF33C58CBDD617E98 /* CovFStorageFixtureTests.swift */; };
+		CCF4DBD5E6450676421BFFD5 /* CovFAccountInfoFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB48D13149B87E53DD42628B /* CovFAccountInfoFetchingTests.swift */; };
+		C8D85EF502A936CE98F3B55C /* CovFServiceFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D420BA8AEF84A6077C3D2F14 /* CovFServiceFixturesTests.swift */; };
 		32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */; };
 		E68D4B36819482799FA4D075 /* shikiban.json in Resources */ = {isa = PBXBuildFile; fileRef = BF4B99F1C37CFF1C42C501F1 /* shikiban.json */; };
 		C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */; };
@@ -3344,6 +3351,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A5311825CBB77E907CD2E386 /* CovFRemoteSubscriptionRequestsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFRemoteSubscriptionRequestsTests.swift; sourceTree = "<group>"; };
+		FB1B0F2794E755718EECD75A /* CovFPayoutMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFPayoutMappingTests.swift; sourceTree = "<group>"; };
+		CEAC42553E6E7799A0531646 /* CovFDeprecatedAccountsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFDeprecatedAccountsTests.swift; sourceTree = "<group>"; };
+		DE0F3BDB7CE5D452A562353E /* CovFPayoutRewardsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFPayoutRewardsTests.swift; sourceTree = "<group>"; };
+		8F03320DF33C58CBDD617E98 /* CovFStorageFixtureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFStorageFixtureTests.swift; sourceTree = "<group>"; };
+		EB48D13149B87E53DD42628B /* CovFAccountInfoFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFAccountInfoFetchingTests.swift; sourceTree = "<group>"; };
+		D420BA8AEF84A6077C3D2F14 /* CovFServiceFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFServiceFixturesTests.swift; sourceTree = "<group>"; };
 		E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanTests.swift; sourceTree = "<group>"; };
 		BF4B99F1C37CFF1C42C501F1 /* shikiban.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shikiban.json; sourceTree = "<group>"; };
 		F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanDebugSeams.swift; sourceTree = "<group>"; };
@@ -9664,6 +9678,13 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				A5311825CBB77E907CD2E386 /* CovFRemoteSubscriptionRequestsTests.swift */,
+				FB1B0F2794E755718EECD75A /* CovFPayoutMappingTests.swift */,
+				CEAC42553E6E7799A0531646 /* CovFDeprecatedAccountsTests.swift */,
+				DE0F3BDB7CE5D452A562353E /* CovFPayoutRewardsTests.swift */,
+				8F03320DF33C58CBDD617E98 /* CovFStorageFixtureTests.swift */,
+				EB48D13149B87E53DD42628B /* CovFAccountInfoFetchingTests.swift */,
+				D420BA8AEF84A6077C3D2F14 /* CovFServiceFixturesTests.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
 				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
 				1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */,
@@ -19644,6 +19665,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4EE6FCA29FDE725465E93BC0 /* CovFRemoteSubscriptionRequestsTests.swift in Sources */,
+				75B074DA122625E84E818895 /* CovFPayoutMappingTests.swift in Sources */,
+				782C8725AE7E1079699D181B /* CovFDeprecatedAccountsTests.swift in Sources */,
+				FC85C9733B76C1EF611A70D3 /* CovFPayoutRewardsTests.swift in Sources */,
+				05D61DFAE82070E0A35D1475 /* CovFStorageFixtureTests.swift in Sources */,
+				CCF4DBD5E6450676421BFFD5 /* CovFAccountInfoFetchingTests.swift in Sources */,
+				C8D85EF502A936CE98F3B55C /* CovFServiceFixturesTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
 				8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */,
