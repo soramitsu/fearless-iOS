@@ -218,10 +218,14 @@ final class SoraRewardCalculatorService {
     ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
-        if let totalStake = totalStakeByEra, let rewardPoints = rewardPointsByEra, let validatorRewards = validatorRewardsByEra {
-            deliver(totalStake: totalStake, rewardPoints: rewardPoints, validatorRewards: validatorRewards, to: request)
-        } else {
-            pendingRequests.append(request)
+        syncQueue.async {
+            if let totalStake = self.totalStakeByEra,
+               let rewardPoints = self.rewardPointsByEra,
+               let validatorRewards = self.validatorRewardsByEra {
+                self.deliver(totalStake: totalStake, rewardPoints: rewardPoints, validatorRewards: validatorRewards, to: request)
+            } else {
+                self.pendingRequests.append(request)
+            }
         }
     }
 
@@ -355,11 +359,23 @@ final class SoraRewardCalculatorService {
                     return map
                 }
 
-                notifyPendingClosures(
-                    with: totalStakeByEra.or([:]),
-                    rewardPoints: rewardPointsByEra.or([:]),
-                    validatorRewards: validatorRewardsByEra.or([:])
-                )
+                let fetchedTotalStake = totalStakeByEra.or([:])
+                let fetchedRewardPoints = rewardPointsByEra.or([:])
+                let fetchedValidatorRewards = validatorRewardsByEra.or([:])
+
+                // The history is stored so requests made later are answered too; only the requests already waiting
+                // used to get an answer.
+                syncQueue.async {
+                    self.totalStakeByEra = fetchedTotalStake
+                    self.rewardPointsByEra = fetchedRewardPoints
+                    self.validatorRewardsByEra = fetchedValidatorRewards
+
+                    self.notifyPendingClosures(
+                        with: fetchedTotalStake,
+                        rewardPoints: fetchedRewardPoints,
+                        validatorRewards: fetchedValidatorRewards
+                    )
+                }
             } catch {
                 logger?.error(error.localizedDescription)
             }

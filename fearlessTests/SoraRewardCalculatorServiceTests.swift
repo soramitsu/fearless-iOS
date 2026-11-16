@@ -22,6 +22,29 @@ final class SoraRewardCalculatorServiceTests: XCTestCase {
             XCTAssertEqual(engine.rewardAssetRate, 64, "the best quote sets the reward token rate")
         }
     }
+
+    /// The service answered only the requests that were already waiting when the era history arrived; it never
+    /// kept the history, so every later request waited forever.
+    func testRequestsMadeAfterTheEraHistoryArrivedAreAnswered() throws {
+        let fixture = try SoraRewardServiceFixture(dexCount: 2)
+        let first = try fixture.fetchEngine(setupAfterRequest: true)
+        XCTAssertEqual(first.rewardAssetRate, 2)
+
+        let later = try fixture.fetchEngine(setupAfterRequest: false, timeout: 10)
+        let again = try fixture.fetchEngine(setupAfterRequest: false, timeout: 10)
+
+        XCTAssertEqual(later.rewardAssetRate, 2)
+        XCTAssertEqual(again.rewardAssetRate, 2)
+        XCTAssertEqual(
+            try later.calculateEarnings(
+                amount: 1, validatorAccountId: SoraRewardServiceFixture.validatorA, isCompound: false, period: .day
+            ),
+            try first.calculateEarnings(
+                amount: 1, validatorAccountId: SoraRewardServiceFixture.validatorA, isCompound: false, period: .day
+            ),
+            "a later request gets an engine built from the same history"
+        )
+    }
 }
 
 // MARK: - Fixture
