@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1E4203E5AF551C53C340CDA3 /* CrowdloanLeaseAmountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE347B66A6CB6AE38673A53C /* CrowdloanLeaseAmountTests.swift */; };
 		6756272ADE105B6E97676280 /* NetworkInfoFailedEditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5275901D249C2E76BFD04339 /* NetworkInfoFailedEditTests.swift */; };
 		079C02629293516CF7E6EFF5 /* AddCustomNodeDuplicateCheckOrderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62584086EB6043ECCBA6D6B /* AddCustomNodeDuplicateCheckOrderTests.swift */; };
 		87DB6D3CE7611C0A579D2665 /* MutedNetworkIssuesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */; };
@@ -3819,6 +3820,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FE347B66A6CB6AE38673A53C /* CrowdloanLeaseAmountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanLeaseAmountTests.swift; sourceTree = "<group>"; };
 		5275901D249C2E76BFD04339 /* NetworkInfoFailedEditTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInfoFailedEditTests.swift; sourceTree = "<group>"; };
 		B62584086EB6043ECCBA6D6B /* AddCustomNodeDuplicateCheckOrderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeDuplicateCheckOrderTests.swift; sourceTree = "<group>"; };
 		E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutedNetworkIssuesTests.swift; sourceTree = "<group>"; };
@@ -10624,6 +10626,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				FE347B66A6CB6AE38673A53C /* CrowdloanLeaseAmountTests.swift */,
 				5275901D249C2E76BFD04339 /* NetworkInfoFailedEditTests.swift */,
 				B62584086EB6043ECCBA6D6B /* AddCustomNodeDuplicateCheckOrderTests.swift */,
 				E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */,
@@ -21550,6 +21553,7 @@
 				87DB6D3CE7611C0A579D2665 /* MutedNetworkIssuesTests.swift in Sources */,
 				079C02629293516CF7E6EFF5 /* AddCustomNodeDuplicateCheckOrderTests.swift in Sources */,
 				6756272ADE105B6E97676280 /* NetworkInfoFailedEditTests.swift in Sources */,
+				1E4203E5AF551C53C340CDA3 /* CrowdloanLeaseAmountTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,

@@ -202,7 +202,7 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
                 let leasedAmount = leasedAmountList
                     .compactMap { $0 }
                     .filter { $0.accountId == fundAccountId }
-                    .max { $0.amount > $1.amount }?
+                    .max { $0.amount < $1.amount }?
                     .amount
 
                 return ParachainLeaseInfo(
