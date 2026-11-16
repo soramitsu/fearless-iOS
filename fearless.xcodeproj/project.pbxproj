@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		87DB6D3CE7611C0A579D2665 /* MutedNetworkIssuesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */; };
 		D25C7F20C6B74BA2F470ABBC /* AddressChainDefinerCompletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ECC6F75BA0C54B2B4650312 /* AddressChainDefinerCompletionTests.swift */; };
 		DC944AFAFEA8A384A544AA11 /* WalletDetailsMarkUnusedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2244B939A841C448C98341 /* WalletDetailsMarkUnusedTests.swift */; };
 		B93A7FF0A60035FBB3896A9F /* ChainAccountBuyPickerSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC921036A78E85F23FA61FA /* ChainAccountBuyPickerSelectionTests.swift */; };
@@ -3816,6 +3817,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutedNetworkIssuesTests.swift; sourceTree = "<group>"; };
 		5ECC6F75BA0C54B2B4650312 /* AddressChainDefinerCompletionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressChainDefinerCompletionTests.swift; sourceTree = "<group>"; };
 		9E2244B939A841C448C98341 /* WalletDetailsMarkUnusedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsMarkUnusedTests.swift; sourceTree = "<group>"; };
 		2DC921036A78E85F23FA61FA /* ChainAccountBuyPickerSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountBuyPickerSelectionTests.swift; sourceTree = "<group>"; };
@@ -10618,6 +10620,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				E79573CB97A4EAB395E3689B /* MutedNetworkIssuesTests.swift */,
 				5ECC6F75BA0C54B2B4650312 /* AddressChainDefinerCompletionTests.swift */,
 				9E2244B939A841C448C98341 /* WalletDetailsMarkUnusedTests.swift */,
 				2DC921036A78E85F23FA61FA /* ChainAccountBuyPickerSelectionTests.swift */,
@@ -21538,6 +21541,7 @@
 				B93A7FF0A60035FBB3896A9F /* ChainAccountBuyPickerSelectionTests.swift in Sources */,
 				DC944AFAFEA8A384A544AA11 /* WalletDetailsMarkUnusedTests.swift in Sources */,
 				D25C7F20C6B74BA2F470ABBC /* AddressChainDefinerCompletionTests.swift in Sources */,
+				87DB6D3CE7611C0A579D2665 /* MutedNetworkIssuesTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,

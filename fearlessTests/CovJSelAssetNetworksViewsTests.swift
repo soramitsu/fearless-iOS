@@ -224,7 +224,8 @@ final class CovJSelAssetNetworksViewsTests: XCTestCase {
         let accountId = try XCTUnwrap(wallet.substrateAccountId)
         interactor.handleAccountInfo(result: .success(nil), accountId: accountId, chainAsset: source)
         XCTAssertEqual(output.accountInfos.first?.1, source)
-        XCTAssertTrue(output.settings.isEmpty)
+        XCTAssertTrue(CovJWait.until { output.settings.count == 2 }, "the muted networks are read with every issues update")
+        XCTAssertEqual(output.settings.last, [])
     }
 
     func testInteractorPublishesNoAssetsWhenFetchingFails() {

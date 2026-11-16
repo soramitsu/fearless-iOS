@@ -52,7 +52,10 @@ final class CovHAssetListInteractorTests: XCTestCase {
         let first = try XCTUnwrap(harness.output.chainAssetResults.first)
         XCTAssertEqual(try first.get().count, 0)
         XCTAssertEqual(harness.output.accountInfoDeliveries, 1)
-        XCTAssertEqual(Array(harness.output.events.filter { $0 != "issues" }.prefix(2)), ["chainAssets", "accountInfos"])
+        XCTAssertEqual(
+            Array(harness.output.events.filter { $0 != "issues" && $0 != "chainSettings" }.prefix(2)),
+            ["chainAssets", "accountInfos"]
+        )
     }
 
     func testReloadBeforeTheCatalogOnlyAnnouncesTheRefresh() {
