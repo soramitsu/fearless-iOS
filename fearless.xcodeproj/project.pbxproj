@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0CB3AF11F86FD9EF0646CA6D /* CovDSettingsInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F71CA5937BB7ECF72A7AC4B6 /* CovDSettingsInputTests.swift */; };
+		781FAC34CBF8AB800734924E /* CovDCrossChainRootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96C160D09EC346EC357718 /* CovDCrossChainRootTests.swift */; };
+		DDB8E242C08E96C34F1D81AF /* CovDTransportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */; };
+		4A9005F4C2BF8C0EB36F59D0 /* CovDAdjustmentFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F007037898EFAFBFF349D8 /* CovDAdjustmentFlowTests.swift */; };
+		C53D43B6A646F3A91AF23799 /* CovDRoutersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1738AED1E5534160444AD5 /* CovDRoutersTests.swift */; };
+		6107BB961770994B137E76D8 /* CovDSubmissionBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB24D86AC356FBE32F78AA09 /* CovDSubmissionBoundaryTests.swift */; };
 		4822064AEF49751CA530A918 /* CovDTabWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */; };
 		554B4CE02259D660A7AD1C31 /* CovDExecutionAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435839A713E6A26BB0CABF3A /* CovDExecutionAdapterTests.swift */; };
 		0D0186588F76E3F43A28EA7B /* CovDInputControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360B06618AC4F4E6740D5524 /* CovDInputControlsTests.swift */; };
@@ -3372,6 +3378,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F71CA5937BB7ECF72A7AC4B6 /* CovDSettingsInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDSettingsInputTests.swift; sourceTree = "<group>"; };
+		EB96C160D09EC346EC357718 /* CovDCrossChainRootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDCrossChainRootTests.swift; sourceTree = "<group>"; };
+		310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDTransportTests.swift; sourceTree = "<group>"; };
+		16F007037898EFAFBFF349D8 /* CovDAdjustmentFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDAdjustmentFlowTests.swift; sourceTree = "<group>"; };
+		0E1738AED1E5534160444AD5 /* CovDRoutersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDRoutersTests.swift; sourceTree = "<group>"; };
+		EB24D86AC356FBE32F78AA09 /* CovDSubmissionBoundaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDSubmissionBoundaryTests.swift; sourceTree = "<group>"; };
 		99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDTabWorkflowTests.swift; sourceTree = "<group>"; };
 		435839A713E6A26BB0CABF3A /* CovDExecutionAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDExecutionAdapterTests.swift; sourceTree = "<group>"; };
 		360B06618AC4F4E6740D5524 /* CovDInputControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDInputControlsTests.swift; sourceTree = "<group>"; };
@@ -9720,6 +9732,12 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				F71CA5937BB7ECF72A7AC4B6 /* CovDSettingsInputTests.swift */,
+				EB96C160D09EC346EC357718 /* CovDCrossChainRootTests.swift */,
+				310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */,
+				16F007037898EFAFBFF349D8 /* CovDAdjustmentFlowTests.swift */,
+				0E1738AED1E5534160444AD5 /* CovDRoutersTests.swift */,
+				EB24D86AC356FBE32F78AA09 /* CovDSubmissionBoundaryTests.swift */,
 				99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */,
 				435839A713E6A26BB0CABF3A /* CovDExecutionAdapterTests.swift */,
 				360B06618AC4F4E6740D5524 /* CovDInputControlsTests.swift */,
@@ -19728,6 +19746,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0CB3AF11F86FD9EF0646CA6D /* CovDSettingsInputTests.swift in Sources */,
+				781FAC34CBF8AB800734924E /* CovDCrossChainRootTests.swift in Sources */,
+				DDB8E242C08E96C34F1D81AF /* CovDTransportTests.swift in Sources */,
+				4A9005F4C2BF8C0EB36F59D0 /* CovDAdjustmentFlowTests.swift in Sources */,
+				C53D43B6A646F3A91AF23799 /* CovDRoutersTests.swift in Sources */,
+				6107BB961770994B137E76D8 /* CovDSubmissionBoundaryTests.swift in Sources */,
 				4822064AEF49751CA530A918 /* CovDTabWorkflowTests.swift in Sources */,
 				554B4CE02259D660A7AD1C31 /* CovDExecutionAdapterTests.swift in Sources */,
 				0D0186588F76E3F43A28EA7B /* CovDInputControlsTests.swift in Sources */,
