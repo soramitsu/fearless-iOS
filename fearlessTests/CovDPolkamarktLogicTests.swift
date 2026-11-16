@@ -34,7 +34,20 @@ final class CovDPolkamarktDecodingTests: XCTestCase {
     func testMarketStateFillsDefaultsForMissingValues() throws {
         let full = try decode(
             PolkamarktMarketState.self,
-            #"{"marketId": "9", "mechanism": "DPM", "virtualDepth": 10, "realYesShares": "11", "realNoShares": 12, "dpmCollateral": "13", "marginalYesPriceBps": 5000, "marginalNoPriceBps": 5000, "impliedYesProbabilityBps": 6400, "impliedNoProbabilityBps": "3600"}"#
+            #"""
+            {
+              "marketId": "9",
+              "mechanism": "DPM",
+              "virtualDepth": 10,
+              "realYesShares": "11",
+              "realNoShares": 12,
+              "dpmCollateral": "13",
+              "marginalYesPriceBps": 5000,
+              "marginalNoPriceBps": 5000,
+              "impliedYesProbabilityBps": 6400,
+              "impliedNoProbabilityBps": "3600"
+            }
+            """#
         )
         XCTAssertEqual(full.marketId, "9")
         XCTAssertEqual(full.virtualDepth, "10")
@@ -77,7 +90,21 @@ final class CovDPolkamarktDecodingTests: XCTestCase {
     func testClaimableUsesClaimablePayoutBeforeTraderPayout() throws {
         let withClaimable = try decode(
             PolkamarktClaimable.self,
-            #"{"marketId": 4, "account": "cnA", "status": "Resolved", "resolutionOutcome": "Yes", "yesShares": 3, "noShares": "0", "netCollateralPaid": "5", "traderPayout": "6", "claimablePayout": 7, "creatorFees": "8", "isCreator": true}"#
+            #"""
+            {
+              "marketId": 4,
+              "account": "cnA",
+              "status": "Resolved",
+              "resolutionOutcome": "Yes",
+              "yesShares": 3,
+              "noShares": "0",
+              "netCollateralPaid": "5",
+              "traderPayout": "6",
+              "claimablePayout": 7,
+              "creatorFees": "8",
+              "isCreator": true
+            }
+            """#
         )
         XCTAssertEqual(withClaimable.effectiveTraderPayout, "7")
         XCTAssertTrue(withClaimable.isCreator)
@@ -95,7 +122,20 @@ final class CovDPolkamarktDecodingTests: XCTestCase {
     func testHistoryPositionAndTradeDecode() throws {
         let point = try decode(
             PolkamarktHistoryPoint.self,
-            #"{"id": "h1", "marketId": 2, "timestamp": "1700", "blockHeight": 99, "probability": "0.4", "priceYes": "0.4", "priceNo": "0.6", "liquidityUSD": 10, "volumeUSD": "20", "status": "Open"}"#
+            #"""
+            {
+              "id": "h1",
+              "marketId": 2,
+              "timestamp": "1700",
+              "blockHeight": 99,
+              "probability": "0.4",
+              "priceYes": "0.4",
+              "priceNo": "0.6",
+              "liquidityUSD": 10,
+              "volumeUSD": "20",
+              "status": "Open"
+            }
+            """#
         )
         XCTAssertEqual(point.blockHeight, "99")
         XCTAssertEqual(point.liquidityUSD, "10")
@@ -138,7 +178,24 @@ final class CovDPolkamarktDecodingTests: XCTestCase {
 
         let explicit = try decode(
             PolkamarktMarketNode.self,
-            #"{"id": "n2", "marketId": 5, "conditionId": 6, "creator": "cnC", "title": "Sun?", "description": "D", "category": "Weather", "closeBlock": 100, "liquidityUSD": "7", "volumeUSD": 8, "probability": "0.9", "priceYes": "0.1", "status": "Open", "mechanism": "DPM"}"#
+            #"""
+            {
+              "id": "n2",
+              "marketId": 5,
+              "conditionId": 6,
+              "creator": "cnC",
+              "title": "Sun?",
+              "description": "D",
+              "category": "Weather",
+              "closeBlock": 100,
+              "liquidityUSD": "7",
+              "volumeUSD": 8,
+              "probability": "0.9",
+              "priceYes": "0.1",
+              "status": "Open",
+              "mechanism": "DPM"
+            }
+            """#
         )
         let explicitMarket = try XCTUnwrap(explicit.market)
         XCTAssertEqual(explicitMarket.marketId, "5")

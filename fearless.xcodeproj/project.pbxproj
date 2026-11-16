@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4822064AEF49751CA530A918 /* CovDTabWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */; };
+		554B4CE02259D660A7AD1C31 /* CovDExecutionAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435839A713E6A26BB0CABF3A /* CovDExecutionAdapterTests.swift */; };
+		0D0186588F76E3F43A28EA7B /* CovDInputControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360B06618AC4F4E6740D5524 /* CovDInputControlsTests.swift */; };
+		7DA8350C69F18EAF511E9470 /* CovDAdjustmentInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4398BC89D3CFC6F93CD4D1D /* CovDAdjustmentInteractorTests.swift */; };
+		436B2CF945194281807C9248 /* CovDDemeterRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B865D37DF18B0C474CA3E292 /* CovDDemeterRuntimeTests.swift */; };
+		D49F47A55861CCDF80E6E582 /* CovDAssemblyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536D9CED119257C5F0DC2224 /* CovDAssemblyTests.swift */; };
+		DF674E2D0EA08C9782B83937 /* CovDPoolOverviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B4671A9E46415FB543A338 /* CovDPoolOverviewTests.swift */; };
+		F9A122299C74418ED7323909 /* CovDPoolListInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F97B3CCC5CF2DE55CF91702 /* CovDPoolListInteractorTests.swift */; };
+		43BA6F647AE934FEB22FE7E3 /* CovDPoolInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84483A5B01491405B5D9430E /* CovDPoolInteractorTests.swift */; };
+		67ABCEA39D5BEFF757318AE7 /* CovDPoolServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2214A2D77B41E290C021BF6A /* CovDPoolServiceTests.swift */; };
 		E7A677D74747840C7FFE39FC /* CovDPolkaswapSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB79DC93CD0FF11F085319D /* CovDPolkaswapSettingsTests.swift */; };
 		2633190E0C86F0B4E0A911B5 /* CovDPolkaswapConfirmationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3780D461D98BFA6A917768BC /* CovDPolkaswapConfirmationTests.swift */; };
 		71C96532D1790F226C043BF7 /* CovDPolkaswapAdjustmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D14F15FCB53AC9104EA5D97 /* CovDPolkaswapAdjustmentTests.swift */; };
@@ -3362,6 +3372,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDTabWorkflowTests.swift; sourceTree = "<group>"; };
+		435839A713E6A26BB0CABF3A /* CovDExecutionAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDExecutionAdapterTests.swift; sourceTree = "<group>"; };
+		360B06618AC4F4E6740D5524 /* CovDInputControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDInputControlsTests.swift; sourceTree = "<group>"; };
+		D4398BC89D3CFC6F93CD4D1D /* CovDAdjustmentInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDAdjustmentInteractorTests.swift; sourceTree = "<group>"; };
+		B865D37DF18B0C474CA3E292 /* CovDDemeterRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDDemeterRuntimeTests.swift; sourceTree = "<group>"; };
+		536D9CED119257C5F0DC2224 /* CovDAssemblyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDAssemblyTests.swift; sourceTree = "<group>"; };
+		B3B4671A9E46415FB543A338 /* CovDPoolOverviewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPoolOverviewTests.swift; sourceTree = "<group>"; };
+		7F97B3CCC5CF2DE55CF91702 /* CovDPoolListInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPoolListInteractorTests.swift; sourceTree = "<group>"; };
+		84483A5B01491405B5D9430E /* CovDPoolInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPoolInteractorTests.swift; sourceTree = "<group>"; };
+		2214A2D77B41E290C021BF6A /* CovDPoolServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPoolServiceTests.swift; sourceTree = "<group>"; };
 		5DB79DC93CD0FF11F085319D /* CovDPolkaswapSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkaswapSettingsTests.swift; sourceTree = "<group>"; };
 		3780D461D98BFA6A917768BC /* CovDPolkaswapConfirmationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkaswapConfirmationTests.swift; sourceTree = "<group>"; };
 		3D14F15FCB53AC9104EA5D97 /* CovDPolkaswapAdjustmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkaswapAdjustmentTests.swift; sourceTree = "<group>"; };
@@ -9700,6 +9720,16 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */,
+				435839A713E6A26BB0CABF3A /* CovDExecutionAdapterTests.swift */,
+				360B06618AC4F4E6740D5524 /* CovDInputControlsTests.swift */,
+				D4398BC89D3CFC6F93CD4D1D /* CovDAdjustmentInteractorTests.swift */,
+				B865D37DF18B0C474CA3E292 /* CovDDemeterRuntimeTests.swift */,
+				536D9CED119257C5F0DC2224 /* CovDAssemblyTests.swift */,
+				B3B4671A9E46415FB543A338 /* CovDPoolOverviewTests.swift */,
+				7F97B3CCC5CF2DE55CF91702 /* CovDPoolListInteractorTests.swift */,
+				84483A5B01491405B5D9430E /* CovDPoolInteractorTests.swift */,
+				2214A2D77B41E290C021BF6A /* CovDPoolServiceTests.swift */,
 				5DB79DC93CD0FF11F085319D /* CovDPolkaswapSettingsTests.swift */,
 				3780D461D98BFA6A917768BC /* CovDPolkaswapConfirmationTests.swift */,
 				3D14F15FCB53AC9104EA5D97 /* CovDPolkaswapAdjustmentTests.swift */,
@@ -19698,6 +19728,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4822064AEF49751CA530A918 /* CovDTabWorkflowTests.swift in Sources */,
+				554B4CE02259D660A7AD1C31 /* CovDExecutionAdapterTests.swift in Sources */,
+				0D0186588F76E3F43A28EA7B /* CovDInputControlsTests.swift in Sources */,
+				7DA8350C69F18EAF511E9470 /* CovDAdjustmentInteractorTests.swift in Sources */,
+				436B2CF945194281807C9248 /* CovDDemeterRuntimeTests.swift in Sources */,
+				D49F47A55861CCDF80E6E582 /* CovDAssemblyTests.swift in Sources */,
+				DF674E2D0EA08C9782B83937 /* CovDPoolOverviewTests.swift in Sources */,
+				F9A122299C74418ED7323909 /* CovDPoolListInteractorTests.swift in Sources */,
+				43BA6F647AE934FEB22FE7E3 /* CovDPoolInteractorTests.swift in Sources */,
+				67ABCEA39D5BEFF757318AE7 /* CovDPoolServiceTests.swift in Sources */,
 				E7A677D74747840C7FFE39FC /* CovDPolkaswapSettingsTests.swift in Sources */,
 				2633190E0C86F0B4E0A911B5 /* CovDPolkaswapConfirmationTests.swift in Sources */,
 				71C96532D1790F226C043BF7 /* CovDPolkaswapAdjustmentTests.swift in Sources */,

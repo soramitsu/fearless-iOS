@@ -106,6 +106,7 @@ enum CovDFixtures {
 
     @discardableResult
     static func host(_ controller: UIViewController, size: CGSize = CGSize(width: 390, height: 844)) throws -> UIWindow {
+        spin(timeout: 10) { UIApplication.shared.connectedScenes.contains { $0 is UIWindowScene } }
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         let window = UIWindow(windowScene: scene)
         window.frame = CGRect(origin: .zero, size: size)
@@ -193,6 +194,10 @@ final class CovDRoutingTransport: PolkamarktHTTPTransport, @unchecked Sendable {
     }
 
     func post(_ body: Data, to _: URL) async throws -> Data {
+        try response(to: body)
+    }
+
+    private func response(to body: Data) throws -> Data {
         let object = try JSONSerialization.jsonObject(with: body) as? [String: Any] ?? [:]
         lock.lock()
         defer { lock.unlock() }
