@@ -17,20 +17,12 @@ protocol NetworkIssuesCenterProtocol {
 final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
     static let shared = NetworkIssuesCenter(eventCenter: EventCenter.shared)
 
+    // Listeners are added while screens are built and notified from the event
+    // queue, so the list and the set are only touched under this lock. Listeners
+    // are called after it is released: one may add or remove a listener in reply.
+    private let lock = NSLock()
     private var issuesListeners: [WeakWrapper] = []
-
-    private var _chainsWithIssues: Set<ChainModel> = []
-    private var chainsWithIssues: Set<ChainModel> {
-        get {
-            _chainsWithIssues
-        }
-        set(newValue) {
-            if newValue != _chainsWithIssues {
-                _chainsWithIssues = newValue
-                notify()
-            }
-        }
-    }
+    private var chainsWithIssues: Set<ChainModel> = []
 
     private let eventCenter: EventCenter
 
@@ -45,16 +37,19 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
         _ listener: NetworkIssuesCenterListener,
         getExisting: Bool
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        issuesListeners.append(weakListener)
+        lock.lock()
+        issuesListeners.append(WeakWrapper(target: listener))
+        let chains = Array(chainsWithIssues)
+        lock.unlock()
 
-        guard getExisting, _chainsWithIssues.isNotEmpty else { return }
-        let chains = Array(_chainsWithIssues)
-        (weakListener.target as? NetworkIssuesCenterListener)?.handleChainsWithIssues(chains)
+        guard getExisting, chains.isNotEmpty else { return }
+        listener.handleChainsWithIssues(chains)
     }
 
     func removeIssuesListener(_ listener: NetworkIssuesCenterListener) {
+        lock.lock()
         issuesListeners = issuesListeners.filter { $0.target !== listener }
+        lock.unlock()
     }
 
     func forceNotify() {
@@ -65,35 +60,37 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
 
     private func handle(event: ChainReconnectingEvent) {
         let chain = event.chain
-        let state = event.state
 
-        switch state {
+        lock.lock()
+        var updated = chainsWithIssues
+
+        switch event.state {
         case .connected:
-            if chainsWithIssues.contains(chain) {
-                chainsWithIssues.remove(chain)
-            }
+            updated.remove(chain)
         case .notConnected, .notReachable:
-            if !chainsWithIssues.contains(where: { $0.chainId == chain.chainId }) {
-                chainsWithIssues.insert(chain)
+            if !updated.contains(where: { $0.chainId == chain.chainId }) {
+                updated.insert(chain)
             }
         default:
             break
         }
-    }
 
-    private func updateIssues(with attempt: Int, for chain: ChainModel) {
-        if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
-            if !chainsWithIssues.contains(where: { $0.chainId == chain.chainId }) {
-                chainsWithIssues.insert(chain)
-            }
-        } else {
-            chainsWithIssues.remove(chain)
+        let changed = updated != chainsWithIssues
+        chainsWithIssues = updated
+        lock.unlock()
+
+        if changed {
+            notify()
         }
     }
 
     private func notify() {
-        let chains = Array(_chainsWithIssues)
-        issuesListeners.forEach {
+        lock.lock()
+        let chains = Array(chainsWithIssues)
+        let listeners = issuesListeners
+        lock.unlock()
+
+        listeners.forEach {
             ($0.target as? NetworkIssuesCenterListener)?.handleChainsWithIssues(chains)
         }
     }
