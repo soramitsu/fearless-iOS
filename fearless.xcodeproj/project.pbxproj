@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		44F8ADBD79F2295B6F50AC7D /* NftCollectionPagingRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A46DAD9C8D88E6A96559DE6 /* NftCollectionPagingRetryTests.swift */; };
 		9DD14768DAC95DFC80240C80 /* CovJWcSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */; };
 		20D8350C2E99704812808C54 /* CovJWcSubstrateCallTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */; };
 		EFD8C6A1101FC9EF081174F5 /* CovJWcSessionViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */; };
@@ -3811,6 +3812,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5A46DAD9C8D88E6A96559DE6 /* NftCollectionPagingRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCollectionPagingRetryTests.swift; sourceTree = "<group>"; };
 		95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSupportTests.swift; sourceTree = "<group>"; };
 		D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSubstrateCallTextTests.swift; sourceTree = "<group>"; };
 		09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSessionViewsTests.swift; sourceTree = "<group>"; };
@@ -10608,6 +10610,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				5A46DAD9C8D88E6A96559DE6 /* NftCollectionPagingRetryTests.swift */,
 				95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */,
 				D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */,
 				09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */,
@@ -21518,6 +21521,7 @@
 				093821858F35303F070B6E0B /* SoraRewardCalculatorServiceTests.swift in Sources */,
 				953214F23AFBB9354E017DFF /* WalletConnectActiveSessionsSelectionTests.swift in Sources */,
 				9E8CB6EE4904A5A3D7745860 /* WalletTransactionHistoryPeerNameTests.swift in Sources */,
+				44F8ADBD79F2295B6F50AC7D /* NftCollectionPagingRetryTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
