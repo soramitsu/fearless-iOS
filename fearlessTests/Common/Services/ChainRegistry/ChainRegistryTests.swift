@@ -1778,10 +1778,10 @@ private final class RecordingEventCenter: EventCenterProtocol {
 /// Parks the creation of one chain's connection, which keeps the registry inside its chain update.
 private final class BlockingConnectionFactory: ConnectionFactoryProtocol {
     private let blockedConnectionName: String
-    private let blocked = DispatchSemaphore(value: 0)
     private let gate = DispatchSemaphore(value: 0)
     private let lock = NSLock()
     private var connections: [MockConnection] = []
+    private var isBlocked = false
     private var isReleased = false
 
     init(blockedConnectionName: String) {
@@ -1794,7 +1794,9 @@ private final class BlockingConnectionFactory: ConnectionFactoryProtocol {
         delegate _: WebSocketEngineDelegate
     ) throws -> ChainConnection {
         if connectionName == blockedConnectionName {
-            blocked.signal()
+            lock.lock()
+            isBlocked = true
+            lock.unlock()
             _ = gate.wait(timeout: .now() + 30)
         }
 
@@ -1810,7 +1812,23 @@ private final class BlockingConnectionFactory: ConnectionFactoryProtocol {
     }
 
     func waitUntilBlocked(timeout: TimeInterval = 10) -> Bool {
-        blocked.wait(timeout: .now() + timeout) == .success
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while true {
+            lock.lock()
+            let blocked = isBlocked
+            lock.unlock()
+
+            if blocked {
+                return true
+            }
+
+            guard Date() < deadline else {
+                return false
+            }
+
+            RunLoop.current.run(until: Date().addingTimeInterval(0.01))
+        }
     }
 
     func release() {
