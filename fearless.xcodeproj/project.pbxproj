@@ -449,6 +449,9 @@
 		047B2824E0C0C6AA6200B06C /* CovARecommendedValidatorListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94572157FFD065F50260EA4 /* CovARecommendedValidatorListTests.swift */; };
 		8F4F8410401B709A297337E6 /* CovANetworkInfoViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD8F9B1664C84D4FE840304A /* CovANetworkInfoViewTests.swift */; };
 		1CD1F89D45AF0C738ECD6E2C /* CovACustomValidatorListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6A15205911CD2FD6F9B442 /* CovACustomValidatorListTests.swift */; };
+		01676811F90C8862E5BCCF15 /* SendCardGlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707DD6040DEEAF736A000497 /* SendCardGlowTests.swift */; };
+		A283AFB3CF976EF1C9A85DDE /* AnalyticsChartSelectionScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFC69AFE7D70A6603682AD0 /* AnalyticsChartSelectionScrollTests.swift */; };
+		29EBAE2FFDBD43A5250DA847 /* LegacyEraStakersFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */; };
 		774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */; };
 		780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */; };
 		5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */; };
@@ -4250,6 +4253,9 @@
 		B94572157FFD065F50260EA4 /* CovARecommendedValidatorListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovARecommendedValidatorListTests.swift; sourceTree = "<group>"; };
 		FD8F9B1664C84D4FE840304A /* CovANetworkInfoViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovANetworkInfoViewTests.swift; sourceTree = "<group>"; };
 		3D6A15205911CD2FD6F9B442 /* CovACustomValidatorListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovACustomValidatorListTests.swift; sourceTree = "<group>"; };
+		707DD6040DEEAF736A000497 /* SendCardGlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCardGlowTests.swift; sourceTree = "<group>"; };
+		4DFC69AFE7D70A6603682AD0 /* AnalyticsChartSelectionScrollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsChartSelectionScrollTests.swift; sourceTree = "<group>"; };
+		B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyEraStakersFetchingTests.swift; sourceTree = "<group>"; };
 		30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncServiceRetryTests.swift; sourceTree = "<group>"; };
 		BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomisJSONDecoderTests.swift; sourceTree = "<group>"; };
 		0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteSubscriptionDetachTests.swift; sourceTree = "<group>"; };
@@ -11044,6 +11050,9 @@
 				B94572157FFD065F50260EA4 /* CovARecommendedValidatorListTests.swift */,
 				FD8F9B1664C84D4FE840304A /* CovANetworkInfoViewTests.swift */,
 				3D6A15205911CD2FD6F9B442 /* CovACustomValidatorListTests.swift */,
+				707DD6040DEEAF736A000497 /* SendCardGlowTests.swift */,
+				4DFC69AFE7D70A6603682AD0 /* AnalyticsChartSelectionScrollTests.swift */,
+				B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */,
 				30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */,
 				BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */,
 				0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */,
@@ -21487,6 +21496,9 @@
 				047B2824E0C0C6AA6200B06C /* CovARecommendedValidatorListTests.swift in Sources */,
 				8F4F8410401B709A297337E6 /* CovANetworkInfoViewTests.swift in Sources */,
 				1CD1F89D45AF0C738ECD6E2C /* CovACustomValidatorListTests.swift in Sources */,
+				01676811F90C8862E5BCCF15 /* SendCardGlowTests.swift in Sources */,
+				A283AFB3CF976EF1C9A85DDE /* AnalyticsChartSelectionScrollTests.swift in Sources */,
+				29EBAE2FFDBD43A5250DA847 /* LegacyEraStakersFetchingTests.swift in Sources */,
 				774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */,
 				780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */,
 				5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */,

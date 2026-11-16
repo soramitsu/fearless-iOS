@@ -3424,7 +3424,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v13/chains.json",
       "upstreamSha256": "79a583f08f71139a31e00c825c746891cef50c04aa81318aaa492807757b9cec",
-      "ownedSha256": "dfd74369af4ca71df676c540fce588086c07069dfb9f5655b0e1280720b4b9f8"
+      "ownedSha256": "0b29946aaae9602656a8aab7fbcf1b5cd1b4422225fc661bc88ec7ec2ad3d90e"
     },
     {
       "path": "production/chains/v2/chains.json",
@@ -7725,6 +7725,14 @@
       "changes": [
         "Remove the earlier of two chain types entries for the retired SORA Kusama parachain (chainId 6d8d9f145c2177fa83512492cdd80a71e29f22473f4a8943a6292149ac319fb9): runtime_id 1, with numeric type ids. ChainsTypesSyncService, SnapshotHotBootBuilder and the SSF ChainsTypesSyncService keep the last entry of a repeated chainId, so builds use the runtime_id 14 entry that shared-features-utils 8791e434 appended in January 2025; it stays unchanged, and the types map the app builds is the same as before",
         "Remove the repeated Manta Pacific Mainnet (169), Enjin Relaychain (d8761d3c88f26dc12875c00d3165f7d67243d56fc85b4cf19937601a7916e5a9) and Liberland (6bd89e052d67a45bb60a9a23e8581053d5e0d619f15cb9865946937e690c42d6) entries from the bundled fallback chain list. The Manta Pacific and Enjin copies were identical. The Liberland copy removed listed only LLD and no XCM; the copy kept lists LLD, LLM and XOR with the SORA route, as the production and development lists do. The order now matches the development list. ChainSyncService would refuse the whole fallback list for these repeats if fetchLocalData were enabled. No other entry changed"
+      ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json"
+      ],
+      "changes": [
+        "Add Dwellir's wss://liberland-rpc.n.dwellir.com as Liberland's second node, after wss://mainnet.liberland.org, so Liberland no longer depends on one node. On 2026-11-16 it returned Liberland's genesis 6bd89e052d67a45bb60a9a23e8581053d5e0d619f15cb9865946937e690c42d6, was not syncing, had 10 peers and accepted the WebSocket upgrade. Only Liberland's node list changes"
       ]
     }
   ]

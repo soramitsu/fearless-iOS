@@ -74,6 +74,17 @@ open class TriangularedView: ShadowShapeView {
         didSet { applyLayerStyle() }
     }
 
+    /// Kit v3 design pass: the card's lit rim (`FWLitRimLayer`, as on the balance card, the tab bar and the receive QR
+    /// well), gold on the upper left fading through pink, with an inner top highlight. It sits inside the shape, so a
+    /// clipping scroll view cannot cut it. High contrast keeps its solid stroke instead.
+    var fwLitRim = false {
+        didSet {
+            guard fwLitRim != oldValue else { return }
+            applyLitRim()
+        }
+    }
+
+    private(set) var litRimLayer: FWLitRimLayer?
     private var surfacePainter: FWSurfacePainter?
     private var effectsObservation: NSObjectProtocol?
     private var paintedHighlight: Bool?
@@ -115,6 +126,7 @@ open class TriangularedView: ShadowShapeView {
     override open func layoutSubviews() {
         super.layoutSubviews()
         surfacePainter?.layout(path: shapePath, bounds: bounds)
+        layoutLitRim()
     }
 
     override open func applyLayerStyle() {
@@ -133,6 +145,7 @@ open class TriangularedView: ShadowShapeView {
     }
 
     private func applySunlitPaint() {
+        applyLitRim()
         guard let layer = layer as? CAShapeLayer else { return }
         guard let elevation = resolvedElevation else {
             surfacePainter?.layers.forEach { $0.isHidden = true }
@@ -162,6 +175,31 @@ open class TriangularedView: ShadowShapeView {
             reduced: effects.paintReduced(),
             highContrast: effects.highContrast || traitCollection.accessibilityContrast == .high
         ), duration: duration)
+    }
+
+    private func applyLitRim() {
+        guard fwLitRim else {
+            litRimLayer?.removeFromSuperlayer()
+            litRimLayer = nil
+            return
+        }
+        let rim = litRimLayer ?? FWLitRimLayer()
+        if rim.superlayer == nil {
+            // Over the surface's own paint, under the content views above this background.
+            layer.addSublayer(rim)
+        }
+        litRimLayer = rim
+        rim.isHidden = FWEffects.shared.highContrast || traitCollection.accessibilityContrast == .high
+        layoutLitRim()
+    }
+
+    private func layoutLitRim() {
+        guard let rim = litRimLayer else { return }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        rim.cornerRadiusValue = resolvedCornerRadius
+        rim.frame = bounds
+        CATransaction.commit()
     }
 
     private func makePainter() -> FWSurfacePainter {

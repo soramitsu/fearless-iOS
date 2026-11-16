@@ -146,6 +146,7 @@ final class SendViewLayout: UIView {
         FWSunlitBackgroundView.install(in: self)
 
         setupLayout()
+        applyCardGlow()
         if FWAppearance.sendPresentationRestyled { setupAdaptiveLayout() }
         if #available(iOS 17.0, *) {
             registerForTraitChanges(
@@ -214,6 +215,14 @@ final class SendViewLayout: UIView {
 }
 
 private extension SendViewLayout {
+    /// Kit v3 design pass: the recipient, amount and network cards wear the lit rim, as the web and Android send
+    /// screens' cards do. The rim lies inside each card, so the scroll view cannot clip it.
+    func applyCardGlow() {
+        searchView.backgroundView.fwLitRim = true
+        amountView.triangularedBackgroundView.fwLitRim = true
+        selectNetworkView.triangularedBackgroundView?.fwLitRim = true
+    }
+
     func setupAdaptiveLayout() {
         bottomContainer.removeFromSuperview()
         contentView.stackView.addArrangedSubview(bottomContainer)

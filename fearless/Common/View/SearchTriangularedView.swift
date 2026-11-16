@@ -36,7 +36,7 @@ final class SearchTriangularedView: UIView {
         }
     }
 
-    private let backgroundView: TriangularedView = {
+    let backgroundView: TriangularedView = {
         let view = TriangularedView()
         view.fillColor = R.color.colorSemiBlack()!
         view.highlightedFillColor = R.color.colorSemiBlack()!

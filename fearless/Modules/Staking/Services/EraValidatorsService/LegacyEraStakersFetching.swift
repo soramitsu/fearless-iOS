@@ -16,9 +16,16 @@ extension EraValidatorService {
         prefs: [StorageResponse<ValidatorPrefs>],
         completion: @escaping ((EraStakersInfo) -> Void)
     ) {
+        // A validator with an exposure in this era but no Staking.Validators entry (one that chilled after the
+        // election) reads back as the storage default, 0% commission. The paged path lists stored prefs only and
+        // leaves such validators out, and so does this one: only prefs the node returned data for count.
         let keyedPrefs = prefs.reduce(into: [Data: ValidatorPrefs]()) { result, item in
+            guard item.data != nil, let value = item.value else {
+                return
+            }
+
             let accountId = item.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght)
-            result[accountId] = item.value
+            result[accountId] = value
         }
 
         let validators: [EraValidatorInfo] = exposures.compactMap { item in
