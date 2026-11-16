@@ -3006,6 +3006,82 @@ final class ChainAssetListTests: XCTestCase {
         XCTAssertNil(retained.first { $0.0 == unread }?.1)
     }
 
+    /// The home list showed SOL 0 while the total and the asset screen showed 0.00105664 SOL: the list's refresh
+    /// waited for every network's scan, and a Bitcoin scan whose indexer requests kept timing out never ended.
+    @MainActor
+    func testListRefreshGivesEachNetworksBalancesAsItsScanEndsWhileAnotherNetworkIsStillScanning() async {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let bitcoin = makeChain(name: "Bitcoin", chainId: "slow-bitcoin-\(UUID().uuidString.lowercased())")
+        let btc = makeChainAsset(chain: bitcoin, id: "BTC", symbol: "BTC", isUtility: true, isNative: true)
+        let solana = makeChain(name: "Solana", chainId: "fast-solana-\(UUID().uuidString.lowercased())")
+        let sol = makeChainAsset(chain: solana, id: "SOL", symbol: "SOL", isUtility: true, isNative: true)
+        let remote = HeldNetworkRemoteStub(
+            answers: [
+                bitcoin.chainId: [btc.chainAssetId: AccountInfo(ethBalance: BigUInt(50001))],
+                solana.chainId: [sol.chainAssetId: AccountInfo(ethBalance: BigUInt(1_056_640))]
+            ],
+            held: [bitcoin.chainId]
+        )
+        var deliveries: [[ChainAsset: AccountInfo?]] = []
+        let solanaShown = expectation(description: "SOL reaches the list while Bitcoin is still scanning")
+        let refresh = Task { @MainActor in
+            await ChainAssetListInteractor.refreshRemoteAccountInfos(
+                for: [bitcoin, solana],
+                wallet: wallet,
+                service: remote
+            ) { results in
+                XCTAssertTrue(Thread.isMainThread)
+                deliveries.append(Dictionary(results, uniquingKeysWith: { first, _ in first }))
+                if results.contains(where: { $0.0 == sol }) {
+                    solanaShown.fulfill()
+                }
+            }
+        }
+
+        await fulfillment(of: [solanaShown], timeout: 10)
+        XCTAssertEqual(deliveries.count, 1, "Only the network that answered has been given to the list")
+        XCTAssertEqual((deliveries.first?[sol] ?? nil)?.data.free, BigUInt(1_056_640))
+        XCTAssertNil(deliveries.first?[btc] ?? nil)
+
+        remote.release(bitcoin.chainId)
+        await refresh.value
+        XCTAssertEqual(deliveries.count, 2, "The slow network's balances follow when its own scan ends")
+        XCTAssertEqual((deliveries.last?[btc] ?? nil)?.data.free, BigUInt(50001))
+        XCTAssertFalse(NetworkScanStateStore.state(for: solana, walletId: wallet.metaId).hasError)
+        XCTAssertFalse(NetworkScanStateStore.state(for: bitcoin, walletId: wallet.metaId).hasError)
+    }
+
+    /// Bitcoin, Solana and Iroha balances never live in the local account storage, so the list does not subscribe to
+    /// it for them: its empty answer would replace a balance their scan had already given (a pull to refresh
+    /// subscribes again after the local read, which can end after a Solana scan). Every other network keeps its
+    /// subscription.
+    func testListSubscribesToLocalBalancesOnlyForNetworksThatKeepThemThere() {
+        let remoteOnly = [
+            UniversalWalletRegistry.solanaMainnet.chainId,
+            UniversalWalletRegistry.solanaMainnet.id,
+            UniversalWalletRegistry.bitcoinMainnet.chainId,
+            UniversalWalletRegistry.bitcoinTestnet.chainId,
+            UniversalWalletRegistry.taira.chainId,
+            UniversalWalletRegistry.nexus.chainId
+        ]
+        for chainId in remoteOnly {
+            XCTAssertFalse(
+                ChainAssetListInteractor.keepsBalancesInLocalStorage(makeChain(name: "Remote", chainId: chainId)),
+                chainId
+            )
+        }
+
+        let stored = [
+            makeChain(name: "TON", chainId: TonChainSelection.mainnetChainId),
+            makeChain(name: "TON", chainId: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId),
+            makeChain(name: "Polkadot", chainId: "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"),
+            makeChain(name: "Ethereum", chainId: "1")
+        ]
+        for chain in stored {
+            XCTAssertTrue(ChainAssetListInteractor.keepsBalancesInLocalStorage(chain), chain.chainId)
+        }
+    }
+
     @MainActor
     func testEmptyFundingCardWaitsForBalancesAndNeverCallsHiddenFundsEmpty() throws {
         let asset = makeChainAsset(
@@ -3367,6 +3443,51 @@ private final class FailingLastKnownRemoteStub: AccountInfoRemoteService,
         wallet _: MetaAccountModel
     ) -> [ChainAssetId: AccountInfo?] {
         retained
+    }
+}
+
+/// Networks that answer at once, except the held ones, which answer only when released (a scan still running).
+private final class HeldNetworkRemoteStub: AccountInfoRemoteService, @unchecked Sendable {
+    private let answers: [ChainModel.Id: [ChainAssetId: AccountInfo?]]
+    private let lock = NSLock()
+    private var held: Set<ChainModel.Id>
+    private var waiting: [ChainModel.Id: CheckedContinuation<Void, Never>] = [:]
+
+    init(answers: [ChainModel.Id: [ChainAssetId: AccountInfo?]], held: Set<ChainModel.Id>) {
+        self.answers = answers
+        self.held = held
+    }
+
+    func release(_ chainId: ChainModel.Id) {
+        let continuation: CheckedContinuation<Void, Never>? = lock.withLock {
+            held.remove(chainId)
+            return waiting.removeValue(forKey: chainId)
+        }
+        continuation?.resume()
+    }
+
+    func fetchAccountInfos(
+        for chain: ChainModel,
+        wallet _: MetaAccountModel
+    ) async throws -> [ChainAssetId: AccountInfo?] {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            let isHeld: Bool = lock.withLock {
+                guard held.contains(chain.chainId) else { return false }
+                waiting[chain.chainId] = continuation
+                return true
+            }
+            if !isHeld {
+                continuation.resume()
+            }
+        }
+        return answers[chain.chainId] ?? [:]
+    }
+
+    func fetchAccountInfo(
+        for chainAsset: ChainAsset,
+        wallet _: MetaAccountModel
+    ) async throws -> AccountInfo? {
+        answers[chainAsset.chain.chainId]?[chainAsset.chainAssetId] ?? nil
     }
 }
 
