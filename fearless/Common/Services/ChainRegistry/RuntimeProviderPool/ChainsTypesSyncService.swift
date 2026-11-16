@@ -119,7 +119,8 @@ final class ChainsTypesSyncService {
 
             operationQueue.addOperations(saveOperation.allOperations, waitUntilFinished: false)
         } catch {
-            logger.error(error.localizedDescription)
+            // An unreadable payload is a failed sync: it ends the sync and schedules a retry.
+            handleFailure(with: error)
         }
     }
 

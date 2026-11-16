@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */; };
 		780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */; };
 		5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */; };
 		718D61EA43AD5E561027CC85 /* EthereumWalletRemoteSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C10FDE0046D6DBA52F037C /* EthereumWalletRemoteSubscriptionTests.swift */; };
@@ -3365,6 +3366,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncServiceRetryTests.swift; sourceTree = "<group>"; };
 		BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomisJSONDecoderTests.swift; sourceTree = "<group>"; };
 		0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteSubscriptionDetachTests.swift; sourceTree = "<group>"; };
 		90C10FDE0046D6DBA52F037C /* EthereumWalletRemoteSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumWalletRemoteSubscriptionTests.swift; sourceTree = "<group>"; };
@@ -9716,6 +9718,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */,
 				BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */,
 				0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */,
 				90C10FDE0046D6DBA52F037C /* EthereumWalletRemoteSubscriptionTests.swift */,
@@ -19716,6 +19719,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */,
 				780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */,
 				5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */,
 				718D61EA43AD5E561027CC85 /* EthereumWalletRemoteSubscriptionTests.swift in Sources */,
