@@ -154,57 +154,60 @@ final class CovJUiProfileViewModelFactoryTests: XCTestCase {
         XCTAssertNil(flat.balanceCaption, "nothing hidden, no caption")
     }
 
-    func testAllOptionsReflectSettingsWarningsTonAndIroha() throws {
-        let settings: SettingsManagerProtocol = InMemorySettingsManager()
-        settings.biometryEnabled = true
-        settings.accountScoreEnabled = true
-        let factory = try CovJUiProfileModels.factory(
-            .faceId, settings: settings, policy: .enabledForTests, sound: false, haptics: true, test: self
-        )
-        let viewModel = model(
-            factory,
-            wallet: AccountGenerator.generateMetaAccount(with: [CovJUiProfileModels.tonAccount()]),
-            currency: .euro(),
-            issues: [.missingAccount(chains: [])]
-        )
-        let rows = viewModel.profileOptionViewModel
-        XCTAssertEqual(rows.compactMap(\.option), ProfileOption.allCases)
-        func row(_ option: ProfileOption) -> ProfileOptionViewModelProtocol? { rows.first { $0.option == option } }
+    // IrohaConnectReleasePolicy.enabledForTests exists only in DEBUG builds.
+    #if DEBUG
+        func testAllOptionsReflectSettingsWarningsTonAndIroha() throws {
+            let settings: SettingsManagerProtocol = InMemorySettingsManager()
+            settings.biometryEnabled = true
+            settings.accountScoreEnabled = true
+            let factory = try CovJUiProfileModels.factory(
+                .faceId, settings: settings, policy: .enabledForTests, sound: false, haptics: true, test: self
+            )
+            let viewModel = model(
+                factory,
+                wallet: AccountGenerator.generateMetaAccount(with: [CovJUiProfileModels.tonAccount()]),
+                currency: .euro(),
+                issues: [.missingAccount(chains: [])]
+            )
+            let rows = viewModel.profileOptionViewModel
+            XCTAssertEqual(rows.compactMap(\.option), ProfileOption.allCases)
+            func row(_ option: ProfileOption) -> ProfileOptionViewModelProtocol? { rows.first { $0.option == option } }
 
-        XCTAssertEqual(row(.biometry)?.title, "Face ID")
-        XCTAssertEqual(CovJUiProfileModels.switchState(row(.biometry)), true)
-        XCTAssertEqual(row(.accountScore)?.title, R.string.localizable.profileAccountScoreTitle(preferredLanguages: languages))
-        XCTAssertEqual(CovJUiProfileModels.switchState(row(.accountScore)), true)
-        XCTAssertEqual(row(.accountList)?.title, R.string.localizable.profileWalletsTitle(preferredLanguages: languages))
-        XCTAssertNotNil(row(.accountList)?.accessoryImage, "a missing account is flagged")
-        XCTAssertEqual(row(.currency)?.title, R.string.localizable.commonCurrency(preferredLanguages: languages))
-        XCTAssertEqual(row(.currency)?.accessoryTitle, "EUR")
-        XCTAssertEqual(row(.language)?.title, R.string.localizable.languageTitle(preferredLanguages: languages))
-        XCTAssertEqual(row(.language)?.accessoryTitle, "English")
-        XCTAssertEqual(row(.tonConnect)?.title, "TonConnect")
-        XCTAssertNil(row(.tonConnect)?.accessoryTitle)
-        XCTAssertEqual(row(.irohaConnect)?.title, "IrohaConnect")
-        XCTAssertEqual(row(.irohaConnect)?.accessoryTitle, "SORA 3")
-        XCTAssertEqual(row(.walletConnect)?.title, "Wallet connect")
-        XCTAssertNil(CovJUiProfileModels.switchState(row(.walletConnect)))
-        XCTAssertEqual(row(.networkAssets)?.title, "Networks & Assets")
-        XCTAssertEqual(row(.changePincode)?.title, R.string.localizable.profilePincodeChangeTitle(preferredLanguages: languages))
-        XCTAssertEqual(row(.polkaswapDisclaimer)?.title, R.string.localizable.polkaswapDisclaimerSettings(preferredLanguages: languages))
-        XCTAssertEqual(row(.about)?.title, R.string.localizable.aboutTitle(preferredLanguages: languages))
-        XCTAssertEqual(row(.previousData)?.title, RecoveryText.string("previous_data"))
-        XCTAssertEqual(row(.emergencyMaterial)?.title, RecoveryText.string("export"))
-        XCTAssertEqual(row(.soundEffects)?.title, "Sound effects")
-        XCTAssertEqual(CovJUiProfileModels.switchState(row(.soundEffects)), false)
-        XCTAssertEqual(row(.hapticFeedback)?.title, "Haptic feedback")
-        XCTAssertEqual(CovJUiProfileModels.switchState(row(.hapticFeedback)), true)
+            XCTAssertEqual(row(.biometry)?.title, "Face ID")
+            XCTAssertEqual(CovJUiProfileModels.switchState(row(.biometry)), true)
+            XCTAssertEqual(row(.accountScore)?.title, R.string.localizable.profileAccountScoreTitle(preferredLanguages: languages))
+            XCTAssertEqual(CovJUiProfileModels.switchState(row(.accountScore)), true)
+            XCTAssertEqual(row(.accountList)?.title, R.string.localizable.profileWalletsTitle(preferredLanguages: languages))
+            XCTAssertNotNil(row(.accountList)?.accessoryImage, "a missing account is flagged")
+            XCTAssertEqual(row(.currency)?.title, R.string.localizable.commonCurrency(preferredLanguages: languages))
+            XCTAssertEqual(row(.currency)?.accessoryTitle, "EUR")
+            XCTAssertEqual(row(.language)?.title, R.string.localizable.languageTitle(preferredLanguages: languages))
+            XCTAssertEqual(row(.language)?.accessoryTitle, "English")
+            XCTAssertEqual(row(.tonConnect)?.title, "TonConnect")
+            XCTAssertNil(row(.tonConnect)?.accessoryTitle)
+            XCTAssertEqual(row(.irohaConnect)?.title, "IrohaConnect")
+            XCTAssertEqual(row(.irohaConnect)?.accessoryTitle, "SORA 3")
+            XCTAssertEqual(row(.walletConnect)?.title, "Wallet connect")
+            XCTAssertNil(CovJUiProfileModels.switchState(row(.walletConnect)))
+            XCTAssertEqual(row(.networkAssets)?.title, "Networks & Assets")
+            XCTAssertEqual(row(.changePincode)?.title, R.string.localizable.profilePincodeChangeTitle(preferredLanguages: languages))
+            XCTAssertEqual(row(.polkaswapDisclaimer)?.title, R.string.localizable.polkaswapDisclaimerSettings(preferredLanguages: languages))
+            XCTAssertEqual(row(.about)?.title, R.string.localizable.aboutTitle(preferredLanguages: languages))
+            XCTAssertEqual(row(.previousData)?.title, RecoveryText.string("previous_data"))
+            XCTAssertEqual(row(.emergencyMaterial)?.title, RecoveryText.string("export"))
+            XCTAssertEqual(row(.soundEffects)?.title, "Sound effects")
+            XCTAssertEqual(CovJUiProfileModels.switchState(row(.soundEffects)), false)
+            XCTAssertEqual(row(.hapticFeedback)?.title, "Haptic feedback")
+            XCTAssertEqual(CovJUiProfileModels.switchState(row(.hapticFeedback)), true)
 
-        XCTAssertEqual(viewModel.logoutViewModel.title, R.string.localizable.profileLogoutTitle(preferredLanguages: languages))
-        XCTAssertNil(viewModel.logoutViewModel.option)
-        XCTAssertNotNil(viewModel.logoutViewModel.icon)
-        XCTAssertEqual(viewModel.profileUserViewModel.fiatBalance, "")
-        XCTAssertNil(viewModel.profileUserViewModel.dayChange)
-        XCTAssertNil(viewModel.profileUserViewModel.balanceCaption)
-    }
+            XCTAssertEqual(viewModel.logoutViewModel.title, R.string.localizable.profileLogoutTitle(preferredLanguages: languages))
+            XCTAssertNil(viewModel.logoutViewModel.option)
+            XCTAssertNotNil(viewModel.logoutViewModel.icon)
+            XCTAssertEqual(viewModel.profileUserViewModel.fiatBalance, "")
+            XCTAssertNil(viewModel.profileUserViewModel.dayChange)
+            XCTAssertNil(viewModel.profileUserViewModel.balanceCaption)
+        }
+    #endif
 
     func testTouchIdWithoutTonAccountOrIssuesUsesDefaults() throws {
         let factory = try CovJUiProfileModels.factory(.touchId, settings: InMemorySettingsManager(), test: self)

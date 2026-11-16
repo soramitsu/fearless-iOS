@@ -3,6 +3,8 @@ import SoraUI
 import UIKit
 import XCTest
 
+// The seams exist only in DEBUG builds (Release test builds, e.g. the Core Data gate, compile without them).
+#if DEBUG
 /// The DEBUG walk-through seams act on the app's main window. Unit-test launches skip the app's own window
 /// (`-UNITTEST`), so each test hosts a `FearlessWindow` that `SceneWindowFinder.mainWindow()` picks.
 @MainActor
@@ -137,3 +139,4 @@ final class CovEDebugSeamsTests: XCTestCase {
         CovEHost.close(window)
     }
 }
+#endif

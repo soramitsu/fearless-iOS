@@ -24,19 +24,27 @@ final class CovERowAndSurfaceTests: XCTestCase {
         XCTAssertEqual(label.textColor, animates ? FWSunlit.Palette.priceUp : settled)
         label.textColor = settled
 
-        XCTAssertEqual(FWRowSunlit.bumped("$12"), "$13")
-        XCTAssertEqual(FWRowSunlit.bumped("1.2 DOT"), "1.3 DOT")
-        XCTAssertNil(FWRowSunlit.bumped("1.29"), "a carry is not attempted")
-        XCTAssertNil(FWRowSunlit.bumped("none"))
-
-        label.text = "10.50"
-        row.observeDebugTick(label: label, settledColor: settled)
-        row.observeDebugTick(label: label, settledColor: settled)
-        NotificationCenter.default.post(name: FWShikibanDebugSeams.tickNotification, object: nil)
-        XCTAssertTrue(CovEHost.spin(until: { label.text == "10.51" }), "the tick seam shows the next value")
-        NotificationCenter.default.post(name: FWShikibanDebugSeams.tickNotification, object: nil)
-        XCTAssertTrue(CovEHost.spin(until: { label.text == "10.52" }), "one observer, one bump per tick")
+        #if DEBUG
+            assertDebugTick(row: row, label: label, settled: settled)
+        #endif
     }
+
+    #if DEBUG
+        private func assertDebugTick(row: FWRowSunlit, label: UILabel, settled: UIColor) {
+            XCTAssertEqual(FWRowSunlit.bumped("$12"), "$13")
+            XCTAssertEqual(FWRowSunlit.bumped("1.2 DOT"), "1.3 DOT")
+            XCTAssertNil(FWRowSunlit.bumped("1.29"), "a carry is not attempted")
+            XCTAssertNil(FWRowSunlit.bumped("none"))
+
+            label.text = "10.50"
+            row.observeDebugTick(label: label, settledColor: settled)
+            row.observeDebugTick(label: label, settledColor: settled)
+            NotificationCenter.default.post(name: FWShikibanDebugSeams.tickNotification, object: nil)
+            XCTAssertTrue(CovEHost.spin(until: { label.text == "10.51" }), "the tick seam shows the next value")
+            NotificationCenter.default.post(name: FWShikibanDebugSeams.tickNotification, object: nil)
+            XCTAssertTrue(CovEHost.spin(until: { label.text == "10.52" }), "one observer, one bump per tick")
+        }
+    #endif
 
     func testRowSurfacesUseRaisedElevationAndTheWellSitsBehindTheIcon() {
         let surface = FWRowSunlit.rowSurface()

@@ -125,17 +125,20 @@ final class CovHWMCViewTests: XCTestCase {
         XCTAssertEqual(badge.syncState, .synced)
     }
 
-    func testDebugSyncSeamPlaysSyntheticNetworks() throws {
-        let (controller, _) = try makeController()
-        let badge = controller.rootView.sunBadgeView
+    // FWShikibanDebugSeams exists only in DEBUG builds.
+    #if DEBUG
+        func testDebugSyncSeamPlaysSyntheticNetworks() throws {
+            let (controller, _) = try makeController()
+            let badge = controller.rootView.sunBadgeView
 
-        NotificationCenter.default.post(name: FWShikibanDebugSeams.syncNotification, object: nil, userInfo: ["failures": 2])
-        CovHAssetListFixture.spin { badge.syncState != .idle }
-        guard case .syncing = badge.syncState else { return XCTFail("The synthetic networks start connecting") }
+            NotificationCenter.default.post(name: FWShikibanDebugSeams.syncNotification, object: nil, userInfo: ["failures": 2])
+            CovHAssetListFixture.spin { badge.syncState != .idle }
+            guard case .syncing = badge.syncState else { return XCTFail("The synthetic networks start connecting") }
 
-        CovHAssetListFixture.spin(timeout: 6) { badge.syncState == .failed(unreachable: 2) }
-        XCTAssertEqual(badge.syncState, .failed(unreachable: 2))
-    }
+            CovHAssetListFixture.spin(timeout: 6) { badge.syncState == .failed(unreachable: 2) }
+            XCTAssertEqual(badge.syncState, .failed(unreachable: 2))
+        }
+    #endif
 
     func testSegmentsSwitchPagesAndFlightTiersCoverTheScreen() throws {
         let (controller, _) = try makeController()

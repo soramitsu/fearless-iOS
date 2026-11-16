@@ -56,36 +56,39 @@ final class CovEDesignSystemTests: XCTestCase {
         XCTAssertTrue(next.isViewLoaded || landingWindow.subviews.contains(next.view), "The new root is installed without the flight")
     }
 
-    func testDebugSeamsPostSyncAndTickNotifications() {
-        XCTAssertEqual(FWShikibanDebugSeams.prefix, "jp.co.soramitsu.fearless.debug.")
-        XCTAssertTrue(FWShikibanDebugSeams.names.contains("dialfail"))
-        var failures: [Int] = []
-        var ticks = 0
-        let syncObserver = NotificationCenter.default.addObserver(
-            forName: FWShikibanDebugSeams.syncNotification, object: nil, queue: nil
-        ) { failures.append($0.userInfo?["failures"] as? Int ?? -1) }
-        let tickObserver = NotificationCenter.default.addObserver(
-            forName: FWShikibanDebugSeams.tickNotification, object: nil, queue: nil
-        ) { _ in ticks += 1 }
-        defer {
-            NotificationCenter.default.removeObserver(syncObserver)
-            NotificationCenter.default.removeObserver(tickObserver)
-        }
-        FWShikibanDebugSeams.handle("dial")
-        FWShikibanDebugSeams.handle("dialfail")
-        FWShikibanDebugSeams.handle("tick")
-        FWShikibanDebugSeams.handle("unknown-seam")
-        XCTAssertEqual(failures, [0, 2])
-        XCTAssertEqual(ticks, 1)
+    // FWShikibanDebugSeams exists only in DEBUG builds.
+    #if DEBUG
+        func testDebugSeamsPostSyncAndTickNotifications() {
+            XCTAssertEqual(FWShikibanDebugSeams.prefix, "jp.co.soramitsu.fearless.debug.")
+            XCTAssertTrue(FWShikibanDebugSeams.names.contains("dialfail"))
+            var failures: [Int] = []
+            var ticks = 0
+            let syncObserver = NotificationCenter.default.addObserver(
+                forName: FWShikibanDebugSeams.syncNotification, object: nil, queue: nil
+            ) { failures.append($0.userInfo?["failures"] as? Int ?? -1) }
+            let tickObserver = NotificationCenter.default.addObserver(
+                forName: FWShikibanDebugSeams.tickNotification, object: nil, queue: nil
+            ) { _ in ticks += 1 }
+            defer {
+                NotificationCenter.default.removeObserver(syncObserver)
+                NotificationCenter.default.removeObserver(tickObserver)
+            }
+            FWShikibanDebugSeams.handle("dial")
+            FWShikibanDebugSeams.handle("dialfail")
+            FWShikibanDebugSeams.handle("tick")
+            FWShikibanDebugSeams.handle("unknown-seam")
+            XCTAssertEqual(failures, [0, 2])
+            XCTAssertEqual(ticks, 1)
 
-        FWShikibanDebugSeams.install()
-        FWShikibanDebugSeams.install()
-        CFNotificationCenterPostNotification(
-            CFNotificationCenterGetDarwinNotifyCenter(),
-            CFNotificationName((FWShikibanDebugSeams.prefix + "tick") as CFString), nil, nil, true
-        )
-        XCTAssertTrue(CovEHost.spin(until: { ticks == 2 }, timeout: 2), "Installed seams answer Darwin notifications")
-    }
+            FWShikibanDebugSeams.install()
+            FWShikibanDebugSeams.install()
+            CFNotificationCenterPostNotification(
+                CFNotificationCenterGetDarwinNotifyCenter(),
+                CFNotificationName((FWShikibanDebugSeams.prefix + "tick") as CFString), nil, nil, true
+            )
+            XCTAssertTrue(CovEHost.spin(until: { ticks == 2 }, timeout: 2), "Installed seams answer Darwin notifications")
+        }
+    #endif
 
     func testRollingLabelCountsUpAndCrossfadesUnderReducedEffects() {
         let full = FWRollingLabel(effects: makeEffects(.automatic))

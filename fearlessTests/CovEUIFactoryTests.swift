@@ -211,15 +211,18 @@ final class CovEUIFactoryTests: XCTestCase {
         XCTAssertEqual(Set(fixed.constraints.map(\.firstAttribute)), [.width, .height], "Outside a stack both dimensions are held")
     }
 
-    func testStacksPreviewRendersTheExampleLayout() {
-        let host = UIHostingController(rootView: ExampleView_Preview.previews)
-        let window = CovEHost.window(for: host)
-        defer { CovEHost.close(window) }
-        CovEHost.spin(until: { CovEFind.label("Explore the render loop", in: host.view) != nil })
-        XCTAssertNotNil(CovEFind.label("Explore the render loop", in: host.view))
-        XCTAssertNotNil(CovEFind.label("20:21", in: host.view))
-        XCTAssertFalse(CovEFind.all(UIStackView.self, in: host.view).isEmpty)
-    }
+    // The SwiftUI preview is compiled only in DEBUG builds.
+    #if DEBUG
+        func testStacksPreviewRendersTheExampleLayout() {
+            let host = UIHostingController(rootView: ExampleView_Preview.previews)
+            let window = CovEHost.window(for: host)
+            defer { CovEHost.close(window) }
+            CovEHost.spin(until: { CovEFind.label("Explore the render loop", in: host.view) != nil })
+            XCTAssertNotNil(CovEFind.label("Explore the render loop", in: host.view))
+            XCTAssertNotNil(CovEFind.label("20:21", in: host.view))
+            XCTAssertFalse(CovEFind.all(UIStackView.self, in: host.view).isEmpty)
+        }
+    #endif
 }
 
 final class CovEAccessoryDelegate: AmountInputAccessoryViewDelegate {

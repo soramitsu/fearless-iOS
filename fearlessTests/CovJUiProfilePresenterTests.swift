@@ -296,22 +296,25 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         XCTAssertEqual(f.wireframe.tonAccounts, [false])
     }
 
-    func testTonConnectSeesTonAccountAndIrohaConnectFollowsPolicy() throws {
-        let f = try fixture(policy: .enabledForTests)
-        f.presenter.didLoad(view: f.view)
-        let ton = SSFModels.ChainAccountModel(
-            chainId: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
-            accountId: Data(repeating: 7, count: 32),
-            publicKey: Data(repeating: 8, count: 32),
-            cryptoType: 0,
-            ethereumBased: false
-        )
-        f.presenter.didReceive(wallet: AccountGenerator.generateMetaAccount(with: [ton]))
-        f.presenter.activateOption(.tonConnect)
-        f.presenter.activateOption(.irohaConnect)
-        XCTAssertEqual(f.wireframe.tonAccounts, [true])
-        XCTAssertEqual(f.wireframe.routes, ["iroha"])
-    }
+    // IrohaConnectReleasePolicy.enabledForTests exists only in DEBUG builds.
+    #if DEBUG
+        func testTonConnectSeesTonAccountAndIrohaConnectFollowsPolicy() throws {
+            let f = try fixture(policy: .enabledForTests)
+            f.presenter.didLoad(view: f.view)
+            let ton = SSFModels.ChainAccountModel(
+                chainId: UniversalWalletRegistry.tonMainnetRegistryEntry.chainId,
+                accountId: Data(repeating: 7, count: 32),
+                publicKey: Data(repeating: 8, count: 32),
+                cryptoType: 0,
+                ethereumBased: false
+            )
+            f.presenter.didReceive(wallet: AccountGenerator.generateMetaAccount(with: [ton]))
+            f.presenter.activateOption(.tonConnect)
+            f.presenter.activateOption(.irohaConnect)
+            XCTAssertEqual(f.wireframe.tonAccounts, [true])
+            XCTAssertEqual(f.wireframe.routes, ["iroha"])
+        }
+    #endif
 
     func testRecoveryOptionsWithoutAViewDoNothing() throws {
         let f = try fixture()
