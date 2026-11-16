@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		29EBAE2FFDBD43A5250DA847 /* LegacyEraStakersFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */; };
 		774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */; };
 		780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */; };
 		5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */; };
@@ -3366,6 +3367,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyEraStakersFetchingTests.swift; sourceTree = "<group>"; };
 		30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncServiceRetryTests.swift; sourceTree = "<group>"; };
 		BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomisJSONDecoderTests.swift; sourceTree = "<group>"; };
 		0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteSubscriptionDetachTests.swift; sourceTree = "<group>"; };
@@ -9718,6 +9720,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */,
 				30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */,
 				BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */,
 				0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */,
@@ -19719,6 +19722,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				29EBAE2FFDBD43A5250DA847 /* LegacyEraStakersFetchingTests.swift in Sources */,
 				774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */,
 				780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */,
 				5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */,
