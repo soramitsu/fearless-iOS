@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		19BC8ECAD665249E3EBF7FFC /* SoraSubsquidHistoryStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAA0EEB3695E5AB2CE0F11B /* SoraSubsquidHistoryStatusTests.swift */; };
 		361CF4319D7ADA707CCCA9A1 /* LiquidityPoolReservesIdTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DC34F6B329D56F7EC0A44B /* LiquidityPoolReservesIdTests.swift */; };
 		E99E3264AD302E1D56C73DCD /* RewardCalculatorMissingHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF50C3CFEB29E7B2DC005ECD /* RewardCalculatorMissingHistoryTests.swift */; };
 		30E213FE738D6F7A600E3162 /* RewardCalculatorServiceThrottleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1DB661CDCAEC8AB9A703EB8 /* RewardCalculatorServiceThrottleTests.swift */; };
@@ -3352,6 +3353,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7DAA0EEB3695E5AB2CE0F11B /* SoraSubsquidHistoryStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubsquidHistoryStatusTests.swift; sourceTree = "<group>"; };
 		E9DC34F6B329D56F7EC0A44B /* LiquidityPoolReservesIdTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolReservesIdTests.swift; sourceTree = "<group>"; };
 		BF50C3CFEB29E7B2DC005ECD /* RewardCalculatorMissingHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorMissingHistoryTests.swift; sourceTree = "<group>"; };
 		D1DB661CDCAEC8AB9A703EB8 /* RewardCalculatorServiceThrottleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceThrottleTests.swift; sourceTree = "<group>"; };
@@ -9690,6 +9692,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				7DAA0EEB3695E5AB2CE0F11B /* SoraSubsquidHistoryStatusTests.swift */,
 				E9DC34F6B329D56F7EC0A44B /* LiquidityPoolReservesIdTests.swift */,
 				BF50C3CFEB29E7B2DC005ECD /* RewardCalculatorMissingHistoryTests.swift */,
 				D1DB661CDCAEC8AB9A703EB8 /* RewardCalculatorServiceThrottleTests.swift */,
@@ -19676,6 +19679,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19BC8ECAD665249E3EBF7FFC /* SoraSubsquidHistoryStatusTests.swift in Sources */,
 				361CF4319D7ADA707CCCA9A1 /* LiquidityPoolReservesIdTests.swift in Sources */,
 				E99E3264AD302E1D56C73DCD /* RewardCalculatorMissingHistoryTests.swift in Sources */,
 				30E213FE738D6F7A600E3162 /* RewardCalculatorServiceThrottleTests.swift in Sources */,
