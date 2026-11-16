@@ -37,9 +37,9 @@ final class CovGPerformerTests: XCTestCase {
             ["block": "0x00", "changes": [[key.toHex(includePrefix: true), "0x0c616263"]]],
         ])
         let performer = StorageRequestPerformerDefault(runtimeService: runtime, connection: engine)
-        let values: [UInt32: JSON]? = try await performer.performPrefix(CovGPerformerPrefixRequest())
-        XCTAssertEqual(values?.keys.sorted(), [7])
-        XCTAssertNotNil(values?[7])
+        let values: [String: JSON]? = try await performer.performPrefix(CovGPerformerPrefixRequest())
+        XCTAssertEqual(values?.keys.sorted(), ["7"])
+        XCTAssertNotNil(values?["7"])
         XCTAssertEqual(engine.requests.map(\.0), [RPCMethod.getStorageKeysPaged, RPCMethod.queryStorageAt])
     }
 

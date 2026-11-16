@@ -89,13 +89,17 @@ final class CovGGiantsquidHistoryTests: XCTestCase {
         XCTAssertThrowsError(try JSONDecoder().decode(GiantsquidReward.self, from: Data(#"{"amount":"1","timestamp":true}"#.utf8)))
     }
 
-    func testFirstPageMergesRemoteGiantsquidItemsWithPendingLocalTransfer() throws {
+    func testFirstPageKeepsNewerPendingTransfersAndClearsOnesOlderThanRemoteHistory() throws {
         let repository = InMemoryDataProviderRepository<TransactionHistoryItem>()
-        let pending = TransactionHistoryItem(
-            sender: "owner", receiver: "peer", status: .pending, txHash: "pending-hash", timestamp: 9,
+        let stale = TransactionHistoryItem(
+            sender: "owner", receiver: "peer", status: .pending, txHash: "stale-hash", timestamp: 9,
             fee: "0", blockNumber: nil, txIndex: nil, callPath: .transfer, call: nil
         )
-        try CovGOperationFixtures.run(repository.saveOperation({ [pending] }, { [] }))
+        let fresh = TransactionHistoryItem(
+            sender: "owner", receiver: "peer", status: .pending, txHash: "fresh-hash", timestamp: 2_000_000_000,
+            fee: "0", blockNumber: nil, txIndex: nil, callPath: .transfer, call: nil
+        )
+        try CovGOperationFixtures.run(repository.saveOperation({ [stale, fresh] }, { [] }))
         let factory = GiantsquidHistoryOperationFactory(txStorage: AnyDataProviderRepository(repository))
         let chain = try CovGOperationFixtures.chain()
         let wrapper = factory.fetchTransactionHistoryOperation(
@@ -104,6 +108,8 @@ final class CovGGiantsquidHistoryTests: XCTestCase {
         let network = try CovGOperationFixtures.network(wrapper, as: GiantsquidResponseData.self)
         try CovGOperationFixtures.respond(network, json: responseJSON)
         let page = try XCTUnwrap(CovGOperationFixtures.run(wrapper))
-        XCTAssertEqual(Set(page.transactions.map(\.transactionId)), ["pending-hash", "transfer", "reward", "bond", "slash"])
+        XCTAssertEqual(page.transactions.first?.transactionId, "fresh-hash")
+        XCTAssertEqual(Set(page.transactions.map(\.transactionId)), ["fresh-hash", "transfer", "reward", "bond", "slash"])
+        XCTAssertEqual(try CovGOperationFixtures.run(repository.fetchCountOperation()), 1)
     }
 }

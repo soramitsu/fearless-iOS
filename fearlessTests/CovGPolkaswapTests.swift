@@ -44,7 +44,10 @@ final class CovGPolkaswapTests: XCTestCase {
         XCTAssertThrowsError(try CovGOperationFixtures.run(factory.createIsPathAvailableOperation(dexId: 0, from: "a", to: "b")))
         XCTAssertThrowsError(try CovGOperationFixtures.run(factory.createGetAvailableMarketAlgorithmsOperation(dexId: 0, from: "a", to: "b")))
         XCTAssertThrowsError(try CovGOperationFixtures.run(factory.createPolkaswapQuoteOperation(dexId: 0, params: params)))
-        XCTAssertThrowsError(try CovGOperationFixtures.run(factory.createDexInfosOperation()))
+        let dexInfos = factory.createDexInfosOperation()
+        let uniqueOperations = dexInfos.allOperations.reduce(into: [Operation]()) { if !$0.contains($1) { $0.append($1) } }
+        OperationQueue().addOperations(uniqueOperations, waitUntilFinished: true)
+        XCTAssertThrowsError(try CovGOperationFixtures.result(dexInfos.targetOperation))
         var result: Result<SwapValues, Error>?
         factory.fetchQuote(dexId: 0, params: params, timeout: 1) { result = $0 }
         XCTAssertThrowsError(try XCTUnwrap(result).get()) { XCTAssertTrue($0 is ChainRegistryError) }

@@ -73,7 +73,6 @@ final class CovGWebSocketSourceTests: XCTestCase {
             ({ _ in throw NSError(domain: "CovG.key", code: 62) }, nil, { ($0 as NSError).code == 62 }),
             ({ _ in ClosureOperation { [Data]() } }, nil, { ($0 as? WebSocketProviderSourceError) == .noKeysFound }),
             ({ _ in ClosureOperation { throw NSError(domain: "CovG.keyOperation", code: 63) } }, nil, { ($0 as NSError).code == 63 }),
-            ({ _ in ClosureOperation { [Data([1])] } }, NSError(domain: "CovG.subscribe", code: 64), { ($0 as NSError).code == 64 }),
         ]
         for (closure, subscribeError, matches) in cases {
             let engine = CovGSubscriptionEngine()

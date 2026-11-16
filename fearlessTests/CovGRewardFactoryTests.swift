@@ -61,7 +61,9 @@ final class CovGRewardFactoryTests: XCTestCase {
                 XCTAssertTrue(query.contains("owner"))
                 XCTAssertEqual(query.contains(index == 0 ? "greaterThanOrEqualTo" : "timestamp_gte"), bounds.0 != nil)
                 XCTAssertEqual(query.contains(index == 0 ? "lessThanOrEqualTo" : "timestamp_lte"), bounds.1 != nil)
-                let node = #"{"id":"r","timestamp":"100","address":"owner","reward":{"amount":"53","isReward":true,"era":5,"eventIdx":6}}"#
+                let node = index == 0
+                    ? #"{"id":"r","timestamp":"100","address":"owner","reward":{"amount":"53","isReward":true,"era":5,"eventIdx":6}}"#
+                    : #"{"id":"r","timestamp":100,"address":"owner","success":true,"reward":{"amount":"53","era":5,"eventIdx":"6"}}"#
                 let body = index == 0 ? "{\"data\":{\"historyElements\":{\"nodes\":[\(node)]}}}" : "{\"data\":{\"historyElements\":[\(node)]}}"
                 try CovGOperationFixtures.respond(network, json: body)
                 let response = try CovGOperationFixtures.run(network)

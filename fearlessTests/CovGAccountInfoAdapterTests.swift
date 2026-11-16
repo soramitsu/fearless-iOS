@@ -24,7 +24,7 @@ final class CovGAccountInfoAdapterTests: XCTestCase {
 
         let replacement = AccountGenerator.generateMetaAccount()
         adapter.update(wallet: replacement)
-        XCTAssertEqual(adapter.wallet.metaId, replacement.metaId)
+        waitUntil { adapter.wallet.metaId == replacement.metaId }
     }
 
     func testResetDetachesHandlerAndRemovesEveryProviderObserver() throws {

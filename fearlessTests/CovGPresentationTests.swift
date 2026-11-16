@@ -14,16 +14,18 @@ final class CovGPresentationTests: XCTestCase {
             presenter.presentFeeTooHigh, presenter.presentExsitentialDepositNotReceived,
         ]
         for action in actions {
-            presenter.message = nil
+            view.captured = nil
             action(view, locale)
-            let message = try XCTUnwrap(presenter.message)
-            XCTAssertFalse(message.0.isEmpty)
-            XCTAssertFalse(try XCTUnwrap(message.1).isEmpty)
-            XCTAssertFalse(try XCTUnwrap(message.2).isEmpty)
-            XCTAssertTrue(presenter.source === view)
+            let sheet = try XCTUnwrap(view.captured as? SheetAletViewController)
+            XCTAssertEqual(sheet.modalPresentationStyle, .custom)
+            XCTAssertNotNil(sheet.modalTransitioningFactory)
+            XCTAssertNil(presenter.message)
         }
+        view.captured = nil
         presenter.presentSoraBridgeLowAmountError(from: view, locale: locale, assetAmount: "53 UNIT")
         XCTAssertTrue(try XCTUnwrap(presenter.message?.1).contains("53 UNIT"))
+        XCTAssertTrue(presenter.source === view)
+        XCTAssertNil(view.captured)
     }
 
     func testExistentialWarningsPreserveAmountsAndActionCallbacks() throws {

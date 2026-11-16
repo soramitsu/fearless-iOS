@@ -6,7 +6,7 @@ import XCTest
 @testable import fearless
 
 final class CovGStorageQueriesTests: XCTestCase {
-    func testDoubleMapQueryEncodesBothKeysAndPreservesMissingValue() throws {
+    func testDoubleMapQueryEncodesBothKeysAndFallsBackToStorageDefault() throws {
         let runtime = try RuntimeCodingServiceStub.createWestendCodingFactory()
         let account = Data(repeating: 7, count: 32)
         let keyFactory = StorageKeyFactory()
@@ -24,15 +24,16 @@ final class CovGStorageQueriesTests: XCTestCase {
         }
         let factory = StorageRequestFactory(remoteFactory: keyFactory, operationManager: OperationManager())
         let wrapper: CompoundOperationWrapper<[StorageResponse<JSON>]> = factory.queryItems(
-            engine: engine, keyParams1: { [fearless.StringScaleMapper(value: UInt32(5))] }, keyParams2: { [account] },
+            engine: engine, keyParams1: { [fearless.StringScaleMapper(value: UInt32(5))] }, keyParams2: { [account.toHex(includePrefix: true)] },
             factory: { runtime }, storagePath: .erasStakers
         )
         let result = try CovGOperationFixtures.run(wrapper)
         XCTAssertEqual(result.map(\.key), [expected])
         XCTAssertNil(result.first?.data)
-        XCTAssertNil(result.first?.value)
+        XCTAssertEqual(result.first?.value?.total?.stringValue, "0")
+        XCTAssertEqual(result.first?.value?.others?.arrayValue?.isEmpty, true)
         let failing: CompoundOperationWrapper<[StorageResponse<JSON>]> = factory.queryItems(
-            engine: engine, keyParams1: { () throws -> [String] in throw NSError(domain: "CovG.double", code: 70) }, keyParams2: { [account] },
+            engine: engine, keyParams1: { () throws -> [String] in throw NSError(domain: "CovG.double", code: 70) }, keyParams2: { [account.toHex(includePrefix: true)] },
             factory: { runtime }, storagePath: .erasStakers
         )
         XCTAssertThrowsError(try CovGOperationFixtures.run(failing)) { XCTAssertEqual(($0 as NSError).code, 70) }

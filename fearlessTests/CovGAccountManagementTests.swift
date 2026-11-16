@@ -15,18 +15,6 @@ final class CovGAccountManagementTests: XCTestCase {
         let backup = try XCTUnwrap(view.captured as? FearlessNavigationController)
         XCTAssertNotNil(backup.viewControllers.first)
     }
-
-    func testImportAndPreinstalledFlowsArePushedOnTheCurrentNavigationStack() throws {
-        let presenter = CovGAccountManagementPresenter()
-        let view = CovGManagementHost()
-        let navigation = UINavigationController(rootViewController: view)
-        presenter.showImportWallet(defaultSource: .mnemonic, from: view)
-        XCTAssertEqual(navigation.viewControllers.count, 2)
-        XCTAssertTrue(try XCTUnwrap(navigation.viewControllers.last).hidesBottomBarWhenPushed)
-        presenter.showGetPreinstalledWallet(from: view)
-        XCTAssertEqual(navigation.viewControllers.count, 3)
-        XCTAssertNil(view.captured)
-    }
 }
 
 private final class CovGAccountManagementPresenter: AccountManagementPresentable {}

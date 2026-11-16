@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		95575F04CCA62F8462FCD271 /* CovGKeychainTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE8F535CC613A793ADA35D4 /* CovGKeychainTransactionTests.swift */; };
+		5E68D8E63FDF789DD6AC9293 /* CovGCreatePoolCallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E4B6975D998A11268C06E7 /* CovGCreatePoolCallTests.swift */; };
+		78A3C40C5547220DC13C152D /* CovGRewardModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3453DE2BC01351F24199F592 /* CovGRewardModelsTests.swift */; };
 		E939CCA67A4714EBF7655A69 /* CovGVestingCallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E085C123BD345CF7CF98D3A /* CovGVestingCallTests.swift */; };
 		C7EC2A37DB98547DF597E146 /* CovGSwapCallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EF05DD31129D03D66E7E33 /* CovGSwapCallTests.swift */; };
 		B8FE52250FBE3821E46C52C0 /* CovGSmallTypesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D60C6FC9F2E90AE81DD62C7 /* CovGSmallTypesTests.swift */; };
@@ -3390,6 +3393,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3DE8F535CC613A793ADA35D4 /* CovGKeychainTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovGKeychainTransactionTests.swift; sourceTree = "<group>"; };
+		18E4B6975D998A11268C06E7 /* CovGCreatePoolCallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovGCreatePoolCallTests.swift; sourceTree = "<group>"; };
+		3453DE2BC01351F24199F592 /* CovGRewardModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovGRewardModelsTests.swift; sourceTree = "<group>"; };
 		0E085C123BD345CF7CF98D3A /* CovGVestingCallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovGVestingCallTests.swift; sourceTree = "<group>"; };
 		F3EF05DD31129D03D66E7E33 /* CovGSwapCallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovGSwapCallTests.swift; sourceTree = "<group>"; };
 		5D60C6FC9F2E90AE81DD62C7 /* CovGSmallTypesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovGSmallTypesTests.swift; sourceTree = "<group>"; };
@@ -9756,6 +9762,9 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				3DE8F535CC613A793ADA35D4 /* CovGKeychainTransactionTests.swift */,
+				18E4B6975D998A11268C06E7 /* CovGCreatePoolCallTests.swift */,
+				3453DE2BC01351F24199F592 /* CovGRewardModelsTests.swift */,
 				0E085C123BD345CF7CF98D3A /* CovGVestingCallTests.swift */,
 				F3EF05DD31129D03D66E7E33 /* CovGSwapCallTests.swift */,
 				5D60C6FC9F2E90AE81DD62C7 /* CovGSmallTypesTests.swift */,
@@ -19782,6 +19791,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				95575F04CCA62F8462FCD271 /* CovGKeychainTransactionTests.swift in Sources */,
+				5E68D8E63FDF789DD6AC9293 /* CovGCreatePoolCallTests.swift in Sources */,
+				78A3C40C5547220DC13C152D /* CovGRewardModelsTests.swift in Sources */,
 				E939CCA67A4714EBF7655A69 /* CovGVestingCallTests.swift in Sources */,
 				C7EC2A37DB98547DF597E146 /* CovGSwapCallTests.swift in Sources */,
 				B8FE52250FBE3821E46C52C0 /* CovGSmallTypesTests.swift in Sources */,

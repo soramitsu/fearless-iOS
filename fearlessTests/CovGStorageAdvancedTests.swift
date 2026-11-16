@@ -102,9 +102,9 @@ final class CovGStorageAdvancedTests: XCTestCase {
         let key = try StorageKeyFactory().key(from: .bondedPools) + Data(repeating: 0, count: 8) + Data([7, 0, 0, 0])
         let extractor = PrefixStorageResponseValueExtractor(runtimeService: runtime)
         let response = StorageResponse(key: key, data: nil, value: "Pool")
-        let values: [UInt32: String]? = try await extractor.extractValue(request: CovGPrefixRequest(), storageResponse: [response])
-        XCTAssertEqual(values, [7: "Pool"])
-        let empty: [UInt32: String]? = try await extractor.extractValue(request: CovGPrefixRequest(), storageResponse: [StorageResponse<String>]())
+        let values: [String: String]? = try await extractor.extractValue(request: CovGPrefixRequest(), storageResponse: [response])
+        XCTAssertEqual(values, ["7": "Pool"])
+        let empty: [String: String]? = try await extractor.extractValue(request: CovGPrefixRequest(), storageResponse: [StorageResponse<String>]())
         XCTAssertEqual(empty, [:])
     }
 }

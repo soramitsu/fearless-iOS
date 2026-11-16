@@ -86,13 +86,13 @@ final class CovGStorageKeyTests: XCTestCase {
         plain.codingFactory = runtime
         XCTAssertEqual(try CovGOperationFixtures.run(plain), try keyFactory.key(from: .currentEra))
         let account = Data(repeating: 7, count: 32)
-        let map = MapKeyEncodingOperation(path: .account, storageKeyFactory: keyFactory, keyParams: [account])
+        let map = MapKeyEncodingOperation(path: .account, storageKeyFactory: keyFactory, keyParams: [account.toHex(includePrefix: true)])
         map.codingFactory = runtime
         let expected = try keyFactory.createStorageKey(moduleName: "System", storageName: "Account", key: account, hasher: .blake128Concat)
         XCTAssertEqual(try CovGOperationFixtures.run(map), [expected])
         let double = DoubleMapKeyEncodingOperation(
             path: .erasStakers, storageKeyFactory: keyFactory,
-            keyParams1: [fearless.StringScaleMapper(value: UInt32(5))], keyParams2: [account]
+            keyParams1: [fearless.StringScaleMapper(value: UInt32(5))], keyParams2: [account.toHex(includePrefix: true)]
         )
         double.codingFactory = runtime
         let expectedDouble = try keyFactory.createStorageKey(

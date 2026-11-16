@@ -44,7 +44,7 @@ final class CovGPriceDataSourceTests: XCTestCase {
         XCTAssertEqual(prices.last?.price, "11")
         XCTAssertEqual(prices.last?.fiatDayChange, 5)
         XCTAssertEqual(chainlink.requested, ["link"])
-        XCTAssertEqual(coingecko.requestedIds, ["cov-g-link", "cov-g-plain"])
+        XCTAssertEqual(Set(coingecko.requestedIds), ["cov-g-link", "cov-g-plain"])
     }
 
     func testCoingeckoFailureFallsBackToRelevantCachedPrices() throws {

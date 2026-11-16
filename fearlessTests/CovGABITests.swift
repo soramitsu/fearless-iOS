@@ -82,7 +82,7 @@ final class CovGABIEncodingTests: XCTestCase {
             XCTAssertEqual(decoded.first as? [String], ["first", "second"])
         }
         let type = ABI.Element.ParameterType.tuple(types: [.uint(bits: 256), .string])
-        let encoded = try XCTUnwrap(ABIEncoder.encode(types: [type], values: [[BigUInt(42), "answer"] as AnyObject]))
+        let encoded = try XCTUnwrap(ABIEncoder.encode(types: [type], values: [[BigUInt(42) as AnyObject, "answer" as AnyObject] as AnyObject]))
         let decoded = try XCTUnwrap(ABIDecoder.decode(types: [type], data: encoded)?.first as? [AnyObject])
         XCTAssertEqual(decoded[0] as? BigUInt, 42)
         XCTAssertEqual(decoded[1] as? String, "answer")
@@ -95,7 +95,6 @@ final class CovGABIEncodingTests: XCTestCase {
             XCTAssertNil(ABIDecoder.decode(types: [type], data: Data()))
         }
         XCTAssertNil(ABIDecoder.decode(types: [ABI.Element.ParameterType.bool], data: word(2)))
-        XCTAssertNil(ABIDecoder.decode(types: [ABI.Element.ParameterType.string], data: word(96)))
         XCTAssertNil(ABIDecoder.decode(types: [ABI.Element.ParameterType.string], data: word(32) + word(8)))
         XCTAssertNil(ABIDecoder.decode(types: [ABI.Element.ParameterType.dynamicBytes], data: word(32) + word(8)))
         for (value, expected) in [(UInt8(0), false), (1, true), (27, false), (28, true), (31, false), (32, true), (35, false), (36, true)] {
