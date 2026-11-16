@@ -45,10 +45,18 @@ extension CDTransactionHistoryItem: CoreDataCodable {
         try container.encodeIfPresent(txIndex?.int16Value, forKey: .txIndex)
 
         if let moduleName = moduleName, let callName = callName {
-            let callPath = CallCodingPath(moduleName: moduleName, callName: callName)
+            let callPath = CDTransactionHistoryItem.callPath(moduleName: moduleName, callName: callName)
             try container.encode(callPath, forKey: .callPath)
         }
 
         try container.encodeIfPresent(call, forKey: .call)
+    }
+
+    /// The named path for a stored module and call (Balances.transfer is `.transfer`), so an item reads back as the
+    /// path it was saved with; any other call stays `.fromInit`.
+    private static func callPath(moduleName: String, callName: String) -> CallCodingPath {
+        let namedPaths = CallCodingPath.allCases + [.polkaswapSwap]
+        return namedPaths.first { $0.moduleName == moduleName && $0.callName == callName }
+            ?? CallCodingPath(moduleName: moduleName, callName: callName)
     }
 }

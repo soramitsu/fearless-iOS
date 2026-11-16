@@ -242,16 +242,15 @@ final class CovEValueViewsTests: XCTestCase {
         XCTAssertEqual(loadedFull.status, .success)
         XCTAssertEqual(loadedFull.blockNumber, 42)
         XCTAssertEqual(loadedFull.txIndex, 3)
-        // The stored module and call names survive; the path comes back as `.fromInit`, not the named case.
-        XCTAssertEqual(loadedFull.callPath.moduleName, CallCodingPath.transfer.moduleName)
-        XCTAssertEqual(loadedFull.callPath.callName, CallCodingPath.transfer.callName)
+        // A named path comes back as the named case; an unnamed call stays `.fromInit`.
+        XCTAssertEqual(loadedFull.callPath, .transfer)
+        XCTAssertTrue(loadedFull.callPath.isTransfer)
         XCTAssertEqual(loadedFull.call, Data([1, 2, 3]))
         let loadedMinimal = try XCTUnwrap(byHash["0x02"])
         XCTAssertNil(loadedMinimal.receiver)
         XCTAssertNil(loadedMinimal.blockNumber)
         XCTAssertNil(loadedMinimal.txIndex)
-        XCTAssertEqual(loadedMinimal.callPath.moduleName, "Utility")
-        XCTAssertEqual(loadedMinimal.callPath.callName, "batch")
+        XCTAssertEqual(loadedMinimal.callPath, .fromInit(moduleName: "Utility", callName: "batch"))
         XCTAssertEqual(loadedMinimal.status, .pending)
     }
 }
