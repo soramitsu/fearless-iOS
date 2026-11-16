@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		953214F23AFBB9354E017DFF /* WalletConnectActiveSessionsSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BD69A8BF806132A378D92B /* WalletConnectActiveSessionsSelectionTests.swift */; };
 		9E8CB6EE4904A5A3D7745860 /* WalletTransactionHistoryPeerNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045E3E4C96617836BB5ACDBC /* WalletTransactionHistoryPeerNameTests.swift */; };
 		B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF1B38AA382C29C88DD5AAB /* StakingPoolJoinConfigViewLayoutTests.swift */; };
 		32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */; };
@@ -3347,6 +3348,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		84BD69A8BF806132A378D92B /* WalletConnectActiveSessionsSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectActiveSessionsSelectionTests.swift; sourceTree = "<group>"; };
 		045E3E4C96617836BB5ACDBC /* WalletTransactionHistoryPeerNameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryPeerNameTests.swift; sourceTree = "<group>"; };
 		EAF1B38AA382C29C88DD5AAB /* StakingPoolJoinConfigViewLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolJoinConfigViewLayoutTests.swift; sourceTree = "<group>"; };
 		E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanTests.swift; sourceTree = "<group>"; };
@@ -9680,6 +9682,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				84BD69A8BF806132A378D92B /* WalletConnectActiveSessionsSelectionTests.swift */,
 				045E3E4C96617836BB5ACDBC /* WalletTransactionHistoryPeerNameTests.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
 				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
@@ -19661,6 +19664,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				953214F23AFBB9354E017DFF /* WalletConnectActiveSessionsSelectionTests.swift in Sources */,
 				9E8CB6EE4904A5A3D7745860 /* WalletTransactionHistoryPeerNameTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
