@@ -55,31 +55,41 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         unusedChainIds.append(chain.chainId)
         let updatedAccount = flow.wallet.replacingUnusedChainIds(unusedChainIds)
 
-        let saveOperation = repository.saveOperation {
-            [updatedAccount]
-        } _: {
-            []
-        }
+        // These details can belong to a wallet that is not in use: store it without selecting it.
+        guard selectedWalletSettings.value?.metaId == updatedAccount.metaId else {
+            let saveOperation = repository.saveOperation {
+                [updatedAccount]
+            } _: {
+                []
+            }
 
-        saveOperation.completionBlock = { [weak self] in
-            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
-                switch result {
-                case let .success(account):
-                    DispatchQueue.main.async {
-                        if case .normal = self?.flow {
-                            self?.flow = .normal(wallet: account)
-                        }
-
-                        self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+            saveOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
+                    guard case .success = saveOperation.result else {
+                        return
                     }
-
-                case .failure:
-                    break
+                    self?.didMarkUnused(in: updatedAccount)
                 }
             }
+
+            operationManager.enqueue(operations: [saveOperation], in: .transient)
+            return
         }
 
-        operationManager.enqueue(operations: [saveOperation], in: .transient)
+        selectedWalletSettings.save(value: updatedAccount, runningCompletionIn: .main) { [weak self] result in
+            guard case let .success(account) = result else {
+                return
+            }
+            self?.didMarkUnused(in: account)
+        }
+    }
+
+    private func didMarkUnused(in account: MetaAccountModel) {
+        if case .normal = flow {
+            flow = .normal(wallet: account)
+        }
+
+        eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
     }
 
     func setup() {
