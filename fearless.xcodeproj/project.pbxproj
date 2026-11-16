@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B53DF27F7EA34E130F3AFCA /* CovFRtHotBootBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D044CBCF3E3FB225298B03FA /* CovFRtHotBootBuilderTests.swift */; };
+		8C1D9CB43DCF411410A3925E /* CovFRtMortalEraTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD9663993FF8C1C9BF363113 /* CovFRtMortalEraTests.swift */; };
+		90358D6EC3C033AB2D277793 /* CovFRtHotBootSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F05C98A42DD631E949D52A1 /* CovFRtHotBootSnapshotTests.swift */; };
+		931DE99F23272FCCB89617E6 /* CovFMiscTonFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B147C563B7DDCEC8398074 /* CovFMiscTonFetchingTests.swift */; };
+		CA5AE0FBA1BB641051B49ABC /* CovFMiscFactoriesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53F9CDBF5D8F64C0A024F3F /* CovFMiscFactoriesTests.swift */; };
 		6BDB5BE374F033D26367F4EE /* CovFMiscIrohaSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63C5439A951289822CC8928 /* CovFMiscIrohaSessionTests.swift */; };
 		618349F667C4F5E2D85A89A9 /* CovFWcPolkadotRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E09FCF85AE165254E84466 /* CovFWcPolkadotRuntimeTests.swift */; };
 		DDF024F4D95606D83614D997 /* CovFWcSmallTypesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FC74F3F47CFB031D72A192 /* CovFWcSmallTypesTests.swift */; };
@@ -3381,6 +3386,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D044CBCF3E3FB225298B03FA /* CovFRtHotBootBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFRtHotBootBuilderTests.swift; sourceTree = "<group>"; };
+		FD9663993FF8C1C9BF363113 /* CovFRtMortalEraTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFRtMortalEraTests.swift; sourceTree = "<group>"; };
+		6F05C98A42DD631E949D52A1 /* CovFRtHotBootSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFRtHotBootSnapshotTests.swift; sourceTree = "<group>"; };
+		55B147C563B7DDCEC8398074 /* CovFMiscTonFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscTonFetchingTests.swift; sourceTree = "<group>"; };
+		B53F9CDBF5D8F64C0A024F3F /* CovFMiscFactoriesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscFactoriesTests.swift; sourceTree = "<group>"; };
 		A63C5439A951289822CC8928 /* CovFMiscIrohaSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscIrohaSessionTests.swift; sourceTree = "<group>"; };
 		45E09FCF85AE165254E84466 /* CovFWcPolkadotRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFWcPolkadotRuntimeTests.swift; sourceTree = "<group>"; };
 		F7FC74F3F47CFB031D72A192 /* CovFWcSmallTypesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFWcSmallTypesTests.swift; sourceTree = "<group>"; };
@@ -9738,6 +9748,11 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				D044CBCF3E3FB225298B03FA /* CovFRtHotBootBuilderTests.swift */,
+				FD9663993FF8C1C9BF363113 /* CovFRtMortalEraTests.swift */,
+				6F05C98A42DD631E949D52A1 /* CovFRtHotBootSnapshotTests.swift */,
+				55B147C563B7DDCEC8398074 /* CovFMiscTonFetchingTests.swift */,
+				B53F9CDBF5D8F64C0A024F3F /* CovFMiscFactoriesTests.swift */,
 				A63C5439A951289822CC8928 /* CovFMiscIrohaSessionTests.swift */,
 				45E09FCF85AE165254E84466 /* CovFWcPolkadotRuntimeTests.swift */,
 				F7FC74F3F47CFB031D72A192 /* CovFWcSmallTypesTests.swift */,
@@ -19755,6 +19770,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B53DF27F7EA34E130F3AFCA /* CovFRtHotBootBuilderTests.swift in Sources */,
+				8C1D9CB43DCF411410A3925E /* CovFRtMortalEraTests.swift in Sources */,
+				90358D6EC3C033AB2D277793 /* CovFRtHotBootSnapshotTests.swift in Sources */,
+				931DE99F23272FCCB89617E6 /* CovFMiscTonFetchingTests.swift in Sources */,
+				CA5AE0FBA1BB641051B49ABC /* CovFMiscFactoriesTests.swift in Sources */,
 				6BDB5BE374F033D26367F4EE /* CovFMiscIrohaSessionTests.swift in Sources */,
 				618349F667C4F5E2D85A89A9 /* CovFWcPolkadotRuntimeTests.swift in Sources */,
 				DDF024F4D95606D83614D997 /* CovFWcSmallTypesTests.swift in Sources */,
