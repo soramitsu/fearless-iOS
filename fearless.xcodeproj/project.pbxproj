@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B5042BD68A001D6741CDCCF /* CovBAnalyticsViewModelFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B73F9CF5CF1D2A9C166F51CC /* CovBAnalyticsViewModelFactoryTests.swift */; };
+		6FD2DD65ED06C3E7F6709D61 /* CovBAnalyticsValidatorsModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7E4ACAED1C8C621208478F /* CovBAnalyticsValidatorsModuleTests.swift */; };
+		E552D09D007C855F55FF9E64 /* CovBAnalyticsStakeModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD0977B1FDB22259340A0F7 /* CovBAnalyticsStakeModuleTests.swift */; };
+		48F61CD1EE848B777E3927A0 /* CovBAnalyticsRewardsModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B613E87129872216DC790989 /* CovBAnalyticsRewardsModuleTests.swift */; };
+		A036F96E8B19F007E5F19459 /* CovBAnalyticsFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A27E322AA98E83552AB4E79 /* CovBAnalyticsFixturesTests.swift */; };
+		421BD82F152A235AACD1E4BC /* CovBAnalyticsContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA626D43B8C7E64445C7138 /* CovBAnalyticsContainerTests.swift */; };
+		C404A0A543F5ACE3AC3A6F05 /* CovBStakingModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */; };
+		8A5560A1F1267BD68B2BEB63 /* CovBStakingRewardCalculatorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */; };
+		8CD5A0DAA339EDF54E8E6D3D /* CovBStakingDataValidatorFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E11AB9575A698C7E541F944 /* CovBStakingDataValidatorFactoryTests.swift */; };
 		32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */; };
 		E68D4B36819482799FA4D075 /* shikiban.json in Resources */ = {isa = PBXBuildFile; fileRef = BF4B99F1C37CFF1C42C501F1 /* shikiban.json */; };
 		C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */; };
@@ -3344,6 +3353,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B73F9CF5CF1D2A9C166F51CC /* CovBAnalyticsViewModelFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsViewModelFactoryTests.swift; sourceTree = "<group>"; };
+		3E7E4ACAED1C8C621208478F /* CovBAnalyticsValidatorsModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsValidatorsModuleTests.swift; sourceTree = "<group>"; };
+		CBD0977B1FDB22259340A0F7 /* CovBAnalyticsStakeModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsStakeModuleTests.swift; sourceTree = "<group>"; };
+		B613E87129872216DC790989 /* CovBAnalyticsRewardsModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsRewardsModuleTests.swift; sourceTree = "<group>"; };
+		5A27E322AA98E83552AB4E79 /* CovBAnalyticsFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsFixturesTests.swift; sourceTree = "<group>"; };
+		2FA626D43B8C7E64445C7138 /* CovBAnalyticsContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsContainerTests.swift; sourceTree = "<group>"; };
+		DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingModelTests.swift; sourceTree = "<group>"; };
+		E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingRewardCalculatorViewTests.swift; sourceTree = "<group>"; };
+		5E11AB9575A698C7E541F944 /* CovBStakingDataValidatorFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingDataValidatorFactoryTests.swift; sourceTree = "<group>"; };
 		E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanTests.swift; sourceTree = "<group>"; };
 		BF4B99F1C37CFF1C42C501F1 /* shikiban.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shikiban.json; sourceTree = "<group>"; };
 		F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanDebugSeams.swift; sourceTree = "<group>"; };
@@ -9664,6 +9682,15 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				B73F9CF5CF1D2A9C166F51CC /* CovBAnalyticsViewModelFactoryTests.swift */,
+				3E7E4ACAED1C8C621208478F /* CovBAnalyticsValidatorsModuleTests.swift */,
+				CBD0977B1FDB22259340A0F7 /* CovBAnalyticsStakeModuleTests.swift */,
+				B613E87129872216DC790989 /* CovBAnalyticsRewardsModuleTests.swift */,
+				5A27E322AA98E83552AB4E79 /* CovBAnalyticsFixturesTests.swift */,
+				2FA626D43B8C7E64445C7138 /* CovBAnalyticsContainerTests.swift */,
+				DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */,
+				E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */,
+				5E11AB9575A698C7E541F944 /* CovBStakingDataValidatorFactoryTests.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
 				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
 				1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */,
@@ -19644,6 +19671,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B5042BD68A001D6741CDCCF /* CovBAnalyticsViewModelFactoryTests.swift in Sources */,
+				6FD2DD65ED06C3E7F6709D61 /* CovBAnalyticsValidatorsModuleTests.swift in Sources */,
+				E552D09D007C855F55FF9E64 /* CovBAnalyticsStakeModuleTests.swift in Sources */,
+				48F61CD1EE848B777E3927A0 /* CovBAnalyticsRewardsModuleTests.swift in Sources */,
+				A036F96E8B19F007E5F19459 /* CovBAnalyticsFixturesTests.swift in Sources */,
+				421BD82F152A235AACD1E4BC /* CovBAnalyticsContainerTests.swift in Sources */,
+				C404A0A543F5ACE3AC3A6F05 /* CovBStakingModelTests.swift in Sources */,
+				8A5560A1F1267BD68B2BEB63 /* CovBStakingRewardCalculatorViewTests.swift in Sources */,
+				8CD5A0DAA339EDF54E8E6D3D /* CovBStakingDataValidatorFactoryTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
 				8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */,
