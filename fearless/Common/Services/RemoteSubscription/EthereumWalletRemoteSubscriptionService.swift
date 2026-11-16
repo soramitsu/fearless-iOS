@@ -127,9 +127,11 @@ extension EthereumWalletRemoteSubscriptionService: WalletRemoteSubscriptionServi
         queue _: DispatchQueue?,
         closure _: RemoteSubscriptionClosure?
     ) {
+        // The key is "assetId:chainId:accountIdHex" (ChainAsset.uniqueKey): the chain id is second from the end.
+        let keyParts = chainAssetKey.components(separatedBy: ":")
         guard
-            let chainId = chainAssetKey.components(separatedBy: ":")[safe: 2],
-            let ws = chainRegistry.getEthereumConnection(for: chainId)
+            keyParts.count >= 3,
+            let ws = chainRegistry.getEthereumConnection(for: keyParts[keyParts.count - 2])
         else {
             return
         }

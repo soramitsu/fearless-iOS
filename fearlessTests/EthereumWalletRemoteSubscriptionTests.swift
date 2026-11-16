@@ -29,6 +29,19 @@ final class EthereumWalletRemoteSubscriptionTests: XCTestCase {
         XCTAssertEqual(registry.requestedChainIds, [chainAsset.chain.chainId])
     }
 
+    /// Detaching read the third part of the key "assetId:chainId:accountIdHex", the account, as the chain id, so it
+    /// looked for a connection that does not exist and the node subscription was never ended.
+    func testDetachLooksUpTheConnectionOfTheSubscriptionsChain() {
+        let registry = EthereumConnectionRegistry()
+        let service = Self.service(registry: registry)
+        let chainAsset = Self.chainAsset()
+        let key = chainAsset.uniqueKey(accountId: Data(repeating: 0xAB, count: 20))
+
+        service.detachFromAccountInfo(for: "0x1", chainAssetKey: key, queue: nil, closure: nil)
+
+        XCTAssertEqual(registry.requestedChainIds, [chainAsset.chain.chainId])
+    }
+
     // MARK: - Fixtures
 
     static func service(registry: ChainRegistryProtocol) -> EthereumWalletRemoteSubscriptionService {
