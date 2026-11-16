@@ -1094,7 +1094,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         stakeInfoWrapper.addDependency(operations: [eraValidatorsOperation])
 
-        let precision = asset.precision
         let chainFormat = chain.chainFormat
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
@@ -1119,10 +1118,8 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
                 let stakeInfo = stakeInfoList[index]
 
-                let commission = Decimal.fromSubstrateAmount(
-                    prefs.commission,
-                    precision: Int16(precision)
-                ) ?? 0.0
+                // ValidatorPrefs.commission is a Perbill, not an amount of the staked token.
+                let commission = Decimal.fromSubstratePerbill(value: prefs.commission) ?? 0.0
 
                 return SelectedValidatorInfo(
                     address: validatorAddress,
