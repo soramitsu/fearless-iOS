@@ -30,7 +30,7 @@ final class SelectableAmountInputView: UIView {
         return label
     }()
 
-    private let triangularedBackgroundView: TriangularedView = {
+    let triangularedBackgroundView: TriangularedView = {
         let view = TriangularedView()
         view.isUserInteractionEnabled = true
 
