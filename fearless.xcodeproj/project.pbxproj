@@ -7,6 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FFE07AB3E7B44A60EC6617A9 /* CovEWidgetsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */; };
+		4825E51327A997604E058554 /* CovEValueViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91351D96D5C492FF1C2E7C6C /* CovEValueViewsTests.swift */; };
+		FC0E47BA68B379F57C05F9FE /* CovEUIFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62B53CCF637805D40353BD7 /* CovEUIFactoryTests.swift */; };
+		46563710CD9F22A22B3B37FF /* CovEStateViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44590F6AE539795534CC9C7 /* CovEStateViewsTests.swift */; };
+		0973693133250DC20EA8E8AD /* CovESmallViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A71FF27ACC6F63BB113C6FF /* CovESmallViewsTests.swift */; };
+		C6F0A11F07103CA7833D0A31 /* CovESheetAndSealTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D0689F99273B25526F563A /* CovESheetAndSealTests.swift */; };
+		DC4E2677C3B76B64245D0549 /* CovERowAndSurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */; };
+		45AD3DFD6EB25D6593AAF153 /* CovENavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */; };
+		48DC7D04E161BD5B565915C7 /* CovEMoreViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */; };
+		1ED516A1FD0AE4A665B18BD3 /* CovEModalPickerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD17B22E01565DDDB1B8CCD6 /* CovEModalPickerTests.swift */; };
+		11F96C39435FF30AB3C64193 /* CovEMiscViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */; };
+		A1121884231AE212C083BA63 /* CovEMediaViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A609FD81AF8115093B7CC521 /* CovEMediaViewTests.swift */; };
+		A7B99DB6828E23738F7BC0E0 /* CovELeftoverViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40B4C9B7B96C53918983331 /* CovELeftoverViewsTests.swift */; };
+		E3599FA10251ADF02E8D2D3B /* CovELaunchAndHeroTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29925DEBD98071EED0410885 /* CovELaunchAndHeroTests.swift */; };
+		0752AE3DF1F45572563ECD63 /* CovEInteractiveViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796DB63E487E133718A9743F /* CovEInteractiveViewsTests.swift */; };
+		279404F215F1D0FA00669ECB /* CovEInspectableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AFFD33D965A0E99C62CF3E /* CovEInspectableTests.swift */; };
+		E9436725F3DC293233A8F858 /* CovEInputControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62662D9AF9C6D14D51DD556 /* CovEInputControlsTests.swift */; };
+		29A9A593FAB121DFAEB7FF5D /* CovEHistoryMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343EE296A6B3EECC6BD3F089 /* CovEHistoryMappingTests.swift */; };
+		121A69D3C9BB2FECD8417E1A /* CovEHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBBDEF23E1457EE7673B43C0 /* CovEHelpers.swift */; };
+		7655362D62F5368F235F3588 /* CovEFeedbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66FFFCE99D9573800FE4038A /* CovEFeedbackTests.swift */; };
+		9481F841C78400C9A13DF294 /* CovEFeedbackPlayersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */; };
+		B5AE6E611F33F6480EAF1065 /* CovEExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B7AD6F16F94F62FD9B00A3 /* CovEExtensionsTests.swift */; };
+		11B305B8670B53147F7719A2 /* CovEDetailsTriangularedViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77FEEFBC761132BD1653C251 /* CovEDetailsTriangularedViewTests.swift */; };
+		089C257CD01C7B57853F65E8 /* CovEDesignSystemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06C85C1308D4A7BE01A23F2 /* CovEDesignSystemTests.swift */; };
+		6DA5AE6C7ABBBF5745479B74 /* CovEDebugSeamsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */; };
+		E69B2EB64077698B3E29F94B /* CovEContainerViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7432CACC3EDF64D05E88CF26 /* CovEContainerViewControllerTests.swift */; };
+		858F42FA5230936358EF5D83 /* CovEChartTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04813C3A1A000E192DF55CA /* CovEChartTests.swift */; };
+		1DB473F591A187134645CA53 /* CovEBrandedViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78FCD0497A2DBC6DD8CB8B1 /* CovEBrandedViewsTests.swift */; };
+		0F3E9D072854B581FBF7B4AF /* CovEAnimatedGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDB8395B4EB91E87C854D6A /* CovEAnimatedGeometryTests.swift */; };
 		DDB8E242C08E96C34F1D81AF /* CovDTransportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */; };
 		4822064AEF49751CA530A918 /* CovDTabWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */; };
 		CE335D02BF3E6EFC921075D0 /* CovDTabFactoryActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506F8EC4810EB0733E04A0EF /* CovDTabFactoryActionsTests.swift */; };
@@ -3510,6 +3539,35 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEWidgetsTests.swift; sourceTree = "<group>"; };
+		91351D96D5C492FF1C2E7C6C /* CovEValueViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEValueViewsTests.swift; sourceTree = "<group>"; };
+		F62B53CCF637805D40353BD7 /* CovEUIFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEUIFactoryTests.swift; sourceTree = "<group>"; };
+		B44590F6AE539795534CC9C7 /* CovEStateViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEStateViewsTests.swift; sourceTree = "<group>"; };
+		2A71FF27ACC6F63BB113C6FF /* CovESmallViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovESmallViewsTests.swift; sourceTree = "<group>"; };
+		72D0689F99273B25526F563A /* CovESheetAndSealTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovESheetAndSealTests.swift; sourceTree = "<group>"; };
+		79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovERowAndSurfaceTests.swift; sourceTree = "<group>"; };
+		527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovENavigationTests.swift; sourceTree = "<group>"; };
+		585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEMoreViewsTests.swift; sourceTree = "<group>"; };
+		CD17B22E01565DDDB1B8CCD6 /* CovEModalPickerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEModalPickerTests.swift; sourceTree = "<group>"; };
+		29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEMiscViewsTests.swift; sourceTree = "<group>"; };
+		A609FD81AF8115093B7CC521 /* CovEMediaViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEMediaViewTests.swift; sourceTree = "<group>"; };
+		D40B4C9B7B96C53918983331 /* CovELeftoverViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovELeftoverViewsTests.swift; sourceTree = "<group>"; };
+		29925DEBD98071EED0410885 /* CovELaunchAndHeroTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovELaunchAndHeroTests.swift; sourceTree = "<group>"; };
+		796DB63E487E133718A9743F /* CovEInteractiveViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEInteractiveViewsTests.swift; sourceTree = "<group>"; };
+		C5AFFD33D965A0E99C62CF3E /* CovEInspectableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEInspectableTests.swift; sourceTree = "<group>"; };
+		A62662D9AF9C6D14D51DD556 /* CovEInputControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEInputControlsTests.swift; sourceTree = "<group>"; };
+		343EE296A6B3EECC6BD3F089 /* CovEHistoryMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEHistoryMappingTests.swift; sourceTree = "<group>"; };
+		DBBDEF23E1457EE7673B43C0 /* CovEHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEHelpers.swift; sourceTree = "<group>"; };
+		66FFFCE99D9573800FE4038A /* CovEFeedbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEFeedbackTests.swift; sourceTree = "<group>"; };
+		2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEFeedbackPlayersTests.swift; sourceTree = "<group>"; };
+		D3B7AD6F16F94F62FD9B00A3 /* CovEExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEExtensionsTests.swift; sourceTree = "<group>"; };
+		77FEEFBC761132BD1653C251 /* CovEDetailsTriangularedViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEDetailsTriangularedViewTests.swift; sourceTree = "<group>"; };
+		E06C85C1308D4A7BE01A23F2 /* CovEDesignSystemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEDesignSystemTests.swift; sourceTree = "<group>"; };
+		0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEDebugSeamsTests.swift; sourceTree = "<group>"; };
+		7432CACC3EDF64D05E88CF26 /* CovEContainerViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEContainerViewControllerTests.swift; sourceTree = "<group>"; };
+		F04813C3A1A000E192DF55CA /* CovEChartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEChartTests.swift; sourceTree = "<group>"; };
+		F78FCD0497A2DBC6DD8CB8B1 /* CovEBrandedViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEBrandedViewsTests.swift; sourceTree = "<group>"; };
+		0FDB8395B4EB91E87C854D6A /* CovEAnimatedGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEAnimatedGeometryTests.swift; sourceTree = "<group>"; };
 		310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDTransportTests.swift; sourceTree = "<group>"; };
 		99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDTabWorkflowTests.swift; sourceTree = "<group>"; };
 		506F8EC4810EB0733E04A0EF /* CovDTabFactoryActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDTabFactoryActionsTests.swift; sourceTree = "<group>"; };
@@ -10006,6 +10064,35 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */,
+				91351D96D5C492FF1C2E7C6C /* CovEValueViewsTests.swift */,
+				F62B53CCF637805D40353BD7 /* CovEUIFactoryTests.swift */,
+				B44590F6AE539795534CC9C7 /* CovEStateViewsTests.swift */,
+				2A71FF27ACC6F63BB113C6FF /* CovESmallViewsTests.swift */,
+				72D0689F99273B25526F563A /* CovESheetAndSealTests.swift */,
+				79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */,
+				527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */,
+				585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */,
+				CD17B22E01565DDDB1B8CCD6 /* CovEModalPickerTests.swift */,
+				29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */,
+				A609FD81AF8115093B7CC521 /* CovEMediaViewTests.swift */,
+				D40B4C9B7B96C53918983331 /* CovELeftoverViewsTests.swift */,
+				29925DEBD98071EED0410885 /* CovELaunchAndHeroTests.swift */,
+				796DB63E487E133718A9743F /* CovEInteractiveViewsTests.swift */,
+				C5AFFD33D965A0E99C62CF3E /* CovEInspectableTests.swift */,
+				A62662D9AF9C6D14D51DD556 /* CovEInputControlsTests.swift */,
+				343EE296A6B3EECC6BD3F089 /* CovEHistoryMappingTests.swift */,
+				DBBDEF23E1457EE7673B43C0 /* CovEHelpers.swift */,
+				66FFFCE99D9573800FE4038A /* CovEFeedbackTests.swift */,
+				2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */,
+				D3B7AD6F16F94F62FD9B00A3 /* CovEExtensionsTests.swift */,
+				77FEEFBC761132BD1653C251 /* CovEDetailsTriangularedViewTests.swift */,
+				E06C85C1308D4A7BE01A23F2 /* CovEDesignSystemTests.swift */,
+				0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */,
+				7432CACC3EDF64D05E88CF26 /* CovEContainerViewControllerTests.swift */,
+				F04813C3A1A000E192DF55CA /* CovEChartTests.swift */,
+				F78FCD0497A2DBC6DD8CB8B1 /* CovEBrandedViewsTests.swift */,
+				0FDB8395B4EB91E87C854D6A /* CovEAnimatedGeometryTests.swift */,
 				310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */,
 				99FC25464186CB7330F35864 /* CovDTabWorkflowTests.swift */,
 				506F8EC4810EB0733E04A0EF /* CovDTabFactoryActionsTests.swift */,
@@ -20150,6 +20237,35 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FFE07AB3E7B44A60EC6617A9 /* CovEWidgetsTests.swift in Sources */,
+				4825E51327A997604E058554 /* CovEValueViewsTests.swift in Sources */,
+				FC0E47BA68B379F57C05F9FE /* CovEUIFactoryTests.swift in Sources */,
+				46563710CD9F22A22B3B37FF /* CovEStateViewsTests.swift in Sources */,
+				0973693133250DC20EA8E8AD /* CovESmallViewsTests.swift in Sources */,
+				C6F0A11F07103CA7833D0A31 /* CovESheetAndSealTests.swift in Sources */,
+				DC4E2677C3B76B64245D0549 /* CovERowAndSurfaceTests.swift in Sources */,
+				45AD3DFD6EB25D6593AAF153 /* CovENavigationTests.swift in Sources */,
+				48DC7D04E161BD5B565915C7 /* CovEMoreViewsTests.swift in Sources */,
+				1ED516A1FD0AE4A665B18BD3 /* CovEModalPickerTests.swift in Sources */,
+				11F96C39435FF30AB3C64193 /* CovEMiscViewsTests.swift in Sources */,
+				A1121884231AE212C083BA63 /* CovEMediaViewTests.swift in Sources */,
+				A7B99DB6828E23738F7BC0E0 /* CovELeftoverViewsTests.swift in Sources */,
+				E3599FA10251ADF02E8D2D3B /* CovELaunchAndHeroTests.swift in Sources */,
+				0752AE3DF1F45572563ECD63 /* CovEInteractiveViewsTests.swift in Sources */,
+				279404F215F1D0FA00669ECB /* CovEInspectableTests.swift in Sources */,
+				E9436725F3DC293233A8F858 /* CovEInputControlsTests.swift in Sources */,
+				29A9A593FAB121DFAEB7FF5D /* CovEHistoryMappingTests.swift in Sources */,
+				121A69D3C9BB2FECD8417E1A /* CovEHelpers.swift in Sources */,
+				7655362D62F5368F235F3588 /* CovEFeedbackTests.swift in Sources */,
+				9481F841C78400C9A13DF294 /* CovEFeedbackPlayersTests.swift in Sources */,
+				B5AE6E611F33F6480EAF1065 /* CovEExtensionsTests.swift in Sources */,
+				11B305B8670B53147F7719A2 /* CovEDetailsTriangularedViewTests.swift in Sources */,
+				089C257CD01C7B57853F65E8 /* CovEDesignSystemTests.swift in Sources */,
+				6DA5AE6C7ABBBF5745479B74 /* CovEDebugSeamsTests.swift in Sources */,
+				E69B2EB64077698B3E29F94B /* CovEContainerViewControllerTests.swift in Sources */,
+				858F42FA5230936358EF5D83 /* CovEChartTests.swift in Sources */,
+				1DB473F591A187134645CA53 /* CovEBrandedViewsTests.swift in Sources */,
+				0F3E9D072854B581FBF7B4AF /* CovEAnimatedGeometryTests.swift in Sources */,
 				DDB8E242C08E96C34F1D81AF /* CovDTransportTests.swift in Sources */,
 				4822064AEF49751CA530A918 /* CovDTabWorkflowTests.swift in Sources */,
 				CE335D02BF3E6EFC921075D0 /* CovDTabFactoryActionsTests.swift in Sources */,
