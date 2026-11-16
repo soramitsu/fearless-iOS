@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		11F96C39435FF30AB3C64193 /* CovEMiscViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */; };
 		45AD3DFD6EB25D6593AAF153 /* CovENavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */; };
 		FFE07AB3E7B44A60EC6617A9 /* CovEWidgetsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */; };
 		48DC7D04E161BD5B565915C7 /* CovEMoreViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */; };
@@ -3358,6 +3359,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEMiscViewsTests.swift; sourceTree = "<group>"; };
 		527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovENavigationTests.swift; sourceTree = "<group>"; };
 		57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEWidgetsTests.swift; sourceTree = "<group>"; };
 		585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEMoreViewsTests.swift; sourceTree = "<group>"; };
@@ -9692,6 +9694,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */,
 				527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */,
 				57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */,
 				585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */,
@@ -19686,6 +19689,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				11F96C39435FF30AB3C64193 /* CovEMiscViewsTests.swift in Sources */,
 				45AD3DFD6EB25D6593AAF153 /* CovENavigationTests.swift in Sources */,
 				FFE07AB3E7B44A60EC6617A9 /* CovEWidgetsTests.swift in Sources */,
 				48DC7D04E161BD5B565915C7 /* CovEMoreViewsTests.swift in Sources */,
