@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		676C6A7D76A3FC914743C73E /* PurchaseCompletionAlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */; };
 		576E4D796D887E2DC4861E4D /* ScanQRPresenterLocaleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */; };
 		B26DA574ED06F78FAE539DCB /* OnboardingConfigNewestVersionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A76D89E8C83A45D25075BC8 /* OnboardingConfigNewestVersionTests.swift */; };
 		901CF615E8BAAC6FD2F464CD /* CustomCrowdloanFlowEqualityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CCA00A5D59FF041295BAAE /* CustomCrowdloanFlowEqualityTests.swift */; };
@@ -3824,6 +3825,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseCompletionAlertTests.swift; sourceTree = "<group>"; };
 		D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanQRPresenterLocaleTests.swift; sourceTree = "<group>"; };
 		6A76D89E8C83A45D25075BC8 /* OnboardingConfigNewestVersionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingConfigNewestVersionTests.swift; sourceTree = "<group>"; };
 		E2CCA00A5D59FF041295BAAE /* CustomCrowdloanFlowEqualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCrowdloanFlowEqualityTests.swift; sourceTree = "<group>"; };
@@ -10634,6 +10636,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */,
 				D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */,
 				6A76D89E8C83A45D25075BC8 /* OnboardingConfigNewestVersionTests.swift */,
 				E2CCA00A5D59FF041295BAAE /* CustomCrowdloanFlowEqualityTests.swift */,
@@ -21570,6 +21573,7 @@
 				901CF615E8BAAC6FD2F464CD /* CustomCrowdloanFlowEqualityTests.swift in Sources */,
 				B26DA574ED06F78FAE539DCB /* OnboardingConfigNewestVersionTests.swift in Sources */,
 				576E4D796D887E2DC4861E4D /* ScanQRPresenterLocaleTests.swift in Sources */,
+				676C6A7D76A3FC914743C73E /* PurchaseCompletionAlertTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
