@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F043CE4F2A97AB0AB424520 /* ScamInfoMissingNomisScoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C80FA105F23959FCB76091D /* ScamInfoMissingNomisScoreTests.swift */; };
 		A923436DBDB22A5205BA2918 /* AssetNetworksCellLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8381A53DBF833BDD50753F2B /* AssetNetworksCellLayoutTests.swift */; };
 		676C6A7D76A3FC914743C73E /* PurchaseCompletionAlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */; };
 		576E4D796D887E2DC4861E4D /* ScanQRPresenterLocaleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */; };
@@ -3826,6 +3827,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8C80FA105F23959FCB76091D /* ScamInfoMissingNomisScoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfoMissingNomisScoreTests.swift; sourceTree = "<group>"; };
 		8381A53DBF833BDD50753F2B /* AssetNetworksCellLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetNetworksCellLayoutTests.swift; sourceTree = "<group>"; };
 		CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseCompletionAlertTests.swift; sourceTree = "<group>"; };
 		D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanQRPresenterLocaleTests.swift; sourceTree = "<group>"; };
@@ -10638,6 +10640,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				8C80FA105F23959FCB76091D /* ScamInfoMissingNomisScoreTests.swift */,
 				8381A53DBF833BDD50753F2B /* AssetNetworksCellLayoutTests.swift */,
 				CF32F221CD90645BF7FA742B /* PurchaseCompletionAlertTests.swift */,
 				D20B74613C2C6557C242592B /* ScanQRPresenterLocaleTests.swift */,
@@ -21578,6 +21581,7 @@
 				576E4D796D887E2DC4861E4D /* ScanQRPresenterLocaleTests.swift in Sources */,
 				676C6A7D76A3FC914743C73E /* PurchaseCompletionAlertTests.swift in Sources */,
 				A923436DBDB22A5205BA2918 /* AssetNetworksCellLayoutTests.swift in Sources */,
+				9F043CE4F2A97AB0AB424520 /* ScamInfoMissingNomisScoreTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
