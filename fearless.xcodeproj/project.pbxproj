@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		093821858F35303F070B6E0B /* SoraRewardCalculatorServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A13BB27D34D6A429127C338C /* SoraRewardCalculatorServiceTests.swift */; };
 		953214F23AFBB9354E017DFF /* WalletConnectActiveSessionsSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BD69A8BF806132A378D92B /* WalletConnectActiveSessionsSelectionTests.swift */; };
 		9E8CB6EE4904A5A3D7745860 /* WalletTransactionHistoryPeerNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045E3E4C96617836BB5ACDBC /* WalletTransactionHistoryPeerNameTests.swift */; };
 		B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF1B38AA382C29C88DD5AAB /* StakingPoolJoinConfigViewLayoutTests.swift */; };
@@ -3348,6 +3349,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A13BB27D34D6A429127C338C /* SoraRewardCalculatorServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorServiceTests.swift; sourceTree = "<group>"; };
 		84BD69A8BF806132A378D92B /* WalletConnectActiveSessionsSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectActiveSessionsSelectionTests.swift; sourceTree = "<group>"; };
 		045E3E4C96617836BB5ACDBC /* WalletTransactionHistoryPeerNameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryPeerNameTests.swift; sourceTree = "<group>"; };
 		EAF1B38AA382C29C88DD5AAB /* StakingPoolJoinConfigViewLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolJoinConfigViewLayoutTests.swift; sourceTree = "<group>"; };
@@ -9682,6 +9684,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				A13BB27D34D6A429127C338C /* SoraRewardCalculatorServiceTests.swift */,
 				84BD69A8BF806132A378D92B /* WalletConnectActiveSessionsSelectionTests.swift */,
 				045E3E4C96617836BB5ACDBC /* WalletTransactionHistoryPeerNameTests.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
@@ -19664,6 +19667,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				093821858F35303F070B6E0B /* SoraRewardCalculatorServiceTests.swift in Sources */,
 				953214F23AFBB9354E017DFF /* WalletConnectActiveSessionsSelectionTests.swift in Sources */,
 				9E8CB6EE4904A5A3D7745860 /* WalletTransactionHistoryPeerNameTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,

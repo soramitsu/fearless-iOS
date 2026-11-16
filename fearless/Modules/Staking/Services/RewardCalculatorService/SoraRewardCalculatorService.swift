@@ -105,9 +105,11 @@ final class SoraRewardCalculatorService {
             filterMode: LiquiditySourceType.smart.filterMode
         )
 
-        swapValues.removeAll()
-        swapValueErrors.removeAll()
-        dexInfos.removeAll()
+        syncQueue.sync {
+            swapValues.removeAll()
+            swapValueErrors.removeAll()
+            dexInfos.removeAll()
+        }
         var allOperations: [Operation] = []
         let group = DispatchGroup()
 
@@ -118,7 +120,9 @@ final class SoraRewardCalculatorService {
 
             quotesOperation.completionBlock = { [weak self, dexId, group] in
                 guard let strongSelf = self else { return }
-                DispatchQueue.global().sync(flags: .barrier) {
+                // Quote answers complete concurrently. A barrier on a global queue serialises nothing, so they are
+                // collected on the service's serial queue.
+                strongSelf.syncQueue.sync {
                     do {
                         var result = try quotesOperation.extractNoCancellableResultData()
                         result.dexId = dexId
@@ -126,14 +130,14 @@ final class SoraRewardCalculatorService {
                     } catch {
                         strongSelf.swapValueErrors.append(error)
                     }
-                    group.leave()
                 }
+                group.leave()
             }
             allOperations.append(quotesOperation)
         }
         operationManager.enqueue(operations: allOperations, in: .blockAfter)
 
-        let workItem = DispatchWorkItem(flags: .barrier) { [weak self] in
+        let workItem = DispatchWorkItem { [weak self] in
             let rewardAssetAmount = self?.swapValues.compactMap { BigUInt(string: $0.amount) }.max()
             guard
                 let rewardAssetAmount = rewardAssetAmount,
@@ -150,7 +154,7 @@ final class SoraRewardCalculatorService {
             self?.fetchTotalValidatorRewards()
         }
 
-        group.notify(queue: .main, work: workItem)
+        group.notify(queue: syncQueue, work: workItem)
     }
 
     private func fetchPolkaswapSettings() {
