@@ -2,6 +2,18 @@ import UIKit
 import SSFModels
 
 final class ChainAssetListRouter: ChainAssetListRouterInput {
+    /// The full network list the header's network button opens; it saves the wallet's filter and closes on a pick.
+    func showNetworkPicker(from view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+        guard let controller = view?.controller, controller.presentedViewController == nil,
+              let module = NetworkManagmentAssembly.configureModule(
+                  wallet: wallet,
+                  chains: nil,
+                  contextTag: nil,
+                  moduleOutput: nil
+              ) else { return }
+        controller.present(module.view.controller, animated: true)
+    }
+
     func showFundingOptions(from view: ControllerBackedProtocol?, title: String, options: [PortfolioFundingOption], locale: Locale) {
         guard let controller = view?.controller, controller.presentedViewController == nil, !options.isEmpty else { return }
         let picker = PortfolioFundingPickerViewController(title: title, options: options, locale: locale)

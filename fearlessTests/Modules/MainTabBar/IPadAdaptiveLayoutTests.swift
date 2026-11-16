@@ -565,7 +565,12 @@ final class IPadWorkspaceLayoutTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(list.frame.minX, header.frame.maxX)
 
         layOut(width: 900, sidebar: 280)
-        XCTAssertGreaterThanOrEqual(list.frame.minY, header.frame.maxY)
+        // In the column the list scrolls with the header as one page, under the whole header.
+        let content = layout.contentView
+        XCTAssertGreaterThanOrEqual(
+            list.convert(list.bounds, to: layout).minY,
+            content.convert(content.bounds, to: layout).maxY
+        )
         XCTAssertEqual(list.frame.width, header.frame.width)
 
         layOut(width: 900, sidebar: 0)

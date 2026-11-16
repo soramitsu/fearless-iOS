@@ -1631,3 +1631,13 @@ Euro cash";
 "fw.feedback.sound_effects" = "Звуковые эффекты";
 "fw.feedback.haptic_feedback" = "Тактильный отклик";
 "fw.feedback.tokens_received" = "Получено: %@";
+
+/* One list: search and network filters */
+"portfolio.one_list.search" = "Поиск токенов и сетей";
+"portfolio.one_list.all" = "Все сети";
+"portfolio.one_list.popular" = "Популярные";
+"portfolio.one_list.favourite" = "Избранные";
+"portfolio.one_list.more" = "Другие сети";
+"portfolio.one_list.note" = "Все ваши активы в одном списке. Найдите токен через поиск или выберите сеть.";
+"portfolio.one_list.dismiss" = "Понятно";
+"portfolio.one_list.search_all" = "Искать во всех сетях";

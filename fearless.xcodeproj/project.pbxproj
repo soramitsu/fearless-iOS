@@ -452,6 +452,10 @@
 		01676811F90C8862E5BCCF15 /* SendCardGlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707DD6040DEEAF736A000497 /* SendCardGlowTests.swift */; };
 		A283AFB3CF976EF1C9A85DDE /* AnalyticsChartSelectionScrollTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFC69AFE7D70A6603682AD0 /* AnalyticsChartSelectionScrollTests.swift */; };
 		29EBAE2FFDBD43A5250DA847 /* LegacyEraStakersFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */; };
+		84F4E2C6D66AD157A25B580B /* WalletHomePageScroll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233EF54AF75AFBFF14DCED09 /* WalletHomePageScroll.swift */; };
+		DAEF492B9B054F59EC6C43E9 /* OneListWalletHomeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD8CEA9AB49DF8CD0D53EA5 /* OneListWalletHomeTests.swift */; };
+		79F6ABE772BED4FD91AE1970 /* PortfolioNetworkChipButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B38BB0764E9C11B04A9C31E /* PortfolioNetworkChipButton.swift */; };
+		930C904ABCB808713AC9E247 /* PortfolioDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CCCD9D46E0D21F4366F8B7 /* PortfolioDiscoveryView.swift */; };
 		774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */; };
 		780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */; };
 		5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */; };
@@ -4256,6 +4260,10 @@
 		707DD6040DEEAF736A000497 /* SendCardGlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCardGlowTests.swift; sourceTree = "<group>"; };
 		4DFC69AFE7D70A6603682AD0 /* AnalyticsChartSelectionScrollTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsChartSelectionScrollTests.swift; sourceTree = "<group>"; };
 		B10D138408B2299C3AC3BA69 /* LegacyEraStakersFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyEraStakersFetchingTests.swift; sourceTree = "<group>"; };
+		233EF54AF75AFBFF14DCED09 /* WalletHomePageScroll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHomePageScroll.swift; sourceTree = "<group>"; };
+		9AD8CEA9AB49DF8CD0D53EA5 /* OneListWalletHomeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneListWalletHomeTests.swift; sourceTree = "<group>"; };
+		1B38BB0764E9C11B04A9C31E /* PortfolioNetworkChipButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioNetworkChipButton.swift; sourceTree = "<group>"; };
+		66CCCD9D46E0D21F4366F8B7 /* PortfolioDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioDiscoveryView.swift; sourceTree = "<group>"; };
 		30BC6D87B55D65A03EBD3A75 /* ChainsTypesSyncServiceRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncServiceRetryTests.swift; sourceTree = "<group>"; };
 		BBE902427567B07282F94C68 /* NomisJSONDecoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomisJSONDecoderTests.swift; sourceTree = "<group>"; };
 		0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteSubscriptionDetachTests.swift; sourceTree = "<group>"; };
@@ -8565,6 +8573,7 @@
 		170BF5A5BE2725B7AE99C472 /* WalletMainContainer */ = {
 			isa = PBXGroup;
 			children = (
+				233EF54AF75AFBFF14DCED09 /* WalletHomePageScroll.swift */,
 				C8312AF0B70350EE27DB5B4A /* WalletMainContainerProtocols.swift */,
 				80C632A122CE8D02B84806C3 /* WalletMainContainerRouter.swift */,
 				1D738FE711DD760B47C0BA65 /* WalletMainContainerPresenter.swift */,
@@ -10394,6 +10403,7 @@
 		FBCC45152F21000100A11CE5 /* ChainAssetList */ = {
 			isa = PBXGroup;
 			children = (
+				9AD8CEA9AB49DF8CD0D53EA5 /* OneListWalletHomeTests.swift */,
 				FBCC45132F21000100A11CE5 /* ChainAssetListTests.swift */,
 				EF2EE4A95C23CB155DD89AC1 /* NetworkLensPresentationTests.swift */,
 				839010BC79EB28039444D7BD /* TokenGroupPortfolioBuilderTests.swift */,
@@ -13554,6 +13564,8 @@
 		C6267B8B28BDF6A5001E31BF /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1B38BB0764E9C11B04A9C31E /* PortfolioNetworkChipButton.swift */,
+				66CCCD9D46E0D21F4366F8B7 /* PortfolioDiscoveryView.swift */,
 				FAD067C82C2044D30050291F /* ChainAssetListViewLayout.swift */,
 				FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */,
 				692171DFB2D974BC54F75EC9 /* TokenGroupBalanceTableCell.swift */,
@@ -18236,6 +18248,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84F4E2C6D66AD157A25B580B /* WalletHomePageScroll.swift in Sources */,
+				79F6ABE772BED4FD91AE1970 /* PortfolioNetworkChipButton.swift in Sources */,
+				930C904ABCB808713AC9E247 /* PortfolioDiscoveryView.swift in Sources */,
 				983E40B47722E5EA4F66F858 /* SoraEraRewardHistory.swift in Sources */,
 				C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */,
 				0F38ED406EF714A0979D01EC /* FWTransferSeal.swift in Sources */,
@@ -21499,6 +21514,7 @@
 				01676811F90C8862E5BCCF15 /* SendCardGlowTests.swift in Sources */,
 				A283AFB3CF976EF1C9A85DDE /* AnalyticsChartSelectionScrollTests.swift in Sources */,
 				29EBAE2FFDBD43A5250DA847 /* LegacyEraStakersFetchingTests.swift in Sources */,
+				DAEF492B9B054F59EC6C43E9 /* OneListWalletHomeTests.swift in Sources */,
 				774B7F3AD45BEE3AD618B0B2 /* ChainsTypesSyncServiceRetryTests.swift in Sources */,
 				780436ABEB78C1F8E211036A /* NomisJSONDecoderTests.swift in Sources */,
 				5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */,

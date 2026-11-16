@@ -1604,3 +1604,13 @@ thuộc đúng mạng";
 "fw.feedback.sound_effects" = "Hiệu ứng âm thanh";
 "fw.feedback.haptic_feedback" = "Phản hồi xúc giác";
 "fw.feedback.tokens_received" = "Đã nhận %@";
+
+/* One list: search and network filters */
+"portfolio.one_list.search" = "Tìm token và mạng";
+"portfolio.one_list.all" = "Tất cả mạng";
+"portfolio.one_list.popular" = "Phổ biến";
+"portfolio.one_list.favourite" = "Yêu thích";
+"portfolio.one_list.more" = "Mạng khác";
+"portfolio.one_list.note" = "Tất cả tài sản trong một danh sách. Tìm kiếm hoặc chọn mạng để tìm token.";
+"portfolio.one_list.dismiss" = "Đã hiểu";
+"portfolio.one_list.search_all" = "Tìm trên tất cả mạng";

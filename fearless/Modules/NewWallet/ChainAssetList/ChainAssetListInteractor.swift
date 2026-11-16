@@ -396,7 +396,7 @@ final class ChainAssetListInteractor {
         }
 
         accountInfoSubscriptionAdapter.subscribe(
-            chainsAssets: chainAssets,
+            chainsAssets: chainAssets.filter { Self.keepsBalancesInLocalStorage($0.chain) },
             handler: accountInfoListener,
             deliveryOn: accountInfosDeliveryQueue,
             notifyJustWhenUpdated: false
@@ -429,31 +429,15 @@ final class ChainAssetListInteractor {
         let chains = chainAssets.map(\.chain).uniq(predicate: { $0.chainId })
         let currentWallet = wallet
         let request = walletScope.snapshot()
+        let service = accountInfoRemoteService
 
         Task {
-            let results = await withTaskGroup(
-                of: [(ChainAsset, AccountInfo?)].self,
-                returning: [(ChainAsset, AccountInfo?)].self
-            ) { group in
-                chains.forEach { chain in
-                    group.addTask {
-                        await Self.remoteAccountInfos(
-                            for: chain,
-                            wallet: currentWallet,
-                            service: self.accountInfoRemoteService
-                        )
-                    }
-                }
-
-                var values: [(ChainAsset, AccountInfo?)] = []
-                for await result in group {
-                    values.append(contentsOf: result)
-                }
-                return values
-            }
-
-            await MainActor.run {
-                guard self.walletScope.isCurrent(request) else { return }
+            await Self.refreshRemoteAccountInfos(
+                for: chains,
+                wallet: currentWallet,
+                service: service
+            ) { [weak self] results in
+                guard let self, self.walletScope.isCurrent(request) else { return }
                 results.forEach { chainAsset, accountInfo in
                     self.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
                 }
@@ -476,6 +460,38 @@ final class ChainAssetListInteractor {
 // MARK: - Remote balances
 
 extension ChainAssetListInteractor {
+    /// Scans the networks side by side and hands each network's balances to `deliver`, on the main queue, as soon as
+    /// that network's own scan ends. A slow network (a Bitcoin indexer whose requests keep timing out) holds back
+    /// only its own balances, never another network's.
+    static func refreshRemoteAccountInfos(
+        for chains: [ChainModel],
+        wallet: MetaAccountModel,
+        service: AccountInfoRemoteService,
+        deliver: @escaping ([(ChainAsset, AccountInfo?)]) -> Void
+    ) async {
+        await withTaskGroup(of: [(ChainAsset, AccountInfo?)].self) { group in
+            chains.forEach { chain in
+                group.addTask {
+                    await remoteAccountInfos(for: chain, wallet: wallet, service: service)
+                }
+            }
+
+            for await results in group where results.isNotEmpty {
+                await MainActor.run {
+                    deliver(results)
+                }
+            }
+        }
+    }
+
+    /// Whether the network's balances are kept in the local account storage the list subscribes to. Bitcoin, Solana
+    /// and Iroha balances are only ever read from their networks (the last known ones are kept apart, in
+    /// `RemoteLastKnownBalanceStore`), so a local subscription can only ever answer "nothing" for them, and that
+    /// answer must not replace a balance their scan has already given the list.
+    static func keepsBalancesInLocalStorage(_ chain: ChainModel) -> Bool {
+        chain.isTonCompatibilityChain || !UniversalWalletChainAccountSupport.isUniversalWalletChain(chain.chainId)
+    }
+
     /// The balances one network's scan gives the list: what it read, or what the network last knew when the scan
     /// failed. An asset the scan could not read gets nothing, so the list keeps the balance it shows for it.
     static func remoteAccountInfos(
@@ -514,6 +530,43 @@ extension ChainAssetListInteractor {
 // MARK: - ChainAssetListInteractorInput
 
 extension ChainAssetListInteractor: ChainAssetListInteractorInput {
+    func selectNetworkFilter(_ filter: NetworkManagmentFilter, walletId: String) {
+        guard wallet.metaId == walletId else { return }
+        Self.persistNetworkFilter(filter, walletId: walletId, settings: walletSettings) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case let .success(saved):
+                self.eventCenter.notify(with: MetaAccountModelChangedEvent(account: saved))
+            case let .failure(error):
+                self.output?.didFailNetworkFilter(error: error)
+            }
+        }
+    }
+
+    /// Saves the network filter onto the selected wallet as it is once queued saves have finished, so a chip
+    /// never writes back an older copy of the wallet over another edit. A wallet that is no longer selected is
+    /// left alone. Completes on the main queue.
+    static func persistNetworkFilter(
+        _ filter: NetworkManagmentFilter,
+        walletId: String,
+        settings: SelectedWalletSettings,
+        completion: @escaping (Result<MetaAccountModel, Error>) -> Void
+    ) {
+        settings.performAfterPendingSaves {
+            guard let current = settings.value, current.metaId == walletId else {
+                DispatchQueue.main.async {
+                    completion(.failure(BaseOperationError.parentOperationCancelled))
+                }
+                return
+            }
+            settings.save(
+                value: current.replacingNetworkManagmentFilter(filter.identifier),
+                runningCompletionIn: .main,
+                completionClosure: completion
+            )
+        }
+    }
+
     var shouldRunManageAssetAnimate: Bool {
         get {
             userDefaultsStorage.shouldRunManageAssetAnimate

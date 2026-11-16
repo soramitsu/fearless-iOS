@@ -167,7 +167,8 @@ extension WalletMainContainerViewLayout {
 
     /// The page bounce and the rims of the surfaces below follow the hero sun as the header lays out or scrolls.
     func updateSunPosition() {
-        let sun = sunlit.sunBadge
+        // While a search folds the balance card away, the wallet badge in the top row (a small sun) lights the page.
+        let sun: UIView = isSearchFolded ? switchWalletButton : sunlit.sunBadge
         guard sun.window != nil, sun.bounds.width > 0 else { return }
         let center = sun.convert(CGPoint(x: sun.bounds.midX, y: sun.bounds.midY), to: self)
         if sunlit.background.sunCenter != center {
@@ -178,6 +179,7 @@ extension WalletMainContainerViewLayout {
             button.sunRim = FWSunAnchor.shared.sunRim(for: button.surface)
         }
         // The sky's sun sits behind the badge; the scrim is at full strength from the balance down.
+        guard !isSearchFolded else { return }
         let card = sunlit.skyCard
         card.sunCenter = sun.convert(CGPoint(x: sun.bounds.midX, y: sun.bounds.midY), to: card)
         card.textTop = walletBalanceViewContainer.convert(CGPoint.zero, to: card).y

@@ -1623,3 +1623,13 @@
 "fw.feedback.sound_effects" = "効果音";
 "fw.feedback.haptic_feedback" = "触覚フィードバック";
 "fw.feedback.tokens_received" = "%@ を受け取りました";
+
+/* One list: search and network filters */
+"portfolio.one_list.search" = "トークンとネットワークを検索";
+"portfolio.one_list.all" = "すべてのネットワーク";
+"portfolio.one_list.popular" = "人気";
+"portfolio.one_list.favourite" = "お気に入り";
+"portfolio.one_list.more" = "その他のネットワーク";
+"portfolio.one_list.note" = "すべての資産を一つのリストに表示します。検索またはネットワークを選択してトークンを探せます。";
+"portfolio.one_list.dismiss" = "了解";
+"portfolio.one_list.search_all" = "すべてのネットワークを検索";

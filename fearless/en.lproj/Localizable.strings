@@ -1636,3 +1636,13 @@ belongs to the right network";
 "fw.feedback.sound_effects" = "Sound effects";
 "fw.feedback.haptic_feedback" = "Haptic feedback";
 "fw.feedback.tokens_received" = "%@ received";
+
+/* One list: search and network filters */
+"portfolio.one_list.search" = "Search tokens and networks";
+"portfolio.one_list.all" = "All networks";
+"portfolio.one_list.popular" = "Popular";
+"portfolio.one_list.favourite" = "Favorites";
+"portfolio.one_list.more" = "More networks";
+"portfolio.one_list.note" = "All your assets in one list. Search or choose a network to find a token.";
+"portfolio.one_list.dismiss" = "Got it";
+"portfolio.one_list.search_all" = "Search all networks";

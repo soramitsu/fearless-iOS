@@ -1601,3 +1601,13 @@
 "fw.feedback.sound_effects" = "音效";
 "fw.feedback.haptic_feedback" = "触感反馈";
 "fw.feedback.tokens_received" = "已收到 %@";
+
+/* One list: search and network filters */
+"portfolio.one_list.search" = "搜索代币和网络";
+"portfolio.one_list.all" = "所有网络";
+"portfolio.one_list.popular" = "热门";
+"portfolio.one_list.favourite" = "收藏";
+"portfolio.one_list.more" = "更多网络";
+"portfolio.one_list.note" = "所有资产统一显示在一个列表中。搜索或选择网络来查找代币。";
+"portfolio.one_list.dismiss" = "知道了";
+"portfolio.one_list.search_all" = "搜索所有网络";

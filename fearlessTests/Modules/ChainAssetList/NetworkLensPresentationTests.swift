@@ -99,6 +99,153 @@ final class NetworkLensPresentationTests: XCTestCase {
         XCTAssertEqual(reopened.lens(walletId: "first"), .token)
     }
 
+    // MARK: - One list
+
+    private func oneList(
+        _ factory: ChainAssetListViewModelFactory = ChainAssetListViewModelFactory(
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+        ),
+        wallet: MetaAccountModel,
+        assets: [ChainAsset],
+        infos: [ChainAssetKey: AccountInfo?],
+        filter: NetworkManagmentFilter? = nil,
+        search: String? = nil
+    ) -> ChainAssetListViewModel {
+        factory.buildViewModel(
+            wallet: wallet,
+            chainAssets: assets,
+            locale: Locale(identifier: "en_US"),
+            accountInfos: infos,
+            chainsWithIssue: [],
+            shouldRunManageAssetAnimate: false,
+            displayType: search == nil ? (filter?.isChainSelected == true ? .chain : .assetChains) : .search,
+            chainSettings: [],
+            networkFilter: filter,
+            search: search,
+            lens: .token
+        )
+    }
+
+    func testOneListNetworkChipsRankHoldingsAndRetainSelectedFilters() {
+        let alpha = makeChain(name: "Alpha")
+        let beta = makeChain(name: "Beta")
+        let zero = makeChain(name: "Zero")
+        let hiddenChain = makeChain(name: "Hidden")
+        let testnet = makeChain(name: "Testnet", options: [.testnet])
+        let first = makeChainAsset(chain: alpha, id: "one", symbol: "ONE", price: 2)
+        let second = makeChainAsset(chain: beta, id: "two", symbol: "TWO", price: 3)
+        let third = makeChainAsset(chain: zero, id: "zero", symbol: "ZERO", price: 1)
+        let hidden = makeChainAsset(chain: hiddenChain, id: "hide", symbol: "HIDE", price: 50)
+        let test = makeChainAsset(chain: testnet, id: "test", symbol: "TEST")
+        let wallet = AccountGenerator.generateMetaAccount()
+        AssetVisibilityPreferenceStore.setPreference(.hidden, walletId: wallet.metaId, assetKey: hidden.assetKey)
+        defer { AssetVisibilityPreferenceStore.setPreference(.auto, walletId: wallet.metaId, assetKey: hidden.assetKey) }
+        let infos = balances(wallet: wallet, values: [first: 10, second: 20, third: 0, hidden: 5, test: 9])
+        let factory = ChainAssetListViewModelFactory(assetBalanceFormatterFactory: AssetBalanceFormatterFactory())
+        let chips = factory.networkChips(
+            chainAssets: [first, second, third, second, hidden, test],
+            accountInfos: infos,
+            wallet: wallet,
+            filter: .all,
+            locale: Locale(identifier: "en")
+        )
+        XCTAssertEqual(chips.map(\.id), ["all", beta.chainId, alpha.chainId], "Largest holding first; no zero, hidden or testnet chip")
+        XCTAssertEqual(chips.first?.title, "All networks")
+        XCTAssertEqual(chips.filter(\.selected).map(\.id), ["all"])
+        XCTAssertEqual(
+            factory.networkChips(chainAssets: [first, second], accountInfos: infos, wallet: wallet, filter: nil, locale: Locale(identifier: "ja"))
+                .first?.title,
+            "すべてのネットワーク"
+        )
+        for (filter, title) in [(NetworkManagmentFilter.popular, "Popular"), (.favourite, "Favorites"), (.chain(zero.chainId), "Zero")] {
+            let filtered = factory.networkChips(
+                chainAssets: [first, second, third],
+                accountInfos: infos,
+                wallet: wallet,
+                filter: filter,
+                locale: Locale(identifier: "en")
+            )
+            XCTAssertEqual(filtered.filter(\.selected).map(\.id), [filter.identifier])
+            XCTAssertEqual(filtered.first(where: \.selected)?.title, title)
+            XCTAssertTrue(filtered.contains { $0.id == beta.chainId }, "Filters must not hide the other funded-network chips")
+        }
+        // The list model carries the chips for its own filter.
+        let model = oneList(factory, wallet: wallet, assets: [first, second], infos: infos, filter: .chain(alpha.chainId))
+        XCTAssertEqual(model.networkChips.filter(\.selected).map(\.id), [alpha.chainId])
+        XCTAssertEqual(model.tokenRows.map(\.model.symbol), ["ONE"])
+    }
+
+    func testOneListSearchFindsTokensBySymbolNameAndNetworkAndKeepsHiddenAssetsOut() {
+        let alpha = makeChain(name: "Alpha chain")
+        let gamma = makeChain(name: "Gamma chain")
+        let quartz = makeChainAsset(chain: alpha, id: "xqz", symbol: "XQZ", name: "Quartz token", price: 2)
+        let pearl = makeChainAsset(chain: gamma, id: "prl", symbol: "PRL", name: "Pearl", price: 1)
+        let hidden = makeChainAsset(chain: gamma, id: "hdn", symbol: "HDN", name: "Hidden quartz", price: 4)
+        let wallet = AccountGenerator.generateMetaAccount()
+        AssetVisibilityPreferenceStore.setPreference(.hidden, walletId: wallet.metaId, assetKey: hidden.assetKey)
+        defer { AssetVisibilityPreferenceStore.setPreference(.auto, walletId: wallet.metaId, assetKey: hidden.assetKey) }
+        let assets = [quartz, pearl, hidden]
+        let infos = balances(wallet: wallet, values: [quartz: 10, pearl: 3, hidden: 7])
+        func symbols(_ search: String?) -> [String] {
+            oneList(wallet: wallet, assets: assets, infos: infos, search: search).tokenRows.map(\.model.symbol)
+        }
+        XCTAssertEqual(symbols(nil), ["XQZ", "PRL"], "Hidden assets stay out of the list")
+        XCTAssertEqual(symbols("xqz"), ["XQZ"], "By symbol, any case")
+        XCTAssertEqual(symbols("quartz"), ["XQZ"], "By name; the hidden Hidden quartz stays out")
+        XCTAssertEqual(symbols("PEAR"), ["PRL"])
+        XCTAssertEqual(symbols("gamma"), ["PRL"], "By network name")
+        XCTAssertEqual(symbols("hdn"), [], "A hidden asset is found in Manage assets, not here")
+        let nothing = oneList(wallet: wallet, assets: assets, infos: infos, search: "hdn")
+        XCTAssertTrue(nothing.searchFoundNothing)
+        XCTAssertFalse(nothing.canSearchAllNetworks)
+        XCTAssertTrue(nothing.exclusions.isEmpty, "A search shows no exclusion captions")
+        XCTAssertFalse(oneList(wallet: wallet, assets: assets, infos: infos).exclusions.isEmpty, "Hidden caption")
+    }
+
+    func testOneListZeroBalancesAreListedOnlyWhenSearched() {
+        let funded = makeChain(name: "Funded")
+        let ranked = makeChain(name: "Ranked", rank: 1)
+        let coin = makeChainAsset(chain: funded, id: "coin", symbol: "COIN", price: 2)
+        let zero = makeChainAsset(chain: ranked, id: "zero", symbol: "ZERO", isUtility: true, isNative: true)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let factory = ChainAssetListViewModelFactory(
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
+            zeroDefaults: PortfolioZeroDefaultList(entries: [])
+        )
+        let infos = balances(wallet: wallet, values: [coin: 5, zero: 0])
+        let home = oneList(factory, wallet: wallet, assets: [coin, zero], infos: infos)
+        XCTAssertEqual(home.tokenRows.map(\.model.symbol), ["COIN"])
+        XCTAssertEqual(home.zeroTokenRows.map(\.model.symbol), ["ZERO"], "Behind the collapsed no-balance line")
+        let searched = oneList(factory, wallet: wallet, assets: [coin, zero], infos: infos, search: "zer")
+        XCTAssertEqual(searched.tokenRows.map(\.model.symbol), ["ZERO"], "A search lists the zero balance itself")
+        XCTAssertTrue(searched.zeroTokenRows.isEmpty)
+        XCTAssertFalse(searched.searchFoundNothing)
+        XCTAssertEqual(home.networkChips.map(\.id), ["all", funded.chainId], "A zero balance makes no chip")
+    }
+
+    func testOneListOffersEveryNetworkOnlyWhenTheChosenOnesFindNothing() {
+        let alpha = makeChain(name: "Alpha")
+        let beta = makeChain(name: "Beta")
+        let one = makeChainAsset(chain: alpha, id: "one", symbol: "ONE", price: 1)
+        let three = makeChainAsset(chain: beta, id: "three", symbol: "THREE", price: 1)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let infos = balances(wallet: wallet, values: [one: 1, three: 1])
+        let onAlpha = oneList(wallet: wallet, assets: [one, three], infos: infos, filter: .chain(alpha.chainId), search: "three")
+        XCTAssertTrue(onAlpha.searchFoundNothing)
+        XCTAssertTrue(onAlpha.canSearchAllNetworks)
+        XCTAssertEqual(onAlpha.searchText, "three")
+        let everywhere = oneList(wallet: wallet, assets: [one, three], infos: infos, filter: .all, search: "three")
+        XCTAssertEqual(everywhere.tokenRows.map(\.model.symbol), ["THREE"])
+        XCTAssertFalse(everywhere.canSearchAllNetworks)
+        let found = oneList(wallet: wallet, assets: [one, three], infos: infos, filter: .chain(alpha.chainId), search: "one")
+        XCTAssertFalse(found.searchFoundNothing)
+        XCTAssertFalse(found.canSearchAllNetworks)
+        let missing = oneList(wallet: wallet, assets: [one, three], infos: infos, filter: .all, search: "four")
+        XCTAssertTrue(missing.searchFoundNothing)
+        XCTAssertFalse(missing.canSearchAllNetworks, "Every network was searched already")
+        XCTAssertFalse(oneList(wallet: wallet, assets: [one, three], infos: infos).searchFoundNothing)
+    }
+
     private func makeChain(
         name: String,
         rank: UInt16? = nil,
@@ -132,13 +279,14 @@ final class NetworkLensPresentationTests: XCTestCase {
         chain: ChainModel,
         id: String,
         symbol: String,
+        name: String? = nil,
         price: Decimal? = nil,
         isUtility: Bool = false,
         isNative: Bool = false
     ) -> ChainAsset {
         let asset = AssetModel(
             id: id,
-            name: symbol,
+            name: name ?? symbol,
             symbol: symbol,
             precision: 0,
             icon: nil,

@@ -127,10 +127,17 @@ final class TokenLensViewControllerTests: XCTestCase {
             store.identifiers(walletId: try XCTUnwrap(model.walletId), kind: "token"),
             [model.tokenRows[0].model.id]
         )
-        controller.rootView.lensControl.selectedSegmentIndex = 1
-        controller.rootView.lensControl.sendActions(for: .valueChanged)
-        XCTAssertEqual(output.lenses, [.network])
-        XCTAssertEqual(store.lens(walletId: try XCTUnwrap(model.walletId)), .network)
+        // One list: a wallet that kept the network lens sees the one-time note, and closing it keeps tokens.
+        store.setLens(.network, walletId: try XCTUnwrap(model.walletId))
+        var noted = model
+        noted.showsDiscovery = true
+        controller.didReceive(viewModel: noted)
+        let discovery = controller.rootView.discoveryView
+        XCTAssertFalse(try XCTUnwrap(discovery.migrationCard.superview?.isHidden))
+        discovery.dismissButton.sendActions(for: .touchUpInside)
+        XCTAssertEqual(output.lenses, [.token])
+        XCTAssertEqual(store.lens(walletId: try XCTUnwrap(model.walletId)), .token)
+        XCTAssertTrue(try XCTUnwrap(discovery.migrationCard.superview?.isHidden))
         var other = model
         other.walletId = "other-wallet"
         controller.didReceive(viewModel: other)
@@ -761,8 +768,10 @@ final class PortfolioListPresentationTests: XCTestCase {
                     let table = fixture.controller.rootView.tableView
                     await settle(fixture.window)
                     let prefix = "portfolio-list-\(language)-\(category.rawValue)-\(lens.rawValue)"
-                    assertLabelsFit(fixture.controller.rootView.lensControl)
-                    for label in labels(fixture.controller.rootView.lensControl) where isShown(label) {
+                    let chips = fixture.controller.rootView.discoveryView.chipsStack
+                    XCTAssertFalse(fixture.controller.rootView.discoveryView.isHidden)
+                    assertLabelsFit(chips)
+                    for label in labels(chips) where isShown(label) {
                         XCTAssertGreaterThanOrEqual(
                             label.font.pointSize + 0.5,
                             UIFont.fw(.labelM, compatibleWith: label.traitCollection).pointSize
@@ -940,28 +949,31 @@ final class PortfolioListPresentationTests: XCTestCase {
         }
     }
 
-    func testNativeLensButtonsHitTestingSelectionAndBoldText() async throws {
+    func testNetworkChipsHitTestingSelectionAndBoldText() async throws {
         guard FWAppearance.portfolioListRestyled else { return }
         let fixture = try makeFixture(language: "ru", category: .accessibilityExtraExtraExtraLarge, lens: .token)
         defer { close(fixture) }
         await settle(fixture.window)
-        let control = fixture.controller.rootView.lensControl
-        let original = try XCTUnwrap(control.segmentButtons.first?.titleLabel?.font)
-        for (index, button) in control.segmentButtons.enumerated() {
-            let center = button.convert(CGPoint(x: button.bounds.midX, y: button.bounds.midY), to: fixture.window)
+        let discovery = fixture.controller.rootView.discoveryView
+        let chips = discovery.chipButtons
+        XCTAssertEqual(chips.map(\.chipId), fixture.model.networkChips.map(\.id) + ["more"])
+        XCTAssertTrue(chips.first?.accessibilityTraits.contains(.selected) == true, "All networks starts chosen")
+        let original = try XCTUnwrap(chips.first?.titleLabel.font)
+        for chip in chips {
+            discovery.chipsScrollView.scrollRectToVisible(chip.convert(chip.bounds, to: discovery.chipsScrollView), animated: false)
+            fixture.window.layoutIfNeeded()
+            let center = chip.convert(CGPoint(x: chip.bounds.midX, y: chip.bounds.midY), to: fixture.window)
             let hit = fixture.window.hitTest(center, with: nil)
-            XCTAssertTrue(hit === button || hit?.isDescendant(of: button) == true)
-            XCTAssertGreaterThanOrEqual(button.bounds.height, 44)
-            button.sendActions(for: .touchUpInside)
-            XCTAssertEqual(control.selectedSegmentIndex, index)
-            XCTAssertTrue(button.accessibilityTraits.contains(.selected))
-            XCTAssertFalse(control.segmentButtons[1 - index].accessibilityTraits.contains(.selected))
+            XCTAssertTrue(hit === chip || hit?.isDescendant(of: chip) == true, chip.chipId)
+            XCTAssertGreaterThanOrEqual(chip.bounds.height, 44)
+            chip.sendActions(for: .touchUpInside)
         }
-        XCTAssertEqual(fixture.output.lenses, [.token, .network])
+        XCTAssertEqual(fixture.output.networks, fixture.model.networkChips.map(\.id))
+        XCTAssertEqual(fixture.output.moreNetworks, 1)
         if #available(iOS 17.0, *) {
             fixture.window.traitOverrides.legibilityWeight = .bold
             await settle(fixture.window)
-            let bold = try XCTUnwrap(control.segmentButtons.first?.titleLabel?.font)
+            let bold = try XCTUnwrap(discovery.chipButtons.first?.titleLabel.font)
             func weight(_ font: UIFont) -> CGFloat {
                 (
                     font.fontDescriptor
@@ -970,11 +982,11 @@ final class PortfolioListPresentationTests: XCTestCase {
             }
             XCTAssertGreaterThan(weight(bold), weight(original))
             XCTAssertEqual(bold.pointSize, original.pointSize, accuracy: 0.5)
-            assertLabelsFit(control)
-            capture(fixture, name: "portfolio-list-ru-AX5-bold-native-lens")
+            assertLabelsFit(discovery.chipsStack)
+            capture(fixture, name: "portfolio-list-ru-AX5-bold-network-chips")
             fixture.window.traitOverrides.legibilityWeight = .regular
             await settle(fixture.window)
-            XCTAssertEqual(control.segmentButtons.first?.titleLabel?.font, original)
+            XCTAssertEqual(discovery.chipButtons.first?.titleLabel.font, original)
         }
     }
 
@@ -1081,20 +1093,15 @@ final class PortfolioListPresentationTests: XCTestCase {
                 let fixture = try makeFixture(language: language, category: category, lens: .network)
                 defer { close(fixture) }
                 await settle(fixture.window)
-                let lens = try XCTUnwrap(
-                    descendants(fixture.controller.rootView.lensControl)
-                        .compactMap { $0 as? UISegmentedControl }.first
-                )
+                XCTAssertTrue(descendants(fixture.controller.rootView.discoveryView)
+                    .compactMap { $0 as? UISegmentedControl }.isEmpty)
                 let row = try XCTUnwrap(
                     fixture.controller.rootView.tableView.cellForRow(at: IndexPath(row: 0, section: 0))
                         as? ChainAccountBalanceTableCell
                 )
                 let amount = try XCTUnwrap(labels(row).first { $0.text == "1,250.40" })
                 XCTAssertEqual(amount.lineBreakMode, .byCharWrapping)
-                XCTAssertEqual(lens.selectedSegmentIndex, 1)
-                lens.selectedSegmentIndex = 0
-                lens.sendActions(for: .valueChanged)
-                XCTAssertEqual(fixture.output.lenses, [.token])
+                XCTAssertFalse(fixture.controller.rootView.discoveryView.searchField.isHidden)
                 let expected = try XCTUnwrap(fixture.model.networkSections.first?.rows.first?.chainAsset.assetKey)
                 fixture.controller.tableView(
                     fixture.controller.rootView.tableView,
@@ -1374,6 +1381,8 @@ final class PortfolioListPresentationTests: XCTestCase {
         )
         model.walletId = wallet.metaId
         model.lens = lens
+        model.showsDiscovery = true
+        model.networkChips = raw.networkChips
         model.tokenChildCells = raw.tokenChildCells.mapValues { offlineCell($0, language: language) }
         model.tokenRows = raw.tokenRows.map { row in
             let m = row.model
@@ -1515,7 +1524,13 @@ private final class PortfolioListOutput: ChainAssetListViewOutput {
     var assetActions: [(SwipableCellButtonType, AssetKey)] = []
     var manageCalls = 0
     var lenses: [PortfolioLens] = []
+    var searches: [String] = []
+    var networks: [String] = []
+    var moreNetworks = 0
     func didLoad(view _: ChainAssetListViewInput) {}
+    func didSearch(_ query: String, walletId _: String) { searches.append(query) }
+    func didSelectNetwork(_ identifier: String, walletId _: String) { networks.append(identifier) }
+    func didTapMoreNetworks(walletId _: String) { moreNetworks += 1 }
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
         selectedAssets.append(viewModel.chainAsset.assetKey)
     }
