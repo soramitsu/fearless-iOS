@@ -80,8 +80,10 @@ extension EthereumWalletRemoteSubscriptionService: WalletRemoteSubscriptionServi
         queue _: DispatchQueue?,
         closure _: RemoteSubscriptionClosure?
     ) async -> String? {
-        let uuid = try? await withCheckedThrowingContinuation { continuation in
+        let uuid = try? await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String?, Error>) in
             guard let ws = chainRegistry.getEthereumConnection(for: chainAsset.chain.chainId) else {
+                // Without a connection there is nothing to subscribe to; the caller must not wait forever.
+                continuation.resume(returning: nil)
                 return
             }
             var nillableContinuation: CheckedContinuation<String?, Error>? = continuation
