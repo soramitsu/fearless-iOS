@@ -138,11 +138,21 @@ final class CovDRoutersTests: XCTestCase {
             XCTAssertEqual(done.modalPresentationStyle, .custom)
         }
 
-        let (_, root) = try freshStack()
-        PolkaswapSwapConfirmationRouter().complete(on: root, hashString: "0xswap", chainAsset: xor, completeClosure: nil)
-        let swapDone = try XCTUnwrap(presented(by: root))
+        let (navigation, root) = try freshStack()
+        let confirmation = CovDHostController()
+        navigation.pushViewController(confirmation, animated: false)
+        var completed = 0
+        PolkaswapSwapConfirmationRouter().complete(
+            on: confirmation, hashString: "0xswap", chainAsset: xor, completeClosure: { completed += 1 }
+        )
+        let swapDone = try XCTUnwrap(presented(by: confirmation))
         XCTAssertTrue(swapDone is AllDoneViewController)
         XCTAssertEqual(swapDone.modalPresentationStyle, .custom)
+        XCTAssertEqual(completed, 0)
+        // Closing the result runs the completion and leaves the confirmation screen.
+        swapDone.dismiss(animated: false)
+        XCTAssertTrue(CovDFixtures.spin { completed == 1 })
+        XCTAssertTrue(CovDFixtures.spin { navigation.viewControllers == [root] })
     }
 
     func testPolkaswapRoutersPresentSettingsAssetPickersAndDisclaimer() throws {

@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B1F4B4F21D51B54287659833 /* CovDPoolListControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFFFCBF3F30CB8E367A5F0E6 /* CovDPoolListControlsTests.swift */; };
+		BAF2BA358776D3F81B70F4FE /* CovDPolkamarktShareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03D9BCE778349B3ABC3D8D2 /* CovDPolkamarktShareTests.swift */; };
+		4FF98BD352C0BC8D3D6D3604 /* CovDAdjustmentControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21E6640B72080602ED346497 /* CovDAdjustmentControlsTests.swift */; };
+		84E713A91CCF5FAAD533D21C /* CovDQuoteFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473C0CEA46FBF43CFC02E0B8 /* CovDQuoteFactoryTests.swift */; };
+		CE335D02BF3E6EFC921075D0 /* CovDTabFactoryActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506F8EC4810EB0733E04A0EF /* CovDTabFactoryActionsTests.swift */; };
 		0CB3AF11F86FD9EF0646CA6D /* CovDSettingsInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F71CA5937BB7ECF72A7AC4B6 /* CovDSettingsInputTests.swift */; };
 		781FAC34CBF8AB800734924E /* CovDCrossChainRootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB96C160D09EC346EC357718 /* CovDCrossChainRootTests.swift */; };
 		DDB8E242C08E96C34F1D81AF /* CovDTransportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */; };
@@ -3378,6 +3383,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CFFFCBF3F30CB8E367A5F0E6 /* CovDPoolListControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPoolListControlsTests.swift; sourceTree = "<group>"; };
+		E03D9BCE778349B3ABC3D8D2 /* CovDPolkamarktShareTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkamarktShareTests.swift; sourceTree = "<group>"; };
+		21E6640B72080602ED346497 /* CovDAdjustmentControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDAdjustmentControlsTests.swift; sourceTree = "<group>"; };
+		473C0CEA46FBF43CFC02E0B8 /* CovDQuoteFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDQuoteFactoryTests.swift; sourceTree = "<group>"; };
+		506F8EC4810EB0733E04A0EF /* CovDTabFactoryActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDTabFactoryActionsTests.swift; sourceTree = "<group>"; };
 		F71CA5937BB7ECF72A7AC4B6 /* CovDSettingsInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDSettingsInputTests.swift; sourceTree = "<group>"; };
 		EB96C160D09EC346EC357718 /* CovDCrossChainRootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDCrossChainRootTests.swift; sourceTree = "<group>"; };
 		310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDTransportTests.swift; sourceTree = "<group>"; };
@@ -9732,6 +9742,11 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				CFFFCBF3F30CB8E367A5F0E6 /* CovDPoolListControlsTests.swift */,
+				E03D9BCE778349B3ABC3D8D2 /* CovDPolkamarktShareTests.swift */,
+				21E6640B72080602ED346497 /* CovDAdjustmentControlsTests.swift */,
+				473C0CEA46FBF43CFC02E0B8 /* CovDQuoteFactoryTests.swift */,
+				506F8EC4810EB0733E04A0EF /* CovDTabFactoryActionsTests.swift */,
 				F71CA5937BB7ECF72A7AC4B6 /* CovDSettingsInputTests.swift */,
 				EB96C160D09EC346EC357718 /* CovDCrossChainRootTests.swift */,
 				310D47EF7C6F1AA3A040F84E /* CovDTransportTests.swift */,
@@ -19746,6 +19761,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1F4B4F21D51B54287659833 /* CovDPoolListControlsTests.swift in Sources */,
+				BAF2BA358776D3F81B70F4FE /* CovDPolkamarktShareTests.swift in Sources */,
+				4FF98BD352C0BC8D3D6D3604 /* CovDAdjustmentControlsTests.swift in Sources */,
+				84E713A91CCF5FAAD533D21C /* CovDQuoteFactoryTests.swift in Sources */,
+				CE335D02BF3E6EFC921075D0 /* CovDTabFactoryActionsTests.swift in Sources */,
 				0CB3AF11F86FD9EF0646CA6D /* CovDSettingsInputTests.swift in Sources */,
 				781FAC34CBF8AB800734924E /* CovDCrossChainRootTests.swift in Sources */,
 				DDB8E242C08E96C34F1D81AF /* CovDTransportTests.swift in Sources */,
