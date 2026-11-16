@@ -7,6 +7,64 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		468F40343C5D9C656E717020 /* CovHWMCViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252ECFC446597618432A6B5C /* CovHWMCViewTests.swift */; };
+		2170EE83C1442C840D8BE3C1 /* CovHWMCInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBADC588116C09255F83FC4 /* CovHWMCInteractorTests.swift */; };
+		D492A7D1FB6E6D3D21DDDC79 /* CovHTxHistoryViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2ADA0CE345E234C3D2EF6F /* CovHTxHistoryViewTests.swift */; };
+		4ADFEDC2F8F6526C8E6AA0A9 /* CovHTxHistoryInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBEB90D0BF3732C830B165B /* CovHTxHistoryInteractorTests.swift */; };
+		257E5070AEE11D5C31451FE6 /* CovHTxHistoryFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66E449A4BA385586D763C9DB /* CovHTxHistoryFactoryTests.swift */; };
+		2A06D63FEF2D51F236144690 /* CovHTxHistoryDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E89A9EC45950B188D4993C /* CovHTxHistoryDoublesTests.swift */; };
+		376AAECBC2FCCD847529AB5F /* CovHTxDetailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8BE2AC6D94593EC4DF5103 /* CovHTxDetailsTests.swift */; };
+		6950F2DFC59A8492554C18F6 /* CovHDashboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00360D07B13C490F08D62813 /* CovHDashboardTests.swift */; };
+		1DEF31A400BC869C96647BD6 /* CovHCCConfirmWatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4488E232862A53CFEC335D12 /* CovHCCConfirmWatcherTests.swift */; };
+		2A0DFE63D57AF81447B7A42C /* CovHCCConfirmModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354FB173DCA6B2476969F6F0 /* CovHCCConfirmModuleTests.swift */; };
+		595F2A98C4EF132C5781BAC4 /* CovHCCConfirmModuleDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0819AE92C673384E5E776AC2 /* CovHCCConfirmModuleDoublesTests.swift */; };
+		CC624465B2A875F4101B6FF3 /* CovHCCConfirmDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D8FCB8028DB894BD7AA314 /* CovHCCConfirmDoublesTests.swift */; };
+		47ECE25BDA5F39AAB5A1051B /* CovHCCConfirmDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3C17676432B6541DBAB351 /* CovHCCConfirmDataTests.swift */; };
+		DB7947D846573F3DD608A256 /* CovHCCConfirmAuthorizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59FC54727BB19FA90A4D79B /* CovHCCConfirmAuthorizerTests.swift */; };
+		D872515532CD3B99D86D814B /* CovHAssetListViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0EBC26F54F480BBDB720CCE /* CovHAssetListViewTests.swift */; };
+		ECD296C10B053767ADE0F678 /* CovHAssetListRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA6EB0F2031D58DDF5A386F /* CovHAssetListRoutingTests.swift */; };
+		FD5530ED344A367AC948C530 /* CovHAssetListPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F7461D899AED757F6727F3 /* CovHAssetListPresenterTests.swift */; };
+		58CDA515F555EC8C604A6484 /* CovHAssetListInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CA2D5895B621AF641DB580 /* CovHAssetListInteractorTests.swift */; };
+		D6C0EE451B2A29A9230C5F1D /* CovHAssetListFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D5828A23458842D3F55F3F /* CovHAssetListFactoryTests.swift */; };
+		76F3D61415AD935FEB38C4FD /* CovHAssetListDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7807264C57304C86B5A8ABDD /* CovHAssetListDoublesTests.swift */; };
+		549DB8903FA763A9FADD577B /* CovHWalletDetailsWireframeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4C8BE19C861697F5834E340 /* CovHWalletDetailsWireframeTests.swift */; };
+		8630F20B95DDD0C9470962B0 /* CovHWalletDetailsViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 686C6F74A9FB77166FC467B8 /* CovHWalletDetailsViewTests.swift */; };
+		7CD2087CA541ABAAB31D85DE /* CovHWalletDetailsPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D07FF04CCD8A91538341C23 /* CovHWalletDetailsPresenterTests.swift */; };
+		9C39ACEC11C26BA51CB15DB9 /* CovHWalletDetailsInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B5FABC9DB11798F5981BFC /* CovHWalletDetailsInteractorTests.swift */; };
+		AFFEB4C54569C5E11E2C436A /* CovHWalletDetailsDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E395BC4CE526725BC62DD6E /* CovHWalletDetailsDoublesTests.swift */; };
+		5ADB4D33C8C5ECF58A59A7A1 /* CovHSendViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6336BEEC38698D19F3766A /* CovHSendViewControllerTests.swift */; };
+		A69EB82B222F7A3817D1241A /* CovHSendValidatingFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41CF9EE550910D3E635AFF0 /* CovHSendValidatingFactoryTests.swift */; };
+		0D7604DA5714BFB238AB7278 /* CovHSendRoutersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3731481D2C8407A5749ACF14 /* CovHSendRoutersTests.swift */; };
+		6A505203FBAF172C37FB5834 /* CovHSendPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20E7F8B48542A55DEAEAC60F /* CovHSendPresenterTests.swift */; };
+		677AFEB16832B7D1FDCC4783 /* CovHSendPresenterDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1514EC53EAAA2493BF4E7A7 /* CovHSendPresenterDoublesTests.swift */; };
+		EF44A15F8A504DBB3D3580E5 /* CovHSendInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C45BD8BFDD5FEACFCCAA29DE /* CovHSendInteractorTests.swift */; };
+		2C687D2B16EF2DAF5E6E92F4 /* CovHSendInteractorDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23B9D0B58ACF75B130DBD68 /* CovHSendInteractorDoublesTests.swift */; };
+		54ECE2855486CD18D587F764 /* CovHSendDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9F764A899AA90F2E4BF212 /* CovHSendDoublesTests.swift */; };
+		B592EB26D57B4EB72474A6F7 /* CovHSendDependencyContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F61BEB1588C729D519EF9827 /* CovHSendDependencyContainerTests.swift */; };
+		0330B880B7A79162C9195AEB /* CovHSendConfirmViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDCEF210A6334254D28C510 /* CovHSendConfirmViewControllerTests.swift */; };
+		04C2654263AF7A929B39AFE5 /* CovHSendConfirmPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87656536973ADE4AEBEF7C9B /* CovHSendConfirmPresenterTests.swift */; };
+		2A088D176EBC3BC774FCB477 /* CovHSendConfirmPresenterDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15741ADD79D42BE128D68C7F /* CovHSendConfirmPresenterDoublesTests.swift */; };
+		5921420631AAE34AE538761A /* CovHSendConfirmInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDF770094C7A7B03ECF133 /* CovHSendConfirmInteractorTests.swift */; };
+		9782F9F198EC84FC77D0D736 /* CovHNftSendViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B138B66F48F9DB9427F97EC /* CovHNftSendViewTests.swift */; };
+		7282A4131901303AB9C6B1B4 /* CovHNftSendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA61E4C28C735186F51D22D /* CovHNftSendTests.swift */; };
+		F3039054CDA73F1B82933F4D /* CovHNftSendConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A3796F73F84885812C60B1 /* CovHNftSendConfirmTests.swift */; };
+		F0EB307FAD9817E273305933 /* CovHNftMainContainerViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E38E56FABCDCD2195EAB59B7 /* CovHNftMainContainerViewTests.swift */; };
+		1DAB758A78AEE92362008E65 /* CovHNftMainContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A25EBF993BAE9341CE3512 /* CovHNftMainContainerTests.swift */; };
+		17D6DBCE91DD41CDAFB93B1D /* CovHNftFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62275CF3BA910A10C7D262F3 /* CovHNftFixturesTests.swift */; };
+		C5890301684E55ED0B27BED1 /* CovHNftFiltersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B02D52FBEC6D0CC1569EFEE /* CovHNftFiltersTests.swift */; };
+		F0756C8287B4E64608C1B595 /* CovHNftDetailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A94AA6B5808E43903B83AA /* CovHNftDetailsTests.swift */; };
+		B708B091EA462A9FF121F8BF /* CovHNftCollectionViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD79F5D7BBDE1C20F8A118 /* CovHNftCollectionViewTests.swift */; };
+		AA40DDB7C6F330766A6AE299 /* CovHNftCollectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19920F2487E0B2ECBC0A4CD4 /* CovHNftCollectionTests.swift */; };
+		A68CAA88E8ED7A44D9CAD15F /* CovHCrossChainViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399A8E593DE4A7684C6F8043 /* CovHCrossChainViewControllerTests.swift */; };
+		37DB2B658BA4F7B538CCD99A /* CovHCrossChainPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AD2241152EC605BF196BFA /* CovHCrossChainPresenterTests.swift */; };
+		9AB8658C7062D3444FA544CA /* CovHCrossChainInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA40349590AEDFE93A9F800 /* CovHCrossChainInteractorTests.swift */; };
+		7364A0D39B74446AB360AEE2 /* CovHChainAccountWireframeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6A5C7DF05D6447273D06FC /* CovHChainAccountWireframeTests.swift */; };
+		FB7CA217E8D1F037E1120596 /* CovHChainAccountViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D10EB41FC8E8FBD1D008D82 /* CovHChainAccountViewTests.swift */; };
+		69F8BF9FA88A9CED550C7A1F /* CovHChainAccountPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2636CE906186ABA02308364 /* CovHChainAccountPresenterTests.swift */; };
+		E66BF5A8EF4FC64859E844A6 /* CovHChainAccountInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4965A90868CEE4CFA1169B37 /* CovHChainAccountInteractorTests.swift */; };
+		97DCB915F9A96B253CBEC2C6 /* CovHChainAccountDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BC9FF6E0D226E09E1C2833 /* CovHChainAccountDoublesTests.swift */; };
+		6331DE2834F8687656D3B306 /* CovHWalletMainContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416B78DE8FE97C84E824E2BB /* CovHWalletMainContainerTests.swift */; };
+		8B1DACB6AD767F7EE4059A9B /* CovHWalletMainContainerDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F56DE1C4F4190F04848F47A /* CovHWalletMainContainerDoublesTests.swift */; };
 		32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */; };
 		E68D4B36819482799FA4D075 /* shikiban.json in Resources */ = {isa = PBXBuildFile; fileRef = BF4B99F1C37CFF1C42C501F1 /* shikiban.json */; };
 		C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */; };
@@ -3344,6 +3402,64 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		252ECFC446597618432A6B5C /* CovHWMCViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWMCViewTests.swift; sourceTree = "<group>"; };
+		EDBADC588116C09255F83FC4 /* CovHWMCInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWMCInteractorTests.swift; sourceTree = "<group>"; };
+		0C2ADA0CE345E234C3D2EF6F /* CovHTxHistoryViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHTxHistoryViewTests.swift; sourceTree = "<group>"; };
+		2CBEB90D0BF3732C830B165B /* CovHTxHistoryInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHTxHistoryInteractorTests.swift; sourceTree = "<group>"; };
+		66E449A4BA385586D763C9DB /* CovHTxHistoryFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHTxHistoryFactoryTests.swift; sourceTree = "<group>"; };
+		31E89A9EC45950B188D4993C /* CovHTxHistoryDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHTxHistoryDoublesTests.swift; sourceTree = "<group>"; };
+		BE8BE2AC6D94593EC4DF5103 /* CovHTxDetailsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHTxDetailsTests.swift; sourceTree = "<group>"; };
+		00360D07B13C490F08D62813 /* CovHDashboardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHDashboardTests.swift; sourceTree = "<group>"; };
+		4488E232862A53CFEC335D12 /* CovHCCConfirmWatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCCConfirmWatcherTests.swift; sourceTree = "<group>"; };
+		354FB173DCA6B2476969F6F0 /* CovHCCConfirmModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCCConfirmModuleTests.swift; sourceTree = "<group>"; };
+		0819AE92C673384E5E776AC2 /* CovHCCConfirmModuleDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCCConfirmModuleDoublesTests.swift; sourceTree = "<group>"; };
+		A6D8FCB8028DB894BD7AA314 /* CovHCCConfirmDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCCConfirmDoublesTests.swift; sourceTree = "<group>"; };
+		2C3C17676432B6541DBAB351 /* CovHCCConfirmDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCCConfirmDataTests.swift; sourceTree = "<group>"; };
+		D59FC54727BB19FA90A4D79B /* CovHCCConfirmAuthorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCCConfirmAuthorizerTests.swift; sourceTree = "<group>"; };
+		D0EBC26F54F480BBDB720CCE /* CovHAssetListViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHAssetListViewTests.swift; sourceTree = "<group>"; };
+		DDA6EB0F2031D58DDF5A386F /* CovHAssetListRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHAssetListRoutingTests.swift; sourceTree = "<group>"; };
+		56F7461D899AED757F6727F3 /* CovHAssetListPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHAssetListPresenterTests.swift; sourceTree = "<group>"; };
+		B5CA2D5895B621AF641DB580 /* CovHAssetListInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHAssetListInteractorTests.swift; sourceTree = "<group>"; };
+		63D5828A23458842D3F55F3F /* CovHAssetListFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHAssetListFactoryTests.swift; sourceTree = "<group>"; };
+		7807264C57304C86B5A8ABDD /* CovHAssetListDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHAssetListDoublesTests.swift; sourceTree = "<group>"; };
+		E4C8BE19C861697F5834E340 /* CovHWalletDetailsWireframeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWalletDetailsWireframeTests.swift; sourceTree = "<group>"; };
+		686C6F74A9FB77166FC467B8 /* CovHWalletDetailsViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWalletDetailsViewTests.swift; sourceTree = "<group>"; };
+		2D07FF04CCD8A91538341C23 /* CovHWalletDetailsPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWalletDetailsPresenterTests.swift; sourceTree = "<group>"; };
+		36B5FABC9DB11798F5981BFC /* CovHWalletDetailsInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWalletDetailsInteractorTests.swift; sourceTree = "<group>"; };
+		2E395BC4CE526725BC62DD6E /* CovHWalletDetailsDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWalletDetailsDoublesTests.swift; sourceTree = "<group>"; };
+		0E6336BEEC38698D19F3766A /* CovHSendViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendViewControllerTests.swift; sourceTree = "<group>"; };
+		F41CF9EE550910D3E635AFF0 /* CovHSendValidatingFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendValidatingFactoryTests.swift; sourceTree = "<group>"; };
+		3731481D2C8407A5749ACF14 /* CovHSendRoutersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendRoutersTests.swift; sourceTree = "<group>"; };
+		20E7F8B48542A55DEAEAC60F /* CovHSendPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendPresenterTests.swift; sourceTree = "<group>"; };
+		A1514EC53EAAA2493BF4E7A7 /* CovHSendPresenterDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendPresenterDoublesTests.swift; sourceTree = "<group>"; };
+		C45BD8BFDD5FEACFCCAA29DE /* CovHSendInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendInteractorTests.swift; sourceTree = "<group>"; };
+		E23B9D0B58ACF75B130DBD68 /* CovHSendInteractorDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendInteractorDoublesTests.swift; sourceTree = "<group>"; };
+		ED9F764A899AA90F2E4BF212 /* CovHSendDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendDoublesTests.swift; sourceTree = "<group>"; };
+		F61BEB1588C729D519EF9827 /* CovHSendDependencyContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendDependencyContainerTests.swift; sourceTree = "<group>"; };
+		BBDCEF210A6334254D28C510 /* CovHSendConfirmViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendConfirmViewControllerTests.swift; sourceTree = "<group>"; };
+		87656536973ADE4AEBEF7C9B /* CovHSendConfirmPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendConfirmPresenterTests.swift; sourceTree = "<group>"; };
+		15741ADD79D42BE128D68C7F /* CovHSendConfirmPresenterDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendConfirmPresenterDoublesTests.swift; sourceTree = "<group>"; };
+		EEBDF770094C7A7B03ECF133 /* CovHSendConfirmInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHSendConfirmInteractorTests.swift; sourceTree = "<group>"; };
+		1B138B66F48F9DB9427F97EC /* CovHNftSendViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftSendViewTests.swift; sourceTree = "<group>"; };
+		5CA61E4C28C735186F51D22D /* CovHNftSendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftSendTests.swift; sourceTree = "<group>"; };
+		A3A3796F73F84885812C60B1 /* CovHNftSendConfirmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftSendConfirmTests.swift; sourceTree = "<group>"; };
+		E38E56FABCDCD2195EAB59B7 /* CovHNftMainContainerViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftMainContainerViewTests.swift; sourceTree = "<group>"; };
+		16A25EBF993BAE9341CE3512 /* CovHNftMainContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftMainContainerTests.swift; sourceTree = "<group>"; };
+		62275CF3BA910A10C7D262F3 /* CovHNftFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftFixturesTests.swift; sourceTree = "<group>"; };
+		4B02D52FBEC6D0CC1569EFEE /* CovHNftFiltersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftFiltersTests.swift; sourceTree = "<group>"; };
+		87A94AA6B5808E43903B83AA /* CovHNftDetailsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftDetailsTests.swift; sourceTree = "<group>"; };
+		2BAD79F5D7BBDE1C20F8A118 /* CovHNftCollectionViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftCollectionViewTests.swift; sourceTree = "<group>"; };
+		19920F2487E0B2ECBC0A4CD4 /* CovHNftCollectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHNftCollectionTests.swift; sourceTree = "<group>"; };
+		399A8E593DE4A7684C6F8043 /* CovHCrossChainViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCrossChainViewControllerTests.swift; sourceTree = "<group>"; };
+		34AD2241152EC605BF196BFA /* CovHCrossChainPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCrossChainPresenterTests.swift; sourceTree = "<group>"; };
+		4EA40349590AEDFE93A9F800 /* CovHCrossChainInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHCrossChainInteractorTests.swift; sourceTree = "<group>"; };
+		2E6A5C7DF05D6447273D06FC /* CovHChainAccountWireframeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHChainAccountWireframeTests.swift; sourceTree = "<group>"; };
+		2D10EB41FC8E8FBD1D008D82 /* CovHChainAccountViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHChainAccountViewTests.swift; sourceTree = "<group>"; };
+		D2636CE906186ABA02308364 /* CovHChainAccountPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHChainAccountPresenterTests.swift; sourceTree = "<group>"; };
+		4965A90868CEE4CFA1169B37 /* CovHChainAccountInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHChainAccountInteractorTests.swift; sourceTree = "<group>"; };
+		36BC9FF6E0D226E09E1C2833 /* CovHChainAccountDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHChainAccountDoublesTests.swift; sourceTree = "<group>"; };
+		416B78DE8FE97C84E824E2BB /* CovHWalletMainContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWalletMainContainerTests.swift; sourceTree = "<group>"; };
+		1F56DE1C4F4190F04848F47A /* CovHWalletMainContainerDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovHWalletMainContainerDoublesTests.swift; sourceTree = "<group>"; };
 		E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanTests.swift; sourceTree = "<group>"; };
 		BF4B99F1C37CFF1C42C501F1 /* shikiban.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shikiban.json; sourceTree = "<group>"; };
 		F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanDebugSeams.swift; sourceTree = "<group>"; };
@@ -9664,6 +9780,64 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				252ECFC446597618432A6B5C /* CovHWMCViewTests.swift */,
+				EDBADC588116C09255F83FC4 /* CovHWMCInteractorTests.swift */,
+				0C2ADA0CE345E234C3D2EF6F /* CovHTxHistoryViewTests.swift */,
+				2CBEB90D0BF3732C830B165B /* CovHTxHistoryInteractorTests.swift */,
+				66E449A4BA385586D763C9DB /* CovHTxHistoryFactoryTests.swift */,
+				31E89A9EC45950B188D4993C /* CovHTxHistoryDoublesTests.swift */,
+				BE8BE2AC6D94593EC4DF5103 /* CovHTxDetailsTests.swift */,
+				00360D07B13C490F08D62813 /* CovHDashboardTests.swift */,
+				4488E232862A53CFEC335D12 /* CovHCCConfirmWatcherTests.swift */,
+				354FB173DCA6B2476969F6F0 /* CovHCCConfirmModuleTests.swift */,
+				0819AE92C673384E5E776AC2 /* CovHCCConfirmModuleDoublesTests.swift */,
+				A6D8FCB8028DB894BD7AA314 /* CovHCCConfirmDoublesTests.swift */,
+				2C3C17676432B6541DBAB351 /* CovHCCConfirmDataTests.swift */,
+				D59FC54727BB19FA90A4D79B /* CovHCCConfirmAuthorizerTests.swift */,
+				D0EBC26F54F480BBDB720CCE /* CovHAssetListViewTests.swift */,
+				DDA6EB0F2031D58DDF5A386F /* CovHAssetListRoutingTests.swift */,
+				56F7461D899AED757F6727F3 /* CovHAssetListPresenterTests.swift */,
+				B5CA2D5895B621AF641DB580 /* CovHAssetListInteractorTests.swift */,
+				63D5828A23458842D3F55F3F /* CovHAssetListFactoryTests.swift */,
+				7807264C57304C86B5A8ABDD /* CovHAssetListDoublesTests.swift */,
+				E4C8BE19C861697F5834E340 /* CovHWalletDetailsWireframeTests.swift */,
+				686C6F74A9FB77166FC467B8 /* CovHWalletDetailsViewTests.swift */,
+				2D07FF04CCD8A91538341C23 /* CovHWalletDetailsPresenterTests.swift */,
+				36B5FABC9DB11798F5981BFC /* CovHWalletDetailsInteractorTests.swift */,
+				2E395BC4CE526725BC62DD6E /* CovHWalletDetailsDoublesTests.swift */,
+				0E6336BEEC38698D19F3766A /* CovHSendViewControllerTests.swift */,
+				F41CF9EE550910D3E635AFF0 /* CovHSendValidatingFactoryTests.swift */,
+				3731481D2C8407A5749ACF14 /* CovHSendRoutersTests.swift */,
+				20E7F8B48542A55DEAEAC60F /* CovHSendPresenterTests.swift */,
+				A1514EC53EAAA2493BF4E7A7 /* CovHSendPresenterDoublesTests.swift */,
+				C45BD8BFDD5FEACFCCAA29DE /* CovHSendInteractorTests.swift */,
+				E23B9D0B58ACF75B130DBD68 /* CovHSendInteractorDoublesTests.swift */,
+				ED9F764A899AA90F2E4BF212 /* CovHSendDoublesTests.swift */,
+				F61BEB1588C729D519EF9827 /* CovHSendDependencyContainerTests.swift */,
+				BBDCEF210A6334254D28C510 /* CovHSendConfirmViewControllerTests.swift */,
+				87656536973ADE4AEBEF7C9B /* CovHSendConfirmPresenterTests.swift */,
+				15741ADD79D42BE128D68C7F /* CovHSendConfirmPresenterDoublesTests.swift */,
+				EEBDF770094C7A7B03ECF133 /* CovHSendConfirmInteractorTests.swift */,
+				1B138B66F48F9DB9427F97EC /* CovHNftSendViewTests.swift */,
+				5CA61E4C28C735186F51D22D /* CovHNftSendTests.swift */,
+				A3A3796F73F84885812C60B1 /* CovHNftSendConfirmTests.swift */,
+				E38E56FABCDCD2195EAB59B7 /* CovHNftMainContainerViewTests.swift */,
+				16A25EBF993BAE9341CE3512 /* CovHNftMainContainerTests.swift */,
+				62275CF3BA910A10C7D262F3 /* CovHNftFixturesTests.swift */,
+				4B02D52FBEC6D0CC1569EFEE /* CovHNftFiltersTests.swift */,
+				87A94AA6B5808E43903B83AA /* CovHNftDetailsTests.swift */,
+				2BAD79F5D7BBDE1C20F8A118 /* CovHNftCollectionViewTests.swift */,
+				19920F2487E0B2ECBC0A4CD4 /* CovHNftCollectionTests.swift */,
+				399A8E593DE4A7684C6F8043 /* CovHCrossChainViewControllerTests.swift */,
+				34AD2241152EC605BF196BFA /* CovHCrossChainPresenterTests.swift */,
+				4EA40349590AEDFE93A9F800 /* CovHCrossChainInteractorTests.swift */,
+				2E6A5C7DF05D6447273D06FC /* CovHChainAccountWireframeTests.swift */,
+				2D10EB41FC8E8FBD1D008D82 /* CovHChainAccountViewTests.swift */,
+				D2636CE906186ABA02308364 /* CovHChainAccountPresenterTests.swift */,
+				4965A90868CEE4CFA1169B37 /* CovHChainAccountInteractorTests.swift */,
+				36BC9FF6E0D226E09E1C2833 /* CovHChainAccountDoublesTests.swift */,
+				416B78DE8FE97C84E824E2BB /* CovHWalletMainContainerTests.swift */,
+				1F56DE1C4F4190F04848F47A /* CovHWalletMainContainerDoublesTests.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
 				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
 				1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */,
@@ -19644,6 +19818,64 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				468F40343C5D9C656E717020 /* CovHWMCViewTests.swift in Sources */,
+				2170EE83C1442C840D8BE3C1 /* CovHWMCInteractorTests.swift in Sources */,
+				D492A7D1FB6E6D3D21DDDC79 /* CovHTxHistoryViewTests.swift in Sources */,
+				4ADFEDC2F8F6526C8E6AA0A9 /* CovHTxHistoryInteractorTests.swift in Sources */,
+				257E5070AEE11D5C31451FE6 /* CovHTxHistoryFactoryTests.swift in Sources */,
+				2A06D63FEF2D51F236144690 /* CovHTxHistoryDoublesTests.swift in Sources */,
+				376AAECBC2FCCD847529AB5F /* CovHTxDetailsTests.swift in Sources */,
+				6950F2DFC59A8492554C18F6 /* CovHDashboardTests.swift in Sources */,
+				1DEF31A400BC869C96647BD6 /* CovHCCConfirmWatcherTests.swift in Sources */,
+				2A0DFE63D57AF81447B7A42C /* CovHCCConfirmModuleTests.swift in Sources */,
+				595F2A98C4EF132C5781BAC4 /* CovHCCConfirmModuleDoublesTests.swift in Sources */,
+				CC624465B2A875F4101B6FF3 /* CovHCCConfirmDoublesTests.swift in Sources */,
+				47ECE25BDA5F39AAB5A1051B /* CovHCCConfirmDataTests.swift in Sources */,
+				DB7947D846573F3DD608A256 /* CovHCCConfirmAuthorizerTests.swift in Sources */,
+				D872515532CD3B99D86D814B /* CovHAssetListViewTests.swift in Sources */,
+				ECD296C10B053767ADE0F678 /* CovHAssetListRoutingTests.swift in Sources */,
+				FD5530ED344A367AC948C530 /* CovHAssetListPresenterTests.swift in Sources */,
+				58CDA515F555EC8C604A6484 /* CovHAssetListInteractorTests.swift in Sources */,
+				D6C0EE451B2A29A9230C5F1D /* CovHAssetListFactoryTests.swift in Sources */,
+				76F3D61415AD935FEB38C4FD /* CovHAssetListDoublesTests.swift in Sources */,
+				549DB8903FA763A9FADD577B /* CovHWalletDetailsWireframeTests.swift in Sources */,
+				8630F20B95DDD0C9470962B0 /* CovHWalletDetailsViewTests.swift in Sources */,
+				7CD2087CA541ABAAB31D85DE /* CovHWalletDetailsPresenterTests.swift in Sources */,
+				9C39ACEC11C26BA51CB15DB9 /* CovHWalletDetailsInteractorTests.swift in Sources */,
+				AFFEB4C54569C5E11E2C436A /* CovHWalletDetailsDoublesTests.swift in Sources */,
+				5ADB4D33C8C5ECF58A59A7A1 /* CovHSendViewControllerTests.swift in Sources */,
+				A69EB82B222F7A3817D1241A /* CovHSendValidatingFactoryTests.swift in Sources */,
+				0D7604DA5714BFB238AB7278 /* CovHSendRoutersTests.swift in Sources */,
+				6A505203FBAF172C37FB5834 /* CovHSendPresenterTests.swift in Sources */,
+				677AFEB16832B7D1FDCC4783 /* CovHSendPresenterDoublesTests.swift in Sources */,
+				EF44A15F8A504DBB3D3580E5 /* CovHSendInteractorTests.swift in Sources */,
+				2C687D2B16EF2DAF5E6E92F4 /* CovHSendInteractorDoublesTests.swift in Sources */,
+				54ECE2855486CD18D587F764 /* CovHSendDoublesTests.swift in Sources */,
+				B592EB26D57B4EB72474A6F7 /* CovHSendDependencyContainerTests.swift in Sources */,
+				0330B880B7A79162C9195AEB /* CovHSendConfirmViewControllerTests.swift in Sources */,
+				04C2654263AF7A929B39AFE5 /* CovHSendConfirmPresenterTests.swift in Sources */,
+				2A088D176EBC3BC774FCB477 /* CovHSendConfirmPresenterDoublesTests.swift in Sources */,
+				5921420631AAE34AE538761A /* CovHSendConfirmInteractorTests.swift in Sources */,
+				9782F9F198EC84FC77D0D736 /* CovHNftSendViewTests.swift in Sources */,
+				7282A4131901303AB9C6B1B4 /* CovHNftSendTests.swift in Sources */,
+				F3039054CDA73F1B82933F4D /* CovHNftSendConfirmTests.swift in Sources */,
+				F0EB307FAD9817E273305933 /* CovHNftMainContainerViewTests.swift in Sources */,
+				1DAB758A78AEE92362008E65 /* CovHNftMainContainerTests.swift in Sources */,
+				17D6DBCE91DD41CDAFB93B1D /* CovHNftFixturesTests.swift in Sources */,
+				C5890301684E55ED0B27BED1 /* CovHNftFiltersTests.swift in Sources */,
+				F0756C8287B4E64608C1B595 /* CovHNftDetailsTests.swift in Sources */,
+				B708B091EA462A9FF121F8BF /* CovHNftCollectionViewTests.swift in Sources */,
+				AA40DDB7C6F330766A6AE299 /* CovHNftCollectionTests.swift in Sources */,
+				A68CAA88E8ED7A44D9CAD15F /* CovHCrossChainViewControllerTests.swift in Sources */,
+				37DB2B658BA4F7B538CCD99A /* CovHCrossChainPresenterTests.swift in Sources */,
+				9AB8658C7062D3444FA544CA /* CovHCrossChainInteractorTests.swift in Sources */,
+				7364A0D39B74446AB360AEE2 /* CovHChainAccountWireframeTests.swift in Sources */,
+				FB7CA217E8D1F037E1120596 /* CovHChainAccountViewTests.swift in Sources */,
+				69F8BF9FA88A9CED550C7A1F /* CovHChainAccountPresenterTests.swift in Sources */,
+				E66BF5A8EF4FC64859E844A6 /* CovHChainAccountInteractorTests.swift in Sources */,
+				97DCB915F9A96B253CBEC2C6 /* CovHChainAccountDoublesTests.swift in Sources */,
+				6331DE2834F8687656D3B306 /* CovHWalletMainContainerTests.swift in Sources */,
+				8B1DACB6AD767F7EE4059A9B /* CovHWalletMainContainerDoublesTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
 				8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */,
