@@ -8,9 +8,16 @@ import XCTest
 final class CovFMiscTonFetchingTests: XCTestCase {
     func testAssetWithoutTonTypeReadsNothingAndReturnsNil() async throws {
         let chain = covFMiscTonChain(types: [nil])
-        let fetcher = makeFetcher()
-        let info = try await fetcher.fetchAccountInfo(for: try XCTUnwrap(chain.chainAssets.first), wallet: AccountGenerator.generateMetaAccount())
+        let repository = CovFRepository<AccountInfoStorageWrapper>()
+        let fetcher = makeFetcher(repository: repository)
+        let wallet = AccountGenerator.generateMetaAccount()
+        let asset = try XCTUnwrap(chain.chainAssets.first)
+        let info = try await fetcher.fetchAccountInfo(for: asset, wallet: wallet)
         XCTAssertNil(info)
+        let accountId = try XCTUnwrap(wallet.fetch(for: chain.accountRequest())?.accountId)
+        let key = try LocalStorageKeyFactory().createFromStoragePath(asset.storagePath, chainAssetKey: asset.uniqueKey(accountId: accountId))
+        try covFMiscEventually { repository.items.count == 1 }
+        XCTAssertEqual(repository.items.first?.identifier, key)
     }
 
     func testNativeAndJettonReadsFailWithoutNodeBeforeAnyRequest() async throws {
@@ -61,11 +68,13 @@ final class CovFMiscTonFetchingTests: XCTestCase {
         }
     }
 
-    private func makeFetcher() -> TonRemoteBalanceFetchingImpl {
-        let repository = SubstrateRepositoryFactory(storageFacade: SubstrateStorageTestFacade()).createAccountInfoStorageItemRepository()
-        return TonRemoteBalanceFetchingImpl(
+    /// An in-memory repository: the cache write is asynchronous and must not reach Core Data after the test ends.
+    private func makeFetcher(repository: CovFRepository<AccountInfoStorageWrapper> = CovFRepository()) -> TonRemoteBalanceFetchingImpl {
+        TonRemoteBalanceFetchingImpl(
             chainRegistry: CovFRegistry(),
-            repositoryWrapper: BalanceRepositoryCacheWrapper(logger: CovFBalLogger(), repository: repository, operationManager: OperationManager()),
+            repositoryWrapper: BalanceRepositoryCacheWrapper(
+                logger: CovFBalLogger(), repository: AnyDataProviderRepository(repository), operationManager: OperationManager()
+            ),
             jettonInjector: CovFMiscJettonInjector()
         )
     }
