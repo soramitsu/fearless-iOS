@@ -56,15 +56,22 @@ extension BitcoinIndexerClientProtocol {
 }
 
 final class BitcoinIndexerClient: BitcoinIndexerClientProtocol {
+    /// How long one request may wait for an answer. URLSession's default (60 s) held every request
+    /// to an unreachable service that long before the failover client tried the next one.
+    static let requestTimeout: TimeInterval = 20
+
     private let transport: UniversalWalletHTTPTransport
     private let decoder: JSONDecoder
+    private let requestTimeout: TimeInterval
 
     init(
         transport: UniversalWalletHTTPTransport = URLSessionUniversalWalletHTTPTransport(),
-        decoder: JSONDecoder = JSONDecoder()
+        decoder: JSONDecoder = JSONDecoder(),
+        requestTimeout: TimeInterval = BitcoinIndexerClient.requestTimeout
     ) {
         self.transport = transport
         self.decoder = decoder
+        self.requestTimeout = requestTimeout
     }
 
     func address(
@@ -167,7 +174,7 @@ final class BitcoinIndexerClient: BitcoinIndexerClientProtocol {
     }
 
     private func urlRequest(url: URL, method: String = "GET") -> URLRequest {
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: url, timeoutInterval: requestTimeout)
         request.httpMethod = method
         return request
     }
@@ -238,7 +245,7 @@ final class UniversalWalletEndpointHealth {
 }
 
 /// Sends each request to the preferred Esplora service and, when that one is unreachable,
-/// failing or rate limiting, to the next (mempool.space, then blockstream.info). A caller that
+/// failing or rate limiting, to the next (blockstream.info, then mempool.space). A caller that
 /// names a base URL outside the network's own list is talking to a specific service and gets
 /// no failover.
 final class BitcoinFailoverIndexerClient: BitcoinIndexerClientProtocol {

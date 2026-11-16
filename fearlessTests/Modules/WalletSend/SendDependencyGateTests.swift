@@ -1434,7 +1434,7 @@ final class SolanaLocalChainE2ETests: XCTestCase {
 
 /// Drives the real `BitcoinTransferService` (planner, builder, signer, pending-broadcast record,
 /// failover indexer client) against `bitcoind -regtest` behind the Esplora shim, which plays
-/// both of the app's production services (mempool.space and blockstream.info) and can fail
+/// both of the app's production services (blockstream.info and mempool.space) and can fail
 /// the way public indexers do. Every test uses a fresh random wallet; nothing leaves 127.0.0.1.
 final class BitcoinLocalChainE2ETests: XCTestCase {
     private var suiteName = ""
@@ -1466,8 +1466,8 @@ final class BitcoinLocalChainE2ETests: XCTestCase {
         let otherCoin = try await esplora.fund(address: context.address, sats: 500_000)
         let recipient = try await esplora.newAddress(type: "bech32")
         let transfer = Self.transfer(sats: 250_000, recipient: recipient)
-        try await esplora.fault(service: "mempool", route: "broadcast", mode: "accept_then_drop")
-        try await esplora.fault(service: "blockstream", route: "broadcast", mode: "accept_then_502")
+        try await esplora.fault(service: "blockstream", route: "broadcast", mode: "accept_then_drop")
+        try await esplora.fault(service: "mempool", route: "broadcast", mode: "accept_then_502")
         try await esplora.fault(service: "*", route: "lookup", mode: "drop", count: 1000)
 
         _ = try await context.service.estimateFee(for: transfer)
@@ -1576,7 +1576,7 @@ final class BitcoinLocalChainE2ETests: XCTestCase {
         XCTAssertNil(context.store.pending(for: context.scope))
     }
 
-    /// mempool.space rate limits the app. Reads and the broadcast move to blockstream.info, and
+    /// blockstream.info rate limits the app. Reads and the broadcast move to mempool.space, and
     /// the rate-limited service is not asked again for reads while its Retry-After lasts.
     func testRateLimitedPrimary_thenTheTransferCompletesThroughTheFallback() async throws {
         let esplora = try LocalRegtestEsplora(baseURL: localEndpoint())
@@ -1585,15 +1585,15 @@ final class BitcoinLocalChainE2ETests: XCTestCase {
         let recipient = try await esplora.newAddress(type: "bech32")
         let transfer = Self.transfer(sats: 200_000, recipient: recipient)
         try await esplora.reset()
-        try await esplora.fault(service: "mempool", route: "any", mode: "429", count: 1000, retryAfter: 60)
+        try await esplora.fault(service: "blockstream", route: "any", mode: "429", count: 1000, retryAfter: 60)
 
         let fee = try await context.service.estimateFee(for: transfer)
         let txid = try await context.service.submit(transfer: transfer)
 
         let requests = try await esplora.requests()
-        let primaryReads = (requests["mempool"] ?? []).filter { $0.hasPrefix("GET") }
+        let primaryReads = (requests["blockstream"] ?? []).filter { $0.hasPrefix("GET") }
         XCTAssertEqual(primaryReads.count, 1, "After the first 429 the primary is left alone: \(primaryReads)")
-        XCTAssertTrue((requests["blockstream"] ?? []).contains("POST /tx"))
+        XCTAssertTrue((requests["mempool"] ?? []).contains("POST /tx"))
         let mempool = try await esplora.mempool()
         XCTAssertEqual(mempool, [txid])
         _ = try await esplora.mine(blocks: 1)
@@ -1817,8 +1817,8 @@ private struct LocalChainMnemonicProvider: BitcoinMnemonicProviding {
 /// reach a public indexer.
 private struct LocalEsploraTransport: UniversalWalletHTTPTransport {
     static let services: [(upstream: String, service: String)] = [
-        (BitcoinIndexerNetwork.testnet.baseURLs[0].absoluteString, "mempool"),
-        (BitcoinIndexerNetwork.testnet.baseURLs[1].absoluteString, "blockstream")
+        (BitcoinIndexerNetwork.testnet.baseURLs[0].absoluteString, "blockstream"),
+        (BitcoinIndexerNetwork.testnet.baseURLs[1].absoluteString, "mempool")
     ]
 
     let localBaseURL: URL

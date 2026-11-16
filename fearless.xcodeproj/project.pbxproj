@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CF5B8F14DEF6A1DE7AA046E8 /* BitcoinIndexerRequestTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */; };
 		9DD14768DAC95DFC80240C80 /* CovJWcSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */; };
 		20D8350C2E99704812808C54 /* CovJWcSubstrateCallTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */; };
 		EFD8C6A1101FC9EF081174F5 /* CovJWcSessionViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */; };
@@ -3815,6 +3816,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinIndexerRequestTimeoutTests.swift; sourceTree = "<group>"; };
 		95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSupportTests.swift; sourceTree = "<group>"; };
 		D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSubstrateCallTextTests.swift; sourceTree = "<group>"; };
 		09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovJWcSessionViewsTests.swift; sourceTree = "<group>"; };
@@ -10618,6 +10620,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */,
 				95E99759DDE4745C97E70F9C /* CovJWcSupportTests.swift */,
 				D8C483E7CCC7FCD5BD4CA247 /* CovJWcSubstrateCallTextTests.swift */,
 				09258C3688B4314B4E180B74 /* CovJWcSessionViewsTests.swift */,
@@ -21069,6 +21072,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CF5B8F14DEF6A1DE7AA046E8 /* BitcoinIndexerRequestTimeoutTests.swift in Sources */,
 				9DD14768DAC95DFC80240C80 /* CovJWcSupportTests.swift in Sources */,
 				20D8350C2E99704812808C54 /* CovJWcSubstrateCallTextTests.swift in Sources */,
 				EFD8C6A1101FC9EF081174F5 /* CovJWcSessionViewsTests.swift in Sources */,
