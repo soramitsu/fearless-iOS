@@ -202,7 +202,11 @@ final class OneListWalletHomeTests: XCTestCase {
         XCTAssertTrue(fixture.output.actions.isEmpty, "The list's own field, not the search screen")
         XCTAssertTrue(field.isFirstResponder)
         XCTAssertTrue(layout.isSearchFolded)
-        XCTAssertLessThan(layout.headerScrollView.frame.height, headerHeight - 200)
+        XCTAssertLessThanOrEqual(
+            layout.headerScrollView.contentSize.height,
+            layout.headerScrollView.bounds.height + 0.5,
+            "While folded the list fills the page under the top rows, and the page does not scroll"
+        )
         XCTAssertLessThan(layout.pageViewControllerContainer.frame.minY, listTop - 200, "The matches get the page")
         XCTAssertEqual(layout.sunlit.heroSurface.alpha, 0)
         XCTAssertEqual(layout.sunlit.actionsStack.alpha, 0)
@@ -220,6 +224,7 @@ final class OneListWalletHomeTests: XCTestCase {
         await settle(fixture.window)
         XCTAssertFalse(layout.isSearchFolded)
         XCTAssertEqual(layout.headerScrollView.frame.height, headerHeight, accuracy: 0.5)
+        XCTAssertEqual(layout.pageViewControllerContainer.frame.minY, listTop, accuracy: 0.5)
         XCTAssertEqual(layout.sunlit.heroSurface.alpha, 1)
         XCTAssertFalse(layout.sunlit.heroSurface.accessibilityElementsHidden)
         layout.updateSunPosition()
@@ -231,6 +236,153 @@ final class OneListWalletHomeTests: XCTestCase {
         layout.pageViewController.setViewControllers([fixture.other], direction: .forward, animated: false)
         layout.searchButton.sendActions(for: .touchUpInside)
         XCTAssertEqual(fixture.output.actions, ["search"])
+    }
+
+    // MARK: - The page: the header, then the list
+
+    /// The walk on 2026-11-16 (one network chosen through a chip) showed the round actions partly under the list:
+    /// the header was capped to leave the list 220 pt and scrolled inside that. The header and the list now scroll as
+    /// one page, so at rest the list starts under the whole header, at every text size.
+    func testNoPartOfTheHeaderRestsUnderTheListAtAnyTextSize() async throws {
+        guard #available(iOS 17.0, *) else { throw XCTSkip("Live text size needs trait overrides") }
+        let fixture = try hostWallet(width: 402, height: 874)
+        defer {
+            close(fixture.window)
+            fixture.defaults.removePersistentDomain(forName: fixture.suite)
+        }
+        // The floating tab bar keeps the page 80 pt above the home indicator, as on an iPhone 17 Pro.
+        fixture.controller.additionalSafeAreaInsets.bottom = 80
+        let layout = fixture.controller.rootView
+        let page = layout.headerScrollView
+        let categories: [UIContentSizeCategory] = [
+            .large, .extraExtraExtraLarge, .accessibilityLarge, .accessibilityExtraExtraExtraLarge
+        ]
+        for category in categories {
+            for oneNetwork in [false, true] {
+                let tag = "\(category.rawValue) \(oneNetwork ? "one network" : "all networks")"
+                fixture.window.traitOverrides.preferredContentSizeCategory = category
+                bindHeader(fixture, oneNetwork: oneNetwork)
+                page.setContentOffset(.zero, animated: false)
+                await settle(fixture.window)
+
+                let listTop = frame(of: layout.pageViewControllerContainer, in: fixture.window).minY
+                for section in [layout.sunlit.heroSurface, layout.sunlit.actionsStack] {
+                    XCTAssertLessThanOrEqual(frame(of: section, in: fixture.window).maxY, listTop + 0.5, tag)
+                }
+                XCTAssertLessThanOrEqual(frame(of: layout.contentView, in: fixture.window).maxY, listTop + 0.5, tag)
+                XCTAssertEqual(layout.addressCopyableLabel.isHidden, !oneNetwork, tag)
+
+                // Every control of the header can be scrolled into view and takes the touch there.
+                var controls: [UIView] = [
+                    layout.switchWalletButton, layout.searchButton, layout.scanQRButton, layout.selectNetworkButton
+                ] + layout.sunlit.actionButtons
+                if oneNetwork {
+                    controls.append(layout.addressCopyableLabel)
+                }
+                for control in controls {
+                    page.scrollRectToVisible(control.convert(control.bounds, to: page), animated: false)
+                    fixture.window.layoutIfNeeded()
+                    let shown = frame(of: control, in: fixture.window)
+                    let viewport = frame(of: page, in: fixture.window)
+                    XCTAssertGreaterThanOrEqual(shown.minY, viewport.minY - 0.5, tag)
+                    XCTAssertLessThanOrEqual(shown.maxY, viewport.maxY + 0.5, tag)
+                    let hit = fixture.window.hitTest(CGPoint(x: shown.midX, y: shown.midY), with: nil)
+                    XCTAssertTrue(hit === control || hit?.isDescendant(of: control) == true, tag)
+                }
+
+                // Scrolled all the way, the header is away and the list has the whole page.
+                page.setContentOffset(
+                    CGPoint(x: 0, y: max(0, page.contentSize.height - page.bounds.height)),
+                    animated: false
+                )
+                fixture.window.layoutIfNeeded()
+                let list = frame(of: layout.pageViewControllerContainer, in: fixture.window)
+                let viewport = frame(of: page, in: fixture.window)
+                XCTAssertEqual(list.minY, viewport.minY, accuracy: 0.5, tag)
+                XCTAssertEqual(list.maxY, viewport.maxY, accuracy: 0.5, tag)
+            }
+        }
+    }
+
+    func testAListScrolledByTheAppTakesThePageAndTheListsDragsWaitForTheHeader() async throws {
+        let fixture = try hostWallet(width: 402, height: 874)
+        defer {
+            close(fixture.window)
+            fixture.defaults.removePersistentDomain(forName: fixture.suite)
+        }
+        let layout = fixture.controller.rootView
+        let page = layout.headerScrollView
+        fixture.list.didReceive(viewModel: model(walletId: "wallet-a", rows: 40))
+        bindHeader(fixture, oneNetwork: true)
+        await settle(fixture.window)
+        let table = fixture.list.rootView.tableView
+        XCTAssertTrue(page.nestedScrollView === table, "The page follows the list it shows")
+        XCTAssertTrue(
+            page.gestureRecognizer(page.panGestureRecognizer, shouldRecognizeSimultaneouslyWith: table.panGestureRecognizer)
+        )
+        let pageMax = page.contentSize.height - page.bounds.height
+        XCTAssertGreaterThan(pageMax, 0)
+
+        // The app shows rows further down (for example after Manage assets): the header makes way.
+        table.setContentOffset(CGPoint(x: 0, y: 300 - table.adjustedContentInset.top), animated: false)
+        XCTAssertEqual(page.contentOffset.y, pageMax, accuracy: 0.5)
+        // While the list is in its rows the page waits.
+        page.contentOffset.y = pageMax / 2
+        XCTAssertEqual(page.contentOffset.y, pageMax, accuracy: 0.5)
+        // Back at its top, the list lets the page bring the header back.
+        table.setContentOffset(CGPoint(x: 0, y: -table.adjustedContentInset.top), animated: false)
+        page.setContentOffset(.zero, animated: false)
+        XCTAssertEqual(page.contentOffset.y, 0, accuracy: 0.5)
+        XCTAssertEqual(table.contentOffset.y, -table.adjustedContentInset.top, accuracy: 0.5)
+
+        // A different page (NFTs) is followed instead; side by side nothing is chained.
+        layout.pageViewController.setViewControllers([fixture.other], direction: .forward, animated: false)
+        layout.setNeedsLayout()
+        layout.layoutIfNeeded()
+        XCTAssertFalse(page.nestedScrollView === table)
+    }
+
+    func testOneDragMovesEitherTheHeaderOrTheListNeverBoth() {
+        typealias Chain = WalletHomeScrollChain
+        let pageMax: CGFloat = 400
+        // Dragging up with the header on screen: the page scrolls, the list stays at its top.
+        XCTAssertEqual(Chain.resolve(.init(page: 120, list: 12), pageMax: pageMax, moved: .list), .init(page: 120, list: 0))
+        // The header is away: the list scrolls.
+        XCTAssertEqual(Chain.resolve(.init(page: 400, list: 30), pageMax: pageMax, moved: .list), .init(page: 400, list: 30))
+        // Dragging down while the list is in its rows: the list goes back first, the page waits.
+        XCTAssertEqual(Chain.resolve(.init(page: 380, list: 30), pageMax: pageMax, moved: .page), .init(page: 400, list: 30))
+        // Back at its top, the page brings the header back; the list is not pulled meanwhile.
+        XCTAssertEqual(Chain.resolve(.init(page: 380, list: 0), pageMax: pageMax, moved: .page), .init(page: 380, list: 0))
+        XCTAssertEqual(Chain.resolve(.init(page: 380, list: -8), pageMax: pageMax, moved: .list), .init(page: 380, list: 0))
+        // With the whole header shown, a pull reaches the list (pull to refresh).
+        XCTAssertEqual(Chain.resolve(.init(page: 0, list: -60), pageMax: pageMax, moved: .list), .init(page: 0, list: -60))
+        // Rows the app scrolled to take the page.
+        XCTAssertEqual(
+            Chain.resolve(.init(page: 0, list: 250), pageMax: pageMax, moved: .listProgrammatically),
+            .init(page: 400, list: 250)
+        )
+        // A page that does not scroll (folded for a search) never holds the list.
+        XCTAssertEqual(Chain.resolve(.init(page: 0, list: 90), pageMax: 0, moved: .list), .init(page: 0, list: 90))
+    }
+
+    private func bindHeader(_ fixture: WalletFixture, oneNetwork: Bool) {
+        fixture.balance.didReceiveViewModel(BalanceInfoViewModel(
+            dayChangeAttributedString: NSAttributedString(string: "-1.07% ($0.000811324)"),
+            balanceString: "$0.0756237",
+            infoButtonEnabled: false,
+            filteredPartString: oneNetwork ? "Showing Solana · $0.0756237" : nil
+        ))
+        fixture.controller.rootView.bind(viewModel: WalletMainContainerViewModel(
+            walletName: "One list walk",
+            selectedFilter: oneNetwork ? "Solana" : "All networks",
+            selectedFilterImage: nil,
+            address: oneNetwork ? "SyntheticSo1anaAddress1111111111111111111111" : nil,
+            accountScoreViewModel: nil
+        ))
+    }
+
+    private func frame(of view: UIView, in window: UIWindow) -> CGRect {
+        view.convert(view.bounds, to: window)
     }
 
     // MARK: - Fixtures
@@ -311,6 +463,7 @@ final class OneListWalletHomeTests: XCTestCase {
     private struct WalletFixture {
         let window: UIWindow
         let controller: WalletMainContainerViewController
+        let balance: BalanceInfoViewController
         let list: ChainAssetListViewController
         let other: UIViewController
         let output: OneListHeaderOutputSpy
@@ -331,11 +484,9 @@ final class OneListWalletHomeTests: XCTestCase {
         )
         let other = UIViewController()
         let output = OneListHeaderOutputSpy()
+        let balance = BalanceInfoViewController(output: OneListBalanceOutputSpy(), localizationManager: localization)
         let controller = WalletMainContainerViewController(
-            balanceInfoViewController: BalanceInfoViewController(
-                output: OneListBalanceOutputSpy(),
-                localizationManager: localization
-            ),
+            balanceInfoViewController: balance,
             pageControllers: [list, other],
             output: output,
             localizationManager: localization
@@ -350,7 +501,7 @@ final class OneListWalletHomeTests: XCTestCase {
         list.didReceive(viewModel: model(walletId: "wallet-a", rows: 3))
         window.layoutIfNeeded()
         return WalletFixture(
-            window: window, controller: controller, list: list, other: other,
+            window: window, controller: controller, balance: balance, list: list, other: other,
             output: output, defaults: defaults, suite: suite
         )
     }

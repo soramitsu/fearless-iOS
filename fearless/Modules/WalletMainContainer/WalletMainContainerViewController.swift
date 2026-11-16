@@ -91,7 +91,9 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         rootView.walletBalanceViewContainer.addGestureRecognizer(walletBalanceTapGesture)
 
         rootView.accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
-            self?.output.didTapAccountScore()
+            // The stars also report a touch the page took for a scroll (cancelled); only a tap opens the score.
+            guard let self, !self.rootView.isScrollingPage else { return }
+            self.output.didTapAccountScore()
         }
 
         let actions: [(FWRoundActionButton, WalletHomeAction)] = [

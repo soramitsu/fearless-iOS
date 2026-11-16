@@ -10,8 +10,8 @@ final class WalletMainContainerViewLayout: UIView {
         static let splitHeaderWidth: CGFloat = 360
         static let splitSpacing: CGFloat = 24
         static let sunSize: CGFloat = 88
-        /// Height the asset list keeps below the header; the header scrolls inside the rest.
-        static let assetViewportMinimum: CGFloat = 220
+        /// Space between the header and the asset list below it.
+        static let listSpacing: CGFloat = 8
         static let heroPadding: CGFloat = 20
         static let dialInset: CGFloat = 24
     }
@@ -41,10 +41,23 @@ final class WalletMainContainerViewLayout: UIView {
         return view
     }()
 
-    let headerScrollView = UIScrollView()
+    /// On iPhone and in the iPad column the page: the header, then the asset list, scrolling as one. Side by side the
+    /// header alone, beside the list.
+    let headerScrollView = WalletHomePageScrollView()
     private var headerHeightLimit: Constraint?
-    /// One list: while the list's search field has the keyboard, the header shows only its top rows.
-    private var searchFold: Constraint?
+    /// Side by side the header's content ends the scroll content; on the page the list does.
+    private var contentBottom: Constraint?
+    /// On the page: the list sits under the whole header and is as tall as the page, so scrolling the header away
+    /// gives the list the page.
+    private var listBelowHeader: Constraint?
+    private var listFillsPage: Constraint?
+    /// One list: while the list's search field has the keyboard, the list sits under the header's top rows and the
+    /// page does not scroll.
+    private var listBelowNavigation: Constraint?
+    private var pageFitsWhileFolded: Constraint?
+    private var listOffsetObservation: NSKeyValueObservation?
+    private var pageOffsetObservation: NSKeyValueObservation?
+    private var isChainingScroll = false
     private(set) var isSearchFocused = false
     private var appliedSearchFold = false
     private var accessibleNetworkWidth: Constraint?
@@ -121,6 +134,7 @@ final class WalletMainContainerViewLayout: UIView {
     override func layoutSubviews() {
         updatePlacement()
         super.layoutSubviews()
+        updateNestedListScrolling()
         updateSunPosition()
     }
 
@@ -136,9 +150,8 @@ final class WalletMainContainerViewLayout: UIView {
         } else {
             accessibleNetworkWidth?.deactivate()
         }
-        // Side by side, the header always scrolls within the window's height.
-        if placement == .split || FWAppearance.walletHeaderRestyled ||
-            traitCollection.preferredContentSizeCategory.isAccessibilityCategory {
+        // Side by side, the header scrolls within the window's height; on the page it scrolls with the list.
+        if placement == .split {
             headerHeightLimit?.activate()
         } else {
             headerHeightLimit?.deactivate()
@@ -221,8 +234,12 @@ final class WalletMainContainerViewLayout: UIView {
         addSubview(headerScrollView)
         headerScrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.edges.equalTo(headerScrollView.contentLayoutGuide)
+            make.top.leading.trailing.equalTo(headerScrollView.contentLayoutGuide)
             make.width.equalTo(headerScrollView.frameLayoutGuide)
+            contentBottom = make.bottom.equalTo(headerScrollView.contentLayoutGuide).constraint
+        }
+        pageOffsetObservation = headerScrollView.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
+            self?.chainScrolling(listMoved: false)
         }
 
         setupNavigationViewLayout()
@@ -341,7 +358,7 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupListLayout() {
-        addSubview(pageViewControllerContainer)
+        headerScrollView.addSubview(pageViewControllerContainer)
         pageViewControllerContainer.addSubview(pageViewController.view)
         pageViewController.view.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -390,6 +407,12 @@ extension WalletMainContainerViewLayout {
         isSearchFocused && placement != .split
     }
 
+    /// The page (or, side by side, the header) is under a finger or still moving.
+    var isScrollingPage: Bool {
+        let pan = headerScrollView.panGestureRecognizer.state
+        return headerScrollView.isDragging || headerScrollView.isDecelerating || pan == .began || pan == .changed
+    }
+
     private var foldingViews: [UIView] {
         [sunlit.heroSurface, sunlit.actionsStack, segmentContainer]
     }
@@ -397,10 +420,16 @@ extension WalletMainContainerViewLayout {
     private func applySearchFold() {
         let folded = isSearchFolded
         if folded {
-            searchFold?.activate()
+            listBelowHeader?.deactivate()
+            listFillsPage?.deactivate()
+            listBelowNavigation?.activate()
+            pageFitsWhileFolded?.activate()
             headerScrollView.setContentOffset(.zero, animated: false)
         } else {
-            searchFold?.deactivate()
+            listBelowNavigation?.deactivate()
+            pageFitsWhileFolded?.deactivate()
+            listBelowHeader?.activate()
+            listFillsPage?.activate()
         }
         headerScrollView.isScrollEnabled = !folded
         // Only a change of fold touches the folding views, so a launch flight's opacity is never overridden.
@@ -458,32 +487,18 @@ private extension WalletMainContainerViewLayout {
             headerScrollView.snp.remakeConstraints { make in
                 make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
                 make.leading.trailing.equalToSuperview()
-                make.height.equalTo(contentView.snp.height).priority(.high)
-                headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
-                    .offset(-Constants.assetViewportMinimum).constraint
-                searchFold = make.height.equalTo(navigationContainerView.snp.height).constraint
-            }
-            pageViewControllerContainer.snp.remakeConstraints { make in
-                make.top.equalTo(headerScrollView.snp.bottom).offset(8)
-                make.leading.trailing.equalToSuperview()
                 make.bottom.equalTo(safeAreaLayoutGuide)
             }
+            placeListInPage()
         case .column:
             headerScrollView.snp.remakeConstraints { make in
                 make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
                 make.centerX.equalTo(safeAreaLayoutGuide)
                 make.width.equalTo(safeAreaLayoutGuide).priority(.high)
                 make.width.lessThanOrEqualTo(AdaptiveLayout.contentColumnWidth)
-                make.height.equalTo(contentView.snp.height).priority(.high)
-                headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
-                    .offset(-Constants.assetViewportMinimum).constraint
-                searchFold = make.height.equalTo(navigationContainerView.snp.height).constraint
-            }
-            pageViewControllerContainer.snp.remakeConstraints { make in
-                make.top.equalTo(headerScrollView.snp.bottom).offset(8)
-                make.leading.trailing.equalTo(headerScrollView)
                 make.bottom.equalTo(safeAreaLayoutGuide)
             }
+            placeListInPage()
         case .split:
             headerScrollView.snp.remakeConstraints { make in
                 make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
@@ -493,8 +508,15 @@ private extension WalletMainContainerViewLayout {
                 headerHeightLimit = make.height.lessThanOrEqualTo(safeAreaLayoutGuide.snp.height)
                     .offset(-5).constraint
             }
-            // Side by side, the list has the window's height already.
-            searchFold = nil
+            headerScrollView.contentLayoutGuide.snp.removeConstraints()
+            headerScrollView.bounces = true
+            contentBottom?.activate()
+            // Side by side, the list has the window's height already; nothing folds.
+            listBelowHeader = nil
+            listFillsPage = nil
+            listBelowNavigation = nil
+            pageFitsWhileFolded = nil
+            addSubview(pageViewControllerContainer)
             pageViewControllerContainer.snp.remakeConstraints { make in
                 make.top.equalTo(AdaptiveLayout.contentLayoutGuide(in: self).snp.top).offset(5)
                 make.leading.equalTo(headerScrollView.snp.trailing).offset(Constants.splitSpacing)
@@ -502,6 +524,98 @@ private extension WalletMainContainerViewLayout {
                 make.bottom.equalTo(safeAreaLayoutGuide)
             }
         }
+    }
+
+    /// The list goes under the header inside the page and is as tall as the page: the page scrolls the header away,
+    /// then the list scrolls its rows. Nothing caps the header, so none of it rests under the list at any text size.
+    func placeListInPage() {
+        headerHeightLimit = nil
+        contentBottom?.deactivate()
+        let page = headerScrollView
+        // A drag on the list moves the page too: a page that bounced would move the list's rows twice as far, and
+        // at the top it would take the pull that refreshes the list.
+        page.bounces = false
+        page.addSubview(pageViewControllerContainer)
+        pageViewControllerContainer.snp.remakeConstraints { make in
+            listBelowHeader = make.top.equalTo(contentView.snp.bottom).offset(Constants.listSpacing).constraint
+            listBelowNavigation = make.top.equalTo(navigationContainerView.snp.bottom)
+                .offset(Constants.listSpacing).constraint
+            make.leading.trailing.equalTo(page.frameLayoutGuide)
+            make.bottom.equalTo(page.contentLayoutGuide)
+            listFillsPage = make.height.equalTo(page.frameLayoutGuide).constraint
+        }
+        page.contentLayoutGuide.snp.remakeConstraints { make in
+            pageFitsWhileFolded = make.height.equalTo(page.frameLayoutGuide).constraint
+        }
+        listBelowNavigation?.deactivate()
+        pageFitsWhileFolded?.deactivate()
+    }
+}
+
+// MARK: - One page: the header and the list
+
+private extension WalletMainContainerViewLayout {
+    /// Follows the list the page shows (another page, such as NFTs, has its own) and keeps the page's offset within
+    /// its content after a layout change.
+    func updateNestedListScrolling() {
+        let shown = pageViewController.viewControllers?.first?.view
+        let nested = placement == .split ? nil : Self.verticalScrollView(in: shown)
+        if nested !== headerScrollView.nestedScrollView {
+            headerScrollView.nestedScrollView = nested
+            listOffsetObservation = nested?.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
+                self?.chainScrolling(listMoved: true)
+            }
+        }
+        let pageMax = max(0, headerScrollView.contentSize.height - headerScrollView.bounds.height)
+        if headerScrollView.contentOffset.y > pageMax {
+            headerScrollView.contentOffset.y = pageMax
+        }
+    }
+
+    /// The first vertically scrolling view of a page, searched level by level (the list itself before the network
+    /// chips' row inside it).
+    static func verticalScrollView(in root: UIView?) -> UIScrollView? {
+        var level = [root].compactMap { $0 }
+        while !level.isEmpty {
+            let match = level.compactMap { $0 as? UIScrollView }.first { scroll in
+                !scroll.isHidden && scroll.alpha > 0.01 && scroll.isScrollEnabled && !scroll.isPagingEnabled
+                    && !(scroll is UITextView)
+                    && (scroll.alwaysBounceVertical || scroll is UITableView || scroll is UICollectionView)
+            }
+            if let match {
+                return match
+            }
+            level = level.flatMap(\.subviews)
+        }
+        return nil
+    }
+
+    /// One drag moves the page and the list together; this holds the one that must wait (see `WalletHomeScrollChain`).
+    func chainScrolling(listMoved: Bool) {
+        guard !isChainingScroll, placement != .split, let list = headerScrollView.nestedScrollView else { return }
+        let page = headerScrollView
+        let listTop = -list.adjustedContentInset.top
+        let move: WalletHomeScrollChain.Move
+        if listMoved {
+            move = list.isTracking || list.isDecelerating ? .list : .listProgrammatically
+        } else {
+            move = .page
+        }
+        let current = WalletHomeScrollChain.Offsets(page: page.contentOffset.y, list: list.contentOffset.y - listTop)
+        let resolved = WalletHomeScrollChain.resolve(
+            current,
+            pageMax: max(0, page.contentSize.height - page.bounds.height),
+            moved: move
+        )
+        guard resolved != current else { return }
+        isChainingScroll = true
+        if resolved.page != current.page {
+            page.contentOffset.y = resolved.page
+        }
+        if resolved.list != current.list {
+            list.contentOffset.y = resolved.list + listTop
+        }
+        isChainingScroll = false
     }
 }
 

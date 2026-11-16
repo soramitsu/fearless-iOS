@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84F4E2C6D66AD157A25B580B /* WalletHomePageScroll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233EF54AF75AFBFF14DCED09 /* WalletHomePageScroll.swift */; };
 		DAEF492B9B054F59EC6C43E9 /* OneListWalletHomeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD8CEA9AB49DF8CD0D53EA5 /* OneListWalletHomeTests.swift */; };
 		79F6ABE772BED4FD91AE1970 /* PortfolioNetworkChipButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B38BB0764E9C11B04A9C31E /* PortfolioNetworkChipButton.swift */; };
 		930C904ABCB808713AC9E247 /* PortfolioDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CCCD9D46E0D21F4366F8B7 /* PortfolioDiscoveryView.swift */; };
@@ -3369,6 +3370,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		233EF54AF75AFBFF14DCED09 /* WalletHomePageScroll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHomePageScroll.swift; sourceTree = "<group>"; };
 		9AD8CEA9AB49DF8CD0D53EA5 /* OneListWalletHomeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneListWalletHomeTests.swift; sourceTree = "<group>"; };
 		1B38BB0764E9C11B04A9C31E /* PortfolioNetworkChipButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioNetworkChipButton.swift; sourceTree = "<group>"; };
 		66CCCD9D46E0D21F4366F8B7 /* PortfolioDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioDiscoveryView.swift; sourceTree = "<group>"; };
@@ -7681,6 +7683,7 @@
 		170BF5A5BE2725B7AE99C472 /* WalletMainContainer */ = {
 			isa = PBXGroup;
 			children = (
+				233EF54AF75AFBFF14DCED09 /* WalletHomePageScroll.swift */,
 				C8312AF0B70350EE27DB5B4A /* WalletMainContainerProtocols.swift */,
 				80C632A122CE8D02B84806C3 /* WalletMainContainerRouter.swift */,
 				1D738FE711DD760B47C0BA65 /* WalletMainContainerPresenter.swift */,
@@ -16910,6 +16913,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84F4E2C6D66AD157A25B580B /* WalletHomePageScroll.swift in Sources */,
 				79F6ABE772BED4FD91AE1970 /* PortfolioNetworkChipButton.swift in Sources */,
 				930C904ABCB808713AC9E247 /* PortfolioDiscoveryView.swift in Sources */,
 				983E40B47722E5EA4F66F858 /* SoraEraRewardHistory.swift in Sources */,
