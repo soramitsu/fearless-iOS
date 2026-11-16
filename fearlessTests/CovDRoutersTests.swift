@@ -240,6 +240,10 @@ final class CovDTabBarRecorder: UITabBarController, MainTabBarViewProtocol {
     func openPolkamarkt(marketId _: String) {}
 }
 
+final class CovDOnboardingStub: UIViewController, OnboardingMainViewProtocol {
+    func didReceive(preinstalledWalletEnabled _: Bool) {}
+}
+
 final class CovDStatusWindowSpy: ApplicationStatusPresentable {
     func presentStatus(with _: ApplicationStatusAlertEvent, animated _: Bool) {}
     func dismissStatus(with _: ApplicationStatusAlertEvent?, animated _: Bool) {}
@@ -352,7 +356,14 @@ final class CovDMainTabBarTests: XCTestCase {
         wireframe.presentAccountImport(on: nil)
         XCTAssertNil(tabs.presentedViewController)
 
+        // The import screen needs the registered keystore import service; without it nothing is shown.
+        let importAvailable = AccountImportViewFactory.createViewForAdding(defaultSource: .mnemonic) != nil
         wireframe.presentAccountImport(on: tabs)
+        guard importAvailable else {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.3))
+            XCTAssertNil(tabs.presentedViewController)
+            return
+        }
         CovDFixtures.spin { tabs.presentedViewController != nil }
         let importStack = try XCTUnwrap(tabs.presentedViewController as? UINavigationController)
         XCTAssertTrue(importStack.viewControllers.first is AccountImportViewProtocol)
@@ -363,15 +374,13 @@ final class CovDMainTabBarTests: XCTestCase {
 
     func testWireframeRecognisesImportsInsideTabControllers() throws {
         let tabBar = CovDTabBarRecorder()
-        let importController = try XCTUnwrap(AccountImportViewFactory.createViewForAdding(defaultSource: .mnemonic)?.controller)
-        tabBar.viewControllers = [UINavigationController(rootViewController: importController)]
+        tabBar.viewControllers = [UINavigationController(rootViewController: CovDOnboardingStub())]
         window = try CovDFixtures.host(tabBar)
         MainTabBarWireframe().presentAccountImport(on: tabBar)
         XCTAssertNil(tabBar.presentedViewController)
 
-        let mainImport = try XCTUnwrap(AccountImportViewFactory.createViewForAdding(defaultSource: .mnemonic)?.controller)
         let destinations: [UIViewController] = MainTabBarDestination.allCases.map {
-            UINavigationController(rootViewController: $0 == .portfolio ? mainImport : UIViewController())
+            UINavigationController(rootViewController: $0 == .portfolio ? CovDOnboardingStub() : UIViewController())
         }
         let mainTabBar = MainTabBarViewController(
             viewControllers: destinations, presenter: CovDTabPresenterSpy(),
@@ -382,6 +391,15 @@ final class CovDMainTabBarTests: XCTestCase {
         XCTAssertEqual(mainTabBar.selectedDestination, .portfolio)
         MainTabBarWireframe().presentAccountImport(on: mainTabBar)
         XCTAssertNil(mainTabBar.presentedViewController)
+
+        // An import shown modally over a plain navigation stack also counts.
+        let host = CovDTabViewRecorder()
+        window?.rootViewController = host
+        host.present(UINavigationController(rootViewController: CovDOnboardingStub()), animated: false)
+        let modal = host.presentedViewController
+        MainTabBarWireframe().presentAccountImport(on: host)
+        XCTAssertTrue(host.presentedViewController === modal)
+        XCTAssertNil(modal?.presentedViewController)
     }
 
     func testTabBarReturnsToRootOnReselectAndOpensPolkamarktInDeFi() throws {

@@ -169,17 +169,21 @@ final class CovDAdjustmentFlowTests: XCTestCase {
         flow.presenter.updateFromAmount(2)
         spin(0.5)
         let request = try XCTUnwrap(flow.interactor.quoteRequests.last)
-        let alertsBefore = flow.router.alertTitles.count
+        XCTAssertNil(flow.controller.presentedViewController)
+        // The message goes through the router's default sheet presentation.
         flow.presenter.didReceiveSwapValues([], params: request, errors: [CovDTestError.offline])
-        XCTAssertEqual(flow.router.alertTitles.count, alertsBefore + 1)
+        XCTAssertTrue(CovDFixtures.spin { flow.controller.presentedViewController is SheetAletViewController })
         let layout = flow.controller.rootView
         XCTAssertTrue(CovDFixtures.spin { layout.swapRouteView.valueTop.text?.isEmpty != false })
+        flow.controller.presentedViewController?.dismiss(animated: false)
+        XCTAssertTrue(CovDFixtures.spin { flow.controller.presentedViewController == nil })
 
         // A stale failure for an older request is ignored.
         flow.presenter.updateFromAmount(3)
         spin(0.5)
         flow.presenter.didReceiveSwapValues([], params: request, errors: [CovDTestError.offline])
-        XCTAssertEqual(flow.router.alertTitles.count, alertsBefore + 1)
+        spin(0.3)
+        XCTAssertNil(flow.controller.presentedViewController)
     }
 
     func testPreviewToXorWithoutFeeBalanceAsksForALargerAmount() throws {
@@ -192,14 +196,13 @@ final class CovDAdjustmentFlowTests: XCTestCase {
         try quote(flow, amount: 1, planks: "1000000000000000")
         XCTAssertTrue(CovDFixtures.spin { flow.controller.rootView.swapRouteView.valueTop.text?.isEmpty == false })
 
-        let alertsBefore = flow.router.alertTitles.count
+        XCTAssertNil(flow.controller.presentedViewController)
         flow.presenter.didTapPreviewButton()
         guard MultiChainFeaturePolicy.current.polkaswapMutationsEnabled else {
             XCTAssertEqual(flow.router.infoTitles.last, "Polkaswap actions paused")
             return
         }
-        XCTAssertEqual(flow.router.alertTitles.count, alertsBefore + 1)
-        XCTAssertEqual(flow.router.alertTitles.last, "")
+        XCTAssertTrue(CovDFixtures.spin { flow.controller.presentedViewController is SheetAletViewController })
         XCTAssertTrue(flow.router.confirmations.isEmpty)
     }
 
