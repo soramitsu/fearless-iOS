@@ -7,6 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8A5560A1F1267BD68B2BEB63 /* CovBStakingRewardCalculatorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */; };
+		804727E5D1CF4FC2AB9222D4 /* CovBStakingOperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3874CEB79C2FA8D324FF933 /* CovBStakingOperationsTests.swift */; };
+		C404A0A543F5ACE3AC3A6F05 /* CovBStakingModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */; };
+		96EDF0996DEBA6ED51AC755A /* CovBStakingFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24C749214D75AF977305EE7 /* CovBStakingFixturesTests.swift */; };
+		8CD5A0DAA339EDF54E8E6D3D /* CovBStakingDataValidatorFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E11AB9575A698C7E541F944 /* CovBStakingDataValidatorFactoryTests.swift */; };
+		A62657698D33A4F69E5A80CC /* CovBSoraRewardServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CBB2AEB793A46ABE8694F1C /* CovBSoraRewardServiceTests.swift */; };
+		8435BCD704C4F4FE56E4343C /* CovBRewardServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFFD73C9BBA82970AA1076F7 /* CovBRewardServicesTests.swift */; };
+		7121F5FD586D4F26E2450446 /* CovBRewardEnginesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900ABFADEE015BA283ECEE41 /* CovBRewardEnginesTests.swift */; };
+		8FB7B03E96C3D52F8FF4B540 /* CovBRelaychainValidatorOperationFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D747338DBED8BD1787CB4E77 /* CovBRelaychainValidatorOperationFactoryTests.swift */; };
+		0C6221EE1ECBA43BFAE1C912 /* CovBRelaychainValidatorElectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C3FC420AE47451350B3671 /* CovBRelaychainValidatorElectionTests.swift */; };
+		7955B62312BE974681170A28 /* CovBLegacyEraStakersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2183F70AED0CB5232A944D46 /* CovBLegacyEraStakersTests.swift */; };
+		C2F50771F076F9974E06CF53 /* CovBEraStakersFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1BC205D40A74BE85598A30 /* CovBEraStakersFetchingTests.swift */; };
+		7B5042BD68A001D6741CDCCF /* CovBAnalyticsViewModelFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B73F9CF5CF1D2A9C166F51CC /* CovBAnalyticsViewModelFactoryTests.swift */; };
+		6FD2DD65ED06C3E7F6709D61 /* CovBAnalyticsValidatorsModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7E4ACAED1C8C621208478F /* CovBAnalyticsValidatorsModuleTests.swift */; };
+		E552D09D007C855F55FF9E64 /* CovBAnalyticsStakeModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD0977B1FDB22259340A0F7 /* CovBAnalyticsStakeModuleTests.swift */; };
+		48F61CD1EE848B777E3927A0 /* CovBAnalyticsRewardsModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B613E87129872216DC790989 /* CovBAnalyticsRewardsModuleTests.swift */; };
+		31568F4E36A65518681FE050 /* CovBAnalyticsRemoteSourcesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 673B05FE0D57B9AF41EEFCC8 /* CovBAnalyticsRemoteSourcesTests.swift */; };
+		A036F96E8B19F007E5F19459 /* CovBAnalyticsFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A27E322AA98E83552AB4E79 /* CovBAnalyticsFixturesTests.swift */; };
+		421BD82F152A235AACD1E4BC /* CovBAnalyticsContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA626D43B8C7E64445C7138 /* CovBAnalyticsContainerTests.swift */; };
 		F2D90B44C062C61CEACFABF2 /* CovAYourValidatorListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BFE3B25D76FD9C9F76AACA /* CovAYourValidatorListTests.swift */; };
 		3EC07F10E3398829326FDE8D /* CovAYourValidatorListStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2619C482644E69A590A166 /* CovAYourValidatorListStrategyTests.swift */; };
 		FBC32BEBE6615625837A162D /* CovAValidatorSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5989714FBB61610894E606F5 /* CovAValidatorSearchTests.swift */; };
@@ -3374,6 +3393,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingRewardCalculatorViewTests.swift; sourceTree = "<group>"; };
+		B3874CEB79C2FA8D324FF933 /* CovBStakingOperationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingOperationsTests.swift; sourceTree = "<group>"; };
+		DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingModelTests.swift; sourceTree = "<group>"; };
+		E24C749214D75AF977305EE7 /* CovBStakingFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingFixturesTests.swift; sourceTree = "<group>"; };
+		5E11AB9575A698C7E541F944 /* CovBStakingDataValidatorFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingDataValidatorFactoryTests.swift; sourceTree = "<group>"; };
+		4CBB2AEB793A46ABE8694F1C /* CovBSoraRewardServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBSoraRewardServiceTests.swift; sourceTree = "<group>"; };
+		FFFD73C9BBA82970AA1076F7 /* CovBRewardServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBRewardServicesTests.swift; sourceTree = "<group>"; };
+		900ABFADEE015BA283ECEE41 /* CovBRewardEnginesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBRewardEnginesTests.swift; sourceTree = "<group>"; };
+		D747338DBED8BD1787CB4E77 /* CovBRelaychainValidatorOperationFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBRelaychainValidatorOperationFactoryTests.swift; sourceTree = "<group>"; };
+		C5C3FC420AE47451350B3671 /* CovBRelaychainValidatorElectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBRelaychainValidatorElectionTests.swift; sourceTree = "<group>"; };
+		2183F70AED0CB5232A944D46 /* CovBLegacyEraStakersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBLegacyEraStakersTests.swift; sourceTree = "<group>"; };
+		CE1BC205D40A74BE85598A30 /* CovBEraStakersFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBEraStakersFetchingTests.swift; sourceTree = "<group>"; };
+		B73F9CF5CF1D2A9C166F51CC /* CovBAnalyticsViewModelFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsViewModelFactoryTests.swift; sourceTree = "<group>"; };
+		3E7E4ACAED1C8C621208478F /* CovBAnalyticsValidatorsModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsValidatorsModuleTests.swift; sourceTree = "<group>"; };
+		CBD0977B1FDB22259340A0F7 /* CovBAnalyticsStakeModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsStakeModuleTests.swift; sourceTree = "<group>"; };
+		B613E87129872216DC790989 /* CovBAnalyticsRewardsModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsRewardsModuleTests.swift; sourceTree = "<group>"; };
+		673B05FE0D57B9AF41EEFCC8 /* CovBAnalyticsRemoteSourcesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsRemoteSourcesTests.swift; sourceTree = "<group>"; };
+		5A27E322AA98E83552AB4E79 /* CovBAnalyticsFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsFixturesTests.swift; sourceTree = "<group>"; };
+		2FA626D43B8C7E64445C7138 /* CovBAnalyticsContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBAnalyticsContainerTests.swift; sourceTree = "<group>"; };
 		E0BFE3B25D76FD9C9F76AACA /* CovAYourValidatorListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAYourValidatorListTests.swift; sourceTree = "<group>"; };
 		AF2619C482644E69A590A166 /* CovAYourValidatorListStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAYourValidatorListStrategyTests.swift; sourceTree = "<group>"; };
 		5989714FBB61610894E606F5 /* CovAValidatorSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovAValidatorSearchTests.swift; sourceTree = "<group>"; };
@@ -9734,6 +9772,25 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */,
+				B3874CEB79C2FA8D324FF933 /* CovBStakingOperationsTests.swift */,
+				DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */,
+				E24C749214D75AF977305EE7 /* CovBStakingFixturesTests.swift */,
+				5E11AB9575A698C7E541F944 /* CovBStakingDataValidatorFactoryTests.swift */,
+				4CBB2AEB793A46ABE8694F1C /* CovBSoraRewardServiceTests.swift */,
+				FFFD73C9BBA82970AA1076F7 /* CovBRewardServicesTests.swift */,
+				900ABFADEE015BA283ECEE41 /* CovBRewardEnginesTests.swift */,
+				D747338DBED8BD1787CB4E77 /* CovBRelaychainValidatorOperationFactoryTests.swift */,
+				C5C3FC420AE47451350B3671 /* CovBRelaychainValidatorElectionTests.swift */,
+				2183F70AED0CB5232A944D46 /* CovBLegacyEraStakersTests.swift */,
+				CE1BC205D40A74BE85598A30 /* CovBEraStakersFetchingTests.swift */,
+				B73F9CF5CF1D2A9C166F51CC /* CovBAnalyticsViewModelFactoryTests.swift */,
+				3E7E4ACAED1C8C621208478F /* CovBAnalyticsValidatorsModuleTests.swift */,
+				CBD0977B1FDB22259340A0F7 /* CovBAnalyticsStakeModuleTests.swift */,
+				B613E87129872216DC790989 /* CovBAnalyticsRewardsModuleTests.swift */,
+				673B05FE0D57B9AF41EEFCC8 /* CovBAnalyticsRemoteSourcesTests.swift */,
+				5A27E322AA98E83552AB4E79 /* CovBAnalyticsFixturesTests.swift */,
+				2FA626D43B8C7E64445C7138 /* CovBAnalyticsContainerTests.swift */,
 				E0BFE3B25D76FD9C9F76AACA /* CovAYourValidatorListTests.swift */,
 				AF2619C482644E69A590A166 /* CovAYourValidatorListStrategyTests.swift */,
 				5989714FBB61610894E606F5 /* CovAValidatorSearchTests.swift */,
@@ -19742,6 +19799,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A5560A1F1267BD68B2BEB63 /* CovBStakingRewardCalculatorViewTests.swift in Sources */,
+				804727E5D1CF4FC2AB9222D4 /* CovBStakingOperationsTests.swift in Sources */,
+				C404A0A543F5ACE3AC3A6F05 /* CovBStakingModelTests.swift in Sources */,
+				96EDF0996DEBA6ED51AC755A /* CovBStakingFixturesTests.swift in Sources */,
+				8CD5A0DAA339EDF54E8E6D3D /* CovBStakingDataValidatorFactoryTests.swift in Sources */,
+				A62657698D33A4F69E5A80CC /* CovBSoraRewardServiceTests.swift in Sources */,
+				8435BCD704C4F4FE56E4343C /* CovBRewardServicesTests.swift in Sources */,
+				7121F5FD586D4F26E2450446 /* CovBRewardEnginesTests.swift in Sources */,
+				8FB7B03E96C3D52F8FF4B540 /* CovBRelaychainValidatorOperationFactoryTests.swift in Sources */,
+				0C6221EE1ECBA43BFAE1C912 /* CovBRelaychainValidatorElectionTests.swift in Sources */,
+				7955B62312BE974681170A28 /* CovBLegacyEraStakersTests.swift in Sources */,
+				C2F50771F076F9974E06CF53 /* CovBEraStakersFetchingTests.swift in Sources */,
+				7B5042BD68A001D6741CDCCF /* CovBAnalyticsViewModelFactoryTests.swift in Sources */,
+				6FD2DD65ED06C3E7F6709D61 /* CovBAnalyticsValidatorsModuleTests.swift in Sources */,
+				E552D09D007C855F55FF9E64 /* CovBAnalyticsStakeModuleTests.swift in Sources */,
+				48F61CD1EE848B777E3927A0 /* CovBAnalyticsRewardsModuleTests.swift in Sources */,
+				31568F4E36A65518681FE050 /* CovBAnalyticsRemoteSourcesTests.swift in Sources */,
+				A036F96E8B19F007E5F19459 /* CovBAnalyticsFixturesTests.swift in Sources */,
+				421BD82F152A235AACD1E4BC /* CovBAnalyticsContainerTests.swift in Sources */,
 				F2D90B44C062C61CEACFABF2 /* CovAYourValidatorListTests.swift in Sources */,
 				3EC07F10E3398829326FDE8D /* CovAYourValidatorListStrategyTests.swift in Sources */,
 				FBC32BEBE6615625837A162D /* CovAValidatorSearchTests.swift in Sources */,
