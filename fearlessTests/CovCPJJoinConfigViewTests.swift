@@ -47,8 +47,11 @@ final class CovCPJJoinConfigViewTests: XCTestCase {
 
         XCTAssertEqual(view.accountView.title, R.string.localizable.poolStakingJoinAccountTitle(preferredLanguages: languages))
         XCTAssertEqual(view.navigationBar.titleLabel.text, R.string.localizable.poolStakingJoinTitle(preferredLanguages: languages))
-        // The layout sets the Join title and then `feeView.locale`, which resets the button title (reported as a bug),
-        // so the button title is not asserted here.
+        // ede0cdd81 sets `feeView.locale` before the Join title, so the footer no longer resets it to Confirm.
+        XCTAssertEqual(
+            view.feeView.actionButton.imageWithTitleView?.title,
+            R.string.localizable.poolStakingJoinButtonTitle(preferredLanguages: languages)
+        )
         XCTAssertEqual(view.feeView.locale.identifier, "en")
     }
 

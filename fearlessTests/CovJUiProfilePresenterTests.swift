@@ -96,6 +96,12 @@ final class CovJUiProfileWireframe: CovJSheetSpy, ProfileWireframeProtocol {
 
     func showLanguageSelection(from _: ProfileViewProtocol?) { routes.append("language") }
     func showPincodeChange(from _: ProfileViewProtocol?) { routes.append("pincode") }
+    /// Answers for `authorizeBiometryEnabling`, consumed in order; `true` (PIN confirmed) once empty.
+    var biometryAnswers: [Bool] = []
+    func authorizeBiometryEnabling(from _: ProfileViewProtocol?, completion: @escaping (Bool) -> Void) {
+        routes.append("biometryPin")
+        completion(biometryAnswers.isEmpty ? true : biometryAnswers.removeFirst())
+    }
     func showAbout(from _: ProfileViewProtocol?) { routes.append("about") }
     func logout(from _: ProfileViewProtocol?) { routes.append("logout") }
     func showCheckPincode(from _: ProfileViewProtocol?, output: CheckPincodeModuleOutput) { pincodeOutputs.append(output) }
@@ -329,8 +335,12 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         let events = CovJUiProfileEvents()
         f.eventCenter.add(observer: events, dispatchIn: .main)
 
+        f.wireframe.biometryAnswers = [false]
+        f.presenter.switcherValueChanged(isOn: true, index: Int(ProfileOption.biometry.rawValue))
+        XCTAssertNotEqual(f.settings.biometryEnabled, true, "a refused PIN keeps biometrics off")
         f.presenter.switcherValueChanged(isOn: true, index: Int(ProfileOption.biometry.rawValue))
         XCTAssertEqual(f.settings.biometryEnabled, true)
+        XCTAssertEqual(f.wireframe.routes.filter { $0 == "biometryPin" }.count, 2)
         f.presenter.switcherValueChanged(isOn: true, index: Int(ProfileOption.accountScore.rawValue))
         XCTAssertEqual(f.settings.accountScoreEnabled, true)
         XCTAssertTrue(CovJWait.until { events.scoreChanges == 1 })

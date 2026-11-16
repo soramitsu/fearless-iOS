@@ -160,7 +160,9 @@ final class CovJBkBackupWalletInteractorTests: XCTestCase {
             walletBalanceSubscriptionAdapter: adapter,
             availableExportOptionsProvider: provider,
             chainRepository: AnyDataProviderRepository(repository),
-            operationManager: OperationManager()
+            operationManager: OperationManager(),
+            // ede0cdd81 checks the Google configuration first; keyless test builds have none, so accept it here.
+            validateCloudConfiguration: {}
         )
         return Parts(
             interactor: interactor,
@@ -253,14 +255,18 @@ final class CovJBkBackupWalletInteractorTests: XCTestCase {
         XCTAssertEqual(Array(cloud.calls.prefix(2)), ["list", "disconnect"])
     }
 
-    func testWithoutCloudStorageNothingIsListed() {
+    func testWithoutCloudStorageListingReportsUnavailableConfiguration() {
         let parts = makeParts(wallet: CovJBkFixture.wallet())
         parts.interactor.setup(with: parts.output)
 
         parts.interactor.viewDidAppear()
-        CovJWait.drain(0.2)
 
-        XCTAssertTrue(parts.output.backupResults.isEmpty)
+        XCTAssertTrue(CovJWait.until { parts.output.backupResults.count == 1 })
+        if case let .failure(error) = parts.output.backupResults.first {
+            XCTAssertEqual(error as? GoogleDrivePasskeyBackupError, .unavailableConfiguration)
+        } else {
+            XCTFail("Without a cloud provider the listing fails")
+        }
     }
 
     func testRemovingTheBackupDeletesTheWalletsAddress() {
