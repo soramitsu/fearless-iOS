@@ -274,6 +274,11 @@ final class CovHAssetListPresenterTests: XCTestCase {
         context.presenter.updateChainAssets(using: [], sorts: [], networkFilter: .chain(asset.chain.chainId))
         context.presenter.updateViewModel(isInitSearchState: false)
         CovHAssetListFixture.drainMain()
+        // One list (4f4220937): on the wallet home the search field is the list's own, so a network change keeps
+        // its query; clearing the field shows the chosen network.
+        XCTAssertEqual(context.view.models.last?.displayState.isSearch, true)
+        context.presenter.didSearch("", walletId: context.wallet.metaId)
+        CovHAssetListFixture.drainMain()
         XCTAssertEqual(context.view.models.last?.displayState.isSearch, false)
 
         context.presenter.updateChainAssets(using: [], sorts: [], networkFilter: nil)

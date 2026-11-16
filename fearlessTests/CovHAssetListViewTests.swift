@@ -153,7 +153,8 @@ final class CovHAssetListViewTests: XCTestCase {
 
         let tiers = controller.flightTiers
         XCTAssertEqual(tiers.count, 1)
-        XCTAssertTrue(tiers.first?.view === controller.rootView.lensControl)
+        // One list (4f4220937): the search field and network chips replace the Tokens / Networks control as tier 3.
+        XCTAssertTrue(tiers.first?.view === controller.rootView.discoveryView)
         XCTAssertEqual(tiers.first?.tier, 3)
     }
 
