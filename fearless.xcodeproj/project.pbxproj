@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */; };
 		718D61EA43AD5E561027CC85 /* EthereumWalletRemoteSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C10FDE0046D6DBA52F037C /* EthereumWalletRemoteSubscriptionTests.swift */; };
 		6A97782F0DFFEB7537414B59 /* HistoryMergeAssetFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A245C41AF343D64B51E455 /* HistoryMergeAssetFilterTests.swift */; };
 		983E40B47722E5EA4F66F858 /* SoraEraRewardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FD83E50710E8BDDCD4261A /* SoraEraRewardHistory.swift */; };
@@ -3363,6 +3364,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteSubscriptionDetachTests.swift; sourceTree = "<group>"; };
 		90C10FDE0046D6DBA52F037C /* EthereumWalletRemoteSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumWalletRemoteSubscriptionTests.swift; sourceTree = "<group>"; };
 		22A245C41AF343D64B51E455 /* HistoryMergeAssetFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryMergeAssetFilterTests.swift; sourceTree = "<group>"; };
 		B6FD83E50710E8BDDCD4261A /* SoraEraRewardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraEraRewardHistory.swift; sourceTree = "<group>"; };
@@ -9712,6 +9714,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				0A8961F957722BD6007E3F78 /* WalletRemoteSubscriptionDetachTests.swift */,
 				90C10FDE0046D6DBA52F037C /* EthereumWalletRemoteSubscriptionTests.swift */,
 				22A245C41AF343D64B51E455 /* HistoryMergeAssetFilterTests.swift */,
 				7A99A19C12F30260361D187B /* UniversalMediaViewGIFTests.swift */,
@@ -19710,6 +19713,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D19AE78E86EF071B382BD2F /* WalletRemoteSubscriptionDetachTests.swift in Sources */,
 				718D61EA43AD5E561027CC85 /* EthereumWalletRemoteSubscriptionTests.swift in Sources */,
 				6A97782F0DFFEB7537414B59 /* HistoryMergeAssetFilterTests.swift in Sources */,
 				747E9F52BC5104EEB1350957 /* UniversalMediaViewGIFTests.swift in Sources */,
