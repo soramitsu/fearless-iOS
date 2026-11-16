@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		20409C0B42F66C0A0CE5B53E /* AccountFetchingChainAccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE414C7373C8DA1FA1BC43F5 /* AccountFetchingChainAccountTests.swift */; };
 		8218D1AE0F0C4BEB1B721BB2 /* BalanceRepositoryCacheWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBEC9EEAC99E8F533819B95C /* BalanceRepositoryCacheWrapperTests.swift */; };
 		55BC26B474C32E48F4E9A1F7 /* WannabeValidatorCommissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC00BEF6DC646FB3F129E6A9 /* WannabeValidatorCommissionTests.swift */; };
 		19BC8ECAD665249E3EBF7FFC /* SoraSubsquidHistoryStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAA0EEB3695E5AB2CE0F11B /* SoraSubsquidHistoryStatusTests.swift */; };
@@ -3355,6 +3356,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DE414C7373C8DA1FA1BC43F5 /* AccountFetchingChainAccountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountFetchingChainAccountTests.swift; sourceTree = "<group>"; };
 		DBEC9EEAC99E8F533819B95C /* BalanceRepositoryCacheWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceRepositoryCacheWrapperTests.swift; sourceTree = "<group>"; };
 		BC00BEF6DC646FB3F129E6A9 /* WannabeValidatorCommissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WannabeValidatorCommissionTests.swift; sourceTree = "<group>"; };
 		7DAA0EEB3695E5AB2CE0F11B /* SoraSubsquidHistoryStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubsquidHistoryStatusTests.swift; sourceTree = "<group>"; };
@@ -9696,6 +9698,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				DE414C7373C8DA1FA1BC43F5 /* AccountFetchingChainAccountTests.swift */,
 				DBEC9EEAC99E8F533819B95C /* BalanceRepositoryCacheWrapperTests.swift */,
 				BC00BEF6DC646FB3F129E6A9 /* WannabeValidatorCommissionTests.swift */,
 				7DAA0EEB3695E5AB2CE0F11B /* SoraSubsquidHistoryStatusTests.swift */,
@@ -19685,6 +19688,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20409C0B42F66C0A0CE5B53E /* AccountFetchingChainAccountTests.swift in Sources */,
 				8218D1AE0F0C4BEB1B721BB2 /* BalanceRepositoryCacheWrapperTests.swift in Sources */,
 				55BC26B474C32E48F4E9A1F7 /* WannabeValidatorCommissionTests.swift in Sources */,
 				19BC8ECAD665249E3EBF7FFC /* SoraSubsquidHistoryStatusTests.swift in Sources */,
