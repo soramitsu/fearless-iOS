@@ -1,6 +1,7 @@
 import UIKit
 import MediaView
 import AVFoundation
+import ImageIO
 
 final class UniversalMediaView: MediaView {
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
@@ -51,8 +52,9 @@ final class UniversalMediaView: MediaView {
                     }
                 }
             case .gif:
+                let data = try? await URLSession.shared.data(from: mediaURL).0
                 DispatchQueue.main.async { [weak self] in
-                    self?.setGIF(url: mediaURL.absoluteString)
+                    self?.showGIF(data: data, url: mediaURL)
                     self?.activityIndicator.stopAnimating()
                 }
             case .none:
@@ -63,8 +65,51 @@ final class UniversalMediaView: MediaView {
         }
     }
 
+    /// MediaView's GIF decoder crashes on a frame whose delay is zero or missing, so a GIF it cannot decode is shown
+    /// as a still image instead.
+    func showGIF(data: Data?, url: URL) {
+        guard let data = data else {
+            setGIF(url: url.absoluteString)
+            return
+        }
+
+        if MediaViewGIFCompatibility.canDecode(data) {
+            setGIF(data: data)
+        } else {
+            image = UIImage(data: data)
+        }
+    }
+
     override func hidePlayIndicator(animated _: Bool = false) {
         super.hidePlayIndicator()
         activityIndicator.stopAnimating()
+    }
+}
+
+/// The MediaView pod reads every GIF frame's unclamped delay as text and calls `CFStringGetDoubleValue` on the delay
+/// when it is zero; ImageIO gives a number, so a zero or missing delay crashes the app (`-[__NSCFNumber length]`).
+enum MediaViewGIFCompatibility {
+    static func canDecode(_ data: Data) -> Bool {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+            return false
+        }
+
+        let count = CGImageSourceGetCount(source)
+        guard count > 0 else {
+            return false
+        }
+
+        return (0 ..< count).allSatisfy { index in
+            guard
+                CGImageSourceCreateImageAtIndex(source, index, nil) != nil,
+                let properties = CGImageSourceCopyPropertiesAtIndex(source, index, nil) as? [CFString: Any],
+                let gif = properties[kCGImagePropertyGIFDictionary] as? [CFString: Any],
+                let delay = gif[kCGImagePropertyGIFUnclampedDelayTime] as? NSNumber
+            else {
+                return false
+            }
+
+            return delay.doubleValue > 0
+        }
     }
 }
