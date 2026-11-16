@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6A97782F0DFFEB7537414B59 /* HistoryMergeAssetFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A245C41AF343D64B51E455 /* HistoryMergeAssetFilterTests.swift */; };
 		983E40B47722E5EA4F66F858 /* SoraEraRewardHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FD83E50710E8BDDCD4261A /* SoraEraRewardHistory.swift */; };
 		747E9F52BC5104EEB1350957 /* UniversalMediaViewGIFTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A99A19C12F30260361D187B /* UniversalMediaViewGIFTests.swift */; };
 		E5C06ABD869DA843BBBCB82C /* RewardCalculatorFailureDeliveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB71558C4EC1946413D05875 /* RewardCalculatorFailureDeliveryTests.swift */; };
@@ -3361,6 +3362,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		22A245C41AF343D64B51E455 /* HistoryMergeAssetFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryMergeAssetFilterTests.swift; sourceTree = "<group>"; };
 		B6FD83E50710E8BDDCD4261A /* SoraEraRewardHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraEraRewardHistory.swift; sourceTree = "<group>"; };
 		7A99A19C12F30260361D187B /* UniversalMediaViewGIFTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalMediaViewGIFTests.swift; sourceTree = "<group>"; };
 		AB71558C4EC1946413D05875 /* RewardCalculatorFailureDeliveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorFailureDeliveryTests.swift; sourceTree = "<group>"; };
@@ -9708,6 +9710,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				22A245C41AF343D64B51E455 /* HistoryMergeAssetFilterTests.swift */,
 				7A99A19C12F30260361D187B /* UniversalMediaViewGIFTests.swift */,
 				AB71558C4EC1946413D05875 /* RewardCalculatorFailureDeliveryTests.swift */,
 				F782A5C39C3AED49C8E62123 /* IconTitleHeaderViewTests.swift */,
@@ -19704,6 +19707,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6A97782F0DFFEB7537414B59 /* HistoryMergeAssetFilterTests.swift in Sources */,
 				747E9F52BC5104EEB1350957 /* UniversalMediaViewGIFTests.swift in Sources */,
 				E5C06ABD869DA843BBBCB82C /* RewardCalculatorFailureDeliveryTests.swift in Sources */,
 				46268B075563672A6265E0AA /* IconTitleHeaderViewTests.swift in Sources */,

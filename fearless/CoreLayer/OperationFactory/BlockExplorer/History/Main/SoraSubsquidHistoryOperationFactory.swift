@@ -256,7 +256,7 @@ class SoraSubsquidHistoryOperationFactory {
                     asset: asset
                 )
                 return manager.merge(
-                    subscanItems: remoteTransactions,
+                    subscanItems: filteredTransactions,
                     localItems: localTransactions
                 )
             } else {
