@@ -201,12 +201,12 @@ final class CovBAnRewardsModuleTests: XCTestCase {
         XCTAssertEqual(module.view.viewState, .loading)
     }
 
-    func testChartSelectionHighlightsTheBarAndReloadRestoresScrolling() throws {
+    func testChartSelectionHighlightsTheBarAndKeepsTheTableStillUntilUnselect() throws {
         let module = makeModule()
         deliverRewards(to: module)
 
         module.view.didSelectXValue(5)
-        XCTAssertTrue(module.table.isScrollEnabled, "The presenter synchronously reloads the selected model and restores scrolling")
+        XCTAssertFalse(module.table.isScrollEnabled, "The selected-model reload keeps the table still (497e99a18)")
         XCTAssertFalse(module.view.animateChartOnReload)
         let selected = try XCTUnwrap(module.loadedViewModel)
         XCTAssertEqual(selected.chartData.amounts.filter(\.selected).count, 1)

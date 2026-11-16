@@ -127,7 +127,7 @@ final class CovBAnStakeModuleTests: XCTestCase {
         module.presenter.didReceieve(stakeDataResult: .success(try changes()))
 
         module.view.didSelectXValue(1)
-        XCTAssertTrue(module.table.isScrollEnabled, "The selected-model reload restores scrolling")
+        XCTAssertFalse(module.table.isScrollEnabled, "The selected-model reload keeps the table still (497e99a18)")
         XCTAssertEqual(try XCTUnwrap(module.loadedViewModel).summaryViewModel.tokenAmount, "0.7")
         XCTAssertEqual(try XCTUnwrap(module.loadedViewModel).chartData.amounts.map(\.selected), [false, true, false])
 

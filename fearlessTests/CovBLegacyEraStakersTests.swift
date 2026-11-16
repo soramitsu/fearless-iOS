@@ -133,13 +133,9 @@ final class CovBLgEraStakersTests: XCTestCase {
         XCTAssertEqual(validator.exposure.others.map(\.value), [200, 50])
         XCTAssertEqual(validator.prefs.commission, 100_000_000)
         XCTAssertTrue(validator.prefs.blocked)
-        // Current behaviour (reported): the legacy path reads prefs per exposure key, and an absent Staking.Validators
-        // entry decodes to the storage default, so B is kept with no commission. The paged path skips such validators.
-        XCTAssertEqual(Set(byId.keys), [Fx.validatorA, Fx.validatorB])
-        let unlisted = try XCTUnwrap(byId[Fx.validatorB])
-        XCTAssertEqual(unlisted.prefs.commission, 0)
-        XCTAssertFalse(unlisted.prefs.blocked)
-        XCTAssertEqual(unlisted.exposure.total, 90)
+        // B has an exposure but no Staking.Validators entry, so it is left out, as on the paged path (dd08543bf).
+        XCTAssertEqual(Set(byId.keys), [Fx.validatorA])
+        XCTAssertNil(byId[Fx.validatorB], "a validator without prefs is not listed")
         XCTAssertTrue(fx.engine.methods.contains("state_getKeysPaged"))
     }
 

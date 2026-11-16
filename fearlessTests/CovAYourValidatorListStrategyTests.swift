@@ -15,6 +15,10 @@ final class CovAYourValidatorListStrategyTests: XCTestCase {
         let facade = SubstrateStorageTestFacade()
         let repository = AccountRepositoryFactory(storageFacade: UserDataStorageTestFacade())
             .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        // The controller lookup answers once (ec6cf01d4): with no stored wallet it reports accountNotExists, which clears
+        // the list it races with. Store the wallet that owns the fixture controller so the lookup finds it.
+        let save = repository.saveOperation({ [CovAFixtureAlias.wallet] }, { [] })
+        OperationQueue().addOperations([save], waitUntilFinished: true)
         return YourValidatorListRelaychainStrategy(
             chainAsset: CovAFixtureAlias.chainAsset,
             wallet: CovAFixtureAlias.wallet,
