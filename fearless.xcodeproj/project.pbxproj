@@ -7,6 +7,83 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5AD31CC02D9145968A6AB0CE /* CovCUBUnbondSetupStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9B0B188A9812A40F6CDD5B1 /* CovCUBUnbondSetupStateTests.swift */; };
+		0605902AF89CB9AB48691FF2 /* CovCUBUnbondPresentersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D65B37F5D0F0B0F6484B8706 /* CovCUBUnbondPresentersTests.swift */; };
+		DB014743254862AC41C7B273 /* CovCUBUnbondConfirmStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D972D3470FA89CD047199EE7 /* CovCUBUnbondConfirmStateTests.swift */; };
+		007B093D81F15A6B757511A3 /* CovCUBSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCFE077220149CE4CF6764BB /* CovCUBSupportTests.swift */; };
+		1159B42CECFFEA33C890C1F9 /* CovCUBStrategyDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD9044B749C8849D5867B843 /* CovCUBStrategyDoublesTests.swift */; };
+		45457B1CB581F0E6AB229215 /* CovCUBSetupViewControllersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEDD6F14C8E762D594C8A906 /* CovCUBSetupViewControllersTests.swift */; };
+		5F818491026AD34525FCBDCB /* CovCUBRelaychainStrategiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877EB5BE560585728B2FF7AD /* CovCUBRelaychainStrategiesTests.swift */; };
+		94FBF72D1B036FDA12ED2F86 /* CovCUBRedeemStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EF9156062B0FE3230793F0B /* CovCUBRedeemStateTests.swift */; };
+		C3F1944A1DBF7D1CAE015598 /* CovCUBRedeemRebondSetupPresentersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB801637B1F528033422E61 /* CovCUBRedeemRebondSetupPresentersTests.swift */; };
+		0C36D385185635F354DB5316 /* CovCUBRedeemFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FB4ACB8D36741D4ABBF7310 /* CovCUBRedeemFactoryTests.swift */; };
+		D2482B8D38090D23BB1074E5 /* CovCUBRebondSetupInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D0E861B7F8AA475F9A7A3C /* CovCUBRebondSetupInteractorTests.swift */; };
+		75B2F7752A73FAE7416B6643 /* CovCUBRebondConfirmationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 205B05DC063E72A7FAAA3CE6 /* CovCUBRebondConfirmationTests.swift */; };
+		15A185D9A7E8AAE14487B822 /* CovCUBPresenterDoublesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055734C905E7321776EB3690 /* CovCUBPresenterDoublesTests.swift */; };
+		1DDA5D7FA42F5BB467E2CF8C /* CovCUBPoolStrategiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7641B49DCEBB28552CD2C529 /* CovCUBPoolStrategiesTests.swift */; };
+		2A519D10D25E6D925DA7ADF8 /* CovCUBLayoutsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B7BF5970A27242379FBD /* CovCUBLayoutsTests.swift */; };
+		67B532239E9A944A631892EA /* CovCUBConfirmViewControllersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28CD837836E487BDA1246CC0 /* CovCUBConfirmViewControllersTests.swift */; };
+		4F45240E501C65BBEC3E49D5 /* CovCStoriesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232151C9C873B759C9AA67CC /* CovCStoriesTests.swift */; };
+		85D41D1F90CFCE2F0D141850 /* CovCPMPoolRoutersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C204A767208C1DE6E34C9E7 /* CovCPMPoolRoutersTests.swift */; };
+		416A8C6FBCC0D525269CA952 /* CovCPMPoolManagementViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E443CB6D6EB2DBFAF66FCA4B /* CovCPMPoolManagementViewTests.swift */; };
+		F2468D21A4DCF299776084CF /* CovCPMPoolManagementPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149EB8C5D026DABB39FF5576 /* CovCPMPoolManagementPresenterTests.swift */; };
+		2B07E3EACAD07012F61632BB /* CovCPMPoolManagementInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A919E59812D55A9DE5EAAFA /* CovCPMPoolManagementInteractorTests.swift */; };
+		056A079BD752CE31C1EE1F08 /* CovCPMPoolMainViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5F32E56CD1243775DD52BE /* CovCPMPoolMainViewTests.swift */; };
+		35401B4A804123560C0C1907 /* CovCPMPoolMainViewModelFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1184B0A70D7198CC9BFF7F21 /* CovCPMPoolMainViewModelFactoryTests.swift */; };
+		E83CF15AF9FF885984915C2C /* CovCPMPoolMainPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80BE11F50698B7F93F6D2E4 /* CovCPMPoolMainPresenterTests.swift */; };
+		92B99D6AFE5B219F3BA25B80 /* CovCPMPoolMainInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5A5E32E55DD37524ADAD5F /* CovCPMPoolMainInteractorTests.swift */; };
+		C47D70B730CB463BF54C3B1E /* CovCPMPoolInfoViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7129FFAA81ED173C2B79FE7 /* CovCPMPoolInfoViewTests.swift */; };
+		8717AF352AC118DABBF7A206 /* CovCPMPoolInfoPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0922A2F05E21B44CB759B7EE /* CovCPMPoolInfoPresenterTests.swift */; };
+		B6DB62122E832B3713D7E1D3 /* CovCPMPoolInfoInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBCC8B8C07D1421C45B3EAA1 /* CovCPMPoolInfoInteractorTests.swift */; };
+		33BC48FD2F95364E7DA5DD3D /* CovCPJSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F51370E380D8DE452F4AFE7C /* CovCPJSupportTests.swift */; };
+		BB11AF0284509B67C7043C66 /* CovCPJPoolStartTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4358390D72F24CB2369D9ECF /* CovCPJPoolStartTests.swift */; };
+		D0103E8C683ECB1850D84E39 /* CovCPJPoolRoutersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD613896D4AE61D10D69E0CF /* CovCPJPoolRoutersTests.swift */; };
+		ED3AC7E86498035AF01FEEED /* CovCPJPoolRouters2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6E2DF3C6C86EB5D82B3A6A /* CovCPJPoolRouters2Tests.swift */; };
+		F8960A333982942B323A4A59 /* CovCPJPoolRolesConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9980EA5558009C10B230C311 /* CovCPJPoolRolesConfirmTests.swift */; };
+		DCC2DE4F3C1FC7251B8B7B76 /* CovCPJPoolRewardCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418137DC1BFEEDC263C55E96 /* CovCPJPoolRewardCalculatorTests.swift */; };
+		25C52EB92205EF28D2917692 /* CovCPJPoolInteractorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E191BB94C1D76AA8E7E9773 /* CovCPJPoolInteractorsTests.swift */; };
+		784871342415D44F2D41939E /* CovCPJPoolInteractors2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F56D57D904B811BF97736D7 /* CovCPJPoolInteractors2Tests.swift */; };
+		A6026890D368112841D6704F /* CovCPJPoolCreateViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66BFCD5602E6EE218231EF91 /* CovCPJPoolCreateViewTests.swift */; };
+		D7792F5956F7F00983ABCF99 /* CovCPJPoolCreatePresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74875DB1CA1C5F51F1E5A91B /* CovCPJPoolCreatePresenterTests.swift */; };
+		3F55E8318851164C0C805729 /* CovCPJJoinConfirmViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EEACBAF0A0C6D5D11063D64 /* CovCPJJoinConfirmViewTests.swift */; };
+		CC122FA28D69FA8D2E030ACB /* CovCPJJoinConfirmPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E664FB8CA33CE44750B74DFC /* CovCPJJoinConfirmPresenterTests.swift */; };
+		9391BDFC16ADAD16D5198BEA /* CovCPJJoinConfigViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9C00D7AEBD3810DF9532E1 /* CovCPJJoinConfigViewTests.swift */; };
+		7B97DBBB3202F521B934A908 /* CovCPJJoinConfigPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E743D86C6F95AC9D9EDAD64F /* CovCPJJoinConfigPresenterTests.swift */; };
+		60E7F8281CB28797B5A3FB97 /* CovCPJInteractorSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B24571D3CF667B9DA590A89 /* CovCPJInteractorSupportTests.swift */; };
+		A120A100FA14E370BFE239DA /* CovCPJCreateConfirmViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C1590E8F82665E680C0F9D /* CovCPJCreateConfirmViewTests.swift */; };
+		31F8DCD4CD98FFCE78EA9B31 /* CovCPJCreateConfirmPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A444E5A135D47DF99896E419 /* CovCPJCreateConfirmPresenterTests.swift */; };
+		8D65D8F27B8C366978FF1F0C /* CovCPJCreateConfirmInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 861E1C4B2D25089E6E14A028 /* CovCPJCreateConfirmInteractorTests.swift */; };
+		4890EEB785E140479E12CF1B /* CovCPJChoosePoolViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11DFD19438F33EF875C4C8F8 /* CovCPJChoosePoolViewTests.swift */; };
+		E38C1397565A6E6D55C694AA /* CovCPJChoosePoolPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E2B11EBE3446BDF3794A2A /* CovCPJChoosePoolPresenterTests.swift */; };
+		7AFB8EF04EE1EF7DDA7E0D20 /* CovCPJBuilderClosuresTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377976EE2D1DDD939795C131 /* CovCPJBuilderClosuresTests.swift */; };
+		183D6D6C6B514E90931D6A9A /* CovCBPStrategiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DDB72A1BF234007BF2BC670 /* CovCBPStrategiesTests.swift */; };
+		4AEBE19C94DD3F79CD3C59E1 /* CovCBPRewardPayoutsViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86F6108830D7DAD3E34E1065 /* CovCBPRewardPayoutsViewTests.swift */; };
+		D3C0F7A1B7863950E3111BD9 /* CovCBPRewardPayoutsLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE08943C88F191C47F40916 /* CovCBPRewardPayoutsLogicTests.swift */; };
+		706E1CB01173FDE77CCE7B13 /* CovCBPRewardDetailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFF021188F96F90890CEDB6 /* CovCBPRewardDetailsTests.swift */; };
+		80A4061B3946890D77519A43 /* CovCBPRewardDestViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5B5DBDF9D4C8AAEEABBC07 /* CovCBPRewardDestViewsTests.swift */; };
+		6E74393216D70C80ED55B0B2 /* CovCBPRewardDestSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426B52842060AC6CE4C3FFEA /* CovCBPRewardDestSetupTests.swift */; };
+		29F6D817DCE8593357A438CC /* CovCBPRewardDestConfirmPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BD830E9D1800DDC4551EDE /* CovCBPRewardDestConfirmPresenterTests.swift */; };
+		B8DD2B9E4E248C8A4F758974 /* CovCBPPayoutConfirmViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E841C0117AD94CD13BE4334 /* CovCBPPayoutConfirmViewTests.swift */; };
+		A1535483CEDBA71CF8192F63 /* CovCBPPayoutConfirmPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6275416C2FE7F6AC54EE60A2 /* CovCBPPayoutConfirmPresenterTests.swift */; };
+		B28CDAEB92118DE769301A9A /* CovCBPPayoutConfirmFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67D01960219E03FD35678B0 /* CovCBPPayoutConfirmFlowTests.swift */; };
+		7446C8F005171F7796BA61C2 /* CovCBPInteractorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF647FB37BFCA5DEC611A053 /* CovCBPInteractorsTests.swift */; };
+		25263DDAB24FDC467DDA7DB9 /* CovCBPBondMoreViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63802CAEB8251334B5FC36E7 /* CovCBPBondMoreViewsTests.swift */; };
+		2BFA44C34D104589787A5823 /* CovCBPBondMoreFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D20A3EEBD1E6BA677C54D68 /* CovCBPBondMoreFlowTests.swift */; };
+		D70400DD1F85F9418DA12BE1 /* CovCBPBondMoreConfirmFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE47CB88740A943FB5E27271 /* CovCBPBondMoreConfirmFlowTests.swift */; };
+		976CD3A18326A8865DECE4B2 /* CovCABStakingWireframesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C0E010B85EEFA91E2B1BDA /* CovCABStakingWireframesTests.swift */; };
+		790A8FACCA303534B7F6816D /* CovCABStakingFlowServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE30EAC7E5996F8E615A8CC3 /* CovCABStakingFlowServicesTests.swift */; };
+		F14C225EE44E156AA8F24EA0 /* CovCABStakingErrorPresentableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1248957FFE736E851A589E /* CovCABStakingErrorPresentableTests.swift */; };
+		36BE84E1A099A897D592036C /* CovCABStakingBalanceViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81F8E7A916D77E994191597 /* CovCABStakingBalanceViewsTests.swift */; };
+		F2F98D2533E2B6C3D0B939D6 /* CovCABStakingBalancePresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F614A8A22B931E79C17327 /* CovCABStakingBalancePresenterTests.swift */; };
+		2A1BA2A6C19D4810D027CCB8 /* CovCABStakingBalanceFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38AD86EBFC70F43125B3E39 /* CovCABStakingBalanceFlowTests.swift */; };
+		A344636BBB407D06BD01AE2F /* CovCABStakingAmountViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6F2C5D00364CA80164636F /* CovCABStakingAmountViewControllerTests.swift */; };
+		6BDA6795406D99F1FEA0C46D /* CovCABStakingAmountStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2051E9BC035921329B27D1FF /* CovCABStakingAmountStateTests.swift */; };
+		DB26FE338B3C01082875EFB5 /* CovCABStakingAmountPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31F9C752800C716F64BCE71 /* CovCABStakingAmountPresenterTests.swift */; };
+		DC16D353A5C1FF89C32FFCEA /* CovCABControllerAccountViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D5A16207B42B6CB4EAAD13 /* CovCABControllerAccountViewTests.swift */; };
+		0669E90D7878A71C9C52AE7F /* CovCABControllerAccountPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A81C2490F3F55CE9AA63C7D /* CovCABControllerAccountPresenterTests.swift */; };
+		325F08951F15640027AB301B /* CovCABControllerAccountInteractorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D7B7868EAD341D7CFBC96F /* CovCABControllerAccountInteractorsTests.swift */; };
+		332B5AF8B07CE81CBF320432 /* CovCABControllerAccountConfirmationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8252BD0A71CBAFFD384961F1 /* CovCABControllerAccountConfirmationTests.swift */; };
+		CD0325D0B7F10C6D3C89AEA6 /* CovCABBalanceViewModelFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E858BFB7A4A528591D503DC /* CovCABBalanceViewModelFactoryTests.swift */; };
 		8A5560A1F1267BD68B2BEB63 /* CovBStakingRewardCalculatorViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */; };
 		804727E5D1CF4FC2AB9222D4 /* CovBStakingOperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3874CEB79C2FA8D324FF933 /* CovBStakingOperationsTests.swift */; };
 		C404A0A543F5ACE3AC3A6F05 /* CovBStakingModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */; };
@@ -3393,6 +3470,83 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C9B0B188A9812A40F6CDD5B1 /* CovCUBUnbondSetupStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBUnbondSetupStateTests.swift; sourceTree = "<group>"; };
+		D65B37F5D0F0B0F6484B8706 /* CovCUBUnbondPresentersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBUnbondPresentersTests.swift; sourceTree = "<group>"; };
+		D972D3470FA89CD047199EE7 /* CovCUBUnbondConfirmStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBUnbondConfirmStateTests.swift; sourceTree = "<group>"; };
+		FCFE077220149CE4CF6764BB /* CovCUBSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBSupportTests.swift; sourceTree = "<group>"; };
+		AD9044B749C8849D5867B843 /* CovCUBStrategyDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBStrategyDoublesTests.swift; sourceTree = "<group>"; };
+		FEDD6F14C8E762D594C8A906 /* CovCUBSetupViewControllersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBSetupViewControllersTests.swift; sourceTree = "<group>"; };
+		877EB5BE560585728B2FF7AD /* CovCUBRelaychainStrategiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBRelaychainStrategiesTests.swift; sourceTree = "<group>"; };
+		2EF9156062B0FE3230793F0B /* CovCUBRedeemStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBRedeemStateTests.swift; sourceTree = "<group>"; };
+		1CB801637B1F528033422E61 /* CovCUBRedeemRebondSetupPresentersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBRedeemRebondSetupPresentersTests.swift; sourceTree = "<group>"; };
+		8FB4ACB8D36741D4ABBF7310 /* CovCUBRedeemFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBRedeemFactoryTests.swift; sourceTree = "<group>"; };
+		43D0E861B7F8AA475F9A7A3C /* CovCUBRebondSetupInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBRebondSetupInteractorTests.swift; sourceTree = "<group>"; };
+		205B05DC063E72A7FAAA3CE6 /* CovCUBRebondConfirmationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBRebondConfirmationTests.swift; sourceTree = "<group>"; };
+		055734C905E7321776EB3690 /* CovCUBPresenterDoublesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBPresenterDoublesTests.swift; sourceTree = "<group>"; };
+		7641B49DCEBB28552CD2C529 /* CovCUBPoolStrategiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBPoolStrategiesTests.swift; sourceTree = "<group>"; };
+		CCD5B7BF5970A27242379FBD /* CovCUBLayoutsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBLayoutsTests.swift; sourceTree = "<group>"; };
+		28CD837836E487BDA1246CC0 /* CovCUBConfirmViewControllersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCUBConfirmViewControllersTests.swift; sourceTree = "<group>"; };
+		232151C9C873B759C9AA67CC /* CovCStoriesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCStoriesTests.swift; sourceTree = "<group>"; };
+		7C204A767208C1DE6E34C9E7 /* CovCPMPoolRoutersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolRoutersTests.swift; sourceTree = "<group>"; };
+		E443CB6D6EB2DBFAF66FCA4B /* CovCPMPoolManagementViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolManagementViewTests.swift; sourceTree = "<group>"; };
+		149EB8C5D026DABB39FF5576 /* CovCPMPoolManagementPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolManagementPresenterTests.swift; sourceTree = "<group>"; };
+		4A919E59812D55A9DE5EAAFA /* CovCPMPoolManagementInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolManagementInteractorTests.swift; sourceTree = "<group>"; };
+		8D5F32E56CD1243775DD52BE /* CovCPMPoolMainViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolMainViewTests.swift; sourceTree = "<group>"; };
+		1184B0A70D7198CC9BFF7F21 /* CovCPMPoolMainViewModelFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolMainViewModelFactoryTests.swift; sourceTree = "<group>"; };
+		F80BE11F50698B7F93F6D2E4 /* CovCPMPoolMainPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolMainPresenterTests.swift; sourceTree = "<group>"; };
+		EE5A5E32E55DD37524ADAD5F /* CovCPMPoolMainInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolMainInteractorTests.swift; sourceTree = "<group>"; };
+		D7129FFAA81ED173C2B79FE7 /* CovCPMPoolInfoViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolInfoViewTests.swift; sourceTree = "<group>"; };
+		0922A2F05E21B44CB759B7EE /* CovCPMPoolInfoPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolInfoPresenterTests.swift; sourceTree = "<group>"; };
+		EBCC8B8C07D1421C45B3EAA1 /* CovCPMPoolInfoInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPMPoolInfoInteractorTests.swift; sourceTree = "<group>"; };
+		F51370E380D8DE452F4AFE7C /* CovCPJSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJSupportTests.swift; sourceTree = "<group>"; };
+		4358390D72F24CB2369D9ECF /* CovCPJPoolStartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolStartTests.swift; sourceTree = "<group>"; };
+		CD613896D4AE61D10D69E0CF /* CovCPJPoolRoutersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolRoutersTests.swift; sourceTree = "<group>"; };
+		FA6E2DF3C6C86EB5D82B3A6A /* CovCPJPoolRouters2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolRouters2Tests.swift; sourceTree = "<group>"; };
+		9980EA5558009C10B230C311 /* CovCPJPoolRolesConfirmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolRolesConfirmTests.swift; sourceTree = "<group>"; };
+		418137DC1BFEEDC263C55E96 /* CovCPJPoolRewardCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolRewardCalculatorTests.swift; sourceTree = "<group>"; };
+		6E191BB94C1D76AA8E7E9773 /* CovCPJPoolInteractorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolInteractorsTests.swift; sourceTree = "<group>"; };
+		8F56D57D904B811BF97736D7 /* CovCPJPoolInteractors2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolInteractors2Tests.swift; sourceTree = "<group>"; };
+		66BFCD5602E6EE218231EF91 /* CovCPJPoolCreateViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolCreateViewTests.swift; sourceTree = "<group>"; };
+		74875DB1CA1C5F51F1E5A91B /* CovCPJPoolCreatePresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJPoolCreatePresenterTests.swift; sourceTree = "<group>"; };
+		5EEACBAF0A0C6D5D11063D64 /* CovCPJJoinConfirmViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJJoinConfirmViewTests.swift; sourceTree = "<group>"; };
+		E664FB8CA33CE44750B74DFC /* CovCPJJoinConfirmPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJJoinConfirmPresenterTests.swift; sourceTree = "<group>"; };
+		9A9C00D7AEBD3810DF9532E1 /* CovCPJJoinConfigViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJJoinConfigViewTests.swift; sourceTree = "<group>"; };
+		E743D86C6F95AC9D9EDAD64F /* CovCPJJoinConfigPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJJoinConfigPresenterTests.swift; sourceTree = "<group>"; };
+		3B24571D3CF667B9DA590A89 /* CovCPJInteractorSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJInteractorSupportTests.swift; sourceTree = "<group>"; };
+		09C1590E8F82665E680C0F9D /* CovCPJCreateConfirmViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJCreateConfirmViewTests.swift; sourceTree = "<group>"; };
+		A444E5A135D47DF99896E419 /* CovCPJCreateConfirmPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJCreateConfirmPresenterTests.swift; sourceTree = "<group>"; };
+		861E1C4B2D25089E6E14A028 /* CovCPJCreateConfirmInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJCreateConfirmInteractorTests.swift; sourceTree = "<group>"; };
+		11DFD19438F33EF875C4C8F8 /* CovCPJChoosePoolViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJChoosePoolViewTests.swift; sourceTree = "<group>"; };
+		39E2B11EBE3446BDF3794A2A /* CovCPJChoosePoolPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJChoosePoolPresenterTests.swift; sourceTree = "<group>"; };
+		377976EE2D1DDD939795C131 /* CovCPJBuilderClosuresTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCPJBuilderClosuresTests.swift; sourceTree = "<group>"; };
+		1DDB72A1BF234007BF2BC670 /* CovCBPStrategiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPStrategiesTests.swift; sourceTree = "<group>"; };
+		86F6108830D7DAD3E34E1065 /* CovCBPRewardPayoutsViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPRewardPayoutsViewTests.swift; sourceTree = "<group>"; };
+		EFE08943C88F191C47F40916 /* CovCBPRewardPayoutsLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPRewardPayoutsLogicTests.swift; sourceTree = "<group>"; };
+		FAFF021188F96F90890CEDB6 /* CovCBPRewardDetailsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPRewardDetailsTests.swift; sourceTree = "<group>"; };
+		FC5B5DBDF9D4C8AAEEABBC07 /* CovCBPRewardDestViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPRewardDestViewsTests.swift; sourceTree = "<group>"; };
+		426B52842060AC6CE4C3FFEA /* CovCBPRewardDestSetupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPRewardDestSetupTests.swift; sourceTree = "<group>"; };
+		22BD830E9D1800DDC4551EDE /* CovCBPRewardDestConfirmPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPRewardDestConfirmPresenterTests.swift; sourceTree = "<group>"; };
+		5E841C0117AD94CD13BE4334 /* CovCBPPayoutConfirmViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPPayoutConfirmViewTests.swift; sourceTree = "<group>"; };
+		6275416C2FE7F6AC54EE60A2 /* CovCBPPayoutConfirmPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPPayoutConfirmPresenterTests.swift; sourceTree = "<group>"; };
+		F67D01960219E03FD35678B0 /* CovCBPPayoutConfirmFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPPayoutConfirmFlowTests.swift; sourceTree = "<group>"; };
+		CF647FB37BFCA5DEC611A053 /* CovCBPInteractorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPInteractorsTests.swift; sourceTree = "<group>"; };
+		63802CAEB8251334B5FC36E7 /* CovCBPBondMoreViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPBondMoreViewsTests.swift; sourceTree = "<group>"; };
+		3D20A3EEBD1E6BA677C54D68 /* CovCBPBondMoreFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPBondMoreFlowTests.swift; sourceTree = "<group>"; };
+		AE47CB88740A943FB5E27271 /* CovCBPBondMoreConfirmFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCBPBondMoreConfirmFlowTests.swift; sourceTree = "<group>"; };
+		86C0E010B85EEFA91E2B1BDA /* CovCABStakingWireframesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingWireframesTests.swift; sourceTree = "<group>"; };
+		BE30EAC7E5996F8E615A8CC3 /* CovCABStakingFlowServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingFlowServicesTests.swift; sourceTree = "<group>"; };
+		0F1248957FFE736E851A589E /* CovCABStakingErrorPresentableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingErrorPresentableTests.swift; sourceTree = "<group>"; };
+		A81F8E7A916D77E994191597 /* CovCABStakingBalanceViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingBalanceViewsTests.swift; sourceTree = "<group>"; };
+		48F614A8A22B931E79C17327 /* CovCABStakingBalancePresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingBalancePresenterTests.swift; sourceTree = "<group>"; };
+		A38AD86EBFC70F43125B3E39 /* CovCABStakingBalanceFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingBalanceFlowTests.swift; sourceTree = "<group>"; };
+		5D6F2C5D00364CA80164636F /* CovCABStakingAmountViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingAmountViewControllerTests.swift; sourceTree = "<group>"; };
+		2051E9BC035921329B27D1FF /* CovCABStakingAmountStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingAmountStateTests.swift; sourceTree = "<group>"; };
+		D31F9C752800C716F64BCE71 /* CovCABStakingAmountPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABStakingAmountPresenterTests.swift; sourceTree = "<group>"; };
+		36D5A16207B42B6CB4EAAD13 /* CovCABControllerAccountViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABControllerAccountViewTests.swift; sourceTree = "<group>"; };
+		8A81C2490F3F55CE9AA63C7D /* CovCABControllerAccountPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABControllerAccountPresenterTests.swift; sourceTree = "<group>"; };
+		10D7B7868EAD341D7CFBC96F /* CovCABControllerAccountInteractorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABControllerAccountInteractorsTests.swift; sourceTree = "<group>"; };
+		8252BD0A71CBAFFD384961F1 /* CovCABControllerAccountConfirmationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABControllerAccountConfirmationTests.swift; sourceTree = "<group>"; };
+		1E858BFB7A4A528591D503DC /* CovCABBalanceViewModelFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovCABBalanceViewModelFactoryTests.swift; sourceTree = "<group>"; };
 		E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingRewardCalculatorViewTests.swift; sourceTree = "<group>"; };
 		B3874CEB79C2FA8D324FF933 /* CovBStakingOperationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingOperationsTests.swift; sourceTree = "<group>"; };
 		DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovBStakingModelTests.swift; sourceTree = "<group>"; };
@@ -9772,6 +9926,83 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				C9B0B188A9812A40F6CDD5B1 /* CovCUBUnbondSetupStateTests.swift */,
+				D65B37F5D0F0B0F6484B8706 /* CovCUBUnbondPresentersTests.swift */,
+				D972D3470FA89CD047199EE7 /* CovCUBUnbondConfirmStateTests.swift */,
+				FCFE077220149CE4CF6764BB /* CovCUBSupportTests.swift */,
+				AD9044B749C8849D5867B843 /* CovCUBStrategyDoublesTests.swift */,
+				FEDD6F14C8E762D594C8A906 /* CovCUBSetupViewControllersTests.swift */,
+				877EB5BE560585728B2FF7AD /* CovCUBRelaychainStrategiesTests.swift */,
+				2EF9156062B0FE3230793F0B /* CovCUBRedeemStateTests.swift */,
+				1CB801637B1F528033422E61 /* CovCUBRedeemRebondSetupPresentersTests.swift */,
+				8FB4ACB8D36741D4ABBF7310 /* CovCUBRedeemFactoryTests.swift */,
+				43D0E861B7F8AA475F9A7A3C /* CovCUBRebondSetupInteractorTests.swift */,
+				205B05DC063E72A7FAAA3CE6 /* CovCUBRebondConfirmationTests.swift */,
+				055734C905E7321776EB3690 /* CovCUBPresenterDoublesTests.swift */,
+				7641B49DCEBB28552CD2C529 /* CovCUBPoolStrategiesTests.swift */,
+				CCD5B7BF5970A27242379FBD /* CovCUBLayoutsTests.swift */,
+				28CD837836E487BDA1246CC0 /* CovCUBConfirmViewControllersTests.swift */,
+				232151C9C873B759C9AA67CC /* CovCStoriesTests.swift */,
+				7C204A767208C1DE6E34C9E7 /* CovCPMPoolRoutersTests.swift */,
+				E443CB6D6EB2DBFAF66FCA4B /* CovCPMPoolManagementViewTests.swift */,
+				149EB8C5D026DABB39FF5576 /* CovCPMPoolManagementPresenterTests.swift */,
+				4A919E59812D55A9DE5EAAFA /* CovCPMPoolManagementInteractorTests.swift */,
+				8D5F32E56CD1243775DD52BE /* CovCPMPoolMainViewTests.swift */,
+				1184B0A70D7198CC9BFF7F21 /* CovCPMPoolMainViewModelFactoryTests.swift */,
+				F80BE11F50698B7F93F6D2E4 /* CovCPMPoolMainPresenterTests.swift */,
+				EE5A5E32E55DD37524ADAD5F /* CovCPMPoolMainInteractorTests.swift */,
+				D7129FFAA81ED173C2B79FE7 /* CovCPMPoolInfoViewTests.swift */,
+				0922A2F05E21B44CB759B7EE /* CovCPMPoolInfoPresenterTests.swift */,
+				EBCC8B8C07D1421C45B3EAA1 /* CovCPMPoolInfoInteractorTests.swift */,
+				F51370E380D8DE452F4AFE7C /* CovCPJSupportTests.swift */,
+				4358390D72F24CB2369D9ECF /* CovCPJPoolStartTests.swift */,
+				CD613896D4AE61D10D69E0CF /* CovCPJPoolRoutersTests.swift */,
+				FA6E2DF3C6C86EB5D82B3A6A /* CovCPJPoolRouters2Tests.swift */,
+				9980EA5558009C10B230C311 /* CovCPJPoolRolesConfirmTests.swift */,
+				418137DC1BFEEDC263C55E96 /* CovCPJPoolRewardCalculatorTests.swift */,
+				6E191BB94C1D76AA8E7E9773 /* CovCPJPoolInteractorsTests.swift */,
+				8F56D57D904B811BF97736D7 /* CovCPJPoolInteractors2Tests.swift */,
+				66BFCD5602E6EE218231EF91 /* CovCPJPoolCreateViewTests.swift */,
+				74875DB1CA1C5F51F1E5A91B /* CovCPJPoolCreatePresenterTests.swift */,
+				5EEACBAF0A0C6D5D11063D64 /* CovCPJJoinConfirmViewTests.swift */,
+				E664FB8CA33CE44750B74DFC /* CovCPJJoinConfirmPresenterTests.swift */,
+				9A9C00D7AEBD3810DF9532E1 /* CovCPJJoinConfigViewTests.swift */,
+				E743D86C6F95AC9D9EDAD64F /* CovCPJJoinConfigPresenterTests.swift */,
+				3B24571D3CF667B9DA590A89 /* CovCPJInteractorSupportTests.swift */,
+				09C1590E8F82665E680C0F9D /* CovCPJCreateConfirmViewTests.swift */,
+				A444E5A135D47DF99896E419 /* CovCPJCreateConfirmPresenterTests.swift */,
+				861E1C4B2D25089E6E14A028 /* CovCPJCreateConfirmInteractorTests.swift */,
+				11DFD19438F33EF875C4C8F8 /* CovCPJChoosePoolViewTests.swift */,
+				39E2B11EBE3446BDF3794A2A /* CovCPJChoosePoolPresenterTests.swift */,
+				377976EE2D1DDD939795C131 /* CovCPJBuilderClosuresTests.swift */,
+				1DDB72A1BF234007BF2BC670 /* CovCBPStrategiesTests.swift */,
+				86F6108830D7DAD3E34E1065 /* CovCBPRewardPayoutsViewTests.swift */,
+				EFE08943C88F191C47F40916 /* CovCBPRewardPayoutsLogicTests.swift */,
+				FAFF021188F96F90890CEDB6 /* CovCBPRewardDetailsTests.swift */,
+				FC5B5DBDF9D4C8AAEEABBC07 /* CovCBPRewardDestViewsTests.swift */,
+				426B52842060AC6CE4C3FFEA /* CovCBPRewardDestSetupTests.swift */,
+				22BD830E9D1800DDC4551EDE /* CovCBPRewardDestConfirmPresenterTests.swift */,
+				5E841C0117AD94CD13BE4334 /* CovCBPPayoutConfirmViewTests.swift */,
+				6275416C2FE7F6AC54EE60A2 /* CovCBPPayoutConfirmPresenterTests.swift */,
+				F67D01960219E03FD35678B0 /* CovCBPPayoutConfirmFlowTests.swift */,
+				CF647FB37BFCA5DEC611A053 /* CovCBPInteractorsTests.swift */,
+				63802CAEB8251334B5FC36E7 /* CovCBPBondMoreViewsTests.swift */,
+				3D20A3EEBD1E6BA677C54D68 /* CovCBPBondMoreFlowTests.swift */,
+				AE47CB88740A943FB5E27271 /* CovCBPBondMoreConfirmFlowTests.swift */,
+				86C0E010B85EEFA91E2B1BDA /* CovCABStakingWireframesTests.swift */,
+				BE30EAC7E5996F8E615A8CC3 /* CovCABStakingFlowServicesTests.swift */,
+				0F1248957FFE736E851A589E /* CovCABStakingErrorPresentableTests.swift */,
+				A81F8E7A916D77E994191597 /* CovCABStakingBalanceViewsTests.swift */,
+				48F614A8A22B931E79C17327 /* CovCABStakingBalancePresenterTests.swift */,
+				A38AD86EBFC70F43125B3E39 /* CovCABStakingBalanceFlowTests.swift */,
+				5D6F2C5D00364CA80164636F /* CovCABStakingAmountViewControllerTests.swift */,
+				2051E9BC035921329B27D1FF /* CovCABStakingAmountStateTests.swift */,
+				D31F9C752800C716F64BCE71 /* CovCABStakingAmountPresenterTests.swift */,
+				36D5A16207B42B6CB4EAAD13 /* CovCABControllerAccountViewTests.swift */,
+				8A81C2490F3F55CE9AA63C7D /* CovCABControllerAccountPresenterTests.swift */,
+				10D7B7868EAD341D7CFBC96F /* CovCABControllerAccountInteractorsTests.swift */,
+				8252BD0A71CBAFFD384961F1 /* CovCABControllerAccountConfirmationTests.swift */,
+				1E858BFB7A4A528591D503DC /* CovCABBalanceViewModelFactoryTests.swift */,
 				E6D973CBC00ADC34AFBF1EC5 /* CovBStakingRewardCalculatorViewTests.swift */,
 				B3874CEB79C2FA8D324FF933 /* CovBStakingOperationsTests.swift */,
 				DA3B5641B73E6C33943E8D5A /* CovBStakingModelTests.swift */,
@@ -19799,6 +20030,83 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5AD31CC02D9145968A6AB0CE /* CovCUBUnbondSetupStateTests.swift in Sources */,
+				0605902AF89CB9AB48691FF2 /* CovCUBUnbondPresentersTests.swift in Sources */,
+				DB014743254862AC41C7B273 /* CovCUBUnbondConfirmStateTests.swift in Sources */,
+				007B093D81F15A6B757511A3 /* CovCUBSupportTests.swift in Sources */,
+				1159B42CECFFEA33C890C1F9 /* CovCUBStrategyDoublesTests.swift in Sources */,
+				45457B1CB581F0E6AB229215 /* CovCUBSetupViewControllersTests.swift in Sources */,
+				5F818491026AD34525FCBDCB /* CovCUBRelaychainStrategiesTests.swift in Sources */,
+				94FBF72D1B036FDA12ED2F86 /* CovCUBRedeemStateTests.swift in Sources */,
+				C3F1944A1DBF7D1CAE015598 /* CovCUBRedeemRebondSetupPresentersTests.swift in Sources */,
+				0C36D385185635F354DB5316 /* CovCUBRedeemFactoryTests.swift in Sources */,
+				D2482B8D38090D23BB1074E5 /* CovCUBRebondSetupInteractorTests.swift in Sources */,
+				75B2F7752A73FAE7416B6643 /* CovCUBRebondConfirmationTests.swift in Sources */,
+				15A185D9A7E8AAE14487B822 /* CovCUBPresenterDoublesTests.swift in Sources */,
+				1DDA5D7FA42F5BB467E2CF8C /* CovCUBPoolStrategiesTests.swift in Sources */,
+				2A519D10D25E6D925DA7ADF8 /* CovCUBLayoutsTests.swift in Sources */,
+				67B532239E9A944A631892EA /* CovCUBConfirmViewControllersTests.swift in Sources */,
+				4F45240E501C65BBEC3E49D5 /* CovCStoriesTests.swift in Sources */,
+				85D41D1F90CFCE2F0D141850 /* CovCPMPoolRoutersTests.swift in Sources */,
+				416A8C6FBCC0D525269CA952 /* CovCPMPoolManagementViewTests.swift in Sources */,
+				F2468D21A4DCF299776084CF /* CovCPMPoolManagementPresenterTests.swift in Sources */,
+				2B07E3EACAD07012F61632BB /* CovCPMPoolManagementInteractorTests.swift in Sources */,
+				056A079BD752CE31C1EE1F08 /* CovCPMPoolMainViewTests.swift in Sources */,
+				35401B4A804123560C0C1907 /* CovCPMPoolMainViewModelFactoryTests.swift in Sources */,
+				E83CF15AF9FF885984915C2C /* CovCPMPoolMainPresenterTests.swift in Sources */,
+				92B99D6AFE5B219F3BA25B80 /* CovCPMPoolMainInteractorTests.swift in Sources */,
+				C47D70B730CB463BF54C3B1E /* CovCPMPoolInfoViewTests.swift in Sources */,
+				8717AF352AC118DABBF7A206 /* CovCPMPoolInfoPresenterTests.swift in Sources */,
+				B6DB62122E832B3713D7E1D3 /* CovCPMPoolInfoInteractorTests.swift in Sources */,
+				33BC48FD2F95364E7DA5DD3D /* CovCPJSupportTests.swift in Sources */,
+				BB11AF0284509B67C7043C66 /* CovCPJPoolStartTests.swift in Sources */,
+				D0103E8C683ECB1850D84E39 /* CovCPJPoolRoutersTests.swift in Sources */,
+				ED3AC7E86498035AF01FEEED /* CovCPJPoolRouters2Tests.swift in Sources */,
+				F8960A333982942B323A4A59 /* CovCPJPoolRolesConfirmTests.swift in Sources */,
+				DCC2DE4F3C1FC7251B8B7B76 /* CovCPJPoolRewardCalculatorTests.swift in Sources */,
+				25C52EB92205EF28D2917692 /* CovCPJPoolInteractorsTests.swift in Sources */,
+				784871342415D44F2D41939E /* CovCPJPoolInteractors2Tests.swift in Sources */,
+				A6026890D368112841D6704F /* CovCPJPoolCreateViewTests.swift in Sources */,
+				D7792F5956F7F00983ABCF99 /* CovCPJPoolCreatePresenterTests.swift in Sources */,
+				3F55E8318851164C0C805729 /* CovCPJJoinConfirmViewTests.swift in Sources */,
+				CC122FA28D69FA8D2E030ACB /* CovCPJJoinConfirmPresenterTests.swift in Sources */,
+				9391BDFC16ADAD16D5198BEA /* CovCPJJoinConfigViewTests.swift in Sources */,
+				7B97DBBB3202F521B934A908 /* CovCPJJoinConfigPresenterTests.swift in Sources */,
+				60E7F8281CB28797B5A3FB97 /* CovCPJInteractorSupportTests.swift in Sources */,
+				A120A100FA14E370BFE239DA /* CovCPJCreateConfirmViewTests.swift in Sources */,
+				31F8DCD4CD98FFCE78EA9B31 /* CovCPJCreateConfirmPresenterTests.swift in Sources */,
+				8D65D8F27B8C366978FF1F0C /* CovCPJCreateConfirmInteractorTests.swift in Sources */,
+				4890EEB785E140479E12CF1B /* CovCPJChoosePoolViewTests.swift in Sources */,
+				E38C1397565A6E6D55C694AA /* CovCPJChoosePoolPresenterTests.swift in Sources */,
+				7AFB8EF04EE1EF7DDA7E0D20 /* CovCPJBuilderClosuresTests.swift in Sources */,
+				183D6D6C6B514E90931D6A9A /* CovCBPStrategiesTests.swift in Sources */,
+				4AEBE19C94DD3F79CD3C59E1 /* CovCBPRewardPayoutsViewTests.swift in Sources */,
+				D3C0F7A1B7863950E3111BD9 /* CovCBPRewardPayoutsLogicTests.swift in Sources */,
+				706E1CB01173FDE77CCE7B13 /* CovCBPRewardDetailsTests.swift in Sources */,
+				80A4061B3946890D77519A43 /* CovCBPRewardDestViewsTests.swift in Sources */,
+				6E74393216D70C80ED55B0B2 /* CovCBPRewardDestSetupTests.swift in Sources */,
+				29F6D817DCE8593357A438CC /* CovCBPRewardDestConfirmPresenterTests.swift in Sources */,
+				B8DD2B9E4E248C8A4F758974 /* CovCBPPayoutConfirmViewTests.swift in Sources */,
+				A1535483CEDBA71CF8192F63 /* CovCBPPayoutConfirmPresenterTests.swift in Sources */,
+				B28CDAEB92118DE769301A9A /* CovCBPPayoutConfirmFlowTests.swift in Sources */,
+				7446C8F005171F7796BA61C2 /* CovCBPInteractorsTests.swift in Sources */,
+				25263DDAB24FDC467DDA7DB9 /* CovCBPBondMoreViewsTests.swift in Sources */,
+				2BFA44C34D104589787A5823 /* CovCBPBondMoreFlowTests.swift in Sources */,
+				D70400DD1F85F9418DA12BE1 /* CovCBPBondMoreConfirmFlowTests.swift in Sources */,
+				976CD3A18326A8865DECE4B2 /* CovCABStakingWireframesTests.swift in Sources */,
+				790A8FACCA303534B7F6816D /* CovCABStakingFlowServicesTests.swift in Sources */,
+				F14C225EE44E156AA8F24EA0 /* CovCABStakingErrorPresentableTests.swift in Sources */,
+				36BE84E1A099A897D592036C /* CovCABStakingBalanceViewsTests.swift in Sources */,
+				F2F98D2533E2B6C3D0B939D6 /* CovCABStakingBalancePresenterTests.swift in Sources */,
+				2A1BA2A6C19D4810D027CCB8 /* CovCABStakingBalanceFlowTests.swift in Sources */,
+				A344636BBB407D06BD01AE2F /* CovCABStakingAmountViewControllerTests.swift in Sources */,
+				6BDA6795406D99F1FEA0C46D /* CovCABStakingAmountStateTests.swift in Sources */,
+				DB26FE338B3C01082875EFB5 /* CovCABStakingAmountPresenterTests.swift in Sources */,
+				DC16D353A5C1FF89C32FFCEA /* CovCABControllerAccountViewTests.swift in Sources */,
+				0669E90D7878A71C9C52AE7F /* CovCABControllerAccountPresenterTests.swift in Sources */,
+				325F08951F15640027AB301B /* CovCABControllerAccountInteractorsTests.swift in Sources */,
+				332B5AF8B07CE81CBF320432 /* CovCABControllerAccountConfirmationTests.swift in Sources */,
+				CD0325D0B7F10C6D3C89AEA6 /* CovCABBalanceViewModelFactoryTests.swift in Sources */,
 				8A5560A1F1267BD68B2BEB63 /* CovBStakingRewardCalculatorViewTests.swift in Sources */,
 				804727E5D1CF4FC2AB9222D4 /* CovBStakingOperationsTests.swift in Sources */,
 				C404A0A543F5ACE3AC3A6F05 /* CovBStakingModelTests.swift in Sources */,
