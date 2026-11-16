@@ -7,6 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E7A677D74747840C7FFE39FC /* CovDPolkaswapSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB79DC93CD0FF11F085319D /* CovDPolkaswapSettingsTests.swift */; };
+		2633190E0C86F0B4E0A911B5 /* CovDPolkaswapConfirmationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3780D461D98BFA6A917768BC /* CovDPolkaswapConfirmationTests.swift */; };
+		71C96532D1790F226C043BF7 /* CovDPolkaswapAdjustmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D14F15FCB53AC9104EA5D97 /* CovDPolkaswapAdjustmentTests.swift */; };
+		3C0B393C2BB248E1736C16D0 /* CovDLiquiditySupplyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F634C77958437908DFF05018 /* CovDLiquiditySupplyTests.swift */; };
+		574D9F37A1807078133A2C8A /* CovDLiquidityReserves.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3F7AE5FDFAE8AC0B4298C9 /* CovDLiquidityReserves.swift */; };
+		47E2A94F9F6F05B31DF74F8C /* CovDLiquidityRemoveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3D6D41DB01F4B8235CC7CC /* CovDLiquidityRemoveTests.swift */; };
+		79B9C7E3B02DD41AE5F9D725 /* CovDLiquidityListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588DD7973A3EE680D882ADF5 /* CovDLiquidityListTests.swift */; };
+		CBE3818802B4FFD53EF4746B /* CovDLiquidityDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6518ED0E5A28EF9A97753CF8 /* CovDLiquidityDoubles.swift */; };
+		C34CA13D3A0548CA63EC3206 /* CovDLiquidityConfirmDetailsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A42C121670879EDA9929223 /* CovDLiquidityConfirmDetailsTests.swift */; };
+		97D161C6A821E4F33BFCB2B2 /* CovDRuntimeProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D680FAFAA30962EC6D0A54B /* CovDRuntimeProviderStub.swift */; };
+		7C0C736C9D823C6A6C99922D /* CovDDeFiHubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384EC80069DFE6185F2AE885 /* CovDDeFiHubTests.swift */; };
+		28C3AEC7FCC3BBFF85DBD2DB /* CovDDemeterViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F8479D8F88AAEAA505D0F9F /* CovDDemeterViewTests.swift */; };
+		F9AF397AEAAE7B9F9DDD31FE /* CovDDemeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E299B94E30631E908AF5C459 /* CovDDemeterTests.swift */; };
+		EAF949AA2497AC66F9352BF0 /* CovDPolkamarktViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7545018D0ECA0276A893DBB /* CovDPolkamarktViewTests.swift */; };
+		47A1A1D7608FC5294DD6BACD /* CovDPolkamarktServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25CE21BA1A7E9EA7A030E8E /* CovDPolkamarktServiceTests.swift */; };
+		76F323758587EF69A5F9D0FF /* CovDPolkamarktLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE20F390734673092C55791 /* CovDPolkamarktLogicTests.swift */; };
+		9F83CC996DA9A75B120D5FA8 /* CovDExtrinsicBuilderSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6FFCEB6E5A2093D1012A14 /* CovDExtrinsicBuilderSpy.swift */; };
+		1969A84C6C65C4138DFB0F9B /* CovDFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 698C7200C89C80AE3EBDC152 /* CovDFixtures.swift */; };
 		32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */; };
 		E68D4B36819482799FA4D075 /* shikiban.json in Resources */ = {isa = PBXBuildFile; fileRef = BF4B99F1C37CFF1C42C501F1 /* shikiban.json */; };
 		C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */; };
@@ -3344,6 +3362,24 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5DB79DC93CD0FF11F085319D /* CovDPolkaswapSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkaswapSettingsTests.swift; sourceTree = "<group>"; };
+		3780D461D98BFA6A917768BC /* CovDPolkaswapConfirmationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkaswapConfirmationTests.swift; sourceTree = "<group>"; };
+		3D14F15FCB53AC9104EA5D97 /* CovDPolkaswapAdjustmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkaswapAdjustmentTests.swift; sourceTree = "<group>"; };
+		F634C77958437908DFF05018 /* CovDLiquiditySupplyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDLiquiditySupplyTests.swift; sourceTree = "<group>"; };
+		DE3F7AE5FDFAE8AC0B4298C9 /* CovDLiquidityReserves.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDLiquidityReserves.swift; sourceTree = "<group>"; };
+		9A3D6D41DB01F4B8235CC7CC /* CovDLiquidityRemoveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDLiquidityRemoveTests.swift; sourceTree = "<group>"; };
+		588DD7973A3EE680D882ADF5 /* CovDLiquidityListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDLiquidityListTests.swift; sourceTree = "<group>"; };
+		6518ED0E5A28EF9A97753CF8 /* CovDLiquidityDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDLiquidityDoubles.swift; sourceTree = "<group>"; };
+		5A42C121670879EDA9929223 /* CovDLiquidityConfirmDetailsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDLiquidityConfirmDetailsTests.swift; sourceTree = "<group>"; };
+		7D680FAFAA30962EC6D0A54B /* CovDRuntimeProviderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDRuntimeProviderStub.swift; sourceTree = "<group>"; };
+		384EC80069DFE6185F2AE885 /* CovDDeFiHubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDDeFiHubTests.swift; sourceTree = "<group>"; };
+		8F8479D8F88AAEAA505D0F9F /* CovDDemeterViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDDemeterViewTests.swift; sourceTree = "<group>"; };
+		E299B94E30631E908AF5C459 /* CovDDemeterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDDemeterTests.swift; sourceTree = "<group>"; };
+		E7545018D0ECA0276A893DBB /* CovDPolkamarktViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkamarktViewTests.swift; sourceTree = "<group>"; };
+		E25CE21BA1A7E9EA7A030E8E /* CovDPolkamarktServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkamarktServiceTests.swift; sourceTree = "<group>"; };
+		7AE20F390734673092C55791 /* CovDPolkamarktLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDPolkamarktLogicTests.swift; sourceTree = "<group>"; };
+		5D6FFCEB6E5A2093D1012A14 /* CovDExtrinsicBuilderSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDExtrinsicBuilderSpy.swift; sourceTree = "<group>"; };
+		698C7200C89C80AE3EBDC152 /* CovDFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovDFixtures.swift; sourceTree = "<group>"; };
 		E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanTests.swift; sourceTree = "<group>"; };
 		BF4B99F1C37CFF1C42C501F1 /* shikiban.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shikiban.json; sourceTree = "<group>"; };
 		F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanDebugSeams.swift; sourceTree = "<group>"; };
@@ -9664,6 +9700,24 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				5DB79DC93CD0FF11F085319D /* CovDPolkaswapSettingsTests.swift */,
+				3780D461D98BFA6A917768BC /* CovDPolkaswapConfirmationTests.swift */,
+				3D14F15FCB53AC9104EA5D97 /* CovDPolkaswapAdjustmentTests.swift */,
+				F634C77958437908DFF05018 /* CovDLiquiditySupplyTests.swift */,
+				DE3F7AE5FDFAE8AC0B4298C9 /* CovDLiquidityReserves.swift */,
+				9A3D6D41DB01F4B8235CC7CC /* CovDLiquidityRemoveTests.swift */,
+				588DD7973A3EE680D882ADF5 /* CovDLiquidityListTests.swift */,
+				6518ED0E5A28EF9A97753CF8 /* CovDLiquidityDoubles.swift */,
+				5A42C121670879EDA9929223 /* CovDLiquidityConfirmDetailsTests.swift */,
+				7D680FAFAA30962EC6D0A54B /* CovDRuntimeProviderStub.swift */,
+				384EC80069DFE6185F2AE885 /* CovDDeFiHubTests.swift */,
+				8F8479D8F88AAEAA505D0F9F /* CovDDemeterViewTests.swift */,
+				E299B94E30631E908AF5C459 /* CovDDemeterTests.swift */,
+				E7545018D0ECA0276A893DBB /* CovDPolkamarktViewTests.swift */,
+				E25CE21BA1A7E9EA7A030E8E /* CovDPolkamarktServiceTests.swift */,
+				7AE20F390734673092C55791 /* CovDPolkamarktLogicTests.swift */,
+				5D6FFCEB6E5A2093D1012A14 /* CovDExtrinsicBuilderSpy.swift */,
+				698C7200C89C80AE3EBDC152 /* CovDFixtures.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
 				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
 				1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */,
@@ -19644,6 +19698,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E7A677D74747840C7FFE39FC /* CovDPolkaswapSettingsTests.swift in Sources */,
+				2633190E0C86F0B4E0A911B5 /* CovDPolkaswapConfirmationTests.swift in Sources */,
+				71C96532D1790F226C043BF7 /* CovDPolkaswapAdjustmentTests.swift in Sources */,
+				3C0B393C2BB248E1736C16D0 /* CovDLiquiditySupplyTests.swift in Sources */,
+				574D9F37A1807078133A2C8A /* CovDLiquidityReserves.swift in Sources */,
+				47E2A94F9F6F05B31DF74F8C /* CovDLiquidityRemoveTests.swift in Sources */,
+				79B9C7E3B02DD41AE5F9D725 /* CovDLiquidityListTests.swift in Sources */,
+				CBE3818802B4FFD53EF4746B /* CovDLiquidityDoubles.swift in Sources */,
+				C34CA13D3A0548CA63EC3206 /* CovDLiquidityConfirmDetailsTests.swift in Sources */,
+				97D161C6A821E4F33BFCB2B2 /* CovDRuntimeProviderStub.swift in Sources */,
+				7C0C736C9D823C6A6C99922D /* CovDDeFiHubTests.swift in Sources */,
+				28C3AEC7FCC3BBFF85DBD2DB /* CovDDemeterViewTests.swift in Sources */,
+				F9AF397AEAAE7B9F9DDD31FE /* CovDDemeterTests.swift in Sources */,
+				EAF949AA2497AC66F9352BF0 /* CovDPolkamarktViewTests.swift in Sources */,
+				47A1A1D7608FC5294DD6BACD /* CovDPolkamarktServiceTests.swift in Sources */,
+				76F323758587EF69A5F9D0FF /* CovDPolkamarktLogicTests.swift in Sources */,
+				9F83CC996DA9A75B120D5FA8 /* CovDExtrinsicBuilderSpy.swift in Sources */,
+				1969A84C6C65C4138DFB0F9B /* CovDFixtures.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
 				8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */,
