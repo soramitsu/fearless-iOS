@@ -87,6 +87,7 @@ final class PortfolioDiscoveryView: UIView {
     private let searchAllRow = UIView()
     private var chipsHeight: Constraint?
     private var searchHeight: Constraint?
+    private var searchIconSize: Constraint?
     private var pendingSearch: String?
 
     override init(frame: CGRect) {
@@ -241,6 +242,7 @@ final class PortfolioDiscoveryView: UIView {
     private func updateTypography() {
         let searchFont = UIFont.fw(.bodyM, locale: locale, compatibleWith: traitCollection)
         searchField.font = searchFont
+        searchIconSize?.update(offset: max(18, ceil(searchFont.pointSize * 1.1)))
         searchHeight?.update(offset: max(Constants.minimumControlHeight + 4, ceil(searchFont.lineHeight) + 24))
         let chipFont = UIFont.fw(.labelM, locale: locale, compatibleWith: traitCollection)
         let chipHeight = max(Constants.minimumControlHeight, ceil(chipFont.lineHeight) + 20)
@@ -304,7 +306,7 @@ private extension PortfolioDiscoveryView {
         searchIcon.snp.makeConstraints { make in
             make.leading.equalTo(searchWell).offset(16)
             make.centerY.equalTo(searchWell)
-            make.size.equalTo(18)
+            searchIconSize = make.size.equalTo(18).constraint
         }
         searchField.snp.makeConstraints { make in
             make.leading.equalTo(searchIcon.snp.trailing).offset(10)
