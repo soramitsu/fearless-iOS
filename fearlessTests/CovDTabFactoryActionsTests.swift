@@ -29,14 +29,20 @@ final class CovDTabFactoryActionsTests: XCTestCase {
         unavailable.view.layoutIfNeeded()
 
         let chooseNetwork = try XCTUnwrap(button("unavailable.action.0", in: unavailable.view))
-        XCTAssertEqual(chooseNetwork.accessibilityLabel, "Choose network")
+        XCTAssertEqual(
+            chooseNetwork.accessibilityLabel,
+            Bundle.main.localizedString(forKey: "ux.choose_network", value: "Choose network", table: nil)
+        )
         chooseNetwork.sendActions(for: .touchUpInside)
         XCTAssertTrue(CovDFixtures.spin { unavailable.presentedViewController != nil })
         unavailable.presentedViewController?.dismiss(animated: false)
         XCTAssertTrue(CovDFixtures.spin { unavailable.presentedViewController == nil })
 
         let manageWallets = try XCTUnwrap(button("unavailable.action.1", in: unavailable.view))
-        XCTAssertEqual(manageWallets.accessibilityLabel, "Manage wallets")
+        XCTAssertEqual(
+            manageWallets.accessibilityLabel,
+            Bundle.main.localizedString(forKey: "ux.manage_wallets", value: "Manage wallets", table: nil)
+        )
         manageWallets.sendActions(for: .touchUpInside)
         XCTAssertTrue(CovDFixtures.spin { unavailable.presentedViewController != nil })
     }

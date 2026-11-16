@@ -60,6 +60,11 @@ final class CovDInputControlsTests: XCTestCase {
         controller.didReceiveSwapTo(amountInputViewModel: to)
         let fromField = controller.rootView.swapFromInputView.textField
         let toField = controller.rootView.swapToInputView.textField
+        // The amount fields stay locked until the first quote is ready.
+        XCTAssertFalse(fromField.isUserInteractionEnabled)
+        controller.didReceiveSwapQuoteReady()
+        XCTAssertTrue(fromField.isUserInteractionEnabled)
+        XCTAssertTrue(toField.isUserInteractionEnabled)
         let accessory = AmountInputAccessoryView()
         XCTAssertEqual(output.loads, 1)
         XCTAssertEqual(controller.rootView.swapFromInputView.inputFieldText, "1")
@@ -110,6 +115,11 @@ final class CovDInputControlsTests: XCTestCase {
         controller.didReceiveSwapTo(amountInputViewModel: to)
         let fromField = controller.rootView.swapFromInputView.textField
         let toField = controller.rootView.swapToInputView.textField
+        // The amount fields stay locked until the first quote is ready.
+        XCTAssertFalse(fromField.isUserInteractionEnabled)
+        controller.didReceiveSwapQuoteReady()
+        XCTAssertTrue(fromField.isUserInteractionEnabled)
+        XCTAssertTrue(toField.isUserInteractionEnabled)
         let accessory = AmountInputAccessoryView()
         XCTAssertEqual(output.loads, 1)
         XCTAssertEqual(controller.rootView.swapFromInputView.inputFieldText, "1")

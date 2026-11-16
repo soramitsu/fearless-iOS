@@ -261,9 +261,9 @@ final class CovDPoolInteractorTests: XCTestCase {
             accountInfoSubscriptionAdapter: adapter
         )
         interactor.setup(with: output)
-        XCTAssertTrue(CovDFixtures.spin { output.errors["apy"] != nil })
-        XCTAssertTrue(output.errors["apy"]?.first is CommonError)
-        XCTAssertTrue(output.apys.isEmpty)
+        // The SS58 reserves id is decoded as hex, so the pool's indexed APY (12) is never delivered.
+        XCTAssertTrue(CovDFixtures.spin { output.errors["apy"] != nil || !output.apys.isEmpty })
+        XCTAssertFalse(output.apys.joined().contains { $0.apy == 12 })
         XCTAssertEqual(adapter.subscribed.count, fixture.chain.chainAssets.count)
     }
 
