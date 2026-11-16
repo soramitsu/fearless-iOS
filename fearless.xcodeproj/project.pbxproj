@@ -7,6 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6DA5AE6C7ABBBF5745479B74 /* CovEDebugSeamsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */; };
+		DC4E2677C3B76B64245D0549 /* CovERowAndSurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */; };
+		9481F841C78400C9A13DF294 /* CovEFeedbackPlayersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */; };
+		46563710CD9F22A22B3B37FF /* CovEStateViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44590F6AE539795534CC9C7 /* CovEStateViewsTests.swift */; };
+		A1121884231AE212C083BA63 /* CovEMediaViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A609FD81AF8115093B7CC521 /* CovEMediaViewTests.swift */; };
+		4825E51327A997604E058554 /* CovEValueViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91351D96D5C492FF1C2E7C6C /* CovEValueViewsTests.swift */; };
+		C6F0A11F07103CA7833D0A31 /* CovESheetAndSealTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D0689F99273B25526F563A /* CovESheetAndSealTests.swift */; };
+		E3599FA10251ADF02E8D2D3B /* CovELaunchAndHeroTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29925DEBD98071EED0410885 /* CovELaunchAndHeroTests.swift */; };
+		7655362D62F5368F235F3588 /* CovEFeedbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66FFFCE99D9573800FE4038A /* CovEFeedbackTests.swift */; };
+		1DB473F591A187134645CA53 /* CovEBrandedViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78FCD0497A2DBC6DD8CB8B1 /* CovEBrandedViewsTests.swift */; };
+		858F42FA5230936358EF5D83 /* CovEChartTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04813C3A1A000E192DF55CA /* CovEChartTests.swift */; };
+		E9436725F3DC293233A8F858 /* CovEInputControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62662D9AF9C6D14D51DD556 /* CovEInputControlsTests.swift */; };
+		0F3E9D072854B581FBF7B4AF /* CovEAnimatedGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDB8395B4EB91E87C854D6A /* CovEAnimatedGeometryTests.swift */; };
 		11F96C39435FF30AB3C64193 /* CovEMiscViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */; };
 		45AD3DFD6EB25D6593AAF153 /* CovENavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */; };
 		FFE07AB3E7B44A60EC6617A9 /* CovEWidgetsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */; };
@@ -3359,6 +3372,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEDebugSeamsTests.swift; sourceTree = "<group>"; };
+		79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovERowAndSurfaceTests.swift; sourceTree = "<group>"; };
+		2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEFeedbackPlayersTests.swift; sourceTree = "<group>"; };
+		B44590F6AE539795534CC9C7 /* CovEStateViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEStateViewsTests.swift; sourceTree = "<group>"; };
+		A609FD81AF8115093B7CC521 /* CovEMediaViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEMediaViewTests.swift; sourceTree = "<group>"; };
+		91351D96D5C492FF1C2E7C6C /* CovEValueViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEValueViewsTests.swift; sourceTree = "<group>"; };
+		72D0689F99273B25526F563A /* CovESheetAndSealTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovESheetAndSealTests.swift; sourceTree = "<group>"; };
+		29925DEBD98071EED0410885 /* CovELaunchAndHeroTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovELaunchAndHeroTests.swift; sourceTree = "<group>"; };
+		66FFFCE99D9573800FE4038A /* CovEFeedbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEFeedbackTests.swift; sourceTree = "<group>"; };
+		F78FCD0497A2DBC6DD8CB8B1 /* CovEBrandedViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEBrandedViewsTests.swift; sourceTree = "<group>"; };
+		F04813C3A1A000E192DF55CA /* CovEChartTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEChartTests.swift; sourceTree = "<group>"; };
+		A62662D9AF9C6D14D51DD556 /* CovEInputControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEInputControlsTests.swift; sourceTree = "<group>"; };
+		0FDB8395B4EB91E87C854D6A /* CovEAnimatedGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEAnimatedGeometryTests.swift; sourceTree = "<group>"; };
 		29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEMiscViewsTests.swift; sourceTree = "<group>"; };
 		527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovENavigationTests.swift; sourceTree = "<group>"; };
 		57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEWidgetsTests.swift; sourceTree = "<group>"; };
@@ -9694,6 +9720,19 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				0E18DE6897AD9A5CFAC506EE /* CovEDebugSeamsTests.swift */,
+				79DF33118C89C2DBEB8971F1 /* CovERowAndSurfaceTests.swift */,
+				2D44CEF79F6A6E8DC3AB688B /* CovEFeedbackPlayersTests.swift */,
+				B44590F6AE539795534CC9C7 /* CovEStateViewsTests.swift */,
+				A609FD81AF8115093B7CC521 /* CovEMediaViewTests.swift */,
+				91351D96D5C492FF1C2E7C6C /* CovEValueViewsTests.swift */,
+				72D0689F99273B25526F563A /* CovESheetAndSealTests.swift */,
+				29925DEBD98071EED0410885 /* CovELaunchAndHeroTests.swift */,
+				66FFFCE99D9573800FE4038A /* CovEFeedbackTests.swift */,
+				F78FCD0497A2DBC6DD8CB8B1 /* CovEBrandedViewsTests.swift */,
+				F04813C3A1A000E192DF55CA /* CovEChartTests.swift */,
+				A62662D9AF9C6D14D51DD556 /* CovEInputControlsTests.swift */,
+				0FDB8395B4EB91E87C854D6A /* CovEAnimatedGeometryTests.swift */,
 				29B8E73A10A4BF5FCBA1509F /* CovEMiscViewsTests.swift */,
 				527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */,
 				57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */,
@@ -19689,6 +19728,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6DA5AE6C7ABBBF5745479B74 /* CovEDebugSeamsTests.swift in Sources */,
+				DC4E2677C3B76B64245D0549 /* CovERowAndSurfaceTests.swift in Sources */,
+				9481F841C78400C9A13DF294 /* CovEFeedbackPlayersTests.swift in Sources */,
+				46563710CD9F22A22B3B37FF /* CovEStateViewsTests.swift in Sources */,
+				A1121884231AE212C083BA63 /* CovEMediaViewTests.swift in Sources */,
+				4825E51327A997604E058554 /* CovEValueViewsTests.swift in Sources */,
+				C6F0A11F07103CA7833D0A31 /* CovESheetAndSealTests.swift in Sources */,
+				E3599FA10251ADF02E8D2D3B /* CovELaunchAndHeroTests.swift in Sources */,
+				7655362D62F5368F235F3588 /* CovEFeedbackTests.swift in Sources */,
+				1DB473F591A187134645CA53 /* CovEBrandedViewsTests.swift in Sources */,
+				858F42FA5230936358EF5D83 /* CovEChartTests.swift in Sources */,
+				E9436725F3DC293233A8F858 /* CovEInputControlsTests.swift in Sources */,
+				0F3E9D072854B581FBF7B4AF /* CovEAnimatedGeometryTests.swift in Sources */,
 				11F96C39435FF30AB3C64193 /* CovEMiscViewsTests.swift in Sources */,
 				45AD3DFD6EB25D6593AAF153 /* CovENavigationTests.swift in Sources */,
 				FFE07AB3E7B44A60EC6617A9 /* CovEWidgetsTests.swift in Sources */,

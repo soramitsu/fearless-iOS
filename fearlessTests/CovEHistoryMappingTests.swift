@@ -238,7 +238,7 @@ final class CovEHistoryMappingTests: XCTestCase {
 }
 
 extension CovEHistoryMappingTests {
-    func testArrowsquidRecordsMatchAddressesCaseInsensitively() throws {
+    func testArrowsquidTransfersRewardsAndUnknownRecords() throws {
         let transfer: ArrowsquidHistoryElement = try decode("""
         {"id":"a-t","timestamp":1700000000,"address":"\(alice)","success":true,
          "transfer":{"amount":"10000000000","to":"\(bob)","from":"\(alice)","fee":"20000000"}}
