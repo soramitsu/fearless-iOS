@@ -260,6 +260,7 @@ Euro cash";
 "common.expiry" = "Expiry";
 "common.export" = "Export account";
 "common.filter.sort.header" = "Sort by:";
+"common.full_name" = "%1$@ %2$@";
 "common.important" = "Important";
 "common.info" = "Info";
 "common.invalid.hard.message" = "Please check that input is a mix of //'hard' where 'hard' can be any sequence of characters not including /.";

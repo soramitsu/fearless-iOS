@@ -262,6 +262,7 @@
 "common.expiry" = "到期";
 "common.export" = "导出账户";
 "common.filter.sort.header" = "排序方式：";
+"common.full_name" = "%1$@ %2$@";
 "common.important" = "重要";
 "common.info" = "信息";
 "common.invalid.hard.message" = "请检查输入是否是一个混合了//'hard'的字符串，其中'hard'可以是任意不包含/的字符序列。";

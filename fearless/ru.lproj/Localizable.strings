@@ -261,6 +261,7 @@ Euro cash";
 "common.expiry" = "Expiry";
 "common.export" = "Экспорт аккаунта";
 "common.filter.sort.header" = "Сортировать по:";
+"common.full_name" = "%1$@ %2$@";
 "common.important" = "Важно";
 "common.info" = "Информация";
 "common.invalid.hard.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' где 'hard' может быть любой последовательностью символов, не включая /.";

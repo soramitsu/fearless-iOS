@@ -262,6 +262,7 @@ tiền Euro";
 "common.expiry" = "Hết hạn";
 "common.export" = "Xuất tài khoản";
 "common.filter.sort.header" = "Sắp xếp theo:";
+"common.full_name" = "%1$@ %2$@";
 "common.important" = "Quan trọng";
 "common.info" = "Thông tin";
 "common.invalid.hard.message" = "Vui lòng kiểm tra xem đầu vào có phải là sự kết hợp của //'hard' trong đó 'hard' có thể là bất kỳ chuỗi ký tự nào không bao gồm /.";
