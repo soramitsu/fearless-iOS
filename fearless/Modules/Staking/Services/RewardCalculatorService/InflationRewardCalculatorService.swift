@@ -8,7 +8,7 @@ final class InflationRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 
     private struct PendingRequest {
-        let resultClosure: (RewardCalculatorEngineProtocol) -> Void
+        let resultClosure: (Result<RewardCalculatorEngineProtocol, Error>) -> Void
         let queue: DispatchQueue?
     }
 
@@ -59,14 +59,22 @@ final class InflationRewardCalculatorService {
 
     private func fetchInfoFactory(
         runCompletionIn queue: DispatchQueue?,
-        executing closure: @escaping (RewardCalculatorEngineProtocol) -> Void
+        executing closure: @escaping (Result<RewardCalculatorEngineProtocol, Error>) -> Void
     ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
-        if let snapshot = snapshot {
-            deliver(snapshot: snapshot, to: request, chainId: chainAsset.chain.chainId, assetPrecision: assetPrecision)
-        } else {
-            pendingRequests.append(request)
+        // The snapshot and the waiting list are kept on the service's serial queue.
+        syncQueue.async {
+            if let snapshot = self.snapshot {
+                self.deliver(
+                    snapshot: snapshot,
+                    to: request,
+                    chainId: self.chainAsset.chain.chainId,
+                    assetPrecision: self.assetPrecision
+                )
+            } else {
+                self.pendingRequests.append(request)
+            }
         }
     }
 
@@ -78,6 +86,7 @@ final class InflationRewardCalculatorService {
     ) {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
             logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            fail(request, with: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -107,11 +116,13 @@ final class InflationRewardCalculatorService {
             dispatchInQueueWhenPossible(request.queue) {
                 switch mapOperation.result {
                 case let .success(calculator):
-                    request.resultClosure(calculator)
+                    request.resultClosure(.success(calculator))
                 case let .failure(error):
                     self?.logger?.error("Era stakers info fetch error: \(error)")
+                    request.resultClosure(.failure(error))
                 case .none:
                     self?.logger?.warning("Era stakers info fetch cancelled")
+                    request.resultClosure(.failure(BaseOperationError.parentOperationCancelled))
                 }
             }
         }
@@ -120,6 +131,12 @@ final class InflationRewardCalculatorService {
             operations: durationWrapper.allOperations + [eraOperation, mapOperation],
             in: .transient
         )
+    }
+
+    private func fail(_ request: PendingRequest, with error: Error) {
+        dispatchInQueueWhenPossible(request.queue) {
+            request.resultClosure(.failure(error))
+        }
     }
 
     private func notifyPendingClosures(with totalIssuance: BigUInt) {
@@ -144,6 +161,13 @@ final class InflationRewardCalculatorService {
         logger?.debug("Fulfilled pendings")
     }
 
+    private func notifyPendingClosures(with error: Error) {
+        let requests = pendingRequests
+        pendingRequests = []
+
+        requests.forEach { fail($0, with: error) }
+    }
+
     private func handleTotalIssuanceDecodingResult(
         result: Result<StringScaleMapper<BigUInt>, Error>?
     ) {
@@ -153,14 +177,17 @@ final class InflationRewardCalculatorService {
             notifyPendingClosures(with: totalIssuance.value)
         case let .failure(error):
             logger?.error("Did receive total issuance decoding error: \(error)")
+            notifyPendingClosures(with: error)
         case .none:
             logger?.warning("Error decoding operation canceled")
+            notifyPendingClosures(with: BaseOperationError.parentOperationCancelled)
         }
     }
 
     private func didUpdateTotalIssuanceItem(_ totalIssuanceItem: ChainStorageItem?) {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            notifyPendingClosures(with: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -260,7 +287,7 @@ extension InflationRewardCalculatorService: RewardCalculatorServiceProtocol {
 
     func throttle() {
         syncQueue.async {
-            guard !self.isActive else {
+            guard self.isActive else {
                 return
             }
 
@@ -272,9 +299,10 @@ extension InflationRewardCalculatorService: RewardCalculatorServiceProtocol {
 
     func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
         AwaitOperation { [weak self] in
-            await withCheckedContinuation { continuation in
-                self?.fetchInfoFactory(runCompletionIn: nil) { info in
-                    continuation.resume(with: .success(info))
+            guard let self = self else { throw BaseOperationError.parentOperationCancelled }
+            return try await withCheckedThrowingContinuation { continuation in
+                self.fetchInfoFactory(runCompletionIn: nil) { result in
+                    continuation.resume(with: result)
                 }
             }
         }

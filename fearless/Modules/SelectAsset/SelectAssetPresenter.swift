@@ -172,7 +172,11 @@ extension SelectAssetPresenter: SelectAssetInteractorOutput {
             self.chainAssets = items
             provideViewModel()
         case let .failure(error):
-            router.present(error: error, from: view, locale: selectedLocale)
+            // Chain assets arrive on the fetching queue; the error sheet is UIKit and must be built on main.
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
+            }
         }
     }
 }

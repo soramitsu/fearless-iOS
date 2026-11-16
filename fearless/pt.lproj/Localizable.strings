@@ -260,6 +260,7 @@
 "common.expiry" = "Expiração";
 "common.export" = "Exportar conta";
 "common.filter.sort.header" = "Ordenar por";
+"common.full_name" = "%1$@ %2$@";
 "common.important" = "Importante";
 "common.info" = "Info";
 "common.invalid.hard.message" = "Por favor, verifique se a entrada é uma mistura de //'hard' onde 'hard' pode ser qualquer sequência de caracteres não incluindo /.";

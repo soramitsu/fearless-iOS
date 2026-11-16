@@ -18,6 +18,11 @@ protocol WalletRemoteSubscriptionServiceProtocol {
 }
 
 class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStorageWrapper>, WalletRemoteSubscriptionServiceProtocol {
+    /// The local key each subscription was attached under. It depends on the asset's storage (System.Account,
+    /// Tokens.Accounts, Assets.Account…), which a detach cannot derive from the chain asset key alone.
+    private var localKeysBySubscription: [String: String] = [:]
+    private let localKeysLock = NSLock()
+
     func attachToAccountInfo(
         of accountId: AccountId,
         chainAsset: ChainAsset,
@@ -63,13 +68,19 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
                 })
             }
 
-            return attachToSubscription(
+            let subscriptionId = attachToSubscription(
                 with: [request],
                 chainId: chainAsset.chain.chainId,
                 cacheKey: localKey,
                 queue: queue,
                 closure: closure
             ).uuidString
+
+            localKeysLock.lock()
+            localKeysBySubscription[subscriptionId] = localKey
+            localKeysLock.unlock()
+
+            return subscriptionId
         } catch {
             callbackClosureIfProvided(closure, queue: queue, result: .failure(error))
             return nil
@@ -86,10 +97,13 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
             return
         }
 
+        localKeysLock.lock()
+        let attachedKey = localKeysBySubscription.removeValue(forKey: subscriptionId)
+        localKeysLock.unlock()
+
         do {
-            let storagePath = StorageCodingPath.account
-            let localKey = try LocalStorageKeyFactory().createFromStoragePath(
-                storagePath,
+            let localKey = try attachedKey ?? LocalStorageKeyFactory().createFromStoragePath(
+                StorageCodingPath.account,
                 chainAssetKey: chainAssetKey
             )
 

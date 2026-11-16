@@ -258,6 +258,7 @@
 "common.expiry" = "Kadaluarsa";
 "common.export" = "Ekspor akun";
 "common.filter.sort.header" = "Urutkan menurut:";
+"common.full_name" = "%1$@ %2$@";
 "common.important" = "Penting";
 "common.info" = "Info";
 "common.invalid.hard.message" = "Harap periksa bahwa masukan adalah campuran // 'hard' di mana 'hard' dapat berupa urutan karakter apa pun yang tidak termasuk /.";

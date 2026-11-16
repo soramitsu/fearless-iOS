@@ -258,6 +258,7 @@
 "common.expiry" = "有効期限";
 "common.export" = "アカウントをエクスポート";
 "common.filter.sort.header" = "並び替え：";
+"common.full_name" = "%1$@ %2$@";
 "common.important" = "重要";
 "common.info" = "情報";
 "common.invalid.hard.message" = "入力が//'hard'の組み合わせであることを確認してください。'hard'には/を含まない任意の文字列を使用できます";

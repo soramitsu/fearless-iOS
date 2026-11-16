@@ -448,3 +448,120 @@ private final class RecordingRuntimeSyncService: RuntimeSyncServiceProtocol {
         false
     }
 }
+
+// MARK: Refused subscription
+
+extension SubscriptionOwnerUnsubscribeTests {
+    /// Sources a test could not release because their lock stayed held; releasing one would block in `deinit`.
+    private static var deadlockedSources: [AnyObject] = []
+
+    /// When the engine refuses the subscription the source reports the error and stays usable. It used to report the
+    /// error while still holding its own non-recursive lock: the reporting thread deadlocked, the trigger never fired
+    /// and every later fetch blocked its caller.
+    func testWebSocketProviderSourceReportsARefusedSubscriptionWithoutDeadlocking() throws {
+        let engine = RefusingSubscriptionEngine()
+        let triggerDelegate = CountingTriggerDelegate()
+        let trigger = DataProviderProxyTrigger()
+        trigger.delegate = triggerDelegate
+        let source = try WebSocketProviderSource<CrowdloanFunds>(
+            itemIdentifier: "crowdloan-funds",
+            codingPath: .crowdloanFunds,
+            keyOperationClosure: { _ in ClosureOperation { [Data(repeating: 0x03, count: 32)] } },
+            runtimeService: Self.runtime(),
+            engine: engine,
+            trigger: trigger,
+            operationManager: OperationManager()
+        )
+
+        let reported = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in triggerDelegate.count == 1 }, object: nil)
+        let reportOutcome = XCTWaiter.wait(for: [reported], timeout: Self.stakingTimeout)
+
+        // A fetch takes the same lock: it must return rather than wait for a lock nobody releases.
+        let fetched = XCTestExpectation(description: "the fetch returns")
+        let fetchResult = LockedFetchResult()
+        DispatchQueue.global().async {
+            let wrapper = source.fetchOperation(by: "crowdloan-funds")
+            OperationQueue().addOperations(wrapper.allOperations, waitUntilFinished: true)
+            fetchResult.store(wrapper.targetOperation.result)
+            fetched.fulfill()
+        }
+        let fetchOutcome = XCTWaiter.wait(for: [fetched], timeout: Self.stakingTimeout)
+        if reportOutcome != .completed || fetchOutcome != .completed {
+            Self.deadlockedSources.append(source)
+        }
+
+        XCTAssertEqual(reportOutcome, .completed, "the refusal reaches the trigger")
+        XCTAssertEqual(fetchOutcome, .completed, "the fetch is not blocked by a lock the source still holds")
+        XCTAssertEqual(engine.subscribeAttempts, 1)
+        XCTAssertEqual(triggerDelegate.count, fetchOutcome == .completed ? 1 : 0)
+        if fetchOutcome == .completed {
+            XCTAssertThrowsError(try XCTUnwrap(fetchResult.value).get()) { error in
+                XCTAssertEqual(error as NSError, RefusingSubscriptionEngine.refusal, "the fetch reports the refusal")
+            }
+        }
+    }
+}
+
+private final class LockedFetchResult {
+    private let lock = NSLock()
+    private var stored: Result<ChainStorageDecodedItem<CrowdloanFunds>?, Error>?
+
+    var value: Result<ChainStorageDecodedItem<CrowdloanFunds>?, Error>? {
+        lock.lock()
+        defer { lock.unlock() }
+        return stored
+    }
+
+    func store(_ result: Result<ChainStorageDecodedItem<CrowdloanFunds>?, Error>?) {
+        lock.lock()
+        stored = result
+        lock.unlock()
+    }
+}
+
+/// An engine whose node refuses every subscription request.
+private final class RefusingSubscriptionEngine: JSONRPCEngine {
+    static let refusal = NSError(domain: "subscription-refused", code: 38)
+
+    var connectionName: String?
+    var url: URL?
+    var pendingEngineRequests: [JSONRPCRequest] { [] }
+
+    private let lock = NSLock()
+    private var attempts = 0
+
+    var subscribeAttempts: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return attempts
+    }
+
+    func callMethod<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        options _: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        closure?(.failure(Self.refusal))
+        return 1
+    }
+
+    func subscribe<P: Codable, T: Decodable>(
+        _: String,
+        params _: P?,
+        updateClosure _: @escaping (T) -> Void,
+        failureClosure _: @escaping (Error, Bool) -> Void
+    ) throws -> UInt16 {
+        lock.lock()
+        attempts += 1
+        lock.unlock()
+        throw Self.refusal
+    }
+
+    func cancelForIdentifier(_: UInt16) {}
+    func generateRequestId() -> UInt16 { 1 }
+    func addSubscription(_: JSONRPCSubscribing) {}
+    func connectIfNeeded() {}
+    func disconnectIfNeeded() {}
+    func unsubsribe(_: UInt16) throws {}
+}

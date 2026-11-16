@@ -928,7 +928,8 @@ final class SendPresenter {
 
     private func handleSora(qrInfo: SoraQRInfo) {
         recipientAddress = qrInfo.address
-        Task {
+        // The presenter's state and every sheet it builds belong to the main thread; only the chain lookup leaves it.
+        Task { @MainActor in
             let possibleChains = await self.interactor.getPossibleChains(for: qrInfo.address)
             let chainAsset = possibleChains?
                 .first(where: { $0.isSora })?.chainAssets
@@ -954,12 +955,10 @@ final class SendPresenter {
             )
 
             interactor.updateSubscriptions(for: qrChainAsset)
-            await MainActor.run { [isUserInteractiveAmount] in
-                view?.didReceive(viewModel: viewModel)
-                provideInputViewModel()
-                provideNetworkViewModel(for: qrChainAsset.chain, canEdit: false)
-                view?.didBlockUserInteractive(isUserInteractiveAmount: isUserInteractiveAmount)
-            }
+            view?.didReceive(viewModel: viewModel)
+            provideInputViewModel()
+            provideNetworkViewModel(for: qrChainAsset.chain, canEdit: false)
+            view?.didBlockUserInteractive(isUserInteractiveAmount: isUserInteractiveAmount)
         }
     }
 

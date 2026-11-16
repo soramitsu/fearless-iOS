@@ -6,6 +6,7 @@ import RobinHood
 import SoraFoundation
 import SSFModels
 import SSFUtils
+import SSFQRService
 #if canImport(SSFAssetManagmentStorage)
     import SSFAssetManagmentStorage
 #endif
@@ -4351,5 +4352,53 @@ extension SendDependencyErrorSurfacingTests {
         XCTAssertTrue(
             scamWarningLabels(in: fixture.controller.rootView.scamWarningView).contains(fixture.second.warning.name)
         )
+    }
+}
+
+// MARK: - SORA QR codes
+
+extension SendDependencyErrorSurfacingTests {
+    /// A scanned SORA QR code for an asset this wallet does not offer shows the "unsupported asset" sheet. The chain
+    /// lookup finishes off the main thread, and the presenter used to build the sheet (UIKit buttons) and present it
+    /// there, so it was not reliably shown.
+    func testSoraQrCodeForAnUnsupportedAssetPresentsItsSheetOnTheMainThread() throws {
+        let context = makePresenter(chainAsset: ChainAsset(chain: Self.bitcoinChain, asset: Self.btcAsset))
+        let presented = XCTestExpectation(description: "the unsupported asset sheet is presented")
+        let threads = MainThreadRecorder()
+        context.router.sheetForwarder = { _, _ in
+            threads.record()
+            presented.fulfill()
+        }
+        let qrInfo = SoraQRInfo(
+            address: "cnVkoGs3rEMqLqY27c2nfVXJRGdzNJk2ns78DcqtppaSRe8qm",
+            rawPublicKey: Data(),
+            username: "",
+            assetId: "0x0200000000000000000000000000000000000000000000000000000000000000",
+            amount: nil
+        )
+
+        context.presenter.didFinishWith(scanType: .qrInfo(.sora(qrInfo)))
+
+        wait(for: [presented], timeout: 10)
+        XCTAssertEqual(threads.values, [true], "the sheet is built and presented on the main thread")
+        let sheet = try XCTUnwrap(context.router.presentedSheets.last)
+        XCTAssertEqual(sheet.message, R.string.localizable.errorScanQrDisabledAsset(preferredLanguages: ["en"]))
+    }
+}
+
+private final class MainThreadRecorder {
+    private let lock = NSLock()
+    private var recorded: [Bool] = []
+
+    var values: [Bool] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recorded
+    }
+
+    func record() {
+        lock.lock()
+        recorded.append(Thread.isMainThread)
+        lock.unlock()
     }
 }

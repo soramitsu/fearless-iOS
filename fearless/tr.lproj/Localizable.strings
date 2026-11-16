@@ -265,6 +265,7 @@ Yolu olmadığını biliyorum";
 "common.expiry" = "Son kullanma tarihi";
 "common.export" = "Hesabı dışa aktar";
 "common.filter.sort.header" = "Göre sırala:";
+"common.full_name" = "%1$@ %2$@";
 "common.important" = "Önemli";
 "common.info" = "Bilgi";
 "common.invalid.hard.message" = "Lütfen, girdinin //'hard' karışımı olup olmadığını kontrol edin. / işareti içermeyen herhangi bir karakter dizisi  'hard' olabilir";

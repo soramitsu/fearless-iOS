@@ -126,7 +126,7 @@ extension AssetTransactionData {
     static func createSwapTransaction(
         from item: SoraSubsquidHistoryElement,
         fee: AssetTransactionFee,
-        status _: AssetTransactionStatus
+        status: AssetTransactionStatus
     ) -> AssetTransactionData {
         let type = TransactionType.swap
         let timestamp = item.itemTimestamp
@@ -137,7 +137,7 @@ extension AssetTransactionData {
         let sendAmount = item.data?.baseAssetAmount ?? ""
         return AssetTransactionData(
             transactionId: item.id,
-            status: .commited,
+            status: status,
             assetId: assetId,
             peerId: baseAssetId,
             peerFirstName: nil,
@@ -156,7 +156,7 @@ extension AssetTransactionData {
     static func createBridgeTransaction(
         from item: SoraSubsquidHistoryElement,
         fee: AssetTransactionFee,
-        status _: AssetTransactionStatus
+        status: AssetTransactionStatus
     ) -> AssetTransactionData {
         let type = TransactionType.bridge
         let timestamp = item.itemTimestamp
@@ -164,7 +164,7 @@ extension AssetTransactionData {
         let amount = item.data?.amount ?? ""
         return AssetTransactionData(
             transactionId: item.id,
-            status: .commited,
+            status: status,
             assetId: "",
             peerId: "",
             peerFirstName: nil,
@@ -183,7 +183,7 @@ extension AssetTransactionData {
     static func createExtrinsicTransaction(
         from item: SoraSubsquidHistoryElement,
         fee: AssetTransactionFee,
-        status _: AssetTransactionStatus
+        status: AssetTransactionStatus
     ) -> AssetTransactionData {
         let from = item.address ?? ""
         let to = item.data?.to
@@ -192,7 +192,7 @@ extension AssetTransactionData {
 
         return AssetTransactionData(
             transactionId: item.id,
-            status: .commited,
+            status: status,
             assetId: assetId,
             peerId: from,
             peerFirstName: item.module,

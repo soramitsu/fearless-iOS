@@ -3545,3 +3545,51 @@ private final class FirstWriteBlockingDefaults: UserDefaults {
         super.set(value, forKey: defaultName)
     }
 }
+
+// MARK: - Asset selection errors
+
+extension ChainAssetListTests {
+    /// Chain assets reach the asset picker on the fetching queue. A failed fetch shows an error sheet, which the
+    /// presenter used to build and present on that background queue.
+    func testAssetSelectionPresentsAChainAssetErrorOnTheMainThread() {
+        let router = SelectAssetErrorRouterSpy()
+        let presenter = SelectAssetPresenter(
+            viewModelFactory: SelectAssetViewModelFactory(assetBalanceFormatterFactory: AssetBalanceFormatterFactory()),
+            wallet: AccountGenerator.generateMetaAccount(), selectedAssetId: nil, searchTextsViewModel: nil,
+            interactor: ExactAssetSelectionInteractorStub(), router: router, output: ExactAssetSelectionOutputSpy(),
+            localizationManager: LocalizationManager.shared, contextTag: nil
+        )
+        let presented = XCTestExpectation(description: "the error is presented")
+        router.onPresent = { presented.fulfill() }
+
+        DispatchQueue(label: "chain-assets-fetching").async {
+            presenter.didReceiveChainAssets(result: .failure(BaseOperationError.parentOperationCancelled))
+        }
+
+        wait(for: [presented], timeout: 10)
+        XCTAssertEqual(router.presentedOnMainThread, [true])
+    }
+}
+
+private final class SelectAssetErrorRouterSpy: SelectAssetRouterInput {
+    private let lock = NSLock()
+    private var threads: [Bool] = []
+    var onPresent: (() -> Void)?
+
+    var presentedOnMainThread: [Bool] {
+        lock.lock()
+        defer { lock.unlock() }
+        return threads
+    }
+
+    @discardableResult
+    func present(error _: Error, from _: ControllerBackedProtocol?, locale _: Locale?) -> Bool {
+        lock.lock()
+        threads.append(Thread.isMainThread)
+        lock.unlock()
+        onPresent?()
+        return true
+    }
+
+    func dismiss(view _: ControllerBackedProtocol?) {}
+}
