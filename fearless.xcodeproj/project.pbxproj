@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		45AD3DFD6EB25D6593AAF153 /* CovENavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */; };
+		FFE07AB3E7B44A60EC6617A9 /* CovEWidgetsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */; };
+		48DC7D04E161BD5B565915C7 /* CovEMoreViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */; };
+		089C257CD01C7B57853F65E8 /* CovEDesignSystemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06C85C1308D4A7BE01A23F2 /* CovEDesignSystemTests.swift */; };
+		0752AE3DF1F45572563ECD63 /* CovEInteractiveViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796DB63E487E133718A9743F /* CovEInteractiveViewsTests.swift */; };
+		B5AE6E611F33F6480EAF1065 /* CovEExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B7AD6F16F94F62FD9B00A3 /* CovEExtensionsTests.swift */; };
+		0973693133250DC20EA8E8AD /* CovESmallViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A71FF27ACC6F63BB113C6FF /* CovESmallViewsTests.swift */; };
+		E69B2EB64077698B3E29F94B /* CovEContainerViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7432CACC3EDF64D05E88CF26 /* CovEContainerViewControllerTests.swift */; };
+		29A9A593FAB121DFAEB7FF5D /* CovEHistoryMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343EE296A6B3EECC6BD3F089 /* CovEHistoryMappingTests.swift */; };
+		11B305B8670B53147F7719A2 /* CovEDetailsTriangularedViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77FEEFBC761132BD1653C251 /* CovEDetailsTriangularedViewTests.swift */; };
+		FC0E47BA68B379F57C05F9FE /* CovEUIFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62B53CCF637805D40353BD7 /* CovEUIFactoryTests.swift */; };
+		1ED516A1FD0AE4A665B18BD3 /* CovEModalPickerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD17B22E01565DDDB1B8CCD6 /* CovEModalPickerTests.swift */; };
+		279404F215F1D0FA00669ECB /* CovEInspectableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AFFD33D965A0E99C62CF3E /* CovEInspectableTests.swift */; };
+		121A69D3C9BB2FECD8417E1A /* CovEHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBBDEF23E1457EE7673B43C0 /* CovEHelpers.swift */; };
 		32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */; };
 		E68D4B36819482799FA4D075 /* shikiban.json in Resources */ = {isa = PBXBuildFile; fileRef = BF4B99F1C37CFF1C42C501F1 /* shikiban.json */; };
 		C61EF707724F0C53915836E8 /* FWShikibanDebugSeams.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */; };
@@ -3344,6 +3358,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovENavigationTests.swift; sourceTree = "<group>"; };
+		57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEWidgetsTests.swift; sourceTree = "<group>"; };
+		585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEMoreViewsTests.swift; sourceTree = "<group>"; };
+		E06C85C1308D4A7BE01A23F2 /* CovEDesignSystemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEDesignSystemTests.swift; sourceTree = "<group>"; };
+		796DB63E487E133718A9743F /* CovEInteractiveViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEInteractiveViewsTests.swift; sourceTree = "<group>"; };
+		D3B7AD6F16F94F62FD9B00A3 /* CovEExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEExtensionsTests.swift; sourceTree = "<group>"; };
+		2A71FF27ACC6F63BB113C6FF /* CovESmallViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovESmallViewsTests.swift; sourceTree = "<group>"; };
+		7432CACC3EDF64D05E88CF26 /* CovEContainerViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEContainerViewControllerTests.swift; sourceTree = "<group>"; };
+		343EE296A6B3EECC6BD3F089 /* CovEHistoryMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEHistoryMappingTests.swift; sourceTree = "<group>"; };
+		77FEEFBC761132BD1653C251 /* CovEDetailsTriangularedViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEDetailsTriangularedViewTests.swift; sourceTree = "<group>"; };
+		F62B53CCF637805D40353BD7 /* CovEUIFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEUIFactoryTests.swift; sourceTree = "<group>"; };
+		CD17B22E01565DDDB1B8CCD6 /* CovEModalPickerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEModalPickerTests.swift; sourceTree = "<group>"; };
+		C5AFFD33D965A0E99C62CF3E /* CovEInspectableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEInspectableTests.swift; sourceTree = "<group>"; };
+		DBBDEF23E1457EE7673B43C0 /* CovEHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovEHelpers.swift; sourceTree = "<group>"; };
 		E193F2BE4F93B5E813C6D1A7 /* FWShikibanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanTests.swift; sourceTree = "<group>"; };
 		BF4B99F1C37CFF1C42C501F1 /* shikiban.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shikiban.json; sourceTree = "<group>"; };
 		F62D40E64CB45D3098BF130F /* FWShikibanDebugSeams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWShikibanDebugSeams.swift; sourceTree = "<group>"; };
@@ -9664,6 +9692,20 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				527FABFBD7D348311FAA7E1E /* CovENavigationTests.swift */,
+				57A4B820A1ED0469DCD82367 /* CovEWidgetsTests.swift */,
+				585FF8B2BEB6A3464CF9DA5A /* CovEMoreViewsTests.swift */,
+				E06C85C1308D4A7BE01A23F2 /* CovEDesignSystemTests.swift */,
+				796DB63E487E133718A9743F /* CovEInteractiveViewsTests.swift */,
+				D3B7AD6F16F94F62FD9B00A3 /* CovEExtensionsTests.swift */,
+				2A71FF27ACC6F63BB113C6FF /* CovESmallViewsTests.swift */,
+				7432CACC3EDF64D05E88CF26 /* CovEContainerViewControllerTests.swift */,
+				343EE296A6B3EECC6BD3F089 /* CovEHistoryMappingTests.swift */,
+				77FEEFBC761132BD1653C251 /* CovEDetailsTriangularedViewTests.swift */,
+				F62B53CCF637805D40353BD7 /* CovEUIFactoryTests.swift */,
+				CD17B22E01565DDDB1B8CCD6 /* CovEModalPickerTests.swift */,
+				C5AFFD33D965A0E99C62CF3E /* CovEInspectableTests.swift */,
+				DBBDEF23E1457EE7673B43C0 /* CovEHelpers.swift */,
 				D7B363EB6E16981B6A317BCB /* ABIEventDecodingRegressionTests.swift */,
 				097174B5B1A158D1E9A237E5 /* TonNFTPreviewRegressionTests.swift */,
 				1DB1D73181D071035875D7AE /* OperationCombiningLifecycleTests.swift */,
@@ -19644,6 +19686,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				45AD3DFD6EB25D6593AAF153 /* CovENavigationTests.swift in Sources */,
+				FFE07AB3E7B44A60EC6617A9 /* CovEWidgetsTests.swift in Sources */,
+				48DC7D04E161BD5B565915C7 /* CovEMoreViewsTests.swift in Sources */,
+				089C257CD01C7B57853F65E8 /* CovEDesignSystemTests.swift in Sources */,
+				0752AE3DF1F45572563ECD63 /* CovEInteractiveViewsTests.swift in Sources */,
+				B5AE6E611F33F6480EAF1065 /* CovEExtensionsTests.swift in Sources */,
+				0973693133250DC20EA8E8AD /* CovESmallViewsTests.swift in Sources */,
+				E69B2EB64077698B3E29F94B /* CovEContainerViewControllerTests.swift in Sources */,
+				29A9A593FAB121DFAEB7FF5D /* CovEHistoryMappingTests.swift in Sources */,
+				11B305B8670B53147F7719A2 /* CovEDetailsTriangularedViewTests.swift in Sources */,
+				FC0E47BA68B379F57C05F9FE /* CovEUIFactoryTests.swift in Sources */,
+				1ED516A1FD0AE4A665B18BD3 /* CovEModalPickerTests.swift in Sources */,
+				279404F215F1D0FA00669ECB /* CovEInspectableTests.swift in Sources */,
+				121A69D3C9BB2FECD8417E1A /* CovEHelpers.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
 				8FA41D6606D5B44E3EAC2246 /* FWLaunchFeelTests.swift in Sources */,
