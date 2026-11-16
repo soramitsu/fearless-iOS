@@ -135,7 +135,8 @@ final class AssetNetworksTableCell: UITableViewCell {
 
         networkIconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(8)
-            make.top.bottom.equalToSuperview().inset(16)
+            // An 80 pt row leaves a 72 pt background: 48 pt plus 16 pt above and below cannot fit, so centre it.
+            make.centerY.equalToSuperview()
             make.size.equalTo(48)
         }
 
