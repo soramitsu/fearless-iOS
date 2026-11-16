@@ -7,6 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6BDB5BE374F033D26367F4EE /* CovFMiscIrohaSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63C5439A951289822CC8928 /* CovFMiscIrohaSessionTests.swift */; };
+		618349F667C4F5E2D85A89A9 /* CovFWcPolkadotRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E09FCF85AE165254E84466 /* CovFWcPolkadotRuntimeTests.swift */; };
+		DDF024F4D95606D83614D997 /* CovFWcSmallTypesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7FC74F3F47CFB031D72A192 /* CovFWcSmallTypesTests.swift */; };
+		F207FDA976DFD6FEC49745F0 /* CovFMiscServiceCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F72FB0D9A26E0FE87A039E3 /* CovFMiscServiceCoordinatorTests.swift */; };
+		67A887BE628E626A75CB7A72 /* CovFWcModelFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A83F275FA28B0E558C245D /* CovFWcModelFactoryTests.swift */; };
+		5708120612F3786C281C7B9E /* CovFMiscNomisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3EA71B2B0E7BCC08227BA9D /* CovFMiscNomisTests.swift */; };
+		9BE1779294824C1272CBFB93 /* CovFMiscPricesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A31886419DD2B491AC7676CD /* CovFMiscPricesTests.swift */; };
+		E5D1D9CA9E751C3B339A715C /* CovFMiscScamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AA09F1056D1B961A6ED973 /* CovFMiscScamTests.swift */; };
+		34DFA0EBB6505D7C5B261272 /* CovFMiscAppVersionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A842774727B2986872166BA5 /* CovFMiscAppVersionTests.swift */; };
+		3794010D863285324C09A8FB /* CovFRtTypesSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FFDEA4A0CC832CE3AE3F5E /* CovFRtTypesSyncTests.swift */; };
+		BA531BF524D315878D620B91 /* CovFStkRewardsFetcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E751DFB367C89B5C24E92E7C /* CovFStkRewardsFetcherTests.swift */; };
+		6C77D5C4493635040137136A /* CovFStkFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67BC923E8E18BF9D049B435C /* CovFStkFixturesTests.swift */; };
+		7A34CBAC938712D5CBC96BD2 /* CovFStkCrowdloanHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ECAE78352E91EC79249A1FD /* CovFStkCrowdloanHistoryTests.swift */; };
+		60EF71C19B57AA4E5718FCF7 /* CovFStkAccountSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8F74E0F1D2A704190EE44C /* CovFStkAccountSubscriptionTests.swift */; };
+		CBB2E3D27F106A82192D57AA /* CovFStkAccountResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326CC9C4F02A636BDA3566BF /* CovFStkAccountResolverTests.swift */; };
+		D15E302C3748F300FE2EF94F /* CovFBalWalletBalanceAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9FE7BC5DC2431FDA710EF7 /* CovFBalWalletBalanceAdapterTests.swift */; };
+		167104E19E402888C485B674 /* CovFBalStakingUpdatingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168FE9F4F32A16BE8708E0B7 /* CovFBalStakingUpdatingTests.swift */; };
+		3347FA3AB772A89288B81955 /* CovFBalRemoteSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB761B1764E95850F41679B /* CovFBalRemoteSubscriptionTests.swift */; };
+		C04198085A9212179435328A /* CovFBalFixturesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 571ADC4B5BC54BCD7FFEBF25 /* CovFBalFixturesTests.swift */; };
+		1F3C09EEC0D5131031BDDE59 /* CovFBalEthereumSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD9AD09C842A59ABD1FCE39A /* CovFBalEthereumSubscriptionTests.swift */; };
+		42F57617C8D57792C363BD6E /* CovFBalAccountInfoUpdatingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6988092060387258642E3A /* CovFBalAccountInfoUpdatingTests.swift */; };
+		DBBC5306249F468F18C41BD6 /* CovFExtrinsicCallbacksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41496D4A56BF4D984A4CDE5F /* CovFExtrinsicCallbacksTests.swift */; };
+		50420627AC48466B9D906520 /* CovFPolkaswapServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8942061B9D8A7CF3D79B7A07 /* CovFPolkaswapServicesTests.swift */; };
+		ACBA095F9401C00E8CFF5058 /* CovFEquilibriumBalanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D1EC5D2007C2E6C94BE7023 /* CovFEquilibriumBalanceTests.swift */; };
+		60F8F03D0F6D9FA4BE0051DE /* CovFStorageServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC1FAD3DAD1FAF10EF4C9CC /* CovFStorageServicesTests.swift */; };
+		8289EE2E4B9CE60233A47BF0 /* CovFPayoutIndexerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A477294D8DE93A5D1DC011 /* CovFPayoutIndexerTests.swift */; };
+		8093FC223B007D49D4D5520C /* CovFBalanceLocksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F6E88497FA020215B50065 /* CovFBalanceLocksTests.swift */; };
+		28E5C34B8F351BFC1C1A282D /* CovFSubstrateTransferTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70668FFFCC9429B494574D3A /* CovFSubstrateTransferTests.swift */; };
+		9285FFB54134706784A78683 /* CovFEthereumServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4703C218E481B10C5FF70808 /* CovFEthereumServicesTests.swift */; };
+		51D061B8F6098927FDEB565C /* CovFNftFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D9F8C79698DA999CB97C96 /* CovFNftFetchingTests.swift */; };
 		4EE6FCA29FDE725465E93BC0 /* CovFRemoteSubscriptionRequestsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5311825CBB77E907CD2E386 /* CovFRemoteSubscriptionRequestsTests.swift */; };
 		75B074DA122625E84E818895 /* CovFPayoutMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1B0F2794E755718EECD75A /* CovFPayoutMappingTests.swift */; };
 		782C8725AE7E1079699D181B /* CovFDeprecatedAccountsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEAC42553E6E7799A0531646 /* CovFDeprecatedAccountsTests.swift */; };
@@ -3351,6 +3381,36 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A63C5439A951289822CC8928 /* CovFMiscIrohaSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscIrohaSessionTests.swift; sourceTree = "<group>"; };
+		45E09FCF85AE165254E84466 /* CovFWcPolkadotRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFWcPolkadotRuntimeTests.swift; sourceTree = "<group>"; };
+		F7FC74F3F47CFB031D72A192 /* CovFWcSmallTypesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFWcSmallTypesTests.swift; sourceTree = "<group>"; };
+		8F72FB0D9A26E0FE87A039E3 /* CovFMiscServiceCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscServiceCoordinatorTests.swift; sourceTree = "<group>"; };
+		29A83F275FA28B0E558C245D /* CovFWcModelFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFWcModelFactoryTests.swift; sourceTree = "<group>"; };
+		A3EA71B2B0E7BCC08227BA9D /* CovFMiscNomisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscNomisTests.swift; sourceTree = "<group>"; };
+		A31886419DD2B491AC7676CD /* CovFMiscPricesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscPricesTests.swift; sourceTree = "<group>"; };
+		53AA09F1056D1B961A6ED973 /* CovFMiscScamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscScamTests.swift; sourceTree = "<group>"; };
+		A842774727B2986872166BA5 /* CovFMiscAppVersionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFMiscAppVersionTests.swift; sourceTree = "<group>"; };
+		E0FFDEA4A0CC832CE3AE3F5E /* CovFRtTypesSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFRtTypesSyncTests.swift; sourceTree = "<group>"; };
+		E751DFB367C89B5C24E92E7C /* CovFStkRewardsFetcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFStkRewardsFetcherTests.swift; sourceTree = "<group>"; };
+		67BC923E8E18BF9D049B435C /* CovFStkFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFStkFixturesTests.swift; sourceTree = "<group>"; };
+		4ECAE78352E91EC79249A1FD /* CovFStkCrowdloanHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFStkCrowdloanHistoryTests.swift; sourceTree = "<group>"; };
+		0F8F74E0F1D2A704190EE44C /* CovFStkAccountSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFStkAccountSubscriptionTests.swift; sourceTree = "<group>"; };
+		326CC9C4F02A636BDA3566BF /* CovFStkAccountResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFStkAccountResolverTests.swift; sourceTree = "<group>"; };
+		5A9FE7BC5DC2431FDA710EF7 /* CovFBalWalletBalanceAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFBalWalletBalanceAdapterTests.swift; sourceTree = "<group>"; };
+		168FE9F4F32A16BE8708E0B7 /* CovFBalStakingUpdatingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFBalStakingUpdatingTests.swift; sourceTree = "<group>"; };
+		FCB761B1764E95850F41679B /* CovFBalRemoteSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFBalRemoteSubscriptionTests.swift; sourceTree = "<group>"; };
+		571ADC4B5BC54BCD7FFEBF25 /* CovFBalFixturesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFBalFixturesTests.swift; sourceTree = "<group>"; };
+		AD9AD09C842A59ABD1FCE39A /* CovFBalEthereumSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFBalEthereumSubscriptionTests.swift; sourceTree = "<group>"; };
+		3D6988092060387258642E3A /* CovFBalAccountInfoUpdatingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFBalAccountInfoUpdatingTests.swift; sourceTree = "<group>"; };
+		41496D4A56BF4D984A4CDE5F /* CovFExtrinsicCallbacksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFExtrinsicCallbacksTests.swift; sourceTree = "<group>"; };
+		8942061B9D8A7CF3D79B7A07 /* CovFPolkaswapServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFPolkaswapServicesTests.swift; sourceTree = "<group>"; };
+		5D1EC5D2007C2E6C94BE7023 /* CovFEquilibriumBalanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFEquilibriumBalanceTests.swift; sourceTree = "<group>"; };
+		0CC1FAD3DAD1FAF10EF4C9CC /* CovFStorageServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFStorageServicesTests.swift; sourceTree = "<group>"; };
+		19A477294D8DE93A5D1DC011 /* CovFPayoutIndexerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFPayoutIndexerTests.swift; sourceTree = "<group>"; };
+		A3F6E88497FA020215B50065 /* CovFBalanceLocksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFBalanceLocksTests.swift; sourceTree = "<group>"; };
+		70668FFFCC9429B494574D3A /* CovFSubstrateTransferTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFSubstrateTransferTests.swift; sourceTree = "<group>"; };
+		4703C218E481B10C5FF70808 /* CovFEthereumServicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFEthereumServicesTests.swift; sourceTree = "<group>"; };
+		A7D9F8C79698DA999CB97C96 /* CovFNftFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFNftFetchingTests.swift; sourceTree = "<group>"; };
 		A5311825CBB77E907CD2E386 /* CovFRemoteSubscriptionRequestsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFRemoteSubscriptionRequestsTests.swift; sourceTree = "<group>"; };
 		FB1B0F2794E755718EECD75A /* CovFPayoutMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFPayoutMappingTests.swift; sourceTree = "<group>"; };
 		CEAC42553E6E7799A0531646 /* CovFDeprecatedAccountsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CovFDeprecatedAccountsTests.swift; sourceTree = "<group>"; };
@@ -9678,6 +9738,36 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				A63C5439A951289822CC8928 /* CovFMiscIrohaSessionTests.swift */,
+				45E09FCF85AE165254E84466 /* CovFWcPolkadotRuntimeTests.swift */,
+				F7FC74F3F47CFB031D72A192 /* CovFWcSmallTypesTests.swift */,
+				8F72FB0D9A26E0FE87A039E3 /* CovFMiscServiceCoordinatorTests.swift */,
+				29A83F275FA28B0E558C245D /* CovFWcModelFactoryTests.swift */,
+				A3EA71B2B0E7BCC08227BA9D /* CovFMiscNomisTests.swift */,
+				A31886419DD2B491AC7676CD /* CovFMiscPricesTests.swift */,
+				53AA09F1056D1B961A6ED973 /* CovFMiscScamTests.swift */,
+				A842774727B2986872166BA5 /* CovFMiscAppVersionTests.swift */,
+				E0FFDEA4A0CC832CE3AE3F5E /* CovFRtTypesSyncTests.swift */,
+				E751DFB367C89B5C24E92E7C /* CovFStkRewardsFetcherTests.swift */,
+				67BC923E8E18BF9D049B435C /* CovFStkFixturesTests.swift */,
+				4ECAE78352E91EC79249A1FD /* CovFStkCrowdloanHistoryTests.swift */,
+				0F8F74E0F1D2A704190EE44C /* CovFStkAccountSubscriptionTests.swift */,
+				326CC9C4F02A636BDA3566BF /* CovFStkAccountResolverTests.swift */,
+				5A9FE7BC5DC2431FDA710EF7 /* CovFBalWalletBalanceAdapterTests.swift */,
+				168FE9F4F32A16BE8708E0B7 /* CovFBalStakingUpdatingTests.swift */,
+				FCB761B1764E95850F41679B /* CovFBalRemoteSubscriptionTests.swift */,
+				571ADC4B5BC54BCD7FFEBF25 /* CovFBalFixturesTests.swift */,
+				AD9AD09C842A59ABD1FCE39A /* CovFBalEthereumSubscriptionTests.swift */,
+				3D6988092060387258642E3A /* CovFBalAccountInfoUpdatingTests.swift */,
+				41496D4A56BF4D984A4CDE5F /* CovFExtrinsicCallbacksTests.swift */,
+				8942061B9D8A7CF3D79B7A07 /* CovFPolkaswapServicesTests.swift */,
+				5D1EC5D2007C2E6C94BE7023 /* CovFEquilibriumBalanceTests.swift */,
+				0CC1FAD3DAD1FAF10EF4C9CC /* CovFStorageServicesTests.swift */,
+				19A477294D8DE93A5D1DC011 /* CovFPayoutIndexerTests.swift */,
+				A3F6E88497FA020215B50065 /* CovFBalanceLocksTests.swift */,
+				70668FFFCC9429B494574D3A /* CovFSubstrateTransferTests.swift */,
+				4703C218E481B10C5FF70808 /* CovFEthereumServicesTests.swift */,
+				A7D9F8C79698DA999CB97C96 /* CovFNftFetchingTests.swift */,
 				A5311825CBB77E907CD2E386 /* CovFRemoteSubscriptionRequestsTests.swift */,
 				FB1B0F2794E755718EECD75A /* CovFPayoutMappingTests.swift */,
 				CEAC42553E6E7799A0531646 /* CovFDeprecatedAccountsTests.swift */,
@@ -19665,6 +19755,36 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BDB5BE374F033D26367F4EE /* CovFMiscIrohaSessionTests.swift in Sources */,
+				618349F667C4F5E2D85A89A9 /* CovFWcPolkadotRuntimeTests.swift in Sources */,
+				DDF024F4D95606D83614D997 /* CovFWcSmallTypesTests.swift in Sources */,
+				F207FDA976DFD6FEC49745F0 /* CovFMiscServiceCoordinatorTests.swift in Sources */,
+				67A887BE628E626A75CB7A72 /* CovFWcModelFactoryTests.swift in Sources */,
+				5708120612F3786C281C7B9E /* CovFMiscNomisTests.swift in Sources */,
+				9BE1779294824C1272CBFB93 /* CovFMiscPricesTests.swift in Sources */,
+				E5D1D9CA9E751C3B339A715C /* CovFMiscScamTests.swift in Sources */,
+				34DFA0EBB6505D7C5B261272 /* CovFMiscAppVersionTests.swift in Sources */,
+				3794010D863285324C09A8FB /* CovFRtTypesSyncTests.swift in Sources */,
+				BA531BF524D315878D620B91 /* CovFStkRewardsFetcherTests.swift in Sources */,
+				6C77D5C4493635040137136A /* CovFStkFixturesTests.swift in Sources */,
+				7A34CBAC938712D5CBC96BD2 /* CovFStkCrowdloanHistoryTests.swift in Sources */,
+				60EF71C19B57AA4E5718FCF7 /* CovFStkAccountSubscriptionTests.swift in Sources */,
+				CBB2E3D27F106A82192D57AA /* CovFStkAccountResolverTests.swift in Sources */,
+				D15E302C3748F300FE2EF94F /* CovFBalWalletBalanceAdapterTests.swift in Sources */,
+				167104E19E402888C485B674 /* CovFBalStakingUpdatingTests.swift in Sources */,
+				3347FA3AB772A89288B81955 /* CovFBalRemoteSubscriptionTests.swift in Sources */,
+				C04198085A9212179435328A /* CovFBalFixturesTests.swift in Sources */,
+				1F3C09EEC0D5131031BDDE59 /* CovFBalEthereumSubscriptionTests.swift in Sources */,
+				42F57617C8D57792C363BD6E /* CovFBalAccountInfoUpdatingTests.swift in Sources */,
+				DBBC5306249F468F18C41BD6 /* CovFExtrinsicCallbacksTests.swift in Sources */,
+				50420627AC48466B9D906520 /* CovFPolkaswapServicesTests.swift in Sources */,
+				ACBA095F9401C00E8CFF5058 /* CovFEquilibriumBalanceTests.swift in Sources */,
+				60F8F03D0F6D9FA4BE0051DE /* CovFStorageServicesTests.swift in Sources */,
+				8289EE2E4B9CE60233A47BF0 /* CovFPayoutIndexerTests.swift in Sources */,
+				8093FC223B007D49D4D5520C /* CovFBalanceLocksTests.swift in Sources */,
+				28E5C34B8F351BFC1C1A282D /* CovFSubstrateTransferTests.swift in Sources */,
+				9285FFB54134706784A78683 /* CovFEthereumServicesTests.swift in Sources */,
+				51D061B8F6098927FDEB565C /* CovFNftFetchingTests.swift in Sources */,
 				4EE6FCA29FDE725465E93BC0 /* CovFRemoteSubscriptionRequestsTests.swift in Sources */,
 				75B074DA122625E84E818895 /* CovFPayoutMappingTests.swift in Sources */,
 				782C8725AE7E1079699D181B /* CovFDeprecatedAccountsTests.swift in Sources */,

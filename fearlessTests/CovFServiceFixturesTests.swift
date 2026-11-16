@@ -43,8 +43,10 @@ final class CovFRepository<T: RobinHood.Identifiable>: DataProviderRepositoryPro
     func saveOperation(_ updates: @escaping () throws -> [T], _ deletes: @escaping () throws -> [String]) -> BaseOperation<Void> {
         ClosureOperation {
             let removed = try deletes()
-            self.items.removeAll { removed.contains($0.identifier) }
-            self.items.append(contentsOf: try updates())
+            let updated = try updates()
+            let replaced = Set(updated.map(\.identifier))
+            self.items.removeAll { removed.contains($0.identifier) || replaced.contains($0.identifier) }
+            self.items.append(contentsOf: updated)
         }
     }
 
