@@ -368,7 +368,12 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
             googleAuthorized = false
             backupAccounts = nil
             logger.error(failure.localizedDescription)
-            showGoogleIssueAlert()
+            if failure as? GoogleDrivePasskeyBackupError == .unavailableConfiguration {
+                // This build has no cloud provider. End loading and leave local export rows usable.
+                googleAuthorized = true
+            } else {
+                showGoogleIssueAlert()
+            }
         }
         provideViewModel()
     }

@@ -26,19 +26,24 @@ final class BackupWalletInteractor {
     private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationManager: OperationManagerProtocol
+    private let validateCloudConfiguration: () throws -> Void
 
     init(
         wallet: MetaAccountModel,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
         chainRepository: AnyDataProviderRepository<ChainModel>,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        validateCloudConfiguration: @escaping () throws -> Void = {
+            _ = try GoogleDriveBackupOAuthConfiguration(info: Bundle.main.infoDictionary ?? [:])
+        }
     ) {
         self.wallet = wallet
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.availableExportOptionsProvider = availableExportOptionsProvider
         self.chainRepository = chainRepository
         self.operationManager = operationManager
+        self.validateCloudConfiguration = validateCloudConfiguration
     }
 
     deinit {
@@ -78,17 +83,26 @@ final class BackupWalletInteractor {
         output?.didReceive(options: options)
     }
 
+    private func configuredCloudStorage() throws -> CloudStorageServiceProtocol {
+        try validateCloudConfiguration()
+        guard let cloudStorage else {
+            throw GoogleDrivePasskeyBackupError.unavailableConfiguration
+        }
+        return cloudStorage
+    }
+
     private func getBackupAccounts() {
         Task {
             do {
-                if let cloudStorage = cloudStorage {
-                    let accounts = try await cloudStorage.getBackupAccounts()
-                    await MainActor.run {
-                        output?.didReceiveBackupAccounts(result: .success(accounts))
-                    }
+                let cloudStorage = try configuredCloudStorage()
+                let accounts = try await cloudStorage.getBackupAccounts()
+                await MainActor.run {
+                    output?.didReceiveBackupAccounts(result: .success(accounts))
                 }
             } catch {
-                cloudStorage?.disconnect()
+                if error as? GoogleDrivePasskeyBackupError != .unavailableConfiguration {
+                    cloudStorage?.disconnect()
+                }
                 await MainActor.run {
                     output?.didReceiveBackupAccounts(result: .failure(error))
                 }
@@ -105,12 +119,12 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
     }
 
     func removeBackupFromGoogle() {
-        let address42 = wallet.backupAddress
         let account = OpenBackupAccount(address: wallet.backupAddress)
 
         Task {
             do {
-                try await cloudStorage?.deleteBackup(account: account)
+                let cloudStorage = try configuredCloudStorage()
+                try await cloudStorage.deleteBackup(account: account)
                 await MainActor.run {
                     output?.didReceiveRemove(result: .success(()))
                 }
