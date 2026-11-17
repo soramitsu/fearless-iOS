@@ -113,7 +113,7 @@ prepare_case canonical
 run_pass canonical
 
 # App Store Connect compares numeric components, not text: 2026.11.14 follows
-# the latest consumed build 2026.11.12 and 2026.9.10 precedes it, although text
+# the latest consumed build 2026.11.13 and 2026.9.10 precedes it, although text
 # order puts the 2026.9.x builds last.
 prepare_case numeric-successor
 set_all_pins 2026.11.14
@@ -121,15 +121,15 @@ run_pass numeric-successor
 
 prepare_case text-successor-only
 set_all_pins 2026.9.10
-run_reject text-successor-only "2026.9.10 is not greater than latest consumed build 2026.11.12"
+run_reject text-successor-only "2026.9.10 is not greater than latest consumed build 2026.11.13"
 
 prepare_case reused-latest-build
-set_all_pins 2026.11.12
-run_reject reused-latest-build "2026.11.12 is not greater than latest consumed build 2026.11.12"
+set_all_pins 2026.11.13
+run_reject reused-latest-build "2026.11.13 is not greater than latest consumed build 2026.11.13"
 
 prepare_case reused-iroha-build
 set_all_pins 2026.8.34
-run_reject reused-iroha-build "2026.8.34 is not greater than latest consumed build 2026.11.12"
+run_reject reused-iroha-build "2026.8.34 is not greater than latest consumed build 2026.11.13"
 
 prepare_case release-listed-as-predecessor
 replace_line scripts/audit-testflight-upgrade-usability-gate.py \
