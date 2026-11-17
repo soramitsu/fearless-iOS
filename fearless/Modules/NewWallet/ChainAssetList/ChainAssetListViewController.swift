@@ -13,6 +13,8 @@ final class ChainAssetListViewController:
     var keyboardHandler: FearlessKeyboardHandler?
     /// The wallet header folds its balance card while the list's search field has the keyboard.
     var onInlineSearchActiveChange: ((Bool) -> Void)?
+    /// Every delivery can cover the list with a new empty state, or take it away.
+    var onListChange: (() -> Void)?
 
     // MARK: Private properties
 
@@ -360,6 +362,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             rootView.tableView.reloadData()
         }
         reloadEmptyState(animated: false)
+        onListChange?()
     }
 }
 
@@ -779,6 +782,8 @@ extension ChainAssetListViewController: FWFlightTiered {
 }
 
 // MARK: - One-list search on the wallet home
+
+extension ChainAssetListViewController: WalletHomeListChanging {}
 
 extension ChainAssetListViewController: WalletInlineSearchHosting {
     func focusInlineSearch() -> Bool {

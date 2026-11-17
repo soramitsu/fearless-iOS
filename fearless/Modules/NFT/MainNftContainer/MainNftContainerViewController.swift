@@ -13,6 +13,8 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
 
     private let output: MainNftContainerViewOutput
     private var viewModels: [NftNetworkSectionModel]?
+    /// The grid and the list take turns on screen.
+    var onListChange: (() -> Void)?
 
     // MARK: - Constructor
 
@@ -102,12 +104,17 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
 
     @objc private func collectionButtonClicked() {
         output.didTapCollectionButton()
-        rootView.bind(appearance: .collection)
+        show(appearance: .collection)
     }
 
     @objc private func tableButtonClicked() {
         output.didTapTableButton()
-        rootView.bind(appearance: .table)
+        show(appearance: .table)
+    }
+
+    private func show(appearance: NftCollectionAppearance) {
+        rootView.bind(appearance: appearance)
+        onListChange?()
     }
 }
 
@@ -123,9 +130,11 @@ extension MainNftContainerViewController: MainNftContainerViewInput {
     }
 
     func didReceive(appearance: NftCollectionAppearance) {
-        rootView.bind(appearance: appearance)
+        show(appearance: appearance)
     }
 }
+
+extension MainNftContainerViewController: WalletHomeListChanging {}
 
 // MARK: - Localizable
 

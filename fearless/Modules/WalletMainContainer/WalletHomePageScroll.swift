@@ -63,4 +63,23 @@ enum WalletHomeScrollChain {
         }
         return resolved
     }
+
+    enum ScrollToTopTarget: Equatable {
+        case page
+        case list
+    }
+
+    /// Which of the two takes the status-bar tap. UIKit offers the tap only to a scroll view that can still move up
+    /// (and prefers an inner one), so exactly one of them may take it. The page does whenever it has scrolled: its
+    /// request brings the list to its top first. Only while the page rests at its top above scrolled rows (folded for
+    /// a search, the page cannot scroll) does the list take it.
+    static func scrollToTopTarget(_ offsets: Offsets) -> ScrollToTopTarget {
+        offsets.page <= tolerance && offsets.list > tolerance ? .list : .page
+    }
+}
+
+/// A page of the wallet home that can change the list it scrolls (an empty state over the list, another appearance)
+/// without a layout pass of the home, which follows the list on screen for the scroll chain and the status-bar tap.
+protocol WalletHomeListChanging: AnyObject {
+    var onListChange: (() -> Void)? { get set }
 }

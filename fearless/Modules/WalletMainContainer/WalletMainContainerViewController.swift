@@ -77,6 +77,9 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
             (page as? WalletInlineSearchHosting)?.onInlineSearchActiveChange = { [weak self] active in
                 self?.rootView.setSearchFocused(active, animated: true)
             }
+            (page as? WalletHomeListChanging)?.onListChange = { [weak self] in
+                self?.rootView.setNeedsLayout()
+            }
         }
     }
 
@@ -167,11 +170,17 @@ extension WalletMainContainerViewController: Localizable {
 
 extension WalletMainContainerViewController: FWSegmentedControlDelegate {
     func didSelect(_ segmentIndex: Int) {
+        let page = pageControllers[segmentIndex]
+        // The page slides in beside the one it replaces; neither of their lists may take the status-bar tap.
+        rootView.assignScrollToTop(in: page.view)
         rootView.pageViewController.setViewControllers(
-            [pageControllers[segmentIndex]],
+            [page],
             direction: .init(from: segmentIndex) ?? .forward,
             animated: true
-        )
+        ) { [weak self] _ in
+            // The home follows the list it shows now.
+            self?.rootView.setNeedsLayout()
+        }
     }
 }
 

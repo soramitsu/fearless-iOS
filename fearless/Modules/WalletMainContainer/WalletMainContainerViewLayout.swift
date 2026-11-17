@@ -56,6 +56,8 @@ final class WalletMainContainerViewLayout: UIView {
     private var listBelowNavigation: Constraint?
     private var pageFitsWhileFolded: Constraint?
     private var listOffsetObservation: NSKeyValueObservation?
+    /// The list the shown page scrolls; side by side it does not chain with the header.
+    private weak var shownList: UIScrollView?
     private var pageOffsetObservation: NSKeyValueObservation?
     private var isChainingScroll = false
     private(set) var isSearchFocused = false
@@ -231,6 +233,7 @@ final class WalletMainContainerViewLayout: UIView {
         installSunlitPage()
 
         headerScrollView.contentInsetAdjustmentBehavior = .never
+        headerScrollView.delegate = self
         addSubview(headerScrollView)
         headerScrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
@@ -558,8 +561,9 @@ private extension WalletMainContainerViewLayout {
     /// Follows the list the page shows (another page, such as NFTs, has its own) and keeps the page's offset within
     /// its content after a layout change.
     func updateNestedListScrolling() {
-        let shown = pageViewController.viewControllers?.first?.view
-        let nested = placement == .split ? nil : Self.verticalScrollView(in: shown)
+        let shown = Self.verticalScrollView(in: pageViewController.viewControllers?.first?.view)
+        shownList = shown
+        let nested = placement == .split ? nil : shown
         if nested !== headerScrollView.nestedScrollView {
             headerScrollView.nestedScrollView = nested
             listOffsetObservation = nested?.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
@@ -570,29 +574,33 @@ private extension WalletMainContainerViewLayout {
         if headerScrollView.contentOffset.y > pageMax {
             headerScrollView.contentOffset.y = pageMax
         }
+        assignScrollToTop()
     }
 
-    /// The first vertically scrolling view of a page, searched level by level (the list itself before the network
-    /// chips' row inside it).
+    /// The list a page shows: its frontmost vertically scrolling view, so an empty state that covers the list
+    /// (a ScrollableContainerView) is followed rather than the list under it. The list is found before the network
+    /// chips and banner carousels inside it.
     static func verticalScrollView(in root: UIView?) -> UIScrollView? {
-        var level = [root].compactMap { $0 }
-        while !level.isEmpty {
-            let match = level.compactMap { $0 as? UIScrollView }.first { scroll in
-                !scroll.isHidden && scroll.alpha > 0.01 && scroll.isScrollEnabled && !scroll.isPagingEnabled
-                    && !(scroll is UITextView)
-                    && (scroll.alwaysBounceVertical || scroll is UITableView || scroll is UICollectionView)
-            }
-            if let match {
-                return match
-            }
-            level = level.flatMap(\.subviews)
+        guard let root, !root.isHidden, root.alpha > 0.01 else { return nil }
+        if let scroll = root as? UIScrollView, scroll.isScrollEnabled, !scroll.isPagingEnabled, !(scroll is UITextView),
+           scroll.alwaysBounceVertical || scroll is UITableView || scroll is UICollectionView
+           || scroll.superview is ScrollableContainerView {
+            return scroll
         }
-        return nil
+        return root.subviews.reversed().lazy.compactMap { verticalScrollView(in: $0) }.first
+    }
+
+    func chainOffsets(list: UIScrollView) -> WalletHomeScrollChain.Offsets {
+        WalletHomeScrollChain.Offsets(
+            page: headerScrollView.contentOffset.y,
+            list: list.contentOffset.y + list.adjustedContentInset.top
+        )
     }
 
     /// One drag moves the page and the list together; this holds the one that must wait (see `WalletHomeScrollChain`).
     func chainScrolling(listMoved: Bool) {
         guard !isChainingScroll, placement != .split, let list = headerScrollView.nestedScrollView else { return }
+        defer { updateScrollToTopTarget() }
         let page = headerScrollView
         let listTop = -list.adjustedContentInset.top
         let move: WalletHomeScrollChain.Move
@@ -601,7 +609,7 @@ private extension WalletMainContainerViewLayout {
         } else {
             move = .page
         }
-        let current = WalletHomeScrollChain.Offsets(page: page.contentOffset.y, list: list.contentOffset.y - listTop)
+        let current = chainOffsets(list: list)
         let resolved = WalletHomeScrollChain.resolve(
             current,
             pageMax: max(0, page.contentSize.height - page.bounds.height),
@@ -616,6 +624,68 @@ private extension WalletMainContainerViewLayout {
             list.contentOffset.y = resolved.list + listTop
         }
         isChainingScroll = false
+    }
+}
+
+// MARK: - The status-bar tap
+
+extension WalletMainContainerViewLayout: UIScrollViewDelegate {
+    /// The page's request brings the list it carries to its top as well, so the whole home returns to its top. The list
+    /// goes first and at once: while its rows are scrolled the drag chain holds the page with the header away.
+    func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        // A list replaced since the last layout pass (an empty state, another appearance) is the one to reset.
+        layoutIfNeeded()
+        if scrollView === headerScrollView, let list = headerScrollView.nestedScrollView {
+            // A table measuring rows it had only estimated (after a width change) shifts itself off its top once.
+            for _ in 0 ..< 3 where list.contentOffset.y != -list.adjustedContentInset.top {
+                let top = CGPoint(x: list.contentOffset.x, y: -list.adjustedContentInset.top)
+                list.setContentOffset(top, animated: false)
+                list.layoutIfNeeded()
+            }
+        }
+        return true
+    }
+}
+
+extension WalletMainContainerViewLayout {
+    /// Gives the status-bar tap to `scrollToTopTarget` alone among `root` and every view inside it, by default the
+    /// whole home: the pager, the lists, their chip rows, carousels and empty states, shown or hidden. A page about to
+    /// slide in is passed before it joins the home.
+    func assignScrollToTop(in root: UIView? = nil) {
+        let target = scrollToTopTarget
+        var pending: [UIView] = [root ?? self]
+        while let view = pending.popLast() {
+            if let scroll = view as? UIScrollView, scroll.scrollsToTop != (scroll === target) {
+                scroll.scrollsToTop = scroll === target
+            }
+            pending.append(contentsOf: view.subviews)
+        }
+    }
+}
+
+private extension WalletMainContainerViewLayout {
+    /// UIKit offers the status-bar tap to a scroll view under it that can still move up and picks the innermost one,
+    /// so exactly one view of the home is eligible: on the page the page, or its list while the page rests at its top
+    /// above scrolled rows (see `WalletHomeScrollChain.scrollToTopTarget`); side by side, where the header seldom
+    /// scrolls and never carries the list, the list.
+    var scrollToTopTarget: UIScrollView {
+        guard let list = shownList else { return headerScrollView }
+        guard placement != .split else { return list }
+        switch WalletHomeScrollChain.scrollToTopTarget(chainOffsets(list: list)) {
+        case .page: return headerScrollView
+        case .list: return list
+        }
+    }
+
+    /// While the page carries a list only these two can take the tap; a scroll moves it between them.
+    func updateScrollToTopTarget() {
+        let target = scrollToTopTarget
+        for scroll in [headerScrollView, shownList].compactMap({ $0 }) {
+            let eligible = scroll === target
+            if scroll.scrollsToTop != eligible {
+                scroll.scrollsToTop = eligible
+            }
+        }
     }
 }
 

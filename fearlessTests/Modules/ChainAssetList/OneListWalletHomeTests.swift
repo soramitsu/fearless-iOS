@@ -692,3 +692,575 @@ final class MainTabRootScrollToTopTests: XCTestCase {
         window.layoutIfNeeded()
     }
 }
+
+/// Status-bar scroll to top on the wallet home: the wallet header stays outside the horizontal pager, exactly one scroll
+/// view of the home is eligible in every state, and a tap brings the whole home (header and list) to its top.
+@MainActor
+final class HomeEmptyStateScrollToTopTests: XCTestCase {
+    func testPopulatedHomeHasOnlyTheOuterPageEligibleIncludingBannersAndChips() async throws {
+        let fixture = try hostWallet(showsBanners: true)
+        defer { close(fixture) }
+        await settle(fixture.window)
+
+        assertOnlyOuterPageIsEligible(fixture)
+        XCTAssertFalse(fixture.list.rootView.tableView.scrollsToTop)
+        XCTAssertFalse(fixture.list.rootView.discoveryView.chipsScrollView.scrollsToTop)
+        XCTAssertFalse(fixture.banners.rootView.collectionView.scrollsToTop)
+        XCTAssertFalse(fixture.banners.view.isHidden)
+        XCTAssertTrue(fixture.wallet.rootView.headerScrollView.nestedScrollView === fixture.list.rootView.tableView)
+        assertHeaderOutsidePager(fixture)
+    }
+
+    func testStatusBarRequestReturnsBothDeepAssetOffsetsAndRevealsHeaderAndFirstRow() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        await settle(fixture.window)
+        let table = fixture.list.rootView.tableView
+        scrollDeep(fixture, list: table)
+        XCTAssertGreaterThan(fixture.wallet.rootView.headerScrollView.contentOffset.y, 100)
+        XCTAssertGreaterThan(table.contentOffset.y + table.adjustedContentInset.top, 500)
+        capture(fixture.window, name: "home-assets-deep-scroll")
+
+        requestScrollToTop(fixture)
+        fixture.window.layoutIfNeeded()
+        capture(fixture.window, name: "home-assets-after-scroll-to-top")
+        assertAtTop(fixture, list: table)
+        assertOnlyOuterPageIsEligible(fixture)
+        assertHeaderTakesTouches(fixture)
+        let row = table.convert(table.rectForRow(at: IndexPath(row: 0, section: 0)), to: fixture.window)
+        XCTAssertTrue(row.intersects(fixture.window.bounds), "The first asset row returns with the wallet header")
+        XCTAssertTrue(table.indexPathsForVisibleRows?.contains(IndexPath(row: 0, section: 0)) == true)
+    }
+
+    func testNftGridAndListReturnBothOffsetsAfterEveryAppearanceSwitch() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        fixture.wallet.didSelect(1)
+        await settle(fixture.window)
+
+        for appearance in [NftCollectionAppearance.collection, .table, .collection] {
+            let list = selectNftAppearance(appearance, fixture: fixture)
+            await settle(fixture.window)
+            assertOnlyOuterPageIsEligible(fixture)
+            XCTAssertTrue(fixture.wallet.rootView.headerScrollView.nestedScrollView === list)
+            scrollDeep(fixture, list: list)
+            XCTAssertGreaterThan(list.contentOffset.y + list.adjustedContentInset.top, 500)
+            let name = appearance == .table ? "list" : "grid"
+            capture(fixture.window, name: "home-nft-\(name)-deep-scroll")
+
+            requestScrollToTop(fixture)
+            fixture.window.layoutIfNeeded()
+            capture(fixture.window, name: "home-nft-\(name)-after-scroll-to-top")
+            assertAtTop(fixture, list: list)
+            assertHeaderTakesTouches(fixture)
+            if appearance == .table {
+                XCTAssertTrue(fixture.nft.rootView.tableView.indexPathsForVisibleRows?.contains(IndexPath(row: 0, section: 0)) == true)
+            } else {
+                XCTAssertTrue(fixture.nft.rootView.collectionView.indexPathsForVisibleItems.contains(IndexPath(item: 0, section: 0)))
+            }
+        }
+    }
+
+    func testEmptyErrorSearchAndRepeatedDeliveriesKeepOnlyTheOuterPageEligible() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        let chain = CovDFixtures.soraChain(nodeURL: nil)
+        let states: [(AssetListState, Int)] = [
+            (.defaultList(cells: [], withAnimate: false), 40),
+            (.chainHasNetworkIssue(chain: chain), 0),
+            (.chainHasNetworkIssue(chain: chain), 0),
+            (.chainHasAccountIssue(chain: chain), 0),
+            (.allIsHidden, 0),
+            (.defaultList(cells: [], withAnimate: false), 0),
+            (.search(cells: []), 0),
+            (.defaultList(cells: [], withAnimate: false), 40)
+        ]
+
+        for (state, rows) in states {
+            fixture.list.didReceive(viewModel: model(state: state, rows: rows))
+            await settle(fixture.window)
+            assertOnlyOuterPageIsEligible(fixture)
+            assertHeaderOutsidePager(fixture)
+            // An empty state covers the list: the page follows (and resets) the scroll view on screen.
+            let active = try XCTUnwrap(scrollAncestor(of: fixture.list.rootView.discoveryView))
+            XCTAssertTrue(fixture.wallet.rootView.headerScrollView.nestedScrollView === active)
+            let page = fixture.wallet.rootView.headerScrollView
+            page.setContentOffset(CGPoint(x: 0, y: max(0, page.contentSize.height - page.bounds.height)), animated: false)
+            active.setContentOffset(CGPoint(x: 0, y: 120 - active.adjustedContentInset.top), animated: false)
+            requestScrollToTop(fixture)
+            assertAtTop(fixture, list: active)
+            assertHeaderTakesTouches(fixture)
+
+            // Banner/localization deliveries may resize the list header but never move the wallet header into it.
+            fixture.list.reloadBanners()
+            fixture.list.applyLocalization()
+            await settle(fixture.window)
+            assertOnlyOuterPageIsEligible(fixture)
+            assertHeaderOutsidePager(fixture)
+            assertHeaderTakesTouches(fixture)
+        }
+    }
+
+    func testNftLoadingEmptyAndPopulatedModesKeepOnlyTheOuterPageEligible() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        fixture.wallet.didSelect(1)
+        await settle(fixture.window)
+        let populated = CovHNftCellModels.sections(chain: CovHNftFixtures.chain(), count: 32)
+        let deliveries: [[NftNetworkSectionModel]?] = [nil, [], populated, [], populated]
+
+        for delivery in deliveries {
+            fixture.nft.didReceive(viewModels: delivery)
+            for appearance in [NftCollectionAppearance.table, .collection] {
+                let active = selectNftAppearance(appearance, fixture: fixture)
+                await settle(fixture.window)
+                assertOnlyOuterPageIsEligible(fixture)
+                assertHeaderOutsidePager(fixture)
+                XCTAssertTrue(fixture.wallet.rootView.headerScrollView.nestedScrollView === active)
+            }
+        }
+    }
+
+    func testNftModeChangeImmediatelyBeforeStatusBarRequestUsesTheNewList() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        fixture.wallet.didSelect(1)
+        await settle(fixture.window)
+        let grid = fixture.nft.rootView.collectionView
+        let table = fixture.nft.rootView.tableView
+        scrollDeep(fixture, list: grid)
+        table.setContentOffset(CGPoint(x: 0, y: 600 - table.adjustedContentInset.top), animated: false)
+
+        _ = selectNftAppearance(.table, fixture: fixture)
+        requestScrollToTop(fixture)
+        assertAtTop(fixture, list: table)
+        XCTAssertTrue(fixture.wallet.rootView.headerScrollView.nestedScrollView === table)
+
+        scrollDeep(fixture, list: table)
+        _ = selectNftAppearance(.collection, fixture: fixture)
+        requestScrollToTop(fixture)
+        assertAtTop(fixture, list: grid)
+        XCTAssertTrue(fixture.wallet.rootView.headerScrollView.nestedScrollView === grid)
+    }
+
+    func testCurrenciesNftSwitchKeepsHeaderStationaryDuringAndAfterTheSlide() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        await settle(fixture.window)
+        let layout = fixture.wallet.rootView
+        let headerFrame = layout.contentView.convert(layout.contentView.bounds, to: fixture.window)
+        let pagerFrame = layout.pageViewControllerContainer.convert(layout.pageViewControllerContainer.bounds, to: fixture.window)
+
+        for index in [1, 0] {
+            fixture.wallet.didSelect(index)
+            try await Task.sleep(nanoseconds: 80_000_000)
+            fixture.window.layoutIfNeeded()
+            capture(
+                fixture.window,
+                name: index == 1 ? "home-currencies-to-nft-mid-transition" : "home-nft-to-currencies-mid-transition",
+                afterScreenUpdates: false
+            )
+            assertHeaderOutsidePager(fixture)
+            let movingHeader = layout.contentView.convert(layout.contentView.bounds, to: fixture.window)
+            XCTAssertEqual(movingHeader.minX, headerFrame.minX, accuracy: 0.5)
+            XCTAssertEqual(movingHeader.minY, headerFrame.minY, accuracy: 0.5)
+            XCTAssertEqual(movingHeader.width, headerFrame.width, accuracy: 0.5)
+            XCTAssertEqual(layout.pageViewControllerContainer.convert(CGPoint.zero, to: fixture.window).y, pagerFrame.minY, accuracy: 0.5)
+            assertOnlyOuterPageIsEligible(fixture)
+
+            await settle(fixture.window)
+            assertHeaderOutsidePager(fixture)
+            assertHeaderTakesTouches(fixture)
+            assertOnlyOuterPageIsEligible(fixture)
+            let active: UIScrollView = index == 0 ? fixture.list.rootView.tableView : fixture.nft.rootView.collectionView
+            XCTAssertTrue(layout.headerScrollView.nestedScrollView === active)
+            scrollDeep(fixture, list: active)
+            requestScrollToTop(fixture)
+            assertAtTop(fixture, list: active)
+        }
+    }
+
+    /// Side by side the list scrolls on its own beside the header, which seldom scrolls: the list takes the tap. On
+    /// the page (the iPad column, compact width) the page takes it and brings the list with it.
+    func testIpadSplitColumnAndCompactResizesKeepOneOwnerAndResetTheShownList() async throws {
+        guard #available(iOS 17.0, *) else { throw XCTSkip("Trait overrides need iOS 17") }
+        let fixture = try hostWallet(size: CGSize(width: 1194, height: 834))
+        defer { close(fixture) }
+        fixture.window.traitOverrides.userInterfaceIdiom = .pad
+
+        for index in [0, 1] {
+            fixture.wallet.didSelect(index)
+            await settle(fixture.window)
+            for width in [CGFloat(1194), 800, 390, 1194] {
+                fixture.window.traitOverrides.horizontalSizeClass = width == 390 ? .compact : .regular
+                fixture.window.frame.size = CGSize(width: width, height: 834)
+                fixture.wallet.view.setNeedsLayout()
+                await settle(fixture.window)
+                let layout = fixture.wallet.rootView
+                let page = layout.headerScrollView
+                let active: UIScrollView = index == 0 ? fixture.list.rootView.tableView : fixture.nft.rootView.collectionView
+                assertSoleScrollToTop(fixture, is: width == 1194 ? active : page)
+                assertHeaderOutsidePager(fixture)
+                XCTAssertEqual(layout.contentView.bounds.width, page.bounds.width, accuracy: 0.5)
+                if width == 1194 {
+                    XCTAssertNil(page.nestedScrollView, "Split columns retain independent drag behavior")
+                    let header = page.convert(page.bounds, to: fixture.window)
+                    let list = layout.pageViewControllerContainer.convert(layout.pageViewControllerContainer.bounds, to: fixture.window)
+                    XCTAssertLessThanOrEqual(header.maxX, list.minX)
+                    XCTAssertEqual(page.contentOffset.y, -page.adjustedContentInset.top, accuracy: 0.5)
+                } else {
+                    XCTAssertTrue(page.nestedScrollView === active)
+                }
+                active.setContentOffset(CGPoint(x: 0, y: 600 - active.adjustedContentInset.top), animated: false)
+                requestScrollToTop(fixture, x: active.convert(active.bounds, to: fixture.window).midX)
+                assertAtTop(fixture, list: active)
+                assertHeaderTakesTouches(fixture)
+            }
+        }
+    }
+
+    /// A list scrolled side by side keeps its place when the window narrows to the column, and the header makes way
+    /// for its rows. The width change leaves the table's top rows estimated: brought to its top it measures them and
+    /// shifts itself, which must not leave the page held with the header away.
+    func testListScrolledSideBySideReturnsWithTheHeaderAfterNarrowingToTheColumn() async throws {
+        guard #available(iOS 17.0, *) else { throw XCTSkip("Trait overrides need iOS 17") }
+        let fixture = try hostWallet(size: CGSize(width: 1194, height: 834))
+        defer { close(fixture) }
+        fixture.window.traitOverrides.userInterfaceIdiom = .pad
+        fixture.window.traitOverrides.horizontalSizeClass = .regular
+        await settle(fixture.window)
+        let page = fixture.wallet.rootView.headerScrollView
+        let table = fixture.list.rootView.tableView
+        table.setContentOffset(CGPoint(x: 0, y: 600 - table.adjustedContentInset.top), animated: false)
+
+        fixture.window.frame.size = CGSize(width: 800, height: 834)
+        fixture.wallet.view.setNeedsLayout()
+        await settle(fixture.window)
+        XCTAssertTrue(page.nestedScrollView === table)
+        XCTAssertGreaterThan(page.contentOffset.y, 100, "The header made way for the list's rows")
+        XCTAssertGreaterThan(table.contentOffset.y + table.adjustedContentInset.top, 500)
+        assertOnlyOuterPageIsEligible(fixture)
+
+        requestScrollToTop(fixture)
+        assertAtTop(fixture, list: table)
+        assertOnlyOuterPageIsEligible(fixture)
+        assertHeaderTakesTouches(fixture)
+    }
+
+    /// Folded for a search the page cannot scroll: the matches take the tap. When the keyboard goes with the matches
+    /// scrolled, the header makes way for them and the page takes the tap again, bringing the matches with it.
+    func testSearchMatchesTakeTheTapWhileFoldedAndThePageAfterUnfolding() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        await settle(fixture.window)
+        let layout = fixture.wallet.rootView
+        let table = fixture.list.rootView.tableView
+
+        layout.setSearchFocused(true, animated: false)
+        await settle(fixture.window)
+        XCTAssertTrue(layout.isSearchFolded)
+        table.setContentOffset(CGPoint(x: 0, y: 300 - table.adjustedContentInset.top), animated: false)
+        assertSoleScrollToTop(fixture, is: table)
+        requestScrollToTop(fixture)
+        assertAtTop(fixture, list: table)
+        assertOnlyOuterPageIsEligible(fixture)
+
+        table.setContentOffset(CGPoint(x: 0, y: 300 - table.adjustedContentInset.top), animated: false)
+        layout.setSearchFocused(false, animated: false)
+        await settle(fixture.window)
+        XCTAssertFalse(layout.isSearchFolded)
+        XCTAssertGreaterThan(table.contentOffset.y + table.adjustedContentInset.top, 200, "Unfolding keeps the matches' place")
+        assertOnlyOuterPageIsEligible(fixture)
+        requestScrollToTop(fixture)
+        assertAtTop(fixture, list: table)
+        assertOnlyOuterPageIsEligible(fixture)
+        assertHeaderTakesTouches(fixture)
+    }
+
+    func testTheTapGoesToThePageUnlessThePageRestsAtItsTopAboveScrolledRows() {
+        typealias Chain = WalletHomeScrollChain
+        // The header has scrolled away (the list's rows may be scrolled too): the page, which resets the list.
+        XCTAssertEqual(Chain.scrollToTopTarget(.init(page: 400, list: 900)), .page)
+        XCTAssertEqual(Chain.scrollToTopTarget(.init(page: 400, list: 0)), .page)
+        XCTAssertEqual(Chain.scrollToTopTarget(.init(page: 120, list: 0)), .page)
+        // Everything at its top, or the list pulled down to refresh: nothing to scroll, the page keeps it.
+        XCTAssertEqual(Chain.scrollToTopTarget(.init(page: 0, list: 0)), .page)
+        XCTAssertEqual(Chain.scrollToTopTarget(.init(page: 0, list: -60)), .page)
+        // The page rests at its top above scrolled rows (folded, unfolded, rotated): only the list can move up.
+        XCTAssertEqual(Chain.scrollToTopTarget(.init(page: 0, list: 300)), .list)
+        XCTAssertEqual(Chain.scrollToTopTarget(.init(page: 0.4, list: 300)), .list)
+    }
+
+    /// The status bar's own handler, as a tap on it calls it on iOS 27: UIKit's choice among the home's scroll views,
+    /// not a model of it. Compact width only (the tap's x is a screen position on the test's iPhone).
+    func testStatusBarHandlerReturnsTheWholeHomeToItsTop() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        await settle(fixture.window)
+        let layout = fixture.wallet.rootView
+        let page = layout.headerScrollView
+        let table = fixture.list.rootView.tableView
+        let x = fixture.window.bounds.midX
+
+        // The header away and the rows deep.
+        scrollDeep(fixture, list: table)
+        capture(fixture.window, name: "uikit-assets-deep-scroll")
+        try await tapStatusBar(fixture.window, x: x) { atTop(page, table) }
+        capture(fixture.window, name: "uikit-assets-after-status-bar-tap")
+        assertAtTop(fixture, list: table)
+        assertHeaderTakesTouches(fixture)
+
+        // Folded for a search, the matches scrolled: the list itself takes the tap.
+        layout.setSearchFocused(true, animated: false)
+        await settle(fixture.window)
+        table.setContentOffset(CGPoint(x: 0, y: 300 - table.adjustedContentInset.top), animated: false)
+        try await tapStatusBar(fixture.window, x: x) { atTop(page, table) }
+        assertAtTop(fixture, list: table)
+
+        // Unfolded with the matches scrolled: the header made way, the page takes the tap and brings them.
+        table.setContentOffset(CGPoint(x: 0, y: 300 - table.adjustedContentInset.top), animated: false)
+        layout.setSearchFocused(false, animated: false)
+        await settle(fixture.window)
+        try await tapStatusBar(fixture.window, x: x) { atTop(page, table) }
+        assertAtTop(fixture, list: table)
+
+        // The NFT grid, header away and items deep.
+        fixture.wallet.didSelect(1)
+        await settle(fixture.window)
+        let grid = fixture.nft.rootView.collectionView
+        scrollDeep(fixture, list: grid)
+        capture(fixture.window, name: "uikit-nft-deep-scroll")
+        try await tapStatusBar(fixture.window, x: x) { atTop(page, grid) }
+        capture(fixture.window, name: "uikit-nft-after-status-bar-tap")
+        assertAtTop(fixture, list: grid)
+        assertHeaderTakesTouches(fixture)
+    }
+
+    func testReturningToTopKeepsRefreshControlAndHeaderLaunchTiers() async throws {
+        let fixture = try hostWallet()
+        defer { close(fixture) }
+        await settle(fixture.window)
+        let layout = fixture.wallet.rootView
+        let table = fixture.list.rootView.tableView
+        let refresh = try XCTUnwrap(table.refreshControl)
+        scrollDeep(fixture, list: table)
+        requestScrollToTop(fixture)
+        assertAtTop(fixture, list: table)
+        // Back at the top a pull reaches the list again (pull to refresh).
+        table.setContentOffset(CGPoint(x: 0, y: -table.adjustedContentInset.top - 60), animated: false)
+        XCTAssertEqual(layout.headerScrollView.contentOffset.y, 0, accuracy: 0.5)
+        XCTAssertLessThan(table.contentOffset.y, 0)
+        refresh.sendActions(for: .valueChanged)
+        XCTAssertFalse(refresh.isRefreshing)
+        XCTAssertTrue(table.refreshControl === refresh)
+
+        let tiers = fixture.wallet.flightTiers
+        XCTAssertEqual(tiers.first(where: { $0.view === layout.sunlit.heroSurface })?.tier, 0)
+        XCTAssertEqual(tiers.first(where: { $0.view === layout.sunlit.actionsStack })?.tier, 1)
+        for tier in tiers where tier.tier < 3 {
+            XCTAssertFalse(tier.view.isDescendant(of: layout.pageViewControllerContainer), "Header launch tiers remain outside the tier-4 list")
+        }
+        XCTAssertTrue(fixture.balance.parent === fixture.wallet)
+    }
+
+    // MARK: - Hosted fixture and the scroll-to-top contract
+
+    private struct Fixture {
+        let window: UIWindow
+        let wallet: WalletMainContainerViewController
+        let balance: BalanceInfoViewController
+        let list: ChainAssetListViewController
+        let nft: MainNftContainerViewController
+        let banners: BannersViewController
+        let defaults: UserDefaults
+        let suite: String
+    }
+
+    private func hostWallet(size: CGSize = CGSize(width: 402, height: 874), showsBanners: Bool = false) throws -> Fixture {
+        let suite = "home-outer-scroll-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        let localization = LocalizationManager.shared
+        let banners = BannersViewController(output: CovJBannersViewOutput(), localizationManager: localization)
+        let list = ChainAssetListViewController(
+            bannersViewController: showsBanners ? banners : nil, output: OneListOutputSpy(), keyboardAdoptable: true,
+            localizationManager: localization, collapseStore: PortfolioCollapseStore(userDefaults: defaults)
+        )
+        let nft = MainNftContainerViewController(output: CovHNftMainViewOutputSpy(), localizationManager: localization)
+        let balance = BalanceInfoViewController(output: OneListBalanceOutputSpy(), localizationManager: localization)
+        let wallet = WalletMainContainerViewController(
+            balanceInfoViewController: balance, pageControllers: [list, nft],
+            output: OneListHeaderOutputSpy(), localizationManager: localization
+        )
+        let window = try CovDFixtures.host(wallet, size: size)
+        window.overrideUserInterfaceStyle = .dark
+        wallet.didReceiveNftAvailability(isNftAvailable: true)
+        balance.didReceiveViewModel(BalanceInfoViewModel(
+            dayChangeAttributedString: NSAttributedString(string: "+0%"), balanceString: "$12.00",
+            infoButtonEnabled: false, filteredPartString: nil
+        ))
+        wallet.rootView.bind(viewModel: WalletMainContainerViewModel(
+            walletName: "Scroll test wallet", selectedFilter: "All networks", selectedFilterImage: nil,
+            address: nil, accountScoreViewModel: nil
+        ))
+        list.didReceive(viewModel: model(rows: 60))
+        nft.loadViewIfNeeded()
+        nft.didReceive(viewModels: CovHNftCellModels.sections(chain: CovHNftFixtures.chain(), count: 32))
+        if showsBanners {
+            banners.didReceive(viewModel: BannersViewModelFactory().createViewModel(banners: [.buyXor], locale: Locale(identifier: "en")))
+        }
+        window.layoutIfNeeded()
+        return Fixture(window: window, wallet: wallet, balance: balance, list: list, nft: nft, banners: banners, defaults: defaults, suite: suite)
+    }
+
+    private func model(state: AssetListState = .defaultList(cells: [], withAnimate: false), rows: Int) -> ChainAssetListViewModel {
+        var model = ChainAssetListViewModel(displayState: state, networkSections: [])
+        model.walletId = "home-outer-scroll-wallet"
+        model.showsDiscovery = true
+        model.networkChips = [
+            PortfolioNetworkChip(id: "all", title: "All networks", selected: true),
+            PortfolioNetworkChip(id: "network", title: "Test network", selected: false)
+        ]
+        model.tokenRows = (0 ..< rows).map { index in
+            TokenGroupRowViewModel(
+                model: TokenGroupRowModel(
+                    id: "outer-scroll:\(index)", symbol: "T\(index)", name: "Token \(index)", icon: nil,
+                    amount: 1, fiat: 0, unpricedNetworkCount: 0, children: [], zeroChildren: [], isSingleNetwork: false
+                ),
+                amountText: "1 T\(index)", fiatText: nil
+            )
+        }
+        return model
+    }
+
+    private func selectNftAppearance(_ appearance: NftCollectionAppearance, fixture: Fixture) -> UIScrollView {
+        switch appearance {
+        case .collection:
+            fixture.nft.rootView.nftContentControl.collectionButton.sendActions(for: .touchUpInside)
+            return fixture.nft.rootView.collectionView
+        case .table:
+            fixture.nft.rootView.nftContentControl.tableButton.sendActions(for: .touchUpInside)
+            return fixture.nft.rootView.tableView
+        }
+    }
+
+    private func scrollDeep(_ fixture: Fixture, list: UIScrollView) {
+        let page = fixture.wallet.rootView.headerScrollView
+        page.setContentOffset(CGPoint(x: 0, y: max(0, page.contentSize.height - page.bounds.height)), animated: false)
+        list.setContentOffset(CGPoint(x: 0, y: 1200 - list.adjustedContentInset.top), animated: false)
+        fixture.window.layoutIfNeeded()
+    }
+
+    /// A model of UIKit's handling of a status-bar tap (measured through the status bar's own handler on iOS 27 and
+    /// 18.4): only visible eligible scroll views under the tap's x position that can still move up are candidates; the
+    /// candidate's delegate is asked, then it scrolls to its top and is told. With several candidates UIKit's choice
+    /// depends on the hierarchy (a nested pair goes to the inner one, the base home's competing views scrolled nothing),
+    /// so the model takes the innermost and the home tests require exactly one eligible view.
+    private func requestScrollToTop(_ fixture: Fixture, x: CGFloat? = nil, file: StaticString = #filePath, line: UInt = #line) {
+        let tapX = x ?? fixture.window.bounds.midX
+        let candidates = visibleScrollToTopViews(in: fixture.window, window: fixture.window).filter { scroll in
+            let frame = scroll.convert(scroll.bounds, to: fixture.window)
+            return frame.minX <= tapX && tapX < frame.maxX && scroll.contentOffset.y > -scroll.adjustedContentInset.top + 0.5
+        }
+        let depth: (UIView) -> Int = { view in Array(sequence(first: view, next: { $0.superview })).count }
+        guard let target = candidates.max(by: { depth($0) < depth($1) }) else { return }
+        let allowed = target.delegate?.scrollViewShouldScrollToTop?(target) ?? true
+        XCTAssertTrue(allowed, file: file, line: line)
+        if allowed {
+            target.setContentOffset(CGPoint(x: target.contentOffset.x, y: -target.adjustedContentInset.top), animated: false)
+            target.delegate?.scrollViewDidScrollToTop?(target)
+        }
+    }
+
+    private func atTop(_ scrollViews: UIScrollView...) -> Bool {
+        scrollViews.allSatisfy { abs($0.contentOffset.y + $0.adjustedContentInset.top) <= 0.5 }
+    }
+
+    /// Calls the status bar's scroll-to-top handler of the window's scene with the tap's x position, then waits for
+    /// UIKit's animated scroll to finish.
+    private func tapStatusBar(
+        _ window: UIWindow, x: CGFloat, until settled: () -> Bool,
+        file: StaticString = #filePath, line: UInt = #line
+    ) async throws {
+        let manager = try XCTUnwrap(window.windowScene?.statusBarManager, file: file, line: line)
+        let selector = NSSelectorFromString("_handleScrollToTopAtXPosition:")
+        guard manager.responds(to: selector) else { throw XCTSkip("This iOS has no status-bar scroll-to-top handler") }
+        typealias Handler = @convention(c) (AnyObject, Selector, Double) -> Void
+        unsafeBitCast(manager.method(for: selector), to: Handler.self)(manager, selector, Double(x))
+        let deadline = Date().addingTimeInterval(5)
+        while !settled(), Date() < deadline {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        window.layoutIfNeeded()
+    }
+
+    private func assertAtTop(_ fixture: Fixture, list: UIScrollView, file: StaticString = #filePath, line: UInt = #line) {
+        let page = fixture.wallet.rootView.headerScrollView
+        XCTAssertEqual(page.contentOffset.y, -page.adjustedContentInset.top, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(list.contentOffset.y, -list.adjustedContentInset.top, accuracy: 0.5, file: file, line: line)
+    }
+
+    private func assertSoleScrollToTop(_ fixture: Fixture, is expected: UIScrollView, file: StaticString = #filePath, line: UInt = #line) {
+        let eligible = visibleScrollToTopViews(in: fixture.window, window: fixture.window)
+        XCTAssertEqual(eligible.count, 1, "Competing home scrollers: \(eligible)", file: file, line: line)
+        XCTAssertTrue(eligible.first === expected, "\(String(describing: eligible.first)) instead of \(expected)", file: file, line: line)
+    }
+
+    private func assertOnlyOuterPageIsEligible(_ fixture: Fixture, file: StaticString = #filePath, line: UInt = #line) {
+        assertSoleScrollToTop(fixture, is: fixture.wallet.rootView.headerScrollView, file: file, line: line)
+    }
+
+    private func assertHeaderOutsidePager(_ fixture: Fixture, file: StaticString = #filePath, line: UInt = #line) {
+        let layout = fixture.wallet.rootView
+        XCTAssertTrue(layout.contentView.superview === layout.headerScrollView, file: file, line: line)
+        XCTAssertFalse(layout.contentView.isDescendant(of: layout.pageViewControllerContainer), file: file, line: line)
+        XCTAssertTrue(fixture.balance.parent === fixture.wallet, file: file, line: line)
+    }
+
+    private func assertHeaderTakesTouches(_ fixture: Fixture, file: StaticString = #filePath, line: UInt = #line) {
+        let button = fixture.wallet.rootView.switchWalletButton
+        let point = button.convert(CGPoint(x: button.bounds.midX, y: button.bounds.midY), to: fixture.window)
+        XCTAssertTrue(fixture.window.bounds.contains(point), file: file, line: line)
+        let hit = fixture.window.hitTest(point, with: nil)
+        XCTAssertTrue(hit === button || hit?.isDescendant(of: button) == true, "The header stays visible and tappable", file: file, line: line)
+    }
+
+    private func visibleScrollToTopViews(in view: UIView, window: UIWindow) -> [UIScrollView] {
+        guard !view.isHidden, view.alpha > 0.01 else { return [] }
+        let own = (view as? UIScrollView).map { scroll -> [UIScrollView] in
+            scroll.scrollsToTop && !scroll.bounds.isEmpty && scroll.convert(scroll.bounds, to: window).intersects(window.bounds)
+                ? [scroll] : []
+        } ?? []
+        return own + view.subviews.flatMap { visibleScrollToTopViews(in: $0, window: window) }
+    }
+
+    private func scrollAncestor(of view: UIView) -> UIScrollView? {
+        var ancestor = view.superview
+        while let current = ancestor {
+            if let scroll = current as? UIScrollView { return scroll }
+            ancestor = current.superview
+        }
+        return nil
+    }
+
+    private func capture(_ window: UIWindow, name: String, afterScreenUpdates: Bool = true) {
+        let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
+            window.drawHierarchy(in: window.bounds, afterScreenUpdates: afterScreenUpdates)
+        }
+        let attachment = XCTAttachment(image: image)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    private func settle(_ window: UIWindow) async {
+        try? await Task.sleep(nanoseconds: 450_000_000)
+        window.layoutIfNeeded()
+    }
+
+    private func close(_ fixture: Fixture) {
+        fixture.window.endEditing(true)
+        CovDFixtures.tearDown(fixture.window)
+        fixture.defaults.removePersistentDomain(forName: fixture.suite)
+    }
+}
