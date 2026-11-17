@@ -103,7 +103,9 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                     continuation.resume(with: .success(nftBatch))
                 } catch {
                     self?.logger.error(error.localizedDescription)
-                    continuation.resume(with: .success(NFTBatch(nfts: [], nextTokenId: nil)))
+                    // An empty batch without a next token reads as the collection's last page, so a failed
+                    // page is reported as a failure: the collection screen asks for it again on the next scroll.
+                    continuation.resume(with: .failure(error))
                 }
             }
 

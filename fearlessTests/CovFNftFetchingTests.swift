@@ -58,18 +58,21 @@ final class CovFNftFetchingTests: XCTestCase {
         XCTAssertTrue(queries.flatMap { $0.queryItems ?? [] }.contains(URLQueryItem(name: "tokenId", value: "0x01")))
     }
 
-    func testNetworkFailuresProduceEmptyResultsForAllFetchMethods() async throws {
+    func testNetworkFailuresProduceEmptyResultsAndAFailedCollectionPageIsReported() async throws {
         let fixture = CovFNftFixture()
         fixture.queue.failure = NSError(domain: "offline", code: 7)
         let wallet = AccountGenerator.generateMetaAccount()
         let nfts = try await fixture.service.fetchNfts(for: wallet, excludeFilters: [], chains: nil)
         let collections = try await fixture.service.fetchCollections(for: wallet, excludeFilters: [], chains: nil)
-        let batch = try await fixture.service.fetchCollectionNfts(collectionAddress: "collection", chain: fixture.chain, nextId: nil)
+        do {
+            _ = try await fixture.service.fetchCollectionNfts(collectionAddress: "collection", chain: fixture.chain, nextId: nil)
+            XCTFail("an empty page without a next token would read as the collection's last page")
+        } catch {
+            XCTAssertEqual((error as NSError).domain, "offline")
+        }
         let owners = try await fixture.service.fetchOwners(for: "collection", tokenId: "1", chain: fixture.chain)
         XCTAssertTrue(nfts.isEmpty)
         XCTAssertTrue(collections.isEmpty)
-        XCTAssertEqual(batch.nfts, [])
-        XCTAssertNil(batch.nextTokenId)
         XCTAssertTrue(owners.isEmpty)
         XCTAssertEqual(fixture.queue.requests.count, 4)
     }
