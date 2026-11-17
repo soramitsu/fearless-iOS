@@ -590,7 +590,7 @@ final class FWWelcomeHeroTests: XCTestCase {
         XCTAssertFalse(hero.isLooping)
     }
 
-    func testReduceMotionPlaysTheCallsSoundAloneOverThePoster() throws {
+    func testReduceMotionPlaysTheCallsSoundAloneOverThePoster() async throws {
         let hero = FWWelcomeHeroView(effects: try effects(reduceMotion: true))
         _ = try host(hero)
         hero.playCall()
@@ -599,7 +599,11 @@ final class FWWelcomeHeroTests: XCTestCase {
         XCTAssertNil(hero.loopLayer.player)
         hero.playCall()
         XCTAssertNil(hero.callLayer.player)
-        spin(until: { !hero.isPlayingCall }, timeout: 8)
+        // Yield the main actor so the audio delegate can deliver completion.
+        let deadline = Date().addingTimeInterval(8)
+        while hero.isPlayingCall, Date() < deadline {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
         XCTAssertFalse(hero.isPlayingCall, "The sound ends on its own")
     }
 
