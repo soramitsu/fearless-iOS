@@ -106,7 +106,8 @@ enum CovDFixtures {
 
     @discardableResult
     static func host(_ controller: UIViewController, size: CGSize = CGSize(width: 390, height: 844)) throws -> UIWindow {
-        spin(timeout: 10) { UIApplication.shared.connectedScenes.contains { $0 is UIWindowScene } }
+        // A cold test host can take more than 10 s to connect its scene on a loaded machine or a hosted runner.
+        spin(timeout: 45) { UIApplication.shared.connectedScenes.contains { $0 is UIWindowScene } }
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         let window = UIWindow(windowScene: scene)
         window.frame = CGRect(origin: .zero, size: size)

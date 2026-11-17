@@ -200,11 +200,17 @@ final class CovDLiquidityListTests: XCTestCase {
         presenter.didReceiveUserPools(accountPools: [])
         XCTAssertEqual(output.showUser, [false])
         XCTAssertEqual(output.counts, [0])
-        let pools = (0 ..< 7).map { index -> AccountPool in
-            AccountPool(
-                poolId: index == 0 ? "\(CovDF.xor)-\(CovDF.val)" : "pool-\(index)", accountId: "0xaccount", chainId: chain.chainId,
-                baseAssetId: CovDF.xor, targetAssetId: CovDF.val, baseAssetPooled: Decimal(index + 1), targetAssetPooled: 2,
-                accountPoolShare: 1, reservesId: index == 0 ? reservesHex : nil
+        // Split into typed steps: one expression with both ternaries and the literals took the hosted
+        // runner's compiler (Xcode 26.6) past its type-checking time limit.
+        let pools: [AccountPool] = (0 ..< 7).map { (index: Int) -> AccountPool in
+            let isFirst: Bool = index == 0
+            let poolId: String = isFirst ? "\(CovDF.xor)-\(CovDF.val)" : "pool-\(index)"
+            let reservesId: String? = isFirst ? reservesHex : nil
+            let basePooled = Decimal(index + 1)
+            return AccountPool(
+                poolId: poolId, accountId: "0xaccount", chainId: chain.chainId,
+                baseAssetId: CovDF.xor, targetAssetId: CovDF.val, baseAssetPooled: basePooled,
+                targetAssetPooled: Decimal(2), accountPoolShare: Decimal(1), reservesId: reservesId
             )
         }
         presenter.didReceiveUserPools(accountPools: pools)
