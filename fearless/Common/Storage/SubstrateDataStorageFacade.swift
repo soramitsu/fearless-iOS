@@ -54,14 +54,13 @@ enum SubstrateStoreStartupFallback {
         )
     }
 
-    #if DEBUG
-        /// Tests only: forget an activation so the next test starts clean.
-        static func resetForTesting() {
-            lock.lock()
-            inMemoryStoreActive = false
-            lock.unlock()
-        }
-    #endif
+    /// Tests only: forget an activation so the next test starts clean. Kept
+    /// in every configuration because the Release (-O) gate builds the tests.
+    static func resetForTesting() {
+        lock.lock()
+        inMemoryStoreActive = false
+        lock.unlock()
+    }
 }
 
 class SubstrateDataStorageFacade: StorageFacadeProtocol {

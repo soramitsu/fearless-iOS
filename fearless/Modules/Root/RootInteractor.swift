@@ -124,15 +124,6 @@ final class ProcessOnceMigrator: Migrating {
         completedKeys.insert(key)
         registryLock.unlock()
     }
-
-    #if DEBUG
-        /// Tests only.
-        static func resetForTesting() {
-            registryLock.lock()
-            completedKeys.removeAll()
-            registryLock.unlock()
-        }
-    #endif
 }
 
 protocol RootProtectedDataAvailabilityObservation: AnyObject {

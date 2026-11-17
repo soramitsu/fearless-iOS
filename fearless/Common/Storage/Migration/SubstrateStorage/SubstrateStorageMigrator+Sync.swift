@@ -71,11 +71,10 @@ extension SubstrateStorageMigrator: Migrating {
     // MARK: Private
 
     private static func retryDelay(afterAttempt attempt: Int) -> TimeInterval {
-        #if DEBUG
-            if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
-                return 0
-            }
-        #endif
+        // Unit tests (Debug and the Release -O gate) do not wait between attempts.
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            return 0
+        }
         return attempt == 1 ? 0.25 : 1
     }
 
