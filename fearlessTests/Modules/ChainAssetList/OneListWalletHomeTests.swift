@@ -567,3 +567,128 @@ private final class OneListHeaderOutputSpy: WalletMainContainerViewOutput {
     func addressDidCopied() { actions.append("copy") }
     func didTapAccountScore() { actions.append("score") }
 }
+
+/// Switching away from the wallet must leave each other root's vertical scroller eligible.
+@MainActor
+final class MainTabRootScrollToTopTests: XCTestCase {
+    func testEarnRetainsOneScrollToTopViewAfterWalletTabSwitches() async throws {
+        try await assertRootScrollsToTop(.defi)
+    }
+
+    func testSwapRetainsOneScrollToTopViewWithVisibleBannersAfterWalletTabSwitches() async throws {
+        try await assertRootScrollsToTop(.polkaswap)
+    }
+
+    func testTransferRetainsOneScrollToTopViewAfterWalletTabSwitches() async throws {
+        try await assertRootScrollsToTop(.crossChain)
+    }
+
+    func testSettingsRetainsOneScrollToTopViewAfterWalletTabSwitches() async throws {
+        try await assertRootScrollsToTop(.settings)
+    }
+
+    func testSettingsColumnsHaveOneScrollToTopView() async throws {
+        guard #available(iOS 17.0, *) else { throw XCTSkip("Trait overrides need iOS 17") }
+        let controller = ProfileViewController(
+            presenter: CovJUiProfilePresenterSpy(), iconGenerating: CovCUBIconGenerator(),
+            localizationManager: LocalizationManager.shared
+        )
+        let window = try CovDFixtures.host(controller, size: CGSize(width: 1194, height: 834))
+        defer { CovDFixtures.tearDown(window) }
+        window.traitOverrides.userInterfaceIdiom = .pad
+        window.traitOverrides.horizontalSizeClass = .regular
+        await settle(window)
+
+        XCTAssertTrue(controller.rootView.usesColumns)
+        XCTAssertFalse(controller.rootView.secondaryTableView.isHidden)
+        let eligible = visibleScrollToTopViews(in: window, window: window)
+        XCTAssertEqual(eligible.count, 1, "The settings columns must not compete for the status-bar tap")
+        XCTAssertTrue(eligible.first === controller.rootView.tableView)
+    }
+
+    private func assertRootScrollsToTop(_ destination: MainTabBarDestination) async throws {
+        let localization = LocalizationManager.shared
+        let suite = "tab-root-scroll-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let list = ChainAssetListViewController(
+            bannersViewController: nil, output: OneListOutputSpy(), keyboardAdoptable: true,
+            localizationManager: localization, collapseStore: PortfolioCollapseStore(userDefaults: defaults)
+        )
+        let wallet = WalletMainContainerViewController(
+            balanceInfoViewController: BalanceInfoViewController(
+                output: OneListBalanceOutputSpy(), localizationManager: localization
+            ),
+            pageControllers: [list], output: OneListHeaderOutputSpy(), localizationManager: localization
+        )
+        let account = CovDFixtures.wallet()
+        let earn = DeFiHubViewController(
+            wallet: account,
+            positionsAggregator: DeFiPositionsAggregator(sources: [], explicitlyUnavailableRows: [])
+        )
+        let banners = BannersViewController(output: CovJBannersViewOutput(), localizationManager: localization)
+        let swap = PolkaswapAdjustmentViewController(
+            output: CovDAdjustmentTapSpy(), bannersViewController: banners, localizationManager: localization
+        )
+        let transfer = CrossChainRootViewController(wallet: account, providers: [], unavailableRouteInventory: [])
+        let settings = ProfileViewController(
+            presenter: CovJUiProfilePresenterSpy(), iconGenerating: CovCUBIconGenerator(),
+            localizationManager: localization
+        )
+        let roots: [UIViewController] = [wallet, earn, swap, transfer, settings]
+        let navigation = zip(MainTabBarDestination.allCases, roots).map { destination, root in
+            let controller = FearlessNavigationController(rootViewController: root)
+            controller.tabBarItem = MainTabBarViewFactory.createTabBarItem(for: destination)
+            return controller
+        }
+        let tabs = MainTabBarViewController(
+            viewControllers: navigation, presenter: CovDTabPresenterSpy(),
+            localizationManager: localization, idiom: .phone
+        )
+        let window = try CovDFixtures.host(tabs)
+        defer { CovDFixtures.tearDown(window) }
+        await settle(window)
+
+        for _ in 0 ..< 2 {
+            tabs.select(destination: destination)
+            await settle(window)
+            let expected: UIScrollView
+            switch destination {
+            case .defi:
+                expected = try XCTUnwrap(CovDFixtures.findTableView(in: earn.view))
+            case .polkaswap:
+                banners.didReceive(viewModel: BannersViewModelFactory().createViewModel(
+                    banners: [.buyXor], locale: Locale(identifier: "en")
+                ))
+                await settle(window)
+                XCTAssertFalse(banners.rootView.collectionView.isHidden)
+                expected = swap.rootView.contentView.scrollView
+            case .crossChain:
+                expected = try XCTUnwrap(CovDFixtures.findTableView(in: transfer.view))
+            case .settings:
+                expected = settings.rootView.tableView
+            case .portfolio:
+                return XCTFail("This regression checks the other four tab roots")
+            }
+            let eligible = visibleScrollToTopViews(in: window, window: window)
+            XCTAssertEqual(eligible.count, 1, "\(destination) has competing scroll views: \(eligible)")
+            XCTAssertTrue(eligible.first === expected, "\(destination)'s page must receive the status-bar tap")
+            tabs.select(destination: .portfolio)
+            await settle(window)
+        }
+    }
+
+    private func visibleScrollToTopViews(in view: UIView, window: UIWindow) -> [UIScrollView] {
+        guard !view.isHidden, view.alpha > 0.01 else { return [] }
+        let own = (view as? UIScrollView).map { scroll -> [UIScrollView] in
+            scroll.scrollsToTop && !scroll.bounds.isEmpty && scroll.convert(scroll.bounds, to: window).intersects(window.bounds)
+                ? [scroll] : []
+        } ?? []
+        return own + view.subviews.flatMap { visibleScrollToTopViews(in: $0, window: window) }
+    }
+
+    private func settle(_ window: UIWindow) async {
+        try? await Task.sleep(nanoseconds: 450_000_000)
+        window.layoutIfNeeded()
+    }
+}
