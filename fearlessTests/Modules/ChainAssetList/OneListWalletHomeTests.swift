@@ -587,7 +587,8 @@ final class MainTabRootScrollToTopTests: XCTestCase {
         try await assertRootScrollsToTop(.settings)
     }
 
-    func testSettingsColumnsHaveOneScrollToTopView() async throws {
+    /// UIKit only offers the tap to scroll views under its x, so each Settings column keeps its own.
+    func testSettingsColumnsEachHaveOneScrollToTopView() async throws {
         guard #available(iOS 17.0, *) else { throw XCTSkip("Trait overrides need iOS 17") }
         let controller = ProfileViewController(
             presenter: CovJUiProfilePresenterSpy(), iconGenerating: CovCUBIconGenerator(),
@@ -601,9 +602,15 @@ final class MainTabRootScrollToTopTests: XCTestCase {
 
         XCTAssertTrue(controller.rootView.usesColumns)
         XCTAssertFalse(controller.rootView.secondaryTableView.isHidden)
-        let eligible = visibleScrollToTopViews(in: window, window: window)
-        XCTAssertEqual(eligible.count, 1, "The settings columns must not compete for the status-bar tap")
-        XCTAssertTrue(eligible.first === controller.rootView.tableView)
+        for column in [controller.rootView.tableView, controller.rootView.secondaryTableView] {
+            let x = column.convert(column.bounds, to: window).midX
+            let eligible = visibleScrollToTopViews(in: window, window: window).filter { scroll in
+                let frame = scroll.convert(scroll.bounds, to: window)
+                return frame.minX <= x && x < frame.maxX
+            }
+            XCTAssertEqual(eligible.count, 1, "One scroll-to-top view under each settings column: \(eligible)")
+            XCTAssertTrue(eligible.first === column)
+        }
     }
 
     private func assertRootScrollsToTop(_ destination: MainTabBarDestination) async throws {
@@ -880,8 +887,8 @@ final class HomeEmptyStateScrollToTopTests: XCTestCase {
         }
     }
 
-    /// Side by side the list scrolls on its own beside the header, which seldom scrolls: the list takes the tap. On
-    /// the page (the iPad column, compact width) the page takes it and brings the list with it.
+    /// Side by side the header and the list are separate columns: each takes the taps above it. On the page (the iPad
+    /// column, compact width) the page takes it and brings the list with it.
     func testIpadSplitColumnAndCompactResizesKeepOneOwnerAndResetTheShownList() async throws {
         guard #available(iOS 17.0, *) else { throw XCTSkip("Trait overrides need iOS 17") }
         let fixture = try hostWallet(size: CGSize(width: 1194, height: 834))
@@ -899,7 +906,11 @@ final class HomeEmptyStateScrollToTopTests: XCTestCase {
                 let layout = fixture.wallet.rootView
                 let page = layout.headerScrollView
                 let active: UIScrollView = index == 0 ? fixture.list.rootView.tableView : fixture.nft.rootView.collectionView
-                assertSoleScrollToTop(fixture, is: width == 1194 ? active : page)
+                if width == 1194 {
+                    assertOneScrollToTopPerColumn(fixture, columns: [page, active])
+                } else {
+                    assertSoleScrollToTop(fixture, is: page)
+                }
                 assertHeaderOutsidePager(fixture)
                 XCTAssertEqual(layout.contentView.bounds.width, page.bounds.width, accuracy: 0.5)
                 if width == 1194 {
@@ -1204,6 +1215,23 @@ final class HomeEmptyStateScrollToTopTests: XCTestCase {
         let eligible = visibleScrollToTopViews(in: fixture.window, window: fixture.window)
         XCTAssertEqual(eligible.count, 1, "Competing home scrollers: \(eligible)", file: file, line: line)
         XCTAssertTrue(eligible.first === expected, "\(String(describing: eligible.first)) instead of \(expected)", file: file, line: line)
+    }
+
+    /// Side by side: exactly one eligible scroll view under each column's x, and it is that column.
+    private func assertOneScrollToTopPerColumn(
+        _ fixture: Fixture, columns: [UIScrollView], file: StaticString = #filePath, line: UInt = #line
+    ) {
+        let eligible = visibleScrollToTopViews(in: fixture.window, window: fixture.window)
+        XCTAssertEqual(eligible.count, columns.count, "Eligible: \(eligible)", file: file, line: line)
+        for column in columns {
+            let x = column.convert(column.bounds, to: fixture.window).midX
+            let underX = eligible.filter { scroll in
+                let frame = scroll.convert(scroll.bounds, to: fixture.window)
+                return frame.minX <= x && x < frame.maxX
+            }
+            XCTAssertEqual(underX.count, 1, "Competing scrollers under x \(x): \(underX)", file: file, line: line)
+            XCTAssertTrue(underX.first === column, "\(String(describing: underX.first)) instead of \(column)", file: file, line: line)
+        }
     }
 
     private func assertOnlyOuterPageIsEligible(_ fixture: Fixture, file: StaticString = #filePath, line: UInt = #line) {

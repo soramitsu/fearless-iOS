@@ -648,15 +648,18 @@ extension WalletMainContainerViewLayout: UIScrollViewDelegate {
 }
 
 extension WalletMainContainerViewLayout {
-    /// Gives the status-bar tap to `scrollToTopTarget` alone among `root` and every view inside it, by default the
+    /// Gives the status-bar tap to `scrollToTopTargets` alone among `root` and every view inside it, by default the
     /// whole home: the pager, the lists, their chip rows, carousels and empty states, shown or hidden. A page about to
     /// slide in is passed before it joins the home.
     func assignScrollToTop(in root: UIView? = nil) {
-        let target = scrollToTopTarget
+        let targets = scrollToTopTargets
         var pending: [UIView] = [root ?? self]
         while let view = pending.popLast() {
-            if let scroll = view as? UIScrollView, scroll.scrollsToTop != (scroll === target) {
-                scroll.scrollsToTop = scroll === target
+            if let scroll = view as? UIScrollView {
+                let eligible = targets.contains { $0 === scroll }
+                if scroll.scrollsToTop != eligible {
+                    scroll.scrollsToTop = eligible
+                }
             }
             pending.append(contentsOf: view.subviews)
         }
@@ -664,24 +667,24 @@ extension WalletMainContainerViewLayout {
 }
 
 private extension WalletMainContainerViewLayout {
-    /// UIKit offers the status-bar tap to a scroll view under it that can still move up and picks the innermost one,
-    /// so exactly one view of the home is eligible: on the page the page, or its list while the page rests at its top
-    /// above scrolled rows (see `WalletHomeScrollChain.scrollToTopTarget`); side by side, where the header seldom
-    /// scrolls and never carries the list, the list.
-    var scrollToTopTarget: UIScrollView {
-        guard let list = shownList else { return headerScrollView }
-        guard placement != .split else { return list }
+    /// UIKit offers the status-bar tap to a scroll view under the tap's x that can still move up and picks the
+    /// innermost one, so one view per column of the home is eligible. On the page: the page, or its list while the page
+    /// rests at its top above scrolled rows (see `WalletHomeScrollChain.scrollToTopTarget`). Side by side the header and
+    /// the list are separate columns that never share an x, so each takes the taps above it.
+    var scrollToTopTargets: [UIScrollView] {
+        guard let list = shownList else { return [headerScrollView] }
+        guard placement != .split else { return [headerScrollView, list] }
         switch WalletHomeScrollChain.scrollToTopTarget(chainOffsets(list: list)) {
-        case .page: return headerScrollView
-        case .list: return list
+        case .page: return [headerScrollView]
+        case .list: return [list]
         }
     }
 
     /// While the page carries a list only these two can take the tap; a scroll moves it between them.
     func updateScrollToTopTarget() {
-        let target = scrollToTopTarget
+        let targets = scrollToTopTargets
         for scroll in [headerScrollView, shownList].compactMap({ $0 }) {
-            let eligible = scroll === target
+            let eligible = targets.contains { $0 === scroll }
             if scroll.scrollsToTop != eligible {
                 scroll.scrollsToTop = eligible
             }

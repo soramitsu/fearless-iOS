@@ -30,7 +30,6 @@ final class ProfileViewLayout: UIView {
             table.registerClassForCell(WalletsManagmentTableCell.self)
             addSubview(table)
         }
-        secondaryTableView.scrollsToTop = false
         secondaryTableView.isHidden = true
     }
 
