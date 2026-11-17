@@ -1745,79 +1745,6 @@ class RootTests: XCTestCase {
                 recoveryAction: .retry
             ),
             RootFailureMappingScenario(
-                phase: .substrateMigration,
-                error: SubstrateStorageMigrationError.mappingUnavailable(
-                    .version7,
-                    .version8,
-                    RootSetupTestError.migrationFailed
-                ),
-                incidentCode: .substrateCompatibilityMissing,
-                stableCode: "SUBSTRATE_COMPATIBILITY_MISSING",
-                recoveryAction: .continueWithFreshNetworkData
-            ),
-            RootFailureMappingScenario(
-                phase: .substrateMigration,
-                error: SubstrateStorageMigrationError.ambiguousStoreVersion(
-                    URL(fileURLWithPath: "/sanitized/SubstrateDataModel.sqlite")
-                ),
-                incidentCode: .substrateCompatibilityMissing,
-                stableCode: "SUBSTRATE_COMPATIBILITY_MISSING",
-                recoveryAction: .continueWithFreshNetworkData
-            ),
-            // Reported once with Retry before the store is set aside: the retry
-            // migrates the store or sets it aside, so the app opens.
-            RootFailureMappingScenario(
-                phase: .substrateMigration,
-                error: SubstrateStorageMigrationError
-                    .stagedStoreRowCountMismatch("sanitized", 1, 0),
-                incidentCode: .substrateMigrationFailed,
-                stableCode: "SUBSTRATE_MIGRATION_FAILED",
-                recoveryAction: .retry
-            ),
-            RootFailureMappingScenario(
-                phase: .substrateMigration,
-                error: SubstrateStorageMigrationError.migrationStepFailed(
-                    .version8,
-                    .version10,
-                    RootSetupTestError.migrationFailed
-                ),
-                incidentCode: .substrateMigrationFailed,
-                stableCode: "SUBSTRATE_MIGRATION_FAILED",
-                recoveryAction: .retry
-            ),
-            // Setting the unusable store aside is what failed, and a retry
-            // attempts it again, whatever made the store unusable.
-            RootFailureMappingScenario(
-                phase: .substrateMigration,
-                error: SubstrateStorageMigrationError.storeSetAsideFailed(
-                    URL(fileURLWithPath: "/sanitized/SubstrateDataModel.sqlite"),
-                    SubstrateStorageMigrationError
-                        .stagedStoreRowCountMismatch("sanitized", 1, 0),
-                    RootSetupTestError.migrationFailed
-                ),
-                incidentCode: .substrateMigrationFailed,
-                stableCode: "SUBSTRATE_MIGRATION_FAILED",
-                recoveryAction: .retry
-            ),
-            RootFailureMappingScenario(
-                phase: .substrateMigration,
-                error: SubstrateStorageMigrationError
-                    .pendingStoreSetAsideFailed(
-                        URL(fileURLWithPath: "/sanitized/SubstrateDataModel.sqlite"),
-                        RootSetupTestError.migrationFailed
-                    ),
-                incidentCode: .substrateMigrationFailed,
-                stableCode: "SUBSTRATE_MIGRATION_FAILED",
-                recoveryAction: .retry
-            ),
-            RootFailureMappingScenario(
-                phase: .substrateMigration,
-                error: RootSetupTestError.migrationFailed,
-                incidentCode: .substrateMigrationFailed,
-                stableCode: "SUBSTRATE_MIGRATION_FAILED",
-                recoveryAction: .retry
-            ),
-            RootFailureMappingScenario(
                 phase: .substratePreflight,
                 error: RootStoragePreflightError.managedObjectClassUnavailable(
                     entityName: "SanitizedEntity",
@@ -1860,6 +1787,270 @@ class RootTests: XCTestCase {
         for scenario in scenarios {
             assertRootFailureMapping(scenario)
         }
+    }
+
+    /// The Substrate store holds no wallet and no key, so its migration phase
+    /// never stops startup: whatever the migrator throws, short of a device
+    /// that is out of space, setup reaches `.ready` with no failure screen and
+    /// this launch falls back to an in-memory store. These are the errors that
+    /// used to show SUBSTRATE_MIGRATION_FAILED or a Substrate compatibility
+    /// screen, plus untyped ones.
+    func testSubstrateMigrationFailuresNeverStopStartup() {
+        let sanitizedURL = URL(fileURLWithPath: "/sanitized/SubstrateDataModel.sqlite")
+        let errors: [Error] = [
+            SubstrateStorageMigrationError.mappingUnavailable(
+                .version7,
+                .version8,
+                RootSetupTestError.migrationFailed
+            ),
+            SubstrateStorageMigrationError.ambiguousStoreVersion(sanitizedURL),
+            SubstrateStorageMigrationError
+                .stagedStoreRowCountMismatch("sanitized", 1, 0),
+            SubstrateStorageMigrationError.migrationStepFailed(
+                .version8,
+                .version10,
+                RootSetupTestError.migrationFailed
+            ),
+            SubstrateStorageMigrationError.storeSetAsideFailed(
+                sanitizedURL,
+                SubstrateStorageMigrationError
+                    .stagedStoreRowCountMismatch("sanitized", 1, 0),
+                RootSetupTestError.migrationFailed
+            ),
+            SubstrateStorageMigrationError.pendingStoreSetAsideFailed(
+                sanitizedURL,
+                RootSetupTestError.migrationFailed
+            ),
+            SubstrateStorageMigrationError.pendingCacheRecoveryFailed(
+                sanitizedURL,
+                RootSetupTestError.migrationFailed
+            ),
+            SubstrateStorageMigrationError.sourceSnapshotFailed(
+                sanitizedURL,
+                NSError(domain: NSPOSIXErrorDomain, code: Int(EACCES))
+            ),
+            SubstrateStorageMigrationError.cacheRecoveryBlockedByProtectedData(
+                sanitizedURL,
+                RootSetupTestError.migrationFailed,
+                ["CDContact": 1]
+            ),
+            NSError(domain: NSCocoaErrorDomain, code: NSFileReadUnknownError),
+            RootSetupTestError.migrationFailed
+        ]
+
+        for error in errors {
+            assertSubstrateMigrationFailureContinuesStartup(error)
+        }
+    }
+
+    /// Freeing space lets the migration keep the user's contacts, custom
+    /// nodes and TON Connect sessions, so a full device is the one Substrate
+    /// migration failure startup still reports, with the space to free.
+    func testSubstrateMigrationOutOfSpaceIsReportedAsInsufficientStorage() {
+        let requiredByteCount: UInt64 = 900 * 1024 * 1024
+        let recorder = RootSetupEventRecorder()
+        let output = MockRootInteractorOutputProtocol()
+        let chainRegistry = MockChainRegistryProtocol()
+        let failureExpectation = expectation(description: "low storage is reported")
+        let fallbackLock = NSLock()
+        var fallbackCount = 0
+
+        stub(output) { stub in
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didFailSetup(any()).then { failure in
+                XCTAssertEqual(failure.phase, .substrateMigration)
+                XCTAssertEqual(failure.incidentCode, .insufficientStorage)
+                XCTAssertEqual(
+                    failure.recoveryAction,
+                    .freeStorage(requiredByteCount: requiredByteCount)
+                )
+                failureExpectation.fulfill()
+            }
+        }
+
+        let settings = RecordingImmediateRootSelectedWalletSettings(
+            recorder: recorder,
+            result: .success(nil)
+        )
+        let interactor = RootInteractor(
+            chainRegistryProvider: { chainRegistry },
+            storagePreflightProvider: {
+                ImmediateRootStoragePreflight(result: .success(()))
+            },
+            settingsProvider: { settings },
+            applicationConfig: ApplicationConfig.shared,
+            eventCenter: MockEventCenterProtocol(),
+            migrationSteps: [
+                rootMigrationStep(
+                    RecordingRootMigrator(
+                        recorder: recorder,
+                        error: SubstrateStorageMigrationError.sourceSnapshotFailed(
+                            URL(fileURLWithPath: "/sanitized/SubstrateDataModel.sqlite"),
+                            CrashConsistentStoreReplacementError
+                                .insufficientStorageCapacity(
+                                    requiredByteCount: requiredByteCount,
+                                    availableByteCount: 1024
+                                )
+                        )
+                    ),
+                    phase: .substrateMigration
+                )
+            ],
+            onboardingService: StubOnboardingService(
+                result: .failure(OnboardingServiceError.empty)
+            ),
+            onboardingConfigResolver: OnboardingConfigVersionResolver(
+                userDefaultsStorage: InMemorySettingsManager()
+            ),
+            substrateStoreFallback: { _ in
+                fallbackLock.lock()
+                fallbackCount += 1
+                fallbackLock.unlock()
+            }
+        )
+        interactor.presenter = output
+
+        interactor.setup(runMigrations: true)
+
+        wait(for: [failureExpectation], timeout: Constants.defaultExpectationDuration)
+        fallbackLock.lock()
+        XCTAssertEqual(fallbackCount, 0)
+        fallbackLock.unlock()
+        verify(output, times(0)).didUpdateSetup(equal(to: .ready))
+    }
+
+    /// A scene that connects again in a live process builds a new root module; its
+    /// store migrators must not run again over stores the app has open.
+    func testProcessOnceMigratorRunsAStoreMigratorOncePerProcess() throws {
+        let inner = CountingFlakyRootMigrator(failuresBeforeSuccess: 0)
+        let key = "test-\(UUID().uuidString)"
+        let firstScene = ProcessOnceMigrator(key: key, migrator: inner)
+        let secondScene = ProcessOnceMigrator(key: key, migrator: inner)
+
+        try firstScene.migrate()
+        try secondScene.migrate()
+        try firstScene.migrate()
+
+        XCTAssertEqual(inner.runCount, 1)
+    }
+
+    func testProcessOnceMigratorRunsAgainAfterAFailedRun() throws {
+        let inner = CountingFlakyRootMigrator(failuresBeforeSuccess: 1)
+        let migrator = ProcessOnceMigrator(
+            key: "test-\(UUID().uuidString)",
+            migrator: inner
+        )
+
+        XCTAssertThrowsError(try migrator.migrate())
+        try migrator.migrate()
+        try migrator.migrate()
+
+        XCTAssertEqual(inner.runCount, 2)
+    }
+
+    func testProcessOnceMigratorMakesAConcurrentCallerWaitForTheRunningOne() {
+        let inner = CountingFlakyRootMigrator(failuresBeforeSuccess: 0, runDuration: 0.2)
+        let key = "test-\(UUID().uuidString)"
+        let group = DispatchGroup()
+
+        for _ in 0 ..< 4 {
+            group.enter()
+            DispatchQueue.global().async {
+                do {
+                    try ProcessOnceMigrator(key: key, migrator: inner).migrate()
+                } catch {
+                    XCTFail("Unexpected migration error: \(error)")
+                }
+                group.leave()
+            }
+        }
+
+        XCTAssertEqual(group.wait(timeout: .now() + 10), .success)
+        XCTAssertEqual(inner.runCount, 1)
+    }
+
+    private func assertSubstrateMigrationFailureContinuesStartup(
+        _ error: Error,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let recorder = RootSetupEventRecorder()
+        let output = MockRootInteractorOutputProtocol()
+        let chainRegistry = MockChainRegistryProtocol()
+        let readyExpectation = expectation(
+            description: "startup continues past \(error)"
+        )
+        let fallbackLock = NSLock()
+        var fallbackCount = 0
+
+        stub(chainRegistry) { stub in
+            stub.performColdBoot().thenDoNothing()
+        }
+        stub(output) { stub in
+            stub.didUpdateSetup(any()).thenDoNothing()
+            stub.didUpdateSetup(equal(to: .ready)).then { _ in
+                readyExpectation.fulfill()
+            }
+            stub.didFailSetup(any()).then { failure in
+                XCTFail(
+                    "\(failure.incidentCode.rawValue) shown for \(error)",
+                    file: file,
+                    line: line
+                )
+            }
+        }
+
+        let settings = RecordingImmediateRootSelectedWalletSettings(
+            recorder: recorder,
+            result: .success(nil)
+        )
+        let interactor = RootInteractor(
+            chainRegistryProvider: { chainRegistry },
+            storagePreflightProvider: {
+                ImmediateRootStoragePreflight(result: .success(()))
+            },
+            settingsProvider: { settings },
+            applicationConfig: ApplicationConfig.shared,
+            eventCenter: MockEventCenterProtocol(),
+            migrationSteps: [
+                rootMigrationStep(
+                    RecordingRootMigrator(recorder: recorder, error: error),
+                    phase: .substrateMigration
+                ),
+                rootMigrationStep(
+                    RecordingRootMigrator(recorder: recorder),
+                    phase: .substrateMigration
+                )
+            ],
+            onboardingService: StubOnboardingService(
+                result: .failure(OnboardingServiceError.empty)
+            ),
+            onboardingConfigResolver: OnboardingConfigVersionResolver(
+                userDefaultsStorage: InMemorySettingsManager()
+            ),
+            substrateStoreFallback: { _ in
+                fallbackLock.lock()
+                fallbackCount += 1
+                fallbackLock.unlock()
+            }
+        )
+        interactor.presenter = output
+
+        interactor.setup(runMigrations: true)
+
+        wait(for: [readyExpectation], timeout: Constants.defaultExpectationDuration)
+        fallbackLock.lock()
+        XCTAssertEqual(fallbackCount, 1, "\(error)", file: file, line: line)
+        fallbackLock.unlock()
+        // The step after the failed one still runs (contact recovery).
+        XCTAssertEqual(
+            recorder.snapshot.filter { $0 == .migration }.count,
+            2,
+            "\(error)",
+            file: file,
+            line: line
+        )
+        verify(output, times(0)).didFailSetup(any())
     }
 
     func testWalletOpeningCompletingAfterFifteenSecondsAutoContinuesWithoutRetry() {
@@ -4514,5 +4705,39 @@ final class AppSwitcherSnapshotCoverTests: XCTestCase {
         XCTAssertEqual(covers.count, 1)
         cover.hide()
         XCTAssertFalse(cover.isShown)
+    }
+}
+
+private final class CountingFlakyRootMigrator: Migrating {
+    private let lock = NSLock()
+    private var runs = 0
+    private let failuresBeforeSuccess: Int
+    private let runDuration: TimeInterval
+
+    init(failuresBeforeSuccess: Int, runDuration: TimeInterval = 0) {
+        self.failuresBeforeSuccess = failuresBeforeSuccess
+        self.runDuration = runDuration
+    }
+
+    var runCount: Int {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return runs
+    }
+
+    func migrate() throws {
+        lock.lock()
+        runs += 1
+        let run = runs
+        lock.unlock()
+
+        if runDuration > 0 {
+            Thread.sleep(forTimeInterval: runDuration)
+        }
+
+        if run <= failuresBeforeSuccess {
+            throw RootSetupTestError.migrationFailed
+        }
     }
 }

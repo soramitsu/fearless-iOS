@@ -65,6 +65,76 @@ struct RootSetupMigrationStep {
     let migrator: Migrating
 }
 
+/// Runs a store migrator at most once per process.
+///
+/// Every connected scene builds its own root module, and iOS can disconnect a
+/// backgrounded scene and connect it again while the process lives. The new
+/// module must not run a store migrator again: it would copy, check and
+/// possibly replace a store the running app has open. A run that throws is
+/// not recorded, so a retry runs it again, and a caller that arrives while
+/// another runs it waits for that run.
+final class ProcessOnceMigrator: Migrating {
+    private static let registryLock = NSLock()
+    private static var completedKeys: Set<String> = []
+    private static var runLocks: [String: NSLock] = [:]
+
+    let key: String
+    private let migrator: Migrating
+
+    init(key: String, migrator: Migrating) {
+        self.key = key
+        self.migrator = migrator
+    }
+
+    func migrate() throws {
+        let runLock = Self.runLock(for: key)
+        runLock.lock()
+        defer { runLock.unlock() }
+
+        guard !Self.hasCompleted(key) else {
+            return
+        }
+
+        try migrator.migrate()
+        Self.markCompleted(key)
+    }
+
+    private static func runLock(for key: String) -> NSLock {
+        registryLock.lock()
+        defer { registryLock.unlock() }
+
+        if let lock = runLocks[key] {
+            return lock
+        }
+
+        let lock = NSLock()
+        runLocks[key] = lock
+        return lock
+    }
+
+    private static func hasCompleted(_ key: String) -> Bool {
+        registryLock.lock()
+        defer { registryLock.unlock() }
+
+        return completedKeys.contains(key)
+    }
+
+    private static func markCompleted(_ key: String) {
+        registryLock.lock()
+        completedKeys.insert(key)
+        registryLock.unlock()
+    }
+
+    #if DEBUG
+        /// Tests only.
+        static func resetForTesting() {
+            registryLock.lock()
+            completedKeys.removeAll()
+            registryLock.unlock()
+        }
+    #endif
+}
+
 protocol RootProtectedDataAvailabilityObservation: AnyObject {
     func invalidate()
 }
@@ -369,6 +439,9 @@ extension SelectedWalletSettings: RootSelectedWalletSettingsProtocol {}
 
 typealias RootPincodeAvailabilityProvider = () throws -> Bool
 typealias RootPincodeRemoval = () throws -> Void
+/// What startup does when the Substrate migration phase still fails: the
+/// phase never stops startup (see `SubstrateStoreStartupFallback`).
+typealias RootSubstrateStoreFallback = (Error) -> Void
 
 enum RootStartupRouteValidation: Equatable {
     case ready(pincodeAvailable: Bool)
@@ -453,6 +526,7 @@ final class RootInteractor {
     private let setupDeadline: TimeInterval
     private let setupDeadlineScheduler: RootSetupDeadlineScheduler?
     private let monotonicTimeProvider: RootMonotonicTimeProvider
+    private let substrateStoreFallback: RootSubstrateStoreFallback
     private let setupQueue = DispatchQueue(
         label: "jp.co.soramitsu.fearlesswallet.root-setup",
         qos: .userInitiated
@@ -506,7 +580,9 @@ final class RootInteractor {
         setupDeadlineScheduler: RootSetupDeadlineScheduler? = nil,
         monotonicTimeProvider: @escaping RootMonotonicTimeProvider = {
             ProcessInfo.processInfo.systemUptime
-        }
+        },
+        substrateStoreFallback: @escaping RootSubstrateStoreFallback =
+            RootInteractor.useInMemorySubstrateStore
     ) {
         self.chainRegistryProvider = chainRegistryProvider
         self.storagePreflightProvider = storagePreflightProvider
@@ -526,6 +602,7 @@ final class RootInteractor {
         self.setupDeadline = max(0.001, setupDeadline)
         self.setupDeadlineScheduler = setupDeadlineScheduler
         self.monotonicTimeProvider = monotonicTimeProvider
+        self.substrateStoreFallback = substrateStoreFallback
     }
 
     deinit {
@@ -787,6 +864,14 @@ final class RootInteractor {
                         generation: generation
                     )
                 case let .failure(error):
+                    if continuesAfterSubstrateFailure(error, phase: step.phase) {
+                        startMigrationStep(
+                            at: index + 1,
+                            generation: generation
+                        )
+                        return
+                    }
+
                     let failure = MigrationStepFailure(
                         phase: step.phase,
                         underlyingError: error
@@ -800,6 +885,36 @@ final class RootInteractor {
                 }
             }
         }
+    }
+
+    /// The Substrate store holds no wallet and no key, so its migration phase
+    /// never stops startup. Only a device that is out of space is reported
+    /// (INSUFFICIENT_STORAGE): freeing space lets the migration keep the
+    /// user's contacts, custom nodes and TON Connect sessions. Anything else
+    /// is logged and this launch continues without the installed store,
+    /// which stays untouched on disk.
+    private func continuesAfterSubstrateFailure(
+        _ error: Error,
+        phase: RootSetupPhase
+    ) -> Bool {
+        guard
+            phase == .substrateMigration,
+            requiredFreeStorageByteCount(in: error) == nil
+        else {
+            return false
+        }
+
+        logger?.warning(
+            "Substrate migration step failed (\(SubstrateStorageMigrator.failureKind(of: error))); startup continues"
+        )
+        substrateStoreFallback(error)
+        return true
+    }
+
+    static func useInMemorySubstrateStore(after error: Error) {
+        SubstrateStoreStartupFallback.activateInMemoryStore(
+            reason: SubstrateStorageMigrator.failureKind(of: error)
+        )
     }
 
     private func beginStoragePreflight(generation: UUID) {
@@ -1253,20 +1368,16 @@ final class RootInteractor {
 
             return .userStorageMigrationFailed
         case .substrateMigration:
+            // Startup continues past every Substrate migration failure except
+            // a lack of free space (`continuesAfterSubstrateFailure`), which
+            // maps to INSUFFICIENT_STORAGE above. These codes stay defined so
+            // older logs and the startup capture scripts keep their meaning.
             if let migrationError = error as? SubstrateStorageMigrationError {
                 switch migrationError {
                 case .pendingStoreSetAsideFailed, .storeSetAsideFailed:
-                    // The unusable store is already identified. What failed
-                    // is setting it aside, which a retry attempts again.
                     return .substrateMigrationFailed
                 default:
                     break
-                }
-
-                if migrationError.isRetriedBeforeStoreSetAside {
-                    // Reported once so a passing failure can succeed; the retry
-                    // migrates the store or sets it aside, and the app opens.
-                    return .substrateMigrationFailed
                 }
             }
 

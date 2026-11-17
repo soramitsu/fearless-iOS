@@ -16,6 +16,7 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
+        SubstrateStoreStartupFallback.resetForTesting()
 
         testDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent("SubstrateStorageMigrationSafetyTests")
@@ -30,6 +31,7 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         if let testDirectory {
             try? FileManager.default.removeItem(at: testDirectory)
         }
+        SubstrateStoreStartupFallback.resetForTesting()
 
         try super.tearDownWithError()
     }
@@ -1597,7 +1599,9 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         XCTAssertFalse(migrator.requiresMigration())
     }
 
-    func testSyncMigration_whenRetainedArchiveRootIsUnsafe_thenFailsClosedAndLeavesTheStoreInstalled() throws {
+    /// Even a store that can be neither used nor set aside never stops startup:
+    /// it stays on disk byte for byte and this launch runs on an in-memory store.
+    func testSyncMigration_whenRetainedArchiveRootIsUnsafe_thenLeavesTheStoreInstalledAndOpensInMemory() throws {
         try createStore(at: storeURL, model: makeUnknownModel()) { _ in }
         let before = try durableStoreFamilySnapshot(at: storeURL)
         let retainedRootURL = testDirectory.appendingPathComponent(
@@ -1607,24 +1611,11 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         let migrator = makeMigrator()
 
         XCTAssertTrue(migrator.requiresMigration())
-        XCTAssertThrowsError(try migrator.migrate()) { error in
-            guard
-                let migrationError =
-                    error as? SubstrateStorageMigrationError,
-                case let .storeSetAsideFailed(_, failure, setAsideError) =
-                    migrationError,
-                case .unknownStoreVersion =
-                    failure as? SubstrateStorageMigrationError,
-                case .unsafeDirectory =
-                    setAsideError as? RetainedStoreSetAsideError
-            else {
-                return XCTFail(
-                    "Expected storeSetAsideFailed, got \(error)"
-                )
-            }
-            XCTAssertFalse(migrationError.allowsStoreSetAside)
-        }
+        XCTAssertFalse(SubstrateStoreStartupFallback.isInMemoryStoreActive)
 
+        try migrator.migrate()
+
+        XCTAssertTrue(SubstrateStoreStartupFallback.isInMemoryStoreActive)
         XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), before)
         XCTAssertEqual(
             try Data(contentsOf: retainedRootURL),
@@ -3747,15 +3738,15 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
         XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), before)
         XCTAssertTrue(try recoveryDirectories().isEmpty)
 
-        // Startup reports it once with Retry, then keeps the contact's store whole instead
-        // of stopping.
+        // Startup retries it quietly, then keeps the contact's store whole instead of
+        // stopping.
         try assertStartupSetsWholeStoreAside(migrator, family: before)
-        XCTAssertEqual(checkpointCount, 3)
+        XCTAssertEqual(checkpointCount, 1 + SubstrateStorageMigrator.startupAttemptCount)
     }
 
     /// A failure that passes on a second attempt (here a WAL checkpoint, as under memory
-    /// pressure) must not cost the user's saved contacts: startup reports it once with
-    /// Retry, the store stays installed, and the retry migrates it with the contact.
+    /// pressure) must not cost the user's saved contacts or show anything: startup retries
+    /// it quietly and migrates the store with the contact.
     func testSyncMigration_whenAFailurePassesOnRetry_thenTheContactIsMigratedAndNothingIsSetAside() throws {
         let sourceModel = try model(for: .version3)
         try createStore(at: storeURL, model: sourceModel) { context in
@@ -3779,22 +3770,153 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
             }
         )
 
-        XCTAssertThrowsError(try migrator.migrate()) { error in
-            XCTAssertEqual(
-                (error as? SubstrateStorageMigrationError)?.isRetriedBeforeStoreSetAside, true, "\(error)"
-            )
-        }
-        XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), before)
-        XCTAssertTrue(try retainedDirectories().isEmpty)
+        XCTAssertFalse(before.isEmpty)
 
         try migrator.migrate()
 
+        XCTAssertEqual(checkpointCount, 2)
+        XCTAssertFalse(SubstrateStoreStartupFallback.isInMemoryStoreActive)
         XCTAssertTrue(try retainedDirectories().isEmpty, "nothing is set aside")
         XCTAssertFalse(migrator.requiresMigration())
         XCTAssertEqual(
             try count(entityName: "CDContact", at: storeURL, model: model(for: migrator.targetVersion)),
             1
         )
+    }
+
+    /// The common case behind SUBSTRATE_MIGRATION_FAILED reports: a user already on the
+    /// current model whose device has too little free space for the per-launch private
+    /// copy. The store opens as it is: nothing is shown, moved or rewritten.
+    func testSyncMigration_whenACurrentStoreCannotBeCopiedForLackOfSpace_thenItOpensAsItIs() throws {
+        let currentModel = try model(for: .version8)
+        try createStore(at: storeURL, model: currentModel) { context in
+            try self.insertRuntimeItem(
+                identifier: "current-low-space",
+                in: context,
+                model: currentModel
+            )
+            let contact = try self.insert(
+                entityName: "CDContact",
+                in: context,
+                model: currentModel
+            )
+            contact.setValue("Low Space Current", forKey: "name")
+            contact.setValue("5LowSpaceCurrent", forKey: "address")
+        }
+        let before = try durableStoreFamilySnapshot(at: storeURL)
+        let migrator = makeMigrator(
+            privateSourceCopyLimits:
+            SQLiteStoreFamilyCopyLimits(
+                maximumFamilyByteCount: UInt64.max,
+                minimumFreeStorageReserveByteCount: 1
+            ),
+            privateSourceAvailableCapacityProvider: { _ in 0 }
+        )
+
+        try migrator.migrate()
+
+        XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), before)
+        XCTAssertTrue(try retainedDirectories().isEmpty)
+        XCTAssertTrue(try recoveryDirectories().isEmpty)
+        XCTAssertFalse(SubstrateStoreStartupFallback.isInMemoryStoreActive)
+    }
+
+    /// A store that still needs migrating while the disk is full is kept installed and
+    /// startup asks for free space (INSUFFICIENT_STORAGE), even when the full disk shows
+    /// up as a plain ENOSPC deep inside a step rather than as the copier's own check.
+    func testSyncMigration_whenAMigrationRunsOutOfSpace_thenAsksForStorageAndKeepsTheStore() throws {
+        let sourceModel = try model(for: .version7)
+        try createStore(at: storeURL, model: sourceModel) { context in
+            let contact = try self.insert(
+                entityName: "CDContact",
+                in: context,
+                model: sourceModel
+            )
+            contact.setValue("Full Disk User", forKey: "name")
+            contact.setValue("5FullDisk", forKey: "address")
+        }
+        let before = try durableStoreFamilySnapshot(at: storeURL)
+        var stagedHookCount = 0
+        let migrator = makeMigrator(
+            stagedStoreMutationHook: { _, _ in
+                stagedHookCount += 1
+                throw NSError(domain: NSPOSIXErrorDomain, code: Int(ENOSPC))
+            }
+        )
+
+        XCTAssertThrowsError(try migrator.migrate()) { error in
+            guard
+                let replacementError = error as? CrashConsistentStoreReplacementError,
+                case let .insufficientStorageCapacity(requiredByteCount, _) =
+                replacementError
+            else {
+                return XCTFail("Expected insufficientStorageCapacity, got \(error)")
+            }
+            XCTAssertGreaterThan(requiredByteCount, 0)
+        }
+
+        // A full disk is not retried: another attempt cannot pass.
+        XCTAssertEqual(stagedHookCount, 1)
+        XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), before)
+        XCTAssertTrue(try retainedDirectories().isEmpty)
+        XCTAssertFalse(SubstrateStoreStartupFallback.isInMemoryStoreActive)
+    }
+
+    /// The v8 startup-graph audit used to throw its raw inspection error out of the
+    /// prepared-source step, past both the retry and the set-aside, so every launch
+    /// stopped on SUBSTRATE_MIGRATION_FAILED. It is now a typed failure and startup moves
+    /// the store whole into the retained archive.
+    func testSyncMigration_whenAVersion8StoreExceedsAStartupBound_thenTheFailureIsTypedAndStartupSetsItAside() throws {
+        let sourceModel = try model(for: .version8)
+        try createStore(at: storeURL, model: sourceModel) { context in
+            for index in 0 ..< 2 {
+                try self.insertRuntimeItem(
+                    identifier: "v8-runtime-\(index)",
+                    in: context,
+                    model: sourceModel
+                )
+            }
+        }
+        let before = try durableStoreFamilySnapshot(at: storeURL)
+        let migrator = makeMigrator(
+            targetVersion: .version10,
+            protectedDataInspectionLimits:
+            makeProtectedDataLimits(maximumStartupRootRowsPerEntity: 1)
+        )
+
+        XCTAssertThrowsError(try migrator.performMigration()) { error in
+            guard
+                let migrationError = error as? SubstrateStorageMigrationError,
+                case let .sourceStoreInspectionFailed(_, underlyingError) = migrationError,
+                case .entityRowLimitExceeded =
+                underlyingError as? SubstrateProtectedDataInspectionError
+            else {
+                return XCTFail("Expected a typed startup-bound failure, got \(error)")
+            }
+        }
+        XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), before)
+
+        try assertStartupSetsWholeStoreAside(migrator, family: before)
+    }
+
+    func testInstalledStoreVersionCheck_readsOnlyTheMainFileMetadata() throws {
+        let migrator = makeMigrator()
+        XCTAssertFalse(migrator.installedStoreIsTargetVersion(), "no store")
+
+        let currentModel = try model(for: .version8)
+        try createStore(at: storeURL, model: currentModel) { context in
+            try self.insertRuntimeItem(
+                identifier: "version-check",
+                in: context,
+                model: currentModel
+            )
+        }
+        let before = try durableStoreFamilySnapshot(at: storeURL)
+        XCTAssertTrue(migrator.installedStoreIsTargetVersion())
+        XCTAssertFalse(
+            makeMigrator(targetVersion: .version10).installedStoreIsTargetVersion()
+        )
+        XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), before)
     }
 
     func testRetriedFailures_areOnlyThoseABundledModelCanStillRead() {
@@ -5941,15 +6063,14 @@ final class SubstrateStorageMigrationSafetyTests: XCTestCase {
     ) throws -> URL {
         XCTAssertFalse(family.isEmpty, file: file, line: line)
 
-        do {
-            try migrator.migrate()
-        } catch let error as SubstrateStorageMigrationError where error.isRetriedBeforeStoreSetAside {
-            // Startup reports a failure that can pass once, with Retry, and keeps the store
-            // installed; the retry sets it aside when it fails again.
-            XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), family, file: file, line: line)
-            XCTAssertTrue(try retainedDirectories().isEmpty, file: file, line: line)
-            try migrator.migrate()
-        }
+        // Startup never reports a Substrate failure: one call retries what
+        // can pass and then sets the store aside.
+        try migrator.migrate()
+        XCTAssertFalse(
+            SubstrateStoreStartupFallback.isInMemoryStoreActive,
+            file: file,
+            line: line
+        )
 
         XCTAssertTrue(
             try durableStoreFamilySnapshot(at: storeURL).isEmpty,
