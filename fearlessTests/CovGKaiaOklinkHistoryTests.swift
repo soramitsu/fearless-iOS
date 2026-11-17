@@ -4,6 +4,12 @@ import SSFModels
 import XCTest
 @testable import fearless
 
+#if DEBUG
+    private typealias CovGHistoryApiKeys = BlockExplorerApiKeysDebug
+#else
+    private typealias CovGHistoryApiKeys = BlockExplorerApiKeys
+#endif
+
 final class CovGKaiaOklinkHistoryTests: XCTestCase {
     private let address = "0x1234567890123456789012345678901234567890"
     private let peer = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
@@ -12,18 +18,18 @@ final class CovGKaiaOklinkHistoryTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        savedKaiaKey = BlockExplorerApiKeysDebug.kaiaScanApiKey
-        savedOklinkKey = BlockExplorerApiKeysDebug.oklinkApiKey
+        savedKaiaKey = CovGHistoryApiKeys.kaiaScanApiKey
+        savedOklinkKey = CovGHistoryApiKeys.oklinkApiKey
     }
 
     override func tearDown() {
-        BlockExplorerApiKeysDebug.kaiaScanApiKey = savedKaiaKey
-        BlockExplorerApiKeysDebug.oklinkApiKey = savedOklinkKey
+        CovGHistoryApiKeys.kaiaScanApiKey = savedKaiaKey
+        CovGHistoryApiKeys.oklinkApiKey = savedOklinkKey
         super.tearDown()
     }
 
     func testKaiaNativeHistoryRequestsBearerPageMapsSortedTransfersAndNextPage() throws {
-        BlockExplorerApiKeysDebug.kaiaScanApiKey = "cov-g-kaia"
+        CovGHistoryApiKeys.kaiaScanApiKey = "cov-g-kaia"
         let chain = try CovGOperationFixtures.chain(id: "8217", history: "https://mainnet-oapi.kaiascan.io/api/v1")
         let wrapper = KaiaHistoryOperationFactory().fetchTransactionHistoryOperation(
             asset: CovGOperationFixtures.asset, chain: chain, address: address, filters: [],
@@ -55,7 +61,7 @@ final class CovGKaiaOklinkHistoryTests: XCTestCase {
     }
 
     func testKaiaTokenHistoryUsesContractRouteAndLastPageHasNoContext() throws {
-        BlockExplorerApiKeysDebug.kaiaScanApiKey = "cov-g-kaia"
+        CovGHistoryApiKeys.kaiaScanApiKey = "cov-g-kaia"
         let chain = try CovGOperationFixtures.chain(id: "1001", history: "https://kairos-oapi.kaiascan.io/api/v1")
         let token = AssetModel(id: peer, name: "Token", symbol: "TKN", precision: 18, isUtility: false, isNative: false, ethereumType: .erc20)
         let wrapper = KaiaHistoryOperationFactory().fetchTransactionHistoryOperation(
@@ -80,7 +86,7 @@ final class CovGKaiaOklinkHistoryTests: XCTestCase {
     }
 
     func testKaiaResultFactoryRejectsTransportStatusAndMissingBody() throws {
-        BlockExplorerApiKeysDebug.kaiaScanApiKey = "cov-g-kaia"
+        CovGHistoryApiKeys.kaiaScanApiKey = "cov-g-kaia"
         let chain = try CovGOperationFixtures.chain(id: "8217", history: "https://mainnet-oapi.kaiascan.io")
         let wrapper = KaiaHistoryOperationFactory().fetchTransactionHistoryOperation(
             asset: CovGOperationFixtures.asset, chain: chain, address: address, filters: [], pagination: Pagination(count: 5)
@@ -117,13 +123,13 @@ final class CovGKaiaOklinkHistoryTests: XCTestCase {
             guard case SubqueryHistoryOperationFactoryError.urlMissing = $0 else { return XCTFail("Wrong error \($0)") }
         }
         let chain = try CovGOperationFixtures.chain(id: "8217", history: "https://mainnet-oapi.kaiascan.io")
-        BlockExplorerApiKeysDebug.kaiaScanApiKey = ""
+        CovGHistoryApiKeys.kaiaScanApiKey = ""
         let keyless = factory.fetchTransactionHistoryOperation(
             asset: CovGOperationFixtures.asset, chain: chain, address: address, filters: [], pagination: Pagination(count: 5)
         )
         XCTAssertEqual(keyless.allOperations.count, 1)
         XCTAssertThrowsError(try CovGOperationFixtures.run(keyless)) { XCTAssertEqual($0 as? KaiaHistoryError, .missingAPIKey) }
-        BlockExplorerApiKeysDebug.kaiaScanApiKey = "cov-g-kaia"
+        CovGHistoryApiKeys.kaiaScanApiKey = "cov-g-kaia"
         let invalid = factory.fetchTransactionHistoryOperation(
             asset: CovGOperationFixtures.asset, chain: chain, address: "owner", filters: [], pagination: Pagination(count: 5)
         )
@@ -131,7 +137,7 @@ final class CovGKaiaOklinkHistoryTests: XCTestCase {
     }
 
     func testOklinkHistoryRequestsKeyedPageFiltersTokenRowsAndAdvancesPage() throws {
-        BlockExplorerApiKeysDebug.oklinkApiKey = "cov-g-oklink"
+        CovGHistoryApiKeys.oklinkApiKey = "cov-g-oklink"
         let chain = try CovGOperationFixtures.chain(id: "195", history: "https://oklink.invalid/api/v5/explorer/address/transaction-list?chainShortName=TRON")
         let token = AssetModel(id: peer, name: "Token", symbol: "USDT", precision: 6, isUtility: false, isNative: false, ethereumType: .erc20)
         let wrapper = OklinkHistoryOperationFactory().fetchTransactionHistoryOperation(

@@ -4,6 +4,12 @@ import SSFUtils
 import XCTest
 @testable import fearless
 
+#if DEBUG
+    private typealias CovGNetworkApiKeys = BlockExplorerApiKeysDebug
+#else
+    private typealias CovGNetworkApiKeys = BlockExplorerApiKeys
+#endif
+
 final class CovGNetworkModelsTests: XCTestCase {
     func testUrlParametersReflectOnlyStringPropertiesAndCodingKeysKeepValues() {
         let parameters = CovGUrlParameters()
@@ -79,14 +85,14 @@ final class CovGNetworkModelsTests: XCTestCase {
             XCTAssertEqual(BlockExplorerApiKey(chainId: chainId), expected)
         }
         XCTAssertNil(BlockExplorerApiKey(chainId: "42"))
-        let saved = BlockExplorerApiKeysDebug.polygonscanApiKey
-        BlockExplorerApiKeysDebug.polygonscanApiKey = "cov-g-polygon"
-        defer { BlockExplorerApiKeysDebug.polygonscanApiKey = saved }
+        let saved = CovGNetworkApiKeys.polygonscanApiKey
+        CovGNetworkApiKeys.polygonscanApiKey = "cov-g-polygon"
+        defer { CovGNetworkApiKeys.polygonscanApiKey = saved }
         XCTAssertEqual(BlockExplorerApiKey.polygonscan.value, "cov-g-polygon")
-        XCTAssertEqual(BlockExplorerApiKey.etherscan.value, BlockExplorerApiKeysDebug.etherscanApiKey)
-        XCTAssertEqual(BlockExplorerApiKey.bscscan.value, BlockExplorerApiKeysDebug.bscscanApiKey)
-        XCTAssertEqual(BlockExplorerApiKey.oklink.value, BlockExplorerApiKeysDebug.oklinkApiKey)
-        XCTAssertEqual(BlockExplorerApiKey.opMainnet.value, BlockExplorerApiKeysDebug.opMainnetApiKey)
+        XCTAssertEqual(BlockExplorerApiKey.etherscan.value, CovGNetworkApiKeys.etherscanApiKey)
+        XCTAssertEqual(BlockExplorerApiKey.bscscan.value, CovGNetworkApiKeys.bscscanApiKey)
+        XCTAssertEqual(BlockExplorerApiKey.oklink.value, CovGNetworkApiKeys.oklinkApiKey)
+        XCTAssertEqual(BlockExplorerApiKey.opMainnet.value, CovGNetworkApiKeys.opMainnetApiKey)
     }
 }
 
