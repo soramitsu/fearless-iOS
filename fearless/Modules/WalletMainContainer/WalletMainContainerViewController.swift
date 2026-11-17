@@ -11,7 +11,6 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
 
     private let balanceInfoViewController: UIViewController
     private let pageControllers: [UIViewController]
-    var accountScoreTapGesture: UITapGestureRecognizer?
 
     // MARK: - Constructor
 
