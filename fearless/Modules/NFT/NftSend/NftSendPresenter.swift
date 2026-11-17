@@ -16,7 +16,14 @@ final class NftSendPresenter {
     private let viewModelFactory: SendViewModelFactoryProtocol
     private let dataValidatingFactory: SendDataValidatingFactory
 
-    private var recipientAddress: String?
+    private var recipientAddress: String? {
+        didSet {
+            if oldValue != recipientAddress {
+                invalidateScamWarning()
+            }
+        }
+    }
+
     private var fee: Decimal?
     private var scamInfo: ScamInfo?
     private var balance: Decimal?
@@ -57,6 +64,18 @@ final class NftSendPresenter {
 
         DispatchQueue.main.async {
             self.view?.didReceive(viewModel: viewModel)
+        }
+
+        if newAddress.isNotEmpty {
+            interactor.fetchScamInfo(for: newAddress)
+        }
+    }
+
+    /// A warning belongs to the recipient it was looked up for.
+    private func invalidateScamWarning() {
+        interactor.invalidateScamInfo()
+        if scamInfo != nil {
+            didReceive(scamInfo: nil)
         }
     }
 

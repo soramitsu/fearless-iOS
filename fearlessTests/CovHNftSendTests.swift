@@ -22,10 +22,14 @@ final class CovHNftSendInteractorSpy: NftSendInteractorInput {
     var validation: AddressValidationResult = .valid("addr")
     private(set) weak var output: NftSendInteractorOutput?
     private(set) var estimates: [String?] = []
+    private(set) var scamLookups: [String] = []
+    private(set) var scamInvalidations = 0
 
     func setup(with output: NftSendInteractorOutput) { self.output = output }
     func estimateFee(for _: NFT, address: String?) { estimates.append(address) }
     func validate(address _: String?, for _: ChainModel) -> AddressValidationResult { validation }
+    func fetchScamInfo(for address: String) { scamLookups.append(address) }
+    func invalidateScamInfo() { scamInvalidations += 1 }
 }
 
 final class CovHNftSendRouterSpy: NftSendRouterInput {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D524D20823BCFC6729FBB81F /* NftSendScamWarningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A88FAB6736E88FF31ED317C /* NftSendScamWarningTests.swift */; };
 		F29B3FA088C03C88892BE9DA /* NftCollectionLastPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4BF4E351B51525B7A8EA78 /* NftCollectionLastPageTests.swift */; };
 		CF5B8F14DEF6A1DE7AA046E8 /* BitcoinIndexerRequestTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */; };
 		35EEBAEFEB03FDE7F3D93DD8 /* AccountInfoSubscriptionDetachRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF42BEE2CE9D115F6294D2A /* AccountInfoSubscriptionDetachRoutingTests.swift */; };
@@ -3836,6 +3837,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2A88FAB6736E88FF31ED317C /* NftSendScamWarningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftSendScamWarningTests.swift; sourceTree = "<group>"; };
 		AB4BF4E351B51525B7A8EA78 /* NftCollectionLastPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCollectionLastPageTests.swift; sourceTree = "<group>"; };
 		F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinIndexerRequestTimeoutTests.swift; sourceTree = "<group>"; };
 		9FF42BEE2CE9D115F6294D2A /* AccountInfoSubscriptionDetachRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoSubscriptionDetachRoutingTests.swift; sourceTree = "<group>"; };
@@ -10660,6 +10662,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				2A88FAB6736E88FF31ED317C /* NftSendScamWarningTests.swift */,
 				AB4BF4E351B51525B7A8EA78 /* NftCollectionLastPageTests.swift */,
 				F9E1F28C17A8F539BFA448F3 /* BitcoinIndexerRequestTimeoutTests.swift */,
 				9FF42BEE2CE9D115F6294D2A /* AccountInfoSubscriptionDetachRoutingTests.swift */,
@@ -21618,6 +21621,7 @@
 				039ECC97E16E5631D91B5C57 /* L10nKeyCoverageTests.swift in Sources */,
 				35EEBAEFEB03FDE7F3D93DD8 /* AccountInfoSubscriptionDetachRoutingTests.swift in Sources */,
 				F29B3FA088C03C88892BE9DA /* NftCollectionLastPageTests.swift in Sources */,
+				D524D20823BCFC6729FBB81F /* NftSendScamWarningTests.swift in Sources */,
 				B30B90490FDFC0144374D040 /* StakingPoolJoinConfigViewLayoutTests.swift in Sources */,
 				32D5B345A08445C0794809BD /* FWShikibanTests.swift in Sources */,
 				699872EA3A78C22D48260098 /* FWDesignPassTests.swift in Sources */,
