@@ -53,6 +53,32 @@ final class CovGSubstrateCallsTests: XCTestCase {
         XCTAssertThrowsError(try JSONDecoder().decode(RewardDestinationArg.self, from: Data(#"["Unknown",null]"#.utf8)))
     }
 
+    func testRewardDestinationRuntimeJSONDecodesFixedAccountBytes() throws {
+        // Metadata can represent AccountId as [u8; 32]. The runtime decoder then emits
+        // an array of byte strings, including when the SCALE value came from Core Data.
+        let json = JSON.arrayValue([
+            .stringValue("Account"),
+            .arrayValue(account.map { .stringValue(String($0)) }),
+        ])
+
+        XCTAssertEqual(try json.map(to: RewardDestinationArg.self), .account(account))
+    }
+
+    func testRewardDestinationRuntimeJSONDecodesHexAccount() throws {
+        let json = JSON.arrayValue([
+            .stringValue("Account"),
+            .stringValue(account.toHex(includePrefix: true)),
+        ])
+
+        XCTAssertEqual(try json.map(to: RewardDestinationArg.self), .account(account))
+    }
+
+    func testRewardDestinationRuntimeJSONRejectsMalformedAccountString() {
+        let json = JSON.arrayValue([.stringValue("Account"), .stringValue("not-hex")])
+
+        XCTAssertThrowsError(try json.map(to: RewardDestinationArg.self))
+    }
+
     private func encode<T: Encodable>(_ value: T) throws -> [String: Any] {
         try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(value)) as? [String: Any])
     }
