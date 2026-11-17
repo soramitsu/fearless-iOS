@@ -256,7 +256,7 @@ final class CovFBalAccountInfoUpdatingTests: XCTestCase {
         harness.substrate.detachResult = .failure(CovFBalError.expected)
         let key = chainAsset.uniqueKey(accountId: try XCTUnwrap(wallet.substrateAccountId))
 
-        harness.registry.deliver([.delete(deletedIdentifier: key)])
+        harness.registry.deliver([.delete(deletedIdentifier: chainAsset.chain.chainId)])
 
         XCTAssertEqual(harness.substrate.detachedKeys, [key])
         XCTAssertTrue(harness.logger.errors.contains { $0.contains("Faced with error") })

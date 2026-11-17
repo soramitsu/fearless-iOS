@@ -10,6 +10,8 @@ final class AccountInfoUpdatingService {
     struct SubscriptionInfo {
         let subscriptionId: String
         let accountId: AccountId
+        /// Subscriptions are stored by chain-asset key; a chain's removal finds all of its own by this id.
+        let chainId: ChainModel.Id
         /// The service that attached the subscription holds it, so only that service can end it.
         let service: WalletRemoteSubscriptionServiceProtocol
     }
@@ -90,7 +92,7 @@ final class AccountInfoUpdatingService {
                     addSubscriptionIfNeeded(for: $0)
                 }
             case let .delete(deletedIdentifier):
-                removeSubscription(for: deletedIdentifier)
+                removeChain(deletedIdentifier)
             }
         }
     }
@@ -118,6 +120,7 @@ final class AccountInfoUpdatingService {
                 let subscription = SubscriptionInfo(
                     subscriptionId: subsciptionId,
                     accountId: accountId,
+                    chainId: chainAsset.chain.chainId,
                     service: service
                 )
 
@@ -163,6 +166,25 @@ final class AccountInfoUpdatingService {
                 }
             }
         }
+    }
+
+    /// A deleted chain is forgotten (a wallet change must not attach it again) and every subscription of its assets
+    /// ends. A deletion carries the chain id, while subscriptions are stored by chain-asset key.
+    private func removeChain(_ chainId: ChainModel.Id) {
+        readLock.exclusivelyWrite { [weak self] in
+            self?.chains[chainId] = nil
+        }
+
+        let keys = readLock.concurrentlyRead {
+            subscribedChains.filter { $0.value.chainId == chainId }.map(\.key)
+        }
+
+        guard !keys.isEmpty else {
+            logger?.error("Expected to remove subscriptions but found none for chain \(chainId)")
+            return
+        }
+
+        keys.forEach { removeSubscription(for: $0) }
     }
 
     private func removeSubscription(for key: ChainAssetKey) {
