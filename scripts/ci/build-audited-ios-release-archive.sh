@@ -99,8 +99,9 @@ readonly EXPECTED_PROFILE_UUID="0d51265e-4b53-4a1f-814a-436dc9ca087b"
 # Apple released 4.2.1 (2026.11.11), which closes that version to new uploads;
 # 2026.11.12 ships the launch-crash fix as 4.2.2.
 # 4.2.3 keeps that fix and ships the Yatagarasu redesign and Ignite launch.
-# 4.2.4 includes the November 16–17 fixes, unified wallet home and NFT safety fixes.
-readonly EXPECTED_BUILD="2026.11.17"
+# 4.2.4 includes the November 16–17 fixes, unified wallet home and NFT safety fixes, and (from
+# 2026.11.18) the Substrate migration startup fix. 2026.11.17 was uploaded without it and is consumed.
+readonly EXPECTED_BUILD="2026.11.18"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd -P)"
 
@@ -121,7 +122,7 @@ Preconditions:
     distributed 4.2.0 (2026.7.28) source commit, directly or through its
     squash into master (#1305); a fresh clone gets that pull request's head
     with `git fetch origin refs/pull/1305/head`;
-  - App Store Connect read-only uniqueness check for 4.2.4 (2026.11.17);
+  - App Store Connect read-only uniqueness check for 4.2.4 (2026.11.18);
   - App Store distribution profile for the production App ID, with
     group.jp.co.soramitsu.fearlesswallet and Apple default keychain groups.
 
