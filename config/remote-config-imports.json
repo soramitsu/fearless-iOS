@@ -160,7 +160,7 @@
       "commit": "f2ed4ccf1d3a6376b60ebd69d823a3f7748ddc4b",
       "sourcePath": "chains/v13/chains_dev.json",
       "upstreamSha256": "5726b01a5364d955e250939c71082c03f97da0dc9512ac9d120c6a2085173d05",
-      "ownedSha256": "1064a2521f803693fe20a5010b2d8cb44e1529ca073b233f38f3337ec9f5f34f"
+      "ownedSha256": "00ceba835c9d9e5ea419e6c6d781370f5a30f6abf6a65a79d77f5316ab57519d"
     },
     {
       "path": "development/chains/v9/chains_dev.json",
@@ -3424,7 +3424,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v13/chains.json",
       "upstreamSha256": "79a583f08f71139a31e00c825c746891cef50c04aa81318aaa492807757b9cec",
-      "ownedSha256": "45081f3abfaf08c70402494e1a86fff0f6988d6a72c0a76ef0d50d7e0c9e3a34"
+      "ownedSha256": "070b1e2d3d8c0e1ab37d7c00b558752c5f424a3ce5c6363a612b4a3f5b25ce2d"
     },
     {
       "path": "production/chains/v2/chains.json",

@@ -113,5 +113,20 @@ class ConfigTests(unittest.TestCase):
             check.validate(self.root)
 
 
+class CatalogHistoryTests(unittest.TestCase):
+    def test_ethereum_and_polygon_keep_alchemy_history_routing(self):
+        # Installed clients select Alchemy for these legacy explorer URLs, preserving
+        # internal native transfers as well as ordinary account transfers.
+        chains = Path(__file__).resolve().parents[1] / "remote-config"
+        for catalog in ("production/chains/v13/chains.json", "development/chains/v13/chains_dev.json"):
+            by_id = {chain["chainId"]: chain for chain in json.loads((chains / catalog).read_text())}
+            for chain_id, symbol in (("1", "ETH"), ("137", "POLYGON")):
+                with self.subTest(catalog=catalog, chain_id=chain_id):
+                    self.assertEqual(by_id[chain_id]["externalApi"]["history"], {
+                        "type": "oklink",
+                        "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=" + symbol,
+                    })
+
+
 if __name__ == "__main__":
     unittest.main()

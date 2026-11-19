@@ -2750,8 +2750,8 @@
     "ecosystem": "ethereum",
     "externalApi": {
       "history": {
-        "type": "etherscan",
-        "url": "https://api.routescan.io/v2/network/mainnet/evm/1/etherscan/api"
+        "type": "oklink",
+        "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=ETH"
       },
       "explorers": [
         {
@@ -3240,8 +3240,8 @@
     "ecosystem": "ethereum",
     "externalApi": {
       "history": {
-        "type": "etherscan",
-        "url": "https://api.polygonscan.com/api"
+        "type": "oklink",
+        "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=POLYGON"
       },
       "explorers": [
         {
