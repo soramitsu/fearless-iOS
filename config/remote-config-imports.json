@@ -3424,7 +3424,7 @@
       "commit": "ca1c2655ff541ae5942d820423962d34fd29d7f9",
       "sourcePath": "chains/v13/chains.json",
       "upstreamSha256": "79a583f08f71139a31e00c825c746891cef50c04aa81318aaa492807757b9cec",
-      "ownedSha256": "5870e7da347f07c96805af0ed2a94c40f973594dafa45cec9544469b6591ddb6"
+      "ownedSha256": "45081f3abfaf08c70402494e1a86fff0f6988d6a72c0a76ef0d50d7e0c9e3a34"
     },
     {
       "path": "production/chains/v2/chains.json",
