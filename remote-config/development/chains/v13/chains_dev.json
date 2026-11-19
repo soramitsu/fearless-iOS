@@ -69,10 +69,6 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-polkadot.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://rpc.polkadot.io",
           "name": "Parity node"
         },
@@ -81,8 +77,8 @@
           "name": "LuckyFriday node"
         },
         {
-          "url": "wss://polkadot.public.curie.radiumblock.co/ws",
-          "name": "RadiumBlock node"
+          "name": "Dwellir node",
+          "url": "wss://polkadot-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Polkadot.svg",
@@ -154,10 +150,6 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-kusama.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://kusama-rpc.polkadot.io",
           "name": "Parity node"
         },
@@ -166,8 +158,8 @@
           "name": "LuckyFriday node"
         },
         {
-          "url": "wss://kusama.public.curie.radiumblock.co/ws",
-          "name": "RadiumBlock node"
+          "name": "Dwellir node",
+          "url": "wss://kusama-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Kusama.svg",
@@ -210,8 +202,8 @@
           "name": "Parity node"
         },
         {
-          "url": "wss://api-westend.n.dwellir.com",
-          "name": "Dwellir node"
+          "name": "Dwellir node",
+          "url": "wss://westend-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Westend.svg",
@@ -229,8 +221,8 @@
       "identityChain": "c1af4cb4eb3918e5db15086c0cc5ec17fb334f728b7c65dd44bfe1e174ff8b3f",
       "externalApi": {
         "history": {
-          "type": "giantsquid",
-          "url": "https://squid-statemine-api.squid.tachi.soramitsu.co.jp/graphql"
+          "type": "subquery",
+          "url": "https://subquery-history-kusama-ah-prod.novasama-tech.org"
         },
         "explorers": [
           {
@@ -307,16 +299,8 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-asset-hub-kusama.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://kusama-asset-hub-rpc.polkadot.io",
           "name": "Parity node"
-        },
-        {
-          "url": "wss://statemine.public.curie.radiumblock.co/ws",
-          "name": "RadiumBlock node"
         },
         {
           "url": "wss://rpc-asset-hub-kusama.luckyfriday.io",
@@ -325,6 +309,10 @@
         {
           "url": "wss://ksm-rpc.stakeworld.io/assethub",
           "name": "Stakeworld node"
+        },
+        {
+          "name": "Dwellir node",
+          "url": "wss://asset-hub-kusama-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Assethub.svg",
@@ -342,8 +330,8 @@
       "identityChain": "67fa177a097bfa18f77ea95ab56e9bcdfeb0e5b8a40e46298bb93e16b6fc5008",
       "externalApi": {
         "history": {
-          "type": "giantsquid",
-          "url": "https://squid.subsquid.io/gs-main-statemint/graphql"
+          "type": "subquery",
+          "url": "https://subquery-history-polkadot-ah-prod.novasama-tech.org"
         },
         "explorers": [
           {
@@ -444,16 +432,8 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-asset-hub-polkadot.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://polkadot-asset-hub-rpc.polkadot.io",
           "name": "Parity node"
-        },
-        {
-          "url": "wss://statemint.public.curie.radiumblock.co/ws",
-          "name": "RadiumBlock node"
         },
         {
           "url": "wss://rpc-asset-hub-polkadot.luckyfriday.io",
@@ -462,6 +442,10 @@
         {
           "url": "wss://dot-rpc.stakeworld.io/assethub",
           "name": "Stakeworld node"
+        },
+        {
+          "name": "Dwellir node",
+          "url": "wss://asset-hub-polkadot-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Assethub.svg",
@@ -476,22 +460,7 @@
       "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
       "name": "Acala",
       "paraId": "2000",
-      "externalApi": {
-        "history": {
-          "type": "giantsquid",
-          "url": "https://squid-acala-api.squid.tachi.soramitsu.co.jp/graphql"
-        },
-        "explorers": [
-          {
-            "type": "subscan",
-            "types": [
-              "extrinsic",
-              "account"
-            ],
-            "url": "https://acala.subscan.io/{type}/{value}"
-          }
-        ]
-      },
+      "externalApi": {},
       "assets": [
         {
           "id": "c801d6c1-3edf-41a9-9aea-da705eab249b",
@@ -664,10 +633,6 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-acala.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://acala-rpc-0.aca-api.network",
           "name": "Acala Foundation 0 node"
         },
@@ -678,14 +643,6 @@
         {
           "url": "wss://acala-rpc-3.aca-api.network/ws",
           "name": "Acala Foundation 3 node"
-        },
-        {
-          "url": "wss://acala.ibp.network",
-          "name": "IBP1 node"
-        },
-        {
-          "url": "wss://acala.dotters.network",
-          "name": "IBP2 node"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/acala.svg",
@@ -700,22 +657,7 @@
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "name": "Karura",
       "paraId": "2000",
-      "externalApi": {
-        "history": {
-          "type": "giantsquid",
-          "url": "https://squid-karura-api.squid.tachi.soramitsu.co.jp/graphql"
-        },
-        "explorers": [
-          {
-            "type": "subscan",
-            "types": [
-              "extrinsic",
-              "account"
-            ],
-            "url": "https://karura.subscan.io/{type}/{value}"
-          }
-        ]
-      },
+      "externalApi": {},
       "assets": [
         {
           "id": "e71b30a0-2a44-40ff-8b53-a166fadef6c5",
@@ -1089,12 +1031,12 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-karura.n.dwellir.com",
-          "name": "Dwellir node"
+          "url": "wss://karura-rpc-0.aca-api.network",
+          "name": "Acala Foundation 0 node"
         },
         {
-          "url": "wss://karura.polkawallet.io",
-          "name": "Polkawallet node"
+          "name": "Dwellir node",
+          "url": "wss://karura-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Karura.svg",
@@ -1110,10 +1052,6 @@
       "paraId": "2007",
       "name": "Shiden",
       "externalApi": {
-        "history": {
-          "type": "giantsquid",
-          "url": "https://squid-shiden-api.squid.tachi.soramitsu.co.jp/graphql"
-        },
         "explorers": [
           {
             "type": "subscan",
@@ -1163,12 +1101,12 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-shiden.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://rpc.shiden.astar.network",
           "name": "StakeTechnologies node"
+        },
+        {
+          "name": "Dwellir node",
+          "url": "wss://shiden-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Shiden.svg",
@@ -1180,22 +1118,7 @@
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "2001",
       "name": "Bifrost",
-      "externalApi": {
-        "history": {
-          "type": "giantsquid",
-          "url": "https://squid.subsquid.io/gs-main-Bifrost/graphql"
-        },
-        "explorers": [
-          {
-            "type": "subscan",
-            "types": [
-              "extrinsic",
-              "account"
-            ],
-            "url": "https://bifrost-kusama.subscan.io/{type}/{value}"
-          }
-        ]
-      },
+      "externalApi": {},
       "assets": [
         {
           "isUtility": true,
@@ -1356,12 +1279,12 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-bifrost-kusama.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://bifrost-rpc.liebi.com/ws",
           "name": "Liebi node"
+        },
+        {
+          "url": "wss://us.bifrost-rpc.liebi.com/ws",
+          "name": "LiebiUS node"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Bifrost.svg",
@@ -1372,7 +1295,7 @@
       }
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "d43540ba6d3eb4897c28a77d48cb5b729fea37603cbbfc7a86a73b72adb3be8d",
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "2004",
@@ -1435,8 +1358,8 @@
       "name": "Astar",
       "externalApi": {
         "history": {
-          "type": "giantsquid",
-          "url": "https://squid-astar-api.squid.tachi.soramitsu.co.jp/graphql"
+          "type": "subquery",
+          "url": "https://subquery-history-astar-prod.novasama-tech.org"
         },
         "explorers": [
           {
@@ -1530,16 +1453,12 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-astar.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://rpc.astar.network",
           "name": "Astar node"
         },
         {
-          "url": "wss://astar.public.curie.radiumblock.co/ws",
-          "name": "RadiumBlock node"
+          "name": "Dwellir node",
+          "url": "wss://astar-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/astar.svg",
@@ -1549,7 +1468,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "e61a41c53f5dcd0beb09df93b34402aada44cb05117b71059cce40a2723a4e97",
       "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
       "paraId": "2012",
@@ -1727,12 +1646,7 @@
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "2090",
       "name": "Basilisk",
-      "externalApi": {
-        "history": {
-          "type": "giantsquid",
-          "url": "https://squid-basilisk-api.squid.tachi.soramitsu.co.jp/graphql"
-        }
-      },
+      "externalApi": {},
       "assets": [
         {
           "id": "7dae28e2-9f5e-49ff-9140-aa750a9579ea",
@@ -1773,10 +1687,6 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-basilisk.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://rpc.basilisk.cloud",
           "name": "Basilisk node"
         }
@@ -1785,7 +1695,7 @@
       "addressPrefix": 10041
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "91bc6e169807aaa54802737e1c504b2577d4fafedd5a02c10293b1cd60e39527",
       "rank": 111,
       "name": "Moonbase Alpha",
@@ -1841,7 +1751,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "9de765698374eb576968c8a764168893fb277e65ad3ddafcfe2c49593fc6d663",
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "2024",
@@ -1878,8 +1788,8 @@
       "name": "Hydration",
       "externalApi": {
         "history": {
-          "type": "giantsquid",
-          "url": "https://squid-hydradx-api.squid.tachi.soramitsu.co.jp/graphql"
+          "type": "subquery",
+          "url": "https://subquery-history-hydra-prod.novasama-tech.org"
         },
         "explorers": [
           {
@@ -1888,7 +1798,7 @@
               "extrinsic",
               "account"
             ],
-            "url": "https://hydradx.subscan.io/{type}/{value}"
+            "url": "https://hydration-explorer.neckwork.net/{type}/{value}"
           }
         ]
       },
@@ -1956,31 +1866,19 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://hydration-rpc.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://rpc.hydradx.cloud",
           "name": "Galactic Council node"
         },
         {
-          "url": "wss://rpc.helikon.io/hydradx",
-          "name": "Helikon node"
-        },
-        {
-          "url": "wss://hydration.ibp.network",
-          "name": "IBP1 node"
-        },
-        {
-          "url": "wss://hydration.dotters.network",
-          "name": "IBP2 node"
+          "url": "wss://hydration-rpc.n.dwellir.com",
+          "name": "Dwellir node"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/hydradx.svg",
       "addressPrefix": 63
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "da5831fbc8570e3c6336d0d72b8c08f8738beefec812df21ef2afc2982ede09c",
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "2106",
@@ -2020,12 +1918,7 @@
       "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
       "paraId": "2043",
       "name": "OriginTrail Parachain",
-      "externalApi": {
-        "history": {
-          "type": "giantsquid",
-          "url": "https://squid-origintrail-api.squid.tachi.soramitsu.co.jp/graphql"
-        }
-      },
+      "externalApi": {},
       "assets": [
         {
           "id": "af5bf9f0-0009-4cf8-98ed-b988268c94f1",
@@ -2054,12 +1947,7 @@
       "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
       "paraId": "2037",
       "name": "UNIQUE",
-      "externalApi": {
-        "history": {
-          "type": "subquery",
-          "url": "https://api.subquery.network/sq/soramitsu/Unique-x-Fearless-Wallet"
-        }
-      },
+      "externalApi": {},
       "assets": [
         {
           "id": "57d05537-06a2-453b-ac87-d081aee65ec9",
@@ -2075,10 +1963,6 @@
       ],
       "ecosystem": "substrate",
       "nodes": [
-        {
-          "url": "wss://api-unique.n.dwellir.com",
-          "name": "Dwellir node"
-        },
         {
           "url": "wss://ws.unique.network",
           "name": "Geo Load Balancer node"
@@ -2107,8 +1991,8 @@
       "name": "Bifrost Polkadot",
       "externalApi": {
         "history": {
-          "type": "giantsquid",
-          "url": "https://squid-bifrostpolkadot-api.squid.tachi.soramitsu.co.jp/graphql"
+          "type": "subquery",
+          "url": "https://subquery-history-bifrost-polkadot-prod.novasama-tech.org"
         },
         "explorers": [
           {
@@ -2170,12 +2054,12 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-bifrost-polkadot.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://hk.p.bifrost-rpc.liebi.com/ws",
           "name": "Liebi node"
+        },
+        {
+          "url": "wss://eu.bifrost-polkadot-rpc.liebi.com/ws",
+          "name": "LiebiEU node"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Bifrost.svg",
@@ -2187,12 +2071,7 @@
       "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
       "paraId": "2013",
       "name": "Litentry",
-      "externalApi": {
-        "history": {
-          "type": "giantsquid",
-          "url": "https://squid-litentry-api.squid.tachi.soramitsu.co.jp/graphql"
-        }
-      },
+      "externalApi": {},
       "assets": [
         {
           "id": "10de552c-20cb-4a86-9bf8-cf5827ca2f71",
@@ -2209,19 +2088,19 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-heima.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://rpc.litentry-parachain.litentry.io",
           "name": "Litentry node"
+        },
+        {
+          "name": "Dwellir node",
+          "url": "wss://heima-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Litentry.svg",
       "addressPrefix": 31
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "feb426ca713f0f46c96465b8f039890370cf6bfd687c9076ea2843f58a6ae8a7",
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "2113",
@@ -2283,16 +2162,8 @@
           "name": "Encointer Association node"
         },
         {
-          "url": "wss://sys.ibp.network/encointer-kusama",
-          "name": "IBP-GeoDNS1 node"
-        },
-        {
-          "url": "wss://sys.dotters.network/encointer-kusama",
-          "name": "IBP-GeoDNS2 node"
-        },
-        {
-          "url": "wss://ksm-rpc.stakeworld.io/encointer",
-          "name": "Stakeworld node"
+          "url": "wss://api.kusama.encointer.org",
+          "name": "Encointer association node"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/encointer.svg",
@@ -2351,7 +2222,7 @@
       "addressPrefix": 18
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "3266816be9fa51b32cfea58d3e33ca77246bc9618595a4300e44c8856a8d8a17",
       "rank": 100,
       "name": "SORA test",
@@ -2659,7 +2530,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "15b8706309a2407e6ae6615b44f08c2bee8eba3fe54a6a765e4068373feaf269",
       "rank": 99,
       "name": "SORA-test",
@@ -2935,28 +2806,10 @@
       "rank": 0,
       "name": "SORA Mainnet",
       "externalApi": {
-        "staking": {
-          "type": "sora",
-          "url": "https://fearless-wallet.squids.live/sora-fw/v/v12/graphql"
-        },
         "pricing": {
-            "type": "sora",
-            "url": "https://api.subquery.network/sq/sora-xor/sora-prod"
-        },
-        "history": {
           "type": "sora",
-          "url": "https://fearless-wallet.squids.live/sora-fw/v/v12/graphql"
-        },
-        "explorers": [
-          {
-            "type": "subscan",
-            "types": [
-              "extrinsic",
-              "account"
-            ],
-            "url": "https://sora.subscan.io/{type}/{value}"
-          }
-        ]
+          "url": "https://pi.soramitsu.io/graphql"
+        }
       },
       "assets": [
           {
@@ -3469,15 +3322,7 @@
         },
         {
           "url": "wss://mof2.sora.org",
-          "name": "SORA Parliament Ministry of Finance Node"
-        },
-        {
-          "url": "wss://mof3.sora.org",
-          "name": "SORA Parliament Ministry of Finance Node"
-        },
-        {
-          "url": "wss://sora.api.onfinality.io/public-ws",
-          "name": "OnFinality node"
+          "name": "mof2.sora.org WSS"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/SORA.svg",
@@ -3506,10 +3351,6 @@
       ],
       "ecosystem": "substrate",
       "nodes": [
-        {
-          "url": "wss://api-aleph-zero-mainnet.n.dwellir.com",
-          "name": "Dwellir node"
-        },
         {
           "url": "wss://ws.azero.dev",
           "name": "Aleph Zero Foundation node"
@@ -3540,27 +3381,19 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-bridge-hub-kusama.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://kusama-bridge-hub-rpc.polkadot.io",
           "name": "Parity node"
         },
         {
-          "url": "wss://sys.ibp.network/bridgehub-kusama",
-          "name": "IBP-GeoDNS1 node"
-        },
-        {
-          "url": "wss://sys.dotters.network/bridgehub-kusama",
-          "name": "IBP-GeoDNS2 node"
+          "name": "Dwellir node",
+          "url": "wss://bridge-hub-kusama-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Bridgehub.svg",
       "addressPrefix": 2
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "6f0f071506de39058fe9a95bbca983ac0e9c5da3443909574e95d52eb078d348",
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "2222",
@@ -3588,7 +3421,7 @@
       "addressPrefix": 32
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "2991d4125ac465d64c4c0b915fedd7168b5961b7676480636e3747f1ad64cfb9",
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "paraId": "2236",
@@ -3636,10 +3469,6 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-frequency.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://0.rpc.frequency.xyz",
           "name": "Frequency 0 node"
         },
@@ -3658,12 +3487,7 @@
       "rank": 10,
       "paraId": "2094",
       "name": "Pendulum",
-      "externalApi": {
-        "history": {
-          "type": "giantsquid",
-          "url": "https://squid-pendulum-api.squid.tachi.soramitsu.co.jp/graphql"
-        }
-      },
+      "externalApi": {},
       "assets": [
         {
           "id": "ebf2822f-2dd4-4f59-aeb3-ae7defa53932",
@@ -3801,10 +3625,6 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-pendulum.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://rpc-pendulum.prd.pendulumchain.tech",
           "name": "PendulumChain node"
         }
@@ -3861,7 +3681,7 @@
         ],
         "history": {
           "type": "etherscan",
-          "url": "https://api.etherscan.io/api"
+          "url": "https://api.routescan.io/v2/network/mainnet/evm/1/etherscan/api"
         }
       },
       "assets": [
@@ -4120,7 +3940,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "5",
       "rank": 101,
       "name": "Ethereum Goerli",
@@ -4427,12 +4247,12 @@
       "ecosystem": "ethereum",
       "nodes": [
         {
-          "url": "https://bsc-testnet.blastapi.io/",
-          "name": "Blast https"
+          "url": "https://bsc-testnet-rpc.publicnode.com",
+          "name": "PublicNode"
         },
         {
-          "url": "wss://bsc-testnet.blastapi.io/",
-          "name": "Blast wss"
+          "url": "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
+          "name": "Public RPC"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/bnbchain.svg",
@@ -4450,7 +4270,7 @@
       "externalApi": {
         "history": {
           "type": "etherscan",
-          "url": "https://api-sepolia.etherscan.io/api"
+          "url": "https://api.routescan.io/v2/network/testnet/evm/11155111/etherscan/api"
         },
         "explorers": [
           {
@@ -4500,12 +4320,12 @@
       "ecosystem": "ethereum",
       "nodes": [
         {
-          "url": "https://eth-sepolia.blastapi.io/",
-          "name": "Blast https"
+          "url": "https://ethereum-sepolia-rpc.publicnode.com",
+          "name": "PublicNode"
         },
         {
-          "url": "wss://eth-sepolia.blastapi.io/",
-          "name": "Blast wss"
+          "url": "https://rpc.sepolia.ethpandaops.io",
+          "name": "Public RPC"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/tokens/coloured/ETH.svg",
@@ -4673,12 +4493,12 @@
       "ecosystem": "ethereum",
       "nodes": [
         {
-          "url": "https://polygon-mainnet.blastapi.io/",
-          "name": "Blast https"
+          "url": "https://polygon-bor-rpc.publicnode.com",
+          "name": "Bor public https"
         },
         {
-          "url": "wss://polygon-mainnet.blastapi.io/",
-          "name": "Blast wss"
+          "url": "https://polygon.drpc.org",
+          "name": "Public RPC"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Polygon.svg",
@@ -4690,7 +4510,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "80001",
       "rank": 103,
       "name": "Polygon mumbai testnet",
@@ -4744,7 +4564,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e",
       "rank": 109,
       "name": "Rococo",
@@ -4797,7 +4617,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "8685a8d3e57fa8024b91b8ead6cc97acf953889c6fb0a355602826a1e2db198f",
       "parentId": "6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e",
       "paraId": "2011",
@@ -4996,8 +4816,8 @@
       "name": "OP Mainnet",
       "externalApi": {
         "history": {
-          "type": "oklink",
-          "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=OP"
+          "type": "etherscan",
+          "url": "https://explorer.optimism.io/api"
         },
         "explorers": [
           {
@@ -5063,8 +4883,8 @@
       "name": "Avalanche C-Chain",
       "externalApi": {
         "history": {
-          "type": "oklink",
-          "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=AVAXC"
+          "type": "etherscan",
+          "url": "https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan/api"
         },
         "explorers": [
           {
@@ -5113,7 +4933,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "195",
       "rank": 130,
       "name": "X Layer Testnet",
@@ -5250,23 +5070,19 @@
       ],
       "externalApi": {
         "history": {
-          "type": "blockscout",
-          "url": "https://zetachain-athens-3.blockscout.com/api/v2/"
+          "type": "etherscan",
+          "url": "https://testnet.zetascan.com/api"
         }
       },
       "ecosystem": "ethereum",
       "nodes": [
         {
-          "url": "https://rpc.ankr.com/zetachain_evm_athens_testnet",
-          "name": "Ankr https node"
-        },
-        {
           "url": "https://zetachain-athens-evm.blockpi.network/v1/rpc/public",
           "name": "Blockpi https node"
         },
         {
-          "url": "https://zetachain-testnet-evm.itrocket.net",
-          "name": "Itrocket https node"
+          "url": "https://zetachain-athens.g.allthatnode.com/archive/evm",
+          "name": "Public RPC"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Zetachain.svg",
@@ -5489,10 +5305,6 @@
       "ecosystem": "ethereum",
       "nodes": [
         {
-          "url": "https://oasys.blockpi.network/v1/rpc/public/",
-          "name": "Blockpi https node"
-        },
-        {
           "url": "https://rpc.mainnet.oasys.games/",
           "name": "Oasys https node"
         }
@@ -5549,12 +5361,7 @@
       "disabled": false,
       "chainId": "50dd5d206917bf10502c68fb4d18a59fc8aa31586f4e8856b493e43544aa82aa",
       "name": "XX network",
-      "externalApi": {
-        "history": {
-          "type": "subquery",
-          "url": "https://api.subquery.network/sq/nova-wallet/nova-wallet-xx-network"
-        }
-      },
+      "externalApi": {},
       "assets": [
         {
           "id": "526dca29-63ff-4683-88d6-852d1455b17b",
@@ -5571,10 +5378,6 @@
       "ecosystem": "substrate",
       "nodes": [
         {
-          "url": "wss://api-xxnetwork.n.dwellir.com",
-          "name": "Dwellir node"
-        },
-        {
           "url": "wss://rpc.xx.network",
           "name": "xx Foundation node #1"
         },
@@ -5583,15 +5386,15 @@
           "name": "xx Foundation node #2"
         },
         {
-          "url": "wss://rpc-do.xx.network",
-          "name": "xx Foundation node #3"
+          "name": "Dwellir node",
+          "url": "wss://xxnetwork-rpc.n.dwellir.com"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/xxnetwork.svg",
       "addressPrefix": 55
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "6660",
       "name": "Latest Testnet",
       "externalApi": {
@@ -5628,7 +5431,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "9630",
       "name": "Latest Mainnet",
       "externalApi": {
@@ -5668,20 +5471,20 @@
       "chainId": "b91746b45e0346cc2f815a520b9c6cb4d5c0902af848db0a80f85932d2e8276a",
       "name": "Avail DA Mainnet",
       "externalApi": {
-          "explorers": [
-            {
-              "type": "subscan",
-              "types": [
-                "extrinsic",
-                "account"
-              ],
-              "url": "https://avail.subscan.io/{type}/{value}"
-            }
-          ],
-          "history": {
-                  "type": "subquery",
-                  "url": "https://api.subquery.network/sq/nova-wallet/nova-wallet-avail"
-              }
+        "explorers": [
+          {
+            "type": "subscan",
+            "types": [
+              "extrinsic",
+              "account"
+            ],
+            "url": "https://avail.subscan.io/{type}/{value}"
+          }
+        ],
+        "history": {
+          "type": "subquery",
+          "url": "https://subquery-history-avail-prod.novasama-tech.org"
+        }
       },
       "assets": [
           {
@@ -5698,38 +5501,14 @@
       ],
       "ecosystem": "substrate",
       "nodes": [
-          {
-            "url": "wss://mainnet.avail-rpc.com/",
-            "name": " Ankr node"
-          },
-          {
-            "url": "wss://avail-rpc.rubynodes.io/",
-            "name": " Ruby node"
-          },
-          {
-            "url": "wss://avail-us.brightlystake.com",
-            "name": " BrightlyStake node"
-          },
-          {
-            "url": "wss://rpc-avail.globalstake.io",
-            "name": " GlobalStake node"
-          },
-          {
-              "url": "wss://avail.rpc.bountyblok.io",
-              "name": "Bountyblok node"
-          },
-          {
-            "url": "wss://avail.public.curie.radiumblock.co/ws",
-            "name": "RadiumBlock node"
-          },
-          {
-            "url": "wss://avail-rpc.lgns.net/",
-            "name": "LugaNodes node"
-          },
-          {
-            "url": "wss://rpc.avail.stakepool.dev.br/ws",
-            "name": "StakePool node"
-          }
+        {
+          "url": "wss://rpc-avail.globalstake.io",
+          "name": " GlobalStake node"
+        },
+        {
+          "url": "wss://avail.api.onfinality.io/public-ws",
+          "name": "Avail primary node"
+        }
       ],
       "options": [
           "checkAppId"
@@ -5738,7 +5517,7 @@
       "addressPrefix": 42
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "0614f7b74a2e47f7c8d8e2a5335be84bdde9402a43f5decdec03200a87c8b943",
       "name": "Analog Testnet",
       "externalApi": {
@@ -5773,7 +5552,7 @@
       "addressPrefix": 12850
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "7a0f5cf23f4cdf391e6adadb4f5193fed975b1b621afbc96a522234c56688adb",
       "name": "Analog SORA Testnet",
       "externalApi": {
@@ -5866,24 +5645,12 @@
       ],
       "nodes": [
         {
-          "url": "wss://sys.ibp.network/people-polkadot",
-          "name": "IBP1 node"
-        },
-        {
-          "url": "wss://sys.dotters.network/people-polkadot",
-          "name": "IBP2 node"
-        },
-        {
           "url": "wss://rpc-people-polkadot.luckyfriday.io",
           "name": "LuckyFriday node"
         },
         {
           "url": "wss://polkadot-people-rpc.polkadot.io",
           "name": "Parity node"
-        },
-        {
-          "url": "wss://people-polkadot.public.curie.radiumblock.co/ws",
-          "name": "RadiumBlock node"
         }
       ],
       "options": [
@@ -5961,16 +5728,8 @@
       "ecosystem": "ethereum",
       "nodes": [
         {
-          "url": "https://public-en-cypress.klaytn.net/",
-          "name": "Klaytn Foundation https node"
-        },
-        {
-          "url": "wss://public-en-cypress.klaytn.net/ws",
-          "name": "Klaytn Foundation wss node"
-        },
-        {
-          "url": "https://klaytn-pokt.nodies.app/",
-          "name": "POKT free https node"
+          "url": "https://public-en.node.kaia.io/",
+          "name": "Kaia Foundation https node"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Klaytn.svg",
@@ -5996,7 +5755,7 @@
               "tx",
               "account"
             ],
-            "url": "https://baobab.klaytnscope.com/{type}/{value}"
+            "url": "https://kairos.kaiascan.io/{type}/{value}"
           }
         ]
       },
@@ -6016,12 +5775,8 @@
       "ecosystem": "ethereum",
       "nodes": [
         {
-          "url": "https://public-en.kairos.node.kaia.io",
+          "url": "https://public-en-kairos.node.kaia.io",
           "name": "Kairos https node"
-        },
-        {
-          "url": "https://public-en-baobab.klaytn.net",
-          "name": "Klaytn Foundation https node"
         }
       ],
       "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/kaiachain.svg",
@@ -6068,10 +5823,6 @@
       "ecosystem": "ethereum",
       "nodes": [
         {
-          "url": "https://viction.blockpi.network/v1/rpc/public",
-          "name": "Blockpi https node"
-        },
-        {
           "url": "https://rpc.viction.xyz",
           "name": "Viction https node"
         }
@@ -6084,7 +5835,7 @@
       ]
     },
     {
-      "disabled": false,
+      "disabled": true,
       "chainId": "997",
       "name": "5ire Testnet",
       "externalApi": {
@@ -6139,20 +5890,20 @@
       "chainId": "b91746b45e0346cc2f815a520b9c6cb4d5c0902af848db0a80f85932d2e8276a",
       "name": "Avail DA Mainnet",
       "externalApi": {
-          "explorers": [
-            {
-              "type": "subscan",
-              "types": [
-                "extrinsic",
-                "account"
-              ],
-              "url": "https://avail.subscan.io/{type}/{value}"
-            }
-          ],
-          "history": {
-                  "type": "subquery",
-                  "url": "https://api.subquery.network/sq/nova-wallet/nova-wallet-avail"
-              }
+        "explorers": [
+          {
+            "type": "subscan",
+            "types": [
+              "extrinsic",
+              "account"
+            ],
+            "url": "https://avail.subscan.io/{type}/{value}"
+          }
+        ],
+        "history": {
+          "type": "subquery",
+          "url": "https://subquery-history-avail-prod.novasama-tech.org"
+        }
       },
       "assets": [
           {
@@ -6169,38 +5920,14 @@
       ],
       "ecosystem": "substrate",
       "nodes": [
-          {
-            "url": "wss://mainnet.avail-rpc.com/",
-            "name": " Ankr node"
-          },
-          {
-            "url": "wss://avail-rpc.rubynodes.io/",
-            "name": " Ruby node"
-          },
-          {
-            "url": "wss://avail-us.brightlystake.com",
-            "name": " BrightlyStake node"
-          },
-          {
-            "url": "wss://rpc-avail.globalstake.io",
-            "name": " GlobalStake node"
-          },
-          {
-              "url": "wss://avail.rpc.bountyblok.io",
-              "name": "Bountyblok node"
-          },
-          {
-            "url": "wss://avail.public.curie.radiumblock.co/ws",
-            "name": "RadiumBlock node"
-          },
-          {
-            "url": "wss://avail-rpc.lgns.net/",
-            "name": "LugaNodes node"
-          },
-          {
-            "url": "wss://rpc.avail.stakepool.dev.br/ws",
-            "name": "StakePool node"
-          }
+        {
+          "url": "wss://rpc-avail.globalstake.io",
+          "name": " GlobalStake node"
+        },
+        {
+          "url": "wss://avail.api.onfinality.io/public-ws",
+          "name": "Avail primary node"
+        }
       ],
       "options": [
           "checkAppId"
@@ -6239,20 +5966,8 @@
     "ecosystem": "substrate",
     "nodes": [
       {
-        "url": "wss://turing-testnet.avail-rpc.com",
-        "name": "Ankr node"
-      },
-      {
         "url": "wss://avail-turing-rpc.publicnode.com",
         "name": "AllNode node"
-      },
-      {
-        "url": "wss://turing.public.curie.radiumblock.co/ws",
-        "name": "RadiumBlock node"
-      },
-      {
-        "url": "wss://avail-turing.bountyblok.io",
-        "name": "Bountyblok node"
       }
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Avail.svg",
@@ -6314,7 +6029,7 @@
     ]
   },
   {
-    "disabled": false,
+    "disabled": true,
     "chainId": "2424",
     "name": "inEVM Testnet",
     "externalApi": {
@@ -6424,7 +6139,7 @@
             "tonAccount",
             "tonTransaction"
           ],
-          "url": "https://tonviewer.com/{type}/{value}"
+          "url": "https://testnet.tonviewer.com/{type}/{value}"
         }
       ]
     },
@@ -6470,12 +6185,12 @@
             "extrinsic",
             "account"
           ],
-          "url": "https://bridgehub-polkadot/{type}/{value}"
+          "url": "https://bridgehub-polkadot.subscan.io/{type}/{value}"
         }
       ],
       "history": {
         "type": "subquery",
-        "url": "https://api.subquery.network/sq/nova-wallet/nova-wallet---polkadot-bridgehub"
+        "url": "https://subquery-history-polkadot-bh-prod.novasama-tech.org"
       }
     },
     "assets": [
@@ -6493,32 +6208,20 @@
     ],
     "nodes": [
       {
-        "url": "wss://api-bridge-hub-polkadot.n.dwellir.com",
-        "name": "Dwellir node"
-      },
-      {
         "url": "wss://polkadot-bridge-hub-rpc.polkadot.io",
         "name": "Parity node"
-      },
-      {
-        "url": "wss://sys.ibp.network/bridgehub-polkadot",
-        "name": "IBP1 node"
-      },
-      {
-        "url": "wss://bridge-hub-polkadot.dotters.network",
-        "name": "IBP2 node"
       },
       {
         "url": "wss://rpc-bridge-hub-polkadot.luckyfriday.io",
         "name": "LuckyFriday node"
       },
       {
-        "url": "wss://bridgehub-polkadot.public.curie.radiumblock.co/ws",
-        "name": "RadiumBlock node"
-      },
-      {
         "url": "wss://dot-rpc.stakeworld.io/bridgehub",
         "name": "Stakeworld node"
+      },
+      {
+        "name": "Dwellir node",
+        "url": "wss://bridge-hub-polkadot-rpc.n.dwellir.com"
       }
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/Bridgehub.svg",
@@ -6562,20 +6265,8 @@
         "name": "Parity node"
       },
       {
-        "url": "wss://sys.ibp.network/collectives-polkadot",
-        "name": "IBP1 node"
-      },
-      {
-        "url": "wss://collectives-polkadot.dotters.network",
-        "name": "IBP2 node"
-      },
-      {
         "url": "wss://rpc-collectives-polkadot.luckyfriday.io",
         "name": "LuckyFriday node"
-      },
-      {
-        "url": "wss://collectives.public.curie.radiumblock.co/ws",
-        "name": "RadiumBlock node"
       },
       {
         "url": "wss://dot-rpc.stakeworld.io/collectives",
@@ -6594,10 +6285,9 @@
     "ecosystem": "substrate",
     "externalApi": {
       "history": {
-          "type": "subquery",
-          "url": "https://api.subquery.network/sq/nova-wallet/nova-wallet-aventus"
-        }
-      
+        "type": "subquery",
+        "url": "https://subquery-history-aventus-prod.novasama-tech.org"
+      }
     },
     "assets": [
       {
@@ -6628,14 +6318,7 @@
     "paraId": "3367",
     "name": "Hyperbridge (Nexus)",
     "ecosystem": "substrate",
-    "externalApi": {
-      "history":
-        {
-          "type": "subquery",
-          "url": "https://api.subquery.network/sq/nova-wallet/nova-wallet-hyperbridge"
-        }
-      
-    },
+    "externalApi": {},
     "assets": [
       {
         "id": "a7ac5f36-2004-4c10-8efa-2fc0f9419532",
@@ -6650,16 +6333,8 @@
     ],
     "nodes": [
       {
-        "url": "wss://nexus.ibp.network",
-        "name": "IBP1 node"
-      },
-      {
-        "url": "wss://nexus.dotters.network",
-        "name": "IBP2 node"
-      },
-      {
-        "url": "wss://hyperbridge-nexus-rpc.blockops.network",
-        "name": "BlockOps node"
+        "url": "wss://nexus.rpc.polytope.technology",
+        "name": "Polytope Labs node"
       }
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/hyperbridge.svg",
