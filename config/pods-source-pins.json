@@ -1,5 +1,5 @@
 {
-  "note": "Digests of reviewed CocoaPods sources and build-phase executables; see scripts/deps/verify-pods.py",
+  "note": "Digests of reviewed CocoaPods sources; see scripts/deps/verify-pods.py",
   "pods": {
     "Charts": "b2ae712564b1ad33e13a211708f7a3a48cc965cb41aefbd5a843b02271aa7e94",
     "CocoaLumberjack": "6918107c0d9ea2e61e759bf3c683f0fb63d5bef6a4a1c8ebb3516560701a2196",
@@ -13,9 +13,5 @@
     "SoraUI": "e3fbfddaa8405313c0a0537232bbca03f2ad7071fd64eddb0b2db2806f9b8822",
     "SwiftAlgorithms": "99e3c14fe112d34654974f42d7597fc3b53df992715ad9854914fb8a701440a5"
   },
-  "schema": 1,
-  "tools": {
-    "R.swift/rswift": "a742ada73d6660512cc5d65abb839e7b635fa49df5ad838512f5c0ddac014fde",
-    "SwiftFormat/CommandLineTool/swiftformat": "da13be292292a51b2db25c67116f964e88f12b8ca387c2ec25b03313a4168334"
-  }
+  "schema": 2
 }

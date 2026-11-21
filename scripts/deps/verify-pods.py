@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Verify installed CocoaPods sources and the build tools Xcode runs.
-
-`Podfile` pins Sora pods, SVGKit, Charts and others by version or git tag, and a
-tag can be moved. `R.swift` and `SwiftFormat` arrive as prebuilt executables that
-run inside every build; `rswift` writes Swift that is compiled into the app. This
-check compares every installed pod's files, and each executable, with the digests
-recorded in `config/pods-source-pins.json`, so a moved tag, a replaced download
-or a local edit fails the build before any of that code runs.
+"""Verify installed CocoaPods sources against the reviewed tree digests.
 
     python3 -I scripts/deps/verify-pods.py [ROOT]
     python3 -I scripts/deps/verify-pods.py [ROOT] --record --pods <reviewed Pods dir>
@@ -39,13 +32,6 @@ SOURCE_PODS = (
     "SoraUI",
     "SwiftAlgorithms",
 )
-
-# Executables that Xcode build phases run.
-TOOLS = (
-    "R.swift/rswift",
-    "SwiftFormat/CommandLineTool/swiftformat",
-)
-
 
 class PodsVerificationError(Exception):
     pass
@@ -80,15 +66,7 @@ def tree_digest(directory):
 
 
 def measure(pods):
-    measured = {"pods": {}, "tools": {}}
-    for name in SOURCE_PODS:
-        measured["pods"][name] = tree_digest(pods / name)
-    for relative in TOOLS:
-        tool = pods / relative
-        if tool.is_symlink() or not tool.is_file():
-            raise PodsVerificationError("Missing build tool: " + relative)
-        measured["tools"][relative] = file_digest(tool)
-    return measured
+    return {name: tree_digest(pods / name) for name in SOURCE_PODS}
 
 
 def verify(root, pods=None):
@@ -98,29 +76,25 @@ def verify(root, pods=None):
         recorded = json.loads((root / PINS).read_text())
     except (OSError, ValueError) as error:
         raise PodsVerificationError("Cannot read " + PINS + ": " + str(error))
-    if recorded.get("schema") != 1:
+    if recorded.get("schema") != 2:
         raise PodsVerificationError("Unsupported " + PINS + " schema")
-    if set(recorded.get("pods", {})) != set(SOURCE_PODS) or set(recorded.get("tools", {})) != set(TOOLS):
-        raise PodsVerificationError(PINS + " does not list exactly the verified pods and tools")
+    if set(recorded.get("pods", {})) != set(SOURCE_PODS):
+        raise PodsVerificationError(PINS + " does not list exactly the verified pods")
 
     measured = measure(pods)
     for name in SOURCE_PODS:
-        if measured["pods"][name] != recorded["pods"][name]:
+        if measured[name] != recorded["pods"][name]:
             raise PodsVerificationError("Pod sources differ from the reviewed pin: " + name)
-    for relative in TOOLS:
-        if measured["tools"][relative] != recorded["tools"][relative]:
-            raise PodsVerificationError("Build tool differs from the reviewed pin: " + relative)
-    return {"pods": len(SOURCE_PODS), "tools": len(TOOLS)}
+    return {"pods": len(SOURCE_PODS)}
 
 
 def record(root, pods):
     root = Path(root).resolve()
     measured = measure(Path(pods).resolve())
     document = {
-        "schema": 1,
-        "note": "Digests of reviewed CocoaPods sources and build-phase executables; see scripts/deps/verify-pods.py",
-        "pods": measured["pods"],
-        "tools": measured["tools"],
+        "schema": 2,
+        "note": "Digests of reviewed CocoaPods sources; see scripts/deps/verify-pods.py",
+        "pods": measured,
     }
     (root / PINS).write_text(json.dumps(document, indent=2, sort_keys=True) + "\n")
     return document

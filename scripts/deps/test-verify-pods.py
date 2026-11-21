@@ -22,9 +22,6 @@ class VerifyPodsTests(unittest.TestCase):
         self.pods = self.root / "Pods"
         for name in PODS.SOURCE_PODS:
             self.write("Pods/%s/Sources/%s.swift" % (name, name.replace(".", "")), "// %s\n" % name)
-        for relative in PODS.TOOLS:
-            self.write("Pods/" + relative, "#!/bin/sh\nexit 0\n")
-            os.chmod(self.pods / relative, 0o755)
         PODS.record(self.root, self.pods)
 
     def write(self, relative, text):
@@ -33,7 +30,7 @@ class VerifyPodsTests(unittest.TestCase):
         path.write_text(text)
 
     def test_recorded_install_passes(self):
-        self.assertEqual(PODS.verify(self.root), {"pods": len(PODS.SOURCE_PODS), "tools": len(PODS.TOOLS)})
+        self.assertEqual(PODS.verify(self.root), {"pods": len(PODS.SOURCE_PODS)})
 
     def test_edited_pod_source_fails(self):
         self.write("Pods/SoraUI/Sources/SoraUI.swift", "// moved tag\n")
@@ -43,11 +40,6 @@ class VerifyPodsTests(unittest.TestCase):
     def test_added_pod_file_fails(self):
         self.write("Pods/SVGKit/Sources/Injected.m", "// injected\n")
         with self.assertRaisesRegex(PODS.PodsVerificationError, "SVGKit"):
-            PODS.verify(self.root)
-
-    def test_replaced_build_tool_fails(self):
-        self.write("Pods/R.swift/rswift", "#!/bin/sh\necho owned\n")
-        with self.assertRaisesRegex(PODS.PodsVerificationError, "R.swift/rswift"):
             PODS.verify(self.root)
 
     def test_executable_bit_change_fails(self):

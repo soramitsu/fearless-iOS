@@ -18029,7 +18029,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$PODS_ROOT/R.swift/rswift\" generate \"$PROJECT_DIR/R.generated.swift\"\n";
+			shellScript = "\"$PROJECT_DIR/build/source-tools/bin/rswift\" generate \"$PROJECT_DIR/R.generated.swift\"\n";
 		};
 		89AD8B440B53D55B8CAA828D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -18147,7 +18147,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat\" --lint \"$SRCROOT/fearless\"\n";
+			shellScript = "\"$PROJECT_DIR/build/source-tools/bin/swiftformat\" --lint \"$SRCROOT/fearless\"\n";
 		};
 		FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -18206,7 +18206,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n# Runs before SwiftFormat and R.swift: no pod code or downloaded tool executes until it matches its reviewed pin.\n# The SwiftPM checkouts this build compiles: scripts set SOURCE_PACKAGES_DIR (or IOS_RELEASE_SOURCE_PACKAGES_DIR);\n# Xcode otherwise keeps them in DerivedData or the project's cloned-packages path.\nSP=\"\"\nfor candidate in \"${SOURCE_PACKAGES_DIR:-}\" \"${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}\" \"${BUILD_DIR%/Build/*}/SourcePackages\" \"${CLONED_SOURCE_PACKAGES_DIR_PATH:-}\"; do\n  if [ -n \"$candidate\" ] && [ -d \"$candidate/checkouts\" ]; then SP=\"$candidate\"; break; fi\ndone\nif [ -z \"$SP\" ]; then\n  echo \"error: no SwiftPM checkouts found to verify; set SOURCE_PACKAGES_DIR to the -clonedSourcePackagesDirPath in use\"\n  exit 1\nfi\necho \"Verifying SwiftPM checkouts in $SP\"\npython3 -I \"${PROJECT_DIR}/scripts/deps/verify-native-source.py\" \"${PROJECT_DIR}\" --source-packages \"$SP\"\npython3 -I \"${PROJECT_DIR}/scripts/deps/verify-pods.py\" \"${PROJECT_DIR}\" --pods \"${PODS_ROOT}\"\n";
+			shellScript = "set -e\n# Verify the host tools before the SwiftFormat and R.swift phases run.\npython3 -I \"${PROJECT_DIR}/scripts/deps/verify-build-tools.py\" \"${PROJECT_DIR}\"\n# The SwiftPM checkouts this build compiles: scripts set SOURCE_PACKAGES_DIR (or IOS_RELEASE_SOURCE_PACKAGES_DIR);\n# Xcode otherwise keeps them in DerivedData or the project's cloned-packages path.\nSP=\"\"\nfor candidate in \"${SOURCE_PACKAGES_DIR:-}\" \"${IOS_RELEASE_SOURCE_PACKAGES_DIR:-}\" \"${BUILD_DIR%/Build/*}/SourcePackages\" \"${CLONED_SOURCE_PACKAGES_DIR_PATH:-}\"; do\n  if [ -n \"$candidate\" ] && [ -d \"$candidate/checkouts\" ]; then SP=\"$candidate\"; break; fi\ndone\nif [ -z \"$SP\" ]; then\n  echo \"error: no SwiftPM checkouts found to verify; set SOURCE_PACKAGES_DIR to the -clonedSourcePackagesDirPath in use\"\n  exit 1\nfi\necho \"Verifying SwiftPM checkouts in $SP\"\npython3 -I \"${PROJECT_DIR}/scripts/deps/verify-native-source.py\" \"${PROJECT_DIR}\" --source-packages \"$SP\"\npython3 -I \"${PROJECT_DIR}/scripts/deps/verify-pods.py\" \"${PROJECT_DIR}\" --pods \"${PODS_ROOT}\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -11,8 +11,6 @@ PODS:
   - Cuckoo/Swift (2.1.2)
   - FireMock (3.1)
   - MediaView (0.2.0)
-  - R.swift (6.1.0):
-    - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - SoraFoundation (1.0.0):
     - SoraFoundation/DateProcessing (= 1.0.0)
@@ -71,7 +69,6 @@ PODS:
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
-  - SwiftFormat/CLI (0.47.13)
   - SwiftLint (0.62.1)
 
 DEPENDENCIES:
@@ -79,13 +76,12 @@ DEPENDENCIES:
   - Cuckoo
   - FireMock
   - MediaView (from `https://github.com/bnsports/MediaView.git`, commit `c7b4538a06d4177df1f27419575812e3673a8fee`)
-  - R.swift (= 6.1.0)
+  - R.swift.Library (= 5.3.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.2`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - SVGKit
-  - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
 
 SPEC REPOS:
@@ -94,14 +90,12 @@ SPEC REPOS:
     - CocoaLumberjack
     - Cuckoo
     - FireMock
-    - R.swift
     - R.swift.Library
     - SoraFoundation
     - SoraUI
     - Sourcery
     - SVGKit
     - SwiftAlgorithms
-    - SwiftFormat
     - SwiftLint
 
 EXTERNAL SOURCES:
@@ -126,7 +120,6 @@ SPEC CHECKSUMS:
   Cuckoo: f5f2f6ee4f18dc7c6d0b119e65fc97ee77ac00ed
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
-  R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: 0949adfd295fad21e78bd6e562f18923adbfe5bb
@@ -134,9 +127,8 @@ SPEC CHECKSUMS:
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
-  SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: 6a9eb020853558a7eaf00f655636b5d6ad15bd02
 
-PODFILE CHECKSUM: 704c13174ae205587d49e5b920e86c20a2e8089d
+PODFILE CHECKSUM: aefbf1dc22891eeaa7cbd65a6349cff6a3040fa0
 
 COCOAPODS: 1.16.2
