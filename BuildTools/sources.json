@@ -1,0 +1,43 @@
+{
+  "rswift": {
+    "url": "https://github.com/mac-cain13/R.swift.git",
+    "tag": "v6.1.0",
+    "revision": "994c2a92435b831d3dd184fc98936ff38e874106",
+    "paths": [
+      "Sources",
+      "License"
+    ],
+    "tree": "d8a6200f8113cee9e8aa279315c3d922159505c5"
+  },
+  "swiftformat": {
+    "url": "https://github.com/nicklockwood/SwiftFormat.git",
+    "tag": "0.47.13",
+    "revision": "94630559a4f60be5f043229e367d8d98247fd890",
+    "paths": [
+      "Sources",
+      "CommandLineTool/main.swift",
+      "LICENSE.md"
+    ],
+    "tree": "ce49b159f6d0f78ac4a68cade12b5fd232fb3be1"
+  },
+  "Commander": {
+    "url": "https://github.com/kylef/Commander.git",
+    "tag": "0.9.2",
+    "revision": "4a1f2fb82fb6cef613c4a25d2e38f702e4d812c2",
+    "paths": [
+      "Sources",
+      "LICENSE"
+    ],
+    "tree": "19fd83fe4b8a06ba7d7e9c7028ba96a9b0fa5baf"
+  },
+  "XcodeEdit": {
+    "url": "https://github.com/tomlokhorst/XcodeEdit.git",
+    "tag": "2.8.0",
+    "revision": "99547c5af5850155b52c43b716ba1b094b02a3b2",
+    "paths": [
+      "Sources",
+      "LICENSE"
+    ],
+    "tree": "72bd6b8bc305a65912b20614ca810f9bccfffd5b"
+  }
+}
