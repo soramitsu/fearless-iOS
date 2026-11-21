@@ -51,12 +51,20 @@ final class CovFMiscNomisTests: XCTestCase {
         XCTAssertEqual(code, 503)
     }
 
+    func testUnconfiguredSignerSendsNoNomisHeaders() throws {
+        var request = URLRequest(url: try XCTUnwrap(URL(string: "https://nomis.invalid/score")))
+        let config = try NomisAccountStatisticsRequest(baseURL: try XCTUnwrap(URL(string: "https://nomis.invalid")), address: "a", endpoint: "score")
+        try NomisRequestSigner(clientId: "", apiKey: "  ").sign(request: &request, config: config)
+        XCTAssertNil(request.value(forHTTPHeaderField: "X-ClientId"))
+        XCTAssertNil(request.value(forHTTPHeaderField: "X-API-Key"))
+    }
+
     func testSignerAddsClientAndApiKeyHeaders() throws {
         var request = URLRequest(url: try XCTUnwrap(URL(string: "https://nomis.invalid/score")))
         let config = try NomisAccountStatisticsRequest(baseURL: try XCTUnwrap(URL(string: "https://nomis.invalid")), address: "a", endpoint: "score")
-        try NomisRequestSigner().sign(request: &request, config: config)
-        XCTAssertEqual(request.value(forHTTPHeaderField: "X-ClientId"), NomisApiKeys.nomisClientId)
-        XCTAssertEqual(request.value(forHTTPHeaderField: "X-API-Key"), NomisApiKeys.nomisApiKey)
+        try NomisRequestSigner(clientId: "fixture-client", apiKey: " fixture-key ").sign(request: &request, config: config)
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-ClientId"), "fixture-client")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-API-Key"), "fixture-key")
         XCTAssertEqual(config.endpoint, "a/score")
         XCTAssertNil(config.body)
     }
