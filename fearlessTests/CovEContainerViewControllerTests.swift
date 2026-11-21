@@ -29,7 +29,7 @@ final class CovEContainerViewControllerTests: XCTestCase {
         XCTAssertEqual(draggable.insets[.compact]?.top, UIConstants.defaultOffset)
         XCTAssertEqual(draggable.insets[.full]?.top, container.inheritedInsets.top)
         XCTAssertGreaterThan(draggable.view.frame.minY, 0, "The panel starts compact, below the content")
-        XCTAssertEqual(container.draggableProgress, 0)
+        XCTAssertEqual(container.draggableProgress, 0, accuracy: 1e-9)
         XCTAssertFalse(container.scrollView.subviews.isEmpty)
 
         let pan = try XCTUnwrap(draggable.view.gestureRecognizers?.first as? UIPanGestureRecognizer)
