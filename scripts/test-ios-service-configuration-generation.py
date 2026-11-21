@@ -122,19 +122,16 @@ class ServiceConfigurationGenerationTests(unittest.TestCase):
             with self.subTest(variable=variable):
                 self.assertNotIn(variable, {"MOONPAY_PRODUCTION_SECRET", "MOONPAY_TEST_SECRET"})
 
-    def test_nomis_account_scoring_credentials_use_their_reviewed_environment_names(self):
-        self.assertEqual(
-            {argument: GENERATOR.ARGUMENT_ENVIRONMENT[argument] for argument in ["nomisClientId", "nomisApiKey"]},
-            {"nomisClientId": "FL_NOMIS_CLIENT_ID", "nomisApiKey": "FL_NOMIS_API_KEY"},
-        )
-        rendered = GENERATOR.render(TEMPLATE, {"FL_NOMIS_CLIENT_ID": "synthetic-client", "FL_NOMIS_API_KEY": "synthetic-key"})
-        self.assertIn(
-            'enum NomisApiKeys {\n'
-            '    static var nomisClientId: String = "synthetic-client"\n'
-            '    static var nomisApiKey: String = "synthetic-key"\n'
-            '}\n',
-            rendered,
-        )
+    def test_retired_nomis_settings_are_not_generated(self):
+        # The Nomis account score was removed; its credentials must not come back into signed builds.
+        rendered = GENERATOR.render(TEMPLATE, self.fixture_environment())
+        for retired in ["NomisApiKeys", "nomisClientId", "nomisApiKey", "Nomis", "nomis"]:
+            with self.subTest(retired=retired):
+                self.assertNotIn(retired, TEMPLATE)
+                self.assertNotIn(retired, rendered)
+        for variable in GENERATOR.ARGUMENT_ENVIRONMENT.values():
+            with self.subTest(variable=variable):
+                self.assertFalse(variable.startswith("FL_NOMIS_"))
 
     def test_unset_optional_values_are_empty_not_sourcery_booleans(self):
         rendered = GENERATOR.render(TEMPLATE, {"FL_TON_API_KEY": "fixture-ton-key"})
