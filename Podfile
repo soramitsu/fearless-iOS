@@ -21,7 +21,7 @@ abstract_target 'fearlessAll' do
   # pod 'Kingfisher', '7.10.2' , :inhibit_warnings => true
   pod 'SVGKit'
   pod 'Charts', '~> 4.1.0'
-  pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
+  pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :commit => 'c7b4538a06d4177df1f27419575812e3673a8fee'
   target 'fearlessTests' do
     inherit! :search_paths
 
@@ -33,7 +33,7 @@ abstract_target 'fearlessAll' do
     # Ensure UI/framework deps are available to the tests as well
     pod 'SoraUI', '~> 1.10.3', :inhibit_warnings => true
     pod 'SVGKit'
-    pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
+    pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :commit => 'c7b4538a06d4177df1f27419575812e3673a8fee'
 
   end
 

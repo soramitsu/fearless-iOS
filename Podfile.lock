@@ -78,7 +78,7 @@ DEPENDENCIES:
   - Charts (~> 4.1.0)
   - Cuckoo
   - FireMock
-  - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
+  - MediaView (from `https://github.com/bnsports/MediaView.git`, commit `c7b4538a06d4177df1f27419575812e3673a8fee`)
   - R.swift (= 6.1.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.2`)
@@ -106,7 +106,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   MediaView:
-    :branch: dev
+    :commit: c7b4538a06d4177df1f27419575812e3673a8fee
     :git: https://github.com/bnsports/MediaView.git
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
@@ -137,6 +137,6 @@ SPEC CHECKSUMS:
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: 6a9eb020853558a7eaf00f655636b5d6ad15bd02
 
-PODFILE CHECKSUM: e85aa1c691bbcdc70009bfa31d75997ab5af6065
+PODFILE CHECKSUM: 704c13174ae205587d49e5b920e86c20a2e8089d
 
 COCOAPODS: 1.16.2
