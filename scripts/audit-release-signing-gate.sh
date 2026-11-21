@@ -101,6 +101,8 @@ require_literal "$GATE_FILE" "-destination 'generic/platform=iOS'" \
   'The release-signing gate must target a generic iOS device.'
 require_literal "$GATE_FILE" '-disableAutomaticPackageResolution' \
   'The release-signing gate must not mutate dependency resolution.'
+require_active_literal "$GATE_FILE" '"$ROOT_DIR/scripts/deps/build-tools-from-source.sh" --force' \
+  'The release-signing gate must bootstrap the host tools from their pinned source.'
 require_literal "$GATE_FILE" 'archive >"$build_log" 2>&1' \
   'The release-signing gate must create and privately capture a real archive.'
 require_literal "$GATE_FILE" '"$CODESIGN_BIN" --verify --deep --strict' \

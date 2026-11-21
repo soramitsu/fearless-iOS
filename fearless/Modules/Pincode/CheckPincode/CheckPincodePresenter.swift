@@ -50,6 +50,13 @@ extension CheckPincodePresenter: LocalAuthInteractorOutputProtocol {
         }
     }
 
+    func didReceiveLockout(remaining: TimeInterval) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, !self.finished else { return }
+            self.view?.didReceiveLockout(remaining: remaining)
+        }
+    }
+
     func didChangeState(to _: LocalAuthInteractor.LocalAuthState) {}
 
     func didCompleteAuth() {

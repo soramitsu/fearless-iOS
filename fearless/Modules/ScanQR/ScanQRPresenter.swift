@@ -15,8 +15,6 @@ enum ScanState {
 }
 
 final class ScanQRPresenter: NSObject {
-    let localizationManager: LocalizationManagerProtocol?
-
     // MARK: Private properties
 
     private weak var view: ScanQRViewInput?
@@ -44,7 +42,9 @@ final class ScanQRPresenter: NSObject {
         self.logger = logger
         self.moduleOutput = moduleOutput
         self.rawCodeOutput = rawCodeOutput
+        super.init()
 
+        // Localizable's manager: `selectedLocale` reads this one.
         self.localizationManager = localizationManager
     }
 

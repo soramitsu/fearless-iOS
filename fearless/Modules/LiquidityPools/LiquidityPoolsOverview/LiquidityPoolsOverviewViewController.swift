@@ -80,7 +80,7 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
         }
 
         rootView.addUserPoolsView(view)
-        controller.didMove(toParent: self)
+        userPoolsViewController.didMove(toParent: self)
     }
 
     private func setupEmbededAvailablePoolsView() {
@@ -91,7 +91,7 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
         }
 
         rootView.addAvailablePoolsView(view)
-        controller.didMove(toParent: self)
+        availablePoolsViewController.didMove(toParent: self)
     }
 }
 

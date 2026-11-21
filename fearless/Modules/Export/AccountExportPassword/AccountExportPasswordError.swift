@@ -2,6 +2,7 @@ import Foundation
 
 enum AccountExportPasswordError: Error {
     case passwordMismatch
+    case passwordTooShort
 }
 
 extension AccountExportPasswordError: ErrorContentConvertible {
@@ -12,6 +13,11 @@ extension AccountExportPasswordError: ErrorContentConvertible {
         case .passwordMismatch:
             message = R.string.localizable
                 .commonErrorPasswordMismatch(preferredLanguages: locale?.rLanguages)
+        case .passwordTooShort:
+            message = R.string.localizable.backupCreatePasswordTooShort(
+                "\(NSPredicate.backupPasswordMinimumLength)",
+                preferredLanguages: locale?.rLanguages
+            )
         }
 
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)

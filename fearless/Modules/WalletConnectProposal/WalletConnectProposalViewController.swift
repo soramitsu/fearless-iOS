@@ -53,6 +53,10 @@ final class WalletConnectProposalViewController: UIViewController, ViewHolder {
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        // Hidden with its window while the app is locked: still open.
+        guard !WalletConnectSheetVisibility.isHiddenWithItsWindow(self) else {
+            return
+        }
         output.viewDidDisappear()
     }
 

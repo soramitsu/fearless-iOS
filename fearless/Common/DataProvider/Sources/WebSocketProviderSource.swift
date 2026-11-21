@@ -127,13 +127,19 @@ final class WebSocketProviderSource<T: Decodable & Equatable>: DataProviderSourc
 
     private func subscribe(for key: Data) {
         mutex.lock()
+        let subscriptionError = subscribeLocked(for: key)
+        mutex.unlock()
 
-        defer {
-            mutex.unlock()
+        // replaceAndNotifyError takes the same non-recursive lock, so it runs only after the lock is released.
+        if let subscriptionError = subscriptionError {
+            replaceAndNotifyError(subscriptionError)
         }
+    }
 
+    /// Subscribes while `mutex` is held and returns the error the engine threw, if any.
+    private func subscribeLocked(for key: Data) -> Error? {
         guard subscriptionId == nil else {
-            return
+            return nil
         }
 
         do {
@@ -156,8 +162,9 @@ final class WebSocketProviderSource<T: Decodable & Equatable>: DataProviderSourc
 
             self.subscriptionId = subscriptionId
 
+            return nil
         } catch {
-            replaceAndNotifyError(error)
+            return error
         }
     }
 
@@ -165,7 +172,10 @@ final class WebSocketProviderSource<T: Decodable & Equatable>: DataProviderSourc
         mutex.lock()
 
         if let subscriptionId = subscriptionId {
-            engine.cancelForIdentifier(subscriptionId)
+            // cancelForIdentifier only withdraws an unanswered request; an established
+            // subscription keeps running on the node until it is unsubscribed. The
+            // engine removes the handler even when it cannot send the request.
+            try? engine.unsubsribe(subscriptionId)
         }
 
         subscriptionId = nil

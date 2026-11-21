@@ -21,21 +21,22 @@ enum FWGlow {
         view.layer.shadowPath = path.cgPath
         halo.frame = view.frame
         halo.shadowPath = path.cgPath
-        let color: UIColor?
+        let color: UIColor
         switch style {
-        case .primary, .pending: color = R.color.fwBrand()
-        case .focus: color = R.color.fwFocus()
-        case .success: color = R.color.fwSuccess()
+        case .primary: color = FWSunlit.Palette.brand
+        case .pending: color = FWSunlit.Palette.warning
+        case .focus: color = FWSunlit.Palette.brand
+        case .success: color = FWSunlit.Palette.success
         }
-        view.layer.shadowColor = color?.resolvedColor(with: view.traitCollection).cgColor
+        view.layer.shadowColor = color.cgColor
         halo.shadowColor = view.layer.shadowColor
         halo.shadowOffset = .zero
         halo.shadowRadius = 20
-        halo.shadowOpacity = style == .primary ? 0.35 : 0
-        view.layer.shadowOffset = style == .primary ? CGSize(width: 0, height: 6) : .zero
-        view.layer.shadowRadius = style == .primary ? 12 : 8
+        halo.shadowOpacity = style == .primary ? 0.3 : 0
+        view.layer.shadowOffset = style == .primary ? FWSunlit.Shadows.emissiveGlow.offset : .zero
+        view.layer.shadowRadius = style == .primary ? FWSunlit.Shadows.emissiveGlow.layerRadius : 8
         switch style {
-        case .primary: view.layer.shadowOpacity = 0.55
+        case .primary: view.layer.shadowOpacity = FWSunlit.Shadows.emissiveGlow.opacity
         case .pending: view.layer.shadowOpacity = 0.4
         case .focus: view.layer.shadowOpacity = 0.28
         case .success: view.layer.shadowOpacity = 0.15

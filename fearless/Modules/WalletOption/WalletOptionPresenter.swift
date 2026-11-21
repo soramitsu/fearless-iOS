@@ -9,6 +9,7 @@ final class WalletOptionPresenter {
     private let interactor: WalletOptionInteractorInput
 
     private var wallet: ManagedMetaAccountModel
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     // MARK: - Constructors
 
@@ -17,11 +18,13 @@ final class WalletOptionPresenter {
         interactor: WalletOptionInteractorInput,
         router: WalletOptionRouterInput,
         localizationManager: LocalizationManagerProtocol,
-        eventCenter: EventCenterProtocol = EventCenter.shared
+        eventCenter: EventCenterProtocol = EventCenter.shared,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
         self.wallet = wallet
         self.interactor = interactor
         self.router = router
+        self.submissionAuthorizer = submissionAuthorizer
         self.localizationManager = localizationManager
         eventCenter.add(observer: self, dispatchIn: .main)
     }
@@ -38,7 +41,12 @@ final class WalletOptionPresenter {
             title: removeTitle,
             style: .pinkBackgroundWhiteText
         ) { [weak self] in
-            self?.interactor.deleteWallet()
+            guard let self else { return }
+            // Forgetting a backed-up wallet erases its keys from this device, so it needs the
+            // PIN (or trusted biometrics) like any transfer; a cancel removes nothing.
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                self?.interactor.deleteWallet()
+            }
         }
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)

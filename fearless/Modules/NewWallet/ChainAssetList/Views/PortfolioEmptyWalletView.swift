@@ -1,6 +1,8 @@
+import SnapKit
 import UIKit
 
-/// This card makes no balance claim while the initial subscriptions are loading.
+/// This card makes no balance claim while the initial subscriptions are loading. Sun-lit: a raised card
+/// whose rim follows the home sun; Receive is the emissive primary action.
 final class PortfolioEmptyWalletView: UIView {
     let titleLabel = UILabel()
     let messageLabel = UILabel()
@@ -9,13 +11,20 @@ final class PortfolioEmptyWalletView: UIView {
     let unavailableLabel = UILabel()
     var onReceive: (() -> Void)?
     var onBuy: (() -> Void)?
-    private let shapeMask = CAShapeLayer()
+    private let surface: FWNeuView = {
+        let view = FWNeuView()
+        view.style = .raised
+        view.isUserInteractionEnabled = false
+        view.shape = { UIBezierPath(roundedRect: $0, cornerRadius: FWSunlit.Radius.card) }
+        return view
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         isHidden = true
-        backgroundColor = UIColor(named: "fwSurfaceRaised")
-        layer.mask = shapeMask
+        backgroundColor = .clear
+        addSubview(surface)
+        surface.snp.makeConstraints { $0.edges.equalToSuperview() }
         let stack = UIStackView(arrangedSubviews: [
             titleLabel,
             messageLabel,
@@ -39,13 +48,13 @@ final class PortfolioEmptyWalletView: UIView {
         for label in [titleLabel, messageLabel, unavailableLabel] {
             label.numberOfLines = 0
             label.adjustsFontForContentSizeCategory = true
-            label.textColor = UIColor(named: label === titleLabel ? "fwTextPrimary" : "fwTextSecondary")
+            label.textColor = label === titleLabel ? FWSunlit.Palette.textPrimary : FWSunlit.Palette.textSecondary
             label.setContentCompressionResistancePriority(.required, for: .vertical)
         }
         for button in [receiveButton, buyButton] {
             button.setContentCompressionResistancePriority(.required, for: .vertical)
         }
-        receiveButton.configuration?.background.backgroundColor = UIColor(named: "fwFillTop")
+        receiveButton.emphasis = .primary
         receiveButton.configuration?.baseForegroundColor = UIColor(named: "fwTextOnAccent")
         receiveButton.addTarget(self, action: #selector(receive), for: .touchUpInside)
         buyButton.addTarget(self, action: #selector(buy), for: .touchUpInside)
@@ -74,7 +83,7 @@ final class PortfolioEmptyWalletView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        shapeMask.path = FWChamferPath.path(in: bounds).cgPath
+        surface.sunRim = FWSunAnchor.shared.sunRim(for: surface, fallback: FWRowSunlit.fallbackRim)
     }
 
     override func didMoveToWindow() {

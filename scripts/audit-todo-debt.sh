@@ -36,6 +36,7 @@ grep_source_files() {
     cd "$ROOT_DIR"
     find . \
       \( -path './Pods' -o -path './Pods/*' \
+        -o -path './BuildTools/Vendor' \
         -o -path './PrivatePods' -o -path './PrivatePods/*' \
         -o -path './SourcePackages' -o -path './SourcePackages/*' \
         -o -path './DerivedData' -o -path './DerivedData/*' \
@@ -62,6 +63,7 @@ scan_marker_debt() {
         --glob '*.plist' \
         --glob '*.pbxproj' \
         --glob '!Pods/**' \
+        --glob '!BuildTools/Vendor/**' \
         --glob '!PrivatePods/**' \
         --glob '!SourcePackages/**' \
         --glob '!DerivedData/**' \
@@ -92,6 +94,7 @@ scan_crashing_placeholders() {
       rg -n --no-heading -i '(fatalError|preconditionFailure)[[:space:]]*\([^)]*(TODO|FIXME|STOPSHIP)' \
         --glob '*.swift' \
         --glob '!Pods/**' \
+        --glob '!BuildTools/Vendor/**' \
         --glob '!PrivatePods/**' \
         --glob '!SourcePackages/**' \
         --glob '!DerivedData/**' \

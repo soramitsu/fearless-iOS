@@ -10,7 +10,7 @@ import unittest
 
 
 class TestMatrixVerification(unittest.TestCase):
-    def run_matrix(self, fail_verification=0, fail_resolution=False):
+    def run_matrix(self, fail_verification=0, fail_resolution=False, fail_bootstrap=False):
         with tempfile.TemporaryDirectory(prefix="fearless-matrix-test-") as temp:
             root = Path(temp)
             (root / "scripts/deps").mkdir(parents=True)
@@ -32,6 +32,8 @@ if name == "python3" and args and args[0].endswith("verify-native-source.py"):
         sys.exit(42)
 if name == "xcodebuild" and "-resolvePackageDependencies" in args and os.environ["MATRIX_TEST_FAIL_RESOLUTION"] == "1":
     sys.exit(37)
+if name == "build-tools-from-source.sh" and os.environ["MATRIX_TEST_FAIL_BOOTSTRAP"] == "1":
+    sys.exit(27)
 if name == "uname":
     print("arm64")
 if name == "xcpretty":
@@ -41,9 +43,13 @@ if name == "xcpretty":
                 path = bin_dir / name
                 path.write_text(substitute)
                 path.chmod(0o755)
+            bootstrap = root / "scripts/deps/build-tools-from-source.sh"
+            bootstrap.write_text(substitute)
+            bootstrap.chmod(0o755)
             env = dict(os.environ, PATH=str(bin_dir) + os.pathsep + os.environ["PATH"],
                        TMPDIR=str(root), MATRIX_TEST_LOG=str(log),
                        MATRIX_TEST_FAIL_VERIFICATION=str(fail_verification),
+                       MATRIX_TEST_FAIL_BOOTSTRAP=str(int(fail_bootstrap)),
                        MATRIX_TEST_FAIL_RESOLUTION=str(int(fail_resolution)))
             result = subprocess.run(
                 ["/bin/bash", "scripts/test-matrix.sh", "fearless.tests",
@@ -61,6 +67,11 @@ if name == "xcpretty":
                 phases.append("resolve" if "-resolvePackageDependencies" in args else
                               args[args.index("-configuration") + 1])
         return phases
+
+    def test_bootstrap_failure_prevents_resolution_and_test_builds(self):
+        result, calls = self.run_matrix(fail_bootstrap=True)
+        self.assertEqual(result.returncode, 27, result.stdout + result.stderr)
+        self.assertEqual(self.phases(calls), ["verify"])
 
     def test_each_configuration_revalidates_resolved_source_before_build(self):
         result, calls = self.run_matrix()

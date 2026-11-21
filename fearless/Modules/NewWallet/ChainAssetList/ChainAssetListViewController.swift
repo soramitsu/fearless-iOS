@@ -11,6 +11,10 @@ final class ChainAssetListViewController:
     typealias RootViewType = ChainAssetListViewLayout
 
     var keyboardHandler: FearlessKeyboardHandler?
+    /// The wallet header folds its balance card while the list's search field has the keyboard.
+    var onInlineSearchActiveChange: ((Bool) -> Void)?
+    /// Every delivery can cover the list with a new empty state, or take it away.
+    var onListChange: (() -> Void)?
 
     // MARK: Private properties
 
@@ -28,6 +32,8 @@ final class ChainAssetListViewController:
     private var expandedZeroTokenIds: Set<String> = []
     private var zeroTokensExpanded = false
     private var usesTokenLens: Bool { viewModel?.lens == .token }
+    /// Rows rise into place the first time the list appears (sun-lit redesign).
+    private let listRise = FWListRise()
     private var tokenSectionCount: Int { usesTokenLens ? (viewModel?.zeroTokenRows.isEmpty == false ? 2 : 1) : 0 }
     private func tokenRows(in section: Int) -> [TokenPortfolioRow] {
         guard let viewModel, usesTokenLens, section < tokenSectionCount else { return [] }
@@ -108,7 +114,13 @@ final class ChainAssetListViewController:
 
     var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
-    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    /// The keyboard covers only what lies below the list: on the wallet home the list ends above the tab bar.
+    func offsetFromKeyboardWithInset(_ keyboardHeight: CGFloat) -> CGFloat {
+        guard keyboardHeight > 0, let window = view.window else { return 0 }
+        let gap = window.bounds.maxY - view.convert(view.bounds, to: window).maxY
+        return -min(max(gap, 0), keyboardHeight)
+    }
+
     func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
 
@@ -167,7 +179,9 @@ private extension ChainAssetListViewController {
     }
 
     func bindActions() {
-        rootView.lensControl.addTarget(self, action: #selector(didChangeLens), for: .valueChanged)
+        rootView.discoveryView.onSearchActiveChange = { [weak self] active in
+            self?.onInlineSearchActiveChange?(active)
+        }
         rootView.exclusionsView.onTapHiddenAssets = { [weak self] in
             self?.output.didTapHiddenAssetsNotIncluded()
         }
@@ -206,13 +220,6 @@ private extension ChainAssetListViewController {
         rootView.tableView.refreshControl?.endRefreshing()
     }
 
-    @objc func didChangeLens() {
-        guard let walletId = presentationWalletId else { return }
-        let lens: PortfolioLens = rootView.lensControl.selectedSegmentIndex == 0 ? .token : .network
-        collapseStore.setLens(lens, walletId: walletId)
-        output.didSelectLens(lens, walletId: walletId)
-    }
-
     func activateTokenRow(at indexPath: IndexPath) {
         guard let row = tokenRow(at: indexPath), let walletId = presentationWalletId else { return }
         switch row {
@@ -235,6 +242,41 @@ private extension ChainAssetListViewController {
 
     func tokenAction(_ action: SwipableCellButtonType, row: TokenGroupRowViewModel, walletId: String) {
         output.didTapTokenAction(actionType: action, groupId: row.model.id, walletId: walletId)
+    }
+
+    /// The search field and the chips act for the wallet this list shows; the presenter ignores another wallet's.
+    func bindDiscovery(_ viewModel: ChainAssetListViewModel) {
+        let discovery = rootView.discoveryView
+        discovery.isHidden = !viewModel.showsDiscovery
+        guard viewModel.showsDiscovery, let walletId = viewModel.walletId else { return }
+        discovery.bind(
+            search: viewModel.searchText,
+            chips: viewModel.networkChips,
+            showsMigration: collapseStore.lens(walletId: walletId) == .network,
+            searchAll: viewModel.canSearchAllNetworks,
+            foundNothing: viewModel.searchFoundNothing
+        )
+        discovery.onSearch = { [weak self] query in
+            guard let self, self.presentationWalletId == walletId else { return }
+            self.output.didSearch(query, walletId: walletId)
+        }
+        discovery.onSelectNetwork = { [weak self] identifier in
+            guard let self, self.presentationWalletId == walletId else { return }
+            self.output.didSelectNetwork(identifier, walletId: walletId)
+        }
+        discovery.onMoreNetworks = { [weak self] in
+            guard let self, self.presentationWalletId == walletId else { return }
+            self.output.didTapMoreNetworks(walletId: walletId)
+        }
+        discovery.onDismissMigration = { [weak self] in
+            guard let self, self.presentationWalletId == walletId else { return }
+            self.collapseStore.setLens(.token, walletId: walletId)
+            self.output.didSelectLens(.token, walletId: walletId)
+            if let current = self.viewModel {
+                self.bindDiscovery(current)
+            }
+            self.rootView.setHeaderView()
+        }
     }
 }
 
@@ -266,7 +308,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
                 else { collapsedNetworkSectionIds.insert(section.id) }
             }
         }
-        rootView.lensControl.selectedSegmentIndex = viewModel.lens == .token ? 0 : 1
+        bindDiscovery(viewModel)
         rootView.customOrderLabel.isHidden = !viewModel.usesCustomOrder
         rootView.setFooterButtonTitle(for: viewModel.displayState)
         rootView.footerButton.isHidden = viewModel.displayState.isSearch
@@ -320,6 +362,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             rootView.tableView.reloadData()
         }
         reloadEmptyState(animated: false)
+        onListChange?()
     }
 }
 
@@ -359,6 +402,7 @@ extension ChainAssetListViewController: SwipableTableViewCellDelegate {
 
 extension ChainAssetListViewController: UITableViewDelegate {
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        rootView.discoveryView.endSearchEditing()
         if tokenRow(at: indexPath) != nil {
             activateTokenRow(at: indexPath)
             return
@@ -374,6 +418,22 @@ extension ChainAssetListViewController: UITableViewDelegate {
 
     func tableView(_: UITableView, estimatedHeightForRowAt _: IndexPath) -> CGFloat {
         93
+    }
+
+    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt _: IndexPath) {
+        listRise.cellWillAppear(cell)
+    }
+
+    /// Rows weigh their rim light by their distance to the wallet's sun as they move.
+    func scrollViewDidScroll(_: UIScrollView) {
+        rootView.discoveryView.refreshSunRim()
+        for cell in rootView.tableView.visibleCells {
+            if let row = cell as? ChainAccountBalanceTableCell {
+                row.refreshSunRim()
+            } else if let group = cell as? TokenGroupBalanceTableCell {
+                group.surface.sunRim = FWSunAnchor.shared.sunRim(for: group.surface)
+            }
+        }
     }
 }
 
@@ -541,7 +601,8 @@ final class AssetNetworkHeaderView: UITableViewHeaderFooterView {
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
-        contentView.backgroundColor = R.color.colorBlack19()
+        // The section title sits on the sun-lit page (the grouped table's headers do not float).
+        contentView.backgroundColor = .clear
         titleLabel.font = .h5Title
         titleLabel.textColor = R.color.colorWhite()
         detailLabel.font = .p2Paragraph
@@ -700,9 +761,37 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
         guard let viewModel = viewModel else { return false }
+        // A search that finds nothing keeps the field where it is and says so under it.
+        if viewModel.showsDiscovery, viewModel.displayState.isSearch {
+            return false
+        }
         if usesTokenLens,
            !viewModel.tokenRows.isEmpty || !viewModel.zeroTokenRows.isEmpty || !visibleNetworkSections
            .isEmpty { return false }
         return viewModel.displayState.rows.isEmpty
+    }
+}
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension ChainAssetListViewController: FWFlightTiered {
+    /// The search field and network chips, at tier 3 inside the list's tier 4.
+    var flightTiers: [FWFlightTier] {
+        [FWFlightTier(view: rootView.discoveryView, tier: 3)]
+    }
+}
+
+// MARK: - One-list search on the wallet home
+
+extension ChainAssetListViewController: WalletHomeListChanging {}
+
+extension ChainAssetListViewController: WalletInlineSearchHosting {
+    func focusInlineSearch() -> Bool {
+        guard isViewLoaded, viewModel?.showsDiscovery == true, !rootView.discoveryView.isHidden else { return false }
+        let tableView = rootView.tableView
+        if tableView.tableHeaderView != nil {
+            tableView.setContentOffset(CGPoint(x: 0, y: -tableView.adjustedContentInset.top), animated: false)
+        }
+        return rootView.discoveryView.focusSearch()
     }
 }

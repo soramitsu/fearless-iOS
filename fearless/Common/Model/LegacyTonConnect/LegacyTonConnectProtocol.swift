@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import SoraFoundation
 import TonSwift
 import TweetNacl
 
@@ -12,6 +13,12 @@ enum LegacyTonConnectError: LocalizedError {
     case unavailableBridge
     case transportFailed
     case busy
+    /// The remote `ton_connect_enabled: false` veto is in force.
+    case disabled
+    /// The remote `ton_dapp_signing_enabled: false` veto is in force: transactions and sign-in proofs are refused.
+    case signingPaused
+    /// A sign-in proof was requested for a site that the host serving the manifest does not vouch for.
+    case unverifiedApplication(claimedHost: String, sourceHost: String)
 
     var errorDescription: String? {
         switch self {
@@ -23,6 +30,18 @@ enum LegacyTonConnectError: LocalizedError {
         case .unavailableBridge: return "The original TonConnect bridge is unavailable. Try again after the TON network loads."
         case .transportFailed: return "The TonConnect bridge could not be reached. Try again."
         case .busy: return "Finish the current TonConnect approval before opening another request."
+        case .disabled:
+            return R.string.localizable.tonconnectDisabled(preferredLanguages: LegacyTonConnectProtocol.languages)
+        case .signingPaused:
+            return R.string.localizable.walletConnectSigningPausedMessage(
+                preferredLanguages: LegacyTonConnectProtocol.languages
+            )
+        case let .unverifiedApplication(claimedHost, sourceHost):
+            return R.string.localizable.tonconnectProofRefused(
+                sourceHost,
+                claimedHost,
+                preferredLanguages: LegacyTonConnectProtocol.languages
+            )
         }
     }
 }
@@ -156,6 +175,25 @@ struct LegacyTonConnectTransactionParameters: Decodable {
 enum LegacyTonConnectProtocol {
     static let maximumMessageBytes = 65536
 
+    static var languages: [String]? {
+        LocalizationManager.shared.selectedLocale.rLanguages
+    }
+
+    /// A manifest names the site it belongs to, but anyone can publish a manifest naming any
+    /// site. The claim is trusted only when the vouching host (the page in the in-app browser,
+    /// otherwise the host that served the manifest) is that site, a subdomain of it, or its
+    /// parent domain. Hosts are compared in lowercase; IP addresses must match exactly.
+    static func isVouched(claimed: URL, by voucher: URL) -> Bool {
+        guard let claimedHost = claimed.host?.lowercased(), let voucherHost = voucher.host?.lowercased(),
+              !claimedHost.isEmpty, !voucherHost.isEmpty else { return false }
+        if claimedHost == voucherHost { return true }
+        let isAddress: (String) -> Bool = { host in
+            host.contains(":") || host.unicodeScalars.allSatisfy { CharacterSet(charactersIn: "0123456789.").contains($0) }
+        }
+        guard !isAddress(claimedHost), !isAddress(voucherHost) else { return false }
+        return claimedHost.hasSuffix("." + voucherHost) || voucherHost.hasSuffix("." + claimedHost)
+    }
+
     static func origin(_ url: URL) -> String? {
         guard let parts = URLComponents(url: url, resolvingAgainstBaseURL: false),
               parts.scheme?.lowercased() == "https", let host = parts.host?.lowercased(), !host.isEmpty,
@@ -199,13 +237,17 @@ enum LegacyTonConnectProtocol {
         return (clientId.lowercased(), request)
     }
 
+    /// `voucher` is the page that asked in the in-app browser; a link is vouched for by the
+    /// manifest's own URL. A proof is signed only for a claimed site that its voucher backs.
     static func connectEvent(
         account: LegacyTonAccount, privateKey: Data?, network: String,
-        request: LegacyTonConnectConnectRequest, manifest: LegacyTonConnectManifest, timestamp: UInt64
+        request: LegacyTonConnectConnectRequest, manifest: LegacyTonConnectManifest, timestamp: UInt64,
+        vouchedBy voucher: URL? = nil
     ) throws -> Data {
         _ = try request.validated()
         _ = try manifest.validated()
         guard ["-239", "-3"].contains(network), let domain = manifest.url.host else { throw LegacyTonConnectError.invalidRequest }
+        let vouchingURL = voucher ?? request.manifestUrl
         let address = try TonSwift.Address.parse(account.address)
         let stateInit = try WalletV4R2(publicKey: account.publicKey).stateInit
         let builder = Builder()
@@ -216,6 +258,10 @@ enum LegacyTonConnectProtocol {
             "walletStateInit": try builder.endCell().toBoc().base64EncodedString()
         ]]
         if let proof = request.items.first(where: { $0.name == "ton_proof" }), let payload = proof.payload {
+            // The proof logs the user in to `domain`; a site the manifest only claims never gets one.
+            guard isVouched(claimed: manifest.url, by: vouchingURL) else {
+                throw LegacyTonConnectError.unverifiedApplication(claimedHost: domain, sourceHost: vouchingURL.host ?? "")
+            }
             guard let privateKey else { throw LegacyTonConnectError.unavailableWallet }
             let validated = try account.validatedPrivateKey(privateKey)
             let message = proofDigest(address: address, domain: domain, payload: payload, timestamp: timestamp)

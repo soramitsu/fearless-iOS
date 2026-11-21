@@ -18,6 +18,39 @@ final class EncryptionServiceTests: XCTestCase {
         XCTAssertNotNil(encodedPath)
     }
 
+    func testTruncatedEnvelopeIsRejectedWithoutDerivingAKey() throws {
+        let service = EncryptionService()
+        let valid = try XCTUnwrap(service.createEncryptedData(with: "1", message: "//polkadot"))
+        let encodedHeaderLength = 44
+
+        for length in [0, encodedHeaderLength - 1, encodedHeaderLength, encodedHeaderLength + 24, encodedHeaderLength + 39] {
+            let truncated = valid.prefix(length).map { String(format: "%02x", $0) }.joined()
+            XCTAssertThrowsError(try service.getDecrypted(from: truncated, password: "1"), "length \(length)")
+        }
+    }
+
+    func testRoundTripStillDecrypts() throws {
+        let service = EncryptionService()
+        let encrypted = try XCTUnwrap(service.createEncryptedData(with: "pass", message: "//polkadot"))
+        let hex = encrypted.map { String(format: "%02x", $0) }.joined()
+
+        XCTAssertEqual(try service.getDecrypted(from: hex, password: "pass"), "//polkadot")
+    }
+
+    func testOversizedScryptCostIsRejectedBeforeDerivation() throws {
+        let service = EncryptionService()
+        let valid = try XCTUnwrap(service.createEncryptedData(with: "1", message: "//polkadot"))
+
+        for (n, p, r) in [(UInt32(1) << 31, UInt32(1), UInt32(8)), (1 << 15, 1 << 20, 8), (1 << 15, 1, 1 << 16), (3, 1, 8), (0, 1, 8)] {
+            var damaged = valid
+            withUnsafeBytes(of: n.littleEndian) { damaged.replaceSubrange(32 ..< 36, with: $0) }
+            withUnsafeBytes(of: p.littleEndian) { damaged.replaceSubrange(36 ..< 40, with: $0) }
+            withUnsafeBytes(of: r.littleEndian) { damaged.replaceSubrange(40 ..< 44, with: $0) }
+            let hex = damaged.map { String(format: "%02x", $0) }.joined()
+            XCTAssertThrowsError(try service.getDecrypted(from: hex, password: "1"), "N=\(n) p=\(p) r=\(r)")
+        }
+    }
+
     func testGetDecryptedWithError() throws {
         // arrange
         let service = EncryptionService()

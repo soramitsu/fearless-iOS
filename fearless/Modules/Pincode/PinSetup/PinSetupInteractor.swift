@@ -60,6 +60,8 @@ class PinSetupInteractor {
     private(set) var settingsManager: SettingsManagerProtocol
     private let biometryAuth: BiometryAuthProtocol
     private let locale: Locale
+    private let attemptLimiter: PincodeAttemptLimiting
+    private let enrollmentGuard: BiometryEnrollmentGuarding
     private var generation: UInt64 = 0
     private(set) var pincode: String?
     private(set) var state: PinSetupState = .waitingPincode
@@ -68,12 +70,16 @@ class PinSetupInteractor {
         secretManager: SecretStoreManagerProtocol,
         settingsManager: SettingsManagerProtocol,
         biometryAuth: BiometryAuthProtocol,
-        locale: Locale
+        locale: Locale,
+        attemptLimiter: PincodeAttemptLimiting = PincodeAttemptLimiter.shared,
+        enrollmentGuard: BiometryEnrollmentGuarding = BiometryEnrollmentGuard.shared
     ) {
         self.secretManager = secretManager
         self.settingsManager = settingsManager
         self.biometryAuth = biometryAuth
         self.locale = locale
+        self.attemptLimiter = attemptLimiter
+        self.enrollmentGuard = enrollmentGuard
     }
 
     private func onMain(_ action: @escaping () -> Void) {
@@ -113,9 +119,15 @@ class PinSetupInteractor {
                         self.changeState(to: .saveFailed)
                         return
                     }
+                    // A new PIN starts with no wrong attempts, even when a count survived a reinstall.
+                    self.attemptLimiter.reset()
                     // The preference must never claim a usable biometric PIN before storage acknowledges it.
                     if let biometryEnabled = biometryEnabled {
                         self.settingsManager.biometryEnabled = biometryEnabled
+                    }
+                    // The user who just chose the PIN vouches for the enrollment that biometric unlock will accept.
+                    if biometryEnabled == true {
+                        self.enrollmentGuard.trustCurrentEnrollment()
                     }
                     self.changeState(to: .submitedPincode)
                     output.didSavePin()

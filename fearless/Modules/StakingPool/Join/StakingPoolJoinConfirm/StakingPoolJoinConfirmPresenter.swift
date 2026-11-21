@@ -16,6 +16,7 @@ final class StakingPoolJoinConfirmPresenter {
     private let chainAsset: ChainAsset
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let logger: LoggerProtocol?
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var fee: Decimal?
     private var palletId: Data?
@@ -34,8 +35,10 @@ final class StakingPoolJoinConfirmPresenter {
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
@@ -123,8 +126,10 @@ extension StakingPoolJoinConfirmPresenter: StakingPoolJoinConfirmViewOutput {
     }
 
     func didTapConfirmButton() {
-        view?.didStartLoading()
-        interactor.submit()
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            self?.view?.didStartLoading()
+            self?.interactor.submit()
+        }
     }
 
     func didTapBackButton() {

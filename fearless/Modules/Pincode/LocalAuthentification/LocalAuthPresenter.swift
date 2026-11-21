@@ -43,6 +43,13 @@ extension LocalAuthPresenter: LocalAuthInteractorOutputProtocol {
         }
     }
 
+    func didReceiveLockout(remaining: TimeInterval) {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didStopLoading()
+            self?.view?.didReceiveLockout(remaining: remaining)
+        }
+    }
+
     func didChangeState(to state: LocalAuthInteractor.LocalAuthState) {
         guard case .completed = state else {
             return

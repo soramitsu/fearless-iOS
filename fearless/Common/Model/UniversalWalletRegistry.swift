@@ -2,12 +2,13 @@ import Foundation
 import SSFModels
 
 enum UniversalWalletRegistry {
-    static let bitcoinMainnetIndexerBaseURL = URL(string: "https://mempool.space/api")!
-    static let bitcoinTestnetIndexerBaseURL = URL(string: "https://mempool.space/testnet/api")!
+    /// The Esplora service the wallet asks first, as web and Android do.
+    static let bitcoinMainnetIndexerBaseURL = URL(string: "https://blockstream.info/api")!
+    static let bitcoinTestnetIndexerBaseURL = URL(string: "https://blockstream.info/testnet/api")!
     /// A second public Esplora service. Balances, fee estimates and broadcasts fail over to it
-    /// when mempool.space is unreachable or rate limits the app.
-    static let bitcoinMainnetFallbackIndexerBaseURL = URL(string: "https://blockstream.info/api")!
-    static let bitcoinTestnetFallbackIndexerBaseURL = URL(string: "https://blockstream.info/testnet/api")!
+    /// when blockstream.info is unreachable or rate limits the app.
+    static let bitcoinMainnetFallbackIndexerBaseURL = URL(string: "https://mempool.space/api")!
+    static let bitcoinTestnetFallbackIndexerBaseURL = URL(string: "https://mempool.space/testnet/api")!
     static let bitcoinIconURL = URL(
         string: "https://bitcoin.org/img/icons/logotop.svg"
     )!
@@ -89,7 +90,7 @@ enum UniversalWalletRegistry {
         )
         let indexerNode = ChainNodeModel(
             url: bitcoinMainnet.indexerBaseURL,
-            name: "Mempool.space Public API",
+            name: "Blockstream.info Public API",
             apikey: nil
         )
         let history = ChainModel.BlockExplorer(

@@ -1,5 +1,5 @@
 import UIKit
-import WalletConnectSign
+import FearlessWalletConnect
 
 protocol WalletConnectActiveSessionsInteractorOutput: AnyObject {
     func didReceive(sessions: [Session])

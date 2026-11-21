@@ -23,6 +23,21 @@ final class CopyableLabelView: UIView {
         return imageView
     }()
 
+    /// "Copied" confirmation over the chip (sun-lit redesign); the address label itself never changes.
+    private let confirmationLabel: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.textColor = FWSunlit.Palette.success
+        label.adjustsFontForContentSizeCategory = true
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
+        label.alpha = 0
+        label.isAccessibilityElement = false
+        return label
+    }()
+
+    private var confirmationID = 0
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -37,6 +52,7 @@ final class CopyableLabelView: UIView {
     /// Opt-in typography for rebuilt owners; existing consumers retain their legacy role.
     func applyTypography(_ font: UIFont) {
         label.font = font
+        confirmationLabel.font = font
     }
 
     override func layoutSubviews() {
@@ -62,13 +78,48 @@ final class CopyableLabelView: UIView {
     @objc private func handleTap() {
         UIPasteboard.general.string = label.text
         onСopied?()
+        showCopiedConfirmation()
+    }
+
+    /// The chip glows in the success colour with "Copied" for 900 ms (spec section 4).
+    private func showCopiedConfirmation() {
+        guard window != nil else { return }
+        confirmationID += 1
+        let id = confirmationID
+        confirmationLabel.text = R.string.localizable.commonCopied()
+        let style = FWMotionPolicy.current().style(for: .copied)
+        let fade = style == .full(style.duration) ? FWSunlit.Motion.maxCrossfade : min(0.1, style.duration)
+        layer.borderColor = FWSunlit.Palette.success.cgColor
+        layer.shadowColor = FWSunlit.Palette.success.cgColor
+        layer.shadowOffset = .zero
+        layer.shadowRadius = 10
+        layer.masksToBounds = false
+        UIView.animate(withDuration: fade) {
+            self.confirmationLabel.alpha = 1
+            self.hStackViewAlpha = 0
+            self.layer.borderWidth = 1
+            self.layer.shadowOpacity = 0.6
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + FWSunlit.Motion.copied) { [weak self] in
+            guard let self = self, self.confirmationID == id else { return }
+            UIView.animate(withDuration: fade) {
+                self.confirmationLabel.alpha = 0
+                self.hStackViewAlpha = 1
+                self.layer.borderWidth = 0
+                self.layer.shadowOpacity = 0
+            }
+        }
+    }
+
+    private var hStackViewAlpha: CGFloat {
+        get { label.superview?.alpha ?? 1 }
+        set { label.superview?.alpha = newValue }
     }
 
     private func setupLayout() {
         isAccessibilityElement = true
         accessibilityTraits = .button
         accessibilityLabel = R.string.localizable.commonCopyAddress()
-        layer.masksToBounds = true
         backgroundColor = R.color.colorWhite8()
 
         let hStackView = UIFactory.default.createHorizontalStackView(spacing: 6)
@@ -85,6 +136,12 @@ final class CopyableLabelView: UIView {
 
         hStackView.addArrangedSubview(label)
         hStackView.addArrangedSubview(iconImageView)
+
+        addSubview(confirmationLabel)
+        confirmationLabel.font = label.font
+        confirmationLabel.snp.makeConstraints { make in
+            make.edges.equalTo(hStackView)
+        }
 
         label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .vertical)

@@ -1,6 +1,4 @@
 enum MoonPayCIKeys {
-    static var secretKey: String = "{{ argument.moonPaySecretKey }}"
-    static var testSecretKey: String = "{{ argument.moonPayTestSecretKey }}"
     static var publicKey: String = "{{ argument.moonPayPublicKey }}"
 }
 
@@ -74,4 +72,9 @@ enum TonNodeApiKeyDebug {
 
 enum SolanaRpcCIKeys {
     static var providerURL: String = "{{ argument.solanaRpcProviderURL }}"
+}
+
+enum NomisApiKeys {
+    static var nomisClientId: String = "{{ argument.nomisClientId }}"
+    static var nomisApiKey: String = "{{ argument.nomisApiKey }}"
 }

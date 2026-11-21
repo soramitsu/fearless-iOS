@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 AUDIT_SCRIPT="$SCRIPT_DIR/audit-transaction-builder-tests.sh"
-EXPECTED_DESTRUCTIVE_FIXTURES=140
+EXPECTED_DESTRUCTIVE_FIXTURES=141
 executed_destructive_fixtures=0
 
 fail() {
@@ -376,7 +376,8 @@ write_valid_fixture() {
     "if case let TransferServiceError.tonBroadcastOutcomeUnknown(messageHashHex) = error {}" \
     "if case let TransferServiceError.tonPriorTransferConfirmed(identity, messageHashHex) = error {}" \
     'let message = tonRecoveryLocalizedString(key: "ton.transfer.unknown.message", fallback: "Do not resend")' \
-    "UIPasteboard.general.string = recovery.messageHashHex"
+    "pasteboard: PasteboardStringAccessing = UIPasteboard.general" \
+    "pasteboard.string = recovery.messageHashHex"
 
   write_file "$root/fearlessTests/Modules/WalletSendConfirm/WalletSendConfirmTests.swift" \
     "func testTonUnknownOutcomeRecoveryAcceptsExactLowercaseHash() {}" \
@@ -717,8 +718,13 @@ expect_failure "weakened TON unknown outcome hash validation" "$weakened_ton_unk
 
 missing_ton_unknown_outcome_copy_action="$tmp_dir/missing-ton-unknown-outcome-copy-action"
 write_valid_fixture "$missing_ton_unknown_outcome_copy_action"
-perl -0pi -e 's/UIPasteboard\.general\.string = recovery\.messageHashHex/UIPasteboard.general.string = nil/' "$missing_ton_unknown_outcome_copy_action/fearless/Modules/NewWallet/WalletSendConfirm/WalletSendConfirmPresenter.swift"
+perl -0pi -e 's/pasteboard\.string = recovery\.messageHashHex/pasteboard.string = nil/' "$missing_ton_unknown_outcome_copy_action/fearless/Modules/NewWallet/WalletSendConfirm/WalletSendConfirmPresenter.swift"
 expect_failure "missing TON unknown outcome copy action" "$missing_ton_unknown_outcome_copy_action" "TON unknown-outcome exact-hash copy action"
+
+redirected_ton_unknown_outcome_pasteboard="$tmp_dir/redirected-ton-unknown-outcome-pasteboard"
+write_valid_fixture "$redirected_ton_unknown_outcome_pasteboard"
+perl -0pi -e 's/pasteboard: PasteboardStringAccessing = UIPasteboard\.general/pasteboard: PasteboardStringAccessing = DetachedPasteboard()/' "$redirected_ton_unknown_outcome_pasteboard/fearless/Modules/NewWallet/WalletSendConfirm/WalletSendConfirmPresenter.swift"
+expect_failure "TON unknown outcome copy redirected from the system pasteboard" "$redirected_ton_unknown_outcome_pasteboard" "TON unknown-outcome copy to the system pasteboard by default"
 
 missing_ton_unknown_outcome_exact_hash_test="$tmp_dir/missing-ton-unknown-outcome-exact-hash-test"
 write_valid_fixture "$missing_ton_unknown_outcome_exact_hash_test"

@@ -49,8 +49,6 @@ and call encoding tests on a simulator (`SSFUtilsTests`, `SSFXCMTests`, `ReadOnl
 xcodebuild test -scheme Modules-XCM -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0'
 ```
 
-The scheme also builds `SSFPolkaswap`: `IrohaCrypto` links `sorawallet.framework` without declaring a
-dependency, and building `SSFPolkaswap` is what puts the framework in place.
 
 The `Modules-Package` scheme builds every test target of the package, and several of the others
 (`SSFAccountManagmentTests`, `SSFAssetManagmentTests`, `SSFKeyPairTests`, `SSFStorageQueryKitTest`) do

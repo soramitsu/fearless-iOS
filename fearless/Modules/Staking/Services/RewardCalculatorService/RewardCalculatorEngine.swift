@@ -101,4 +101,6 @@ extension RewardCalculatorEngineProtocol {
 
 enum RewardCalculatorEngineError: Error {
     case unexpectedValidator(accountId: Data)
+    /// The chain has no finished era with reward history to estimate from.
+    case missingRewardHistory
 }

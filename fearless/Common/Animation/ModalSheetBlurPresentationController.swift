@@ -48,6 +48,8 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
         let blur = UIBlurEffect(style: .dark)
         let blurView = UIVisualEffectView(effect: blur)
         blurView.alpha = 0.975
+        // Sun-lit redesign: the backdrop takes the deep navy of the palette.
+        blurView.contentView.backgroundColor = FWSunlit.Palette.backgroundDeep.withAlphaComponent(0.35)
         blurView.tag = ModalSheetBlurPresentationAppearanceAnimator.UIVisualEffectViewFearlessTag
         blurView.frame = containerView?.bounds ?? .zero
         // iPad sheets stay up through rotation and window resizing.
@@ -77,6 +79,9 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     override func presentationTransitionWillBegin() {
         attachCancellationGestureOnBlur()
         attachPanGesture()
+        if let sheet = presentedView {
+            FWSheetRim.attach(to: sheet)
+        }
         if let containerView = containerView {
             layoutPreferredContent(in: containerView)
         }
@@ -96,6 +101,7 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
         guard !presentedViewController.isBeingPresented, !presentedViewController.isBeingDismissed,
               let containerView = containerView else { return }
         layoutPreferredContent(in: containerView)
+        presentedView.map(FWSheetRim.layout(in:))
     }
 
     override func presentationTransitionDidEnd(_ completed: Bool) {

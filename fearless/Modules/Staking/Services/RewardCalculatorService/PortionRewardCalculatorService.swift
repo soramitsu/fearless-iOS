@@ -9,7 +9,7 @@ final class PortionRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 
     private struct PendingRequest {
-        let resultClosure: (RewardCalculatorEngineProtocol) -> Void
+        let resultClosure: (Result<RewardCalculatorEngineProtocol, Error>) -> Void
         let queue: DispatchQueue?
     }
 
@@ -20,6 +20,7 @@ final class PortionRewardCalculatorService {
 
     private var isActive: Bool = false
     private var snapshot: BigUInt?
+    private var snapshotError: Error?
     private var pendingRequests: [PendingRequest] = []
 
     private let chainAsset: ChainAsset
@@ -61,12 +62,21 @@ final class PortionRewardCalculatorService {
 
     private func fetchInfoFactory(
         runCompletionIn queue: DispatchQueue?,
-        executing closure: @escaping (RewardCalculatorEngineProtocol) -> Void
+        executing closure: @escaping (Result<RewardCalculatorEngineProtocol, Error>) -> Void
     ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
+        // The snapshot, its error and the waiting list are kept on the service's serial queue.
+        syncQueue.async {
+            self.answer(request)
+        }
+    }
+
+    private func answer(_ request: PendingRequest) {
         if let snapshot = snapshot {
             deliver(snapshot: snapshot, to: request, chainId: chainAsset.chain.chainId, assetPrecision: assetPrecision)
+        } else if let snapshotError = snapshotError {
+            fail(request, with: snapshotError)
         } else {
             pendingRequests.append(request)
         }
@@ -80,6 +90,7 @@ final class PortionRewardCalculatorService {
     ) {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
             logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            fail(request, with: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -109,11 +120,13 @@ final class PortionRewardCalculatorService {
             dispatchInQueueWhenPossible(request.queue) {
                 switch mapOperation.result {
                 case let .success(calculator):
-                    request.resultClosure(calculator)
+                    request.resultClosure(.success(calculator))
                 case let .failure(error):
                     self?.logger?.error("Era stakers info fetch error: \(error)")
+                    request.resultClosure(.failure(error))
                 case .none:
                     self?.logger?.warning("Era stakers info fetch cancelled")
+                    request.resultClosure(.failure(BaseOperationError.parentOperationCancelled))
                 }
             }
         }
@@ -122,6 +135,12 @@ final class PortionRewardCalculatorService {
             operations: durationWrapper.allOperations + [eraOperation, mapOperation],
             in: .transient
         )
+    }
+
+    private func fail(_ request: PendingRequest, with error: Error) {
+        dispatchInQueueWhenPossible(request.queue) {
+            request.resultClosure(.failure(error))
+        }
     }
 
     private func notifyPendingClosures(with eraValBurned: BigUInt) {
@@ -144,6 +163,13 @@ final class PortionRewardCalculatorService {
         }
 
         logger?.debug("Fulfilled pendings")
+    }
+
+    private func notifyPendingClosures(with error: Error) {
+        let requests = pendingRequests
+        pendingRequests = []
+
+        requests.forEach { fail($0, with: error) }
     }
 
     private func createTotalValidatorRewardsOperation(
@@ -169,27 +195,52 @@ final class PortionRewardCalculatorService {
     private func fetchTotalValidatorRewards() {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            syncQueue.async {
+                self.snapshotError = ChainRegistryError.runtimeMetadaUnavailable
+                self.notifyPendingClosures(with: ChainRegistryError.runtimeMetadaUnavailable)
+            }
             return
+        }
+
+        syncQueue.async {
+            self.snapshotError = nil
         }
 
         let runtimeOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let totalValidatorRewardsOperation = createTotalValidatorRewardsOperation(dependingOn: runtimeOperation)
 
         totalValidatorRewardsOperation.targetOperation.completionBlock = { [weak self] in
-            do {
-                let result = try totalValidatorRewardsOperation.targetOperation.extractNoCancellableResultData()
-
-                let values = result.compactMap { $0.value?.value }
-                let averageTotalValidatorReward = values.reduce(BigUInt.zero, +) / BigUInt(result.count)
-
-                self?.snapshot = averageTotalValidatorReward
-                self?.notifyPendingClosures(with: averageTotalValidatorReward)
-            } catch {
-                self?.logger?.error("Error on fetching total validator rewards: \(error)")
+            self?.syncQueue.async {
+                self?.handleTotalValidatorRewards(totalValidatorRewardsOperation.targetOperation.result)
             }
         }
 
         operationManager.enqueue(operations: totalValidatorRewardsOperation.allOperations, in: .transient)
+    }
+
+    private func handleTotalValidatorRewards(_ result: Result<[StorageResponse<StringScaleMapper<BigUInt>>], Error>?) {
+        do {
+            guard let result = try result?.get() else {
+                throw BaseOperationError.parentOperationCancelled
+            }
+
+            // Without any reward history there is nothing to average; dividing by the empty count trapped.
+            guard !result.isEmpty else {
+                snapshotError = RewardCalculatorEngineError.missingRewardHistory
+                notifyPendingClosures(with: RewardCalculatorEngineError.missingRewardHistory)
+                return
+            }
+
+            let values = result.compactMap { $0.value?.value }
+            let averageTotalValidatorReward = values.reduce(BigUInt.zero, +) / BigUInt(result.count)
+
+            snapshot = averageTotalValidatorReward
+            notifyPendingClosures(with: averageTotalValidatorReward)
+        } catch {
+            logger?.error("Error on fetching total validator rewards: \(error)")
+            snapshotError = error
+            notifyPendingClosures(with: error)
+        }
     }
 }
 
@@ -209,7 +260,7 @@ extension PortionRewardCalculatorService: RewardCalculatorServiceProtocol {
 
     func throttle() {
         syncQueue.async {
-            guard !self.isActive else {
+            guard self.isActive else {
                 return
             }
 
@@ -219,9 +270,10 @@ extension PortionRewardCalculatorService: RewardCalculatorServiceProtocol {
 
     func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
         AwaitOperation { [weak self] in
-            await withCheckedContinuation { continuation in
-                self?.fetchInfoFactory(runCompletionIn: nil) { info in
-                    continuation.resume(with: .success(info))
+            guard let self = self else { throw BaseOperationError.parentOperationCancelled }
+            return try await withCheckedThrowingContinuation { continuation in
+                self.fetchInfoFactory(runCompletionIn: nil) { result in
+                    continuation.resume(with: result)
                 }
             }
         }

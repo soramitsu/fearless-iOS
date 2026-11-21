@@ -11,6 +11,10 @@ import SnapKit
  */
 @IBDesignable
 class TriangularedButton: BackgroundedContentControl {
+    /// Which shared style painted the button; the neutral style repaints when `isEnabled` changes.
+    enum FWStyleRole { case other, neutral }
+
+    var fwStyleRole: FWStyleRole = .other
     private var isLoading: Bool = false
     private(set) var wrappingLabel: UILabel?
     private var wrappingHeight: Constraint?
@@ -82,6 +86,22 @@ class TriangularedButton: BackgroundedContentControl {
         if label.preferredMaxLayoutWidth != width {
             label.preferredMaxLayoutWidth = width
             invalidateIntrinsicContentSize()
+        }
+    }
+
+    override var isEnabled: Bool {
+        didSet {
+            if fwStyleRole == .neutral, isEnabled != oldValue, !isLoading {
+                applyNeutralPaint()
+            }
+        }
+    }
+
+    /// Press feedback (sun-lit redesign): the background sinks through its highlight and the button scales.
+    override var isHighlighted: Bool {
+        didSet {
+            guard isHighlighted != oldValue else { return }
+            FWPress.apply(isHighlighted, to: self, surface: nil)
         }
     }
 

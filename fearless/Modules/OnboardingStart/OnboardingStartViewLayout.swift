@@ -1,15 +1,10 @@
 import UIKit
 
 final class OnboardingStartViewLayout: UIView {
-    private let mediaView: UniversalMediaView = {
-        let mediaView = UniversalMediaView(frame: .zero)
-        mediaView.allowLooping = true
-        mediaView.shouldHidePlayButton = true
-        mediaView.shouldAutoPlayAfterPresentation = true
-        mediaView.backgroundColor = .clear
-        mediaView.setGIFImage(name: "animatedIcon")
-        return mediaView
-    }()
+    /// The stacked lockup whose crest lights the page (Yatagarasu brand; the welcome screen carries the crow).
+    private let mediaView = FWLockupView()
+
+    private let sunlitBackground = FWSunlitBackgroundView()
 
     private let label: UILabel = {
         let label = UILabel()
@@ -61,13 +56,27 @@ final class OnboardingStartViewLayout: UIView {
         label.attributedText = mutableAttributedString
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        sunlitBackground.sunCenter = mediaView.convert(mediaView.crestCenterPoint, to: self)
+    }
+
     private func setupLayout() {
-        stackView.addArrangedSubview(mediaView)
+        backgroundColor = FWSunlit.Palette.background
+        addSubview(sunlitBackground)
+        sunlitBackground.snp.makeConstraints { make in make.edges.equalToSuperview() }
+        let lockupRow = UIView()
+        lockupRow.addSubview(mediaView)
+        mediaView.snp.makeConstraints { make in
+            mediaView.makePageConstraints(make)
+            make.top.bottom.equalToSuperview()
+        }
+        stackView.addArrangedSubview(lockupRow)
         stackView.addArrangedSubview(label)
 
         addSubview(stackView)
         stackView.snp.makeConstraints { make in
-            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(35)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(24)
             make.centerY.equalToSuperview().offset(-(UIConstants.bigOffset + UIConstants.actionHeight))
         }
 

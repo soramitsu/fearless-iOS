@@ -1,8 +1,9 @@
 import Foundation
-import SSFUtils
-import IrohaCrypto
 import SSFModels
 
+/// Opens MoonPay's hosted widget with an unsigned URL. Supplying `walletAddress` requires a
+/// signature made with MoonPay's secret key, which belongs on a server, so the wallet leaves the
+/// address for the user to enter in MoonPay (`showWalletAddressForm`), as the Android app does.
 final class MoonpayProvider: PurchaseProviderProtocol {
     enum Constants {
         static let title = "Moonpay"
@@ -20,8 +21,6 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         self.apiKey = apiKey
     }
 
-    var hmacSigner: HmacSignerProtocol?
-
     func with(colorCode: String) -> Self {
         self.colorCode = colorCode
         return self
@@ -32,33 +31,19 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         return self
     }
 
-    func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
-        if let url = buildURLForToken(asset.symbol, address: address) {
+    func buildPurchaseActions(asset: AssetModel, address _: String) -> [PurchaseAction] {
+        if let url = buildURLForToken(asset.symbol) {
             return [PurchaseAction(title: Constants.title, url: url, icon: Constants.icon!)]
         }
         return []
     }
 
-    private func calculateHmac(for query: String) throws -> String {
-        guard let signer = hmacSigner else { return "" }
-        let queryData = Data(query.utf8)
-        let signatureData = try signer.sign(queryData)
-
-        let base64Hash =
-            signatureData
-                .base64EncodedString()
-                .addingPercentEncoding(withAllowedCharacters: CharacterSet(charactersIn: "+/=").inverted)
-
-        return base64Hash ?? ""
-    }
-
-    private func buildURLForToken(_ token: String, address: String) -> URL? {
+    func buildURLForToken(_ token: String) -> URL? {
         guard var components = URLComponents(string: Self.baseUrlString) else { return nil }
 
         var percentEncodedQueryItems = [
             URLQueryItem(name: "apiKey", value: apiKey),
             URLQueryItem(name: "currencyCode", value: token),
-            URLQueryItem(name: "walletAddress", value: address),
             URLQueryItem(name: "showWalletAddressForm", value: "true")
         ]
 
@@ -73,15 +58,6 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         }
 
         components.percentEncodedQueryItems = percentEncodedQueryItems
-
-        let percentEncodedQuery = components.percentEncodedQuery ?? ""
-        let query = "?\(percentEncodedQuery)"
-        let signature = try? calculateHmac(for: query)
-
-        components.percentEncodedQueryItems?.append(URLQueryItem(
-            name: "signature",
-            value: signature ?? ""
-        ))
 
         return components.url
     }

@@ -15,7 +15,7 @@
 - Config files: `.swiftlint.yml`, `.swiftformat`, `.periphery.yml`.
 
 ## Build, Test, and Dev Commands
-- Install dependencies: `pod install`
+- Install dependencies: `pod install`, then `scripts/deps/build-tools-from-source.sh`
 - Build (Debug, simulator):
   - `xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' build`
 - Run unit tests (on simulator):
@@ -48,6 +48,9 @@ CI note
 - Coverage: maintain/raise coverage for changed code.
 - New code policy: whenever you add a function, add at least one unit test covering it.
 - UIKit layout and hit-testing changes (for example `MainTabBar`): run the tests on the newest iOS runtime and on one runtime older than iOS 26 (for example iOS 18.x), because the deployment target is iOS 15.0. Host test windows in the app's `UIWindowScene`; a scene-less `UIWindow` gets no UIKit layout or transition passes on iOS 18.
+- Build `fearless.tests` for the simulator with its normal signing. `CODE_SIGNING_ALLOWED=NO` drops the simulator entitlements, and 11 keychain and app-group tests then fail.
+- A new simulator takes the Mac's language, and text fallback, `Locale.current` and copy follow it. To run as the GitHub job does (iOS 26.2, English), pass `-testLanguage en -testRegion US`; a test that depends on a language should set it.
+- Unless the system pasteboard itself is under test, inject a `PasteboardStringAccessing` rather than reading `UIPasteboard.general`: when its content came from another app, such as the Mac clipboard that Simulator syncs, a read waits for a paste-permission answer.
 
 ## Commit & Pull Requests
 - Commits: concise, imperative subjects; reference issues (`#123`). Conventional Commit prefixes (`feat:`, `fix:`, `refactor:`) encouraged.
@@ -107,6 +110,7 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 
 2) Install Pods (always open the workspace)
 - From repo root: `pod install`
+- Build the pinned R.swift and SwiftFormat executables: `scripts/deps/build-tools-from-source.sh`
 - Open: `open fearless.xcworkspace`
 
 3) Resolve SPM packages

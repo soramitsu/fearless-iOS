@@ -1,7 +1,6 @@
 import Foundation
 import SSFCrypto
 import SSFPools
-import sorawallet
 import SSFStorageQueryKit
 import SSFUtils
 import BigInt
@@ -34,7 +33,7 @@ public final class PolkaswapLiquidityPoolServiceDefault {
         dexManagerStorage: DexManagerStorage,
         poolXykStorage: PoolXykStorage,
         chain: ChainModel,
-        apyWorker: PolkaswapAPYWorkerDefault
+        apyWorker: PolkaswapAPYWorker
     ) {
         self.dexManagerStorage = dexManagerStorage
         self.poolXykStorage = poolXykStorage
@@ -148,9 +147,8 @@ extension PolkaswapLiquidityPoolServiceDefault: PolkaswapLiquidityPoolService {
 
     public func fetchPoolsAPY() async throws -> [PoolApyInfo] {
         let apyInfo = try await apyWorker.getAPYInfo()
-        return apyInfo.compactMap {
-            PoolApyInfo(poolId: $0.id, apy: $0.sbApy?.decimalValue)
-        }
+        let availablePools = try await fetchAvailablePools()
+        return PolkaswapPoolApyMapper.map(apyInfo, availablePools: availablePools)
     }
     
     public func fetchReserves(pools: [LiquidityPair]) async throws -> [PolkaswapPoolReservesInfo] {

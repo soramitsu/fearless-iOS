@@ -20,6 +20,49 @@ enum SubstrateStorageParams {
     }
 }
 
+/// The last step that keeps a Substrate store problem from stopping startup.
+///
+/// The Substrate store holds network data and local conveniences, never a
+/// wallet or a key. When startup can neither use, migrate nor set aside the
+/// installed store, it leaves the store untouched on disk and this launch
+/// runs on an in-memory store; the next launch tries the installed store
+/// again. It has effect only before `SubstrateDataStorageFacade.shared` is
+/// first created, which startup does after its migration steps.
+enum SubstrateStoreStartupFallback {
+    private static let lock = NSLock()
+    private static var inMemoryStoreActive = false
+
+    static var isInMemoryStoreActive: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return inMemoryStoreActive
+    }
+
+    static func activateInMemoryStore(reason: String) {
+        lock.lock()
+        let wasActive = inMemoryStoreActive
+        inMemoryStoreActive = true
+        lock.unlock()
+
+        guard !wasActive else {
+            return
+        }
+
+        Logger.shared.warning(
+            "Substrate store is left untouched on disk; this launch uses an in-memory store (\(reason))"
+        )
+    }
+
+    /// Tests only: forget an activation so the next test starts clean. Kept
+    /// in every configuration because the Release (-O) gate builds the tests.
+    static func resetForTesting() {
+        lock.lock()
+        inMemoryStoreActive = false
+        lock.unlock()
+    }
+}
+
 class SubstrateDataStorageFacade: StorageFacadeProtocol {
     static let shared = SubstrateDataStorageFacade()
 
@@ -37,14 +80,16 @@ class SubstrateDataStorageFacade: StorageFacadeProtocol {
         self.init(
             modelURL: modelURL,
             databaseDirectory: baseURL!,
-            databaseName: "\(modelName).sqlite"
+            databaseName: "\(modelName).sqlite",
+            inMemory: SubstrateStoreStartupFallback.isInMemoryStoreActive
         )
     }
 
     init(
         modelURL: URL?,
         databaseDirectory: URL,
-        databaseName: String = SubstrateStorageParams.databaseName
+        databaseName: String = SubstrateStorageParams.databaseName,
+        inMemory: Bool = false
     ) {
         let resolvedModelURL: URL
         if let modelURL {
@@ -72,7 +117,7 @@ class SubstrateDataStorageFacade: StorageFacadeProtocol {
 
         let configuration = CoreDataServiceConfiguration(
             modelURL: resolvedModelURL,
-            storageType: .persistent(settings: persistentSettings)
+            storageType: inMemory ? .inMemory : .persistent(settings: persistentSettings)
         )
 
         databaseService = CoreDataService(configuration: configuration)

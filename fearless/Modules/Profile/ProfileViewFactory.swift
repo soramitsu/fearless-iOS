@@ -48,11 +48,6 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let missingAccountHelper = MissingAccountFetcher(
@@ -69,11 +64,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             accountInfoFetcher: substrateAccountInfoFetching
         )
 
-        let walletConnectModelFactory = WalletConnectModelFactoryImpl()
-        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl(
-            walletConnectModelFactory: walletConnectModelFactory,
-            chainAssetFetcher: chainAssetFetching
-        )
+        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl()
 
         let interactor = ProfileInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,

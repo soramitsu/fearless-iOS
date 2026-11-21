@@ -1,11 +1,34 @@
 import UIKit
 
-/// A control-sized raised/inset well. Repeated PIN keys should use the Calm bevel, not shadow layers.
+/// A sun-lit neumorphic surface (spec section 3): Raised-1, Raised-2, Inset or Emissive, lit by the key light
+/// from the top-left, with a rim that catches the sun bounce. Calm and Reduced effects drop the shadows,
+/// High contrast swaps them for a solid stroke. Geometry never depends on the paint.
 final class FWNeuView: UIView {
-    enum Style { case raised, inset }
+    enum Style {
+        /// Raised-2: cards, round action buttons, the tab bar.
+        case raised
+        /// Raised-1: list rows and chips.
+        case raised1
+        /// Inputs, wells and the selected tab.
+        case inset
+        /// Primary actions and the sun: brand gradient with its own glow.
+        case emissive
+        /// No light of its own; keeps the rim of an interactive control.
+        case flat
+
+        var elevation: FWSunlit.Elevation {
+            switch self {
+            case .raised: return .raised2
+            case .raised1: return .raised1
+            case .inset: return .inset
+            case .emissive: return .emissive
+            case .flat: return .flat
+            }
+        }
+    }
 
     var style: Style = .raised {
-        didSet { applyStyle(); setNeedsLayout() }
+        didSet { applyStyle() }
     }
 
     var calm = false {
@@ -13,54 +36,43 @@ final class FWNeuView: UIView {
     }
 
     var controlFocused = false {
-        didSet { applyStyle(); setNeedsLayout() }
+        didSet { applyStyle() }
     }
 
     var hasError = false {
-        didSet { applyStyle(); setNeedsLayout() }
+        didSet { applyStyle() }
     }
 
-    var shape: (CGRect) -> UIBezierPath = { UIBezierPath(roundedRect: $0, cornerRadius: FWTokens.Radius.s) } {
+    /// Interactive controls keep a 1 pt rim in every mode.
+    var isInteractive = false {
+        didSet { applyStyle() }
+    }
+
+    /// Sun bounce on the top rim, from `FWSunlit.Light.sunRim`.
+    var sunRim: CGFloat = 0 {
+        didSet { applyStyle() }
+    }
+
+    /// Overrides the surface colour (`bg`, or `bgDeep` for inset).
+    var surfaceColor: UIColor? {
+        didSet { applyStyle() }
+    }
+
+    var shape: (CGRect) -> UIBezierPath = { UIBezierPath(roundedRect: $0, cornerRadius: FWSunlit.Radius.button) } {
         didSet { setNeedsLayout() }
     }
 
+    private(set) var isPressed = false
     private let effects: FWEffects
     private var observation: NSObjectProtocol?
-    private let dark = CALayer()
-    private let light = CALayer()
-    private let fill = CAShapeLayer()
-    private let insetShadow = CAShapeLayer()
-    private let insetMask = CAShapeLayer()
-    private let bevel = CAGradientLayer()
-    private let bevelMask = CAShapeLayer()
-    private let rim = CAShapeLayer()
+    private let painter = FWSurfacePainter()
 
     init(frame: CGRect = .zero, effects: FWEffects = .shared) {
         self.effects = effects
         super.init(frame: frame)
         backgroundColor = .clear
         isAccessibilityElement = false
-        [dark, light, fill, insetShadow, bevel, rim].forEach(layer.addSublayer)
-        dark.shadowColor = UIColor.black.cgColor
-        dark.shadowRadius = 7
-        dark.shadowOffset = CGSize(width: 6, height: 6)
-        light.shadowColor = UIColor.white.cgColor
-        light.shadowRadius = 5
-        light.shadowOffset = CGSize(width: -4, height: -4)
-        insetShadow.fillColor = UIColor.black.cgColor
-        insetShadow.fillRule = .evenOdd
-        insetShadow.shadowColor = UIColor.black.cgColor
-        insetShadow.shadowRadius = 3
-        insetShadow.shadowOffset = CGSize(width: 2, height: 2)
-        insetShadow.mask = insetMask
-        insetMask.fillColor = UIColor.black.cgColor
-        bevel.startPoint = .zero
-        bevel.endPoint = CGPoint(x: 1, y: 1)
-        bevel.colors = [UIColor(white: 1, alpha: 0.06), .clear, UIColor(white: 0, alpha: 0.2)].map(\.cgColor)
-        bevel.locations = [0, 0.5, 1]
-        bevel.mask = bevelMask
-        bevelMask.fillColor = UIColor.black.cgColor
-        rim.fillColor = nil
+        painter.install(in: layer)
         observation = effects.notificationCenter.addObserver(
             forName: FWEffects.didChange, object: effects, queue: .main
         ) { [weak self] _ in self?.applyStyle() }
@@ -80,27 +92,7 @@ final class FWNeuView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        let path = shape(bounds)
-        dark.frame = bounds
-        light.frame = bounds
-        dark.shadowPath = path.cgPath
-        light.shadowPath = path.cgPath
-        fill.path = path.cgPath
-        insetShadow.frame = bounds
-        insetMask.frame = bounds
-        insetMask.path = path.cgPath
-        let outside = UIBezierPath(rect: bounds.insetBy(dx: -20, dy: -20))
-        outside.append(path)
-        outside.usesEvenOddFillRule = true
-        insetShadow.path = outside.cgPath
-        insetShadow.shadowPath = outside.cgPath
-        bevel.frame = bounds
-        bevelMask.frame = bounds
-        bevelMask.path = path.cgPath
-        rim.path = shape(bounds.insetBy(dx: rim.lineWidth / 2, dy: rim.lineWidth / 2)).cgPath
-        CATransaction.commit()
+        painter.layout(path: shape(bounds), bounds: bounds)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -108,20 +100,32 @@ final class FWNeuView: UIView {
         applyStyle()
     }
 
+    /// Raised to inset and back (spec section 4: 90 ms in, 160 ms out). The host scales the control.
+    func setPressed(_ pressed: Bool, animated: Bool) {
+        guard pressed != isPressed else { return }
+        isPressed = pressed
+        let policy = FWMotionPolicy.current(effects: effects, calm: calm)
+        let style = policy.style(for: .press)
+        let duration = animated && style.animates ? (pressed ? style.duration : FWSunlit.Motion.pressOut) : 0
+        painter.apply(currentState(), duration: duration)
+    }
+
+    private func currentState() -> FWSurfacePainter.State {
+        let contrast = effects.highContrast || traitCollection.accessibilityContrast == .high
+        return FWSurfacePainter.State(
+            elevation: style.elevation,
+            fill: surfaceColor,
+            sunRim: sunRim,
+            pressed: isPressed,
+            focused: controlFocused,
+            error: hasError,
+            interactive: isInteractive || controlFocused || hasError,
+            reduced: effects.paintReduced(calm: calm),
+            highContrast: contrast
+        )
+    }
+
     private func applyStyle() {
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        let reduced = effects.paintReduced(calm: calm) || traitCollection.accessibilityContrast == .high
-        let fillColor = style == .raised || reduced ? R.color.fwSurfaceRaised() : R.color.fwSurfaceSunken()
-        fill.fillColor = fillColor?.resolvedColor(with: traitCollection).cgColor
-        dark.shadowOpacity = style == .raised && !reduced ? 0.65 : 0
-        light.shadowOpacity = style == .raised && !reduced ? 0.035 : 0
-        insetShadow.isHidden = style != .inset || reduced
-        insetShadow.shadowOpacity = reduced ? 0 : 0.55
-        bevel.isHidden = !reduced
-        let color = hasError ? R.color.fwDanger() : (controlFocused ? R.color.fwFocus() : R.color.fwStrokeControl())
-        rim.strokeColor = color?.resolvedColor(with: traitCollection).cgColor
-        rim.lineWidth = controlFocused || hasError ? 2 : 1
-        CATransaction.commit()
+        painter.apply(currentState())
     }
 }

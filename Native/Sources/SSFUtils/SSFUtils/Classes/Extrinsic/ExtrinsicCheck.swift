@@ -14,21 +14,11 @@ enum ExtrinsicCheck: String, CaseIterable {
     case checkMetadataHash = "frame_metadata_hash_extension::CheckMetadataHash"
     case appCheck = "da_control::extensions::check_app_id::CheckAppId"
 
-    /// Overiden types explain which network has what full names
-    /// Key UInt32 - is metadata reserver number to identify network
-    /// Value - is String:String dictionary, which has fixing mappings from original name to actual
-    /// name
-    private static var overridenTypes: [UInt32: [String: String]] = [:]
-
-    static func from(string: String, runtimeMetadata: RuntimeMetadata) -> Self? {
+    // Fee and signature payloads resolve extensions concurrently. This deterministic lookup
+    // deliberately keeps no shared mutable cache.
+    static func from(string: String, runtimeMetadata _: RuntimeMetadata) -> Self? {
         if let check = ExtrinsicCheck(rawValue: string) {
             return check
-        }
-
-        var overridenTypes = overridenTypes[runtimeMetadata.metaReserved] ?? [:]
-
-        if let overridenType = overridenTypes[string] {
-            return from(string: overridenType, runtimeMetadata: runtimeMetadata)
         }
 
         var typeName: String? = string
@@ -42,9 +32,7 @@ enum ExtrinsicCheck: String, CaseIterable {
             if let checkTypeName = check.rawValue.components(separatedBy: "::").last,
                checkTypeName == typeName
             {
-                overridenTypes[string] = check.rawValue
-                self.overridenTypes[runtimeMetadata.metaReserved] = overridenTypes
-                return from(string: check.rawValue, runtimeMetadata: runtimeMetadata)
+                return check
             }
         }
 

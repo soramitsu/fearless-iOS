@@ -115,6 +115,7 @@ final class HistoricalSubstrateStoreUpgradeTests: XCTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
+        SubstrateStoreStartupFallback.resetForTesting()
 
         testDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent("HistoricalSubstrateStoreUpgradeTests")
@@ -1465,15 +1466,10 @@ final class HistoricalSubstrateStoreUpgradeTests: XCTestCase {
     ) throws -> URL {
         XCTAssertFalse(family.isEmpty, label)
 
-        do {
-            try migrator.migrate()
-        } catch let error as SubstrateStorageMigrationError where error.isRetriedBeforeStoreSetAside {
-            // Startup reports a failure that can pass once, with Retry, and keeps the store
-            // installed; the retry sets it aside when it fails again.
-            XCTAssertEqual(try durableStoreFamilySnapshot(at: storeURL), family, label)
-            XCTAssertTrue(try retainedDirectories(besides: storeURL).isEmpty, label)
-            try migrator.migrate()
-        }
+        // Startup never reports a Substrate failure: one call retries what can pass and
+        // then sets the store aside.
+        try migrator.migrate()
+        XCTAssertFalse(SubstrateStoreStartupFallback.isInMemoryStoreActive, label)
 
         XCTAssertTrue(try durableStoreFamilySnapshot(at: storeURL).isEmpty, label)
         let archiveURLs = try retainedDirectories(besides: storeURL)

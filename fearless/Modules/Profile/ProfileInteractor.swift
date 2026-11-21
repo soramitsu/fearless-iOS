@@ -21,6 +21,7 @@ final class ProfileInteractor {
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private let walletConnectDisconnectService: WalletConnectDisconnectService
+    private let secretEraser: WalletSecretEraser
 
     private lazy var currentCurrency: Currency? = {
         selectedMetaAccount.selectedCurrency
@@ -37,7 +38,8 @@ final class ProfileInteractor {
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainsIssuesCenter: ChainsIssuesCenterProtocol,
-        walletConnectDisconnectService: WalletConnectDisconnectService
+        walletConnectDisconnectService: WalletConnectDisconnectService,
+        secretEraser: WalletSecretEraser = WalletSecretEraser()
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
@@ -48,6 +50,7 @@ final class ProfileInteractor {
         self.walletRepository = walletRepository
         self.chainsIssuesCenter = chainsIssuesCenter
         self.walletConnectDisconnectService = walletConnectDisconnectService
+        self.secretEraser = secretEraser
     }
 
     // MARK: - Private methods
@@ -102,12 +105,24 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     }
 
     func logout(completion: @escaping () -> Void) {
+        // Logout promises to delete every account from this device, so the secrets of the
+        // wallets the user can see go with their rows. They are read first and erased only
+        // after the rows are gone. Keys without a visible wallet are left for the encrypted
+        // emergency export: they may be someone's only copy after a failed upgrade.
+        let walletsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         let operation = repository.deleteAllOperation()
-        operation.completionBlock = { [weak self] in
-            self?.walletConnectDisconnectService.disconnectAllSessions()
+        operation.addDependency(walletsOperation)
+        let secretEraser = self.secretEraser
+        let walletConnectDisconnectService = self.walletConnectDisconnectService
+        operation.completionBlock = {
+            if case .success? = operation.result,
+               let wallets = try? walletsOperation.extractNoCancellableResultData() {
+                secretEraser.eraseSecrets(of: wallets.map(\.info), remainingMetaIds: [])
+            }
+            walletConnectDisconnectService.disconnectAllSessions()
             completion()
         }
-        operationQueue.addOperation(operation)
+        operationQueue.addOperations([walletsOperation, operation], waitUntilFinished: false)
     }
 
     func update(currency: Currency) {

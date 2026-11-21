@@ -5,6 +5,13 @@ import SoraFoundation
 final class CheckPincodeViewController: UIViewController, ViewHolder, Localizable {
     typealias RootViewType = CheckPincodeViewLayout
     let presenter: PinSetupPresenterProtocol
+    private lazy var lockoutCountdown = PinLockoutCountdown(onChange: { [weak self] remaining in
+        guard let self = self else { return }
+        if remaining == nil {
+            self.rootView.pinView.setPinEntryEnabled(true)
+        }
+        self.rootView.lockoutRemaining = remaining
+    })
 
     init(
         presenter: PinSetupPresenterProtocol,
@@ -107,6 +114,13 @@ extension CheckPincodeViewController: PinSetupViewProtocol {
         rootView.pinView.reset(shouldAnimateError: true)
     }
 
+    func didReceiveLockout(remaining: TimeInterval) {
+        guard remaining > 0 else { return }
+        rootView.pinView.setPinEntryEnabled(false)
+        lockoutCountdown.start(remaining: remaining)
+        UIAccessibility.post(notification: .announcement, argument: rootView.titleLabel.text)
+    }
+
     func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType) {
         rootView.pinView.numpadView?.supportsAccessoryControl = enabled
         rootView.pinView.numpadView?.accessoryIcon = availableBiometryType.accessoryIcon?.tinted(
@@ -118,7 +132,11 @@ extension CheckPincodeViewController: PinSetupViewProtocol {
 extension CheckPincodeViewController: PinViewDelegate {
     func didChange(pinView _: PinView, from _: PinView.CreationState) {}
 
-    func didCompleteInput(pinView _: PinView, result: String) {
+    func didCompleteInput(pinView: PinView, result: String) {
+        guard !lockoutCountdown.isRunning else {
+            pinView.reset(shouldAnimateError: false)
+            return
+        }
         presenter.submit(pin: result)
     }
 

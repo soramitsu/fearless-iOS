@@ -601,6 +601,25 @@ final class ExportGenericPresentationTests: XCTestCase {
         capture(jsonWindow, name: "large-public-JSON-bounded-preview")
     }
 
+    func testExportGenericWarnsAfterScreenshotOnlyWhilePhraseOrSeedIsShown() async throws {
+        let localization = try XCTUnwrap(LocalizationManager(localization: "en"))
+        for (option, warns) in [(ExportOption.mnemonic, true), (.seed, true), (.keystore, false)] {
+            let (controller, _) = makeController(option: option, localization: localization)
+            let window = try show(controller, category: .large)
+            defer { close(window) }
+            await settle(window)
+            // A second screenshot while the warning is up must not stack another sheet.
+            NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+            NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            XCTAssertEqual(controller.presentedViewController is SheetAletViewController, warns, "\(option)")
+            XCTAssertNil(controller.presentedViewController?.presentedViewController)
+            if let sheet = controller.presentedViewController {
+                await withCheckedContinuation { continuation in sheet.dismiss(animated: false) { continuation.resume() } }
+            }
+        }
+    }
+
     private func fontWeight(_ font: UIFont) -> CGFloat {
         let traits = font.fontDescriptor.object(forKey: .traits) as? [UIFontDescriptor.TraitKey: Any]
         return (traits?[.weight] as? NSNumber).map { CGFloat(truncating: $0) } ?? 0
@@ -1650,8 +1669,9 @@ final class SeedShareOwnershipTests: XCTestCase {
         let row = try XCTUnwrap(descendants(f.view.view).compactMap { $0 as? MultilineTriangularedView }.first)
         reveal(row, in: f.window)
         assertHit(row, in: f.window)
-        let gesture = try XCTUnwrap(row.gestureRecognizers?.compactMap { $0 as? UITapGestureRecognizer }.first,
-            "This seed-share entry is intentionally Debug-only; this test must not enable it in Release")
+        let tap = row.gestureRecognizers?.compactMap { $0 as? UITapGestureRecognizer }.first
+        #if DEBUG
+        let gesture = try XCTUnwrap(tap, "This Debug-only seed-share entry must be on the row")
         f.view.perform(NSSelectorFromString("exportGestureHandler:"), with: gesture)
         await waitUntil { f.wireframe.sheets.count == 2 && self.settled(f.view.presentedViewController, in: f.window) }
         capture(f.window, "seed-share-warning-before-export")
@@ -1667,6 +1687,9 @@ final class SeedShareOwnershipTests: XCTestCase {
             }.joined(separator: "\n")
             let attachment = XCTAttachment(string: controls); attachment.name = "seed-share-system-control-inventory"; attachment.lifetime = .keepAlways; add(attachment)
         }
+        #else
+        XCTAssertNil(tap, "The seed-share entry is Debug-only: a Release build must not offer it")
+        #endif
     }
     func testDuplicateWarningsAndSharesHaveOneOwner() async throws {
         let f = try fixture(render: false); defer { f.close() }
@@ -1807,12 +1830,31 @@ final class SeedShareOwnershipTests: XCTestCase {
         XCTAssertEqual(f.wireframe.results, [true])
         XCTAssertEqual(f.interactor.backupCalls, 1)
     }
+    func testSystemShareKeepsSeedOffPasteboardPostingPrintingAndContacts() async throws {
+        let f = try fixture(); defer { f.close() }
+        await waitUntil { f.wireframe.sheets.count == 1 && self.settled(f.view.presentedViewController, in: f.window) }
+        try await activate(try XCTUnwrap(f.wireframe.sheets[0].actions.first?.button), in: f.window)
+        await waitUntil { f.view.presentedViewController == nil }
+        f.presenter.share(f.value)
+        await waitUntil { self.settled(f.view.presentedViewController as? UIActivityViewController, in: f.window) }
+        let activity = try XCTUnwrap(f.view.presentedViewController as? UIActivityViewController)
+        let excluded = Set(activity.excludedActivityTypes ?? [])
+        let required: [UIActivity.ActivityType] = [
+            .copyToPasteboard, .print, .assignToContact, .saveToCameraRoll, .postToFacebook, .postToTwitter
+        ]
+        for activityType in required {
+            XCTAssertTrue(excluded.contains(activityType), activityType.rawValue)
+        }
+        XCTAssertEqual(excluded, Set(ExportSeedWireframe.excludedShareActivities))
+        await withCheckedContinuation { continuation in f.view.dismiss(animated: true) { continuation.resume() } }
+    }
     private func settled(_ controller: UIViewController?, in window: UIWindow) -> Bool {
         guard let controller else { return false }
         return controller.view.window === window && !controller.isBeingPresented && controller.transitionCoordinator == nil
     }
     private func waitUntil(_ condition: () -> Bool) async {
-        for _ in 0..<150 { if condition() { return }; try? await Task.sleep(nanoseconds: 20_000_000) }
+        // Up to 30 s: a loaded machine can take several seconds to present the system share sheet.
+        for _ in 0..<1500 { if condition() { return }; try? await Task.sleep(nanoseconds: 20_000_000) }
     }
     private func descendants(_ view: UIView) -> [UIView] { [view] + view.subviews.flatMap { descendants($0) } }
     private func reveal(_ view: UIView, in window: UIWindow) {

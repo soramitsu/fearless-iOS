@@ -10,6 +10,10 @@ final class AccountInfoUpdatingService {
     struct SubscriptionInfo {
         let subscriptionId: String
         let accountId: AccountId
+        /// Subscriptions are stored by chain-asset key; a chain's removal finds all of its own by this id.
+        let chainId: ChainModel.Id
+        /// The service that attached the subscription holds it, so only that service can end it.
+        let service: WalletRemoteSubscriptionServiceProtocol
     }
 
     private(set) var selectedMetaAccount: MetaAccountModel
@@ -22,7 +26,8 @@ final class AccountInfoUpdatingService {
 
     private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
 
-    private lazy var readLock = ReaderWriterLock()
+    // Created with the service: a lazily created lock can be created twice by two first callers.
+    private let readLock = ReaderWriterLock()
 
     private lazy var chainConnectionVisibilityHelper = {
         ChainConnectionVisibilityHelper()
@@ -87,7 +92,7 @@ final class AccountInfoUpdatingService {
                     addSubscriptionIfNeeded(for: $0)
                 }
             case let .delete(deletedIdentifier):
-                removeSubscription(for: deletedIdentifier)
+                removeChain(deletedIdentifier)
             }
         }
     }
@@ -103,7 +108,8 @@ final class AccountInfoUpdatingService {
                 return
             }
 
-            let maybeSubscriptionId = await getRemoteSubscriptionService(for: chainAsset).attachToAccountInfo(
+            let service = getRemoteSubscriptionService(for: chainAsset)
+            let maybeSubscriptionId = await service.attachToAccountInfo(
                 of: accountId,
                 chainAsset: chainAsset,
                 queue: nil,
@@ -113,7 +119,9 @@ final class AccountInfoUpdatingService {
             if let subsciptionId = maybeSubscriptionId {
                 let subscription = SubscriptionInfo(
                     subscriptionId: subsciptionId,
-                    accountId: accountId
+                    accountId: accountId,
+                    chainId: chainAsset.chain.chainId,
+                    service: service
                 )
 
                 setSubscription(subscription, for: chainAsset.uniqueKey(accountId: accountId))
@@ -142,7 +150,7 @@ final class AccountInfoUpdatingService {
             return
         }
 
-        getRemoteSubscriptionService(for: chainAsset).detachFromAccountInfo(
+        subscriptionInfo.service.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
             chainAssetKey: key,
             queue: nil
@@ -160,6 +168,25 @@ final class AccountInfoUpdatingService {
         }
     }
 
+    /// A deleted chain is forgotten (a wallet change must not attach it again) and every subscription of its assets
+    /// ends. A deletion carries the chain id, while subscriptions are stored by chain-asset key.
+    private func removeChain(_ chainId: ChainModel.Id) {
+        readLock.exclusivelyWrite { [weak self] in
+            self?.chains[chainId] = nil
+        }
+
+        let keys = readLock.concurrentlyRead {
+            subscribedChains.filter { $0.value.chainId == chainId }.map(\.key)
+        }
+
+        guard !keys.isEmpty else {
+            logger?.error("Expected to remove subscriptions but found none for chain \(chainId)")
+            return
+        }
+
+        keys.forEach { removeSubscription(for: $0) }
+    }
+
     private func removeSubscription(for key: ChainAssetKey) {
         guard let subscriptionInfo = getSubscription(for: key) else {
             logger?.error("Expected to remove subscription but not found for \(key)")
@@ -168,7 +195,7 @@ final class AccountInfoUpdatingService {
 
         setSubscription(nil, for: key)
 
-        substrateRemoteSubscriptionService.detachFromAccountInfo(
+        subscriptionInfo.service.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
             chainAssetKey: key,
             queue: nil,

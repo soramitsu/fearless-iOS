@@ -52,11 +52,11 @@ extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
         updatedNodes = updatedNodes.filter { $0 != node }
         updatedNodes.append(updatedNode)
 
-        chain = chain.replacingCustomNodes(updatedNodes)
-
-        if chain.selectedNode == node {
-            chain = chain.replacingSelectedNode(updatedNode)
-        }
+        // Kept aside until the node is reachable and saved: a failed edit leaves the chain as it was.
+        let chainWithUpdatedNodes = chain.replacingCustomNodes(updatedNodes)
+        let updatedChain = chain.selectedNode == node
+            ? chainWithUpdatedNodes.replacingSelectedNode(updatedNode)
+            : chainWithUpdatedNodes
 
         let fetchNetworkOperation = substrateOperationFactory.fetchChainOperation(newURL)
 
@@ -75,7 +75,8 @@ extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
             DispatchQueue.main.async {
                 switch nodeSaveOperation.result {
                 case .success:
-                    let event = ChainsUpdatedEvent(updatedChains: [self.chain])
+                    self.chain = updatedChain
+                    let event = ChainsUpdatedEvent(updatedChains: [updatedChain])
                     self.eventCenter.notify(with: event)
                     self.presenter.didCompleteConnectionUpdate(with: newURL)
                 case let .failure(error):

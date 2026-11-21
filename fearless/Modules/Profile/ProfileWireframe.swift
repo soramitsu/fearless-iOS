@@ -40,6 +40,10 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
+    func authorizeBiometryEnabling(from view: ProfileViewProtocol?, completion: @escaping (Bool) -> Void) {
+        authorize(animated: true, cancellable: true, from: view, with: completion)
+    }
+
     func showAccountSelection(
         from view: ProfileViewProtocol?,
         moduleOutput: WalletsManagmentModuleOutput

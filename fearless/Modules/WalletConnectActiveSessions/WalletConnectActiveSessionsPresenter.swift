@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 import SoraFoundation
 import SSFQRService
 
@@ -22,6 +22,8 @@ final class WalletConnectActiveSessionsPresenter {
     private let viewModelFactory: WalletConnectActiveSessionsViewModelFactory
 
     private var sessions: [Session]?
+    /// The sessions the list shows now, in row order: all of them, or the ones the search kept.
+    private var displayedSessions: [Session] = []
 
     // MARK: - Constructors
 
@@ -43,6 +45,7 @@ final class WalletConnectActiveSessionsPresenter {
         guard let sessions = sessions else {
             return
         }
+        displayedSessions = sessions
         let viewModels = viewModelFactory.createViewModel(from: sessions)
         view?.didReceive(viewModels: viewModels)
         view?.didStopLoading()
@@ -65,12 +68,13 @@ extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewO
             return $0.peer.name.lowercased().contains(text.lowercased()) == true
         }
         guard let sessions = sessions else { return }
+        displayedSessions = sessions
         let viewModels = viewModelFactory.createViewModel(from: sessions)
         view?.didReceive(viewModels: viewModels)
     }
 
     func didSelectRowAt(_ indexPath: IndexPath) {
-        guard let session = sessions?[safe: indexPath.row] else {
+        guard let session = displayedSessions[safe: indexPath.row] else {
             return
         }
         router.showSession(session, view: view)
@@ -90,7 +94,7 @@ extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewO
 // MARK: - WalletConnectActiveSessionsInteractorOutput
 
 extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsInteractorOutput {
-    func didReceive(sessions: [WalletConnectSign.Session]) {
+    func didReceive(sessions: [FearlessWalletConnect.Session]) {
         self.sessions = sessions
         provideViewModel()
     }

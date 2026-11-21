@@ -6,7 +6,7 @@ abstract_target 'fearlessAll' do
   use_frameworks!
 
   pod 'SwiftLint'
-  pod 'R.swift', '6.1.0', :inhibit_warnings => true
+  pod 'R.swift.Library', '5.3.0', :inhibit_warnings => true
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.2'
   pod 'SoraUI', '~> 1.10.3', :inhibit_warnings => true
   pod 'SoraFoundation', '~> 1.0.0'
@@ -15,25 +15,24 @@ abstract_target 'fearlessAll' do
   # pod 'ReachabilitySwift'
   # Migrated to SPM via Packages/FearlessDependencies
   # pod 'SnapKit', '~> 5.0.0'
-  pod 'SwiftFormat/CLI', '~> 0.47.13'
   pod 'Sourcery', '~> 1.4'
   # Migrated to SPM via Packages/FearlessDependencies
   # pod 'Kingfisher', '7.10.2' , :inhibit_warnings => true
   pod 'SVGKit'
   pod 'Charts', '~> 4.1.0'
-  pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
+  pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :commit => 'c7b4538a06d4177df1f27419575812e3673a8fee'
   target 'fearlessTests' do
     inherit! :search_paths
 
     pod 'Cuckoo'
     pod 'SoraFoundation', '~> 1.0.0'
-    pod 'R.swift', '6.1.0', :inhibit_warnings => true
+    pod 'R.swift.Library', '5.3.0', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
     pod 'Sourcery', '~> 1.4'
     # Ensure UI/framework deps are available to the tests as well
     pod 'SoraUI', '~> 1.10.3', :inhibit_warnings => true
     pod 'SVGKit'
-    pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
+    pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :commit => 'c7b4538a06d4177df1f27419575812e3673a8fee'
 
   end
 

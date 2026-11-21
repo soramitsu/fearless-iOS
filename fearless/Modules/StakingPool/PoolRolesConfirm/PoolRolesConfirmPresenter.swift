@@ -15,6 +15,7 @@ final class PoolRolesConfirmPresenter {
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let roles: StakingPoolRoles
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var fee: Decimal?
     private var accounts: [MetaAccountModel]?
@@ -30,8 +31,10 @@ final class PoolRolesConfirmPresenter {
         roles: StakingPoolRoles,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        logger: LoggerProtocol
+        logger: LoggerProtocol,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.router = router
         self.balanceViewModelFactory = balanceViewModelFactory
@@ -73,8 +76,10 @@ extension PoolRolesConfirmPresenter: PoolRolesConfirmViewOutput {
     }
 
     func didTapConfirmButton() {
-        view?.didStartLoading()
-        interactor.submit()
+        submissionAuthorizer.performAuthorized(from: view) { [weak self] in
+            self?.view?.didStartLoading()
+            self?.interactor.submit()
+        }
     }
 
     func didTapBackButton() {

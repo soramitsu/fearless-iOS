@@ -76,8 +76,7 @@ extension UserLiquidityPoolsListInteractor: UserLiquidityPoolsListInteractorInpu
         let poolIds: [String] = pools.compactMap {
             guard
                 let reservesId = $0.reservesId,
-                let reservesData = try? Data(hexStringSSF: reservesId),
-                let address = try? AddressFactory.address(for: reservesData, chain: chain)
+                let address = try? LiquidityPoolReservesId.address(from: reservesId, chain: chain)
             else {
                 return nil
             }

@@ -100,6 +100,24 @@ public extension SSFPools.LiquidityPair {
     var dexId: String { "0" }
 }
 
+/// A pool's reserves account id reaches the app in two forms: the available pools carry it as an SS58 address and
+/// the user's pools as hex. Reading an address as hex does not fail, it gives other bytes, so both forms are read
+/// here.
+enum LiquidityPoolReservesId {
+    static func accountId(from reservesId: String, chain: ChainModel) throws -> AccountId {
+        if let accountId = try? AddressFactory.accountId(from: reservesId, chain: chain) {
+            return accountId
+        }
+
+        return try Data(hexStringSSF: reservesId)
+    }
+
+    /// The address the Polkaswap APY list names the pool by.
+    static func address(from reservesId: String, chain: ChainModel) throws -> AccountAddress {
+        try AddressFactory.address(for: accountId(from: reservesId, chain: chain), chain: chain)
+    }
+}
+
 // Convenience mapping used by presenters when navigating from account pools
 public extension SSFPools.AccountPool {
     var liquidityPair: SSFPools.LiquidityPair {
@@ -223,7 +241,8 @@ enum PolkaswapLiquidityPoolServiceAssembly {
         return PolkaswapLiquidityPoolService(
             upstream: SSFPolkaswap.PolkaswapLiquidityPoolServiceAssembly.buildService(
                 for: chain,
-                chainRegistry: chainRegistry
+                chainRegistry: chainRegistry,
+                apyIndexerURL: ApplicationConfig.shared.polkaswapIndexerURL
             ),
             poolStorage: PoolXykStorageDefaultL(storageRequestPerformer: performer),
             chain: chain
@@ -549,7 +568,8 @@ final class ReviewedPolkaswapPoolsOperationService: PoolsOperationService {
         let dataService = PolkaswapLiquidityPoolService(
             upstream: SSFPolkaswap.PolkaswapLiquidityPoolServiceAssembly.buildService(
                 for: chain,
-                chainRegistry: sharedRegistry
+                chainRegistry: sharedRegistry,
+                apyIndexerURL: ApplicationConfig.shared.polkaswapIndexerURL
             ),
             poolStorage: PoolXykStorageDefaultL(storageRequestPerformer: performer),
             chain: chain
@@ -673,7 +693,7 @@ final class ReviewedPolkaswapPoolsOperationService: PoolsOperationService {
                 service: context.dataService
             )
             guard let reservesIdHex = accountPool.reservesId,
-                  let reservesId = try? Data(hexStringSSF: reservesIdHex),
+                  let reservesId = try? LiquidityPoolReservesId.accountId(from: reservesIdHex, chain: context.chain),
                   let issuance = try await context.dataService.fetchTotalIssuance(reservesId: reservesId),
                   issuance > .zero,
                   let currentBaseReserves = Decimal.fromSubstrateAmount(

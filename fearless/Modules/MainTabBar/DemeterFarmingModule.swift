@@ -1336,6 +1336,7 @@ final class DemeterPoolDetailViewController: UITableViewController {
     private let position: DemeterAccountPosition?
     private let capabilities: DemeterRuntimeCapabilities
     private let onMutation: () -> Void
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     init(
         wallet: MetaAccountModel,
@@ -1344,7 +1345,8 @@ final class DemeterPoolDetailViewController: UITableViewController {
         token: DemeterRewardToken?,
         position: DemeterAccountPosition?,
         capabilities: DemeterRuntimeCapabilities,
-        onMutation: @escaping () -> Void
+        onMutation: @escaping () -> Void,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
         self.wallet = wallet
         self.chain = chain
@@ -1353,6 +1355,7 @@ final class DemeterPoolDetailViewController: UITableViewController {
         self.position = position
         self.capabilities = capabilities
         self.onMutation = onMutation
+        self.submissionAuthorizer = submissionAuthorizer
         super.init(style: .insetGrouped)
     }
 
@@ -1499,21 +1502,29 @@ final class DemeterPoolDetailViewController: UITableViewController {
         )
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Confirm", style: .default) { [weak self] _ in
-            Task {
-                do {
-                    let hash = try await service.submit(mutation)
-                    await MainActor.run {
-                        self?.onMutation()
-                        self?.presentMessage(title: "Submitted", message: "SORA extrinsic \(hash)")
-                    }
-                } catch {
-                    await MainActor.run {
-                        self?.presentMessage(title: "Transaction failed", message: error.localizedDescription)
-                    }
-                }
+            guard let self = self else { return }
+            // The PIN, or a trusted biometric, is asked right before the farming action is signed.
+            self.submissionAuthorizer.performAuthorized(from: self) { [weak self] in
+                self?.submit(mutation, service: service)
             }
         })
         present(alert, animated: true)
+    }
+
+    private func submit(_ mutation: DemeterMutation, service: DemeterMutationService) {
+        Task { [weak self] in
+            do {
+                let hash = try await service.submit(mutation)
+                await MainActor.run {
+                    self?.onMutation()
+                    self?.presentMessage(title: "Submitted", message: "SORA extrinsic \(hash)")
+                }
+            } catch {
+                await MainActor.run {
+                    self?.presentMessage(title: "Transaction failed", message: error.localizedDescription)
+                }
+            }
+        }
     }
 
     private func presentMessage(title: String, message: String) {
@@ -1522,3 +1533,5 @@ final class DemeterPoolDetailViewController: UITableViewController {
         present(alert, animated: true)
     }
 }
+
+extension DemeterPoolDetailViewController: ControllerBackedProtocol {}

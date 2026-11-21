@@ -229,7 +229,8 @@ final class NftDetailsViewLayout: UIView {
         if let imageUrl = viewModel.nft.thumbnailURL {
             mediaView.bind(mediaURL: imageUrl, animating: true)
         } else {
-            mediaView.setGIFImage(name: "animatedIcon")
+            mediaView.contentMode = .scaleAspectFit
+            mediaView.image = R.image.fwCrestBadgeGlow()
         }
 
         switch viewModel.nftType {

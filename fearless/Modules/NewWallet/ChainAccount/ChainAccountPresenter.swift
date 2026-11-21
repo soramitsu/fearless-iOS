@@ -22,11 +22,7 @@ final class ChainAccountPresenter {
     private lazy var rampProvider = RampProvider()
     private lazy var moonpayProvider: PurchaseProviderProtocol = {
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
-        let moonpaySecretKeyData = Data(MoonPayKeys.secretKey.utf8)
-        return MoonpayProviderFactory().createProvider(
-            with: moonpaySecretKeyData,
-            apiKey: config.moonPayApiKey
-        )
+        return MoonpayProviderFactory().createProvider(apiKey: config.moonPayApiKey)
     }()
 
     private var frozen: NoneStateOptional<Decimal?> = .none
@@ -34,6 +30,8 @@ final class ChainAccountPresenter {
     private var balance: NoneStateOptional<WalletBalanceInfo?> = .none
     private var minimumBalance: NoneStateOptional<BigUInt?> = .none
     private var accountInfo: NoneStateOptional<AccountInfo?> = .none
+    /// The providers the buy picker shows; a selection is resolved against these.
+    private var presentedPurchaseActions: [PurchaseAction] = []
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     init(
@@ -273,9 +271,11 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapBuyButton() {
+        let actions = getPurchaseActions()
+        presentedPurchaseActions = actions
         wireframe.presentBuyFlow(
             from: view,
-            items: getPurchaseActions(),
+            items: actions,
             delegate: self
         )
     }
@@ -472,7 +472,10 @@ extension ChainAccountPresenter: Localizable {
 
 extension ChainAccountPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
-        wireframe.presentPurchaseWebView(from: view, action: getPurchaseActions()[index])
+        guard let action = presentedPurchaseActions[safe: index] else {
+            return
+        }
+        wireframe.presentPurchaseWebView(from: view, action: action)
     }
 }
 

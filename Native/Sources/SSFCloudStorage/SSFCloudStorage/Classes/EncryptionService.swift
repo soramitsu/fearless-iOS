@@ -20,6 +20,14 @@ public class EncryptionService: NSObject, EncryptionServiceProtocol {
 
         let data = try Data(hexStringSSF: message)
 
+        // Check the whole envelope (scrypt header, nonce, authentication tag) before deriving a key
+        // or slicing, so a truncated or damaged backup is an error instead of a crash.
+        let minimumLength = ScryptParameters.encodedLength + KeystoreConstants.nonceLength
+            + KeystoreConstants.authenticationTagLength
+        guard data.count >= minimumLength else {
+            throw CloudStorageServiceError.incorectJson
+        }
+
         let scryptParameters = try ScryptParameters(data: data)
 
         let encryptionKey = try IRScryptKeyDeriviation()

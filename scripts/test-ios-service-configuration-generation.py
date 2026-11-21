@@ -99,7 +99,7 @@ class ServiceConfigurationGenerationTests(unittest.TestCase):
 
     def test_retired_sora_card_paywings_and_x1_settings_are_not_generated(self):
         # SORA Card (with its PayWings sign-in and X1 top-up widget) was removed;
-        # its credentials must not come back into signed builds. MoonPay stays.
+        # its credentials must not come back into signed builds. MoonPay keeps only its public key.
         rendered = GENERATOR.render(TEMPLATE, self.fixture_environment())
         for retired in ["SoraCardCIKeys", "PayWingsCIKeys", "XOneCIKeys", "soraCard", "paywings", "x1"]:
             with self.subTest(retired=retired):
@@ -108,20 +108,38 @@ class ServiceConfigurationGenerationTests(unittest.TestCase):
         for variable in GENERATOR.ARGUMENT_ENVIRONMENT.values():
             with self.subTest(variable=variable):
                 self.assertFalse(variable.startswith(("SORA_CARD_", "PAY_WINGS_", "X1_")))
-        self.assertEqual(
-            {argument: GENERATOR.ARGUMENT_ENVIRONMENT[argument] for argument in ["moonPaySecretKey", "moonPayTestSecretKey", "moonPayPublicKey"]},
-            {
-                "moonPaySecretKey": "MOONPAY_PRODUCTION_SECRET",
-                "moonPayTestSecretKey": "MOONPAY_TEST_SECRET",
-                "moonPayPublicKey": "MOONPAY_PUBLIC_KEY",
-            },
-        )
+        self.assertEqual(GENERATOR.ARGUMENT_ENVIRONMENT["moonPayPublicKey"], "MOONPAY_PUBLIC_KEY")
         self.assertIn('enum MoonPayCIKeys {', rendered)
+
+    def test_moonpay_secret_keys_never_reach_the_app(self):
+        # MoonPay URL signing belongs on a server; the app opens the widget unsigned.
+        rendered = GENERATOR.render(TEMPLATE, self.fixture_environment())
+        for retired in ["moonPaySecretKey", "moonPayTestSecretKey", "secretKey", "testSecretKey"]:
+            with self.subTest(retired=retired):
+                self.assertNotIn(retired, TEMPLATE)
+                self.assertNotIn(retired, rendered)
+        for variable in GENERATOR.ARGUMENT_ENVIRONMENT.values():
+            with self.subTest(variable=variable):
+                self.assertNotIn(variable, {"MOONPAY_PRODUCTION_SECRET", "MOONPAY_TEST_SECRET"})
+
+    def test_nomis_account_scoring_credentials_use_their_reviewed_environment_names(self):
+        self.assertEqual(
+            {argument: GENERATOR.ARGUMENT_ENVIRONMENT[argument] for argument in ["nomisClientId", "nomisApiKey"]},
+            {"nomisClientId": "FL_NOMIS_CLIENT_ID", "nomisApiKey": "FL_NOMIS_API_KEY"},
+        )
+        rendered = GENERATOR.render(TEMPLATE, {"FL_NOMIS_CLIENT_ID": "synthetic-client", "FL_NOMIS_API_KEY": "synthetic-key"})
+        self.assertIn(
+            'enum NomisApiKeys {\n'
+            '    static var nomisClientId: String = "synthetic-client"\n'
+            '    static var nomisApiKey: String = "synthetic-key"\n'
+            '}\n',
+            rendered,
+        )
 
     def test_unset_optional_values_are_empty_not_sourcery_booleans(self):
         rendered = GENERATOR.render(TEMPLATE, {"FL_TON_API_KEY": "fixture-ton-key"})
         self.assertIn('tonApiKey: String = "fixture-ton-key"', rendered)
-        self.assertIn('secretKey: String = ""', rendered)
+        self.assertIn('publicKey: String = ""', rendered)
         self.assertNotIn('"true"', rendered)
         self.assertNotIn('"false"', rendered)
 

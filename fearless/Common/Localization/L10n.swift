@@ -155,7 +155,7 @@ public enum L10n {
     }
 
     public enum History {
-        /// Recent events
+        /// History
         public static var title: String { localize("history.title") }
     }
 

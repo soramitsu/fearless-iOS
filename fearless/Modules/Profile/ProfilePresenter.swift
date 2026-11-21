@@ -97,7 +97,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .currency:
             guard let selectedWallet = selectedWallet else { return }
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
-        case .biometry, .accountScore:
+        case .biometry, .accountScore, .soundEffects, .hapticFeedback:
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
@@ -123,12 +123,31 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         let option = ProfileOption(rawValue: UInt(index))
         switch option {
         case .biometry:
-            settings.biometryEnabled = isOn
+            guard isOn else {
+                settings.biometryEnabled = false
+                return
+            }
+            // Biometrics stand in for the PIN once on, so turning them on needs the PIN first.
+            wireframe.authorizeBiometryEnabling(from: view) { [weak self] authorized in
+                guard let self = self else { return }
+                if authorized {
+                    self.settings.biometryEnabled = true
+                }
+                self.receiveState()
+            }
+            // The switch shows the stored setting, which stays off until the PIN is confirmed.
+            receiveState()
         case .accountScore:
             settings.accountScoreEnabled = isOn
 
             let event = AccountScoreSettingsChanged()
             eventCenter.notify(with: event)
+        case .soundEffects:
+            FWFeedbackSettings.shared.soundEnabled = isOn
+        case .hapticFeedback:
+            FWFeedbackSettings.shared.hapticsEnabled = isOn
+            // A touch when it comes on, so the switch shows what it does.
+            if isOn { FWFeedback.shared.play(.commit) }
         default:
             break
         }

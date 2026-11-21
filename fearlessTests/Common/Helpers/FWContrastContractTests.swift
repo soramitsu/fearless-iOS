@@ -62,10 +62,11 @@ final class FWContrastContractTests: XCTestCase {
 
     func testNativeByteCompositesIncludeWorstAuroraAndWhiteScrollingContent() throws {
         let recipes = try Recipes(model: Model(), high: false, byteAlpha: true)
-        XCTAssertEqual(try recipes.resolve("peakAllDither").map(\.rgb), [[71, 50, 107]])
+        // Composites over the Yatagarasu pink aurora (#E6006F at 18 %, brand spec 2026-11-10).
+        XCTAssertEqual(try recipes.resolve("peakAllDither").map(\.rgb), [[68, 50, 101]])
         XCTAssertEqual(try recipes.resolve("chromeSurface").count, 7)
         let glass = try XCTUnwrap(recipes.resolve("glassSurface").last)
-        XCTAssertEqual(glass.rgb, [43, 40, 74])
+        XCTAssertEqual(glass.rgb, [42, 40, 72])
         let control = try XCTUnwrap(recipes.resolve("strokeControl").first)
         XCTAssertGreaterThanOrEqual(contrast(over(control, glass), glass.rgb), 3.5)
         XCTAssertGreaterThan(try recipes.resolve("primaryFill").count, 50)

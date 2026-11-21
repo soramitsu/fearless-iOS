@@ -97,13 +97,15 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
                 phase: .languageMigration,
                 migrator: languageMigrator
             ),
+            // The store migrators run once per process: a scene that connects
+            // again must not re-check stores the app already has open.
             RootSetupMigrationStep(
                 phase: .userStorageMigration,
-                migrator: dbMigrator
+                migrator: ProcessOnceMigrator(key: "user-storage", migrator: dbMigrator)
             ),
             RootSetupMigrationStep(
                 phase: .substrateMigration,
-                migrator: substrateDbMigrator
+                migrator: ProcessOnceMigrator(key: "substrate-storage", migrator: substrateDbMigrator)
             ),
             RootSetupMigrationStep(phase: .substrateMigration, migrator: RetainedContactStartupRecovery())
         ]

@@ -12,7 +12,7 @@ final class ProfileViewController: UIViewController, ViewHolder, AdaptiveFullWid
         static let sectionCellHeight: CGFloat = 56.0
         static let detailsCellHeight: CGFloat = 86.0
         static let headerInsets = UIEdgeInsets(top: 0.0, left: 16.0, bottom: 16, right: 16.0)
-        static let tableViewFooterHeight: CGFloat = 40.0
+        static let tableViewFooterHeight: CGFloat = 20.0
     }
 
     private enum SettingsSection: Int, CaseIterable {
@@ -62,7 +62,7 @@ final class ProfileViewController: UIViewController, ViewHolder, AdaptiveFullWid
             case .security:
                 return [.changePincode, .biometry]
             case .preferences:
-                return [.currency, .language, .polkaswapDisclaimer, .accountScore]
+                return [.currency, .language, .polkaswapDisclaimer, .accountScore, .soundEffects, .hapticFeedback]
             case .advanced:
                 return [.previousData, .emergencyMaterial]
             case .about:
@@ -233,7 +233,7 @@ extension ProfileViewController: UITableViewDataSource {
                 height: Constants.tableViewFooterHeight
             )
         )
-        footerView.backgroundColor = R.color.colorBlack()
+        footerView.backgroundColor = .clear
         return footerView
     }
 

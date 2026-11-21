@@ -113,7 +113,15 @@ class AuditTests(unittest.TestCase):
         retired = ('SoraCardCIKeys.', 'PayWingsCIKeys.', 'XOneCIKeys.')
         self.assertEqual([], [name for name in SCHEMA if name.startswith(retired)])
         self.assertFalse(any(name.startswith(retired) for name in A.REQUIRED))
-        self.assertTrue({'MoonPayCIKeys.secretKey', 'MoonPayCIKeys.testSecretKey', 'MoonPayCIKeys.publicKey'} <= set(SCHEMA))
+        self.assertIn('MoonPayCIKeys.publicKey', set(SCHEMA))
+        self.assertFalse({'MoonPayCIKeys.secretKey', 'MoonPayCIKeys.testSecretKey'} & set(SCHEMA))
+
+    def test_nomis_account_scoring_credentials_are_optional(self):
+        # Without them the signer omits the Nomis headers and the score shows as unavailable.
+        fields = {'NomisApiKeys.nomisClientId', 'NomisApiKeys.nomisApiKey'}
+        self.assertLessEqual(fields, set(SCHEMA))
+        self.assertFalse(fields & A.REQUIRED)
+        A.validate_values(self.fields | {field: '' for field in fields}, SCHEMA)
 
     def test_dwellir_is_optional_with_catalog_connection_fallback(self):
         field = 'DwellirNodeApiKey.dwellirApiKey'
@@ -179,7 +187,7 @@ class AuditTests(unittest.TestCase):
                 A.validate_values(candidate, SCHEMA)
 
     def test_literal_escaped_quote_backslash_is_read_without_evaluation(self):
-        self.fields['MoonPayCIKeys.secretKey'] = 'safe-quote-"-backslash-\\-literal'
+        self.fields['MoonPayCIKeys.publicKey'] = 'safe-quote-"-backslash-\\-literal'
         parsed = A.parse_declarations(generated(self.fields))
         self.assertEqual(self.fields, parsed)
         A.validate_values(parsed, SCHEMA)

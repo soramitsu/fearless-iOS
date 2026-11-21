@@ -174,7 +174,11 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             let firstName = data.peerFirstName ?? ""
             let lastName = data.peerLastName ?? ""
 
-            address = L10n.Common.fullName(firstName, lastName)
+            address = R.string.localizable.commonFull_name(
+                firstName,
+                lastName,
+                preferredLanguages: locale.rLanguages
+            ).trimmingCharacters(in: .whitespaces)
         } else {
             address = data.peerName ?? ""
         }

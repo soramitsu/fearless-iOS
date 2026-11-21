@@ -50,11 +50,13 @@ final class ClaimCrowdloanRewardsInteractor {
     }
 
     private func fetchTokenLocks() {
-        guard
-            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-            let currencyId = chainAsset.currencyId
-        else {
-            output?.didReceiveBalanceLocksError(ChainAccountFetchingError.accountNotExists)
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            output?.didReceiveTokenLocksError(ChainAccountFetchingError.accountNotExists)
+            return
+        }
+
+        // Only an ORML token has a currency id and token locks; other assets have none to load.
+        guard let currencyId = chainAsset.currencyId else {
             return
         }
 

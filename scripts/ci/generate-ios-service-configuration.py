@@ -13,8 +13,6 @@ import urllib.parse
 # mapping explicit: a new template argument must be reviewed instead of silently
 # becoming an empty setting in a signed build.
 ARGUMENT_ENVIRONMENT = {
-    "moonPaySecretKey": "MOONPAY_PRODUCTION_SECRET",
-    "moonPayTestSecretKey": "MOONPAY_TEST_SECRET",
     "moonPayPublicKey": "MOONPAY_PUBLIC_KEY",
     "subscanAPIKey": "SUBSCAN_API_KEY",
     "ethereumApiKey": "FL_BLAST_API_ETHEREUM_KEY",
@@ -40,6 +38,9 @@ ARGUMENT_ENVIRONMENT = {
     "tonApiKeyDebug": "FL_TON_API_KEY_DEBUG",
     # Optional: a Solana mainnet JSON-RPC provider asked before the public nodes.
     "solanaRpcProviderURL": "FL_SOLANA_RPC_URL",
+    # Nomis account scoring (X-ClientId and X-API-Key request headers).
+    "nomisClientId": "FL_NOMIS_CLIENT_ID",
+    "nomisApiKey": "FL_NOMIS_API_KEY",
 }
 PLACEHOLDER = re.compile(r'"\{\{\s*argument\.(\w+)\s*\}\}"')
 ENVIRONMENT_ALIASES = {"FL_TON_API_KEY": ("FL_IOS_TON_API_KEY",)}

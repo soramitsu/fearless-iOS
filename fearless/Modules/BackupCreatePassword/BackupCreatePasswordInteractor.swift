@@ -445,8 +445,10 @@ private extension BackupCreatePasswordInteractor {
             guard let result = String(data: data, encoding: .utf8) else {
                 throw BackupCreatePasswordError.incompleteBackupMaterial
             }
-            let fileURL = URL(fileURLWithPath: NSTemporaryDirectory() + "/\(address).json")
-            try result.write(to: fileURL, atomically: true, encoding: .utf8)
+            // The Drive upload sends `data`; nothing reads a file. Earlier versions wrote
+            // this keystore to tmp/<address>.json and never removed it. Launch clean-up
+            // deletes those, and no file is written here any more.
+            let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(address).json")
             return RestoreJson(data: result, chain: chainAccount.chain, cryptoType: nil, fileURL: fileURL)
         }
         guard !jsons.isEmpty else {

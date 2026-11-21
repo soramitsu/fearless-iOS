@@ -1,11 +1,11 @@
 import UIKit
-
 import SSFUtils
 
 final class WalletTransactionDetailsViewLayout: UIView {
     lazy var navigationBar: BaseNavigationBar = {
         let navBar = BaseNavigationBar()
         navBar.set(.present)
+        navBar.backgroundColor = .clear
         return navBar
     }()
 
@@ -44,10 +44,13 @@ final class WalletTransactionDetailsViewLayout: UIView {
         }
     }
 
+    /// Sun-lit page with the details on one Raised-2 card and the status as a live ring.
+    let sunlitParts = (background: FWSunlitBackgroundView(), card: FWNeuView(), ring: FWTxStatusView())
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = .black
+        backgroundColor = FWSunlit.Palette.background
 
         setupLayout()
         applyLocalization()
@@ -64,6 +67,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
         statusView.valueLabel.text = viewModel.status
         dateView.valueLabel.text = viewModel.dateString
         statusView.imageView.image = viewModel.statusIcon
+        bindStatusRing(viewModel.transaction.status)
 
         switch viewModel.transactionType {
         case .incoming, .outgoing:
@@ -103,27 +107,23 @@ final class WalletTransactionDetailsViewLayout: UIView {
         case .commited:
             amountView.valueLabel.textColor = viewModel.transactionType == .incoming ? R.color.colorGreen() : R.color.colorWhite()
         case .pending, .rejected:
-            amountView.valueLabel.textColor = R.color.colorWhite16()
+            amountView.valueLabel.textColor = FWSunlit.Palette.textSecondary
         }
 
-        if let from = viewModel.from {
-            if let icon = try? UniversalIconGenerator().generateFromAddress(from) {
-                senderView.iconImage = icon.imageWithFillColor(
-                    UIColor.black,
-                    size: UIConstants.smallAddressIconSize,
-                    contentScale: UIScreen.main.scale
-                )
-            }
+        if let from = viewModel.from, let icon = try? UniversalIconGenerator().generateFromAddress(from) {
+            senderView.iconImage = icon.imageWithFillColor(
+                UIColor.black,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
         }
 
-        if let to = viewModel.to {
-            if let icon = try? UniversalIconGenerator().generateFromAddress(to) {
-                receiverView.iconImage = icon.imageWithFillColor(
-                    UIColor.black,
-                    size: UIConstants.smallAddressIconSize,
-                    contentScale: UIScreen.main.scale
-                )
-            }
+        if let to = viewModel.to, let icon = try? UniversalIconGenerator().generateFromAddress(to) {
+            receiverView.iconImage = icon.imageWithFillColor(
+                UIColor.black,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
         }
     }
 
@@ -144,14 +144,13 @@ final class WalletTransactionDetailsViewLayout: UIView {
         rewardView.valueLabel.text = viewModel.reward
         receiverView.subtitleLabel?.text = viewModel.validator
 
-        if let validator = viewModel.validator {
-            if let icon = try? UniversalIconGenerator().generateFromAddress(validator) {
-                receiverView.iconImage = icon.imageWithFillColor(
-                    UIColor.black,
-                    size: UIConstants.smallAddressIconSize,
-                    contentScale: UIScreen.main.scale
-                )
-            }
+        if let validator = viewModel.validator,
+           let icon = try? UniversalIconGenerator().generateFromAddress(validator) {
+            receiverView.iconImage = icon.imageWithFillColor(
+                UIColor.black,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
         }
     }
 
@@ -171,14 +170,13 @@ final class WalletTransactionDetailsViewLayout: UIView {
         slashView.valueLabel.text = viewModel.slash
         receiverView.subtitleLabel?.text = viewModel.validator
 
-        if let validator = viewModel.validator {
-            if let icon = try? UniversalIconGenerator().generateFromAddress(validator) {
-                receiverView.iconImage = icon.imageWithFillColor(
-                    UIColor.black,
-                    size: UIConstants.smallAddressIconSize,
-                    contentScale: UIScreen.main.scale
-                )
-            }
+        if let validator = viewModel.validator,
+           let icon = try? UniversalIconGenerator().generateFromAddress(validator) {
+            receiverView.iconImage = icon.imageWithFillColor(
+                UIColor.black,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
         }
     }
 
@@ -195,14 +193,12 @@ final class WalletTransactionDetailsViewLayout: UIView {
         senderView.subtitleLabel?.text = viewModel.sender
         feeView.valueLabel.text = viewModel.fee
 
-        if let sender = viewModel.sender {
-            if let icon = try? UniversalIconGenerator().generateFromAddress(sender) {
-                senderView.iconImage = icon.imageWithFillColor(
-                    UIColor.black,
-                    size: UIConstants.smallAddressIconSize,
-                    contentScale: UIScreen.main.scale
-                )
-            }
+        if let sender = viewModel.sender, let icon = try? UniversalIconGenerator().generateFromAddress(sender) {
+            senderView.iconImage = icon.imageWithFillColor(
+                UIColor.black,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
         }
     }
 
@@ -222,6 +218,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
     }
 
     private func setupLayout() {
+        installSunlitBackground()
         addSubview(navigationBar)
         navigationBar.setCenterViews([navigationTitleLabel])
 
@@ -282,6 +279,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
             make.height.equalTo(UIConstants.cellHeight)
             make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
+        installSunlitCard()
 
         dateView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
@@ -322,5 +320,46 @@ final class WalletTransactionDetailsViewLayout: UIView {
             make.height.equalTo(UIConstants.cellHeight)
             make.width.equalTo(safeAreaLayoutGuide).offset(-2.0 * UIConstants.horizontalInset)
         }
+    }
+}
+
+// MARK: - Sun-lit redesign
+
+extension WalletTransactionDetailsViewLayout {
+    private func installSunlitBackground() {
+        addSubview(sunlitParts.background)
+        sunlitParts.background.snp.makeConstraints { make in make.edges.equalToSuperview() }
+    }
+
+    /// The details sit on one Raised-2 card; the status shows as a ring in place of its icon.
+    private func installSunlitCard() {
+        let card = sunlitParts.card
+        card.style = .raised
+        card.isUserInteractionEnabled = false
+        card.shape = { UIBezierPath(roundedRect: $0, cornerRadius: FWSunlit.Radius.card) }
+        contentView.stackView.insertSubview(card, at: 0)
+        card.snp.makeConstraints { make in
+            make.top.equalTo(statusView).offset(-8)
+            make.bottom.equalTo(contentView.stackView.snp.bottom).offset(8)
+            make.leading.equalTo(statusView).offset(-8)
+            make.trailing.equalTo(statusView).offset(8)
+        }
+        statusView.addSubview(sunlitParts.ring)
+        sunlitParts.ring.snp.makeConstraints { make in
+            make.center.equalTo(statusView.imageView)
+            make.size.equalTo(20)
+        }
+    }
+
+    /// A pending transfer breathes; one that settles while on screen fills or shakes once.
+    private func bindStatusRing(_ status: AssetTransactionStatus) {
+        let ringStatus: FWTxStatusView.Status
+        switch status {
+        case .commited: ringStatus = .success
+        case .pending: ringStatus = .pending
+        case .rejected: ringStatus = .failed
+        }
+        statusView.imageView.alpha = 0
+        sunlitParts.ring.setStatus(ringStatus, animated: sunlitParts.ring.status == .pending)
     }
 }

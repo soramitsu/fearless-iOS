@@ -1,20 +1,26 @@
 import Foundation
 import SSFNetwork
-#if canImport(FearlessKeys)
-    import FearlessKeys
-#else
-    enum NomisApiKeys {
-        static let nomisClientId = ""
-        static let nomisApiKey = ""
-    }
-#endif
 
 final class NomisRequestSigner: RequestSigner {
-    func sign(request: inout URLRequest, config _: RequestConfig) throws {
-        let clientId = NomisApiKeys.nomisClientId
-        let apiKey = NomisApiKeys.nomisApiKey
+    private let clientId: String
+    private let apiKey: String
 
-        request.setValue(clientId, forHTTPHeaderField: "X-ClientId")
-        request.setValue(apiKey, forHTTPHeaderField: "X-API-Key")
+    init(
+        clientId: String = NomisApiKeys.nomisClientId,
+        apiKey: String = NomisApiKeys.nomisApiKey
+    ) {
+        self.clientId = clientId.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.apiKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    // An unconfigured build sends no Nomis headers rather than empty ones; the score then
+    // shows its unavailable state.
+    func sign(request: inout URLRequest, config _: RequestConfig) throws {
+        if !clientId.isEmpty {
+            request.setValue(clientId, forHTTPHeaderField: "X-ClientId")
+        }
+        if !apiKey.isEmpty {
+            request.setValue(apiKey, forHTTPHeaderField: "X-API-Key")
+        }
     }
 }

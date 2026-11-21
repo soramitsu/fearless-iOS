@@ -15,7 +15,8 @@ import sys
 
 PREFIX = '[ios-release-service-configuration]'
 # Active Release credential consumers: ChainRegistry,
-# WalletConnectService, Google backup, Alchemy and Etherscan V2 history.
+# WalletConnectService, Google backup, Alchemy and Etherscan V2 history,
+# and Nomis account scoring.
 REQUIRED = frozenset({
     'TonNodeApiKey.tonApiKey',
     'WalletConnect.projectId',
@@ -32,6 +33,8 @@ REQUIRED = frozenset({
 # Etherscan V2 history. Rejected OKLink credentials are omitted;
 # replacement history providers and explicit explorer recovery handle its catalog routes.
 # The Solana RPC provider is optional: without it Solana uses the public mainnet nodes.
+# Nomis is optional: without its settings the signer sends no Nomis headers and the
+# account score shows its unavailable state.
 # These, Debug credentials and optional partner integrations may be empty.
 # No generated setting may contain a nonempty placeholder.
 PLACEHOLDER = re.compile(

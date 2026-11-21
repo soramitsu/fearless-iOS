@@ -151,3 +151,12 @@ extension OnboardingMainViewController: Localizable {
         }
     }
 }
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension OnboardingMainViewController: FWFlightTiered {
+    /// The wallet-choice welcome: 0 the lockup, 1 the main control, 2 the rest. The older layout flies as one piece.
+    var flightTiers: [FWFlightTier] {
+        welcomeView?.flightTiers ?? []
+    }
+}

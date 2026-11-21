@@ -16,6 +16,7 @@ final class SelectValidatorsConfirmPresenter {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var priceData: PriceData? {
         chainAsset.asset.getPrice(for: wallet.selectedCurrency)
@@ -29,8 +30,10 @@ final class SelectValidatorsConfirmPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
@@ -121,7 +124,10 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
         ]
 
         DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
-            self?.interactor.submitNomination(closure: self?.viewModelState.createExtrinsicBuilderClosure())
+            guard let self = self else { return }
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                self?.interactor.submitNomination(closure: self?.viewModelState.createExtrinsicBuilderClosure())
+            }
         }
     }
 }
@@ -199,18 +205,21 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
 
     func didStartNomination() {
         view?.didStartLoading()
+        FWTransferEvents.report(.authorised, to: view)
     }
 
     func didCompleteNomination(txHash: String) {
         logger?.info("Did send nomination: \(txHash)")
 
         view?.didStopLoading()
+        FWTransferEvents.report(.accepted, to: view)
 
         wireframe.complete(chainAsset: chainAsset, txHash: txHash, from: view)
     }
 
     func didFailNomination(error: Error) {
         view?.didStopLoading()
+        FWTransferEvents.report(.definiteFailure, to: view)
 
         handle(error: error)
     }

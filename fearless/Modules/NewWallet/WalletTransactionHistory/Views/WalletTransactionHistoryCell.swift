@@ -57,6 +57,26 @@ class WalletTransactionHistoryCell: UITableViewCell {
         return imageView
     }()
 
+    /// Sun-lit row: a Raised-1 pill, the counterparty icon in an inset well and a live status ring.
+    private let surface: FWNeuView = {
+        let view = FWNeuView()
+        view.style = .raised1
+        view.isUserInteractionEnabled = false
+        view.shape = { UIBezierPath(roundedRect: $0, cornerRadius: FWSunlit.Radius.row) }
+        return view
+    }()
+
+    private let iconWell: FWNeuView = {
+        let view = FWNeuView()
+        view.style = .inset
+        view.isUserInteractionEnabled = false
+        view.shape = { UIBezierPath(ovalIn: $0) }
+        return view
+    }()
+
+    let statusRing = FWTxStatusView()
+    private var boundTransactionId: String?
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -80,8 +100,18 @@ class WalletTransactionHistoryCell: UITableViewCell {
     }
 
     private func setupLayout() {
+        contentView.addSubview(surface)
+        surface.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 6, bottom: 4, right: 6))
+        }
+        contentView.addSubview(iconWell)
         contentView.addSubview(accountIconImageView)
         contentView.addSubview(verticalContentStackView)
+        firstlineStackView.addArrangedSubview(statusRing)
+        statusRing.isHidden = true
+        statusRing.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.statusImageViewSize)
+        }
 
         verticalContentStackView.addArrangedSubview(firstlineStackView)
         verticalContentStackView.addArrangedSubview(secondlineStackView)
@@ -99,16 +129,20 @@ class WalletTransactionHistoryCell: UITableViewCell {
         transactionTypeLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
         accountIconImageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset + 4)
             make.size.equalTo(LayoutConstants.accountImageSize)
             make.centerY.equalToSuperview()
+        }
+        iconWell.snp.makeConstraints { make in
+            make.center.equalTo(accountIconImageView)
+            make.size.equalTo(LayoutConstants.accountImageSize + 8)
         }
 
         verticalContentStackView.snp.makeConstraints { make in
             make.leading.equalTo(accountIconImageView.snp.trailing).offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset + 6)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset + 6)
         }
 
         transactionStatusIconImageView.snp.makeConstraints { make in
@@ -145,5 +179,26 @@ class WalletTransactionHistoryCell: UITableViewCell {
         case .pending, .rejected:
             transactionAmountLabel.textColor = R.color.colorWhite16()
         }
+        bindStatusRing(viewModel)
+    }
+
+    /// Pending rows breathe; a row that settles while on screen fills or shakes once.
+    private func bindStatusRing(_ viewModel: WalletTransactionHistoryCellViewModel) {
+        let id = viewModel.transaction.transactionId
+        let sameTransaction = boundTransactionId == id
+        boundTransactionId = id
+        let status: FWTxStatusView.Status?
+        switch viewModel.status {
+        case .pending: status = .pending
+        case .rejected: status = .failed
+        case .commited: status = sameTransaction && statusRing.status == .pending ? .success : nil
+        }
+        guard let status = status else {
+            statusRing.isHidden = true
+            return
+        }
+        transactionStatusIconImageView.isHidden = true
+        statusRing.isHidden = false
+        statusRing.setStatus(status, animated: sameTransaction)
     }
 }

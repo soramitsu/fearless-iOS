@@ -54,23 +54,20 @@ if [ -x scripts/deps/restore-swiftpm-contract-files.sh ]; then
   scripts/deps/restore-swiftpm-contract-files.sh "$(pwd)" "[dev-setup]"
 fi
 python3 scripts/deps/verify-native-source.py "$(pwd)"
-if [ -x scripts/deps/check-dependency-contracts.sh ]; then
-  echo "==> Validating dependency contracts"
-  scripts/deps/check-dependency-contracts.sh
-fi
 if ! xcodebuild -resolvePackageDependencies -workspace "$WORKSPACE" -scheme "$SCHEME" -clonedSourcePackagesDirPath "$SP_DIR"; then
   echo "ERROR: Swift Package resolution failed during local setup" >&2
   exit 1
 fi
 
-# 3) Verify the exact resolved dependency source.
-SOURCE_PACKAGES_DIR="$(pwd)/SourcePackages" python3 scripts/deps/verify-native-source.py "$(pwd)"
+# 3) Build the host tools and verify the exact resolved dependency sources.
+scripts/deps/build-tools-from-source.sh
+SOURCE_PACKAGES_DIR="$SP_DIR" scripts/deps/check-dependency-contracts.sh
 
 cat <<EOF
 
 ==> Next steps
 - Build (Debug):
-  xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -destination '$DEST' build
+  SOURCE_PACKAGES_DIR="$SP_DIR" xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -destination '$DEST' -clonedSourcePackagesDirPath "$SP_DIR" build
 - Tests (Debug+Release):
   bash scripts/test-matrix.sh "$SCHEME" "$DEST"
 

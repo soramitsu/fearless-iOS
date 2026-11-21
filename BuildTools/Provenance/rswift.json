@@ -1,0 +1,19 @@
+{
+  "commit": "tree 61726a4894d7d2d3c77f68c2c06137931c21a6c9\nparent 41ef6721cc305b5179063f41fdab9f4786e6b5ab\nparent ba3839ddd4405f7f58b6168863aef8061c070bf5\nauthor Tom Lokhorst <tom@lokhorst.eu> 1638645186 +0100\ncommitter GitHub <noreply@github.com> 1638645186 +0100\ngpgsig -----BEGIN PGP SIGNATURE-----\n \n wsBcBAABCAAQBQJhq73CCRBK7hj4Ov3rIwAAWmMIAAurKwdY8jDNpgPYLpbhWqK8\n 2I14EmtkoTFk3x3X23R0JghB9UMrTas49vS93BYswNbGL5qss8LXUyoY6UPtad+E\n tOvDAvjTst0EzOWvKVS8OFkidlErFqAda9oixJ4mT3yICVh46pMkrZjk3rDOkNW5\n IJh0qW4mxUNO49uL6i4XOd29tgbfFvyfVCRU/Jyilb3dYWg4aOdvIpa+XoJf5qRG\n 3FP3xmpxbB/PoRYk4xJSK/xRUc6E1JEAD3FphnrRHvy+O+J8o84hSUAYM3diY2uM\n /unxuG2QWnYuO2FMFycaVYLn0nM7B79BzXLlzX1tC8GI3A0kOEff3ljGOEYbl/M=\n =nCZF\n -----END PGP SIGNATURE-----\n \n\nMerge pull request #673 from maciejpiotrowski89/master\n\nAdds opt-in environment variable to change hosting bundle name",
+  "omitted": {
+    "": [
+      "040000 tree 3688ff09dd841600d9bc3849819458bcd57b959f\t.github",
+      "100644 blob d7b330d017ba6f3ffdeb880868de4e5cbf5f5e85\t.gitignore",
+      "040000 tree bea274b9eb24c705c9589ab053c0f37002b07269\tDocumentation",
+      "040000 tree cec5952683cb9e83a974417d69401150222b1ee0\tExamples",
+      "040000 tree b2b8d0851e61772a0705b61799f0292ec3da1fa4\tLocalizedStringApp",
+      "100644 blob 045d6e5a9120d19fb0c3e65ff408024278d27b5f\tPackage.resolved",
+      "100644 blob 4cd7c034c9b66f26393f32cdb1bd61c297ce70f2\tPackage.swift",
+      "100644 blob d46049de5253494aeff684fe93f7afd47d876b70\tR.swift.podspec",
+      "100644 blob 5cc54553bb9511a1290471d5894661f1bc86b269\tREADME.md",
+      "100644 blob df2c6ed05028c2a831b5804a4447ac1be8b5ee1e\tRswiftConfig.xcconfig",
+      "040000 tree 395fdc1b4d7b45bcb5055bc585b51abb17b61b1e\tTests",
+      "100644 blob 5ad1ecec467417cbd60c402a114a43feba2f6384\tnotarize.sh"
+    ]
+  }
+}

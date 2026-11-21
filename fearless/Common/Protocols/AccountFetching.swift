@@ -121,18 +121,24 @@ extension AccountFetching {
                         return
                     }
 
+                    // Answer once: with the wallet that owns the address, or with accountNotExists when none does.
                     for meta in accounts {
+                        var match: Result<ChainAccountResponse?, Error>?
                         let found = fetchChainAccountFor(
                             meta: meta,
                             chain: chain,
-                            address: address,
-                            closure: closure
-                        )
+                            address: address
+                        ) { result in
+                            match = result
+                        }
 
-                        if found {
+                        if found, let match = match {
+                            closure(match)
                             return
                         }
                     }
+
+                    closure(.failure(ChainAccountFetchingError.accountNotExists))
                 } else {
                     closure(.failure(BaseOperationError.parentOperationCancelled))
                 }

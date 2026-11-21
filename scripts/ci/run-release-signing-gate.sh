@@ -206,6 +206,7 @@ if ((identity_count == 0 || matching_profile_count == 0)); then
   fail "Signing material is only partially configured; both a code-signing identity and a matching provisioning profile are required."
 fi
 
+"$ROOT_DIR/scripts/deps/build-tools-from-source.sh" --force
 archive_path="$temporary_root/FearlessRelease.xcarchive"
 build_log="$temporary_root/xcodebuild.log"
 : >"$build_log"

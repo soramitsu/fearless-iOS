@@ -1,4 +1,5 @@
 --swiftversion 5.3
+--exclude BuildTools/Vendor
 --wraparguments before-first
 --wrapparameters before-first
 --enable isEmpty

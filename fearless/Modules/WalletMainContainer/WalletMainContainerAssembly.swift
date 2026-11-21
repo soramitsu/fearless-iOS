@@ -107,7 +107,8 @@ final class WalletMainContainerAssembly {
     private static func configureAssetListModule(
         metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
-        ChainAssetListAssembly.configureModule(wallet: metaAccount, keyboardAdoptable: false)
+        // The one list's search field sits in the list, so the list makes room for the keyboard.
+        ChainAssetListAssembly.configureModule(wallet: metaAccount, keyboardAdoptable: true)
     }
 
     private static func configureNftModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {

@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -27,7 +28,7 @@ def owned_path(root, relative):
     return path
 
 
-def verify(root):
+def verify(root, source_packages=None):
     root = Path(root).resolve()
     native = owned_path(root, "Native")
     if native.is_symlink() or (native / ".git").exists():
@@ -114,15 +115,70 @@ def verify(root):
         path = owned_path(native, relative)
         if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
             raise ValueError("Native binary bytes changed: " + relative)
-    return {"ownership": contract["ownership"], "sourceFiles": source_files, "nativeBinaryFiles": len(binaries), "externalPackages": len(pins)}
+    result = {"ownership": contract["ownership"], "sourceFiles": source_files, "nativeBinaryFiles": len(binaries), "externalPackages": len(pins)}
+    if source_packages:
+        result["verifiedCheckouts"] = verify_checkouts(Path(source_packages), pins)
+    return result
+
+
+def checkout_name(pin):
+    """SwiftPM names a checkout after the last component of the repository URL."""
+    location = str(pin.get("location", "")).rstrip("/")
+    name = location.rsplit("/", 1)[-1]
+    if name.endswith(".git"):
+        name = name[:-4]
+    if not name or name in (".", "..") or "/" in name:
+        raise ValueError("Unusable SwiftPM location for " + str(pin.get("identity")))
+    return name
+
+
+def git_output(checkout, *arguments):
+    completed = subprocess.run(
+        # A verifier must not write: no index refresh, no locks.
+        ["git", "--no-optional-locks", "-C", str(checkout), *arguments],
+        check=False, capture_output=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError("Git cannot read resolved checkout " + checkout.name)
+    return completed.stdout.decode("utf-8", "replace")
+
+
+def verify_checkouts(source_packages, pins):
+    """Every pinned package must be checked out at exactly its pinned commit, unmodified.
+
+    Before 4.2.1 the callers passed SOURCE_PACKAGES_DIR but nothing read it, so a
+    tampered or moved checkout in the build's package directory went unnoticed.
+    """
+    checkouts = source_packages / "checkouts"
+    if not checkouts.is_dir():
+        raise ValueError("SOURCE_PACKAGES_DIR has no checkouts directory: " + str(source_packages))
+    verified = 0
+    for pin in pins:
+        revision = pin.get("state", {}).get("revision", "")
+        checkout = checkouts / checkout_name(pin)
+        if checkout.is_symlink() or not checkout.is_dir():
+            raise ValueError("Missing resolved checkout for " + str(pin.get("identity")))
+        head = git_output(checkout, "rev-parse", "HEAD").strip()
+        if head != revision:
+            raise ValueError("Resolved checkout " + checkout.name + " is at " + head[:12] + ", pinned " + revision[:12])
+        changes = git_output(checkout, "status", "--porcelain", "--untracked-files=all", "--ignore-submodules=none")
+        if changes.strip():
+            raise ValueError("Resolved checkout " + checkout.name + " differs from its pinned commit")
+        verified += 1
+    return verified
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", nargs="?", default=".")
+    parser.add_argument(
+        "--source-packages",
+        default=os.environ.get("SOURCE_PACKAGES_DIR", ""),
+        help="SwiftPM source packages directory whose checkouts must match the pins (default: $SOURCE_PACKAGES_DIR)",
+    )
     args = parser.parse_args()
     try:
-        result = verify(Path(args.root))
+        result = verify(Path(args.root), source_packages=args.source_packages or None)
     except (OSError, ValueError, TypeError, KeyError) as error:
         parser.exit(1, "[native-source] " + str(error) + "\n")
     print("[native-source] " + json.dumps(result, sort_keys=True))

@@ -4316,6 +4316,10 @@
       {
         "url": "wss://mainnet.liberland.org",
         "name": "Liberland node"
+      },
+      {
+        "url": "wss://liberland-rpc.n.dwellir.com",
+        "name": "Dwellir node"
       }
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/liberland.svg",
