@@ -22,11 +22,7 @@ final class ChainAccountPresenter {
     private lazy var rampProvider = RampProvider()
     private lazy var moonpayProvider: PurchaseProviderProtocol = {
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
-        let moonpaySecretKeyData = Data(MoonPayKeys.secretKey.utf8)
-        return MoonpayProviderFactory().createProvider(
-            with: moonpaySecretKeyData,
-            apiKey: config.moonPayApiKey
-        )
+        return MoonpayProviderFactory().createProvider(apiKey: config.moonPayApiKey)
     }()
 
     private var frozen: NoneStateOptional<Decimal?> = .none

@@ -13,8 +13,6 @@ import urllib.parse
 # mapping explicit: a new template argument must be reviewed instead of silently
 # becoming an empty setting in a signed build.
 ARGUMENT_ENVIRONMENT = {
-    "moonPaySecretKey": "MOONPAY_PRODUCTION_SECRET",
-    "moonPayTestSecretKey": "MOONPAY_TEST_SECRET",
     "moonPayPublicKey": "MOONPAY_PUBLIC_KEY",
     "subscanAPIKey": "SUBSCAN_API_KEY",
     "ethereumApiKey": "FL_BLAST_API_ETHEREUM_KEY",

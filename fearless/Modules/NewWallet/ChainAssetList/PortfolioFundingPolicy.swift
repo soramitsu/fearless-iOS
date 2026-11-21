@@ -49,10 +49,7 @@ enum PortfolioFundingPolicy {
         let providers: [PurchaseProviderProtocol] = (asset.asset.purchaseProviders ?? []).map { provider in
             switch provider {
             case .moonpay:
-                return MoonpayProviderFactory().createProvider(
-                    with: Data(MoonPayKeys.secretKey.utf8),
-                    apiKey: ApplicationConfig.shared.moonPayApiKey
-                )
+                return MoonpayProviderFactory().createProvider(apiKey: ApplicationConfig.shared.moonPayApiKey)
             case .ramp:
                 return RampProvider()
             }

@@ -1,10 +1,6 @@
 import Foundation
 
 enum MoonPayKeys {
-    static var secretKey: String =
-        MoonPayKeys.variable(named: "MOONPAY_PRODUCTION_SECRET") ?? MoonPayCIKeys.secretKey
-    static var testSecretKey: String =
-        MoonPayKeys.variable(named: "MOONPAY_TEST_SECRET") ?? MoonPayCIKeys.testSecretKey
     static var publicKey: String =
         MoonPayKeys.variable(named: "MOONPAY_PUBLIC_KEY") ?? MoonPayCIKeys.publicKey
 

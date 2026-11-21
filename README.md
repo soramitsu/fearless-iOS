@@ -31,9 +31,7 @@ generation, not committed source. For public local builds, unset values resolve
 to empty strings and the affected buy-provider flows are unavailable.
 
 Moonpay:
-- `MOONPAY_PRODUCTION_SECRET`
-- `MOONPAY_TEST_SECRET`
-- `MOONPAY_PUBLIC_KEY`
+- `MOONPAY_PUBLIC_KEY` (the app opens MoonPay unsigned and never ships the secret key)
 
 ## License
 
