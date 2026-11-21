@@ -1,118 +1,93 @@
 # IrohaConnect Safe Signing (iOS)
 
-Status: **OFF in every build / fail closed.** `IrohaConnectReleasePolicy.production`
-is `isEnabled: false`, with no environment, remote-config, or runtime override.
-Only unit tests in Debug builds can use `IrohaConnectReleasePolicy.enabledForTests`.
-This document records why IrohaConnect is off in 4.2.0 and the design that must
-ship, and pass a security review, before the policy may be flipped.
+Status: **ON** (`IrohaConnectReleasePolicy.production` is `isEnabled: true`). The wallet speaks
+the current Iroha Connect v1, the protocol Torii relays on SORA Taira and that
+`@iroha/iroha-js/connect-browser` and `@iroha/connect-widget` speak on the dApp side. It is a
+port of the web wallet's implementation (fearless-wallet-web PR #1122,
+`src/extension/background/extension-base/src/services/iroha-connect-service/`), and the unit
+tests replay vectors that the web implementation and the upstream app SDK produced.
 
-## Why it is off
+## What the wallet signs
 
-The 2026.8.34 TestFlight implementation signs bytes it cannot read, with a key
-that controls real funds:
+The account's Ed25519 key signs exactly two kinds of bytes, both built by the wallet:
 
-- `KeychainIrohaConnectAccountProvider.sign` calls
-  `Curve25519.Signing.PrivateKey.signature(for:)` on `request.message` exactly as
-  the dApp sent it (sign-raw, protocol request kind `1`).
-- `IrohaConnectWireCodec.decodeSignRawEnvelope` decodes a `domain` string, but the
-  domain is **not** part of the signed bytes. `IrohaConnectProtocolEngine` only
-  checks that it equals `uranai.irohaconnect.contract-call-signature.v1`, and
-  accepts messages of up to 32,768 bytes.
-- The key is derived with `IrohaKeyDerivation` on
-  `UniversalWalletDerivationPaths.irohaDefault` (`m/44'/617'/0'/0'`) for every
-  Iroha registry entry. The chain discriminant (Taira 369, SORA Nexus 753) only
-  changes the address encoding, so the Taira key **is** the SORA Nexus mainnet key.
-- Iroha transaction signatures are Ed25519 over the 32-byte payload hash. A
-  malicious or compromised dApp can send the hash of a mainnet transfer as
-  `message` and receive a valid transfer signature. "Taira only" does not limit
-  the risk.
-- The prompt said "Sign Uranai contract calls only", which the code did not
-  enforce. The copy now says "Signs data supplied by this app. Fearless can't
-  decode it." so it stays truthful if the screen is ever reached again.
+1. **The session approval preimage.** A tagged structure that starts with the domain
+   `iroha-connect|approve|v1` and binds the NetworkId, the constraints hash, the sid, the app's
+   and the wallet's X25519 keys, the account id, the hash of the requested permissions (when the
+   app sent any) and the relay-auth hash `SHA-256("iroha-connect|relay-auth|v1" ‖ sid ‖ relay)`.
+   It never decodes as a transaction payload.
+2. **`HashOf<TransactionPayload>` of a reviewed transaction:** Blake2b-256 with Iroha's last-bit
+   marker, computed by the wallet from the payload bytes the person just reviewed. Never a hash
+   or bytes the dApp supplied.
 
-4.0.4 had no IrohaConnect, so turning it off is not a regression for App Store
-users. Sessions only ever lived in memory, so there is nothing to migrate for
-TestFlight users.
+Raw requests (`SignRequestRaw`) are answered with `SIGNING_KEY_REQUIRED` without signing:
+they belong to an account's registered off-chain signing key, which Fearless accounts do not
+have. A raw request can therefore never produce a transaction signature.
 
-## What 4.2.0 does
+## The transaction review
 
-| Entry point | Behaviour with the production policy |
-|---|---|
-| Settings → Connections | No IrohaConnect row (`ProfileViewModelFactory`, `ProfileViewController`); tapping a stale row is a no-op (`ProfilePresenter`) |
-| `iroha://connect…` / `irohaconnect://connect…` links | `IrohaConnectURLHandler` still claims the link, so no other handler gets it. `IrohaConnectCoordinator.start(with:)` checks the policy **before** parsing: no socket, no `IrohaConnectSessionService`, no key access |
-| Pairing QR / paste (landing page) | `presentLanding(from:)` checks the same policy; the QR and paste paths end in `start(with:)` |
-| Any signature that still reaches the provider | `KeychainIrohaConnectAccountProvider.sign` throws `signingDisabled` before `materialLoader` runs, so key material is never loaded |
+`IrohaConnectTransactionReviewer` decodes the whole `SignRequestTx` payload into a review and
+proves the review **is** the payload: `IrohaPayloadEncoder` encodes the decoded values again
+with the canonical rules (and the input checks) of the iroha-js 0.0.3 browser transaction codec,
+and the rebuild must reproduce the bytes exactly. Payload fields use canonical LEB128 lengths;
+the `iroha.transfer` frame container keeps a u64 length.
 
-A link shows one calm sheet: "IrohaConnect isn't available in this version" /
-"Fearless didn't connect to the app and nothing was signed. You can keep using
-your wallet as usual." with a Close button. Details:
+A payload is reviewable only when:
 
-- The sheet appears only once the unlocked wallet interface is up
-  (`ServiceCoordinator.setup()` calls `IrohaConnectCoordinator.shared.setup()`)
-  and the app is active. A link that arrives during launch, behind the PIN
-  screen, or while the app is in the background waits until then.
-- At most one sheet: a link that arrives while a sheet is pending or on screen is
-  ignored. If UIKit refuses the presentation, the sheet stays pending and is
-  retried when the app next becomes active.
-- The `Info.plist` URL schemes stay registered, so another app cannot claim
-  `irohaconnect://`.
-- The code, protocol vectors and tests stay in the tree for the work below.
+- it targets the paired network: its NetworkId equals the pinned Taira genesis
+  (`hash:4978D0BD…6D91#6774`). A payload for SORA Nexus or any other network is refused, so the
+  shared Taira/Nexus key cannot be used across networks through Connect;
+- its authority is the connected account, a single-key Ed25519 account, and the signing key is
+  that account's key;
+- the executable is one `Transfer::Asset` whose source owner is the authority, or a batch of
+  contract calls (canonical `irohac1…` address, marked code hash, gas limit set);
+- every account key is a strict Ed25519 point (canonical, not small-order, prime-order
+  subgroup); quantities are positive, minimal and without fractional trailing zeros; the TTL is
+  present; metadata is canonical JSON; and there are no proof attachments.
 
-## Design required before re-enabling
+Anything else — instructions that need Iroha's native decoder, other executables, malformed or
+non-canonical encodings — is refused with `UNSUPPORTED_TRANSACTION`, `INVALID_TRANSACTION`,
+`WRONG_NETWORK` or `WRONG_ACCOUNT`, and the person sees one short notice that nothing was
+signed.
 
-1. **No opaque signing.** Retire request kind `1` (sign-raw). Add two versioned
-   kinds; old dApps get `unsupportedRequest` and fail closed.
-   - `signTransaction{v2}(payload: NoritoBytes)`: the encoded Iroha
-     `TransactionPayload`.
-   - `signOffchainMessage{v2}(utf8Text ≤ 1 KiB)`.
-2. **The wallet decodes and checks the payload itself.** Decode the
-   `TransactionPayload` with an in-app Norito decoder pinned to the reviewed
-   `../iroha` revision `d8544f1d4d3a` (the pin in `UniversalWalletRegistry`).
-   Require all of:
-   - `chain_id` equals the paired network. Taira only; SORA Nexus needs its own,
-     separately reviewed release flag.
-   - `authority` equals the selected account (i105).
-   - TTL ≤ 10 minutes and `creation_time` within ±5 minutes of the device clock.
-   - Every instruction is on an allowlist: Uranai `ExecuteTrigger` /
-     contract-call instructions whose contract or trigger ids are listed in a
-     bundled, reviewed `irohaconnect-allowlist.v1.json`.
-   - **Hard deny** `Transfer`, `Mint`, `Burn`, `Register`/`Unregister` (account,
-     asset, domain), `Grant`/`Revoke` (permission, role),
-     `SetKeyValue`/`RemoveKeyValue` on accounts, `Upgrade`, `SetParameter`,
-     `Log`, custom executor instructions, and any instruction the decoder does
-     not know.
-3. **The wallet computes the hash.** Compute `HashOf<TransactionPayload>`
-   (Blake2b-256 with Iroha's last-bit convention, matching the pinned reference)
-   from the decoded bytes and sign that. Never sign a hash supplied by the dApp.
-4. **Off-chain messages are domain-separated.** Sign
-   `Blake2b-256("iroha-connect|offchain|v2" ‖ u32 len(chainId) ‖ chainId ‖
-   u32 len(origin) ‖ origin ‖ sessionId(32) ‖ u32 len(msg) ‖ msg)`. Producing a
-   transaction payload hash from this needs a preimage attack, and the preimage
-   never decodes as a `TransactionPayload`.
-5. **The prompt shows the decoded call:** network, account, contract or trigger
-   name, method, arguments (amounts formatted with the asset definition's
-   precision and alias), expiry, and the app's claimed origin. "View raw bytes"
-   sits behind a disclosure. **Reject** is the default and visually emphasised.
-   A permission is scoped to one session and one contract.
-6. **Tests:**
-   - Golden vectors from the pinned Iroha repository: decode, hash, compare with
-     the reference hash.
-   - A property test that the policy rejects every instruction outside the
-     allowlist.
-   - `testOffchainDigestNeverEqualsSuppliedBytes`.
-   - `testSignTransaction_whenChainIdIsNexus_thenRejected`.
-   - `testSignTransaction_whenAuthorityDiffers_thenRejected`.
-   - Fuzzing of the Norito decoder: malformed input throws, never crashes.
+The prompt shows the app's claimed name and origin (https, or http on loopback), the network,
+the account, then the decoded call: amount and asset, the full destination, the scope, every
+contract and method with an argument digest, the fee limits, gas limit and sponsor, the TTL,
+metadata (control and bidirectional characters escaped) and the payload hash. Every signature
+needs the wallet PIN or biometrics.
 
-## Re-enable checklist
+## Transport
 
-1. Items 1–6 above are implemented and their tests pass in Debug and Release
-   (`scripts/test-matrix.sh`).
-2. A security review signs off on the decoder, the allowlist, the hash
-   computation and the prompt copy.
-3. Flip `IrohaConnectReleasePolicy.production` in
-   `fearless/Modules/IrohaConnect/IrohaConnectCoordinator.swift`. That single
-   constant opens the coordinator, the Profile row and the account provider
-   together. Update `IrohaConnectReleasePolicyTests` in the same change.
-4. Remove the sign-raw path, not just hide it, so a later regression cannot bring
-   opaque signing back.
+- Links: `iroha://connect?…` and `irohaconnect://connect?…` with exactly `sid`, `network_id`,
+  `app_pk`, `nonce`, `node`, `v=1`, `role=wallet`, `token` and `relay`. The sid must equal
+  `blake2b-256("iroha-connect|sid|" ‖ NetworkId ‖ app_pk ‖ nonce)`, `node` must be exactly
+  `https://taira.sora.org`, and retired links (`chain_id`) are refused. SORA Nexus links are
+  refused until its NetworkId is pinned.
+- Socket: `wss://taira.sora.org/v1/connect/ws?sid=…&role=wallet` with the subprotocol
+  `iroha-connect.token.v1.<base64url(token)>`. Only binary frames are sent: **Torii closes a
+  Connect socket on any text frame**, so the keepalive is a sequenced Connect Ping every 20 s.
+- Frames use u64 length prefixes and element-frame every `[u8; 32]`. After approval, payloads
+  travel in Norito NRT0 envelopes sealed with ChaCha20-Poly1305 under direction-separated keys
+  (X25519 → HKDF-SHA256 session key → HKDF per direction with the sid-bound salt). Sequences are
+  strict in both directions; a replayed, reordered or early frame ends the session.
+
+Entry points: the IrohaConnect row in Settings → Connections (scan a QR code or paste a link)
+and the same-device link. A link that arrives during launch or behind the PIN screen waits
+until the unlocked wallet interface is up.
+
+## Turning it off
+
+`IrohaConnectReleasePolicy.production` in
+`fearless/Modules/IrohaConnect/IrohaConnectCoordinator.swift` is the single switch. With it off,
+the coordinator answers links, QR codes and the landing screen with the "IrohaConnect isn't
+available in this version" notice before parsing anything, the Profile row is hidden, and the
+account provider refuses to load key material. `IrohaConnectReleasePolicyTests` cover both
+states.
+
+## Regenerating the cross-check vectors
+
+`fearlessTests/Common/Model/IrohaConnect/IrohaConnectWebVectors.swift` embeds JSON written by a
+vitest harness that runs the web wallet's own `wire.ts`, `transactionReview.ts` and service with
+the iroha-js 0.0.3 app SDK over an in-memory relay. The harness and its output are kept with the
+lane's evidence (`build/reports/ios-iroha-connect-v1-20261121/vectors/` in the workspace); run it
+against a checkout of the web branch with its `node_modules`.
