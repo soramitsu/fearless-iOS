@@ -20,7 +20,6 @@ let package = Package(
         // Explicitly add BigInt to satisfy transitive usage in SSFModels under explicit module builds
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
         // UI helpers
-        .package(url: "https://github.com/evgenyneu/Cosmos.git", exact: "25.0.1"),
         .package(url: "https://github.com/sendyhalim/Swime", from: "3.1.0"),
         // Logging + reachability (migrated from CocoaPods)
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", exact: "2.1.1"),
@@ -48,7 +47,6 @@ let package = Package(
                 // Numeric helpers
                 .product(name: "BigInt", package: "BigInt"),
                 // UI helpers
-                .product(name: "Cosmos", package: "Cosmos"),
                 .product(name: "Swime", package: "Swime"),
                 // Logging + reachability
                 .product(name: "SwiftyBeaver", package: "SwiftyBeaver"),

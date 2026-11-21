@@ -13,10 +13,6 @@
 @_exported import Web3PromiseKit
 #endif
 
-#if canImport(Cosmos)
-@_exported import Cosmos
-#endif
-
 #if canImport(Swime)
 @_exported import Swime
 #endif

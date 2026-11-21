@@ -3605,7 +3605,6 @@
 		FAF9C2B42AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */; };
 		FAF9C2B72AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */; };
 		FAFB47D72ABD589C0008F8CA /* BalanceRepositoryCacheWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB47D62ABD589C0008F8CA /* BalanceRepositoryCacheWrapper.swift */; };
-		FAFB5EE22C5A2CE80015D3DD /* FWCosmosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB5EE12C5A2CE80015D3DD /* FWCosmosView.swift */; };
 		FAFDB2C329112A00003971FB /* SubstrateCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */; };
 		FAFDB2C529112A0F003971FB /* UsedRuntimeModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFDB2C429112A0F003971FB /* UsedRuntimeModules.swift */; };
 		FAFE00032DCAF00100E5C0DE /* FearlessUtils in Frameworks */ = {isa = PBXBuildFile; productRef = FAFE00022DCAF00100E5C0DE /* FearlessUtils */; };
@@ -7426,7 +7425,6 @@
 		FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletProtocols.swift; sourceTree = "<group>"; };
 		FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletTests.swift; sourceTree = "<group>"; };
 		FAFB47D62ABD589C0008F8CA /* BalanceRepositoryCacheWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceRepositoryCacheWrapper.swift; sourceTree = "<group>"; };
-		FAFB5EE12C5A2CE80015D3DD /* FWCosmosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWCosmosView.swift; sourceTree = "<group>"; };
 		FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
 		FAFDB2C429112A0F003971FB /* UsedRuntimeModules.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UsedRuntimeModules.swift; sourceTree = "<group>"; };
 		FAFE10032DCAF11100E5C0DE /* NetworkWorkerCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Compatibility/NetworkWorkerCompatibility.swift; sourceTree = "<group>"; };
@@ -11343,7 +11341,6 @@
 				FA24FEFD2B95C32200CD9E04 /* Decimal+DoubleValue.swift */,
 				FAC6CDA82BA814F20013A17E /* UIControl+Disable.swift */,
 				FAF6D90C2C57654F00274E69 /* Decimal+Formatting.swift */,
-				FAFB5EE12C5A2CE80015D3DD /* FWCosmosView.swift */,
 				FA4542412C6B367B00610A71 /* BlockExplorerType+Filters.swift */,
 				FAB90CF02C73351C00D13804 /* UIImage+ColorsInvert.swift */,
 			);
@@ -17647,7 +17644,6 @@
 			packageReferences = (
 				FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */,
 				FA8810962BDCAF260084CC4B /* XCLocalSwiftPackageReference "Native" */,
-				FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */,
 				FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "web3-swift" */,
 				FAFE10002DCF000100E5C0DE /* XCLocalSwiftPackageReference "FearlessDependencies" */,
 			);
@@ -20099,7 +20095,6 @@
 				FAF9C2B22AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift in Sources */,
 				90EFE3768F1375470FDBE6F6 /* PurchaseViewFactory.swift in Sources */,
 				F4A198EE2631AA2000CD6E61 /* StakingBalanceUnbondingItemView.swift in Sources */,
-				FAFB5EE22C5A2CE80015D3DD /* FWCosmosView.swift in Sources */,
 				C63468E228F2C964005CB1F1 /* ContactTableCell.swift in Sources */,
 				076D9D57294B38E1002762E3 /* PolkaswapPreviewParams.swift in Sources */,
 				FA7254432AC2E48500EC47A6 /* WalletConnectService.swift in Sources */,
@@ -22333,14 +22328,6 @@
 			requirement = {
 				kind = exactVersion;
 				version = 7.7.7;
-			};
-		};
-		FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/evgenyneu/Cosmos.git";
-			requirement = {
-				kind = exactVersion;
-				version = 25.0.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
