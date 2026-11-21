@@ -3243,14 +3243,19 @@ final class ChainAssetListTests: XCTestCase {
             XCTAssertTrue(actions.allSatisfy { ["Moonpay", "Ramp"].contains($0.title) })
             for action in actions {
                 let query = try XCTUnwrap(URLComponents(url: action.url, resolvingAgainstBaseURL: false)?.queryItems)
-                XCTAssertTrue(query
-                    .contains {
-                        ["walletAddress", "userAddress"].contains($0.name) && $0.value == PortfolioFundingPolicy
-                            .address(
-                                for: dot,
-                                wallet: wallet
-                            )
-                    })
+                if action.title == "Moonpay" {
+                    // MoonPay refuses a prefilled address without a server-side signature, so the user enters it.
+                    XCTAssertFalse(query.contains { ["walletAddress", "signature"].contains($0.name) })
+                } else {
+                    XCTAssertTrue(query
+                        .contains {
+                            $0.name == "userAddress" && $0.value == PortfolioFundingPolicy
+                                .address(
+                                    for: dot,
+                                    wallet: wallet
+                                )
+                        })
+                }
             }
         }
         XCTAssertEqual(Set(actions.map(\.title)), ["Moonpay", "Ramp"])
