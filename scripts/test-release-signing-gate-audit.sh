@@ -109,6 +109,11 @@ perl -0pi -e 's/-configuration Release/-configuration Debug/' \
 expect_failure "Debug archive substitution"
 
 reset_fixture
+perl -0pi -e 's/build-tools-from-source\.sh/missing-bootstrap.sh/' \
+  "$TMP_DIR/fixture/scripts/ci/run-release-signing-gate.sh"
+expect_failure "archive without source-built host tools"
+
+reset_fixture
 perl -0pi -e "s/generic\/platform=iOS/platform=iOS Simulator,name=iPhone 16/" \
   "$TMP_DIR/fixture/scripts/ci/run-release-signing-gate.sh"
 expect_failure "simulator signing substitution"

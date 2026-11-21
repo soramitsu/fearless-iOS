@@ -87,15 +87,14 @@ if [[ -f "$WORKSPACE_DIR/fearless.xcworkspace/contents.xcworkspacedata" ]]; then
   fi
   # Clean previous SPM state to prevent duplicate Web3 sources
   rm -rf "$SP_DIR" || true
-  if [[ -x "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" ]]; then
-    "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" "$WORKSPACE_DIR"
-  fi
+  "$WORKSPACE_DIR/scripts/deps/build-tools-from-source.sh" --force
+  "$WORKSPACE_DIR/scripts/deps/check-dependency-contracts.sh" "$WORKSPACE_DIR"
   xcodebuild -resolvePackageDependencies \
     -workspace "$WORKSPACE_DIR/fearless.xcworkspace" \
     -scheme fearless \
     -clonedSourcePackagesDirPath "$SP_DIR"
 
-python3 "$WORKSPACE_DIR/scripts/verify-remote-config.py" "$WORKSPACE_DIR"
+  python3 "$WORKSPACE_DIR/scripts/verify-remote-config.py" "$WORKSPACE_DIR"
   SOURCE_PACKAGES_DIR="$SP_DIR" python3 "$WORKSPACE_DIR/scripts/deps/verify-native-source.py" "$WORKSPACE_DIR"
 
 else

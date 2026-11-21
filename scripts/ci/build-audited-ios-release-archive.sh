@@ -216,6 +216,8 @@ if ! git merge-base --is-ancestor "$EXPECTED_BASE_SOURCE_COMMIT" "$source_commit
 fi
 # END release source provenance
 
+"$REPO_ROOT/scripts/deps/build-tools-from-source.sh" --force
+
 # Generated service configuration is ignored by git; bind its exact reviewed
 # bytes separately so regeneration cannot silently replace production settings.
 service_configuration_before="${receipt%.json}.service-configuration-before.json"

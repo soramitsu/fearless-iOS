@@ -98,6 +98,9 @@ jobs:
           python3 scripts/test-remote-config.py
           python3 scripts/verify-remote-config.py
           python3 scripts/deps/test-native-source.py
+          python3 scripts/deps/test-verify-pods.py
+          python3 scripts/deps/test-build-tools.py
+          python3 scripts/deps/test-build-phase-contract.py
           python3 scripts/deps/verify-native-source.py "$(pwd)"
           python3 Native/scripts/test-xcm-read-only-boundary.py
           python3 Native/scripts/test-authorized-rpc.py

@@ -1,4 +1,5 @@
 excluded:
+  - BuildTools/Vendor
   - Pods
   - PrivatePods
   - R.generated.swift
