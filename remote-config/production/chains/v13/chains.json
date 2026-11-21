@@ -5088,7 +5088,7 @@
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/tonchain.svg",
     "addressPrefix": 0,
-    "tonBridgeUrl": "https://fearless-ton-bridge.odachi.soramitsu.co.jp/bridge",
+    "tonBridgeUrl": "https://connect.ton.org/bridge",
     "options": ["remoteAssets"]
   },
   {
@@ -5134,7 +5134,7 @@
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/chains/white/tonchain.svg",
     "addressPrefix": 0,
-    "tonBridgeUrl": "https://fearless-ton-bridge.odachi.soramitsu.co.jp/bridge",
+    "tonBridgeUrl": "https://connect.ton.org/bridge",
     "options": [
         "remoteAssets",
         "testnet"
