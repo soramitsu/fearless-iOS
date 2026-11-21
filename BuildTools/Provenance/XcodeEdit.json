@@ -1,0 +1,15 @@
+{
+  "commit": "tree df199a7827f65e9dd45a61cbebc46053bb77426d\nparent 33a073ac52808440cec8a34d9438aa4645e00f5d\nauthor Tom Lokhorst <tom@lokhorst.eu> 1637104334 +0100\ncommitter Tom Lokhorst <tom@lokhorst.eu> 1637104334 +0100\ngpgsig -----BEGIN PGP SIGNATURE-----\n \n iQIzBAABCAAdFiEE+7vf2wWYLEEHXWHSq8ca15f7kooFAmGUOs4ACgkQq8ca15f7\n koqqsRAAiHCOKVV2k7vU9h6QGBXAhMMs9p4q7BRJF/1g9p8SlvNh1iS9rj3yGcBU\n tpK4zZSyMwwZImXvvqlzN2c3q0jshDAqFK4zURUvs3IOv+qcuxXFr/g9FHpl2tvE\n WQWUuj2GJDqtYctzDfGa4c4ixZ+eF27B1b28DUJJAHYM1grRdnY/VQiMqNiRaFA0\n tzUGVEX9zwC6Du8fTSm/sas5MeQiNWKotcAFd+N79aI5zPU3Ej1pZSvQGABxbjnW\n ddGROpVBI4LPHgHsdP+yFPk9Q4A2KvEnkNiADuWPdogmYuPXegAha8iRwGdPWBWZ\n hl3WZgeWQ0Tk/FnigbdElyTmqP7++hEHJHuVhbQ6LKdlrPzh+xzTOiReWk+U7T6I\n wr73WB8pW7Ke8ycOOKQOh+lupCmy1rLneVjHgrLhh4vh7O+uQXFsgxt6NZhh5V8a\n Dr+79qJrq3EUo8UyxQ8Wp4bSc5pGyDWDPwlWVR7tAEHKFUvQhnJEE3VMypQ/XgoY\n UmOlLFkxV7UVXRyPwVdiqx8gpapo+2T1jNprm3Fr+8BRzwK+07JJXg5uGnb+BFXm\n hKxgmXD+VUILMlrVWRBpBmz1Fkn5/Wjw0xUX+pulYizQ65uDB7m/UV25z246PCtW\n kTInjw28beELXnrjAd5AYlBLyXI7hkBR9xJMDOzIqDPLi3qBFJ0=\n =s+wN\n -----END PGP SIGNATURE-----\n\n2.8.0\n",
+  "omitted": {
+    "": [
+      "040000 tree d79364e3744e97f839db1663a03f580c63065533\t.github",
+      "100644 blob 42c22f7287e9560dd8d1c6d2022dcf645a5058b5\t.gitignore",
+      "040000 tree 7f369371a4919e7fa6f99921543e3e658a9c69fb\tExample",
+      "100644 blob 797aa10ad21c79683db52f1f8e7a50b80c1bea18\tPackage.swift",
+      "100644 blob 4bda4242cbf959ce310262a5bd755bf781d8ac28\tREADME.md",
+      "040000 tree 0b68445825a40aaa4fc9c34bea127f9169273182\tTest_projects",
+      "100644 blob 67797e3140dd1c241044439b741b029b660b31a5\tXcodeEdit.podspec",
+      "040000 tree e1424df02e3df19daddf25bababd180f720a960f\tXcodeEdit.xcodeproj"
+    ]
+  }
+}
