@@ -92,12 +92,6 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         let walletBalanceTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBalanceDidTap))
         rootView.walletBalanceViewContainer.addGestureRecognizer(walletBalanceTapGesture)
 
-        rootView.accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
-            // The stars also report a touch the page took for a scroll (cancelled); only a tap opens the score.
-            guard let self, !self.rootView.isScrollingPage else { return }
-            self.output.didTapAccountScore()
-        }
-
         let actions: [(FWRoundActionButton, WalletHomeAction)] = [
             (rootView.sendButton, .send), (rootView.receiveButton, .receive),
             (rootView.buyButton, .buy), (rootView.swapButton, .swap)
@@ -142,10 +136,6 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
 extension WalletMainContainerViewController: WalletMainContainerViewInput {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel) {
         rootView.bind(viewModel: viewModel)
-    }
-
-    func didReceiveAccountScoreViewModel(_ viewModel: AccountScoreViewModel) {
-        rootView.bind(accountScoreViewModel: viewModel)
     }
 
     func didReceiveNftAvailability(isNftAvailable: Bool) {

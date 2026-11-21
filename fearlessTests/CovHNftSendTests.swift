@@ -64,8 +64,6 @@ final class CovHNftSendViewModelFactoryStub: SendViewModelFactoryProtocol {
     func buildNetworkViewModel(chain: ChainModel, canEdit: Bool) -> SelectNetworkViewModel {
         SelectNetworkViewModel(chainName: chain.name, iconViewModel: nil, canEdit: canEdit)
     }
-
-    func buildAccountScoreViewModel(address _: String?, chain _: ChainModel) -> AccountScoreViewModel? { nil }
 }
 
 final class CovHNftSendPresenterTests: XCTestCase {

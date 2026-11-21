@@ -1736,7 +1736,7 @@ final class ProfileAuthorizationLifecycleTests: XCTestCase {
 
     private final class ViewModels: ProfileViewModelFactoryProtocol {
         let model = ProfileViewModel(
-            profileUserViewModel: WalletsManagmentCellViewModel(isSelected: true, walletName: "Public fixture", fiatBalance: nil, dayChange: nil, accountScoreViewModel: nil),
+            profileUserViewModel: WalletsManagmentCellViewModel(isSelected: true, walletName: "Public fixture", fiatBalance: nil, dayChange: nil),
             profileOptionViewModel: [ProfileOptionViewModel(title: "Change PIN", icon: nil, accessoryTitle: nil, accessoryImage: nil, accessoryType: .arrow, option: .changePincode)],
             logoutViewModel: ProfileOptionViewModel(title: "Logout", icon: nil, accessoryTitle: nil, accessoryImage: nil, accessoryType: .arrow, option: nil)
         )

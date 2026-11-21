@@ -59,7 +59,6 @@ final class SendAssembly {
         )
         let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createAsyncRepository()
-        let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
         let scamInfoFetcher = ScamInfoFetcher(scamServiceOperationFactory: scamServiceOperationFactory)
         let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
             chainRegistry: ChainRegistryFacade.sharedRegistry
@@ -86,11 +85,7 @@ final class SendAssembly {
         )
         let router = SendRouter()
 
-        let viewModelFactory = SendViewModelFactory(
-            iconGenerator: UniversalIconGenerator(),
-            accountScoreFetcher: accountStatisticsFetcher,
-            settings: SettingsManager.shared
-        )
+        let viewModelFactory = SendViewModelFactory(iconGenerator: UniversalIconGenerator())
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = SendPresenter(
             interactor: interactor,

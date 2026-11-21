@@ -137,11 +137,6 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         )
     }
 
-    func didTapAccountScore() {
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        router.presentAccountScore(address: address, from: view)
-    }
-
     func didTapHomeAction(_ action: WalletHomeAction) {
         switch action {
         case .send, .receive, .buy:

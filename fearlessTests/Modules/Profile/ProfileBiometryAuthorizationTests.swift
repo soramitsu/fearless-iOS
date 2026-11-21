@@ -98,7 +98,7 @@ final class ProfileBiometryAuthorizationTests: XCTestCase {
             missingAccountIssue _: [ChainIssue]
         ) -> ProfileViewModelProtocol {
             ProfileViewModel(
-                profileUserViewModel: WalletsManagmentCellViewModel(isSelected: true, walletName: "Public fixture", fiatBalance: nil, dayChange: nil, accountScoreViewModel: nil),
+                profileUserViewModel: WalletsManagmentCellViewModel(isSelected: true, walletName: "Public fixture", fiatBalance: nil, dayChange: nil),
                 profileOptionViewModel: [
                     ProfileOptionViewModel(
                         title: "Face ID",

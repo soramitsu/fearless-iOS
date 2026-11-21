@@ -2,7 +2,6 @@ import UIKit
 
 protocol ContactTableCellDelegate: AnyObject {
     func didTapAddButton()
-    func didTapAccountScore()
 }
 
 class ContactTableCell: UITableViewCell {
@@ -64,12 +63,6 @@ class ContactTableCell: UITableViewCell {
         return button
     }()
 
-    let accountScoreView: AccountScoreView = {
-        let view = AccountScoreView()
-        view.isHidden = true
-        return view
-    }()
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -83,7 +76,6 @@ class ContactTableCell: UITableViewCell {
     }
 
     func bind(to viewModel: ContactTableCellModel) {
-        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
         delegate = viewModel
         switch viewModel.contactType {
         case let .saved(contact):
@@ -94,10 +86,6 @@ class ContactTableCell: UITableViewCell {
             nameLabel.text = "Undefined"
             addressLabel.text = address
             addButton.isHidden = false
-        }
-
-        accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
-            self?.delegate?.didTapAccountScore()
         }
     }
 
@@ -114,11 +102,6 @@ class ContactTableCell: UITableViewCell {
         labelsStackView.addArrangedSubview(addressLabel)
 
         hStackView.addArrangedSubview(nameLabel)
-        hStackView.addArrangedSubview(accountScoreView)
-
-        accountScoreView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
-        }
 
         hStackView.snp.makeConstraints { make in
             make.trailing.leading.equalToSuperview()

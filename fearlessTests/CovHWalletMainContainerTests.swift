@@ -48,18 +48,16 @@ final class CovHWalletMainContainerTests: XCTestCase {
         fixture.presenter.didTapSearch()
         fixture.presenter.didTapSelectNetwork()
         fixture.presenter.didTapOnBalance()
-        fixture.presenter.didTapAccountScore()
         WalletHomeAction.allCases.forEach(fixture.presenter.didTapHomeAction)
         fixture.presenter.showAddNewWallet()
         fixture.presenter.showImportWallet(defaultSource: .mnemonic)
         fixture.presenter.showImportGoogle()
         fixture.presenter.showGetPreinstalledWallet()
         fixture.presenter.addressDidCopied()
-        XCTAssertEqual(fixture.router.calls, ["wallets", "qr", "search", "network", "currency", "score",
+        XCTAssertEqual(fixture.router.calls, ["wallets", "qr", "search", "network", "currency",
                                                "picker", "picker", "picker", "swap", "create", "import", "backup", "preinstalled"])
         XCTAssertEqual(fixture.router.actions, [.send, .receive, .buy])
         XCTAssertTrue(fixture.router.wallets.allSatisfy { $0.metaId == fixture.wallet.metaId })
-        XCTAssertEqual(fixture.router.scoreAddress, fixture.wallet.ethereumAddress?.toHex(includePrefix: true))
         XCTAssertEqual(fixture.router.statusCount, 1)
     }
 

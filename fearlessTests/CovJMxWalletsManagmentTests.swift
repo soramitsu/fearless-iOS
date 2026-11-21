@@ -22,7 +22,6 @@ final class CovJMxWalletsInteractor: WalletsManagmentInteractorInput {
 final class CovJMxWalletsRouter: CovJSheetSpy, WalletsManagmentRouterInput {
     var options: [(String, WalletOptionModuleOutput?)] = []
     var dismissals = 0
-    var scores: [String?] = []
 
     func showOptions(from _: WalletsManagmentViewInput?, metaAccount: ManagedMetaAccountModel, delegate: WalletOptionModuleOutput?) {
         options.append((metaAccount.info.metaId, delegate))
@@ -32,8 +31,6 @@ final class CovJMxWalletsRouter: CovJSheetSpy, WalletsManagmentRouterInput {
         dismissals += 1
         dissmisCompletion()
     }
-
-    func presentAccountScore(address: String?, from _: ControllerBackedProtocol?) { scores.append(address) }
 }
 
 final class CovJMxWalletsViewModelFactory: WalletsManagmentViewModelFactoryProtocol {
@@ -51,8 +48,7 @@ final class CovJMxWalletsViewModelFactory: WalletsManagmentViewModelFactoryProto
                 isSelected: $0.isSelected,
                 walletName: $0.info.name,
                 fiatBalance: nil,
-                dayChange: nil,
-                accountScoreViewModel: nil
+                dayChange: nil
             )
         }
     }
@@ -134,13 +130,11 @@ final class CovJMxWalletsManagmentPresenterTests: XCTestCase {
         presenter.didTapNewWallet()
         presenter.didTapClose()
         presenter.didCompleteSelection()
-        presenter.didTapAccountScore(address: "0xabc")
         presenter.didReceive(error: CovJError("boom"))
         presenter.walletWasRemoved()
 
         XCTAssertEqual(router.dismissals, 3)
         XCTAssertEqual(output.events, ["new"])
-        XCTAssertEqual(router.scores, ["0xabc"])
         XCTAssertEqual(router.errors.compactMap { $0 as? CovJError }, [CovJError("boom")])
         XCTAssertEqual(interactor.fetches, 1)
     }
@@ -265,14 +259,12 @@ final class CovJMxWalletsViewOutput: WalletsManagmentViewOutput {
     var events: [String] = []
     var taps: [IndexPath] = []
     var options: [IndexPath] = []
-    var scores: [String?] = []
     func didLoad(view _: WalletsManagmentViewInput) { events.append("load") }
     func didTapNewWallet() { events.append("new") }
     func didTapImportWallet() { events.append("import") }
     func didTapOptions(for indexPath: IndexPath) { options.append(indexPath) }
     func didTapClose() { events.append("close") }
     func didTap(on indexPath: IndexPath) { taps.append(indexPath) }
-    func didTapAccountScore(address: String?) { scores.append(address) }
     func didTapRecordsNotice() { events.append("notice") }
 }
 
@@ -291,10 +283,10 @@ final class CovJMxWalletsManagmentViewTests: XCTestCase {
         XCTAssertEqual(root.importWalletButton.imageWithTitleView?.title, R.string.localizable.importWallet(preferredLanguages: languages))
 
         controller.didReceiveViewModels([
-            WalletsManagmentCellViewModel(isSelected: true, walletName: "Main", fiatBalance: nil, dayChange: nil, accountScoreViewModel: nil),
+            WalletsManagmentCellViewModel(isSelected: true, walletName: "Main", fiatBalance: nil, dayChange: nil),
             WalletsManagmentCellViewModel(
                 isSelected: false, walletName: "Savings", fiatBalance: "$5.00",
-                dayChange: NSAttributedString(string: "+1%"), accountScoreViewModel: nil, balanceCaption: "incl. hidden"
+                dayChange: NSAttributedString(string: "+1%"), balanceCaption: "incl. hidden"
             )
         ])
         let table = root.tableView
@@ -316,7 +308,6 @@ final class CovJMxWalletsManagmentViewTests: XCTestCase {
         controller.tableView(table, didSelectRowAt: IndexPath(row: 1, section: 0))
         controller.didTapOptionsCell(with: nil)
         controller.didTapOptionsCell(with: IndexPath(row: 0, section: 0))
-        controller.didTapAccountScore(address: "0x01")
 
         root.addNewWalletButton.sendActions(for: .touchUpInside)
         root.importWalletButton.sendActions(for: .touchUpInside)
@@ -325,7 +316,6 @@ final class CovJMxWalletsManagmentViewTests: XCTestCase {
 
         XCTAssertEqual(output.taps, [IndexPath(row: 1, section: 0)])
         XCTAssertEqual(output.options, [IndexPath(row: 0, section: 0)])
-        XCTAssertEqual(output.scores, ["0x01"])
         XCTAssertEqual(output.events, ["load", "new", "import", "close", "notice"])
     }
 
@@ -370,14 +360,6 @@ final class CovJMxWalletsManagmentViewTests: XCTestCase {
     }
 }
 
-final class CovJMxWalletsStatisticsFetcher: AccountStatisticsFetching {
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? { nil }
-}
-
 final class CovJMxWalletsViewModelFactoryTests: XCTestCase {
     private let locale = Locale(identifier: "en")
     /// The default currency (US dollar), named through a wallet to keep `SSFModels` out of this file.
@@ -404,8 +386,6 @@ final class CovJMxWalletsViewModelFactoryTests: XCTestCase {
         let dayChange = try XCTUnwrap(cards[2].dayChange?.string)
         XCTAssertTrue(dayChange.hasSuffix("(\(try XCTUnwrap(fiat(0.6))))"))
         XCTAssertNil(cards[2].balanceCaption)
-        XCTAssertNotNil(cards[2].accountScoreViewModel)
-        XCTAssertEqual(cards[2].accountScoreViewModel?.address, funded.info.ethereumAddress?.toHex(includePrefix: true))
     }
 
     func testWalletPickerMarksOnlyThePreviouslyChosenWallet() {
@@ -426,10 +406,7 @@ final class CovJMxWalletsViewModelFactoryTests: XCTestCase {
     }
 
     private func makeFactory() -> WalletsManagmentViewModelFactory {
-        WalletsManagmentViewModelFactory(
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
-            accountScoreFetcher: CovJMxWalletsStatisticsFetcher()
-        )
+        WalletsManagmentViewModelFactory(assetBalanceFormatterFactory: AssetBalanceFormatterFactory())
     }
 
     private func fiat(_ value: Decimal) -> String? {
@@ -457,9 +434,7 @@ final class CovJMxWalletsViewModelFactoryTests: XCTestCase {
 
 final class CovJMxWalletsCellDelegate: WalletsManagmentTableCellDelegate {
     var options: [IndexPath?] = []
-    var scores: [String?] = []
     func didTapOptionsCell(with indexPath: IndexPath?) { options.append(indexPath) }
-    func didTapAccountScore(address: String?) { scores.append(address) }
 }
 
 final class CovJMxWalletsCellTests: XCTestCase {
@@ -470,7 +445,7 @@ final class CovJMxWalletsCellTests: XCTestCase {
         cell.delegate = delegate
         let change = NSAttributedString(string: "+1.00% ($0.10)")
 
-        cell.bind(to: WalletsManagmentCellViewModel(isSelected: true, walletName: "Main", fiatBalance: nil, dayChange: change, accountScoreViewModel: nil))
+        cell.bind(to: WalletsManagmentCellViewModel(isSelected: true, walletName: "Main", fiatBalance: nil, dayChange: change))
 
         let labels = CovJViewFixture.descendants(UILabel.self, in: cell)
         let dayChange = try XCTUnwrap(labels.first { $0.attributedText?.string == change.string })
@@ -483,7 +458,7 @@ final class CovJMxWalletsCellTests: XCTestCase {
         XCTAssertEqual(dayChange.alpha, 0)
 
         cell.bind(to: WalletsManagmentCellViewModel(
-            isSelected: false, walletName: "Main", fiatBalance: "$5.00", dayChange: change, accountScoreViewModel: nil
+            isSelected: false, walletName: "Main", fiatBalance: "$5.00", dayChange: change
         ))
         XCTAssertEqual(dayChange.alpha, 1)
         XCTAssertTrue(labels.contains { $0.text == "$5.00" && $0.alpha == 1 })

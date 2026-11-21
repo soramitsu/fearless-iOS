@@ -74,8 +74,6 @@ final class WalletMainContainerViewLayout: UIView {
         return button
     }()
 
-    let accountScoreView = AccountScoreView()
-
     private let walletNameTitle: UILabel = {
         let label = UILabel()
         label.font = .h4Title
@@ -173,8 +171,6 @@ final class WalletMainContainerViewLayout: UIView {
         } else {
             addressCopyableLabel.isHidden = true
         }
-
-        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
     }
 
     func addBalance(_ view: UIView) {
@@ -189,10 +185,6 @@ final class WalletMainContainerViewLayout: UIView {
         view.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-    }
-
-    func bind(accountScoreViewModel: AccountScoreViewModel) {
-        accountScoreView.bind(viewModel: accountScoreViewModel)
     }
 
     // MARK: - Private methods
@@ -301,7 +293,6 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupWalletBalanceLayout() {
-        // Account score is secondary context, below the balance rather than beside navigation.
         addressCopyableLabel.snp.makeConstraints { make in
             make.width.lessThanOrEqualTo(200)
             make.height.greaterThanOrEqualTo(44)
@@ -316,10 +307,8 @@ final class WalletMainContainerViewLayout: UIView {
         walletBalanceVStackView.addArrangedSubview(sunlit.sunBadge)
         walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
         walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
-        walletBalanceVStackView.addArrangedSubview(accountScoreView)
         walletBalanceVStackView.setCustomSpacing(6, after: sunlit.sunBadge)
         walletBalanceVStackView.setCustomSpacing(10, after: walletBalanceViewContainer)
-        walletBalanceVStackView.setCustomSpacing(4, after: addressCopyableLabel)
         sunlit.sunBadge.snp.makeConstraints { make in
             make.size.equalTo(Constants.sunSize)
         }
@@ -408,12 +397,6 @@ extension WalletMainContainerViewLayout {
 
     var isSearchFolded: Bool {
         isSearchFocused && placement != .split
-    }
-
-    /// The page (or, side by side, the header) is under a finger or still moving.
-    var isScrollingPage: Bool {
-        let pan = headerScrollView.panGestureRecognizer.state
-        return headerScrollView.isDragging || headerScrollView.isDecelerating || pan == .began || pan == .changed
     }
 
     private var foldingViews: [UIView] {

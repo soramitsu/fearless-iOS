@@ -10,10 +10,8 @@ final class CovJBkBackupWalletViewModelFactoryTests: XCTestCase {
     private let locale = CovJBkFixture.locale
     private var languages: [String]? { CovJBkFixture.languages }
 
-    private func makeFactory(scoreEnabled: Bool? = false) -> BackupWalletViewModelFactory {
-        let settings = InMemorySettingsManager()
-        settings.accountScoreEnabled = scoreEnabled
-        return BackupWalletViewModelFactory(accountScoreFetcher: CovJBkStatisticsFetcher(), settings: settings)
+    private func makeFactory() -> BackupWalletViewModelFactory {
+        BackupWalletViewModelFactory()
     }
 
     private func formatter(for wallet: MetaAccountModel) -> TokenFormatter {
@@ -47,8 +45,6 @@ final class CovJBkBackupWalletViewModelFactoryTests: XCTestCase {
         XCTAssertNil(user.dayChange)
         XCTAssertNil(user.balanceCaption)
         XCTAssertFalse(user.isSelected)
-        XCTAssertEqual(user.accountScoreViewModel?.address, wallet.ethereumAddress?.toHex(includePrefix: true))
-        XCTAssertEqual(user.accountScoreViewModel?.scoringEnabled, false)
 
         XCTAssertEqual(viewModel.logoutViewModel.title, R.string.localizable.profileLogoutTitle(preferredLanguages: languages))
         XCTAssertNotNil(viewModel.logoutViewModel.icon)
@@ -149,10 +145,10 @@ final class CovJBkBackupWalletViewModelFactoryTests: XCTestCase {
         XCTAssertEqual(flat.profileUserViewModel.fiatBalance, formatter(for: wallet).stringFromDecimal(0))
     }
 
-    func testAccountScoreIsEnabledByDefaultForTheEthereumAddress() {
+    func testSeedOnlyExportListsOnlyTheSeedOption() {
         let wallet = CovJBkFixture.wallet()
 
-        let viewModel = makeFactory(scoreEnabled: nil).createViewModel(
+        let viewModel = makeFactory().createViewModel(
             from: wallet,
             locale: locale,
             balance: nil,
@@ -160,7 +156,6 @@ final class CovJBkBackupWalletViewModelFactoryTests: XCTestCase {
             backupAccounts: nil
         )
 
-        XCTAssertEqual(viewModel.profileUserViewModel.accountScoreViewModel?.scoringEnabled, true)
         XCTAssertEqual(
             viewModel.profileOptionViewModel.map(\.title),
             [R.string.localizable.backupWalletSeed(preferredLanguages: languages)]

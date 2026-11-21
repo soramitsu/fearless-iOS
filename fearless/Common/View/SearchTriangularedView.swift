@@ -102,8 +102,6 @@ final class SearchTriangularedView: UIView {
         return view
     }()
 
-    let accountScoreView = AccountScoreView()
-
     init(withPasteButton: Bool = false) {
         self.withPasteButton = withPasteButton
         super.init(frame: .zero)
@@ -119,9 +117,8 @@ final class SearchTriangularedView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bind(accountScoreViewModel: AccountScoreViewModel?) {
-        textField.text = accountScoreViewModel?.address
-        accountScoreView.bind(viewModel: accountScoreViewModel)
+    func bind(address: String?) {
+        textField.text = address
         refreshSendPlaceholder()
     }
 
@@ -180,11 +177,6 @@ final class SearchTriangularedView: UIView {
         vStackView.addArrangedSubview(hStackView)
 
         hStackView.addArrangedSubview(textField)
-        hStackView.addArrangedSubview(accountScoreView)
-
-        accountScoreView.snp.makeConstraints { make in
-            make.width.equalTo(32)
-        }
 
         vStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(LayoutConstants.verticalOffset)

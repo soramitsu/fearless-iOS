@@ -11841,16 +11841,6 @@ class MockProfilePresenterProtocol: ProfilePresenterProtocol, Cuckoo.ProtocolMoc
         )
     }
 
-    func didTapAccountScore(address p0: String?) {
-        return cuckoo_manager.call(
-            "didTapAccountScore(address p0: String?)",
-            parameters: (p0),
-            escapingParameters: (p0),
-            superclassCall: Cuckoo.MockManager.crashOnProtocolSuperclassCall(),
-            defaultCall: __defaultImplStub!.didTapAccountScore(address: p0)
-        )
-    }
-
     struct __StubbingProxy_ProfilePresenterProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
     
@@ -11894,14 +11884,6 @@ class MockProfilePresenterProtocol: ProfilePresenterProtocol, Cuckoo.ProtocolMoc
             let matchers: [Cuckoo.ParameterMatcher<(Bool, Int)>] = [wrap(matchable: p0) { $0.0 }, wrap(matchable: p1) { $0.1 }]
             return .init(stub: cuckoo_manager.createStub(for: MockProfilePresenterProtocol.self,
                 method: "switcherValueChanged(isOn p0: Bool, index p1: Int)",
-                parameterMatchers: matchers
-            ))
-        }
-        
-        func didTapAccountScore<M1: Cuckoo.OptionalMatchable>(address p0: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String?)> where M1.OptionalMatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String?)>] = [wrap(matchable: p0) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockProfilePresenterProtocol.self,
-                method: "didTapAccountScore(address p0: String?)",
                 parameterMatchers: matchers
             ))
         }
@@ -11977,18 +11959,6 @@ class MockProfilePresenterProtocol: ProfilePresenterProtocol, Cuckoo.ProtocolMoc
                 sourceLocation: sourceLocation
             )
         }
-        
-        
-        @discardableResult
-        func didTapAccountScore<M1: Cuckoo.OptionalMatchable>(address p0: M1) -> Cuckoo.__DoNotUse<(String?), Void> where M1.OptionalMatchedType == String {
-            let matchers: [Cuckoo.ParameterMatcher<(String?)>] = [wrap(matchable: p0) { $0 }]
-            return cuckoo_manager.verify(
-                "didTapAccountScore(address p0: String?)",
-                callMatcher: callMatcher,
-                parameterMatchers: matchers,
-                sourceLocation: sourceLocation
-            )
-        }
     }
 }
 
@@ -12013,10 +11983,6 @@ class ProfilePresenterProtocolStub:ProfilePresenterProtocol, @unchecked Sendable
     }
     
     func switcherValueChanged(isOn p0: Bool, index p1: Int) {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    func didTapAccountScore(address p0: String?) {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
 }

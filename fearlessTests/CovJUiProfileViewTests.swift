@@ -18,28 +18,18 @@ final class CovJUiBiometry: BiometryAuthProtocol {
     }
 }
 
-final class CovJUiStatistics: AccountStatisticsFetching {
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? { nil }
-}
-
 final class CovJUiProfilePresenterSpy: ProfilePresenterProtocol {
     private(set) weak var loadedView: ProfileViewProtocol?
     private(set) var detailsCalls = 0
     private(set) var options: [ProfileOption] = []
     private(set) var logouts = 0
     private(set) var switches: [String] = []
-    private(set) var scoreAddresses: [String?] = []
 
     func didLoad(view: ProfileViewProtocol) { loadedView = view }
     func activateAccountDetails() { detailsCalls += 1 }
     func activateOption(_ option: ProfileOption) { options.append(option) }
     func logout() { logouts += 1 }
     func switcherValueChanged(isOn: Bool, index: Int) { switches.append("\(isOn):\(index)") }
-    func didTapAccountScore(address: String?) { scoreAddresses.append(address) }
 }
 
 enum CovJUiProfileModels {
@@ -64,7 +54,6 @@ enum CovJUiProfileModels {
             iconGenerator: UniversalIconGenerator(),
             biometry: CovJUiBiometry(biometry),
             settings: settings,
-            accountScoreFetcher: CovJUiStatistics(),
             irohaConnectPolicy: policy,
             feedbackSettings: feedback
         )
@@ -138,9 +127,6 @@ final class CovJUiProfileViewModelFactoryTests: XCTestCase {
 
         XCTAssertNotNil(user.balanceCaption)
         XCTAssertEqual(user.balanceCaption, info.allHoldingsCaption)
-        let address = try XCTUnwrap(user.accountScoreViewModel?.address)
-        XCTAssertTrue(address.hasPrefix("0x"))
-        XCTAssertEqual(address.count, 42)
     }
 
     func testDayChangeColourFollowsDirection() throws {
@@ -159,7 +145,6 @@ final class CovJUiProfileViewModelFactoryTests: XCTestCase {
         func testAllOptionsReflectSettingsWarningsTonAndIroha() throws {
             let settings: SettingsManagerProtocol = InMemorySettingsManager()
             settings.biometryEnabled = true
-            settings.accountScoreEnabled = true
             let factory = try CovJUiProfileModels.factory(
                 .faceId, settings: settings, policy: .enabledForTests, sound: false, haptics: true, test: self
             )
@@ -175,8 +160,6 @@ final class CovJUiProfileViewModelFactoryTests: XCTestCase {
 
             XCTAssertEqual(row(.biometry)?.title, "Face ID")
             XCTAssertEqual(CovJUiProfileModels.switchState(row(.biometry)), true)
-            XCTAssertEqual(row(.accountScore)?.title, R.string.localizable.profileAccountScoreTitle(preferredLanguages: languages))
-            XCTAssertEqual(CovJUiProfileModels.switchState(row(.accountScore)), true)
             XCTAssertEqual(row(.accountList)?.title, R.string.localizable.profileWalletsTitle(preferredLanguages: languages))
             XCTAssertNotNil(row(.accountList)?.accessoryImage, "a missing account is flagged")
             XCTAssertEqual(row(.currency)?.title, R.string.localizable.commonCurrency(preferredLanguages: languages))
@@ -278,7 +261,7 @@ final class CovJUiProfileViewControllerTests: XCTestCase {
         controller.view.layoutIfNeeded()
         let table = controller.rootView.tableView
 
-        XCTAssertEqual((0 ..< 9).map { controller.tableView(table, numberOfRowsInSection: $0) }, [2, 1, 1, 2, 2, 6, 2, 1, 1])
+        XCTAssertEqual((0 ..< 9).map { controller.tableView(table, numberOfRowsInSection: $0) }, [2, 1, 1, 2, 2, 5, 2, 1, 1])
         XCTAssertNil(controller.tableView(table, titleForHeaderInSection: 0))
         XCTAssertEqual(controller.tableView(table, titleForHeaderInSection: 1), "Wallets & Accounts")
         XCTAssertEqual(controller.tableView(table, titleForHeaderInSection: 3), "Connections")
@@ -347,7 +330,5 @@ final class CovJUiProfileViewControllerTests: XCTestCase {
 
         controller.didTapOptionsCell(with: nil)
         XCTAssertEqual(presenter.detailsCalls, 2)
-        controller.didTapAccountScore(address: "0xscore")
-        XCTAssertEqual(presenter.scoreAddresses, ["0xscore"])
     }
 }

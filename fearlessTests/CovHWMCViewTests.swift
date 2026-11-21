@@ -16,16 +16,7 @@ final class CovHWMCViewOutputSpy: WalletMainContainerViewOutput {
     func didTapSelectNetwork() { calls.append("network") }
     func didTapOnBalance() { calls.append("balance") }
     func addressDidCopied() { calls.append("copied") }
-    func didTapAccountScore() { calls.append("score") }
     func didTapHomeAction(_ action: WalletHomeAction) { homeActions.append(action) }
-}
-
-final class CovHWMCScoreFetcher: AccountStatisticsFetching {
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        throw NSError(domain: "cov-h-score", code: 1)
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? { nil }
 }
 
 final class CovHWMCViewTests: XCTestCase {
@@ -50,17 +41,6 @@ final class CovHWMCViewTests: XCTestCase {
         return (controller, output)
     }
 
-    private func scoreViewModel(address: String? = "0x01") -> AccountScoreViewModel {
-        AccountScoreViewModel(
-            fetcher: CovHWMCScoreFetcher(),
-            address: address,
-            chain: nil,
-            settings: InMemorySettingsManager(),
-            eventCenter: EventCenter(),
-            logger: nil
-        )
-    }
-
     func testControlsReachTheOutput() throws {
         let (controller, output) = try makeController()
         let rootView = controller.rootView
@@ -70,16 +50,15 @@ final class CovHWMCViewTests: XCTestCase {
         rootView.searchButton.sendActions(for: .touchUpInside)
         rootView.selectNetworkButton.sendActions(for: .touchUpInside)
         controller.perform(NSSelectorFromString("handleBalanceDidTap"))
-        rootView.accountScoreView.starView.didFinishTouchingCosmos?(4)
         [rootView.sendButton, rootView.receiveButton, rootView.buyButton, rootView.swapButton].forEach {
             $0.sendActions(for: .touchUpInside)
         }
 
-        XCTAssertEqual(output.calls, ["load", "switch", "qr", "search", "network", "balance", "score"])
+        XCTAssertEqual(output.calls, ["load", "switch", "qr", "search", "network", "balance"])
         XCTAssertEqual(output.homeActions, [.send, .receive, .buy, .swap])
     }
 
-    func testViewModelNftAvailabilityAndScoreAreShown() throws {
+    func testViewModelAndNftAvailabilityAreShown() throws {
         let (controller, _) = try makeController()
         let rootView = controller.rootView
 
@@ -87,8 +66,7 @@ final class CovHWMCViewTests: XCTestCase {
             walletName: "Cov H wallet",
             selectedFilter: "All networks",
             selectedFilterImage: nil,
-            address: "5Cov",
-            accountScoreViewModel: scoreViewModel()
+            address: "5Cov"
         ))
         XCTAssertEqual(rootView.switchWalletButton.accessibilityValue, "Cov H wallet")
         XCTAssertEqual(rootView.selectNetworkButton.accessibilityValue, "All networks")
@@ -98,12 +76,10 @@ final class CovHWMCViewTests: XCTestCase {
             walletName: "Cov H wallet",
             selectedFilter: "Popular",
             selectedFilterImage: nil,
-            address: nil,
-            accountScoreViewModel: nil
+            address: nil
         ))
         XCTAssertTrue(rootView.addressCopyableLabel.isHidden)
 
-        controller.didReceiveAccountScoreViewModel(scoreViewModel(address: nil))
         controller.didReceiveNftAvailability(isNftAvailable: false)
         XCTAssertTrue(rootView.segmentContainer.isHidden)
         controller.didReceiveNftAvailability(isNftAvailable: true)
@@ -162,7 +138,7 @@ final class CovHWMCViewTests: XCTestCase {
     }
 
     func testViewModelFactoryNamesEveryFilter() throws {
-        let factory = WalletMainContainerViewModelFactory(accountScoreFetcher: CovHWMCScoreFetcher(), settings: InMemorySettingsManager())
+        let factory = WalletMainContainerViewModelFactory()
         let wallet = AccountGenerator.generateMetaAccount()
         let locale = Locale(identifier: "en")
         let languages = locale.rLanguages
@@ -177,7 +153,6 @@ final class CovHWMCViewTests: XCTestCase {
         XCTAssertEqual(byChain.selectedFilter, "Icon chain")
         XCTAssertNotNil(byChain.selectedFilterImage)
         XCTAssertEqual(byChain.walletName, wallet.name)
-        XCTAssertEqual(byChain.accountScoreViewModel?.address, wallet.ethereumAddress?.toHex(includePrefix: true))
 
         let missing = factory.buildViewModel(selectedFilter: .chain("cov-h-missing"), selectedChains: [chain], selectedMetaAccount: wallet, locale: locale)
         XCTAssertEqual(missing.selectedFilter, "")
@@ -190,11 +165,5 @@ final class CovHWMCViewTests: XCTestCase {
         XCTAssertEqual(popular.selectedFilter, R.string.localizable.networkManagementPopular(preferredLanguages: languages))
         let favourite = factory.buildViewModel(selectedFilter: .favourite, selectedChains: [], selectedMetaAccount: wallet, locale: locale)
         XCTAssertEqual(favourite.selectedFilter, R.string.localizable.networkManagmentFavourite(preferredLanguages: languages))
-        XCTAssertTrue(favourite.accountScoreViewModel?.scoringEnabled ?? false, "Scoring is on by default for a wallet with an EVM address")
-        let off = InMemorySettingsManager()
-        off.accountScoreEnabled = false
-        let disabled = WalletMainContainerViewModelFactory(accountScoreFetcher: CovHWMCScoreFetcher(), settings: off)
-            .buildViewModel(selectedFilter: .favourite, selectedChains: [], selectedMetaAccount: wallet, locale: locale)
-        XCTAssertFalse(disabled.accountScoreViewModel?.scoringEnabled ?? true, "Turning scoring off in settings disables it")
     }
 }

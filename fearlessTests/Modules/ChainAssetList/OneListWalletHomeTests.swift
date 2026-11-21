@@ -376,8 +376,7 @@ final class OneListWalletHomeTests: XCTestCase {
             walletName: "One list walk",
             selectedFilter: oneNetwork ? "Solana" : "All networks",
             selectedFilterImage: nil,
-            address: oneNetwork ? "SyntheticSo1anaAddress1111111111111111111111" : nil,
-            accountScoreViewModel: nil
+            address: oneNetwork ? "SyntheticSo1anaAddress1111111111111111111111" : nil
         ))
     }
 
@@ -565,7 +564,6 @@ private final class OneListHeaderOutputSpy: WalletMainContainerViewOutput {
     func didTapSelectNetwork() { actions.append("network") }
     func didTapOnBalance() { actions.append("balance") }
     func addressDidCopied() { actions.append("copy") }
-    func didTapAccountScore() { actions.append("score") }
 }
 
 /// Switching away from the wallet must leave each other root's vertical scroller eligible.
@@ -1111,7 +1109,7 @@ final class HomeEmptyStateScrollToTopTests: XCTestCase {
         ))
         wallet.rootView.bind(viewModel: WalletMainContainerViewModel(
             walletName: "Scroll test wallet", selectedFilter: "All networks", selectedFilterImage: nil,
-            address: nil, accountScoreViewModel: nil
+            address: nil
         ))
         list.didReceive(viewModel: model(rows: 60))
         nft.loadViewIfNeeded()

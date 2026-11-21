@@ -101,10 +101,6 @@ extension ContactsPresenter: ContactTableCellModelDelegate {
             view: view
         )
     }
-
-    func didTapAccountScore(address: String) {
-        router.presentAccountScore(address: address, from: view)
-    }
 }
 
 extension ContactsPresenter: CreateContactModuleOutput {

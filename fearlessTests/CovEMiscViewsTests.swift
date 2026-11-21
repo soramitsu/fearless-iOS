@@ -73,7 +73,7 @@ final class CovEMiscViewsTests: XCTestCase {
         XCTAssertTrue(field.errorContainer.isHidden)
     }
 
-    func testInputV2EnableDisableAndAccountScore() {
+    func testInputV2EnableDisable() {
         let input = CommonInputViewV2()
         input.defaultSetup()
         XCTAssertEqual(input.animatedInputField.textField.returnKeyType, .done)
@@ -83,25 +83,5 @@ final class CovEMiscViewsTests: XCTestCase {
         XCTAssertEqual(input.backgroundView.fillColor, R.color.colorAlmostBlack())
         input.enable()
         XCTAssertTrue(input.isUserInteractionEnabled)
-
-        let score = AccountScoreView()
-        let window = CovEHost.window(for: score, frame: CGRect(x: 16, y: 100, width: 80, height: 20))
-        defer { CovEHost.close(window) }
-        score.bind(viewModel: nil)
-        XCTAssertFalse(score.isHidden, "Without a scoring model the view shows the N/A state")
-        score.didAppearSkeleton()
-        score.frame.size.width = 60
-        score.didUpdateSkeletonLayout()
-        score.didDisappearSkeleton()
-        for (rate, rating) in [(AccountScoreRate.high, 5.0), (.medium, 2.5), (.low, 0.0)] {
-            score.bind(score: 42, rate: rate)
-            XCTAssertEqual(score.starView.text, "42")
-            XCTAssertEqual(score.starView.rating, rating)
-        }
-        score.bindEmptyViewModel()
-        XCTAssertEqual(score.starView.text, "42", "An existing rating is retained when empty state is requested")
-        score.bounds = CGRect(x: 0, y: 0, width: 20, height: 20)
-        XCTAssertTrue(score.point(inside: CGPoint(x: -5, y: 10), with: nil), "A small control's touch target extends to 44 points")
-        XCTAssertFalse(score.point(inside: CGPoint(x: -50, y: 10), with: nil))
     }
 }

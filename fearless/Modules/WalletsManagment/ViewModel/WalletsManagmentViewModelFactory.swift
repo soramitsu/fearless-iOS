@@ -1,7 +1,6 @@
 import Foundation
 import SoraFoundation
 import SSFModels
-import SoraKeystore
 
 protocol WalletsManagmentViewModelFactoryProtocol {
     func buildViewModel(
@@ -14,14 +13,9 @@ protocol WalletsManagmentViewModelFactoryProtocol {
 
 final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryProtocol {
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
-    private let accountScoreFetcher: AccountStatisticsFetching
 
-    init(
-        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
-        accountScoreFetcher: AccountStatisticsFetching
-    ) {
+    init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
-        self.accountScoreFetcher = accountScoreFetcher
     }
 
     func buildViewModel(
@@ -41,23 +35,12 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 isSelected = selectedWalletId == nil ? false : managedMetaAccount.info.metaId == selectedWalletId
             }
 
-            let address = managedMetaAccount.info.ethereumAddress?.toHex(includePrefix: true)
-            let accountScoreViewModel = AccountScoreViewModel(
-                fetcher: accountScoreFetcher,
-                address: address,
-                chain: nil,
-                settings: SettingsManager.shared,
-                eventCenter: EventCenter.shared,
-                logger: Logger.shared
-            )
-
             guard let walletBalance = balances[key] else {
                 return WalletsManagmentCellViewModel(
                     isSelected: isSelected,
                     walletName: managedMetaAccount.info.name,
                     fiatBalance: nil,
-                    dayChange: nil,
-                    accountScoreViewModel: accountScoreViewModel
+                    dayChange: nil
                 )
             }
 
@@ -75,8 +58,7 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                     isSelected: isSelected,
                     walletName: managedMetaAccount.info.name,
                     fiatBalance: fiatBalance,
-                    dayChange: nil,
-                    accountScoreViewModel: accountScoreViewModel
+                    dayChange: nil
                 )
             }
 
@@ -94,7 +76,6 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 walletName: managedMetaAccount.info.name,
                 fiatBalance: totalFiatValue,
                 dayChange: dayChange,
-                accountScoreViewModel: accountScoreViewModel,
                 balanceCaption: walletBalance.allHoldingsCaption
             )
             return viewModel

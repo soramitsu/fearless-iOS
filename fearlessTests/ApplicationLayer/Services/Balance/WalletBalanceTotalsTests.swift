@@ -420,8 +420,7 @@ final class WalletBalanceTotalsTests: XCTestCase {
         let balances = try XCTUnwrap(WalletBalanceBuilder().buildBalance(for: accountInfos, [wallet], [hidden]))
 
         let cards = WalletsManagmentViewModelFactory(
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
-            accountScoreFetcher: AccountStatisticsFetchingStub()
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
         ).buildViewModel(
             viewType: .wallets,
             from: [ManagedMetaAccountModel(info: wallet)],
@@ -972,17 +971,5 @@ enum PortfolioTestCopy {
 
     static func text(_ key: String, _ arguments: CVarArg...) -> String {
         String(format: NSLocalizedString(key, comment: ""), arguments: arguments)
-    }
-}
-
-private final class AccountStatisticsFetchingStub: AccountStatisticsFetching {
-    func subscribeForStatistics(
-        address _: String
-    ) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? {
-        nil
     }
 }

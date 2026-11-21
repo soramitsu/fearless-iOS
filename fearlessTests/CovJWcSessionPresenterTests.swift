@@ -62,9 +62,7 @@ enum CovJWcSessionFixture {
         WalletConnectSessionViewModelFactoryImpl(
             session: session,
             verification: verification,
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
-            accountScoreFetcher: CovJWcStatisticsStub(),
-            settings: InMemorySettingsManager()
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
         )
     }
 
@@ -279,7 +277,6 @@ final class CovJWcSessionViewModelFactoryTests: XCTestCase {
         XCTAssertNil(model.walletViewModel.fiatBalance)
         XCTAssertNil(model.walletViewModel.dayChange)
         XCTAssertNil(model.walletViewModel.balanceCaption)
-        XCTAssertEqual(model.walletViewModel.accountScoreViewModel?.address, wallet.ethereumAddress?.toHex(includePrefix: true))
         XCTAssertEqual(model.messagePreview, "Sign in to Uniswap")
     }
 

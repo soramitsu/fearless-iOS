@@ -152,8 +152,6 @@ struct CovHSendViewModelFactoryStub: SendViewModelFactoryProtocol {
     func buildNetworkViewModel(chain: ChainModel, canEdit: Bool) -> SelectNetworkViewModel {
         SelectNetworkViewModel(chainName: chain.name, iconViewModel: nil, canEdit: canEdit)
     }
-
-    func buildAccountScoreViewModel(address _: String?, chain _: ChainModel) -> AccountScoreViewModel? { nil }
 }
 
 final class CovHSendViewSpy: UIViewController, SendViewInput {
@@ -188,7 +186,7 @@ final class CovHSendViewSpy: UIViewController, SendViewInput {
     func didStopFeeCalculation() { feeStops += 1 }
     func didStopTipCalculation() { tipStops += 1 }
     func didReceive(viewModel: RecipientViewModel) { recipients.append(viewModel) }
-    func didReceive(accountScoreViewModel _: AccountScoreViewModel?) {}
+    func didReceive(recipientAddress _: String) {}
     func didBlockUserInteractive(isUserInteractiveAmount: Bool) { blocked.append(isUserInteractiveAmount) }
     func setInputAccessoryView(visible _: Bool) {}
     func setHistoryButton(isVisible _: Bool) {}

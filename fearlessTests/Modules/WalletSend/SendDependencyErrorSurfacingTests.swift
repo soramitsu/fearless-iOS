@@ -1364,10 +1364,6 @@ private struct SendViewModelFactoryStub: SendViewModelFactoryProtocol {
     func buildNetworkViewModel(chain: ChainModel, canEdit: Bool) -> SelectNetworkViewModel {
         SelectNetworkViewModel(chainName: chain.name, iconViewModel: nil, canEdit: canEdit)
     }
-
-    func buildAccountScoreViewModel(address _: String?, chain _: ChainModel) -> AccountScoreViewModel? {
-        nil
-    }
 }
 
 private final class SendViewStub: UIViewController, SendViewInput {
@@ -1405,7 +1401,7 @@ private final class SendViewStub: UIViewController, SendViewInput {
     func didStopFeeCalculation() {}
     func didStopTipCalculation() {}
     func didReceive(viewModel _: RecipientViewModel) {}
-    func didReceive(accountScoreViewModel _: AccountScoreViewModel?) {}
+    func didReceive(recipientAddress _: String) {}
     func didBlockUserInteractive(isUserInteractiveAmount _: Bool) {}
     func setInputAccessoryView(visible _: Bool) {}
     func setHistoryButton(isVisible _: Bool) {}
@@ -4052,15 +4048,11 @@ extension SendDependencyErrorSurfacingTests {
             prepareDependencies: { _ in try await dependencies.wait() }
         )
         let router = SendRouterSpy()
-        let settings = InMemorySettingsManager()
-        settings.accountScoreEnabled = true
         let presenter = SendPresenter(
             interactor: interactor,
             router: router,
             localizationManager: LocalizationManager.shared,
-            viewModelFactory: SendViewModelFactory(
-                iconGenerator: UniversalIconGenerator(), accountScoreFetcher: SendScamWarningScoreFetcher(), settings: settings
-            ),
+            viewModelFactory: SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
             dataValidatingFactory: SendDataValidatingFactory(presentable: router),
             wallet: wallet,
             initialData: .chainAsset(asset),
@@ -4179,17 +4171,6 @@ private final class SendScamWarningDependencyGate {
         pending.removeAll()
         continuations.forEach { $0.resume(throwing: CancellationError()) }
     }
-}
-
-private struct SendScamWarningScoreFetcher: AccountStatisticsFetching {
-    func subscribeForStatistics(address: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { continuation in
-            continuation.yield(AccountStatisticsResponse(data: AccountStatistics(score: 0.8, address: address, stats: nil)))
-            continuation.finish()
-        }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? { nil }
 }
 
 private extension SendInteractorStub {

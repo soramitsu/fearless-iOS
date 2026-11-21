@@ -20,7 +20,6 @@ protocol WalletMainContainerViewOutput: AnyObject {
     func didTapSelectNetwork()
     func didTapOnBalance()
     func addressDidCopied()
-    func didTapAccountScore()
     func didTapHomeAction(_ action: WalletHomeAction)
 }
 
@@ -52,7 +51,7 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceive(syncUpdate: WalletSyncUpdate)
 }
 
-protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable, AccountScorePresentable {
+protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?

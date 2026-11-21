@@ -87,11 +87,6 @@ extension WalletOptionPresenter: WalletOptionViewOutput {
         askAndPerformRemoveWallet()
     }
 
-    func accountScoreDidTap() {
-        let address = wallet.info.ethereumAddress?.toHex(includePrefix: true)
-        router.presentAccountScore(address: address, from: view)
-    }
-
     func didLoad(view: WalletOptionViewInput) {
         self.view = view
         interactor.setup(with: self)

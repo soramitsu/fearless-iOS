@@ -338,21 +338,18 @@ final class IrohaConnectReleasePolicyTests: XCTestCase {
         policy: IrohaConnectReleasePolicy? = nil
     ) -> ProfileViewModelFactory {
         let settings = InMemorySettingsManager()
-        let fetcher = AccountStatisticsFetcherStub()
         if let policy {
             return ProfileViewModelFactory(
                 iconGenerator: UniversalIconGenerator(),
                 biometry: BiometryStub(),
                 settings: settings,
-                accountScoreFetcher: fetcher,
                 irohaConnectPolicy: policy
             )
         }
         return ProfileViewModelFactory(
             iconGenerator: UniversalIconGenerator(),
             biometry: BiometryStub(),
-            settings: settings,
-            accountScoreFetcher: fetcher
+            settings: settings
         )
     }
 
@@ -439,18 +436,6 @@ private struct BiometryStub: BiometryAuthProtocol {
         completionQueue.async {
             completionBlock(false)
         }
-    }
-}
-
-private struct AccountStatisticsFetcherStub: AccountStatisticsFetching {
-    func subscribeForStatistics(
-        address _: String
-    ) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? {
-        nil
     }
 }
 

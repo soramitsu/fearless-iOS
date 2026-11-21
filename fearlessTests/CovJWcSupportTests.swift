@@ -185,14 +185,6 @@ final class CovJWcBalanceAdapterStub: WalletBalanceSubscriptionAdapterProtocol {
     func unsubscribe(listener _: WalletBalanceSubscriptionListener) {}
 }
 
-final class CovJWcStatisticsStub: AccountStatisticsFetching {
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? { nil }
-}
-
 /// An icon that records where it was asked to load instead of fetching anything.
 final class CovJWcImageStub: ImageViewModelProtocol {
     private(set) var loads: [UIImageView] = []

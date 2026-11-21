@@ -339,7 +339,6 @@ final class FWArrivalTests: XCTestCase {
             iconGenerator: UniversalIconGenerator(),
             biometry: FeelBiometryStub(),
             settings: InMemorySettingsManager(),
-            accountScoreFetcher: FeelStatisticsStub(),
             feedbackSettings: feedbackSettings
         )
         let viewModel = factory.createProfileViewModel(
@@ -368,16 +367,6 @@ private struct FeelBiometryStub: BiometryAuthProtocol {
 
     func authenticate(localizedReason _: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void) {
         completionQueue.async { completionBlock(false) }
-    }
-}
-
-private struct FeelStatisticsStub: AccountStatisticsFetching {
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? {
-        nil
     }
 }
 

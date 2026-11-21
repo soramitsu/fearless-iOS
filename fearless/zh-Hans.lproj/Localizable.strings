@@ -72,19 +72,6 @@
 "account.needed.message" = "您还没有此网络的账户，您可以创建或导入一个账户。";
 "account.needed.title" = "所需账户";
 "account.option" = "账户选项";
-"account.stats.avg.transaction.time.title" = "Avg. transaction time";
-"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
-"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
-"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
-"account.stats.max.transaction.time.title" = "Max transaction time";
-"account.stats.min.transactions.time.title" = "Min transaction time";
-"account.stats.native.balance.usd.title" = "Native balance USD";
-"account.stats.rejected.transactions.title" = "Rejected transactions";
-"account.stats.title" = "Your score";
-"account.stats.total.transactions.title" = "Total transactions";
-"account.stats.updated.title" = "Updated";
-"account.stats.wallet.age.title" = "Wallet age";
-"account.stats.wallet.option.title" = "Show wallet score";
 "account.template" = "%s账户";
 "account.unique.secret" = "拥有独特密钥的账户";
 "accounts.add.account" = "添加一个账户";
@@ -719,7 +706,6 @@
 "pools.limit.has.reached.error.message" = "这个网络的池子数量已经达到了上限";
 "pools.limit.has.reached.error.title" = "你不能创建更多的池子";
 "profile.about.title" = "关于";
-"profile.account.score.title" = "Nomis multichain score";
 "profile.accounts.title" = "账户";
 "profile.language.title" = "语言";
 "profile.logout.description" = "此操作将导致删除该设备上的所有账户。在继续之前，请确保已备份您的密码短语。";

@@ -60,7 +60,7 @@ final class CovHWalletMainFactory: WalletMainContainerViewModelFactoryProtocol {
         chains.append(selectedChains)
         wallets.append(selectedMetaAccount)
         return WalletMainContainerViewModel(
-            walletName: selectedMetaAccount.name, selectedFilter: "filter", selectedFilterImage: nil, address: nil, accountScoreViewModel: nil
+            walletName: selectedMetaAccount.name, selectedFilter: "filter", selectedFilterImage: nil, address: nil
         )
     }
 }
@@ -113,7 +113,6 @@ final class CovHWalletMainRouter: WalletMainContainerRouterInput {
     var assets: [ChainAsset] = []
     var sheets: [SheetAlertPresentableViewModel] = []
     var errors: [Error] = []
-    var scoreAddress: String?
     var statusCount = 0
     func showWalletManagment(from view: WalletMainContainerViewInput?, moduleOutput: WalletsManagmentModuleOutput?) { calls.append("wallets") }
     func showScanQr(from view: WalletMainContainerViewInput?, moduleOutput: ScanQRModuleOutput) { calls.append("qr") }
@@ -142,7 +141,6 @@ final class CovHWalletMainRouter: WalletMainContainerRouterInput {
     func showImportWallet(defaultSource: AccountImportSource, from view: ControllerBackedProtocol?) { calls.append("import") }
     func showBackupSelectWallet(from view: ControllerBackedProtocol?) { calls.append("backup") }
     func showGetPreinstalledWallet(from view: ControllerBackedProtocol?) { calls.append("preinstalled") }
-    func presentAccountScore(address: String?, from view: ControllerBackedProtocol?) { calls.append("score"); scoreAddress = address }
     func presentStatus(with viewModel: ApplicationStatusAlertEvent, animated: Bool) { statusCount += 1 }
     func present(error: Error, from view: ControllerBackedProtocol?, locale: Locale?) -> Bool { errors.append(error); return true }
     func present(viewModel: SheetAlertPresentableViewModel, from view: ControllerBackedProtocol?) { sheets.append(viewModel) }

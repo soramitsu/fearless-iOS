@@ -63,16 +63,11 @@ enum ContactsAssembly {
         )
         let router = ContactsRouter()
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
         let presenter = ContactsPresenter(
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            viewModelFactory: AddressBookViewModelFactory(
-                accountScoreFetcher: accountScoreFetcher,
-                chain: source.chain,
-                settings: SettingsManager.shared
-            ),
+            viewModelFactory: AddressBookViewModelFactory(),
             moduleOutput: moduleOutput,
             source: source,
             wallet: wallet

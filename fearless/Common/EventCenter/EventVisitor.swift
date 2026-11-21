@@ -28,7 +28,6 @@ protocol EventVisitorProtocol: AnyObject {
     func processRemoteAccountInfoUpdated(event: RemoteAccountInfoUpdatedEvent)
     func processChainsSetupCompleted()
     func processLogout()
-    func processAccountScoreSettingsChanged()
     func processPricesUpdated()
     func processAssetVisibilityPreferenceChanged(event: AssetVisibilityPreferenceChangedEvent)
     func processPolkamarktDeepLinkRequested(event: PolkamarktDeepLinkRequested)
@@ -63,7 +62,6 @@ extension EventVisitorProtocol {
     func processRemoteAccountInfoUpdated(event _: RemoteAccountInfoUpdatedEvent) {}
     func processChainsSetupCompleted() {}
     func processLogout() {}
-    func processAccountScoreSettingsChanged() {}
     func processPricesUpdated() {}
     func processAssetVisibilityPreferenceChanged(event _: AssetVisibilityPreferenceChangedEvent) {}
     func processPolkamarktDeepLinkRequested(event _: PolkamarktDeepLinkRequested) {}

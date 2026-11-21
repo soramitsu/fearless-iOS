@@ -97,7 +97,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .currency:
             guard let selectedWallet = selectedWallet else { return }
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
-        case .biometry, .accountScore, .soundEffects, .hapticFeedback:
+        case .biometry, .soundEffects, .hapticFeedback:
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
@@ -137,11 +137,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             }
             // The switch shows the stored setting, which stays off until the PIN is confirmed.
             receiveState()
-        case .accountScore:
-            settings.accountScoreEnabled = isOn
-
-            let event = AccountScoreSettingsChanged()
-            eventCenter.notify(with: event)
         case .soundEffects:
             FWFeedbackSettings.shared.soundEnabled = isOn
         case .hapticFeedback:
@@ -187,10 +182,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         )
 
         wireframe.present(viewModel: viewModel, from: view)
-    }
-
-    func didTapAccountScore(address: String?) {
-        wireframe.presentAccountScore(address: address, from: view)
     }
 }
 

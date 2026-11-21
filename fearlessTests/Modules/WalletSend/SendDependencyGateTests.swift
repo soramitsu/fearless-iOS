@@ -2175,11 +2175,7 @@ private final class LocalSendScreens {
             interactor: interactor,
             router: router,
             localizationManager: LocalizationManager.shared,
-            viewModelFactory: SendViewModelFactory(
-                iconGenerator: UniversalIconGenerator(),
-                accountScoreFetcher: NoAccountStatistics(),
-                settings: SettingsManager.shared
-            ),
+            viewModelFactory: SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
             dataValidatingFactory: dataValidatingFactory,
             logger: Logger.shared,
             wallet: wallet,
@@ -2378,16 +2374,6 @@ private struct NoAccountInfoFetching: AccountInfoFetchingProtocol {
 
 private struct NoScamInfo: ScamInfoFetching {
     func fetch(address _: String, chain _: ChainModel) async throws -> ScamInfo? {
-        nil
-    }
-}
-
-private struct NoAccountStatistics: AccountStatisticsFetching {
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? {
         nil
     }
 }

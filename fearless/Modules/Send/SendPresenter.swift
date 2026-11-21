@@ -409,10 +409,9 @@ final class SendPresenter {
     }
 
     private func handle(newAddress: String) {
-        if let chainAsset = selectedChainAsset {
-            let accountScoreViewModel = viewModelFactory.buildAccountScoreViewModel(address: newAddress, chain: chainAsset.chain)
+        if selectedChainAsset != nil {
             DispatchQueue.main.async {
-                self.view?.didReceive(accountScoreViewModel: accountScoreViewModel)
+                self.view?.didReceive(recipientAddress: newAddress)
             }
         }
 

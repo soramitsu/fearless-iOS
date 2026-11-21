@@ -3,7 +3,6 @@ import FearlessWalletConnect
 import SoraFoundation
 import SSFModels
 import SSFUtils
-import SoraKeystore
 
 protocol WalletConnectSessionViewModelFactory {
     func buildViewModel(
@@ -17,21 +16,15 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
     private let session: Session?
     private let verification: WalletConnectVerification
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
-    private let accountScoreFetcher: AccountStatisticsFetching
-    private let settings: SettingsManagerProtocol
 
     init(
         session: Session?,
         verification: WalletConnectVerification,
-        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
-        accountScoreFetcher: AccountStatisticsFetching,
-        settings: SettingsManagerProtocol
+        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
     ) {
         self.session = session
         self.verification = verification
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
-        self.accountScoreFetcher = accountScoreFetcher
-        self.settings = settings
     }
 
     func buildViewModel(
@@ -82,23 +75,12 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         balanceInfo: WalletBalanceInfos?,
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = AccountScoreViewModel(
-            fetcher: accountScoreFetcher,
-            address: address,
-            chain: nil,
-            settings: settings,
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
-        )
-
         guard let balance = balanceInfo?[wallet.metaId] else {
             return WalletsManagmentCellViewModel(
                 isSelected: false,
                 walletName: wallet.name,
                 fiatBalance: nil,
-                dayChange: nil,
-                accountScoreViewModel: accountScoreViewModel
+                dayChange: nil
             )
         }
         let balanceTokenFormatterValue = tokenFormatter(
@@ -121,7 +103,6 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
             walletName: wallet.name,
             fiatBalance: totalFiatValue,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel,
             balanceCaption: balance.allHoldingsCaption
         )
 

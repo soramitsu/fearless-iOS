@@ -718,7 +718,6 @@ private final class IPadProfilePresenterSpy: ProfilePresenterProtocol {
 
     func logout() {}
     func switcherValueChanged(isOn _: Bool, index _: Int) {}
-    func didTapAccountScore(address _: String?) {}
 }
 
 private enum IPadProfileFixture {
@@ -726,8 +725,7 @@ private enum IPadProfileFixture {
         ProfileViewModelFactory(
             iconGenerator: UniversalIconGenerator(),
             biometry: IPadBiometryStub(),
-            settings: InMemorySettingsManager(),
-            accountScoreFetcher: IPadAccountStatisticsStub()
+            settings: InMemorySettingsManager()
         ).createProfileViewModel(
             from: AccountGenerator.generateMetaAccount(),
             locale: Locale(identifier: "en"),
@@ -750,18 +748,6 @@ private struct IPadBiometryStub: BiometryAuthProtocol {
         completionQueue.async {
             completionBlock(false)
         }
-    }
-}
-
-private struct IPadAccountStatisticsStub: AccountStatisticsFetching {
-    func subscribeForStatistics(
-        address _: String
-    ) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? {
-        nil
     }
 }
 

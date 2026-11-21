@@ -13,7 +13,6 @@ protocol WalletsManagmentViewOutput: AnyObject {
     func didTapOptions(for indexPath: IndexPath)
     func didTapClose()
     func didTap(on indexPath: IndexPath)
-    func didTapAccountScore(address: String?)
     func didTapRecordsNotice()
 }
 
@@ -32,7 +31,7 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
     func didReceiveWalletRecordsReport(_ report: StoredWalletRecordsReport)
 }
 
-protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable, AccountScorePresentable {
+protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable {
     func showOptions(
         from view: WalletsManagmentViewInput?,
         metaAccount: ManagedMetaAccountModel,

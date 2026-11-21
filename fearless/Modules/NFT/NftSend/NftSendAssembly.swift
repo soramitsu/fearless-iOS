@@ -50,7 +50,6 @@ enum NftSendAssembly {
             )
             let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory, selectedMetaAccount: wallet)
 
-            let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
             let scamInfoFetcher = ScamInfoFetcher(scamServiceOperationFactory: scamServiceOperationFactory)
             let interactor = NftSendInteractor(
                 transferService: transferService,
@@ -71,12 +70,7 @@ enum NftSendAssembly {
                 nft: nft,
                 wallet: wallet,
                 logger: Logger.shared,
-                viewModelFactory:
-                SendViewModelFactory(
-                    iconGenerator: UniversalIconGenerator(),
-                    accountScoreFetcher: accountStatisticsFetcher,
-                    settings: SettingsManager.shared
-                ),
+                viewModelFactory: SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
                 dataValidatingFactory: dataValidatingFactory
             )
 

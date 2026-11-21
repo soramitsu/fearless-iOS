@@ -28,13 +28,10 @@ final class CovJContactsInteractor: ContactsInteractorInput {
 final class CovJContactsRouter: CovJSheetSpy, ContactsRouterInput {
     var dismissals = 0
     var creations: [(String?, String)] = []
-    var scores: [String?] = []
     func dismiss(view _: ControllerBackedProtocol?) { dismissals += 1 }
     func createContact(address: String?, chain: ChainModel, output _: CreateContactModuleOutput, view _: ControllerBackedProtocol?) {
         creations.append((address, chain.chainId))
     }
-
-    func presentAccountScore(address: String?, from _: ControllerBackedProtocol?) { scores.append(address) }
 }
 
 final class CovJContactsModuleOutput: ContactsModuleOutput {
@@ -51,14 +48,6 @@ final class CovJContactsViewOutput: ContactsViewOutput {
     func didTapBackButton() { backs += 1 }
     func didTapCreateButton() { creates += 1 }
     func didSelect(address: String) { selected.append(address) }
-}
-
-final class CovJStatisticsFetcher: AccountStatisticsFetching {
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? { nil }
 }
 
 final class CovJHistoryFactory: HistoryOperationFactoryProtocol {
@@ -95,17 +84,12 @@ final class CovJHistoryFactory: HistoryOperationFactoryProtocol {
 final class CovJContactsTests: XCTestCase {
     private let locale = CovJFixture.locale
 
-    private func factory(chain: ChainModel) -> AddressBookViewModelFactory {
-        AddressBookViewModelFactory(accountScoreFetcher: CovJStatisticsFetcher(), chain: chain, settings: InMemorySettingsManager())
-    }
-
     func testFactoryGroupsSavedContactsByLetterAfterRecentSection() {
-        let chain = CovJFixture.chain(id: "contacts")
         let delegate = CovJContactsCellDelegate()
         let alice = Contact(name: "Alice", address: "addr-alice", chainId: "contacts")
         let anna = Contact(name: "anna", address: "addr-anna", chainId: "contacts")
         let bob = Contact(name: "Bob", address: "addr-bob", chainId: "contacts")
-        let sections = factory(chain: chain).buildCellViewModels(
+        let sections = AddressBookViewModelFactory().buildCellViewModels(
             savedContacts: [bob, alice, anna],
             recentContacts: [.saved(alice), .unsaved("addr-stranger")],
             cellsDelegate: delegate,
@@ -121,17 +105,13 @@ final class CovJContactsTests: XCTestCase {
 
         let cell = try? XCTUnwrap(sections.first?.cellViewModels.last)
         cell?.didTapAddButton()
-        cell?.didTapAccountScore()
         XCTAssertEqual(delegate.added, ["addr-stranger"])
-        XCTAssertEqual(delegate.scored, ["addr-stranger"])
-        XCTAssertNotNil(cell?.accountScoreViewModel)
     }
 
     func testFactoryReturnsNothingWithoutContactsAndDropsEmptyRecentSection() {
-        let chain = CovJFixture.chain(id: "contacts")
         let delegate = CovJContactsCellDelegate()
-        XCTAssertTrue(factory(chain: chain).buildCellViewModels(savedContacts: [], recentContacts: [], cellsDelegate: delegate, locale: locale).isEmpty)
-        let sections = factory(chain: chain).buildCellViewModels(
+        XCTAssertTrue(AddressBookViewModelFactory().buildCellViewModels(savedContacts: [], recentContacts: [], cellsDelegate: delegate, locale: locale).isEmpty)
+        let sections = AddressBookViewModelFactory().buildCellViewModels(
             savedContacts: [Contact(name: "Zed", address: "z", chainId: "contacts")],
             recentContacts: [],
             cellsDelegate: delegate,
@@ -151,7 +131,7 @@ final class CovJContactsTests: XCTestCase {
             interactor: interactor,
             router: router,
             localizationManager: LocalizationManager.shared,
-            viewModelFactory: factory(chain: chainAsset.chain),
+            viewModelFactory: AddressBookViewModelFactory(),
             moduleOutput: moduleOutput,
             source: .token(chainAsset: chainAsset),
             wallet: AccountGenerator.generateMetaAccount()
@@ -173,9 +153,6 @@ final class CovJContactsTests: XCTestCase {
         presenter.addContact(address: "new-address")
         XCTAssertEqual(router.creations.map(\.0), [nil, "new-address"])
         XCTAssertTrue(router.creations.allSatisfy { $0.1 == chainAsset.chain.chainId })
-
-        presenter.didTapAccountScore(address: "scored")
-        XCTAssertEqual(router.scores, ["scored"])
 
         let contact = Contact(name: "Dave", address: "d", chainId: chainAsset.chain.chainId)
         presenter.didCreate(contact: contact)
@@ -269,8 +246,7 @@ final class CovJContactsTests: XCTestCase {
         controller.didReceive(sections: [])
         XCTAssertFalse(layout.emptyView.isHidden)
 
-        let chain = CovJFixture.chain(id: "vc")
-        let sections = factory(chain: chain).buildCellViewModels(
+        let sections = AddressBookViewModelFactory().buildCellViewModels(
             savedContacts: [Contact(name: "Erin", address: "erin-address", chainId: "vc")],
             recentContacts: [.unsaved("recent-address")],
             cellsDelegate: CovJContactsCellDelegate(),
@@ -313,9 +289,7 @@ final class CovJContactsTests: XCTestCase {
 
 final class CovJContactsCellDelegate: ContactTableCellModelDelegate {
     var added: [String] = []
-    var scored: [String] = []
     func addContact(address: String) { added.append(address) }
-    func didTapAccountScore(address: String) { scored.append(address) }
 }
 
 final class CovJContactsInteractorOutput: ContactsInteractorOutput {

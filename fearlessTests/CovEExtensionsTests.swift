@@ -277,11 +277,6 @@ extension CovEExtensionsTests {
         XCTAssertTrue(settings.shouldRunManageAssetAnimate)
         settings.shouldRunManageAssetAnimate = false
         XCTAssertFalse(settings.shouldRunManageAssetAnimate, "Any stored value means the animation already ran")
-        XCTAssertEqual(settings.accountScoreEnabled, true)
-        settings.accountScoreEnabled = false
-        XCTAssertEqual(settings.accountScoreEnabled, false)
-        settings.accountScoreEnabled = nil
-        XCTAssertEqual(settings.accountScoreEnabled, true)
         settings.acknowledgedRecordsNotShown = "hash"
         XCTAssertEqual(settings.acknowledgedRecordsNotShown, "hash")
         settings.acknowledgedRecordsNotShown = nil

@@ -21,12 +21,10 @@ final class CovJMxOptionRouter: CovJSheetSpy, WalletOptionRouterInput {
     var details: [MetaAccountModel] = []
     var exports: [ManagedMetaAccountModel] = []
     var renames: [MetaAccountModel] = []
-    var scores: [String?] = []
     var dismissals = 0
     func showWalletDetails(from _: ControllerBackedProtocol?, for wallet: MetaAccountModel) { details.append(wallet) }
     func showExportWallet(from _: ControllerBackedProtocol?, wallet: ManagedMetaAccountModel) { exports.append(wallet) }
     func showChangeWalletName(from _: ControllerBackedProtocol?, for wallet: MetaAccountModel) { renames.append(wallet) }
-    func presentAccountScore(address: String?, from _: ControllerBackedProtocol?) { scores.append(address) }
     func dismiss(view _: ControllerBackedProtocol?) { dismissals += 1 }
 }
 
@@ -66,7 +64,6 @@ final class CovJMxOptionViewOutput: WalletOptionViewOutput {
     func exportWalletDidTap() { events.append("export") }
     func deleteWalletDidTap() { events.append("delete") }
     func changeWalletNameDidTap() { events.append("rename") }
-    func accountScoreDidTap() { events.append("score") }
 }
 
 final class CovJMxWalletOptionPresenterTests: XCTestCase {
@@ -94,12 +91,10 @@ final class CovJMxWalletOptionPresenterTests: XCTestCase {
         presenter.walletDetailsDidTap()
         presenter.exportWalletDidTap()
         presenter.changeWalletNameDidTap()
-        presenter.accountScoreDidTap()
 
         XCTAssertEqual(router.details.map(\.metaId), [wallet.info.metaId])
         XCTAssertEqual(router.exports, [wallet])
         XCTAssertEqual(router.renames.map(\.metaId), [wallet.info.metaId])
-        XCTAssertEqual(router.scores, [wallet.info.ethereumAddress?.toHex(includePrefix: true)])
     }
 
     func testInteractorOutputsReachTheViewAndRouterOnMain() throws {
@@ -268,9 +263,8 @@ final class CovJMxWalletOptionViewTests: XCTestCase {
         layout.backupWalletButton.sendActions(for: .touchUpInside)
         layout.deleteWalletButton.sendActions(for: .touchUpInside)
         layout.changeWalletNameButton.sendActions(for: .touchUpInside)
-        layout.accountScoreButton.sendActions(for: .touchUpInside)
 
-        XCTAssertEqual(output.events, ["load", "details", "export", "delete", "rename", "score"])
+        XCTAssertEqual(output.events, ["load", "details", "export", "delete", "rename"])
 
         controller.setDeleteButtonIsVisible(false)
         XCTAssertTrue(layout.deleteWalletButton.isHidden)

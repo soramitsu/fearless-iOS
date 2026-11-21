@@ -85,7 +85,7 @@ enum CovJBkFixture {
     static func profileViewModel(name: String = "Backup wallet", options: [String]) -> ProfileViewModel {
         ProfileViewModel(
             profileUserViewModel: WalletsManagmentCellViewModel(
-                isSelected: false, walletName: name, fiatBalance: "$1.00", dayChange: nil, accountScoreViewModel: nil
+                isSelected: false, walletName: name, fiatBalance: "$1.00", dayChange: nil
             ),
             profileOptionViewModel: options.map {
                 ProfileOptionViewModel(title: $0, icon: nil, accessoryTitle: nil, accessoryImage: nil, accessoryType: .arrow, option: nil)
@@ -108,14 +108,6 @@ class CovJBkLoadableView {
 
     func didStartLoading() { starts += 1 }
     func didStopLoading() { stops += 1 }
-}
-
-final class CovJBkStatisticsFetcher: AccountStatisticsFetching {
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? { nil }
 }
 
 final class CovJBkEventCenter: EventCenterProtocol {

@@ -62,7 +62,7 @@ final class ProfileViewController: UIViewController, ViewHolder, AdaptiveFullWid
             case .security:
                 return [.changePincode, .biometry]
             case .preferences:
-                return [.currency, .language, .polkaswapDisclaimer, .accountScore, .soundEffects, .hapticFeedback]
+                return [.currency, .language, .polkaswapDisclaimer, .soundEffects, .hapticFeedback]
             case .advanced:
                 return [.previousData, .emergencyMaterial]
             case .about:
@@ -345,9 +345,5 @@ extension ProfileViewController: Localizable {
 extension ProfileViewController: WalletsManagmentTableCellDelegate {
     func didTapOptionsCell(with _: IndexPath?) {
         presenter.activateAccountDetails()
-    }
-
-    func didTapAccountScore(address: String?) {
-        presenter.didTapAccountScore(address: address)
     }
 }

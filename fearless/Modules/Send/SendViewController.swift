@@ -239,8 +239,8 @@ extension SendViewController: SendViewInput {
         updateActionButton()
     }
 
-    func didReceive(accountScoreViewModel: AccountScoreViewModel?) {
-        rootView.bind(accountScoreViewModel: accountScoreViewModel)
+    func didReceive(recipientAddress: String) {
+        rootView.bind(recipientAddress: recipientAddress)
         updateActionButton()
     }
 

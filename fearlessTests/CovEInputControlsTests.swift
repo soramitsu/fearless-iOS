@@ -100,7 +100,12 @@ final class CovEInputControlsTests: XCTestCase {
         view.textField.text = "0x1234"
         view.textField.sendActions(for: .editingChanged)
         XCTAssertTrue(view.sendPlaceholderLabel.isHidden)
-        view.bind(accountScoreViewModel: nil)
+        view.bind(address: nil)
+        XCTAssertFalse(view.sendPlaceholderLabel.isHidden)
+        view.bind(address: "0x5678")
+        XCTAssertEqual(view.textField.text, "0x5678")
+        XCTAssertTrue(view.sendPlaceholderLabel.isHidden)
+        view.bind(address: nil)
         XCTAssertFalse(view.sendPlaceholderLabel.isHidden)
         let count = view.subviews.count
         view.configureSendPresentation(locale: Locale(identifier: "ja"), traits: UITraitCollection(preferredContentSizeCategory: .large))

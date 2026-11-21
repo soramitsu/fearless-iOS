@@ -11,12 +11,11 @@ final class CovJWalletLayoutsTests: XCTestCase {
         let window = try CovJViewFixture.host(view)
         defer { window.isHidden = true }
         XCTAssertEqual(view.titleLabel.text, R.string.localizable.walletOptionsTitle(preferredLanguages: locale.rLanguages))
-        let buttons = [view.backupWalletButton, view.walletDetailsButton, view.changeWalletNameButton, view.accountScoreButton, view.deleteWalletButton]
+        let buttons = [view.backupWalletButton, view.walletDetailsButton, view.changeWalletNameButton, view.deleteWalletButton]
         XCTAssertEqual(buttons.map { $0.imageWithTitleView?.title }, [
             R.string.localizable.walletOptionsExport(preferredLanguages: locale.rLanguages),
             R.string.localizable.walletOptionsDetails(preferredLanguages: locale.rLanguages),
             R.string.localizable.backupWalletNameEditingTitle(preferredLanguages: locale.rLanguages),
-            R.string.localizable.accountStatsWalletOptionTitle(preferredLanguages: locale.rLanguages),
             R.string.localizable.walletOptionsDelete(preferredLanguages: locale.rLanguages)
         ])
         XCTAssertTrue(buttons.allSatisfy { $0.isDescendant(of: view) && $0.bounds.height > 0 })

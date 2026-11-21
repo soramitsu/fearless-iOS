@@ -61,7 +61,7 @@ final class CovJUiProfileFactory: ProfileViewModelFactoryProtocol {
         ))
         return ProfileViewModel(
             profileUserViewModel: WalletsManagmentCellViewModel(
-                isSelected: false, walletName: wallet.name, fiatBalance: nil, dayChange: nil, accountScoreViewModel: nil
+                isSelected: false, walletName: wallet.name, fiatBalance: nil, dayChange: nil
             ),
             profileOptionViewModel: [],
             logoutViewModel: ProfileOptionViewModel(
@@ -82,7 +82,6 @@ final class CovJUiProfileWireframe: CovJSheetSpy, ProfileWireframeProtocol {
     private(set) var networkWallets: [MetaAccountModel] = []
     private(set) var tonAccounts: [Bool] = []
     private(set) var importSources: [AccountImportSource] = []
-    private(set) var scoreAddresses: [String?] = []
 
     override func present(error: Error, from view: ControllerBackedProtocol?, locale: Locale?) -> Bool {
         _ = super.present(error: error, from: view, locale: locale)
@@ -116,15 +115,12 @@ final class CovJUiProfileWireframe: CovJSheetSpy, ProfileWireframeProtocol {
     func showImportWallet(defaultSource: AccountImportSource, from _: ControllerBackedProtocol?) { importSources.append(defaultSource) }
     func showBackupSelectWallet(from _: ControllerBackedProtocol?) { routes.append("backup") }
     func showGetPreinstalledWallet(from _: ControllerBackedProtocol?) { routes.append("preinstalled") }
-    func presentAccountScore(address: String?, from _: ControllerBackedProtocol?) { scoreAddresses.append(address) }
 }
 
 final class CovJUiProfileEvents: EventVisitorProtocol {
     private(set) var logouts = 0
-    private(set) var scoreChanges = 0
 
     func processLogout() { logouts += 1 }
-    func processAccountScoreSettingsChanged() { scoreChanges += 1 }
 }
 
 final class CovJUiProfileFixture {
@@ -283,7 +279,7 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         f.presenter.didReceive(wallet: wallet)
         let options: [ProfileOption] = [
             .accountList, .changePincode, .language, .polkaswapDisclaimer, .about, .walletConnect,
-            .biometry, .accountScore, .soundEffects, .hapticFeedback, .irohaConnect,
+            .biometry, .soundEffects, .hapticFeedback, .irohaConnect,
             .currency, .networkAssets, .tonConnect
         ]
         options.forEach { f.presenter.activateOption($0) }
@@ -324,7 +320,7 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         XCTAssertTrue(f.wireframe.sheets.isEmpty)
     }
 
-    func testSwitchersWriteSettingsAndAnnounceAccountScore() throws {
+    func testSwitchersWriteSettings() throws {
         let defaults = UserDefaults.standard
         let storedSound = defaults.object(forKey: FWFeedbackSettings.soundKey)
         let storedHaptics = defaults.object(forKey: FWFeedbackSettings.hapticsKey)
@@ -335,8 +331,6 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         }
 
         let f = try fixture()
-        let events = CovJUiProfileEvents()
-        f.eventCenter.add(observer: events, dispatchIn: .main)
 
         f.wireframe.biometryAnswers = [false]
         f.presenter.switcherValueChanged(isOn: true, index: Int(ProfileOption.biometry.rawValue))
@@ -344,9 +338,6 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         f.presenter.switcherValueChanged(isOn: true, index: Int(ProfileOption.biometry.rawValue))
         XCTAssertEqual(f.settings.biometryEnabled, true)
         XCTAssertEqual(f.wireframe.routes.filter { $0 == "biometryPin" }.count, 2)
-        f.presenter.switcherValueChanged(isOn: true, index: Int(ProfileOption.accountScore.rawValue))
-        XCTAssertEqual(f.settings.accountScoreEnabled, true)
-        XCTAssertTrue(CovJWait.until { events.scoreChanges == 1 })
 
         let sound = FWFeedbackSettings.shared.soundEnabled
         f.presenter.switcherValueChanged(isOn: !sound, index: Int(ProfileOption.soundEffects.rawValue))
@@ -357,7 +348,6 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         f.presenter.switcherValueChanged(isOn: false, index: Int(ProfileOption.walletConnect.rawValue))
         f.presenter.switcherValueChanged(isOn: false, index: 999)
         XCTAssertEqual(f.settings.biometryEnabled, true, "other rows change nothing")
-        XCTAssertEqual(f.settings.accountScoreEnabled, true)
     }
 
     func testLogoutAsksBeforeCheckingPincode() throws {
@@ -397,12 +387,9 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         XCTAssertEqual(f.wireframe.routes, ["logout", "close"])
     }
 
-    func testAccountScoreAndWalletManagementOutputsRoute() throws {
+    func testWalletManagementOutputsRoute() throws {
         let f = try fixture()
         f.presenter.didLoad(view: f.view)
-        f.presenter.didTapAccountScore(address: "0xscore")
-        f.presenter.didTapAccountScore(address: nil)
-        XCTAssertEqual(f.wireframe.scoreAddresses, ["0xscore", nil])
 
         f.presenter.showAddNewWallet()
         f.presenter.showImportWallet(defaultSource: .seed)

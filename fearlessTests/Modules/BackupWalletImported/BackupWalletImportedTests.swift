@@ -201,7 +201,7 @@ private final class BackupRecoveryViewModelFactory: BackupWalletViewModelFactory
         ProfileViewModel(
             profileUserViewModel: WalletsManagmentCellViewModel(
                 isSelected: false, walletName: wallet.name, fiatBalance: nil,
-                dayChange: nil, accountScoreViewModel: nil
+                dayChange: nil
             ),
             profileOptionViewModel: [],
             logoutViewModel: ProfileOptionViewModel(

@@ -26,7 +26,6 @@ enum ProfileOption: UInt, CaseIterable {
     case changePincode
     case biometry
     case about
-    case accountScore
     case networkAssets
     case tonConnect
     case irohaConnect
@@ -43,7 +42,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private let biometry: BiometryAuthProtocol
     private let settings: SettingsManagerProtocol
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
-    private let accountScoreFetcher: AccountStatisticsFetching
     private let irohaConnectPolicy: IrohaConnectReleasePolicy
     private let feedbackSettings: FWFeedbackSettings
 
@@ -53,7 +51,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         iconGenerator: IconGenerating,
         biometry: BiometryAuthProtocol,
         settings: SettingsManagerProtocol,
-        accountScoreFetcher: AccountStatisticsFetching,
         irohaConnectPolicy: IrohaConnectReleasePolicy = .production,
         feedbackSettings: FWFeedbackSettings = .shared
     ) {
@@ -61,7 +58,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         self.iconGenerator = iconGenerator
         self.biometry = biometry
         self.settings = settings
-        self.accountScoreFetcher = accountScoreFetcher
         self.irohaConnectPolicy = irohaConnectPolicy
     }
 
@@ -121,15 +117,11 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             )
         }
 
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
-
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
             fiatBalance: fiatBalance,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel,
             balanceCaption: balance?.allHoldingsCaption
         )
     }
@@ -162,8 +154,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
-            case .accountScore:
-                return createAccountScoreViewModel(locale: locale)
             case .networkAssets:
                 return createNetworkAssetsViewModel()
             case .tonConnect:
@@ -367,17 +357,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .arrow,
             option: .currency
-        )
-    }
-
-    private func createAccountScoreViewModel(locale: Locale) -> ProfileOptionViewModel? {
-        ProfileOptionViewModel(
-            title: R.string.localizable.profileAccountScoreTitle(preferredLanguages: locale.rLanguages),
-            icon: R.image.iconProfleAccountScore(),
-            accessoryTitle: nil,
-            accessoryImage: nil,
-            accessoryType: .switcher(settings.accountScoreEnabled ?? false),
-            option: .accountScore
         )
     }
 

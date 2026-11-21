@@ -25,12 +25,8 @@ final class BackupWalletAssembly {
             operationManager: OperationManagerFacade.sharedManager
         )
         let router = BackupWalletRouter()
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerDefault(),
-            signer: NomisRequestSigner()
-        )
 
-        let viewModelFactory = BackupWalletViewModelFactory(accountScoreFetcher: accountScoreFetcher, settings: SettingsManager.shared)
+        let viewModelFactory = BackupWalletViewModelFactory()
         let presenter = BackupWalletPresenter(
             wallet: wallet,
             interactor: interactor,

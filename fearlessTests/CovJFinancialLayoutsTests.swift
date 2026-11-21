@@ -6,52 +6,6 @@ import SSFModels
 final class CovJFinancialLayoutsTests: XCTestCase {
     private let locale = Locale(identifier: "en_US")
 
-    func testStatisticsBindsValuesAndRating() throws {
-        let view = AccountStatisticsViewLayout()
-        view.locale = locale
-        let window = try CovJViewFixture.host(view)
-        defer { window.isHidden = true }
-        view.bind(viewModel: AccountStatisticsViewModel(
-            rating: 4.2, scoreLabelText: "84", rate: .high, addressViewText: "alice",
-            updatedLabelText: "Today", nativeBalanceUsdLabelText: "$10", holdTokensUsdLabelText: "$20",
-            walletAgeLabelText: "2 years", totalTransactionsLabelText: "42", rejectedTransactionsLabelText: "1",
-            avgTransactionTimeLabelText: "3 sec", maxTransactionTimeLabelText: "8 sec", minTransactionTimeLabelText: "1 sec"
-        ))
-        XCTAssertEqual(view.scoreLabel.text, "84")
-        XCTAssertEqual(view.ratingView.rating, 4.2)
-        XCTAssertEqual(view.ratingView.settings.filledColor, AccountScoreRate.high.color)
-        XCTAssertEqual(view.addressView.accessibilityValue, "alice")
-        let rows = [view.updatedView, view.nativeBalanceUsdView, view.holdTokensUsdView, view.walletAgeView,
-                    view.totalTransactionsView, view.rejectedTransactionsView, view.avgTransactionTimeView,
-                    view.maxTransactionTimeView, view.minTransactionTimeView]
-        XCTAssertEqual(rows.map { $0.valueLabel.text }, ["Today", "$10", "$20", "2 years", "42", "1", "3 sec", "8 sec", "1 sec"])
-        XCTAssertTrue(rows.allSatisfy { !$0.isHidden && $0.borderView.isHidden })
-        XCTAssertEqual(view.stackView.arrangedSubviews.count, 9)
-        XCTAssertEqual(view.closeButton.frame.height, 48, accuracy: 0.5)
-        XCTAssertEqual(view.topBar.titleLabel.text, R.string.localizable.accountStatsTitle(preferredLanguages: locale.rLanguages))
-        XCTAssertEqual(view.closeButton.imageWithTitleView?.title, R.string.localizable.commonClose(preferredLanguages: locale.rLanguages))
-    }
-
-    func testStatisticsLoadingMissingAndEmptyStates() {
-        let view = AccountStatisticsViewLayout()
-        view.bind(viewModel: nil)
-        XCTAssertFalse(view.updatedView.isHidden)
-        XCTAssertNil(view.scoreLabel.text)
-        view.bind(viewModel: AccountStatisticsViewModel(
-            rating: nil, scoreLabelText: nil, rate: .low, addressViewText: nil,
-            updatedLabelText: nil, nativeBalanceUsdLabelText: nil, holdTokensUsdLabelText: nil,
-            walletAgeLabelText: nil, totalTransactionsLabelText: nil, rejectedTransactionsLabelText: nil,
-            avgTransactionTimeLabelText: nil, maxTransactionTimeLabelText: nil, minTransactionTimeLabelText: nil
-        ))
-        XCTAssertTrue(view.stackView.arrangedSubviews.allSatisfy(\.isHidden))
-        XCTAssertEqual(view.ratingView.rating, 5)
-        view.setupEmptyState()
-        XCTAssertTrue(view.stackView.isHidden)
-        XCTAssertTrue(view.addressView.isHidden)
-        XCTAssertEqual(view.ratingView.rating, 0)
-        XCTAssertEqual(view.ratingView.settings.emptyBorderColor, R.color.colorLightGray())
-    }
-
     func testBalanceLocksSectionsAndLocalizedRowTitles() throws {
         let view = BalanceLocksDetailViewLayout()
         view.locale = locale

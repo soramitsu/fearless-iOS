@@ -1,6 +1,5 @@
 import Foundation
 import SSFModels
-import SoraKeystore
 
 protocol WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
@@ -12,14 +11,6 @@ protocol WalletMainContainerViewModelFactoryProtocol {
 }
 
 final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFactoryProtocol {
-    private let accountScoreFetcher: AccountStatisticsFetching
-    private let settings: SettingsManagerProtocol
-
-    init(accountScoreFetcher: AccountStatisticsFetching, settings: SettingsManagerProtocol) {
-        self.accountScoreFetcher = accountScoreFetcher
-        self.settings = settings
-    }
-
     func buildViewModel(
         selectedFilter: NetworkManagmentFilter,
         selectedChains: [ChainModel],
@@ -51,22 +42,11 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             UniversalWalletAccountAddressResolver.address(for: $0, wallet: selectedMetaAccount)
         }
 
-        let ethAddress = selectedMetaAccount.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = AccountScoreViewModel(
-            fetcher: accountScoreFetcher,
-            address: ethAddress,
-            chain: nil,
-            settings: settings,
-            eventCenter: EventCenter.shared,
-            logger: Logger.shared
-        )
-
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
             selectedFilter: selectedFilterName,
             selectedFilterImage: selectedFilterImage,
-            address: address,
-            accountScoreViewModel: accountScoreViewModel
+            address: address
         )
     }
 }
