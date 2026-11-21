@@ -15,7 +15,7 @@
 - Config files: `.swiftlint.yml`, `.swiftformat`, `.periphery.yml`.
 
 ## Build, Test, and Dev Commands
-- Install dependencies: `pod install`
+- Install dependencies: `pod install`, then `scripts/deps/build-tools-from-source.sh`
 - Build (Debug, simulator):
   - `xcodebuild -workspace fearless.xcworkspace -scheme fearless -configuration Debug -destination 'platform=iOS Simulator,OS=latest,name=iPhone 15' build`
 - Run unit tests (on simulator):
@@ -110,6 +110,7 @@ The project mixes CocoaPods and Swift Package Manager. Follow these steps in ord
 
 2) Install Pods (always open the workspace)
 - From repo root: `pod install`
+- Build the pinned R.swift and SwiftFormat executables: `scripts/deps/build-tools-from-source.sh`
 - Open: `open fearless.xcworkspace`
 
 3) Resolve SPM packages

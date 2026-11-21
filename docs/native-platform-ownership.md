@@ -21,3 +21,18 @@ bash scripts/test-matrix.sh
 ```
 
 Import notices and source licenses are retained under `Native/`. The reviewed first-party Apache-2.0 transition is recorded separately from the runtime import; alternative MIT grants and third-party notices remain intact. `Native/Binaries` contains the existing sr25519 and SORA wallet slices; source and rebuild instructions are retained alongside them.
+
+## Xcode build-phase tools
+
+The resource generation phase uses R.swift 6.1.0. The lint phase uses SwiftFormat 0.47.13. `R.swift.Library` 5.3.0 supplies the runtime Swift source through CocoaPods. The host tools build separately from the app using the selected Xcode toolchain.
+
+`BuildTools/sources.json` records the upstream repositories, release tags, Git commits and Git object IDs for both executables and R.swift's dependencies, Commander and XcodeEdit. The selected upstream sources and licenses are vendored in `BuildTools/Vendor/`. R.swift's upstream lockfile supplies the Commander and XcodeEdit revisions. Its test-only Spectre dependency is outside the executable's build graph.
+
+For each source snapshot, `BuildTools/Provenance/` retains the upstream Git commit and the tree entries for omitted paths. The verifier hashes the vendored files and modes, reconstructs the upstream root tree, and checks the tree and commit IDs offline. To independently check an import, export the listed paths with `git archive <revision> -- <paths...>` in the upstream repository and compare them with the corresponding vendor directory.
+
+```sh
+scripts/deps/build-tools-from-source.sh
+python3 -I scripts/deps/verify-build-tools.py
+```
+
+The bootstrap verifies the vendored sources against the pins and produces release executables under the ignored `build/source-tools/bin/` directory. A clean tool build needs no network access. Local rebuilds reuse products whose hashes match the build receipt and current inputs. CI and the release archive scripts pass `--force` to compile fresh executables. Xcode verifies the pins and local executables before running the tools. If verification fails, restore any changed vendored files and rerun the bootstrap.

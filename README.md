@@ -21,6 +21,18 @@ Native Swift modules, transport, data ownership, and build checks: see `docs/nat
 ## Dev Status
 Track features development: [board link](https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2)
 
+## Build
+
+Install the pods and build the macOS tools that Xcode uses for resource generation and linting.
+
+```sh
+pod install
+scripts/deps/build-tools-from-source.sh
+open fearless.xcworkspace
+```
+
+The tool build works offline from the vendored sources in `BuildTools/`, including on a fresh checkout. [Build tool provenance](docs/native-platform-ownership.md#xcode-build-phase-tools)
+
 ## Testing
 - Run tests locally for both configurations:
   - `bash scripts/test-matrix.sh` (uses iPhone 15 simulator by default)
