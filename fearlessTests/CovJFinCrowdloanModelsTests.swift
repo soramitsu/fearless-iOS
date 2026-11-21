@@ -125,5 +125,8 @@ final class CovJFinCrowdloanModelsTests: XCTestCase {
         XCTAssertNotEqual(CustomCrowdloanFlow.astar(.default), .astar(AstarFlowData(fearlessReferral: nil, bonusRate: nil, referralRate: nil)))
         XCTAssertEqual(AstarFlowData.default.fearlessReferral, "14Q22opa2mR3SsCZkHbDoSkN6iQpJPk6dDYwaQibufh41g3k")
         XCTAssertEqual(MoonbeamFlowData.default.prodApiUrl, "https://yy9252r9jh.api.purestake.io")
+        // The retired PureStake attestation keys must not ship as literals.
+        XCTAssertEqual(MoonbeamFlowData.default.devApiKey, "")
+        XCTAssertEqual(MoonbeamFlowData.default.prodApiKey, "")
     }
 }
