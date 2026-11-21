@@ -195,7 +195,8 @@ final class CovJUiProfileViewModelFactoryTests: XCTestCase {
     func testTouchIdWithoutTonAccountOrIssuesUsesDefaults() throws {
         let factory = try CovJUiProfileModels.factory(.touchId, settings: InMemorySettingsManager(), test: self)
         let rows = model(factory).profileOptionViewModel
-        XCTAssertEqual(rows.compactMap(\.option), ProfileOption.allCases.filter { $0 != .irohaConnect })
+        // IrohaConnect is on in production builds, so its row is listed by default.
+        XCTAssertEqual(rows.compactMap(\.option), ProfileOption.allCases)
         func row(_ option: ProfileOption) -> ProfileOptionViewModelProtocol? { rows.first { $0.option == option } }
 
         XCTAssertEqual(row(.biometry)?.title, "Touch ID")
@@ -261,7 +262,8 @@ final class CovJUiProfileViewControllerTests: XCTestCase {
         controller.view.layoutIfNeeded()
         let table = controller.rootView.tableView
 
-        XCTAssertEqual((0 ..< 9).map { controller.tableView(table, numberOfRowsInSection: $0) }, [2, 1, 1, 2, 2, 5, 2, 1, 1])
+        // Connections lists WalletConnect, TonConnect and IrohaConnect.
+        XCTAssertEqual((0 ..< 9).map { controller.tableView(table, numberOfRowsInSection: $0) }, [2, 1, 1, 3, 2, 5, 2, 1, 1])
         XCTAssertNil(controller.tableView(table, titleForHeaderInSection: 0))
         XCTAssertEqual(controller.tableView(table, titleForHeaderInSection: 1), "Wallets & Accounts")
         XCTAssertEqual(controller.tableView(table, titleForHeaderInSection: 3), "Connections")

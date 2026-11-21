@@ -284,7 +284,8 @@ final class CovJUiProfilePresenterTests: XCTestCase {
         ]
         options.forEach { f.presenter.activateOption($0) }
 
-        XCTAssertEqual(f.wireframe.routes, ["pincode", "language", "polkaswap", "about", "walletConnect"])
+        // IrohaConnect is on in production builds, so its row routes to the landing screen.
+        XCTAssertEqual(f.wireframe.routes, ["pincode", "language", "polkaswap", "about", "walletConnect", "iroha"])
         XCTAssertEqual(f.wireframe.selectionOutputs.count, 1)
         XCTAssertTrue(f.wireframe.selectionOutputs.first === f.presenter)
         XCTAssertEqual(f.wireframe.currencyWallets.map(\.metaId), [wallet.metaId])

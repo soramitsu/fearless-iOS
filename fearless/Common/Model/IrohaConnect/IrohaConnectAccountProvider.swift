@@ -198,24 +198,3 @@ final class KeychainIrohaConnectAccountProvider: IrohaConnectAccountProviding {
         )
     }
 }
-
-private extension Data {
-    init?(irohaConnectHex value: String) {
-        guard value.count == 64 else {
-            return nil
-        }
-
-        var bytes = [UInt8]()
-        bytes.reserveCapacity(32)
-        var index = value.startIndex
-        while index < value.endIndex {
-            let next = value.index(index, offsetBy: 2)
-            guard let byte = UInt8(value[index ..< next], radix: 16) else {
-                return nil
-            }
-            bytes.append(byte)
-            index = next
-        }
-        self.init(bytes)
-    }
-}
