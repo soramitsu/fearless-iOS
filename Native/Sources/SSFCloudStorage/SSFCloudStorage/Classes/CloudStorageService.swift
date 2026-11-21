@@ -9,6 +9,7 @@ import TweetNacl
 
 public enum KeystoreConstants {
     public static let nonceLength = 24
+    public static let authenticationTagLength = 16
     public static let encryptionKeyLength = 32
 }
 
