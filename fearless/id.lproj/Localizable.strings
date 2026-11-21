@@ -1268,8 +1268,6 @@ akan muncul di sini";
 "scam.description.lowscore.text" = "Alamat tujuan transfer Anda memiliki aktivitas onchain yang rendah, yang dapat menandakan potensi penipu atau penyerang sybil.";
 "account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
 "profile.account.score.title" = "Nomis multichain score";
-"scam.info.nomis.name" = "Nomis multi-chain score";
-"scam.info.nomis.subtype.text" = "Proceed with caution";
 
 /* Other holdings may not appear because balance checks use the app's asset list. */
 "portfolio.discovery.catalog_only" = "Beberapa token mungkin tidak ditampilkan";

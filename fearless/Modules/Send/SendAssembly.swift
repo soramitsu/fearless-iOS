@@ -60,11 +60,7 @@ final class SendAssembly {
         let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, SSFAssetManagmentStorage.CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createAsyncRepository()
         let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerDefault(), signer: NomisRequestSigner())
-        let scamInfoFetcher = ScamInfoFetcher(
-            scamServiceOperationFactory: scamServiceOperationFactory,
-            accountScoreFetching: accountStatisticsFetcher,
-            localizationManager: LocalizationManager.shared
-        )
+        let scamInfoFetcher = ScamInfoFetcher(scamServiceOperationFactory: scamServiceOperationFactory)
         let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
             chainRegistry: ChainRegistryFacade.sharedRegistry
         )

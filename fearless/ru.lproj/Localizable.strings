@@ -749,8 +749,6 @@ Euro cash";
 "scam.description.scam.stub" = "Этот адрес был помечен в связи с доказательствами мошенничества. Мы настоятельно рекомендуем вам не отправлять %s на этот аккаунт.";
 "scam.description.service.stub" = "Этот адрес помечен как финансовый сервис. Будьте осторожны: адреса для пополнения и вывода могут отличаться.";
 "scam.description.theft.stub" = "Этот адрес был помечен в связи с доказательствами кражи. Мы настоятельно рекомендуем вам не отправлять %s на этот аккаунт.";
-"scam.info.nomis.name" = "Nomis multi-chain score";
-"scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "Имя:";
 "scam.reason.stub" = "Причина:";
 "scam.warning.alert.subtitle" = "Мы настоятельно рекомендуем не отправлять %s на этот аккаунт.";

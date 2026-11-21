@@ -752,8 +752,6 @@
 "scam.description.scam.stub" = "此地址已被标记存在诈骗嫌疑。我们强烈建议您不要将%s发送到此账户。";
 "scam.description.service.stub" = "这个地址被标记为金融服务，请注意存款和提款地址可能不同。";
 "scam.description.theft.stub" = "由于存在盗窃证据，此地址已被标记。我们强烈建议您不要将%s发送到此账户。";
-"scam.info.nomis.name" = "Nomis multi-chain score";
-"scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "姓名：";
 "scam.reason.stub" = "原因：";
 "scam.warning.alert.subtitle" = "我们强烈建议您不要向此账户发送%s。";

@@ -1,5 +1,4 @@
 import RobinHood
-import SoraFoundation
 import SSFModels
 import XCTest
 @testable import fearless
@@ -64,41 +63,31 @@ final class CovFMiscScamSyncTests: XCTestCase {
 }
 
 final class CovFMiscScamInfoFetcherTests: XCTestCase {
-    func testStoredScamEntryWinsWithoutAskingForScore() async throws {
+    func testStoredScamEntryIsReturned() async throws {
         let entry = ScamInfo(name: "Thief", address: "addr", type: .theft, subtype: "t")
-        let statistics = CovFMiscStatistics(score: 0.0)
-        let fetcher = makeFetcher(entries: [entry], statistics: statistics)
+        let fetcher = makeFetcher(entries: [entry])
         let result = try await fetcher.fetch(address: "addr", chain: covFMiscChain(id: "1"))
         XCTAssertEqual(result, entry)
-        XCTAssertTrue(statistics.addresses.isEmpty)
     }
 
-    func testLowNomisScoreProducesLowScoreWarningOnSupportedChainsOnly() async throws {
-        let statistics = CovFMiscStatistics(score: 0.1)
-        let fetcher = makeFetcher(entries: [], statistics: statistics)
-        let unsupported = try await fetcher.fetch(address: "addr", chain: covFMiscChain(id: "2"))
-        XCTAssertNil(unsupported)
-        XCTAssertTrue(statistics.addresses.isEmpty)
-        let warning = try await fetcher.fetch(address: "addr", chain: covFMiscChain(id: "137"))
-        XCTAssertEqual(warning?.type, .lowScore)
-        XCTAssertEqual(warning?.address, "addr")
-        XCTAssertEqual(warning?.name, R.string.localizable.scamInfoNomisName(preferredLanguages: fetcher.selectedLocale.rLanguages))
-        XCTAssertEqual(statistics.addresses, ["addr"])
-    }
-
-    func testHighScoreAndFailuresProduceNoWarning() async throws {
-        for statistics in [CovFMiscStatistics(score: 0.9), CovFMiscStatistics(error: NSError(domain: "nomis", code: 1))] {
-            let repository = CovFRepository<ScamInfo>()
-            repository.failure = NSError(domain: "scam", code: 2)
-            let fetcher = ScamInfoFetcher(
-                scamServiceOperationFactory: ScamServiceOperationFactory(repository: AnyDataProviderRepository(repository)),
-                accountScoreFetching: statistics,
-                localizationManager: LocalizationManager.shared
-            )
-            let result = try await fetcher.fetch(address: "addr", chain: covFMiscChain(id: "56"))
-            XCTAssertNil(result)
-            XCTAssertEqual(statistics.addresses, ["addr"])
+    /// Ethereum, BNB Smart Chain and Polygon once fell back to a third-party wallet score; every chain now
+    /// answers from the stored scam list alone.
+    func testAddressMissingFromTheListGivesNoWarningOnEveryChain() async throws {
+        let fetcher = makeFetcher(entries: [ScamInfo(name: "Other", address: "other", type: .scam, subtype: "")])
+        for chainId in ["1", "56", "137", "2"] {
+            let result = try await fetcher.fetch(address: "addr", chain: covFMiscChain(id: chainId))
+            XCTAssertNil(result, chainId)
         }
+    }
+
+    func testRepositoryFailureGivesNoWarning() async throws {
+        let repository = CovFRepository<ScamInfo>()
+        repository.failure = NSError(domain: "scam", code: 2)
+        let fetcher = ScamInfoFetcher(
+            scamServiceOperationFactory: ScamServiceOperationFactory(repository: AnyDataProviderRepository(repository))
+        )
+        let result = try await fetcher.fetch(address: "addr", chain: covFMiscChain(id: "56"))
+        XCTAssertNil(result)
     }
 
     func testOperationFactoryReadsAllEntries() throws {
@@ -109,11 +98,9 @@ final class CovFMiscScamInfoFetcherTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(operation.result).get(), entries)
     }
 
-    private func makeFetcher(entries: [ScamInfo], statistics: CovFMiscStatistics) -> ScamInfoFetcher {
+    private func makeFetcher(entries: [ScamInfo]) -> ScamInfoFetcher {
         ScamInfoFetcher(
-            scamServiceOperationFactory: ScamServiceOperationFactory(repository: AnyDataProviderRepository(CovFRepository<ScamInfo>(entries))),
-            accountScoreFetching: statistics,
-            localizationManager: LocalizationManager.shared
+            scamServiceOperationFactory: ScamServiceOperationFactory(repository: AnyDataProviderRepository(CovFRepository<ScamInfo>(entries)))
         )
     }
 }
@@ -136,40 +123,4 @@ func covFMiscEventually(timeout: TimeInterval = 5, _ condition: () -> Bool) thro
     }
     if condition() { return }
     throw NSError(domain: "covf.eventually", code: 1, userInfo: [NSLocalizedDescriptionKey: "Condition not met in \(timeout) s"])
-}
-
-final class CovFMiscStatistics: AccountStatisticsFetching {
-    private let lock = NSLock()
-    private let score: Decimal?
-    private let error: Error?
-    private var storedAddresses: [String] = []
-
-    init(score: Decimal) {
-        self.score = score
-        error = nil
-    }
-
-    init(error: Error) {
-        score = nil
-        self.error = error
-    }
-
-    var addresses: [String] {
-        lock.lock()
-        defer { lock.unlock() }
-        return storedAddresses
-    }
-
-    func subscribeForStatistics(address _: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address: String) async throws -> AccountStatisticsResponse? {
-        lock.lock()
-        storedAddresses.append(address)
-        lock.unlock()
-        if let error { throw error }
-        let json: [String: Any] = ["data": ["score": NSDecimalNumber(decimal: score ?? .zero)]]
-        return try JSONDecoder().decode(AccountStatisticsResponse.self, from: JSONSerialization.data(withJSONObject: json))
-    }
 }

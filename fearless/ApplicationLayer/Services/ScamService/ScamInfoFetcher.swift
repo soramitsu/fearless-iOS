@@ -1,6 +1,5 @@
 import Foundation
 import SSFModels
-import SoraFoundation
 
 protocol ScamInfoFetching {
     func fetch(address: String, chain: ChainModel) async throws -> ScamInfo?
@@ -8,32 +7,15 @@ protocol ScamInfoFetching {
 
 final class ScamInfoFetcher: ScamInfoFetching {
     private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
-    private let accountScoreFetching: AccountStatisticsFetching
     private let operationQueue = OperationQueue()
 
-    init(
-        scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
-        accountScoreFetching: AccountStatisticsFetching,
-        localizationManager: LocalizationManagerProtocol
-    ) {
+    init(scamServiceOperationFactory: ScamServiceOperationFactoryProtocol) {
         self.scamServiceOperationFactory = scamServiceOperationFactory
-        self.accountScoreFetching = accountScoreFetching
-
-        self.localizationManager = localizationManager
     }
 
-    func fetch(address: String, chain: ChainModel) async throws -> ScamInfo? {
-        let scamFeatureCheckingResult = try? await fetchScamInfo(address: address)
-
-        guard scamFeatureCheckingResult == nil else {
-            return scamFeatureCheckingResult
-        }
-
-        guard chain.isNomisSupported else {
-            return nil
-        }
-
-        return try? await fetchAccountScore(address: address)
+    /// Looks the address up in the stored scam list only; no third-party service is asked.
+    func fetch(address: String, chain _: ChainModel) async throws -> ScamInfo? {
+        try? await fetchScamInfo(address: address)
     }
 
     // MARK: Private
@@ -54,27 +36,4 @@ final class ScamInfoFetcher: ScamInfoFetching {
             operationQueue.addOperation(operation)
         }
     }
-
-    private func fetchAccountScore(address: String) async throws -> ScamInfo? {
-        let score: AccountStatisticsResponse? = try await accountScoreFetching.fetchStatistics(address: address)
-        let scamInfo: ScamInfo? = score.flatMap {
-            // No score means Nomis has not rated the address: unknown, not low activity.
-            guard let rating = $0.data?.score, rating < 0.25 else {
-                return nil
-            }
-
-            return ScamInfo(
-                name: R.string.localizable.scamInfoNomisName(preferredLanguages: selectedLocale.rLanguages),
-                address: address,
-                type: .lowScore,
-                subtype: R.string.localizable.scamInfoNomisSubtypeText(preferredLanguages: selectedLocale.rLanguages)
-            )
-        }
-
-        return scamInfo
-    }
-}
-
-extension ScamInfoFetcher: Localizable {
-    func applyLocalization() {}
 }

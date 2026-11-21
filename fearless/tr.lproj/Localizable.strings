@@ -750,8 +750,6 @@ burada görmek için NFT'leri satın alın veya bastırın";
 "scam.description.scam.stub" = "Bu adres dolandırıcılık kanıtı nedeniyle işaretlendi. Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
 "scam.description.service.stub" = "Bu adres bir finansal hizmet olarak işaretlenmiştir, para yatırma ve çekme adresleri farklı olabileceğinden dikkatli olun.";
 "scam.description.theft.stub" = "Bu adres hırsızlık kanıtı nedeniyle işaretlendi. Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";
-"scam.info.nomis.name" = "Nomis multi-chain score";
-"scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "İsim:";
 "scam.reason.stub" = "Sebep:";
 "scam.warning.alert.subtitle" = "Bu hesaba %s göndermemenizi şiddetle tavsiye ederiz.";

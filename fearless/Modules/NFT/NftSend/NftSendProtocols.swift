@@ -23,7 +23,7 @@ protocol NftSendInteractorInput: AnyObject {
     func setup(with output: NftSendInteractorOutput)
     func estimateFee(for nft: NFT, address: String?)
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult
-    /// Looks the recipient up in the scam list (and Nomis where supported); only the latest lookup is delivered.
+    /// Looks the recipient up in the scam list; only the latest lookup is delivered.
     func fetchScamInfo(for address: String)
     /// Drops the answer of any lookup still running.
     func invalidateScamInfo()
