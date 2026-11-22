@@ -113,6 +113,23 @@ The old static archives had these SHA-256 hashes at `eebd107`:
 | iOS arm64 `blake2lib` | `a9756c529c8e36dc252ddbc62c7be5d2abe269987b9105899711545111c98b09` |
 | iOS simulator `blake2lib` | `e5f22e938983271f86eb79dd6deebf8d2b7cdf134abd1ac16badf28392461d85` |
 
+### Where the old archives are now
+
+These sources were vendored from soramitsu/shared-features-spm into `Native/`.
+That repository is no longer public, so this checkout cannot fetch `eebd107`.
+The three scripts take `--legacy-repo` with a clone or git bundle of that
+repository instead:
+
+- `vendor-ed25519-blake2-sources.py` runs without it. It then checks the public
+  headers against their recorded SHA-256 only, and says so.
+- `trace-ed25519-blake2-binaries.py` and the default run of
+  `test-ed25519-blake2-native.py` need it. `--host-asan` does not.
+
+A git bundle of `eebd107` is kept with the release evidence. It is 68 MB, has
+the head `refs/heads/codex/remove-mpqr-bokolo` at `eebd107`, and its SHA-256 is
+`c4084ef502556dafaf94972971d28235db49e5ad4dab39425497812df9dcd172`. The archive
+hashes above confirm any copy.
+
 ## Verification
 
 `python3 scripts/test-ed25519-blake2-native.py` runs one operation list through

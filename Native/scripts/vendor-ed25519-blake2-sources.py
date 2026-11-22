@@ -6,7 +6,8 @@ native/ed25519-blake2-sources.json and checks that each vendored file is
 byte-identical to it, that each target directory holds exactly the listed
 files, that every recorded SHA-256 still matches, and that the public headers
 and the CMake export header equal those of the replaced frameworks in git
-history. --write recreates the vendored upstream files instead of checking them.
+history when that history is available (see --legacy-repo). --write recreates
+the vendored upstream files instead of checking them.
 """
 
 import argparse
@@ -41,13 +42,30 @@ def upstream_bytes(checkout, revision, path):
                           check=True, capture_output=True).stdout
 
 
-def legacy_bytes(revision, path):
-    if subprocess.run(["git", "-C", str(ROOT), "cat-file", "-e", f"{revision}^{{commit}}"],
-                      capture_output=True).returncode:
-        subprocess.run(["git", "-C", str(ROOT), "fetch", "--quiet", "--depth", "1", "origin", revision],
-                       check=True)
-    return subprocess.run(["git", "-C", str(ROOT), "show", f"{revision}:{path}"],
-                          check=True, capture_output=True).stdout
+def legacy_repository(revision, source, scratch):
+    """Return a git directory holding the replaced frameworks' revision, or None.
+
+    The revision is from soramitsu/shared-features-spm, which is no longer
+    public. It is looked up in this checkout, then in `source` (a clone or a
+    git bundle of that repository), then fetched from origin.
+    """
+    def has(directory):
+        return subprocess.run(["git", "-C", str(directory), "cat-file", "-e", f"{revision}^{{commit}}"],
+                              capture_output=True).returncode == 0
+
+    if has(ROOT):
+        return ROOT
+    if source is not None:
+        if source.is_file():
+            subprocess.run(["git", "clone", "--bare", "--quiet", str(source), str(scratch)], check=True)
+            source = scratch
+        if has(source):
+            return source
+        raise SystemExit(f"{source} does not contain {revision}")
+    if subprocess.run(["git", "-C", str(ROOT), "fetch", "--quiet", "--depth", "1", "origin", revision],
+                      capture_output=True).returncode == 0:
+        return ROOT
+    return None
 
 
 def expected_files(manifest):
@@ -68,6 +86,9 @@ def main():
                         help="recreate vendored upstream files instead of verifying them")
     parser.add_argument("--cache", type=Path,
                         help="directory for upstream fetches (default: a temporary directory)")
+    parser.add_argument("--legacy-repo", type=Path,
+                        help="clone or git bundle of soramitsu/shared-features-spm holding the replaced "
+                             "frameworks, when this checkout does not")
     args = parser.parse_args()
     manifest = json.loads(MANIFEST.read_text())
     problems = []
@@ -96,11 +117,21 @@ def main():
             problems.append(f"{path} is missing")
         elif sha256(file.read_bytes()) != digest:
             problems.append(f"{path} does not match the recorded SHA-256")
-    for group in ("generated", "legacyHeaders"):
-        for path, entry in manifest[group].items():
-            if "legacy" in entry and (ROOT / path).is_file() and \
-                    (ROOT / path).read_bytes() != legacy_bytes(manifest["legacyRevision"], entry["legacy"]):
-                problems.append(f"{path} differs from {entry['legacy']} at {manifest['legacyRevision']}")
+    revision = manifest["legacyRevision"]
+    with tempfile.TemporaryDirectory(prefix="ed25519-blake2-legacy-") as temporary:
+        repository = legacy_repository(revision, args.legacy_repo, Path(temporary) / "legacy")
+        for group in ("generated", "legacyHeaders"):
+            for path, entry in manifest[group].items():
+                if "legacy" not in entry or repository is None or not (ROOT / path).is_file():
+                    continue
+                legacy = subprocess.run(["git", "-C", str(repository), "show", f"{revision}:{entry['legacy']}"],
+                                        check=True, capture_output=True).stdout
+                if (ROOT / path).read_bytes() != legacy:
+                    problems.append(f"{path} differs from {entry['legacy']} at {revision}")
+    if repository is None:
+        print(f"The replaced frameworks' revision {revision} is not available (soramitsu/shared-features-spm "
+              "is no longer public), so the public headers are checked against their recorded SHA-256 only. "
+              "Pass --legacy-repo with a clone or git bundle of that repository to compare them too.")
     present = {str(file.relative_to(ROOT)) for target in TARGETS
                for file in target.rglob("*") if file.is_file()}
     for path in sorted(present - set(expected)):
