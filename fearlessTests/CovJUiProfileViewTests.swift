@@ -210,7 +210,8 @@ final class CovJUiProfileViewModelFactoryTests: XCTestCase {
         let factory = try CovJUiProfileModels.factory(.none, settings: InMemorySettingsManager(), test: self)
         let options = model(factory).profileOptionViewModel.compactMap(\.option)
         XCTAssertFalse(options.contains(.biometry))
-        XCTAssertEqual(options.count, ProfileOption.allCases.count - 2)
+        // Only biometry is left out: IrohaConnect is on in production builds.
+        XCTAssertEqual(options.count, ProfileOption.allCases.count - 1)
     }
 }
 
