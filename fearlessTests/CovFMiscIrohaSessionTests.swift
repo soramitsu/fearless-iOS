@@ -274,3 +274,107 @@ final class CovFMiscIrohaSessionTests: XCTestCase {
         XCTAssertTrue(CovJWait.until { fixture.delegate.approvals == 1 })
     }
 }
+
+/// Live pairing on https://taira.sora.org, run inside the simulator test host. The dApp side is the upstream
+/// iroha-js 0.0.3 app SDK (`build/reports/ios-iroha-connect-v1-20261121/vectors/iroha-connect-ios-live.spec.ts`
+/// in the workspace), which writes its wallet link to `$IROHA_CONNECT_LIVE_DIR/wallet-uri.txt`. Skipped unless
+/// `TEST_RUNNER_IROHA_CONNECT_LIVE_DIR` is set; nothing is submitted to the chain.
+final class IrohaConnectLiveTairaTests: XCTestCase {
+    private final class LiveDelegate: IrohaConnectSessionServiceDelegate {
+        var log: [String] = []
+        var closed = false
+        var closeError: Error?
+        var signatures: [IrohaConnectPendingSignature] = []
+        var notices: [IrohaConnectNotice] = []
+        var onConnection: ((IrohaConnectAccountDescriptor) -> Void)?
+        var onSignature: ((IrohaConnectPendingSignature) -> Void)?
+
+        func irohaConnectSession(
+            _: IrohaConnectSessionService,
+            requestsConnection open: IrohaConnectOpenFrame,
+            account: IrohaConnectAccountDescriptor
+        ) {
+            log.append("open app=\(open.appMetadata?.name ?? "-") methods=\(open.permissions?.methods ?? [])")
+            onConnection?(account)
+        }
+
+        func irohaConnectSessionDidApprove(_: IrohaConnectSessionService) {
+            log.append("approved")
+        }
+
+        func irohaConnectSession(_: IrohaConnectSessionService, requestsSignature request: IrohaConnectPendingSignature) {
+            log.append("review kind=\(request.review.kind.rawValue) hash=\(request.payloadHash.irohaConnectHex)")
+            signatures.append(request)
+            onSignature?(request)
+        }
+
+        func irohaConnectSessionDidCompleteSignature(_: IrohaConnectSessionService) {
+            log.append("signature answered")
+        }
+
+        func irohaConnectSession(_: IrohaConnectSessionService, didRefuse notice: IrohaConnectNotice) {
+            log.append("refused \(notice.rawValue)")
+            notices.append(notice)
+        }
+
+        func irohaConnectSession(_: IrohaConnectSessionService, didCloseWith error: Error?) {
+            log.append("closed \(error.map { "\($0)" } ?? "cleanly")")
+            closed = true
+            closeError = error
+        }
+    }
+
+    func testLivePairing_whenTheAppSDKOpensASessionOnTaira_thenTheWalletPairsReviewsAndSigns() throws {
+        guard let directory = ProcessInfo.processInfo.environment["IROHA_CONNECT_LIVE_DIR"], !directory.isEmpty else {
+            throw XCTSkip("Set TEST_RUNNER_IROHA_CONNECT_LIVE_DIR to run the live Taira pairing.")
+        }
+        let linkFile = URL(fileURLWithPath: directory).appendingPathComponent("wallet-uri.txt")
+        XCTAssertTrue(CovJWait.until(timeout: 120) { FileManager.default.fileExists(atPath: linkFile.path) })
+        let link = try IrohaConnectWalletURI.parse(String(contentsOf: linkFile).trimmingCharacters(in: .whitespacesAndNewlines))
+
+        // The real account provider with key material derived by the app's own Iroha derivation.
+        let derived = try IrohaKeyDerivation.deriveAddress(
+            mnemonic: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            chainDiscriminant: link.profile.networkPrefix
+        )
+        let descriptor = IrohaConnectAccountDescriptor(
+            walletName: "Live",
+            accountID: derived.i105,
+            publicKey: derived.account.publicKey
+        )
+        let provider = KeychainIrohaConnectAccountProvider(
+            policy: .production,
+            descriptorLoader: { descriptor },
+            materialLoader: { (descriptor, derived.account.privateKey) }
+        )
+        let service = IrohaConnectSessionService(handoff: link, accountProvider: provider)
+        let delegate = LiveDelegate()
+        delegate.onConnection = { [weak service] account in service?.approveConnection(for: account) }
+        delegate.onSignature = { [weak service] request in
+            // Approve the transfer the person reviewed; decline the contract call.
+            if request.review.kind == .transfer {
+                service?.approveSignature(requestID: request.requestID)
+            } else {
+                service?.rejectSignature(requestID: request.requestID)
+            }
+        }
+        service.delegate = delegate
+        service.start()
+
+        XCTAssertTrue(CovJWait.until(timeout: 600) { delegate.closed })
+        let evidence: [String: Any] = [
+            "accountId": descriptor.accountID,
+            "log": delegate.log,
+            "closeError": delegate.closeError.map { "\($0)" } ?? NSNull()
+        ]
+        let data = try JSONSerialization.data(withJSONObject: evidence, options: [.prettyPrinted, .sortedKeys])
+        try data.write(to: URL(fileURLWithPath: directory).appendingPathComponent("ios-evidence.json"))
+
+        XCTAssertNil(delegate.closeError)
+        let transfer = try XCTUnwrap(delegate.signatures.first { $0.review.kind == .transfer })
+        XCTAssertEqual(transfer.review.transfer?.quantity, "0.001")
+        XCTAssertEqual(transfer.review.authority, descriptor.accountID)
+        XCTAssertTrue(delegate.signatures.contains { $0.review.kind == .contractCalls })
+        XCTAssertEqual(delegate.notices, [.rawSigningUnavailable])
+    }
+}

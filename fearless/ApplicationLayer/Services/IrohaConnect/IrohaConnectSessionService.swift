@@ -350,6 +350,10 @@ final class URLSessionIrohaConnectTransport: NSObject, IrohaConnectTransport, UR
     var onTextMessage: (() -> Void)?
     var onClose: ((Error?) -> Void)?
 
+    /// How long a socket-closed callback waits so frames already received (the app's encrypted Close, a
+    /// refusal) are handled before the close is reported.
+    static let closeReportDelay: TimeInterval = 0.5
+
     private let handoff: IrohaConnectWalletURI
     private var session: URLSession?
     private var task: URLSessionWebSocketTask?
@@ -415,10 +419,18 @@ final class URLSessionIrohaConnectTransport: NSObject, IrohaConnectTransport, UR
         didCloseWith _: URLSessionWebSocketTask.CloseCode,
         reason _: Data?
     ) {
-        onClose?(nil)
+        reportCloseAfterDraining(nil)
     }
 
     func urlSession(_: URLSession, task _: URLSessionTask, didCompleteWithError error: Error?) {
-        onClose?(error)
+        reportCloseAfterDraining(error)
+    }
+
+    /// The delegate can learn of the close before the receive loop has delivered the last frames; the receive
+    /// loop reports its own failure once they are drained.
+    private func reportCloseAfterDraining(_ error: Error?) {
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + Self.closeReportDelay) { [weak self] in
+            self?.onClose?(error)
+        }
     }
 }
