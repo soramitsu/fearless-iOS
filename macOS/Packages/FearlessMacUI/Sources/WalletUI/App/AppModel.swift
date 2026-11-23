@@ -150,6 +150,8 @@ public final class AppModel {
 
     /// Forgets wallet data, typed secrets and open sheets.
     private func clearSensitiveState() {
+        // Every lock path, including ones the vault starts: a copied phrase goes too.
+        clipboard.clearConcealed()
         if case .send(let model) = sheet { model.cancelObservation() }
         if case .addWallet(let model) = sheet { model.wipeSecrets() }
         onboarding?.wipeSecrets()

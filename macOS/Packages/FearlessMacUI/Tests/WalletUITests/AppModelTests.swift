@@ -260,6 +260,22 @@ struct AppModelTests {
         #expect(pasteboard.string(forType: .string) == PreviewSampleData.alice.polkadot)
     }
 
+    @Test func lockingClearsACopiedPhrase() async throws {
+        let pasteboard = NSPasteboard.withUniqueName()
+        defer { pasteboard.releaseGlobally() }
+        let clipboard = Clipboard(pasteboard: pasteboard)
+        let app = AppModel(
+            services: PreviewWalletServices.make(scenario: PreviewScenario.standard.instant()),
+            settings: makeSettings(),
+            clipboard: clipboard
+        )
+        app.start(monitorSystem: false)
+        #expect(await waitUntil { app.route == .main && app.portfolio.lastUpdated != nil })
+        clipboard.copyConcealed("twelve secret words", clearAfter: 60)
+        app.lock()
+        #expect(pasteboard.string(forType: .string) == nil)
+    }
+
     @Test func erasingReturnsToFirstLaunch() async throws {
         let app = try await unlockedApp()
         app.settings.setHidden(true, assetID: PreviewCatalog.eth.id)

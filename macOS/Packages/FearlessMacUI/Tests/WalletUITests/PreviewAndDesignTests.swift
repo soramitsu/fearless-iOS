@@ -193,6 +193,22 @@ struct DesignSystemTests {
         #expect(clipboard.string() == nil)
     }
 
+    @Test func secretsStayOnThisMacAndClearOnRequestOnlyIfUnchanged() async throws {
+        let pasteboard = NSPasteboard.withUniqueName()
+        defer { pasteboard.releaseGlobally() }
+        let clipboard = Clipboard(pasteboard: pasteboard)
+
+        clipboard.copyConcealed("secret words", clearAfter: 60)
+        #expect(clipboard.isConcealed)
+        clipboard.clearConcealed()
+        #expect(clipboard.string() == nil)
+
+        clipboard.copyConcealed("secret words", clearAfter: 60)
+        clipboard.copy("an address the user copied later")
+        clipboard.clearConcealed()
+        #expect(clipboard.string() == "an address the user copied later")
+    }
+
     @Test func qrCodesAreGeneratedForAddresses() throws {
         let image = try #require(QRCode.image(for: PreviewSampleData.alice.polkadot))
         #expect(image.width == image.height)
