@@ -1,0 +1,22 @@
+{
+  "url": "https://arbitrum-one.publicnode.com/",
+  "chainId": "42161",
+  "feeds": {
+    "polkadot": {
+      "contract": "0xa6bc5baf2000424e90434ba7104ee399dee80dec",
+      "decimals": 8
+    },
+    "ethereum": {
+      "contract": "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
+      "decimals": 8
+    },
+    "binancecoin": {
+      "contract": "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A",
+      "decimals": 8
+    },
+    "polygon-ecosystem-token": {
+      "contract": "0x52099d4523531f678dfc568a7b1e5038aadce1d6",
+      "decimals": 8
+    }
+  }
+}

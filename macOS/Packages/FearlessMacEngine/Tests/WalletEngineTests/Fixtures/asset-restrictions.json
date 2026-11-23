@@ -1,0 +1,49 @@
+{
+  "block": "0xbce05a1d3b726fba1899663da74c7bff9b69097d0949668688ad211824fe1e67",
+  "source": "https://polkadot-asset-hub-rpc.polkadot.io",
+  "specVersion": 2005003,
+  "transactionVersion": 15,
+  "rows": [
+    {
+      "module": "AssetsFreezer",
+      "name": "FrozenBalances",
+      "stableAssetID": 1337,
+      "stableAccount": "0x14367fce4aed48f2417aa18bb14ff2638ede82f93a313070364788e611bfef45",
+      "stableKey": "0x35b7c66f50d9dd5ea57fd81d50aabe4e0aae5fbb94f8a30f52f9a263e67b53c8e0956573baada8dd69fae1cff092d7373905000042d51b2ca376cc8b78e1b13a6f2a73f914367fce4aed48f2417aa18bb14ff2638ede82f93a313070364788e611bfef45",
+      "stableValue": null,
+      "positive": {
+        "key": "0x35b7c66f50d9dd5ea57fd81d50aabe4e0aae5fbb94f8a30f52f9a263e67b53c80a2d926065374074d0a3229f5c71d2db7ff0fa0200c232bcfd19e480825247ee78c778dd2b1f09b5c6c99a71dc9f0db4f53b34990d44ee9beeeeeeeeeeeeeeeeeeeeeeee",
+        "value": "0x80969800000000000000000000000000",
+        "assetID": 49999999,
+        "account": "0x2b1f09b5c6c99a71dc9f0db4f53b34990d44ee9beeeeeeeeeeeeeeeeeeeeeeee",
+        "balance": "10000000"
+      }
+    },
+    {
+      "module": "AssetsHolder",
+      "name": "BalancesOnHold",
+      "stableAssetID": 1337,
+      "stableAccount": "0x14367fce4aed48f2417aa18bb14ff2638ede82f93a313070364788e611bfef45",
+      "stableKey": "0x8c5b9c237726a63375a5d60e5cf1b0b3ea054aacc32ece6e888367287e12de1ee0956573baada8dd69fae1cff092d7373905000042d51b2ca376cc8b78e1b13a6f2a73f914367fce4aed48f2417aa18bb14ff2638ede82f93a313070364788e611bfef45",
+      "stableValue": null,
+      "positive": {
+        "key": "0x8c5b9c237726a63375a5d60e5cf1b0b3ea054aacc32ece6e888367287e12de1e0a2d926065374074d0a3229f5c71d2db7ff0fa0200c232bcfd19e480825247ee78c778dd2b1f09b5c6c99a71dc9f0db4f53b34990d44ee9beeeeeeeeeeeeeeeeeeeeeeee",
+        "value": "0x30e525ce000000000000000000000000",
+        "assetID": 49999999,
+        "account": "0x2b1f09b5c6c99a71dc9f0db4f53b34990d44ee9beeeeeeeeeeeeeeeeeeeeeeee",
+        "balance": "3458590000"
+      }
+    }
+  ],
+  "restricted": {
+    "asset": {
+      "key": "0x682a59d51ab9e48a8c8cc418ff9708d2d34371a193a751eea5883e9553457b2e0a2d926065374074d0a3229f5c71d2db7ff0fa02",
+      "value": "0x6d6f646c70792f706761732000000000000000000000000000000000000000006d6f646c70792f706761732000000000000000000000000000000000000000006d6f646c70792f706761732000000000000000000000000000000000000000006d6f646c70792f70676173200000000000000000000000000000000000000000233c19b00c02000000000000000000000000000000000000000000000000000080969800000000000000000000000000018a0200008a0200000000000000"
+    },
+    "account": {
+      "key": "0x682a59d51ab9e48a8c8cc418ff9708d2b99d880ec681799c0cf30e8886371da90a2d926065374074d0a3229f5c71d2db7ff0fa0200c232bcfd19e480825247ee78c778dd2b1f09b5c6c99a71dc9f0db4f53b34990d44ee9beeeeeeeeeeeeeeeeeeeeeeee",
+      "value": "0x809698000000000000000000000000000001"
+    }
+  },
+  "decoder": "@polkadot/types 16.5.6"
+}

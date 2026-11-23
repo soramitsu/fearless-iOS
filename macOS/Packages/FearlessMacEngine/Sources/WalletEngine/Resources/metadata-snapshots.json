@@ -1,0 +1,47 @@
+[
+  {
+    "genesis": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+    "specVersion": 2005003,
+    "transactionVersion": 26,
+    "codeHash": "0x528e0c52403bba2bc05e68d7b7c0314318c7b868a780572d4e1483d87ad39189",
+    "blockHash": "0xbc5020605cb3a861df8f3db214b98c119cfb7b140e5893289be5d1d63c8e6094",
+    "file": "metadata-polkadot.scale.deflate",
+    "sha256": "ed603cc472ec22e8788cc433a137980f328dd64ee90b06c86a054e8e9e8d2066"
+  },
+  {
+    "genesis": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
+    "specVersion": 2005003,
+    "transactionVersion": 15,
+    "codeHash": "0xedf03c44b8452754a18a7b68405d65178da06a5a1994604c7420343d9b044325",
+    "blockHash": "0xf25edc03465748a8c80f88d4f09d5a8f8b0aa5e73cb8a039cd11aea183cb5761",
+    "file": "metadata-polkadot-asset-hub.scale.deflate",
+    "sha256": "8a66ad59cb7729074a05775ad60e3bf069ec2cbf1862592f2aa61b25df577d6b"
+  },
+  {
+    "genesis": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "specVersion": 2005001,
+    "transactionVersion": 26,
+    "codeHash": "0xd9ef96c492d5e2e0b3835c4bb0791b2bb59e4ff285520d209e325a927ee55f8d",
+    "blockHash": "0xcce80f31ea01df6ee0e1e198e7859566dcb5e6c54181de6568a8e65ae2ce0457",
+    "file": "metadata-kusama.scale.deflate",
+    "sha256": "7b893f0d9631c8cb8fa9a71fdcd67345feea5186f7923f4c47fc49f8c3bd18f2"
+  },
+  {
+    "genesis": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
+    "specVersion": 2005001,
+    "transactionVersion": 15,
+    "codeHash": "0xf760c1f229bfa2d985d193df40fd5124df5a6a59b947292f7da2f1f9199684ba",
+    "blockHash": "0x60f96feafd675cd8c73daf3039aebe104b139710d2f052b8aa6b7838e029d590",
+    "file": "metadata-kusama-asset-hub.scale.deflate",
+    "sha256": "695fdc502f59a46ab9be1885ee201fd1592200b6f13d764e5a63ee853b92d41d"
+  },
+  {
+    "genesis": "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e",
+    "specVersion": 1025002,
+    "transactionVersion": 27,
+    "codeHash": "0xb5723ec53e943ee8a038e1bcbefee0132fb93900b394a1c41990aef203aeb8ba",
+    "blockHash": "0x70ca357ff5f290f2ec98cca7729093a249c83479845786cd9480b685f34ddac6",
+    "file": "metadata-westend.scale.deflate",
+    "sha256": "1398f10c2f7af56223e4ca7a79012a072db740af17572dcc9f4afd3ad5e53326"
+  }
+]

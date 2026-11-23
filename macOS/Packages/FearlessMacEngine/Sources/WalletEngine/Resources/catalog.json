@@ -1,0 +1,443 @@
+[
+  {
+    "id": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+    "name": "Polkadot",
+    "signing": {"balances": 5, "keepAlive": 3, "allowDeath": 0, "extensions": ["CheckSpecVersion", "CheckTxVersion", "CheckGenesis", "CheckMortality", "CheckNonce", "ChargeTransactionPayment", "CheckMetadataHash"]},
+    "prefix": 0,
+    "evmID": null,
+    "testnet": false,
+    "icon": "Polkadot",
+    "accent": "#FF0066",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Polkadot",
+        "symbol": "DOT",
+        "decimals": 10,
+        "priceID": "polkadot",
+        "minimum": "10000000000"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "LuckyFriday node",
+        "url": "wss://rpc-polkadot.luckyfriday.io",
+        "isCustom": false
+      },
+      {
+        "name": "Parity node",
+        "url": "wss://rpc.polkadot.io",
+        "isCustom": false
+      },
+      {
+        "name": "Parity HTTPS",
+        "url": "https://rpc.polkadot.io",
+        "isCustom": false
+      }
+    ],
+    "history": {
+      "type": "subsquid",
+      "url": "https://squid.subsquid.io/fearless-polkadot/v/v3/graphql"
+    },
+    "explorer": {
+      "name": "Subscan",
+      "transactionURLTemplate": "https://polkadot.subscan.io/extrinsic/{hash}",
+      "accountURLTemplate": "https://polkadot.subscan.io/account/{address}"
+    }
+  },
+  {
+    "id": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
+    "name": "Polkadot Asset Hub",
+    "signing": {"balances": 10, "keepAlive": 3, "allowDeath": 0, "assets": 50, "assetKeepAlive": 9, "extensions": ["CheckSpecVersion", "CheckTxVersion", "CheckGenesis", "CheckMortality", "CheckNonce", "ChargeAssetTxPayment", "CheckMetadataHash"]},
+    "prefix": 0,
+    "evmID": null,
+    "testnet": false,
+    "icon": "Assethub",
+    "accent": "#FF0066",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Polkadot",
+        "symbol": "DOT",
+        "decimals": 10,
+        "priceID": "polkadot",
+        "minimum": "100000000"
+      },
+      {
+        "key": "asset:1984",
+        "name": "Tether Usd",
+        "symbol": "USDT",
+        "decimals": 6,
+        "priceID": "tether",
+        "minimum": "10000"
+      },
+      {
+        "key": "asset:1337",
+        "name": "Usd Coin",
+        "symbol": "USDC",
+        "decimals": 6,
+        "priceID": "usd-coin",
+        "minimum": "10000"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "LuckyFriday node",
+        "url": "wss://rpc-asset-hub-polkadot.luckyfriday.io",
+        "isCustom": false
+      },
+      {
+        "name": "Parity node",
+        "url": "wss://polkadot-asset-hub-rpc.polkadot.io",
+        "isCustom": false
+      },
+      {
+        "name": "Stakeworld node",
+        "url": "wss://dot-rpc.stakeworld.io/assethub",
+        "isCustom": false
+      },
+      {
+        "name": "Parity HTTPS",
+        "url": "https://polkadot-asset-hub-rpc.polkadot.io",
+        "isCustom": false
+      }
+    ],
+    "history": {
+      "type": "giantsquid",
+      "url": "https://squid.subsquid.io/gs-main-statemint/graphql"
+    },
+    "explorer": {
+      "name": "Subscan",
+      "transactionURLTemplate": "https://assethub-polkadot.subscan.io/extrinsic/{hash}",
+      "accountURLTemplate": "https://assethub-polkadot.subscan.io/account/{address}"
+    }
+  },
+  {
+    "id": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "name": "Kusama",
+    "signing": {"balances": 4, "keepAlive": 3, "allowDeath": 0, "extensions": ["CheckSpecVersion", "CheckTxVersion", "CheckGenesis", "CheckMortality", "CheckNonce", "ChargeTransactionPayment", "CheckMetadataHash"]},
+    "prefix": 2,
+    "evmID": null,
+    "testnet": false,
+    "icon": "Kusama",
+    "accent": "#000000",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Kusama",
+        "symbol": "KSM",
+        "decimals": 12,
+        "priceID": "kusama",
+        "minimum": "333333333"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "LuckyFriday node",
+        "url": "wss://rpc-kusama.luckyfriday.io",
+        "isCustom": false
+      },
+      {
+        "name": "Parity node",
+        "url": "wss://kusama-rpc.polkadot.io",
+        "isCustom": false
+      },
+      {
+        "name": "Parity HTTPS",
+        "url": "https://kusama-rpc.polkadot.io",
+        "isCustom": false
+      }
+    ],
+    "history": {
+      "type": "subsquid",
+      "url": "https://fearless-wallet.squids.live/fearless-kusama-2/v/v4/graphql"
+    },
+    "explorer": {
+      "name": "Subscan",
+      "transactionURLTemplate": "https://kusama.subscan.io/extrinsic/{hash}",
+      "accountURLTemplate": "https://kusama.subscan.io/account/{address}"
+    }
+  },
+  {
+    "id": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
+    "name": "Kusama Asset Hub",
+    "signing": {"balances": 10, "keepAlive": 3, "allowDeath": 0, "assets": 50, "assetKeepAlive": 9, "extensions": ["CheckSpecVersion", "CheckTxVersion", "CheckGenesis", "CheckMortality", "CheckNonce", "ChargeAssetTxPayment", "CheckMetadataHash"]},
+    "prefix": 2,
+    "evmID": null,
+    "testnet": false,
+    "icon": "Assethub",
+    "accent": "#000000",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Kusama",
+        "symbol": "KSM",
+        "decimals": 12,
+        "priceID": "kusama",
+        "minimum": "3333333"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "LuckyFriday node",
+        "url": "wss://rpc-asset-hub-kusama.luckyfriday.io",
+        "isCustom": false
+      },
+      {
+        "name": "Parity node",
+        "url": "wss://kusama-asset-hub-rpc.polkadot.io",
+        "isCustom": false
+      },
+      {
+        "name": "Stakeworld node",
+        "url": "wss://ksm-rpc.stakeworld.io/assethub",
+        "isCustom": false
+      },
+      {
+        "name": "Parity HTTPS",
+        "url": "https://kusama-asset-hub-rpc.polkadot.io",
+        "isCustom": false
+      }
+    ],
+    "history": {
+      "type": "giantsquid",
+      "url": "https://squid-statemine-api.squid.tachi.soramitsu.co.jp/graphql"
+    },
+    "explorer": {
+      "name": "Subscan",
+      "transactionURLTemplate": "https://assethub-kusama.subscan.io/extrinsic/{hash}",
+      "accountURLTemplate": "https://assethub-kusama.subscan.io/account/{address}"
+    }
+  },
+  {
+    "id": "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e",
+    "name": "Westend",
+    "signing": {"balances": 4, "keepAlive": 3, "allowDeath": 0, "extensions": ["CheckSpecVersion", "CheckTxVersion", "CheckGenesis", "CheckMortality", "CheckNonce", "ChargeTransactionPayment", "CheckMetadataHash"]},
+    "prefix": 42,
+    "evmID": null,
+    "testnet": true,
+    "icon": "Westend",
+    "accent": "#DA68A7",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Westend",
+        "symbol": "WND",
+        "decimals": 12,
+        "priceID": null,
+        "minimum": "10000000000"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "OnFinality",
+        "url": "wss://westend.api.onfinality.io/public-ws",
+        "isCustom": false
+      },
+      {
+        "name": "Parity node",
+        "url": "wss://westend-rpc.polkadot.io",
+        "isCustom": false
+      },
+      {
+        "name": "Dwellir",
+        "url": "wss://westend-rpc.n.dwellir.com",
+        "isCustom": false
+      },
+      {
+        "name": "Parity HTTPS",
+        "url": "https://westend-rpc.polkadot.io",
+        "isCustom": false
+      }
+    ],
+    "history": null,
+    "explorer": {
+      "name": "Subscan",
+      "transactionURLTemplate": "https://westend.subscan.io/extrinsic/{hash}",
+      "accountURLTemplate": "https://westend.subscan.io/account/{address}"
+    }
+  },
+  {
+    "id": "eip155:1",
+    "name": "Ethereum",
+    "prefix": null,
+    "evmID": 1,
+    "testnet": false,
+    "icon": "Ethereum",
+    "accent": "#627EEA",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Ethereum",
+        "symbol": "ETH",
+        "decimals": 18,
+        "priceID": "ethereum",
+        "minimum": null
+      },
+      {
+        "key": "erc20:0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "name": "Tether Usd",
+        "symbol": "USDT",
+        "decimals": 6,
+        "priceID": "tether",
+        "minimum": null
+      },
+      {
+        "key": "erc20:0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "name": "Usd Coin",
+        "symbol": "USDC",
+        "decimals": 6,
+        "priceID": "usd-coin",
+        "minimum": null
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Public wss",
+        "url": "wss://ethereum.publicnode.com",
+        "isCustom": false
+      },
+      {
+        "name": "Public https",
+        "url": "https://ethereum.publicnode.com",
+        "isCustom": false
+      },
+      {
+        "name": "MEW https",
+        "url": "https://nodes.mewapi.io/rpc/eth",
+        "isCustom": false
+      }
+    ],
+    "history": {
+      "type": "oklink",
+      "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=ETH"
+    },
+    "explorer": {
+      "name": "Oklink",
+      "transactionURLTemplate": "https://www.okx.com/web3/explorer/eth/tx/{hash}?channelID=flessw",
+      "accountURLTemplate": "https://www.okx.com/web3/explorer/eth/address/{address}?channelID=flessw"
+    }
+  },
+  {
+    "id": "eip155:56",
+    "name": "BNB Smart Chain",
+    "prefix": null,
+    "evmID": 56,
+    "testnet": false,
+    "icon": "bnbchain",
+    "accent": "#F3BA2F",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Bnb",
+        "symbol": "BNB",
+        "decimals": 18,
+        "priceID": "binancecoin",
+        "minimum": null
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Public https",
+        "url": "https://bsc.publicnode.com",
+        "isCustom": false
+      },
+      {
+        "name": "Public wss",
+        "url": "wss://bsc.publicnode.com",
+        "isCustom": false
+      },
+      {
+        "name": "Ninicoin",
+        "url": "https://bsc-dataseed1.ninicoin.io/",
+        "isCustom": false
+      },
+      {
+        "name": "Nodereal",
+        "url": "https://bsc.nodereal.io/",
+        "isCustom": false
+      }
+    ],
+    "history": {
+      "type": "oklink",
+      "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=BSC"
+    },
+    "explorer": {
+      "name": "Oklink",
+      "transactionURLTemplate": "https://www.okx.com/web3/explorer/bsc/tx/{hash}?channelID=flessw",
+      "accountURLTemplate": "https://www.okx.com/web3/explorer/bsc/address/{address}?channelID=flessw"
+    }
+  },
+  {
+    "id": "eip155:137",
+    "name": "Polygon",
+    "prefix": null,
+    "evmID": 137,
+    "testnet": false,
+    "icon": "Polygon",
+    "accent": "#A229C5",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Polygon Ecosystem Token",
+        "symbol": "POL",
+        "decimals": 18,
+        "priceID": "polygon-ecosystem-token",
+        "minimum": null
+      }
+    ],
+    "nodes": [
+      {
+        "name": "Bor public https",
+        "url": "https://polygon-bor-rpc.publicnode.com",
+        "isCustom": false
+      },
+      {
+        "name": "Bor public wss",
+        "url": "wss://polygon-bor-rpc.publicnode.com",
+        "isCustom": false
+      }
+    ],
+    "history": {
+      "type": "oklink",
+      "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=POLYGON"
+    },
+    "explorer": {
+      "name": "Oklink",
+      "transactionURLTemplate": "https://www.okx.com/web3/explorer/polygon/tx/{hash}?channelID=flessw",
+      "accountURLTemplate": "https://www.okx.com/web3/explorer/polygon/address/{address}?channelID=flessw"
+    }
+  },
+  {
+    "id": "eip155:11155111",
+    "name": "Sepolia",
+    "prefix": null,
+    "evmID": 11155111,
+    "testnet": true,
+    "icon": "Ethereum",
+    "accent": "#627EEA",
+    "assets": [
+      {
+        "key": "native",
+        "name": "Sepolia Ether",
+        "symbol": "ETH",
+        "decimals": 18,
+        "priceID": null,
+        "minimum": null
+      }
+    ],
+    "nodes": [
+      {
+        "name": "PublicNode",
+        "url": "https://ethereum-sepolia-rpc.publicnode.com",
+        "isCustom": false
+      }
+    ],
+    "history": null,
+    "explorer": {
+      "name": "Etherscan",
+      "transactionURLTemplate": "https://sepolia.etherscan.io/tx/{hash}",
+      "accountURLTemplate": "https://sepolia.etherscan.io/address/{address}"
+    }
+  }
+]
