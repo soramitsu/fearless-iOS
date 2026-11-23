@@ -141,7 +141,7 @@ public enum PreviewCatalog {
     )
 
     public static let assets: [Asset] = [
-        dot, dotAssetHub, usdtAssetHub, usdcAssetHub, ksm, ksmAssetHub, usdtKusamaAssetHub, wnd,
+        dot, dotAssetHub, usdtAssetHub, usdcAssetHub, ksm, ksmAssetHub, wnd,
         eth, usdtEthereum, usdcEthereum, bnb, pol, sepoliaETH
     ]
 

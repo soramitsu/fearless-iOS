@@ -144,7 +144,6 @@ public enum PreviewSampleData {
                 balance(c.usdcAssetHub, "1200.5"),
                 balance(c.ksm, "42.125", locked: "10"),
                 balance(c.ksmAssetHub, "3.5"),
-                balance(c.usdtKusamaAssetHub, "0"),
                 balance(c.wnd, "100"),
                 balance(c.eth, "1.2345"),
                 balance(c.usdtEthereum, "850.25"),
@@ -160,7 +159,6 @@ public enum PreviewSampleData {
                 balance(c.usdcAssetHub, "15000"),
                 balance(c.ksm, "0"),
                 balance(c.ksmAssetHub, "0"),
-                balance(c.usdtKusamaAssetHub, "0"),
                 balance(c.wnd, "0"),
                 balance(c.eth, "4.02"),
                 balance(c.usdtEthereum, "0"),
@@ -176,7 +174,6 @@ public enum PreviewSampleData {
                 balance(c.usdcAssetHub, "125000"),
                 balance(c.ksm, "9100", locked: "9000"),
                 balance(c.ksmAssetHub, "45.5"),
-                balance(c.usdtKusamaAssetHub, "1200"),
                 balance(c.wnd, "0")
             ])
         ]

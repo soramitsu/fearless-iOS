@@ -20,7 +20,7 @@ struct PortfolioTests {
         #expect(summary.total == expected)
         // 1250.5 + 320.75 DOT at 4.12, stablecoins near 1, 45.625 KSM, 1.2345 ETH, 2.5 BNB, 1500 POL.
         #expect(summary.total > 17_000 && summary.total < 18_500)
-        #expect(summary.pricedRowCount == 12)
+        #expect(summary.pricedRowCount == 11)
         #expect(summary.previousTotal > 0)
         let percent = try #require(summary.changePercent)
         #expect(percent > 0 && percent < 3)
@@ -71,7 +71,7 @@ struct PortfolioTests {
 
         let mainnet = AssetFilter().apply(to: all)
         #expect(!mainnet.contains { $0.chain.isTestnet })
-        #expect(mainnet.count == 12)
+        #expect(mainnet.count == 11)
 
         let nonZero = AssetFilter(hideZeroBalances: true).apply(to: all)
         #expect(nonZero.count == 10)
@@ -83,7 +83,7 @@ struct PortfolioTests {
 
         #expect(AssetFilter(search: "usd").apply(to: all).allSatisfy { $0.asset.isStablecoin })
         #expect(AssetFilter(search: "asset hub").apply(to: all).allSatisfy { $0.chain.name.contains("Asset Hub") })
-        #expect(AssetFilter(search: "  KUSAMA ").apply(to: all).count == 3)
+        #expect(AssetFilter(search: "  KUSAMA ").apply(to: all).count == 2)
         #expect(AssetFilter(search: "nothing-matches").apply(to: all).isEmpty)
 
         var evm = AssetFilter(showTestnets: true)
