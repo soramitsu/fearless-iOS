@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import UIKit
 
 public struct PolkadotIcon {
@@ -69,3 +70,4 @@ extension PolkadotIcon: DrawableIcon {
         }
     }
 }
+#endif

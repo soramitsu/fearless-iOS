@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Link all iOS slices and run native/Objective-C SR25519 checks in a simulator."""
+"""Link and exercise the packaged SR25519 library on iOS or macOS."""
 
 import argparse
 import json
+import platform
+import plistlib
 import subprocess
 import tempfile
 from pathlib import Path
@@ -20,8 +22,11 @@ def run(*args):
 
 
 def compile_harness(sdk, arch, framework, output, source, objc=False):
-    minimum = ("-miphoneos-version-min=14.0" if sdk == "iphoneos"
-               else "-mios-simulator-version-min=14.0")
+    minimum = {
+        "iphoneos": "-miphoneos-version-min=14.0",
+        "iphonesimulator": "-mios-simulator-version-min=14.0",
+        "macosx": "-mmacosx-version-min=14.0",
+    }[sdk]
     command = ["xcrun", "--sdk", sdk, "clang", "-arch", arch, minimum,
                "-F", str(framework.parent), "-I", str(framework / "Headers"),
                "-I", str(ROOT / "Sources" / "IrohaCrypto" / "include"),
@@ -48,34 +53,65 @@ def simulator_id():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--macos-only", action="store_true",
+                        help="Link both Mac architectures and execute on the host.")
     parser.add_argument("--compare-baseline", type=Path,
                         help="Previous sr25519lib.xcframework for cross-signature checks")
     args = parser.parse_args()
     vectors = json.loads((TESTS / "legacy-vectors.json").read_text())
     with tempfile.TemporaryDirectory(prefix="sr25519-native-test-") as directory:
         stage = Path(directory)
-        for sdk, arch, framework in (
-            ("iphoneos", "arm64", DEVICE),
-            ("iphonesimulator", "arm64", SIMULATOR),
-            ("iphonesimulator", "x86_64", SIMULATOR),
-        ):
-            compile_harness(sdk, arch, framework,
-                            stage / f"parity-{sdk}-{arch}",
-                            TESTS / "sr25519_parity.c")
-            compile_harness(sdk, arch, framework,
-                            stage / f"signer-{sdk}-{arch}",
-                            TESTS / "signer_boundary.m", objc=True)
+        if args.macos_only:
+            identifier = "macos-arm64_x86_64"
+            framework = ARTIFACT / identifier / "sr25519lib.framework"
+            with (ARTIFACT / "Info.plist").open("rb") as stream:
+                libraries = plistlib.load(stream)["AvailableLibraries"]
+            library, = (lib for lib in libraries if lib["LibraryIdentifier"] == identifier)
+            assert library["SupportedPlatform"] == "macos"
+            assert set(library["SupportedArchitectures"]) == {"arm64", "x86_64"}
+            assert (ARTIFACT / identifier / library["BinaryPath"]).samefile(framework / "sr25519lib")
+            with (framework / "Resources/Info.plist").open("rb") as stream:
+                info = plistlib.load(stream)
+            assert info["CFBundleSupportedPlatforms"] == ["MacOSX"]
+            assert info["MinimumOSVersion"] == info["LSMinimumSystemVersion"] == "14.0"
+            for name in ("Resources", "Modules", "Headers", "sr25519lib", "Versions/Current"):
+                assert (framework / name).is_symlink()
+            for arch in library["SupportedArchitectures"]:
+                compile_harness("macosx", arch, framework, stage / f"parity-{arch}",
+                                TESTS / "sr25519_parity.c")
+                compile_harness("macosx", arch, framework, stage / f"signer-{arch}",
+                                TESTS / "signer_boundary.m", objc=True)
+            arch = platform.machine()
+            output = run(str(stage / f"parity-{arch}"), vectors["old_signature"]).stdout
+            print(run(str(stage / f"signer-{arch}")).stdout.strip())
+            print(f"Linked macOS arm64 and x86_64, executed on {arch}")
+        else:
+            for sdk, arch, framework in (
+                ("iphoneos", "arm64", DEVICE),
+                ("iphonesimulator", "arm64", SIMULATOR),
+                ("iphonesimulator", "x86_64", SIMULATOR),
+            ):
+                compile_harness(sdk, arch, framework,
+                                stage / f"parity-{sdk}-{arch}",
+                                TESTS / "sr25519_parity.c")
+                compile_harness(sdk, arch, framework,
+                                stage / f"signer-{sdk}-{arch}",
+                                TESTS / "signer_boundary.m", objc=True)
 
-        device = simulator_id()
-        output = run("xcrun", "simctl", "spawn", "-s", device,
-                     str(stage / "parity-iphonesimulator-arm64"),
-                     vectors["old_signature"]).stdout
+            device = simulator_id()
+            output = run("xcrun", "simctl", "spawn", "-s", device,
+                         str(stage / "parity-iphonesimulator-arm64"),
+                         vectors["old_signature"]).stdout
         actual = dict(line.split("=", 1) for line in output.strip().splitlines())
         for key in ("pair", "hard", "public_soft", "ed", "converted"):
             assert actual[key] == vectors[key], key
         assert actual["soft"][:64] == vectors["soft_scalar"]
         assert actual["soft"][-64:] == vectors["public_soft"]
         assert actual["checked"] == "00" * 64
+
+        if args.macos_only:
+            print("macOS bundle, SR25519 legacy derivation and signing vectors passed")
+            return
 
         if args.compare_baseline:
             baseline = (args.compare_baseline.resolve() /

@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import IrohaCrypto
 import SSFModels
 import UIKit
@@ -217,3 +218,4 @@ public class UniversalIconGenerator: IconGenerating {
         )
     }
 }
+#endif
