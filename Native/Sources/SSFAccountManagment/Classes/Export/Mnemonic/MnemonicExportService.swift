@@ -3,7 +3,11 @@ import RobinHood
 import SoraKeystore
 import SSFModels
 import SSFUtils
+#if canImport(UIKit)
 import UIKit
+#else
+import Foundation
+#endif
 
 enum MnemonicExportServiceError: Error {
     case missingAccount

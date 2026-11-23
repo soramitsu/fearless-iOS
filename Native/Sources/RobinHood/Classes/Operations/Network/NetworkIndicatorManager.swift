@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#if canImport(UIKit)
 import UIKit
+#else
+import Foundation
+#endif
 
 /**
  *  Protocol is designed to manage display of the network activity indicator.
@@ -35,6 +39,7 @@ public final class NetworkIndicatorManager {
 
 extension NetworkIndicatorManager: NetworkIndicatorManagerProtocol {
     public func increment() {
+#if canImport(UIKit)
         managerQueue.async {
             self.numberOfOperations += 1
 
@@ -44,9 +49,11 @@ extension NetworkIndicatorManager: NetworkIndicatorManagerProtocol {
                 }
             }
         }
+#endif
     }
 
     public func decrement() {
+#if canImport(UIKit)
         managerQueue.async {
             guard self.numberOfOperations > 0 else {
                 return
@@ -60,5 +67,6 @@ extension NetworkIndicatorManager: NetworkIndicatorManagerProtocol {
                 }
             }
         }
+#endif
     }
 }

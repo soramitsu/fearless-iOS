@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import Foundation
 import UIKit
 
@@ -8,3 +9,4 @@ public protocol DrawableIcon {
 public protocol IconGenerating {
     func generateFromAddress(_ address: String) throws -> DrawableIcon
 }
+#endif

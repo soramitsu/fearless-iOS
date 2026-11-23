@@ -28,6 +28,34 @@ def owned_path(root, relative):
     return path
 
 
+def binary_inventory(native):
+    """Regular files and symlinks under Native/Binaries, without following links.
+
+    Versioned macOS framework bundles link `Headers`, `Modules`, `Resources`, the
+    binary and `Versions/Current` into `Versions/A`. Each link must be relative,
+    must stay inside its own framework bundle and must point at something that exists.
+    """
+    files, links = set(), {}
+    binaries = native / "Binaries"
+    for directory, folders, names in os.walk(binaries, followlinks=False):
+        current = Path(directory)
+        for name in folders + names:
+            path = current / name
+            relative = path.relative_to(native).as_posix()
+            if path.is_symlink():
+                target = os.readlink(path)
+                if os.path.isabs(target) or not target or "\\" in target:
+                    raise ValueError("Native binary symlink must be relative: " + relative)
+                bundle = next((parent for parent in path.parents if parent.suffix == ".framework"), None)
+                resolved = Path(os.path.normpath(path.parent / target))
+                if bundle is None or (resolved != bundle and bundle not in resolved.parents) or not resolved.exists():
+                    raise ValueError("Native binary symlink escapes its framework: " + relative)
+                links[relative] = target
+            elif path.is_file():
+                files.add(relative)
+    return files, links
+
+
 def verify(root, source_packages=None):
     root = Path(root).resolve()
     native = owned_path(root, "Native")
@@ -86,16 +114,21 @@ def verify(root, source_packages=None):
     binaries = contract.get("nativeBinaries")
     if not isinstance(binaries, dict) or not binaries:
         raise ValueError("Native binary provenance is missing")
-    actual_files = {path.relative_to(native).as_posix() for path in (native / "Binaries").rglob("*") if path.is_file()}
+    symlinks = contract.get("nativeBinarySymlinks", {})
+    if not isinstance(symlinks, dict) or not all(isinstance(target, str) for target in symlinks.values()):
+        raise ValueError("Invalid native binary symlink record")
+    actual_files, actual_symlinks = binary_inventory(native)
     if actual_files != set(binaries):
         raise ValueError("Native binary inventory differs from its provenance record")
+    if actual_symlinks != symlinks:
+        raise ValueError("Native binary symlinks differ from their provenance record")
     if (root / ".git").exists():
         tracked = subprocess.run(
             ["git", "ls-files", "-z", "--", "Native/Binaries"], cwd=root,
             check=True, capture_output=True,
         ).stdout.decode().split("\0")
         tracked_binaries = {path.removeprefix("Native/") for path in tracked if path}
-        if tracked_binaries != set(binaries):
+        if tracked_binaries != set(binaries) | set(symlinks):
             raise ValueError("Native binary provenance must match tracked files; ignored local files cannot qualify a clean checkout")
     if (root / ".git").exists():
         tracked = subprocess.run(

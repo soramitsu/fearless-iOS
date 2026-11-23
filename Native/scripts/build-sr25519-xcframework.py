@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build the checked SR25519 static XCFramework from pinned Rust source."""
 
+import argparse
 import os
 import plistlib
 import shutil
@@ -28,17 +29,19 @@ def write_plist(path, data):
 def framework(stage, identifier, archive, supported_platform, min_version,
               simulator_sidecar=False):
     folder = stage / identifier / FRAMEWORK
-    headers = folder / "Headers"
-    modules = folder / "Modules"
+    is_macos = supported_platform == "MacOSX"
+    content = folder / "Versions" / "A" if is_macos else folder
+    headers = content / "Headers"
+    modules = content / "Modules"
     headers.mkdir(parents=True)
     modules.mkdir()
-    shutil.copy2(archive, folder / "sr25519lib")
+    shutil.copy2(archive, content / "sr25519lib")
     if simulator_sidecar:
-        shutil.copy2(archive, folder / "libsr25519crust.a")
+        shutil.copy2(archive, content / "libsr25519crust.a")
     shutil.copy2(CRATE / "include" / "sr25519" / "sr25519.h", headers / "sr25519.h")
     shutil.copy2(ROOT / "native" / "sr25519lib.h", headers / "sr25519lib.h")
     (modules / "module.modulemap").write_text(MODULE_MAP)
-    write_plist(folder / "Info.plist", {
+    bundle_info = {
         "CFBundleExecutable": "sr25519lib",
         "CFBundleIdentifier": "co.jp.soramitsu.sr25519lib",
         "CFBundleName": "sr25519lib",
@@ -47,17 +50,36 @@ def framework(stage, identifier, archive, supported_platform, min_version,
         "CFBundleSupportedPlatforms": [supported_platform],
         "CFBundleVersion": "1",
         "MinimumOSVersion": min_version,
-    })
+    }
+    if is_macos:
+        (content / "Resources").mkdir()
+        bundle_info["LSMinimumSystemVersion"] = min_version
+        write_plist(content / "Resources" / "Info.plist", bundle_info)
+        (folder / "Versions" / "Current").symlink_to("A")
+        for name in ("Headers", "Modules", "Resources", "sr25519lib"):
+            (folder / name).symlink_to(Path("Versions/Current") / name)
+    else:
+        write_plist(content / "Info.plist", bundle_info)
     run("codesign", "--force", "--sign", "-", "--timestamp=none", str(folder))
 
 
 def main():
-    targets = {
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--add-macos-slice", action="store_true",
+                        help="Only replace the macOS slice and update the outer plist.")
+    args = parser.parse_args()
+    macos_targets = {
+        "aarch64-apple-darwin": ("macosx", "arm64"),
+        "x86_64-apple-darwin": ("macosx", "x86_64"),
+    }
+    targets = {} if args.add_macos_slice else {
         "aarch64-apple-ios": ("iphoneos", "arm64"),
         "aarch64-apple-ios-sim": ("iphonesimulator", "arm64"),
         "x86_64-apple-ios": ("iphonesimulator", "x86_64"),
     }
+    targets.update(macos_targets)
     env = os.environ.copy()
+    env["MACOSX_DEPLOYMENT_TARGET"] = "14.0"
     env["IPHONEOS_DEPLOYMENT_TARGET"] = "14.0"
     for target in targets:
         run("cargo", "build", "--release", "--locked", "--target", target,
@@ -71,8 +93,11 @@ def main():
             sdk_path = subprocess.check_output(
                 ["xcrun", "--sdk", sdk, "--show-sdk-path"], text=True).strip()
             stub = stage / (target + "-vers.o")
-            minimum_flag = ("-miphoneos-version-min=14.0" if sdk == "iphoneos"
-                            else "-mios-simulator-version-min=14.0")
+            minimum_flag = {
+                "iphoneos": "-miphoneos-version-min=14.0",
+                "iphonesimulator": "-mios-simulator-version-min=14.0",
+                "macosx": "-mmacosx-version-min=14.0",
+            }[sdk]
             run("xcrun", "--sdk", sdk, "clang", "-arch", arch,
                 "-isysroot", sdk_path, minimum_flag,
                 "-c", str(ROOT / "native" / "sr25519lib_vers.c"), "-o", str(stub))
@@ -82,12 +107,37 @@ def main():
                 str(rust_archive), str(stub))
             thin_archives[target] = archive
 
+        package = stage / "sr25519lib.xcframework"
+        macos_id = "macos-arm64_x86_64"
+        macos_archive = stage / "macos.a"
+        run("xcrun", "lipo", "-create", "-output", str(macos_archive),
+            *(str(thin_archives[target]) for target in macos_targets))
+        framework(package, macos_id, macos_archive, "MacOSX", "14.0")
+        macos_library = {
+            "BinaryPath": f"{FRAMEWORK}/Versions/A/sr25519lib",
+            "LibraryIdentifier": macos_id,
+            "LibraryPath": FRAMEWORK,
+            "SupportedArchitectures": ["arm64", "x86_64"],
+            "SupportedPlatform": "macos",
+        }
+        if args.add_macos_slice:
+            with (OUTPUT / "Info.plist").open("rb") as source:
+                info = plistlib.load(source)
+            info["AvailableLibraries"] = [
+                lib for lib in info["AvailableLibraries"]
+                if lib["LibraryIdentifier"] != macos_id
+            ] + [macos_library]
+            if (OUTPUT / macos_id).exists():
+                shutil.rmtree(OUTPUT / macos_id)
+            shutil.move(str(package / macos_id), str(OUTPUT / macos_id))
+            write_plist(OUTPUT / "Info.plist", info)
+            return
+
         simulator_archive = stage / "simulator.a"
         run("xcrun", "lipo", "-create", "-output", str(simulator_archive),
             str(thin_archives["aarch64-apple-ios-sim"]),
             str(thin_archives["x86_64-apple-ios"]))
 
-        package = stage / "sr25519lib.xcframework"
         framework(package, "ios-arm64", thin_archives["aarch64-apple-ios"],
                   "iPhoneOS", "14.0")
         framework(package, "ios-arm64_x86_64-simulator", simulator_archive,
@@ -109,6 +159,7 @@ def main():
                     "SupportedPlatform": "ios",
                     "SupportedPlatformVariant": "simulator",
                 },
+                macos_library,
             ],
             "CFBundlePackageType": "XFWK",
             "XCFrameworkFormatVersion": "1.0",

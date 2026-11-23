@@ -164,5 +164,56 @@ class NativeSourceTests(unittest.TestCase):
             VERIFIER.verify(self.root)
 
 
+    def make_versioned_framework(self):
+        """A macOS-style framework: Versions/A holds the files, the rest are links."""
+        framework = self.root / "Native/Binaries/lib.xcframework/macos/lib.framework"
+        (framework / "Versions/A/Headers").mkdir(parents=True)
+        (framework / "Versions/A/Headers/lib.h").write_text("header")
+        (framework / "Versions/A/lib").write_text("binary")
+        links = {"Versions/Current": "A", "Headers": "Versions/Current/Headers", "lib": "Versions/Current/lib"}
+        for name, target in links.items():
+            (framework / name).symlink_to(target)
+        prefix = "Binaries/lib.xcframework/macos/lib.framework/"
+        self.contract["nativeBinaries"].update({
+            prefix + "Versions/A/Headers/lib.h": hashlib.sha256(b"header").hexdigest(),
+            prefix + "Versions/A/lib": hashlib.sha256(b"binary").hexdigest(),
+        })
+        self.contract["nativeBinarySymlinks"] = {prefix + name: target for name, target in links.items()}
+        self.write("config/native-sources.json", json.dumps(self.contract))
+        return framework
+
+    def test_versioned_framework_with_recorded_symlinks_passes(self):
+        self.make_versioned_framework()
+        self.assertEqual(VERIFIER.verify(self.root)["nativeBinaryFiles"], 3)
+
+    def test_retargeted_framework_symlink_is_rejected(self):
+        framework = self.make_versioned_framework()
+        (framework / "Versions/B/Headers").mkdir(parents=True)
+        (framework / "Versions/B/Headers/lib.h").write_text("header")
+        (framework / "Versions/B/lib").write_text("binary")
+        self.contract["nativeBinaries"].update({
+            "Binaries/lib.xcframework/macos/lib.framework/Versions/B/Headers/lib.h": hashlib.sha256(b"header").hexdigest(),
+            "Binaries/lib.xcframework/macos/lib.framework/Versions/B/lib": hashlib.sha256(b"binary").hexdigest(),
+        })
+        self.write("config/native-sources.json", json.dumps(self.contract))
+        (framework / "Versions/Current").unlink()
+        (framework / "Versions/Current").symlink_to("B")
+        with self.assertRaisesRegex(ValueError, "symlinks differ"):
+            VERIFIER.verify(self.root)
+
+    def test_framework_symlink_escaping_the_bundle_is_rejected(self):
+        framework = self.make_versioned_framework()
+        (framework / "lib").unlink()
+        (framework / "lib").symlink_to("../../../example")
+        with self.assertRaisesRegex(ValueError, "escapes its framework"):
+            VERIFIER.verify(self.root)
+
+    def test_unrecorded_framework_symlink_is_rejected(self):
+        framework = self.make_versioned_framework()
+        (framework / "Modules").symlink_to("Versions/Current/Headers")
+        with self.assertRaisesRegex(ValueError, "symlinks differ"):
+            VERIFIER.verify(self.root)
+
+
 if __name__ == "__main__":
     unittest.main()
