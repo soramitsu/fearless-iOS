@@ -274,15 +274,44 @@ enum SensitiveExportFiles {
     /// importing; `KeystoreImportService` removes those itself once it has read them.
     static let inboxMinimumAge: TimeInterval = 60 * 60
 
+    /// Where the document picker puts the copy of a file chosen for import:
+    /// `tmp/<bundle identifier>-Inbox`. The original stays where the user keeps it.
+    static let pickerInboxName = (Bundle.main.bundleIdentifier ?? "jp.co.soramitsu.fearlesswallet") + "-Inbox"
+
+    /// Removes the picker's copy of a file the import has read: a keystore can hold an
+    /// unencrypted private key. Only a file inside the app's temporary directory is removed,
+    /// so a file the user picked in place is never touched.
+    static func removePickedCopy(
+        _ url: URL,
+        fileManager: FileManager = .default,
+        temporaryDirectory: URL = FileManager.default.temporaryDirectory
+    ) {
+        // Resolve the folder, not the file: the entry itself is what gets unlinked, so a link
+        // placed elsewhere that points into tmp is never followed or removed.
+        let temporaryPath = temporaryDirectory.resolvingSymlinksInPath().standardizedFileURL.path
+        let parent = url.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL
+        guard parent.path == temporaryPath || parent.path.hasPrefix(temporaryPath + "/") else {
+            return
+        }
+        let entry = parent.appendingPathComponent(url.lastPathComponent, isDirectory: false)
+        let type = (try? fileManager.attributesOfItem(atPath: entry.path))?[.type] as? FileAttributeType
+        guard type == .typeRegular || type == .typeSymbolicLink else {
+            return
+        }
+        try? fileManager.removeItem(at: entry)
+    }
+
     /// Removes secret files that earlier runs or earlier versions left behind:
     /// export directories, Google Drive backup intermediates named after an address,
-    /// and keystore files other apps handed over through the Inbox more than an hour ago.
+    /// the document picker's copies of chosen keystores, and keystore files other apps
+    /// handed over through the Inbox more than an hour ago.
     @discardableResult
     static func removeLeftovers(
         fileManager: FileManager = .default,
         temporaryDirectory: URL = FileManager.default.temporaryDirectory,
         inboxDirectory: URL? = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
             .appendingPathComponent("Inbox", isDirectory: true),
+        pickerInboxName: String = SensitiveExportFiles.pickerInboxName,
         now: Date = Date()
     ) -> Int {
         var removed = 0
@@ -295,6 +324,14 @@ enum SensitiveExportFiles {
         for item in temporaryItems {
             let name = item.lastPathComponent
             let isExportDirectory = name.hasPrefix(directoryPrefix) || name.hasPrefix(legacyJsonDirectoryPrefix)
+            if name == pickerInboxName {
+                // Entry by entry, so a copy delivered while this runs is not swept with them.
+                let copies = (try? fileManager.contentsOfDirectory(at: item, includingPropertiesForKeys: nil)) ?? []
+                for copy in copies where (try? fileManager.removeItem(at: copy)) != nil {
+                    removed += 1
+                }
+                continue
+            }
             if isExportDirectory || isAddressNamedKeystore(name) {
                 if (try? fileManager.removeItem(at: item)) != nil {
                     removed += 1

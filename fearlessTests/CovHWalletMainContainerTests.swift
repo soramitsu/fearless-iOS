@@ -193,6 +193,63 @@ final class CovHWalletMainContainerTests: XCTestCase {
         XCTAssertEqual(fixture.router.sheets.count, 2)
     }
 
+    func testOperatingSystemNoticeFollowsUpdateNoticeAndPrecedesStoredRecords() throws {
+        let fixture = CovHWalletMainFixture()
+        fixture.notice.isPending = true
+        fixture.osNotice.isPending = true
+        fixture.start(hosted: true)
+        fixture.presenter.didReceiveStoredWalletRecordsNotices([.recordsNotShown(wallets: 1, chainAccounts: 0)])
+        XCTAssertEqual(fixture.router.sheets.count, 1)
+        fixture.router.sheets.last?.dismissCompletion?()
+        XCTAssertEqual(fixture.notice.acknowledgements, 1)
+        XCTAssertEqual(fixture.router.sheets.count, 2)
+        let osSheet = try XCTUnwrap(fixture.router.sheets.last)
+        XCTAssertFalse(osSheet.showsCloseButton)
+        XCTAssertEqual(fixture.osNotice.acknowledgements, 0)
+        osSheet.dismissCompletion?()
+        XCTAssertEqual(fixture.osNotice.acknowledgements, 1)
+        XCTAssertEqual(fixture.router.sheets.count, 3)
+    }
+
+    func testLockClosingANoticeKeepsItPendingAndReleasesTheOthers() throws {
+        let fixture = CovHWalletMainFixture()
+        fixture.notice.isPending = true
+        fixture.osNotice.isPending = true
+        fixture.start(hosted: true)
+        fixture.presenter.didReceiveStoredWalletRecordsNotices([.recordsNotShown(wallets: 1, chainAccounts: 0)])
+        XCTAssertEqual(fixture.router.sheets.count, 1)
+        // The lock screen dismisses the update notice: the iOS notice must not open under it,
+        // and the stored-record notice is no longer blocked.
+        fixture.router.interruptions.first?()
+        XCTAssertEqual(fixture.notice.acknowledgements, 0)
+        XCTAssertEqual(fixture.osNotice.acknowledgements, 0)
+        XCTAssertEqual(fixture.router.sheets.count, 2)
+        XCTAssertEqual(fixture.router.interruptions.count, 1, "the second sheet is a stored-record notice")
+    }
+
+    func testLockClosingTheOperatingSystemNoticeLeavesItPending() throws {
+        let fixture = CovHWalletMainFixture()
+        fixture.osNotice.isPending = true
+        fixture.start(hosted: true)
+        XCTAssertEqual(fixture.router.interruptions.count, 1)
+        fixture.router.interruptions[0]()
+        XCTAssertEqual(fixture.osNotice.acknowledgements, 0)
+        XCTAssertTrue(fixture.osNotice.isPending)
+        fixture.presenter.didReceiveStoredWalletRecordsNotices([.recordsNotShown(wallets: 1, chainAccounts: 0)])
+        XCTAssertEqual(fixture.router.sheets.count, 2, "later notices are not blocked")
+    }
+
+    func testOperatingSystemNoticeShowsAloneWhenOnlyItIsPending() throws {
+        let fixture = CovHWalletMainFixture()
+        fixture.osNotice.isPending = true
+        fixture.start(hosted: true)
+        let sheet = try XCTUnwrap(fixture.router.sheets.first)
+        XCTAssertEqual(fixture.router.sheets.count, 1)
+        sheet.dismissCompletion?()
+        XCTAssertEqual(fixture.osNotice.acknowledgements, 1)
+        XCTAssertEqual(fixture.notice.acknowledgements, 0)
+    }
+
     func testPasswordSwitchWaitsForDismissalThenOutcomesBeforeArrivals() throws {
         let fixture = CovHWalletMainFixture()
         fixture.start(hosted: true)

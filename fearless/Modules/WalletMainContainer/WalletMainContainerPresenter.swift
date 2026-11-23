@@ -35,6 +35,8 @@ final class WalletMainContainerPresenter {
         accounts: [UniversalWalletNoPasswordAccount]
     )?
     private let updateSecurityNotice: UpdateSecurityNoticeTracking
+    private let operatingSystemSecurityNotice: OperatingSystemSecurityNoticeTracking
+    /// The update or iOS notice is showing; the other notices wait until it is closed.
     private var isUpdateSecurityNoticeActive = false
 
     // MARK: - Constructors
@@ -48,6 +50,7 @@ final class WalletMainContainerPresenter {
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
         updateSecurityNotice: UpdateSecurityNoticeTracking,
+        operatingSystemSecurityNotice: OperatingSystemSecurityNoticeTracking,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.balanceInfoModuleInput = balanceInfoModuleInput
@@ -58,6 +61,7 @@ final class WalletMainContainerPresenter {
         self.interactor = interactor
         self.router = router
         self.updateSecurityNotice = updateSecurityNotice
+        self.operatingSystemSecurityNotice = operatingSystemSecurityNotice
 
         self.localizationManager = localizationManager
     }
@@ -107,6 +111,9 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         if updateSecurityNotice.isPending {
             isUpdateSecurityNoticeActive = true
             presentUpdateSecurityNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+        } else if operatingSystemSecurityNotice.isPending {
+            isUpdateSecurityNoticeActive = true
+            presentOperatingSystemSecurityNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
         }
     }
 
@@ -320,6 +327,13 @@ private enum StoredRecordsNoticeConstants {
     static let retryDelay: TimeInterval = 1
 }
 
+/// How a startup notice ended.
+enum StartupNoticeOutcome {
+    case closed
+    case interrupted
+    case notPresented
+}
+
 private extension WalletMainContainerPresenter {
     /// Shows the pending notices one after another. A notice counts as shown only once the
     /// user has closed it; one that could not be presented stays pending for the next launch.
@@ -382,7 +396,7 @@ private extension WalletMainContainerPresenter {
             controller.presentedViewController == nil
         else {
             guard retriesLeft > 0 else {
-                finishUpdateSecurityNotice(acknowledged: false)
+                finishUpdateSecurityNotice(.notPresented)
                 return
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
@@ -392,10 +406,14 @@ private extension WalletMainContainerPresenter {
         }
 
         let viewModel = SheetAlertPresentableViewModel.updateSecurityNotice(locale: selectedLocale) { [weak self] in
-            self?.finishUpdateSecurityNotice(acknowledged: true)
+            self?.finishUpdateSecurityNotice(.closed)
         }
 
-        router.present(viewModel: viewModel, from: view)
+        router.presentNotice(
+            viewModel: viewModel,
+            onInterrupted: { [weak self] in self?.finishUpdateSecurityNotice(.interrupted) },
+            from: view
+        )
     }
 
     /// The last notices: Switch's outcome, then universal accounts the wallet's password does not
@@ -520,9 +538,55 @@ private extension WalletMainContainerPresenter {
         router.present(viewModel: viewModel, from: view)
     }
 
-    func finishUpdateSecurityNotice(acknowledged: Bool) {
-        if acknowledged {
+    /// Only a notice the user closed counts as shown. One the lock screen closed, or one that
+    /// could not be presented, stays pending for the next launch and releases the notices after it.
+    func finishUpdateSecurityNotice(_ outcome: StartupNoticeOutcome) {
+        if outcome == .closed {
             updateSecurityNotice.acknowledge()
+            if operatingSystemSecurityNotice.isPending {
+                presentOperatingSystemSecurityNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+                return
+            }
+        }
+        isUpdateSecurityNoticeActive = false
+        presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+    }
+
+    /// Follows the update notice and, like it, counts as shown only once the user has closed it.
+    func presentOperatingSystemSecurityNotice(retriesLeft: Int) {
+        guard
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            controller.presentedViewController == nil
+        else {
+            guard retriesLeft > 0 else {
+                finishOperatingSystemSecurityNotice(.notPresented)
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
+                self?.presentOperatingSystemSecurityNotice(retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+
+        let onClose: () -> Void = { [weak self] in
+            self?.finishOperatingSystemSecurityNotice(.closed)
+        }
+        let viewModel = SheetAlertPresentableViewModel.operatingSystemSecurityNotice(
+            locale: selectedLocale,
+            onClose: onClose
+        )
+
+        router.presentNotice(
+            viewModel: viewModel,
+            onInterrupted: { [weak self] in self?.finishOperatingSystemSecurityNotice(.interrupted) },
+            from: view
+        )
+    }
+
+    func finishOperatingSystemSecurityNotice(_ outcome: StartupNoticeOutcome) {
+        if outcome == .closed {
+            operatingSystemSecurityNotice.acknowledge()
         }
         isUpdateSecurityNoticeActive = false
         presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)

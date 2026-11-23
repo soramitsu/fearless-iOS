@@ -76,6 +76,7 @@ final class WalletMainContainerAssembly {
             interactor: interactor,
             router: router,
             updateSecurityNotice: UpdateSecurityNoticeTracker(settings: SettingsManager.shared),
+            operatingSystemSecurityNotice: OperatingSystemSecurityNoticeTracker(settings: SettingsManager.shared),
             localizationManager: localizationManager
         )
 

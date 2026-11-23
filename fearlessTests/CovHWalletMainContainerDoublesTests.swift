@@ -12,12 +12,14 @@ final class CovHWalletMainFixture {
     let interactor = CovHWalletMainInteractor()
     let factory = CovHWalletMainFactory()
     let notice = CovHUpdateNotice()
+    let osNotice = CovHOperatingSystemNotice()
     let modules = CovHWalletModules()
     var window: UIWindow?
     lazy var presenter = WalletMainContainerPresenter(
         balanceInfoModuleInput: modules, assetListModuleInput: modules, nftModuleInput: modules,
         wallet: wallet, viewModelFactory: factory, interactor: interactor, router: router,
-        updateSecurityNotice: notice, localizationManager: LocalizationManager.shared
+        updateSecurityNotice: notice, operatingSystemSecurityNotice: osNotice,
+        localizationManager: LocalizationManager.shared
     )
 
     func start(hosted: Bool = false) {
@@ -87,6 +89,12 @@ final class CovHUpdateNotice: UpdateSecurityNoticeTracking {
     func acknowledge() { acknowledgements += 1; isPending = false }
 }
 
+final class CovHOperatingSystemNotice: OperatingSystemSecurityNoticeTracking {
+    var isPending = false
+    var acknowledgements = 0
+    func acknowledge() { acknowledgements += 1; isPending = false }
+}
+
 final class CovHWalletMainInteractor: WalletMainContainerInteractorInput {
     weak var output: WalletMainContainerInteractorOutput?
     var uris: [String] = []
@@ -144,6 +152,11 @@ final class CovHWalletMainRouter: WalletMainContainerRouterInput {
     func presentStatus(with viewModel: ApplicationStatusAlertEvent, animated: Bool) { statusCount += 1 }
     func present(error: Error, from view: ControllerBackedProtocol?, locale: Locale?) -> Bool { errors.append(error); return true }
     func present(viewModel: SheetAlertPresentableViewModel, from view: ControllerBackedProtocol?) { sheets.append(viewModel) }
+    var interruptions: [() -> Void] = []
+    func presentNotice(viewModel: SheetAlertPresentableViewModel, onInterrupted: @escaping () -> Void, from view: ControllerBackedProtocol?) {
+        sheets.append(viewModel)
+        interruptions.append(onInterrupted)
+    }
     func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction]) {
         sheets.append(SheetAlertPresentableViewModel(title: title, message: message, actions: actions, closeAction: closeAction))
     }

@@ -281,6 +281,8 @@
 "common.ok" = "好的";
 "update.security.notice.title" = "您的移动钱包是安全的";
 "update.security.notice.message" = "iOS 和 Android 版 Fearless 未受旧版 Fearless Chrome 扩展程序安全问题的影响。\n\n如果您在 2026 年 10 月 23 日之前使用过该 Chrome 扩展程序，请创建一个新钱包，并将资金转入新钱包。";
+"os.security.notice.title" = "请安装最新的安全更新";
+"os.security.notice.message" = "旧版本的 iOS 和 iPadOS 存在安全漏洞，网站可借此盗取加密钱包。请打开“设置”>“通用”>“软件更新”，安装此设备可用的任何更新。";
 "common.paste" = "粘贴";
 "common.payout" = "支付";
 "common.preview" = "预览";

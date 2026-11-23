@@ -281,6 +281,8 @@ Euro cash";
 "common.ok" = "OK";
 "update.security.notice.title" = "Your mobile wallet is safe";
 "update.security.notice.message" = "Fearless for iOS and Android was not affected by the security issue in the old Fearless Chrome extension.\n\nIf you used the Chrome extension before October 23, 2026, create a new wallet and move your funds to it.";
+"os.security.notice.title" = "Install the latest security update";
+"os.security.notice.message" = "Older versions of iOS and iPadOS have security flaws that websites can use to steal crypto wallets. Open Settings > General > Software Update and install any update available for this device.";
 "common.paste" = "Paste";
 "common.payout" = "Payout";
 "common.preview" = "Preview";

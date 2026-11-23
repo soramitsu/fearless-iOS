@@ -284,6 +284,8 @@ Yolu olmadığını biliyorum";
 "common.ok" = "Tamam";
 "update.security.notice.title" = "Mobil cüzdanınız güvende";
 "update.security.notice.message" = "iOS ve Android için Fearless, eski Fearless Chrome uzantısındaki güvenlik sorunundan etkilenmedi.\n\nChrome uzantısını 23 Ekim 2026'dan önce kullandıysanız yeni bir cüzdan oluşturun ve fonlarınızı bu cüzdana taşıyın.";
+"os.security.notice.title" = "En son güvenlik güncellemesini yükleyin";
+"os.security.notice.message" = "iOS ve iPadOS'un eski sürümlerinde, web sitelerinin kripto cüzdanlarını çalmak için kullanabileceği güvenlik açıkları var. Ayarlar > Genel > Yazılım Güncelleme'yi açın ve bu aygıt için sunulan tüm güncellemeleri yükleyin.";
 "common.paste" = "Yapıştırmak";
 "common.payout" = "Ödeme";
 "common.preview" = "Ön izleme";

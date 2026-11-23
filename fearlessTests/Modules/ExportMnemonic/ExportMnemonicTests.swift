@@ -1830,7 +1830,7 @@ final class SeedShareOwnershipTests: XCTestCase {
         XCTAssertEqual(f.wireframe.results, [true])
         XCTAssertEqual(f.interactor.backupCalls, 1)
     }
-    func testSystemShareKeepsSeedOffPasteboardPostingPrintingAndContacts() async throws {
+    func testSystemShareKeepsSeedOffPasteboardPostingPrintingContactsNotesMessagesAndFiles() async throws {
         let f = try fixture(); defer { f.close() }
         await waitUntil { f.wireframe.sheets.count == 1 && self.settled(f.view.presentedViewController, in: f.window) }
         try await activate(try XCTUnwrap(f.wireframe.sheets[0].actions.first?.button), in: f.window)
@@ -1840,7 +1840,8 @@ final class SeedShareOwnershipTests: XCTestCase {
         let activity = try XCTUnwrap(f.view.presentedViewController as? UIActivityViewController)
         let excluded = Set(activity.excludedActivityTypes ?? [])
         let required: [UIActivity.ActivityType] = [
-            .copyToPasteboard, .print, .assignToContact, .saveToCameraRoll, .postToFacebook, .postToTwitter
+            .copyToPasteboard, .print, .assignToContact, .saveToCameraRoll, .postToFacebook, .postToTwitter,
+            .message, .mail, .openInIBooks, .notes, .reminders, .freeform, .saveToFiles
         ]
         for activityType in required {
             XCTAssertTrue(excluded.contains(activityType), activityType.rawValue)

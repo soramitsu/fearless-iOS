@@ -4,6 +4,11 @@ final class ExportSeedWireframe: ExportSeedWireframeProtocol {
     /// The raw seed or private key stays off the general pasteboard, which has no expiry
     /// and syncs to the user's other devices, and away from posting, printing and contact
     /// targets, as the emergency export does.
+    ///
+    /// It also stays out of Notes, Reminders, Freeform, Messages, Mail, Books and Files: these
+    /// keep the plain text on the device and in iCloud, which is where wallet-stealing malware
+    /// on a hacked iPhone searches for recovery phrases and keys (the 2026 Coruna and DarkSword
+    /// payloads read Notes, iCloud Drive and messages). This sheet exists only in Debug builds.
     static let excludedShareActivities: [UIActivity.ActivityType] = [
         .copyToPasteboard,
         .print,
@@ -16,7 +21,14 @@ final class ExportSeedWireframe: ExportSeedWireframeProtocol {
         .postToWeibo,
         .postToTencentWeibo,
         .postToFlickr,
-        .postToVimeo
+        .postToVimeo,
+        .message,
+        .mail,
+        .openInIBooks,
+        .notes,
+        .reminders,
+        .freeform,
+        .saveToFiles
     ]
 
     private weak var activityController: SeedShareActivityViewController?
@@ -111,4 +123,12 @@ private final class SeedShareActivityViewController: UIActivityViewController,
     func presentationControllerDidDismiss(_: UIPresentationController) {
         finish(false)
     }
+}
+
+extension UIActivity.ActivityType {
+    /// System share extensions without a public constant.
+    static let notes = UIActivity.ActivityType("com.apple.mobilenotes.SharingExtension")
+    static let reminders = UIActivity.ActivityType("com.apple.reminders.sharingextension")
+    static let freeform = UIActivity.ActivityType("com.apple.freeform.sharingextension")
+    static let saveToFiles = UIActivity.ActivityType("com.apple.DocumentManagerUICore.SaveToFiles")
 }

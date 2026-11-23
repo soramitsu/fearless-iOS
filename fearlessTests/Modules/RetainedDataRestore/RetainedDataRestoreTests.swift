@@ -520,17 +520,75 @@ final class EmergencyWalletMaterialEncryptionTests: XCTestCase {
         try Data("{}".utf8).write(to: freshInbox)
         try manager.setAttributes([.modificationDate: now.addingTimeInterval(-60)], ofItemAtPath: freshInbox.path)
 
+        // The document picker's copies of chosen keystores.
+        let pickerInbox = temporary.appendingPathComponent("test.bundle-Inbox", isDirectory: true)
+        try manager.createDirectory(at: pickerInbox, withIntermediateDirectories: true)
+        try Data("{}".utf8).write(to: pickerInbox.appendingPathComponent("picked-keystore.json"))
+
         let removed = SensitiveExportFiles.removeLeftovers(
             fileManager: manager,
             temporaryDirectory: temporary,
             inboxDirectory: inbox,
+            pickerInboxName: "test.bundle-Inbox",
             now: now
         )
 
-        XCTAssertEqual(removed, removable.count + 3)
+        XCTAssertEqual(removed, removable.count + 4)
         let remaining = Set(try manager.contentsOfDirectory(atPath: temporary.path))
-        XCTAssertEqual(remaining, Set(kept))
+        XCTAssertEqual(remaining, Set(kept + ["test.bundle-Inbox"]))
+        XCTAssertEqual(try manager.contentsOfDirectory(atPath: pickerInbox.path), [])
         XCTAssertEqual(try manager.contentsOfDirectory(atPath: inbox.path), ["fresh-keystore.json"])
+    }
+}
+
+final class PickedKeystoreCopyTests: XCTestCase {
+    func testRemovesOnlyCopiesInsideTheTemporaryDirectory() throws {
+        let manager = FileManager.default
+        let root = manager.temporaryDirectory.appendingPathComponent("picked-\(UUID().uuidString)", isDirectory: true)
+        let temporary = root.appendingPathComponent("tmp", isDirectory: true)
+        let outside = root.appendingPathComponent("Documents", isDirectory: true)
+        try manager.createDirectory(at: temporary.appendingPathComponent("app-Inbox"), withIntermediateDirectories: true)
+        try manager.createDirectory(at: outside, withIntermediateDirectories: true)
+        defer { try? manager.removeItem(at: root) }
+
+        let copy = temporary.appendingPathComponent("app-Inbox/keystore.json")
+        let original = outside.appendingPathComponent("keystore.json")
+        try Data("{}".utf8).write(to: copy)
+        try Data("{}".utf8).write(to: original)
+
+        SensitiveExportFiles.removePickedCopy(copy, temporaryDirectory: temporary)
+        SensitiveExportFiles.removePickedCopy(original, temporaryDirectory: temporary)
+
+        XCTAssertFalse(manager.fileExists(atPath: copy.path))
+        XCTAssertTrue(manager.fileExists(atPath: original.path), "a file the user owns is never removed")
+    }
+
+    func testNeverRemovesALinkOutsideTmpOrFollowsALinkInside() throws {
+        let manager = FileManager.default
+        let root = manager.temporaryDirectory.appendingPathComponent("picked-\(UUID().uuidString)", isDirectory: true)
+        let temporary = root.appendingPathComponent("tmp", isDirectory: true)
+        let outside = root.appendingPathComponent("Documents", isDirectory: true)
+        try manager.createDirectory(at: temporary, withIntermediateDirectories: true)
+        try manager.createDirectory(at: outside, withIntermediateDirectories: true)
+        defer { try? manager.removeItem(at: root) }
+
+        // A link outside tmp that points at a file inside it.
+        let inside = temporary.appendingPathComponent("inside.json")
+        try Data("{}".utf8).write(to: inside)
+        let outsideLink = outside.appendingPathComponent("link.json")
+        try manager.createSymbolicLink(at: outsideLink, withDestinationURL: inside)
+        SensitiveExportFiles.removePickedCopy(outsideLink, temporaryDirectory: temporary)
+        XCTAssertNotNil(try? manager.destinationOfSymbolicLink(atPath: outsideLink.path))
+        XCTAssertTrue(manager.fileExists(atPath: inside.path))
+
+        // A link inside tmp that points at a file outside it: only the link goes.
+        let userFile = outside.appendingPathComponent("user.json")
+        try Data("{}".utf8).write(to: userFile)
+        let insideLink = temporary.appendingPathComponent("link.json")
+        try manager.createSymbolicLink(at: insideLink, withDestinationURL: userFile)
+        SensitiveExportFiles.removePickedCopy(insideLink, temporaryDirectory: temporary)
+        XCTAssertNil(try? manager.destinationOfSymbolicLink(atPath: insideLink.path))
+        XCTAssertTrue(manager.fileExists(atPath: userFile.path))
     }
 }
 

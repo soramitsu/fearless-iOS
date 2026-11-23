@@ -281,6 +281,8 @@ tiền Euro";
 "common.ok" = "Đồng ý";
 "update.security.notice.title" = "Ví di động của bạn an toàn";
 "update.security.notice.message" = "Fearless trên iOS và Android không bị ảnh hưởng bởi sự cố bảo mật trong tiện ích Fearless cũ dành cho Chrome.\n\nNếu bạn đã dùng tiện ích Chrome này trước ngày 23 tháng 10 năm 2026, hãy tạo ví mới và chuyển tiền của bạn sang ví đó.";
+"os.security.notice.title" = "Hãy cài đặt bản cập nhật bảo mật mới nhất";
+"os.security.notice.message" = "Các phiên bản iOS và iPadOS cũ có lỗ hổng bảo mật mà các trang web có thể lợi dụng để đánh cắp ví tiền mã hóa. Mở Cài đặt > Cài đặt chung > Cập nhật phần mềm và cài đặt mọi bản cập nhật có sẵn cho thiết bị này.";
 "common.paste" = "Dán";
 "common.payout" = "Thanh toán";
 "common.preview" = "Xem trước";

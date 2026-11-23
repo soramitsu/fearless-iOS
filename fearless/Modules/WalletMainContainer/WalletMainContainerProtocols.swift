@@ -52,6 +52,13 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
 }
 
 protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {
+    /// A startup notice; `onInterrupted` runs when something else, such as the lock screen,
+    /// closes it before the user did.
+    func presentNotice(
+        viewModel: SheetAlertPresentableViewModel,
+        onInterrupted: @escaping () -> Void,
+        from view: ControllerBackedProtocol?
+    )
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?

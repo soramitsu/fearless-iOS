@@ -1375,8 +1375,11 @@ extension AccountImportPresenter: Localizable {
 
 extension AccountImportPresenter: UIDocumentPickerDelegate {
     func documentPicker(_: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        guard let jsonData = try? Data(contentsOf: url, options: .dataReadingMapped),
-              let jsonString = String(data: jsonData, encoding: .utf8) else {
+        // The picker hands over a copy in the app's temporary directory; read it fully,
+        // then remove it so no keystore stays on disk.
+        let jsonData = try? Data(contentsOf: url)
+        SensitiveExportFiles.removePickedCopy(url)
+        guard let jsonData, let jsonString = String(data: jsonData, encoding: .utf8) else {
             showInvalidJsonAlert()
             return
         }

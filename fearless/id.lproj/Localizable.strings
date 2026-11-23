@@ -279,6 +279,8 @@
 "common.ok" = "OK";
 "update.security.notice.title" = "Dompet seluler Anda aman";
 "update.security.notice.message" = "Fearless untuk iOS dan Android tidak terdampak masalah keamanan pada ekstensi Chrome Fearless versi lama.\n\nJika Anda menggunakan ekstensi Chrome tersebut sebelum 23 Oktober 2026, buat dompet baru dan pindahkan dana Anda ke dompet itu.";
+"os.security.notice.title" = "Instal pembaruan keamanan terbaru";
+"os.security.notice.message" = "Versi lama iOS dan iPadOS memiliki celah keamanan yang dapat digunakan situs web untuk mencuri dompet kripto. Buka Pengaturan > Umum > Pembaruan Perangkat Lunak dan instal pembaruan apa pun yang tersedia untuk perangkat ini.";
 "common.paste" = "Tempel";
 "common.payout" = "Pembayaran";
 "common.preview" = "Tinjau";

@@ -66,6 +66,13 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     private var needsAdaptiveReflow = false
     private var needsTypographyRefresh = false
 
+    /// The words to pick (bottom plane) and the words picked so far (top plane) are the
+    /// recovery phrase; the buttons below them stay usable.
+    private lazy var captureGuard = SecretCaptureGuard(
+        owner: self,
+        languages: { [weak self] in self?.selectedLocale.rLanguages }
+    )
+
     private var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? .current
     }
@@ -111,8 +118,19 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         setupLocalization()
         configureLayout()
         updateNextButton()
+        protectWords()
 
         presenter.didLoad(view: self)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        captureGuard.start()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        captureGuard.stop()
     }
 
     override func viewDidLayoutSubviews() {
@@ -230,6 +248,12 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         refreshAdaptiveTypography()
         reflowWordButtons()
         updateNextButton()
+        // The new buttons were added above any covers; put the covers back on top.
+        protectWords()
+    }
+
+    private func protectWords() {
+        captureGuard.protect([topPlaneView, bottomPlaneView])
     }
 
     private func clearButtons() {

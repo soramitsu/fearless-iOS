@@ -153,11 +153,24 @@ extension SheetAlertPresentable {
         viewModel: SheetAlertPresentableViewModel,
         from view: ControllerBackedProtocol?
     ) {
+        presentSheet(viewModel: viewModel, externalDismissalCompletion: nil, from: view)
+    }
+
+    /// `externalDismissalCompletion` runs instead of the view model's `dismissCompletion` when
+    /// something else dismisses the sheet, for example the PIN screen locking the app.
+    func presentSheet(
+        viewModel: SheetAlertPresentableViewModel,
+        externalDismissalCompletion: (() -> Void)?,
+        from view: ControllerBackedProtocol?
+    ) {
         guard let controller = view?.controller else {
             return
         }
 
-        let sheetController = SheetAletViewController(viewModel: viewModel)
+        let sheetController = SheetAletViewController(
+            viewModel: viewModel,
+            externalDismissalCompletion: externalDismissalCompletion
+        )
         sheetController.modalPresentationStyle = .custom
         let factory = ModalSheetBlurPresentationFactory(
             configuration: .fearlessBlur,

@@ -3,6 +3,14 @@ import UIKit
 import SSFModels
 
 final class WalletMainContainerRouter: WalletMainContainerRouterInput {
+    func presentNotice(
+        viewModel: SheetAlertPresentableViewModel,
+        onInterrupted: @escaping () -> Void,
+        from view: ControllerBackedProtocol?
+    ) {
+        presentSheet(viewModel: viewModel, externalDismissalCompletion: onInterrupted, from: view)
+    }
+
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?

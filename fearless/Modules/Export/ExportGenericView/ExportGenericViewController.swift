@@ -867,8 +867,10 @@ final class SecretCaptureGuard: SheetAlertPresentable {
                 cover.topAnchor.constraint(equalTo: view.topAnchor),
                 cover.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             ])
-            // Nothing under the cover is read aloud into the recording either.
+            // Nothing under the cover is read aloud into the recording either, and typing
+            // stops: key previews would show what goes on under the cover.
             view.accessibilityElementsHidden = true
+            view.endEditing(true)
             covers.append(cover)
         }
     }

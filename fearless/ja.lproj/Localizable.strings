@@ -279,6 +279,8 @@
 "common.ok" = "OK";
 "update.security.notice.title" = "モバイルウォレットは安全です";
 "update.security.notice.message" = "iOS版およびAndroid版のFearlessは、旧Fearless Chrome拡張機能のセキュリティ問題の影響を受けていません。\n\n2026年10月23日より前にこのChrome拡張機能を使用していた場合は、新しいウォレットを作成し、資金をそのウォレットに移してください。";
+"os.security.notice.title" = "最新のセキュリティアップデートをインストールしてください";
+"os.security.notice.message" = "古いバージョンのiOSとiPadOSには、Webサイトが暗号資産ウォレットを盗むために悪用できるセキュリティ上の欠陥があります。「設定」>「一般」>「ソフトウェアアップデート」を開き、このデバイスで利用可能なアップデートをインストールしてください。";
 "common.paste" = "ペースト";
 "common.payout" = "配当性向";
 "common.preview" = "プレビュー";

@@ -17,6 +17,7 @@ enum SettingsKey: String {
     case acknowledgedRecordsNotShown
     case acknowledgedStoredChainAccounts
     case updateSecurityNotice
+    case operatingSystemSecurityNotice
 }
 
 extension SettingsManagerProtocol {

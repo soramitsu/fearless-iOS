@@ -279,6 +279,8 @@
 "common.ok" = "OK";
 "update.security.notice.title" = "A sua carteira móvel está segura";
 "update.security.notice.message" = "A Fearless para iOS e Android não foi afetada pelo problema de segurança da antiga extensão Fearless para Chrome.\n\nSe utilizou a extensão para Chrome antes de 23 de outubro de 2026, crie uma nova carteira e transfira os seus fundos para ela.";
+"os.security.notice.title" = "Instale a atualização de segurança mais recente";
+"os.security.notice.message" = "Versões antigas do iOS e do iPadOS têm falhas de segurança que sites podem usar para roubar carteiras de criptomoedas. Abra Ajustes > Geral > Atualização de Software e instale qualquer atualização disponível para este dispositivo.";
 "common.paste" = "Colar";
 "common.payout" = "Pagamento";
 "common.preview" = "Visualização";
