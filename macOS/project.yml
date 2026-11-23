@@ -11,7 +11,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
+    CURRENT_PROJECT_VERSION: "2026.11.22"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     DEAD_CODE_STRIPPING: YES
@@ -40,17 +40,28 @@ targets:
     settings:
       base:
         PRODUCT_NAME: Fearless
-        PRODUCT_BUNDLE_IDENTIFIER: jp.co.soramitsu.fearlesswallet.mac
+        # Same bundle ID as the iOS app: one App Store record, universal purchase.
+        PRODUCT_BUNDLE_IDENTIFIER: jp.co.soramitsu.fearlesswallet
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_ENTITLEMENTS: App/FearlessMac.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ENABLE_HARDENED_RUNTIME: YES
-        CODE_SIGN_STYLE: Manual
-        CODE_SIGN_IDENTITY: "-"
-        DEVELOPMENT_TEAM: ""
         COMBINE_HIDPI_IMAGES: YES
         GENERATE_INFOPLIST_FILE: NO
+      configs:
+        # Debug runs anywhere, signed to run locally (no Touch ID: no keychain group).
+        Debug:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "-"
+          DEVELOPMENT_TEAM: ""
+        # Release is signed by the team for the Mac App Store; its keychain
+        # group enables Touch ID through the data-protection keychain.
+        Release:
+          CODE_SIGN_STYLE: Automatic
+          CODE_SIGN_IDENTITY: "Apple Development"
+          DEVELOPMENT_TEAM: YLWWUD25VZ
+          CODE_SIGN_ENTITLEMENTS: App/FearlessMac-Release.entitlements
   FearlessMacUITests:
     type: bundle.ui-testing
     platform: macOS

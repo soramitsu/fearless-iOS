@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4437C0BD07249EAD1BE35B0F /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E731D72C3EFE111594F6EA /* AppEnvironment.swift */; };
 		5E7029CAC8D6741E8ADB6791 /* WalletCore in Frameworks */ = {isa = PBXBuildFile; productRef = AC835030C9CFD825B7DC5074 /* WalletCore */; };
+		6A0D85F74312873E63AEA264 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EC4F95A241AA35E8EE7FD759 /* PrivacyInfo.xcprivacy */; };
 		7689FEE56F16913115A87E54 /* FearlessMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DD85A12631EB432EC09199 /* FearlessMacApp.swift */; };
 		9D7EC62BB91F0B1011D18F43 /* FearlessMacLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E386C977536793C058726CC6 /* FearlessMacLaunchTests.swift */; };
 		AD305C9BC87480B333AF32A6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0471B5B420F72D65C0DA9498 /* Assets.xcassets */; };
@@ -36,6 +37,7 @@
 		E06B7BBB24CDD0BBFC911853 /* FearlessMacUI */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FearlessMacUI; path = Packages/FearlessMacUI; sourceTree = SOURCE_ROOT; };
 		E386C977536793C058726CC6 /* FearlessMacLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FearlessMacLaunchTests.swift; sourceTree = "<group>"; };
 		E9E731D72C3EFE111594F6EA /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		EC4F95A241AA35E8EE7FD759 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				E9E731D72C3EFE111594F6EA /* AppEnvironment.swift */,
 				0471B5B420F72D65C0DA9498 /* Assets.xcassets */,
 				A2DD85A12631EB432EC09199 /* FearlessMacApp.swift */,
+				EC4F95A241AA35E8EE7FD759 /* PrivacyInfo.xcprivacy */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -151,10 +154,6 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					19CDDF9DA5D0D20B9382DF74 = {
-						DevelopmentTeam = "";
-						ProvisioningStyle = Manual;
-					};
 					60E6B09E94270554299287BE = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Manual;
@@ -193,6 +192,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD305C9BC87480B333AF32A6 /* Assets.xcassets in Resources */,
+				6A0D85F74312873E63AEA264 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,7 +261,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026.11.22;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -299,11 +299,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = App/FearlessMac.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_ENTITLEMENTS = "App/FearlessMac-Release.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
@@ -311,7 +311,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet.mac;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
 				PRODUCT_NAME = Fearless;
 				SDKROOT = macosx;
 			};
@@ -334,7 +334,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet.mac;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
 				PRODUCT_NAME = Fearless;
 				SDKROOT = macosx;
 			};
@@ -394,7 +394,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2026.11.22;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
