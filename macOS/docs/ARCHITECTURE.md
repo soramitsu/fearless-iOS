@@ -85,8 +85,33 @@ assets: native tokens plus USDT/USDC on Asset Hub and Ethereum.
 
 ## Build and test
 
+- Everything at once: `macOS/scripts/verify.sh` (WalletCore, UI and engine
+  package tests, XcodeGen, app build; logs and the app binary hash under
+  `macOS/build/reports/<time>/`). Add `--ui-tests` for the XCUITest launch test.
 - Each package: `swift build` / `swift test` in its folder. Use a private
-  scratch path per lane when lanes build at the same time
-  (`--scratch-path .build-<lane>`), because SwiftPM locks `.build`.
+  scratch path when several builds run at once
+  (`--scratch-path .build-<name>`), because SwiftPM locks `.build`.
 - App: `xcodegen` in `macOS/`, then
   `xcodebuild -project macOS/FearlessMac.xcodeproj -scheme FearlessMac -configuration Debug build`.
+- Engine against real networks (read-only, never submits):
+  `FEARLESS_LIVE_TESTS=1 swift test` in `Packages/FearlessMacEngine`.
+- Screens over the live engine: `swift run --package-path macOS/Tools/LiveGallery LiveGallery <out> docs/universal-wallet-v2-vectors.json`
+  renders the main screens offscreen with a throwaway store, imports the
+  public test phrase and checks the derived addresses against the
+  cross-platform vectors. It never renders a screen that submits.
+- Screens over sample data: `swift run --package-path macOS/Packages/FearlessMacUI FearlessMacSnapshots <out>`.
+- Native: `python3 scripts/deps/test-native-source.py` and
+  `python3 scripts/deps/verify-native-source.py .` (the macOS sr25519 slice is
+  a versioned framework; its symlinks are recorded in `nativeBinarySymlinks`).
+
+## Known gaps (first release)
+
+- Importing a phrase whose Substrate derivation password was created under
+  an older Fearless normalisation rule (NFC / as typed, non-ASCII passwords
+  only) restores the NFKD account only. Needs a `DerivationOptions` rule field;
+  request in `build/reports/macos-desktop/codex-engine-fixes/L8-contract-request.md`.
+- History is not paged; chains without a working indexer show only transfers
+  sent from this Mac.
+- Touch ID needs a build signed with the team's provisioning profile
+  (data-protection keychain); ad-hoc builds offer the password only.
+- No staking, swaps, dApp connections or TON/Bitcoin yet.
