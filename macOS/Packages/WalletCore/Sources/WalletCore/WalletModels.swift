@@ -41,6 +41,8 @@ public struct WalletAccount: Hashable, Codable, Sendable {
     /// Substrate: the account public key (32 bytes, 33 for ECDSA).
     /// EVM: the 20-byte account address.
     public var publicKey: Data
+    /// Hard/soft derivation path (e.g. `//polkadot`); never contains the
+    /// `///password` part. Nil when empty.
     public var derivationPath: String?
 
     public init(ecosystem: Ecosystem, cryptoType: CryptoType, publicKey: Data, derivationPath: String?) {
@@ -128,7 +130,11 @@ public struct DerivationOptions: Hashable, Codable, Sendable {
 }
 
 public enum WalletImportSource: Sendable, Hashable {
-    /// New or existing BIP-39 phrase; gives a Substrate and an EVM account.
+    /// A phrase this Mac just generated with `generateMnemonic`. Stored with
+    /// origin `.created` and `isBackedUp == false` until `markBackedUp`.
+    case created(words: [String], options: DerivationOptions)
+    /// An existing BIP-39 phrase; gives a Substrate and an EVM account.
+    /// Stored with origin `.mnemonic` and counted as backed up.
     case mnemonic(words: [String], options: DerivationOptions)
     /// Raw 32-byte seed (Substrate) or private key (EVM), hex with or without `0x`.
     case seed(hex: String, ecosystem: Ecosystem, options: DerivationOptions)
@@ -136,6 +142,22 @@ public enum WalletImportSource: Sendable, Hashable {
     case json(data: Data, password: String)
     /// Addresses only; cannot sign.
     case watchOnly(substrateAddress: String?, evmAddress: String?)
+}
+
+/// A recovery phrase with everything needed to restore the same accounts.
+/// The Substrate path may contain a `///password` part: show it only after
+/// the user re-authenticated.
+public struct MnemonicBackup: Hashable, Sendable {
+    public var words: [String]
+    public var options: DerivationOptions
+
+    public init(words: [String], options: DerivationOptions) {
+        self.words = words
+        self.options = options
+    }
+
+    /// True when restoring needs more than the words (non-default crypto type or paths).
+    public var needsDerivationDetails: Bool { options != .standard }
 }
 
 /// Addresses a source would produce, shown before the user commits an import.

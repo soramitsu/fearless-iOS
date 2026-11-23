@@ -39,12 +39,14 @@ public protocol WalletServicing: Sendable {
     func previewAddresses(for source: WalletImportSource) async throws -> WalletAddressPreview
     /// Stores a new wallet. Needs an unlocked vault (except watch-only).
     /// Throws `.duplicateWallet` if the same accounts already exist.
+    /// `.created` wallets start with `isBackedUp == false`; every other
+    /// source is stored as backed up (the user already holds the backup).
     func addWallet(name: String, source: WalletImportSource) async throws -> Wallet
     func renameWallet(_ id: WalletID, to name: String) async throws
     func deleteWallet(_ id: WalletID) async throws
     func markBackedUp(_ id: WalletID) async throws
-    /// Re-verifies the user, then returns the phrase.
-    func exportMnemonic(_ id: WalletID, approval: UserApproval) async throws -> [String]
+    /// Re-verifies the user, then returns the phrase with its derivation options.
+    func exportMnemonic(_ id: WalletID, approval: UserApproval) async throws -> MnemonicBackup
     /// Polkadot.js-compatible JSON keystore of the wallet's account for `ecosystem`.
     func exportJSON(_ id: WalletID, ecosystem: Ecosystem, approval: UserApproval, exportPassword: String) async throws -> Data
     /// The wallet's address on `chainID`, formatted for that chain.
@@ -79,16 +81,20 @@ public protocol PriceServicing: Sendable {
 public protocol TransferServicing: Sendable {
     func validateRecipient(_ address: String, on chainID: ChainID) async -> RecipientValidation
     /// Fee, max sendable and every issue for a draft. Never throws; network
-    /// problems become `.network` issues.
+    /// problems become `.network` issues. `fee` and `maxSendable` are
+    /// estimated (against the wallet's own address) also when the recipient
+    /// is empty or invalid or the amount is zero, so "Max" works on a
+    /// half-filled form; the issues still report what is missing.
     func prepare(_ request: TransferRequest) async -> TransferPreparation
     /// Re-verifies the user, signs and submits; the stream reports each stage
-    /// and ends after `.finalized` or `.failed`. Throws before signing on a
+    /// and ends after `.finalized`, `.failed` or `.outcomeUnknown`. Throws before signing on a
     /// failed approval or a blocking issue.
     func submit(_ request: TransferRequest, approval: UserApproval) async throws -> AsyncThrowingStream<TransferProgress, Error>
 }
 
 public protocol ActivityServicing: Sendable {
     /// History of the wallet, newest first, optionally limited to some assets.
+    /// Not paged yet: the engine returns at most a recent window per chain.
     func activity(of walletID: WalletID, assets: [AssetID]?) async throws -> ActivityPage
 }
 

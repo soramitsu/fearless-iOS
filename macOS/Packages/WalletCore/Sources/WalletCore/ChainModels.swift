@@ -106,6 +106,9 @@ public struct Asset: Identifiable, Hashable, Codable, Sendable {
     public var iconName: String?
     /// True for stablecoins and other assets shown with fiat-like precision.
     public var isStablecoin: Bool
+    /// File stem in `remote-config/production/icons/tokens/coloured/`
+    /// (e.g. `"USDT"`), if the token has its own coloured icon.
+    public var tokenIconName: String?
 
     public init(
         id: AssetID,
@@ -116,7 +119,8 @@ public struct Asset: Identifiable, Hashable, Codable, Sendable {
         priceID: String? = nil,
         existentialDeposit: TokenAmount? = nil,
         iconName: String? = nil,
-        isStablecoin: Bool = false
+        isStablecoin: Bool = false,
+        tokenIconName: String? = nil
     ) {
         self.id = id
         self.symbol = symbol
@@ -127,6 +131,7 @@ public struct Asset: Identifiable, Hashable, Codable, Sendable {
         self.existentialDeposit = existentialDeposit
         self.iconName = iconName
         self.isStablecoin = isStablecoin
+        self.tokenIconName = tokenIconName
     }
 
     public var chainID: ChainID { id.chainID }

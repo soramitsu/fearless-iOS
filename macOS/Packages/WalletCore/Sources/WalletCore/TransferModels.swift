@@ -73,12 +73,17 @@ public struct TransferPreparation: Hashable, Sendable {
 }
 
 /// Stages of a submitted transfer, in order. The stream ends after
-/// `.finalized` or `.failed`.
+/// `.finalized`, `.failed` or `.outcomeUnknown`.
 public enum TransferProgress: Hashable, Sendable {
     case signed
     case broadcast(hash: String, explorerURL: URL?)
     /// Included in a block (Substrate in-block / EVM receipt).
     case included(blockHash: String?)
     case finalized
+    /// The network definitively rejected or failed the transaction.
     case failed(reason: String)
+    /// The transaction was broadcast but its final outcome could not be
+    /// confirmed (connection lost, deadline passed). It may still succeed:
+    /// the user should check the explorer before sending again.
+    case outcomeUnknown(reason: String)
 }
