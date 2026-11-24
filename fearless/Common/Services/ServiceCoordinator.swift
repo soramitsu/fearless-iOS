@@ -191,7 +191,9 @@ private extension ServiceCoordinator {
                     return
                 }
                 guard needsProvisioning,
-                      let root = try appOwnedMnemonicProvider.rootSecret(for: wallet) else {
+                      let root = try WalletSecretAuthorization.withoutPrompt({
+                          try appOwnedMnemonicProvider.rootSecret(for: wallet)
+                      }) else {
                     backfillDescriptorsAndRefresh(wallet)
                     finishAppOwnedProvisioning(for: wallet.metaId)
                     return

@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 import SoraKeystore
 
 /// Consecutive wrong PINs and the lockout they started.
@@ -213,6 +214,7 @@ class LocalAuthInteractor {
     private let authorizedUnlock: WalletAuthorizedUnlock
     private let upgradesPincode: () -> Bool
     private let verifierQueue: DispatchQueue
+    private let secretAuthorization: WalletSecretAuthorization
 
     init(
         secretManager: SecretStoreManagerProtocol,
@@ -223,8 +225,10 @@ class LocalAuthInteractor {
         enrollmentGuard: BiometryEnrollmentGuarding = BiometryEnrollmentGuard.shared,
         authorizedUnlock: WalletAuthorizedUnlock = .shared,
         upgradesPincode: @escaping () -> Bool = { ProtectedKeychainPolicy.isEnabled },
-        verifierQueue: DispatchQueue = .global(qos: .userInitiated)
+        verifierQueue: DispatchQueue = .global(qos: .userInitiated),
+        secretAuthorization: WalletSecretAuthorization = .shared
     ) {
+        self.secretAuthorization = secretAuthorization
         self.upgradesPincode = upgradesPincode
         self.verifierQueue = verifierQueue
         self.secretManager = secretManager
@@ -285,9 +289,17 @@ class LocalAuthInteractor {
         // lockout, which only limits PIN guesses, and it never clears the count of wrong PINs.
         let accepted = result && enrollmentGuard.isCurrentEnrollmentTrusted()
         changeState(to: accepted ? .completed : .waitingPincode)
+        let evaluated = biometryAuth.takeEvaluatedContext()
         if accepted {
+            // The face or finger was accepted by this screen's own checks: the operation it opens
+            // may read protected wallet items without asking again.
+            if let evaluated {
+                secretAuthorization.adopt(evaluated.context, ifStill: evaluated.generation)
+            }
             authorizedUnlock.recordUnlock()
             deliver(attempt) { $0.didCompleteAuth() }
+        } else {
+            evaluated?.context.invalidate()
         }
     }
 
@@ -300,9 +312,10 @@ class LocalAuthInteractor {
             return
         }
         verifierQueue.async { [weak self] in
-            let matched = PincodeVerifier.matches(entered, stored: stored)
+            let check = PincodeVerifier.check(entered, stored: stored)
             self?.onMain { [weak self] in
-                self?.processStored(pin: stored, matched: matched, attempt: attempt)
+                // A damaged verifier is treated like an unreadable PIN: not the user's mistake.
+                self?.processStored(pin: check == .unreadable ? nil : stored, matched: check == .match, attempt: attempt)
             }
         }
     }
@@ -336,7 +349,7 @@ class LocalAuthInteractor {
         attemptLimiter.reset()
         enrollmentGuard.trustCurrentEnrollment()
         if !PincodeVerifier.isVerifier(stored), upgradesPincode() {
-            PincodeVerifierUpgrade.upgrade(pin: entered, secretManager: secretManager)
+            PinSaveCoordinator.shared.upgrade(plain: stored, using: secretManager)
         }
         authorizedUnlock.recordUnlock()
         changeState(to: .completed)

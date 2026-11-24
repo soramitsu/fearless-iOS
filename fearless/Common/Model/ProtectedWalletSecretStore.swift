@@ -38,6 +38,16 @@ enum WalletSecretTag {
         )
     }
 
+    /// The account a tag of `walletId` belongs to: "" for the wallet's root items, the account id
+    /// in hex for an account imported on its own. Nil for other tags.
+    static func accountScope(of tag: String, walletId: MetaAccountId) -> String? {
+        guard belongs(tag, to: walletId),
+              let suffix = suffixes.first(where: { tag.hasSuffix($0) }) else {
+            return nil
+        }
+        return String(tag.dropFirst(walletId.count).dropLast(suffix.count))
+    }
+
     /// True when `tag` ends like a wallet-secret tag of some wallet.
     static func hasWalletSuffix(_ tag: String) -> Bool {
         suffixes.contains { tag.hasSuffix($0) && tag.count > $0.count }
@@ -101,13 +111,22 @@ struct ProtectedWalletSecretRecord: Codable, Equatable {
         }
     }
 
-    var version = 1
+    static let currentVersion = 1
+
+    var version = ProtectedWalletSecretRecord.currentVersion
     let walletId: MetaAccountId
     var state: State
     var tags: [String]
     var attempts: Int
     var reason: String?
     var updatedAt: Date
+
+    /// A record is trusted only when it is this version, names the item it was read from, and
+    /// lists only that wallet's own wallet-secret tags.
+    func isValid(storedUnder account: String) -> Bool {
+        version == Self.currentVersion && walletId == account && !tags.isEmpty
+            && tags.allSatisfy { WalletSecretTag.belongs($0, to: walletId) }
+    }
 }
 
 protocol ProtectedWalletSecretJournaling: AnyObject {
@@ -128,7 +147,9 @@ final class KeychainProtectedWalletSecretJournal: ProtectedWalletSecretJournalin
 
     init(service: String = KeychainProtectedWalletSecretJournal.service) throws {
         self.service = service
-        cache = try Self.loadAll(service: service)
+        let loaded = try Self.loadAll(service: service)
+        cache = loaded.records
+        invalidWalletIds = loaded.invalid
     }
 
     var records: [ProtectedWalletSecretRecord] {
@@ -191,31 +212,53 @@ final class KeychainProtectedWalletSecretJournal: ProtectedWalletSecretJournalin
         return decoder
     }()
 
-    private static func loadAll(service: String) throws -> [MetaAccountId: ProtectedWalletSecretRecord] {
-        let query: [String: Any] = [
+    /// Wallets whose record could not be decoded or validated. The router treats them as having
+    /// no journal: each tag stays with whichever store holds it.
+    private(set) var invalidWalletIds: [MetaAccountId] = []
+
+    /// Accounts first (attributes only), then each record on its own: iOS does not return the data
+    /// of every generic password in one query.
+    private static func loadAll(
+        service: String
+    ) throws -> (records: [MetaAccountId: ProtectedWalletSecretRecord], invalid: [MetaAccountId]) {
+        let listQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrSynchronizable as String: kCFBooleanFalse as Any,
             kSecReturnAttributes as String: kCFBooleanTrue as Any,
-            kSecReturnData as String: kCFBooleanTrue as Any,
             kSecMatchLimit as String: kSecMatchLimitAll
         ]
         var items: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &items)
+        let status = SecItemCopyMatching(listQuery as CFDictionary, &items)
         if status == errSecItemNotFound {
-            return [:]
+            return ([:], [])
         }
         try check(status)
-        var result: [MetaAccountId: ProtectedWalletSecretRecord] = [:]
-        for item in (items as? [[String: Any]]) ?? [] {
-            guard let data = item[kSecValueData as String] as? Data,
-                  let record = try? decoder.decode(ProtectedWalletSecretRecord.self, from: data)
+        let accounts = ((items as? [[String: Any]]) ?? []).compactMap { $0[kSecAttrAccount as String] as? String }
+
+        var records: [MetaAccountId: ProtectedWalletSecretRecord] = [:]
+        var invalid: [MetaAccountId] = []
+        for account in accounts {
+            let itemQuery: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: service,
+                kSecAttrAccount as String: account,
+                kSecAttrSynchronizable as String: kCFBooleanFalse as Any,
+                kSecReturnData as String: kCFBooleanTrue as Any,
+                kSecMatchLimit as String: kSecMatchLimitOne
+            ]
+            var data: CFTypeRef?
+            try check(SecItemCopyMatching(itemQuery as CFDictionary, &data))
+            guard let bytes = data as? Data,
+                  let record = try? decoder.decode(ProtectedWalletSecretRecord.self, from: bytes),
+                  record.isValid(storedUnder: account)
             else {
+                invalid.append(account)
                 continue
             }
-            result[record.walletId] = record
+            records[account] = record
         }
-        return result
+        return (records, invalid)
     }
 
     private static func check(_ status: OSStatus) throws {
@@ -245,13 +288,27 @@ enum ProtectedKeychainStrings {
     }
 }
 
-/// Sends the wallet-secret tags of journaled wallets to protected items (design doc 3.2).
+/// Serializes wallet-secret writes with the part of a move that copies, compares and switches
+/// authority, so no write lands in a store the move is about to retire.
+enum WalletSecretWriteLock {
+    private static let lock = NSRecursiveLock()
+
+    static func perform<T>(_ body: () throws -> T) rethrows -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return try body()
+    }
+}
+
+/// Routes wallet-secret tags between the legacy and the protected items (design doc 3.2).
 ///
-/// - A wallet that is not moved, or whose move has not reached `verified`, reads its legacy items;
-///   if one is missing and a protected copy exists, that copy.
-/// - From `verified` on, reads go to the protected item; only a missing item (never a cancelled
-///   sheet or a failed authentication) falls back to a legacy item.
-/// - Writes go where reads go; deletes remove both.
+/// - A tag whose wallet's move reached `verified` reads its protected item when one exists
+///   (checked without a prompt), else its legacy item. A cancelled sheet or failed
+///   authentication never falls back to the legacy item.
+/// - Any other tag reads its legacy item, else a protected item left by an earlier move.
+/// - Writes go to the protected item only for tags a verified move covered; a tag added to a
+///   moved wallet later stays legacy until a move covers it. Without a usable journal, the store
+///   that holds the tag keeps it. Deletes remove both.
 final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
     private let legacy: KeystoreProtocol
     private let protected: ProtectedSecretBackend
@@ -281,11 +338,12 @@ final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
 
     func fetchKey(for identifier: String) throws -> Data {
         if readsProtected(identifier) {
-            do {
-                return try readProtected(identifier)
-            } catch ProtectedKeychainError.noKeyFound {
+            // Existence first, without a prompt: a vanished item (passcode removed) must reach a
+            // surviving legacy original instead of failing at the sheet.
+            guard try protected.exists(for: identifier) else {
                 return try legacy.fetchKey(for: identifier)
             }
+            return try readProtected(identifier)
         }
         do {
             return try legacy.fetchKey(for: identifier)
@@ -302,39 +360,45 @@ final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
     }
 
     func addKey(_ key: Data, with identifier: String) throws {
-        guard readsProtected(identifier) else {
-            return try legacy.addKey(key, with: identifier)
-        }
-        do {
-            try protected.add(key, for: identifier)
-        } catch ProtectedKeychainError.duplicatedItem {
-            throw KeystoreError.duplicatedItem
+        try WalletSecretWriteLock.perform {
+            guard try writesProtected(identifier) else {
+                return try legacy.addKey(key, with: identifier)
+            }
+            do {
+                try protected.add(key, for: identifier)
+            } catch ProtectedKeychainError.duplicatedItem {
+                throw KeystoreError.duplicatedItem
+            }
         }
     }
 
     func updateKey(_ key: Data, with identifier: String) throws {
-        guard readsProtected(identifier) else {
-            return try legacy.updateKey(key, with: identifier)
+        try WalletSecretWriteLock.perform {
+            guard try writesProtected(identifier) else {
+                return try legacy.updateKey(key, with: identifier)
+            }
+            guard try protected.exists(for: identifier) else {
+                return try protected.add(key, for: identifier)
+            }
+            let context = try authorization.context(reason: ProtectedKeychainStrings.readReason, authorizer: authorizer)
+            try protected.update(key, for: identifier, context: context)
         }
-        guard try protected.exists(for: identifier) else {
-            return try protected.add(key, for: identifier)
-        }
-        let context = try authorization.context(reason: ProtectedKeychainStrings.readReason, authorizer: authorizer)
-        try protected.update(key, for: identifier, context: context)
     }
 
     func deleteKey(for identifier: String) throws {
-        var deleted = false
-        if try legacy.checkKey(for: identifier) {
-            try legacy.deleteKey(for: identifier)
-            deleted = true
-        }
-        if try protected.exists(for: identifier) {
-            try protected.delete(for: identifier)
-            deleted = true
-        }
-        guard deleted else {
-            throw KeystoreError.noKeyFound
+        try WalletSecretWriteLock.perform {
+            var deleted = false
+            if try legacy.checkKey(for: identifier) {
+                try legacy.deleteKey(for: identifier)
+                deleted = true
+            }
+            if try protected.exists(for: identifier) {
+                try protected.delete(for: identifier)
+                deleted = true
+            }
+            guard deleted else {
+                throw KeystoreError.noKeyFound
+            }
         }
     }
 
@@ -346,8 +410,69 @@ final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
         walletRecord(for: tag)?.state.readsProtected == true
     }
 
+    private func writesProtected(_ tag: String) throws -> Bool {
+        if let record = walletRecord(for: tag), record.state.readsProtected, record.tags.contains(tag) {
+            return true
+        }
+        // Otherwise the store that already holds the item keeps it (a missing or damaged journal,
+        // or a move that stopped with some items protected only).
+        return try !legacy.checkKey(for: tag) && protected.exists(for: tag)
+    }
+
     private func readProtected(_ tag: String) throws -> Data {
+        if WalletSecretAuthorization.isPromptSuppressed, authorization.currentContext() == nil {
+            // Background maintenance never shows a sheet; it waits for an operation the user starts.
+            throw ProtectedKeychainError.interactionNotAllowed
+        }
         let context = try authorization.context(reason: ProtectedKeychainStrings.readReason, authorizer: authorizer)
         return try protected.read(for: tag, context: context)
+    }
+}
+
+// MARK: - Recovery evidence
+
+/// What the user has shown they can recover, per wallet: its root items ("") or an account
+/// imported on its own (the account id in hex). Recorded when the material was just typed in
+/// (an import, a restore from a backup) or a new phrase was confirmed word by word; never by
+/// "skip" or a partial cloud backup. A move takes only tags the evidence covers, because
+/// removing the device passcode erases protected items.
+final class ProtectedKeychainRecoveryEvidence {
+    static let shared = ProtectedKeychainRecoveryEvidence()
+    static let storageKey = "protectedKeychain.recoveryEvidence.v1"
+    static let rootScope = ""
+
+    private let userDefaults: UserDefaults
+    private let lock = NSLock()
+
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+    }
+
+    func record(walletId: MetaAccountId, scope: String = ProtectedKeychainRecoveryEvidence.rootScope) {
+        lock.lock()
+        defer { lock.unlock() }
+        var stored = (userDefaults.dictionary(forKey: Self.storageKey) as? [String: [String]]) ?? [:]
+        var scopes = Set(stored[walletId] ?? [])
+        scopes.insert(scope)
+        stored[walletId] = scopes.sorted()
+        userDefaults.set(stored, forKey: Self.storageKey)
+    }
+
+    func covers(tag: String, walletId: MetaAccountId) -> Bool {
+        guard let scope = WalletSecretTag.accountScope(of: tag, walletId: walletId) else {
+            return false
+        }
+        lock.lock()
+        defer { lock.unlock() }
+        let stored = (userDefaults.dictionary(forKey: Self.storageKey) as? [String: [String]]) ?? [:]
+        return stored[walletId]?.contains(scope) == true
+    }
+
+    func forget(walletId: MetaAccountId) {
+        lock.lock()
+        defer { lock.unlock() }
+        var stored = (userDefaults.dictionary(forKey: Self.storageKey) as? [String: [String]]) ?? [:]
+        stored[walletId] = nil
+        userDefaults.set(stored, forKey: Self.storageKey)
     }
 }

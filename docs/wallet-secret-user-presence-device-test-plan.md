@@ -44,8 +44,11 @@ ends the process right after that journal state is saved (D5).
 note every address and balance. Install this branch's Debug build over it with the flag on.
 Unlock with the PIN.
 - Expect one system sheet ("Protect your wallet keys with your iPhone passcode") and no second.
-- Expect fixtures 1, 3–8 `committed`, fixture 2 not moved (`notBackedUp`). Check from Xcode's
-  console: `Protected keychain: a wallet moved` per wallet.
+- Expect the fixtures imported or confirmed with **this** build `committed` and every fixture made
+  by the "before" build not moved (`recoveryUnverified`: no recovery evidence; see design doc 6).
+  For D1 therefore re-import fixtures 3–8 with this build first (and create fixture 1 with the
+  phrase confirmed), keeping fixture 2 unconfirmed. Check the console for
+  `Protected keychain: a wallet moved` per wallet.
 - Every address and balance equals the notes; Bitcoin balance of fixture 8 is complete.
 - Export each moved wallet's phrase / JSON: one system sheet each, the material equals the
   original. Send a small testnet amount from fixtures 1 and 8 and sign a TON proof from fixture 6:
@@ -97,7 +100,10 @@ with the PIN, accept the sheet. Repeat D1's checks. Then veto: set `protected_ke
 in the development remote config the build reads, relaunch: moved wallets still work, new wallets
 do not move. Clear the veto.
 
-**D11. Dump check.** On the device after D1, from the Xcode debugger (Debug build) run a query for
+**D10b. Older wallets.** With the "before" build's fixtures left as they are, confirm nothing moves
+and every operation works exactly as before (no sheet at all).
+
+**D11. Dump check.** Exit criterion, not optional. On the device after D1, from the Xcode debugger (Debug build) run a query for
 `kSecClassKey` items with the moved wallets' tags: none. Query the protected items with an
 `LAContext` whose `interactionNotAllowed = true`: `errSecInteractionNotAllowed` (the item exists
 but needs the owner). This is the property DarkSword's dump would hit.

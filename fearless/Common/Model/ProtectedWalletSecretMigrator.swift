@@ -4,6 +4,7 @@ import IrohaCrypto
 import LocalAuthentication
 import SoraKeystore
 import SSFModels
+import TonSwift
 
 /// Public facts a wallet's secrets prove, read through a keystore. The migrator computes them over
 /// the legacy items and again over the protected copies: equal results mean the copies serve every
@@ -29,6 +30,15 @@ struct ProtectedWalletIdentityCheck: ProtectedWalletIdentityChecking {
             entries.append("ton=\(Self.verified)")
         }
         return entries
+    }
+
+    /// Every identity a fingerprint lists must be a positive proof: a stored account its secret
+    /// does not derive, a chain account no own key signs for, or a key that fails to sign defers
+    /// the wallet. Only the root digest is a value rather than a proof.
+    static func provesEveryIdentity(_ fingerprint: [String]) -> Bool {
+        fingerprint.allSatisfy { entry in
+            entry.hasPrefix("root=") ? !entry.hasPrefix("root=error") : entry.hasSuffix("=\(verified)")
+        }
     }
 
     func fingerprint(of wallet: MetaAccountModel, keystore: KeystoreProtocol) -> [String] {
@@ -71,6 +81,14 @@ struct ProtectedWalletIdentityCheck: ProtectedWalletIdentityChecking {
                 outcome = "error:\(Self.describe(error))"
             }
             entries.append("ton=\(outcome)")
+            // The stored phrase must recreate the stored account: it is the recovery source.
+            let phraseTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId)
+            if (try? keystore.checkKey(for: phraseTag)) == true {
+                let derived = try? TonSwift.Mnemonic.mnemonicToPrivateKey(
+                    mnemonicArray: ton.mnemonic(from: keystore.fetchKey(for: phraseTag)).allWords()
+                ).publicKey.data
+                entries.append("tonPhrase=\(derived == ton.publicKey ? Self.verified : "mismatch")")
+            }
         }
 
         if let accountId = wallet.substrateAccountId, let publicKey = wallet.substratePublicKey,
@@ -97,7 +115,8 @@ struct ProtectedWalletIdentityCheck: ProtectedWalletIdentityChecking {
                 ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: account.accountId)
                 : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: account.accountId)
             guard (try? keystore.checkKey(for: tag)) == true else {
-                entries.append("chain.\(account.chainId).\(account.accountId.toHex())=root")
+                // No own key: nothing here proves this account can sign. Not a proof.
+                entries.append("chain.\(account.chainId).\(account.accountId.toHex())=nokey")
                 continue
             }
             entries.append("chain.\(account.chainId).\(account.accountId.toHex())=" + signs(
@@ -177,23 +196,29 @@ struct ProtectedWalletIdentityCheck: ProtectedWalletIdentityChecking {
 
 /// Moves one wallet's secrets to items that need the device owner (design doc 3.5).
 ///
-/// Order, with one device-owner context: journal `staging` → add each protected copy → `written`
-/// → read each copy back with the context and compare bytes → verify the wallet's identities
-/// from the copies → `verified` (reads move) → make the public data background work needs →
-/// delete the legacy originals → `committed`. Any failure before `verified` deletes this
-/// attempt's copies and leaves the legacy items untouched.
+/// Order, with one device-owner context: copy, compare and switch authority under
+/// `WalletSecretWriteLock` (journal `staging` → add each protected copy → `written` → read each
+/// copy back with the context and compare bytes → verify every identity from the copies →
+/// `verified`); then make the public data background work needs, delete each legacy original
+/// whose copy still exists, `committed`. Any failure before `verified` deletes this attempt's
+/// copies of items whose originals exist and leaves the originals untouched. No step ever deletes
+/// the only copy of an item.
 final class ProtectedWalletSecretMigrator {
     enum DeferReason: String, Error, Equatable {
         case disabled
         case passcodeNotSet
-        case notBackedUp
+        /// No recovery evidence covers every item of the wallet (`ProtectedKeychainRecoveryEvidence`).
+        case recoveryUnverified
         case unknownTags
         case noSecrets
         case identityUnavailable
+        case changedDuringMove
         case canceled
         case authenticationFailed
         case verificationFailed
         case keychainUnavailable
+        /// Some copies vanished while their originals remain: both are kept.
+        case copyMissing
         case lost
     }
 
@@ -210,6 +235,7 @@ final class ProtectedWalletSecretMigrator {
     private let authorization: WalletSecretAuthorization
     private let authorizer: DeviceOwnerAuthorizing
     private let identityCheck: ProtectedWalletIdentityChecking
+    private let evidence: ProtectedKeychainRecoveryEvidence
     private let descriptorStore: BitcoinAccountDescriptorStore?
     private let isEnabled: () -> Bool
     private let now: () -> Date
@@ -225,13 +251,13 @@ final class ProtectedWalletSecretMigrator {
         authorization: WalletSecretAuthorization = .shared,
         authorizer: DeviceOwnerAuthorizing = SystemDeviceOwnerAuthorizer(),
         identityCheck: ProtectedWalletIdentityChecking = ProtectedWalletIdentityCheck(),
+        evidence: ProtectedKeychainRecoveryEvidence = .shared,
         descriptorStore: BitcoinAccountDescriptorStore? = .shared,
         isEnabled: @escaping () -> Bool = { ProtectedKeychainPolicy.isEnabled },
         now: @escaping () -> Date = Date.init,
         logger: LoggerProtocol? = Logger.shared,
         afterJournalSave: @escaping (ProtectedWalletSecretRecord.State) -> Void = { _ in }
     ) {
-        self.afterJournalSave = afterJournalSave
         self.legacy = legacy
         self.inventory = inventory
         self.protected = protected
@@ -239,31 +265,34 @@ final class ProtectedWalletSecretMigrator {
         self.authorization = authorization
         self.authorizer = authorizer
         self.identityCheck = identityCheck
+        self.evidence = evidence
         self.descriptorStore = descriptorStore
         self.isEnabled = isEnabled
         self.now = now
         self.logger = logger
+        self.afterJournalSave = afterJournalSave
     }
 
     // MARK: Recovery
 
     /// Finishes or undoes moves an interruption left half done, and marks committed wallets whose
-    /// protected items vanished. Never shows a prompt. Returns the wallets that are `lost`.
+    /// protected items vanished. Never shows a prompt and never deletes the only copy of an item.
+    /// Returns the wallets that are `lost`.
     @discardableResult
     func recoverInterrupted() -> [MetaAccountId] {
         var lost: [MetaAccountId] = []
         for record in journal.records {
             switch record.state {
             case .staging, .written:
-                // The legacy items were never touched: drop this attempt's copies.
-                deleteProtectedCopies(record.tags)
+                // Authority never left the originals: drop this attempt's copies where an original exists.
+                deleteCopiesBackedByOriginals(record.tags)
                 save(record, state: .deferred, reason: "interrupted")
             case .verified:
                 if finishCommit(record) == .lost {
                     lost.append(record.walletId)
                 }
             case .committed:
-                if hasLostItems(record) {
+                if lostTags(record).isEmpty == false {
                     save(record, state: .lost, reason: DeferReason.lost.rawValue)
                     lost.append(record.walletId)
                 }
@@ -286,11 +315,6 @@ final class ProtectedWalletSecretMigrator {
         guard authorizer.isPasscodeSet else {
             return .failure(.passcodeNotSet)
         }
-        // Removing the passcode erases protected items: only a wallet whose recovery the user
-        // already has may depend on them.
-        guard wallet.hasBackup else {
-            return .failure(.notBackedUp)
-        }
         let tags: [String]
         do {
             tags = try inventory.applicationTags()
@@ -303,6 +327,11 @@ final class ProtectedWalletSecretMigrator {
         let walletTags = tags.filter { WalletSecretTag.belongs($0, to: wallet.metaId) }.sorted()
         guard !walletTags.isEmpty else {
             return .failure(.noSecrets)
+        }
+        // Removing the passcode erases protected items: every item must be one the user has shown
+        // they can recover.
+        guard walletTags.allSatisfy({ evidence.covers(tag: $0, walletId: wallet.metaId) }) else {
+            return .failure(.recoveryUnverified)
         }
         return .success(walletTags)
     }
@@ -321,9 +350,12 @@ final class ProtectedWalletSecretMigrator {
             case .lost:
                 return .deferred(.lost)
             case .staging, .written:
-                deleteProtectedCopies(record.tags)
+                deleteCopiesBackedByOriginals(record.tags)
             case .deferred:
-                break
+                // Copies kept because their originals vanished first are never retried over.
+                if record.reason == DeferReason.copyMissing.rawValue {
+                    return .deferred(.copyMissing)
+                }
             }
         }
 
@@ -332,24 +364,20 @@ final class ProtectedWalletSecretMigrator {
         case let .success(found):
             tags = found
         case let .failure(reason):
-            return deferMigration(of: wallet, reason, tags: [])
+            return deferMigration(of: wallet, reason)
         }
 
         // The legacy bytes, and the identities they prove from the whole legacy store and from
         // this wallet's items alone: equal means no item the wallet needs is left behind.
-        var originals: [String: Data] = [:]
-        do {
-            for tag in tags {
-                originals[tag] = try legacy.fetchKey(for: tag)
-            }
-        } catch {
-            return deferMigration(of: wallet, .keychainUnavailable, tags: [])
+        guard let originals = try? read(tags) else {
+            return deferMigration(of: wallet, .keychainUnavailable)
         }
         let expected = identityCheck.fingerprint(of: wallet, keystore: legacy)
-        guard identityCheck.requiredEntries(for: wallet).allSatisfy(expected.contains),
+        guard ProtectedWalletIdentityCheck.provesEveryIdentity(expected),
+              identityCheck.requiredEntries(for: wallet).allSatisfy(expected.contains),
               identityCheck.fingerprint(of: wallet, keystore: Self.memoryKeystore(originals)) == expected
         else {
-            return deferMigration(of: wallet, .identityUnavailable, tags: [])
+            return deferMigration(of: wallet, .identityUnavailable)
         }
 
         let context: LAContext
@@ -358,7 +386,7 @@ final class ProtectedWalletSecretMigrator {
         } else {
             // The system sheet must never block the main thread; the coordinator runs this on its queue.
             guard !Thread.isMainThread else {
-                return deferMigration(of: wallet, .authenticationFailed, tags: [])
+                return deferMigration(of: wallet, .authenticationFailed)
             }
             do {
                 context = try authorization.context(
@@ -366,8 +394,47 @@ final class ProtectedWalletSecretMigrator {
                     authorizer: authorizer
                 )
             } catch {
-                return deferMigration(of: wallet, Self.reason(for: error), tags: [])
+                return deferMigration(of: wallet, Self.reason(for: error))
             }
+        }
+
+        // No wallet-secret write may land between the copy and the switch of authority.
+        let switched: Result<ProtectedWalletSecretRecord, DeferReason> = WalletSecretWriteLock.perform {
+            copyAndSwitch(wallet, tags: tags, originals: originals, expected: expected, context: context)
+        }
+        let record: ProtectedWalletSecretRecord
+        switch switched {
+        case let .success(verified):
+            record = verified
+        case let .failure(reason):
+            return .deferred(reason)
+        }
+
+        // Public data background work needs, made from the copies already compared: no further prompt.
+        if let descriptorStore {
+            BitcoinAccountDescriptorBackfill(
+                secretProvider: KeychainUniversalWalletMnemonicProvider(keystore: Self.memoryKeystore(originals)),
+                store: descriptorStore,
+                logger: logger
+            ).backfill(wallet)
+        }
+
+        return outcome(of: finishCommit(record))
+    }
+
+    // MARK: Private
+
+    private func copyAndSwitch(
+        _ wallet: MetaAccountModel,
+        tags: [String],
+        originals: [String: Data],
+        expected: [String],
+        context: LAContext
+    ) -> Result<ProtectedWalletSecretRecord, DeferReason> {
+        // The sheet may have taken a while: an import or recovery could have changed the items.
+        guard case let .success(current) = eligibleTags(for: wallet), current == tags,
+              (try? read(tags)) == originals else {
+            return .failure(.changedDuringMove)
         }
 
         let attempts = (journal.record(for: wallet.metaId)?.attempts ?? 0) + 1
@@ -378,7 +445,7 @@ final class ProtectedWalletSecretMigrator {
             try journal.save(record)
             afterJournalSave(record.state)
         } catch {
-            return .deferred(.keychainUnavailable)
+            return .failure(.keychainUnavailable)
         }
 
         // Write.
@@ -394,7 +461,7 @@ final class ProtectedWalletSecretMigrator {
             try journal.save(record)
             afterJournalSave(record.state)
         } catch {
-            return rollback(record, Self.reason(for: error))
+            return .failure(rollback(record, Self.reason(for: error)))
         }
 
         // Read back with the device owner and compare.
@@ -403,16 +470,15 @@ final class ProtectedWalletSecretMigrator {
             for tag in tags {
                 let copy = try protected.read(for: tag, context: context)
                 guard copy == originals[tag] else {
-                    return rollback(record, .verificationFailed)
+                    return .failure(rollback(record, .verificationFailed))
                 }
                 copies[tag] = copy
             }
         } catch {
-            return rollback(record, Self.reason(for: error))
+            return .failure(rollback(record, Self.reason(for: error)))
         }
-        let copiesKeystore = Self.memoryKeystore(copies)
-        guard identityCheck.fingerprint(of: wallet, keystore: copiesKeystore) == expected else {
-            return rollback(record, .verificationFailed)
+        guard identityCheck.fingerprint(of: wallet, keystore: Self.memoryKeystore(copies)) == expected else {
+            return .failure(rollback(record, .verificationFailed))
         }
 
         // Commit point.
@@ -422,28 +488,15 @@ final class ProtectedWalletSecretMigrator {
             try journal.save(record)
             afterJournalSave(record.state)
         } catch {
-            return rollback(record, .keychainUnavailable)
+            return .failure(rollback(record, .keychainUnavailable))
         }
-
-        // Public data background work needs, made from the copies in memory: no further prompt.
-        if let descriptorStore {
-            BitcoinAccountDescriptorBackfill(
-                secretProvider: KeychainUniversalWalletMnemonicProvider(keystore: copiesKeystore),
-                store: descriptorStore,
-                logger: logger
-            ).backfill(wallet)
-        }
-
-        return outcome(of: finishCommit(record))
+        return .success(record)
     }
 
-    // MARK: Private
-
-    private enum CommitResult {
+    private enum CommitResult: Equatable {
         case committed
-        /// Not finished yet (an original could not be deleted, or the copies vanished first);
-        /// every secret is still readable.
-        case pending
+        /// Not finished; every item is still readable from at least one store.
+        case pending(DeferReason)
         case lost
     }
 
@@ -451,84 +504,105 @@ final class ProtectedWalletSecretMigrator {
         switch result {
         case .committed:
             return .committed
-        case .pending:
-            return .deferred(.keychainUnavailable)
+        case let .pending(reason):
+            return .deferred(reason)
         case .lost:
             return .deferred(.lost)
         }
     }
 
-    /// From `verified`: deletes each legacy original whose protected copy exists, then `committed`.
-    /// A copy that vanished first (passcode removed) keeps its legacy original; a tag with neither is lost.
+    /// From `verified`, tag by tag. An unknown answer from either store stops the step. A tag
+    /// with neither copy makes the wallet `lost`; a tag whose copy vanished keeps its original and
+    /// everything is kept as it is (`copyMissing`); otherwise each original is deleted right after
+    /// its copy is seen to exist again, then `committed`.
     private func finishCommit(_ record: ProtectedWalletSecretRecord) -> CommitResult {
-        var missingCopies: [String] = []
-        var unreadable: [String] = []
+        var copyMissing = false
+        var protectedOnly = false
         for tag in record.tags {
-            let hasCopy: Bool
-            do {
-                hasCopy = try protected.exists(for: tag)
-            } catch {
-                return .pending
+            guard let hasCopy = try? protected.exists(for: tag),
+                  let hasOriginal = try? legacy.checkKey(for: tag) else {
+                return .pending(.keychainUnavailable)
             }
-            guard hasCopy else {
-                missingCopies.append(tag)
-                if (try? legacy.checkKey(for: tag)) != true {
-                    unreadable.append(tag)
-                }
-                continue
+            switch (hasCopy, hasOriginal) {
+            case (false, false):
+                save(record, state: .lost, reason: DeferReason.lost.rawValue)
+                return .lost
+            case (false, true):
+                copyMissing = true
+            case (true, false):
+                protectedOnly = true
+            case (true, true):
+                break
             }
         }
-        if !unreadable.isEmpty {
-            save(record, state: .lost, reason: DeferReason.lost.rawValue)
-            return .lost
-        }
-        if !missingCopies.isEmpty {
-            // Copies vanished before the originals went: the originals are complete. Start over.
-            deleteProtectedCopies(record.tags)
+        if copyMissing, !protectedOnly {
+            // Every original is still there (copies vanished, typically the passcode was removed):
+            // authority goes back to them and a later move may start again.
+            deleteCopiesBackedByOriginals(record.tags)
             save(record, state: .deferred, reason: DeferReason.passcodeNotSet.rawValue)
-            return .pending
+            return .pending(.passcodeNotSet)
+        }
+        if copyMissing {
+            // Some items are protected only, others legacy only: never delete either side.
+            save(record, state: .deferred, reason: DeferReason.copyMissing.rawValue)
+            return .pending(.copyMissing)
         }
         for tag in record.tags {
             do {
+                // Checked again right before each delete.
+                guard try protected.exists(for: tag) else {
+                    save(record, state: .deferred, reason: DeferReason.copyMissing.rawValue)
+                    return .pending(.copyMissing)
+                }
                 if try legacy.checkKey(for: tag) {
                     try legacy.deleteKey(for: tag)
                 }
             } catch {
                 logger?.warning("Protected keychain: original not deleted yet; retried at the next start")
-                return .pending
+                return .pending(.keychainUnavailable)
             }
         }
         save(record, state: .committed, reason: nil)
         return .committed
     }
 
-    private func hasLostItems(_ record: ProtectedWalletSecretRecord) -> Bool {
-        record.tags.contains { tag in
-            (try? protected.exists(for: tag)) == false && (try? legacy.checkKey(for: tag)) != true
+    /// Tags with neither copy. An unknown answer counts as present.
+    private func lostTags(_ record: ProtectedWalletSecretRecord) -> [String] {
+        record.tags.filter { tag in
+            (try? protected.exists(for: tag)) == false && (try? legacy.checkKey(for: tag)) == false
         }
     }
 
-    private func rollback(_ record: ProtectedWalletSecretRecord, _ reason: DeferReason) -> Outcome {
-        deleteProtectedCopies(record.tags)
+    private func rollback(_ record: ProtectedWalletSecretRecord, _ reason: DeferReason) -> DeferReason {
+        deleteCopiesBackedByOriginals(record.tags)
         save(record, state: .deferred, reason: reason.rawValue)
         logger?.info("Protected keychain: wallet move deferred (\(reason.rawValue))")
-        return .deferred(reason)
+        return reason
     }
 
-    private func deferMigration(of wallet: MetaAccountModel, _ reason: DeferReason, tags _: [String]) -> Outcome {
-        // Only a wallet already journaled records why it waits; others stay out of the router.
+    private func deferMigration(of wallet: MetaAccountModel, _ reason: DeferReason) -> Outcome {
+        // Only a wallet already journaled records why it waits; others stay out of the journal.
         if let record = journal.record(for: wallet.metaId), !record.state.readsProtected {
             save(record, state: .deferred, reason: reason.rawValue)
         }
         return .deferred(reason)
     }
 
-    private func deleteProtectedCopies(_ tags: [String]) {
-        for tag in tags {
+    /// Deletes copies only where the original still exists: a copy is never the last one deleted.
+    private func deleteCopiesBackedByOriginals(_ tags: [String]) {
+        for tag in tags where (try? legacy.checkKey(for: tag)) == true {
             if (try? protected.exists(for: tag)) == true {
                 try? protected.delete(for: tag)
             }
         }
+    }
+
+    private func read(_ tags: [String]) throws -> [String: Data] {
+        var result: [String: Data] = [:]
+        for tag in tags {
+            result[tag] = try legacy.fetchKey(for: tag)
+        }
+        return result
     }
 
     private func save(_ record: ProtectedWalletSecretRecord, state: ProtectedWalletSecretRecord.State, reason: String?) {

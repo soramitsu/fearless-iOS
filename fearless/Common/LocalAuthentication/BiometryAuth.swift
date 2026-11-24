@@ -17,10 +17,13 @@ protocol BiometryAuthProtocol {
         completionQueue: DispatchQueue,
         completionBlock: @escaping (Bool) -> Void
     )
+    /// The evaluated context of the last successful check, once (protected wallet items only).
+    func takeEvaluatedContext() -> (context: LAContext, generation: UInt64)?
 }
 
 extension BiometryAuthProtocol {
     func cancelAuthentication() {}
+    func takeEvaluatedContext() -> (context: LAContext, generation: UInt64)? { nil }
 }
 
 class BiometryAuth: BiometryAuthProtocol {
@@ -94,10 +97,10 @@ class BiometryAuth: BiometryAuthProtocol {
                 self.activeAttempt = nil
                 self.activeContext = nil
                 self.contextLock.unlock()
-                // A face or finger the device owner just presented also opens protected wallet
-                // items for the next few seconds, so the operation it confirmed asks only once.
+                // A successful context is held for the caller, which hands it to the wallet-secret
+                // authorization only after its own checks accept the result (`takeEvaluatedContext`).
                 if result, let completedContext, self.secretAuthorization.isAccepting {
-                    self.secretAuthorization.adopt(completedContext)
+                    self.holdEvaluated(completedContext)
                 } else {
                     completedContext?.invalidate()
                 }
@@ -113,6 +116,36 @@ class BiometryAuth: BiometryAuthProtocol {
             LAPolicy.deviceOwnerAuthenticationWithBiometrics,
             localizedReason: localizedReason
         ) { result, _ in reply(result) }
+    }
+
+    private var evaluatedContext: LAContext?
+    private var evaluatedGeneration: UInt64 = 0
+
+    private func holdEvaluated(_ context: LAContext) {
+        contextLock.lock()
+        let previous = evaluatedContext
+        evaluatedContext = context
+        evaluatedGeneration = secretAuthorization.currentGeneration
+        contextLock.unlock()
+        previous?.invalidate()
+        // Never kept past one operation.
+        DispatchQueue.main.asyncAfter(deadline: .now() + WalletSecretAuthorization.reuseWindow) { [weak self, weak context] in
+            guard let self, let context else { return }
+            self.contextLock.lock()
+            let expired = self.evaluatedContext === context
+            if expired { self.evaluatedContext = nil }
+            self.contextLock.unlock()
+            if expired { context.invalidate() }
+        }
+    }
+
+    /// The context of the last accepted check, once, for `WalletSecretAuthorization`.
+    func takeEvaluatedContext() -> (context: LAContext, generation: UInt64)? {
+        contextLock.lock()
+        defer { contextLock.unlock() }
+        guard let context = evaluatedContext else { return nil }
+        evaluatedContext = nil
+        return (context, evaluatedGeneration)
     }
 
     func cancelAuthentication() {

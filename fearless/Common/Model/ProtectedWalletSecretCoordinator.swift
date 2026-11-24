@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SSFModels
+import UIKit
 
 extension Notification.Name {
     /// Wallets whose protected items vanished after their move (the device passcode was
@@ -39,20 +40,28 @@ final class ProtectedWalletSecretCoordinator {
         self.logger = logger
     }
 
-    /// At launch. The router goes in when the flag is on, when any wallet has protected items
-    /// or a journal, or when either cannot be read yet (before the first unlock after a restart):
-    /// with nothing moved it routes every read exactly as before.
+    /// At launch. The router goes in when the flag is on or when anything was ever moved (a journal
+    /// record or a protected item exists). With the flag off and nothing moved, nothing changes.
+    /// If the keychain cannot answer yet (a launch before the first unlock after a restart), the
+    /// check runs again when protected data becomes available and at every unlock; no wallet
+    /// secret is readable before then anyway.
     func install(
-        journal makeJournal: () -> ProtectedWalletSecretJournaling? = { try? KeychainProtectedWalletSecretJournal() },
+        journal makeJournal: @escaping () -> ProtectedWalletSecretJournaling? = { try? KeychainProtectedWalletSecretJournal() },
         protected: ProtectedSecretBackend = ProtectedKeychain()
     ) {
+        lock.lock()
+        let installed = migrator != nil
+        lock.unlock()
+        guard !installed else {
+            return
+        }
         let journal = makeJournal()
         let protectedItems = (try? protected.allAccounts()).map { !$0.isEmpty }
-        let needsRouter = isEnabled()
-            || journal == nil
-            || journal?.records.isEmpty == false
-            || protectedItems != false
-        guard needsRouter else {
+        let moved = journal?.records.isEmpty == false || protectedItems == true
+        guard isEnabled() || moved else {
+            if journal == nil || protectedItems == nil {
+                retryInstallLater(journal: makeJournal, protected: protected)
+            }
             return
         }
         let resolvedJournal = journal ?? ReloadingProtectedWalletSecretJournal()
@@ -69,18 +78,49 @@ final class ProtectedWalletSecretCoordinator {
         lock.unlock()
         Keychain.itemRouter = router
         WalletSecretAuthorization.shared.setAccepting(true)
+        retryObservers.forEach(notificationCenter.removeObserver)
+        retryObservers.removeAll()
 
         unlockObserver = notificationCenter.addObserver(
             forName: .walletAuthorizedUnlock,
             object: nil,
             queue: .main
         ) { [weak self] _ in
+            // Interrupted moves are finished whatever the flag says; new moves need it on.
+            self?.recover()
             self?.migrateAfterUnlock()
         }
+        recover()
+    }
 
+    private var retryObservers: [NSObjectProtocol] = []
+
+    private func retryInstallLater(
+        journal makeJournal: @escaping () -> ProtectedWalletSecretJournaling?,
+        protected: ProtectedSecretBackend
+    ) {
+        guard retryObservers.isEmpty else {
+            return
+        }
+        let retry: (Notification) -> Void = { [weak self] _ in
+            self?.install(journal: makeJournal, protected: protected)
+        }
+        retryObservers = [
+            UIApplication.protectedDataDidBecomeAvailableNotification,
+            UIApplication.didBecomeActiveNotification,
+            .walletAuthorizedUnlock
+        ].map { notificationCenter.addObserver(forName: $0, object: nil, queue: .main, using: retry) }
+    }
+
+    private func recover() {
+        lock.lock()
+        let migrator = self.migrator
+        lock.unlock()
+        guard let migrator else {
+            return
+        }
         queue.async { [weak self] in
-            let lost = migrator.recoverInterrupted()
-            self?.report(lost: lost)
+            self?.report(lost: migrator.recoverInterrupted())
         }
     }
 
@@ -91,6 +131,7 @@ final class ProtectedWalletSecretCoordinator {
         let journal = self.journal
         lock.unlock()
         try? journal?.remove(walletId: walletId)
+        ProtectedKeychainRecoveryEvidence.shared.forget(walletId: walletId)
     }
 
     /// Moves every eligible wallet, one system sheet for all of them (none after a Face ID unlock).

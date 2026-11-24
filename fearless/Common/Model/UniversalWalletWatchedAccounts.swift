@@ -117,7 +117,8 @@ final class UniversalWalletWatchedAccountsChecker {
         // Public first: a wallet with no watched network has nothing to check and its words are
         // not read.
         guard !watchedAccounts.watchedSlots(in: wallet.metaId).isEmpty,
-              let root = try? mnemonicProvider.rootSecret(for: wallet), !root.passphrase.isEmpty else {
+              let root = try? WalletSecretAuthorization.withoutPrompt({ try mnemonicProvider.rootSecret(for: wallet) }),
+              !root.passphrase.isEmpty else {
             return unchanged
         }
         let wordsOnly = UniversalWalletSecret(mnemonic: root.mnemonic, passphrase: "")

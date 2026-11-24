@@ -119,7 +119,10 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
                let wallets = try? walletsOperation.extractNoCancellableResultData() {
                 secretEraser.eraseSecrets(of: wallets.map(\.info), remainingMetaIds: [])
                 // Public Bitcoin descriptors derive every future address: they go with the wallets.
-                wallets.forEach { BitcoinAccountDescriptorStore.shared.forget(walletId: $0.info.metaId) }
+                wallets.forEach {
+                    BitcoinAccountDescriptorStore.shared.forget(walletId: $0.info.metaId)
+                    ProtectedWalletSecretCoordinator.shared.forget(walletId: $0.info.metaId)
+                }
             }
             walletConnectDisconnectService.disconnectAllSessions()
             completion()

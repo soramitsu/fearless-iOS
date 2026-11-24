@@ -159,11 +159,14 @@ final class JournalDouble: ProtectedWalletSecretJournaling {
 final class DeviceOwnerDouble: DeviceOwnerAuthorizing {
     var isPasscodeSet = true
     var cancel = false
+    var onEvaluate: (() -> Void)?
     private(set) var evaluations = 0
 
     func evaluate(reason _: String) throws -> LAContext {
         evaluations += 1
+        onEvaluate?()
         if cancel { throw ProtectedKeychainError.canceled }
+        if !isPasscodeSet { throw ProtectedKeychainError.passcodeNotSet }
         return LAContext()
     }
 }
@@ -176,13 +179,15 @@ final class ProtectedFixture {
     let owner = DeviceOwnerDouble()
     let authorization = WalletSecretAuthorization(notificationCenter: NotificationCenter())
     let descriptors = BitcoinAccountDescriptorStore(userDefaults: CovHAssetListFixture.defaults())
+    let evidence = ProtectedKeychainRecoveryEvidence(userDefaults: CovHAssetListFixture.defaults())
     var enabled = true
     let wallet: MetaAccountModel
     let originals: [String: Data]
 
     static let phrase = "legal winner thank year wave sausage worth useful legal winner thank yellow"
 
-    init(passwordPath: Bool = false) throws {
+    /// `imported`: the wallet was imported (the user typed its phrase), which is recovery evidence.
+    init(passwordPath: Bool = false, imported: Bool = true) throws {
         authorization.setAccepting(true)
         var request = MetaAccountImportMnemonicRequest(
             mnemonic: try IRMnemonicCreator().mnemonic(fromList: Self.phrase),
@@ -195,8 +200,9 @@ final class ProtectedFixture {
         request.universalWalletEnrollment = .generated
         let operation = MetaAccountOperationFactory(
             keystore: legacy,
-            watchedAccounts: UniversalWalletWatchedAccountsStore(userDefaults: CovHAssetListFixture.defaults())
-        ).newMetaAccountOperation(request: request, isBackuped: true)
+            watchedAccounts: UniversalWalletWatchedAccountsStore(userDefaults: CovHAssetListFixture.defaults()),
+            recoveryEvidence: evidence
+        ).newMetaAccountOperation(request: request, isBackuped: imported)
         OperationQueue().addOperations([operation], waitUntilFinished: true)
         let created = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
         (operation as? PersistenceBoundKeychainOperation)?.commitKeychainChanges()
@@ -212,6 +218,7 @@ final class ProtectedFixture {
             journal: journal,
             authorization: authorization,
             authorizer: owner,
+            evidence: evidence,
             descriptorStore: descriptors,
             isEnabled: { [unowned self] in self.enabled },
             logger: nil
@@ -367,6 +374,92 @@ final class ProtectedWalletSecretMigrationTests: XCTestCase {
         }
     }
 
+    /// Codex review: some items protected only, others legacy only. Recovery keeps both sides and
+    /// never deletes the only copy of anything.
+    func testMixedInventoryIsNeverDeletedOnEitherSide() throws {
+        let fixture = try ProtectedFixture()
+        let tags = fixture.originals.keys.sorted()
+        let protectedOnly = tags[0]
+        let legacyOnly = tags[1]
+        for tag in tags where tag != legacyOnly {
+            try fixture.protected.add(fixture.originals[tag]!, for: tag)
+        }
+        try fixture.legacy.deleteKey(for: protectedOnly)
+        try fixture.journal.save(ProtectedWalletSecretRecord(
+            walletId: fixture.wallet.metaId, state: .verified, tags: tags, attempts: 1, reason: nil, updatedAt: Date()
+        ))
+
+        XCTAssertEqual(fixture.migrator().recoverInterrupted(), [])
+
+        XCTAssertNotNil(fixture.protected.items[protectedOnly], "The only copy of this item stays")
+        XCTAssertNotNil(fixture.legacy.items[legacyOnly], "The only copy of that item stays")
+        XCTAssertEqual(fixture.journal.record(for: fixture.wallet.metaId)?.reason, "copyMissing")
+        fixture.assertEveryOriginalReadable()
+        XCTAssertEqual(fixture.migrator().migrateOffMain(fixture.wallet), .deferred(.copyMissing), "Never retried over")
+        fixture.assertEveryOriginalReadable()
+    }
+
+    /// Codex review: an import or recovery that writes while the sheet is up restarts the move;
+    /// its newer bytes are never replaced by the older copy.
+    func testWriteDuringTheSheetRestartsTheMove() throws {
+        let fixture = try ProtectedFixture()
+        let tag = try XCTUnwrap(fixture.originals.keys.sorted().first)
+        fixture.owner.onEvaluate = {
+            try? fixture.legacy.updateKey(Data("//changed".utf8), with: tag)
+        }
+
+        XCTAssertEqual(fixture.migrator().migrateOffMain(fixture.wallet), .deferred(.changedDuringMove))
+
+        XCTAssertTrue(fixture.protected.items.isEmpty)
+        XCTAssertEqual(fixture.legacy.items[tag], Data("//changed".utf8))
+    }
+
+    /// Codex review: after the passcode is removed a surviving original must still be readable;
+    /// the router checks existence before it asks for the owner.
+    func testOriginalStaysReadableWhenItsCopyVanishedWithThePasscode() throws {
+        let fixture = try ProtectedFixture()
+        fixture.legacy.failDeleteAt = 1 // `verified`, every original still present
+        _ = fixture.migrator().migrateOffMain(fixture.wallet)
+        XCTAssertEqual(fixture.journal.record(for: fixture.wallet.metaId)?.state, .verified)
+        fixture.authorization.invalidate()
+        fixture.protected.removePasscode()
+        fixture.owner.isPasscodeSet = false
+        let tag = try XCTUnwrap(fixture.originals.keys.first)
+        let router = fixture.router()
+        let evaluations = fixture.owner.evaluations
+
+        let done = expectation(description: "read off the main thread")
+        var read: Data?
+        Thread.detachNewThread {
+            read = try? router.fetchKey(for: tag)
+            done.fulfill()
+        }
+        wait(for: [done], timeout: 10)
+
+        XCTAssertEqual(read, fixture.originals[tag])
+        XCTAssertEqual(fixture.owner.evaluations, evaluations, "No sheet for an item that is gone")
+    }
+
+    func testEvidenceCoversOnlyWhatWasTypedIn() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        XCTAssertEqual(fixture.migrator().migrateOffMain(fixture.wallet), .deferred(.recoveryUnverified))
+
+        let metaId = fixture.wallet.metaId
+        let accountId = Data(repeating: 7, count: 32)
+        fixture.evidence.record(walletId: metaId)
+        XCTAssertTrue(fixture.evidence.covers(tag: fearless.KeystoreTagV2.entropyTagForMetaId(metaId), walletId: metaId))
+        XCTAssertFalse(fixture.evidence.covers(
+            tag: fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId),
+            walletId: metaId
+        ), "An account imported on its own needs its own evidence")
+        fixture.evidence.record(walletId: metaId, scope: accountId.toHex())
+        XCTAssertTrue(fixture.evidence.covers(
+            tag: fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId),
+            walletId: metaId
+        ))
+        XCTAssertEqual(fixture.migrator().migrateOffMain(fixture.wallet), .committed)
+    }
+
     func testCancelledSheetDefersAndTouchesNothing() throws {
         let fixture = try ProtectedFixture()
         fixture.owner.cancel = true
@@ -405,7 +498,7 @@ final class ProtectedWalletSecretMigrationTests: XCTestCase {
         let cases: [(ProtectedWalletSecretMigrator.DeferReason, (ProtectedFixture) -> MetaAccountModel)] = [
             (.disabled, { $0.enabled = false; return $0.wallet }),
             (.passcodeNotSet, { $0.owner.isPasscodeSet = false; return $0.wallet }),
-            (.notBackedUp, { $0.wallet.replacingIsBackuped(false) }),
+            (.recoveryUnverified, { fixture in fixture.evidence.forget(walletId: fixture.wallet.metaId); return fixture.wallet }),
             (.unknownTags, { try? $0.legacy.addKey(Data([1]), with: $0.wallet.metaId + "-mysteryKey"); return $0.wallet }),
             (.noSecrets, { fixture in
                 fixture.originals.keys.forEach { try? fixture.legacy.deleteKey(for: $0) }
@@ -617,7 +710,7 @@ final class PincodeVerifierTests: XCTestCase {
     func testUpgradeReplacesThePlainPinInPlace() {
         let store = PinStoreDouble(value: "246810")
         let done = expectation(description: "upgraded")
-        PincodeVerifierUpgrade.upgrade(pin: "246810", secretManager: store) { upgraded in
+        PinSaveCoordinator.shared.upgrade(plain: "246810", using: store) { upgraded in
             XCTAssertTrue(upgraded)
             done.fulfill()
         }
@@ -627,20 +720,55 @@ final class PincodeVerifierTests: XCTestCase {
         XCTAssertFalse(store.everMissing, "The PIN item never went missing")
     }
 
-    func testUpgradeThatCannotBeReadBackRestoresThePlainPin() {
-        let store = PinStoreDouble(value: "246810")
-        store.corruptNextLoad = true
-        let done = expectation(description: "restored")
-        PincodeVerifierUpgrade.upgrade(pin: "246810", secretManager: store) { upgraded in
+    func testUpgradeNeverTouchesAPinThatChangedMeanwhile() {
+        let store = PinStoreDouble(value: "111111")
+        let done = expectation(description: "skipped")
+        // The user changed the PIN after entering the old one: the stored value is no longer it.
+        PinSaveCoordinator.shared.upgrade(plain: "000000", using: store) { upgraded in
             XCTAssertFalse(upgraded)
             done.fulfill()
         }
         wait(for: [done], timeout: 30)
-        XCTAssertEqual(store.value, "246810")
+        XCTAssertEqual(store.value, "111111")
+    }
+
+    func testUpgradeAndAPinChangeQueuedTogetherKeepTheNewPin() {
+        let store = PinStoreDouble(value: "246810")
+        let upgraded = expectation(description: "upgrade finished")
+        let changed = expectation(description: "change saved")
+        PinSaveCoordinator.shared.upgrade(plain: "246810", using: store) { _ in upgraded.fulfill() }
+        PinSaveCoordinator.shared.save("135791", using: store, storesVerifier: false, isCurrent: { true }) { saved in
+            XCTAssertTrue(saved)
+            changed.fulfill()
+        }
+        wait(for: [upgraded, changed], timeout: 30)
+        XCTAssertEqual(store.value, "135791", "The later change wins; the old PIN is never put back")
+    }
+
+    func testUpgradeThatCannotBeReadBackLeavesAWorkingPin() {
+        let store = PinStoreDouble(value: "246810")
+        store.corruptLoad = 2 // the read-back after the write
+        let done = expectation(description: "finished")
+        PinSaveCoordinator.shared.upgrade(plain: "246810", using: store) { upgraded in
+            XCTAssertFalse(upgraded)
+            done.fulfill()
+        }
+        wait(for: [done], timeout: 30)
+        let stored = store.value ?? ""
+        XCTAssertTrue(PincodeVerifier.matches("246810", stored: stored), "Whatever is stored still opens the app")
+    }
+
+    func testDamagedOrOversizedVerifierIsUnreadableNotAWrongPin() {
+        XCTAssertEqual(PincodeVerifier.check("1234", stored: "fearless-pin-v1$broken"), .unreadable)
+        XCTAssertEqual(
+            PincodeVerifier.check("1234", stored: "fearless-pin-v1$4000000000$AAAAAAAAAAAAAAAAAAAAAA==$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+            .unreadable,
+            "An absurd work factor is refused before any hashing"
+        )
+        XCTAssertEqual(PincodeVerifier.check("1235", stored: "1234"), .mismatch)
     }
 }
 
-/// The unlock screen's interactor with a verifier, a plain PIN and the in-place upgrade.
 final class PincodeVerifierUnlockTests: XCTestCase {
     private final class Output: LocalAuthInteractorOutputProtocol {
         var completed = 0
@@ -722,7 +850,9 @@ final class PinStoreDouble: SecretStoreManagerProtocol {
     private let lock = NSLock()
     private(set) var value: String?
     private(set) var everMissing = false
-    var corruptNextLoad = false
+    /// The load (1-based) that returns a damaged value.
+    var corruptLoad: Int?
+    private var loads = 0
 
     init(value: String?) {
         self.value = value
@@ -730,9 +860,9 @@ final class PinStoreDouble: SecretStoreManagerProtocol {
 
     func loadSecret(for _: String, completionQueue: DispatchQueue, completionBlock: @escaping (SecretDataRepresentable?) -> Void) {
         lock.lock()
+        loads += 1
         var result = value
-        if corruptNextLoad {
-            corruptNextLoad = false
+        if loads == corruptLoad {
             result = "fearless-pin-v1$broken"
         }
         lock.unlock()
@@ -820,6 +950,57 @@ final class ProtectedKeychainHostedTests: XCTestCase {
         let pin = "test-pin-\(UUID().uuidString)"
         XCTAssertNil(fixture.router().routedKeystore(for: pin))
         try? Keychain().deleteKey(for: pin)
+    }
+
+    /// Codex review: a journal reopened from the keychain (a relaunch) finds its records, and a
+    /// damaged record is set aside instead of being trusted.
+    func testRealJournalReopensAndSetsDamagedRecordsAside() throws {
+        let service = "jp.co.soramitsu.fearless.tests.journal.\(UUID().uuidString)"
+        let walletId = UUID().uuidString
+        let record = ProtectedWalletSecretRecord(
+            walletId: walletId, state: .committed, tags: [walletId + "-entropy"], attempts: 1, reason: nil, updatedAt: Date()
+        )
+        try KeychainProtectedWalletSecretJournal(service: service).save(record)
+        let damagedId = UUID().uuidString
+        let damaged: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: damagedId,
+            kSecValueData as String: Data("{not json".utf8)
+        ]
+        XCTAssertEqual(SecItemAdd(damaged as CFDictionary, nil), errSecSuccess)
+        defer {
+            SecItemDelete([kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service] as CFDictionary)
+        }
+
+        let reopened = try KeychainProtectedWalletSecretJournal(service: service)
+
+        let loaded = try XCTUnwrap(reopened.record(for: walletId))
+        XCTAssertEqual(loaded.state, .committed)
+        XCTAssertEqual(loaded.tags, record.tags)
+        XCTAssertEqual(loaded.attempts, 1)
+        XCTAssertEqual(reopened.invalidWalletIds, [damagedId])
+        XCTAssertEqual(reopened.records.map(\.walletId), [walletId])
+    }
+
+    func testRecordForAnotherWalletsTagsIsNotValid() {
+        let walletId = UUID().uuidString
+        let foreign = ProtectedWalletSecretRecord(
+            walletId: walletId, state: .verified, tags: [UUID().uuidString + "-entropy"], attempts: 1, reason: nil, updatedAt: Date()
+        )
+        XCTAssertFalse(foreign.isValid(storedUnder: walletId))
+        XCTAssertFalse(ProtectedWalletSecretRecord(
+            walletId: walletId, state: .verified, tags: [walletId + "-entropy"], attempts: 1, reason: nil, updatedAt: Date()
+        ).isValid(storedUnder: UUID().uuidString), "Stored under another account")
+    }
+
+    /// Codex review: a malformed value of the new switch is ignored, never a failed document.
+    func testMalformedProtectedKeychainSwitchKeepsTheOtherSwitches() throws {
+        let json = #"{"protected_keychain_enabled":"false","bitcoin_send_enabled":false}"#
+        let config = try JSONDecoder().decode(FeatureToggleConfig.self, from: Data(json.utf8))
+        XCTAssertTrue(config.protectedKeychainEnabled)
+        XCTAssertFalse(config.bitcoinSendEnabled)
+        XCTAssertNil(config.explicitKillSwitches[.protectedKeychain])
     }
 
     func testRealJournalRoundTrip() throws {

@@ -119,6 +119,9 @@ final class LegacyTonAccountImportOperation: BaseOperation<MetaAccountModel>, Pe
                 try transaction.addKey(data, with: tag)
             }
             try transaction.publish(wallet, replacing: nil)
+            if isBackuped {
+                ProtectedKeychainRecoveryEvidence.shared.record(walletId: metaId)
+            }
             result = .success(wallet)
         } catch {
             do {

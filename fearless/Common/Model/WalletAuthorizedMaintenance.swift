@@ -101,6 +101,11 @@ final class BitcoinAccountDescriptorBackfill {
     /// Reads the wallet's secret once per missing account. Returns the number of descriptors saved.
     @discardableResult
     func backfill(_ wallet: MetaAccountModel) -> Int {
+        // Maintenance never shows a sheet: a moved wallet's descriptors come from its move.
+        WalletSecretAuthorization.withoutPrompt { backfillAllowingNoPrompt(wallet) }
+    }
+
+    private func backfillAllowingNoPrompt(_ wallet: MetaAccountModel) -> Int {
         var saved = 0
         for slot in missingSlots(in: wallet) {
             do {

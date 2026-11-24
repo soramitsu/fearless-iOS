@@ -105,6 +105,9 @@ final class WalletSecretAuthorization {
     private var context: LAContext?
     private var adoptedAt: Date?
     private var accepting = false
+    /// Advances whenever contexts are dropped (background, lock): an evaluation that started
+    /// before cannot be adopted after.
+    private var generation: UInt64 = 0
     private let now: () -> Date
     private let notificationCenter: NotificationCenter
     private var observer: NSObjectProtocol?
@@ -181,8 +184,47 @@ final class WalletSecretAuthorization {
         let context = self.context
         self.context = nil
         adoptedAt = nil
+        generation &+= 1
         lock.unlock()
         context?.invalidate()
+    }
+
+    var currentGeneration: UInt64 {
+        lock.lock()
+        defer { lock.unlock() }
+        return generation
+    }
+
+    /// Adopts `context` only if nothing dropped contexts since `generation` was read.
+    func adopt(_ context: LAContext, ifStill generation: UInt64) {
+        lock.lock()
+        let current = self.generation == generation
+        lock.unlock()
+        guard current else {
+            context.invalidate()
+            return
+        }
+        adopt(context)
+    }
+
+    // MARK: No sheet for background work
+
+    private static let suppressionKey = "jp.co.soramitsu.fearless.walletSecret.noPrompt"
+
+    /// True inside `withoutPrompt` on this thread.
+    static var isPromptSuppressed: Bool {
+        (Thread.current.threadDictionary[suppressionKey] as? Int ?? 0) > 0
+    }
+
+    /// Runs `body` so that a protected read inside it fails instead of showing a sheet, unless an
+    /// operation the user approved is already in progress. For maintenance: provisioning,
+    /// descriptors, notices.
+    static func withoutPrompt<T>(_ body: () throws -> T) rethrows -> T {
+        let dictionary = Thread.current.threadDictionary
+        let depth = dictionary[suppressionKey] as? Int ?? 0
+        dictionary[suppressionKey] = depth + 1
+        defer { dictionary[suppressionKey] = depth }
+        return try body()
     }
 
     /// The context a protected read uses: the adopted one, or one the device owner approves now.
@@ -203,9 +245,17 @@ final class WalletSecretAuthorization {
         if let context = currentContext() {
             return context
         }
+        let started = currentGeneration
         let context = try authorizer.evaluate(reason: reason)
         if isAccepting {
-            adopt(context)
+            // The context still serves this read; it is kept for others only if the app did not
+            // go to the background meanwhile.
+            lock.lock()
+            let current = generation == started
+            lock.unlock()
+            if current {
+                adopt(context)
+            }
         }
         return context
     }

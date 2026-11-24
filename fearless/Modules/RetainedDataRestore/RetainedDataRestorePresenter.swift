@@ -28,7 +28,15 @@ final class EmergencyWalletMaterialReader: EmergencyWalletMaterialReading {
         walletSuffixes.contains { tag.hasSuffix($0) && tag.count > $0.count }
     }
 
+    /// Wallet tags in both stores: legacy key items and items moved to protected storage
+    /// (`ProtectedKeychain`), both read from attributes only. A protected inventory that cannot be
+    /// read is an error, never an empty list.
     static func walletTags() throws -> [String] {
+        let protectedTags = try ProtectedKeychain().allAccounts().filter(isWalletTag)
+        return try legacyWalletTags() + protectedTags
+    }
+
+    static func legacyWalletTags() throws -> [String] {
         let query: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecReturnAttributes as String: true,

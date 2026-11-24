@@ -163,13 +163,10 @@ struct FeatureToggleConfig: Decodable, Equatable {
             Bool.self,
             forKey: .tonDappSigningEnabledLegacy
         )
-        let remoteProtectedKeychain = try container.decodeIfPresent(
-            Bool.self,
-            forKey: .protectedKeychainEnabled
-        ) ?? container.decodeIfPresent(
-            Bool.self,
-            forKey: .protectedKeychainEnabledLegacy
-        )
+        // Decoded on its own: a malformed value is ignored (no change), never a failed document
+        // that would drop every other switch.
+        let remoteProtectedKeychain = (try? container.decodeIfPresent(Bool.self, forKey: .protectedKeychainEnabled))
+            ?? (try? container.decodeIfPresent(Bool.self, forKey: .protectedKeychainEnabledLegacy))
         polkaswapMutationsEnabled = remotePolkaswap ?? true
         bitcoinSendEnabled = remoteBitcoinSend ?? true
         solanaSendEnabled = remoteSolanaSend ?? true

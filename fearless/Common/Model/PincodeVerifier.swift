@@ -36,29 +36,46 @@ enum PincodeVerifier {
         return "\(prefix)\(iterations)$\(salt.base64EncodedString())$\(hash.base64EncodedString())"
     }
 
-    /// Whether `pin` matches `stored`, which is a verifier or a legacy plain PIN. Constant time
-    /// in the position of the first difference. Slow for a verifier: call it off the main thread.
-    static func matches(_ pin: String, stored: String) -> Bool {
+    /// The work factors a v1 verifier may state. Outside them the stored value is damaged, not a
+    /// PIN to compare (and an absurd factor must not freeze the unlock screen).
+    static let acceptedIterations: ClosedRange<UInt32> = 1000 ... 2_000_000
+
+    enum Check: Equatable {
+        case match
+        case mismatch
+        /// The stored value cannot be checked: never the user's mistake, never a counted guess.
+        case unreadable
+    }
+
+    /// `pin` against `stored`, a verifier or a legacy plain PIN. Constant time in the position of
+    /// the first difference. Slow for a verifier: call it off the main thread.
+    static func check(_ pin: String, stored: String) -> Check {
         guard isVerifier(stored) else {
-            return PincodeComparison.matches(pin, stored)
-        }
-        guard !pin.isEmpty else {
-            return false
+            return PincodeComparison.matches(pin, stored) ? .match : .mismatch
         }
         let parts = stored.dropFirst(prefix.count).split(separator: "$", omittingEmptySubsequences: false)
         guard parts.count == 3,
-              let iterations = UInt32(parts[0]), iterations >= 1000,
+              let iterations = UInt32(parts[0]), acceptedIterations.contains(iterations),
               let salt = Data(base64Encoded: String(parts[1])), salt.count == saltLength,
-              let expected = Data(base64Encoded: String(parts[2])), expected.count == outputLength,
-              let actual = try? derive(pin: pin, salt: salt, iterations: iterations)
+              let expected = Data(base64Encoded: String(parts[2])), expected.count == outputLength
         else {
-            return false
+            return .unreadable
+        }
+        guard !pin.isEmpty else {
+            return .mismatch
+        }
+        guard let actual = try? derive(pin: pin, salt: salt, iterations: iterations) else {
+            return .unreadable
         }
         var difference: UInt8 = 0
         for index in 0 ..< outputLength {
             difference |= actual[index] ^ expected[index]
         }
-        return difference == 0
+        return difference == 0 ? .match : .mismatch
+    }
+
+    static func matches(_ pin: String, stored: String) -> Bool {
+        check(pin, stored: stored) == .match
     }
 
     private static func derive(pin: String, salt: Data, iterations: UInt32) throws -> Data {
@@ -91,40 +108,4 @@ enum PincodeVerifier {
 enum PincodeVerifierError: Error {
     case randomUnavailable
     case derivationFailed
-}
-
-/// Replaces a plain stored PIN with a verifier after the user entered it correctly. The value
-/// changes in place (one `SecItemUpdate`), so the PIN item never goes missing; the verifier is
-/// read back and checked against the PIN just entered, and the plain PIN is put back if it fails.
-enum PincodeVerifierUpgrade {
-    static func upgrade(
-        pin: String,
-        secretManager: SecretStoreManagerProtocol,
-        queue: DispatchQueue = .global(qos: .utility),
-        completion: ((Bool) -> Void)? = nil
-    ) {
-        queue.async {
-            guard let verifier = try? PincodeVerifier.make(pin: pin) else {
-                completion?(false)
-                return
-            }
-            secretManager.saveSecret(verifier, for: KeystoreTag.pincode.rawValue, completionQueue: queue) { saved in
-                guard saved else {
-                    completion?(false)
-                    return
-                }
-                secretManager.loadSecret(for: KeystoreTag.pincode.rawValue, completionQueue: queue) { stored in
-                    let readable = stored?.toUTF8String().map { PincodeVerifier.matches(pin, stored: $0) } == true
-                    guard readable else {
-                        // Never leave a PIN the user cannot enter.
-                        secretManager.saveSecret(pin, for: KeystoreTag.pincode.rawValue, completionQueue: queue) { _ in
-                            completion?(false)
-                        }
-                        return
-                    }
-                    completion?(true)
-                }
-            }
-        }
-    }
 }

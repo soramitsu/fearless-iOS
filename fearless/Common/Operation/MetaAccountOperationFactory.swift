@@ -31,13 +31,18 @@ final class MetaAccountOperationFactory {
 
     private let keystore: KeystoreProtocol
     private let watchedAccounts: UniversalWalletWatchedAccountsStore
+    /// What the user just typed in or confirmed word by word: the items it covers may later move to
+    /// storage that removing the device passcode erases (`ProtectedKeychainRecoveryEvidence`).
+    private let recoveryEvidence: ProtectedKeychainRecoveryEvidence
 
     init(
         keystore: KeystoreProtocol,
-        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore()
+        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore(),
+        recoveryEvidence: ProtectedKeychainRecoveryEvidence = .shared
     ) {
         self.keystore = keystore
         self.watchedAccounts = watchedAccounts
+        self.recoveryEvidence = recoveryEvidence
     }
 
     /// Reuses the released import derivation recipe without writing Keychain or Core Data.
@@ -113,8 +118,13 @@ private extension MetaAccountOperationFactory {
         _ body: @escaping (MetaAccountOperationFactory) throws -> MetaAccountModel
     ) -> BaseOperation<MetaAccountModel> {
         let watchedAccounts = watchedAccounts
+        let recoveryEvidence = recoveryEvidence
         return PersistenceBoundImportOperation(keystore: keystore, replacing: previous) { transactionalStore in
-            try body(MetaAccountOperationFactory(keystore: transactionalStore, watchedAccounts: watchedAccounts))
+            try body(MetaAccountOperationFactory(
+                keystore: transactionalStore,
+                watchedAccounts: watchedAccounts,
+                recoveryEvidence: recoveryEvidence
+            ))
         }
     }
 
@@ -122,9 +132,12 @@ private extension MetaAccountOperationFactory {
         wallet: MetaAccountModel, entropy: Data,
         body: @escaping () throws -> MetaAccountModel
     ) -> BaseOperation<MetaAccountModel> {
-        PersistenceBoundImportOperation(keystore: keystore, replacing: wallet) { transactionalStore in
+        let recoveryEvidence = recoveryEvidence
+        return PersistenceBoundImportOperation(keystore: keystore, replacing: wallet) { transactionalStore in
             let recovered = try body()
             try transactionalStore.saveKey(entropy, with: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
+            // The user just typed in the root phrase.
+            recoveryEvidence.record(walletId: wallet.metaId)
             return recovered
         }
     }
@@ -507,6 +520,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try factory.saveSeed(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
 
             try factory.saveEntropy(request.mnemonic.entropy(), metaId: metaId)
+            if isBackuped {
+                factory.recoveryEvidence.record(walletId: metaId)
+            }
 
             return metaAccount
         }
@@ -566,6 +582,10 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             }
 
             try factory.saveUniversalWalletSeedBridgeContract(metaId: metaId)
+
+            if isBackuped {
+                factory.recoveryEvidence.record(walletId: metaId)
+            }
 
             return metaAccount
         }
@@ -632,6 +652,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try factory.saveSecretKey(substrateKeystore.secretKeyData, metaId: metaId, ethereumBased: false)
             if let ethereumKeystore = ethereumKeystore {
                 try factory.saveSecretKey(ethereumKeystore.secretKeyData, metaId: metaId, ethereumBased: true)
+            }
+            if isBackuped {
+                factory.recoveryEvidence.record(walletId: metaId)
             }
 
             return MetaAccountModel(
@@ -727,6 +750,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: request.isEthereum
             )
 
+            // Material typed in for this account alone.
+            factory.recoveryEvidence.record(walletId: metaId, scope: accountId.toHex())
             return request.meta.insertingChainAccount(chainAccount)
         }
     }
@@ -772,6 +797,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: request.isEthereum
             )
 
+            // Material typed in for this account alone.
+            factory.recoveryEvidence.record(walletId: metaId, scope: accountId.toHex())
             return request.meta.insertingChainAccount(chainAccount)
         }
     }
@@ -834,6 +861,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: request.isEthereum
             )
 
+            // Material typed in for this account alone.
+            factory.recoveryEvidence.record(walletId: request.meta.metaId, scope: accountId.toHex())
             return request.meta.insertingChainAccount(chainAccount)
         }
     }

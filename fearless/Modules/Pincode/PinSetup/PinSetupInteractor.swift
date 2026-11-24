@@ -66,6 +66,58 @@ final class PinSaveCoordinator {
         }
     }
 
+    /// Replaces a plain stored PIN with a verifier after the user entered it correctly, in the same
+    /// queue as PIN changes so neither can overwrite the other. It writes only while the stored value
+    /// is still exactly `plain`, in place (the item never goes missing), reads the result back and
+    /// puts `plain` back only while the stored value is still the verifier it wrote.
+    func upgrade(
+        plain: String,
+        using secretManager: SecretStoreManagerProtocol,
+        completion: ((Bool) -> Void)? = nil
+    ) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        requests.append { [weak self] in
+            guard let self else { return }
+            let done: (Bool) -> Void = { upgraded in
+                DispatchQueue.main.async {
+                    completion?(upgraded)
+                    self.finish()
+                }
+            }
+            let tag = KeystoreTag.pincode.rawValue
+            let worker = DispatchQueue.global(qos: .utility)
+            secretManager.loadSecret(for: tag, completionQueue: worker) { current in
+                guard current?.toUTF8String() == plain, let verifier = try? PincodeVerifier.make(pin: plain) else {
+                    done(false)
+                    return
+                }
+                secretManager.saveSecret(verifier, for: tag, completionQueue: worker) { saved in
+                    guard saved else {
+                        done(false)
+                        return
+                    }
+                    secretManager.loadSecret(for: tag, completionQueue: worker) { stored in
+                        let value = stored?.toUTF8String()
+                        guard value == verifier else {
+                            // Another write won: it is never undone.
+                            done(false)
+                            return
+                        }
+                        guard PincodeVerifier.matches(plain, stored: verifier) else {
+                            // Never leave a PIN the user cannot enter.
+                            secretManager.saveSecret(plain, for: tag, completionQueue: worker) { _ in done(false) }
+                            return
+                        }
+                        done(true)
+                    }
+                }
+            }
+        }
+        if requests.count == 1 {
+            requests[0]()
+        }
+    }
+
     private func finish() {
         requests.removeFirst()
         requests.first?()
