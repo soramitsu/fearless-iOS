@@ -575,6 +575,8 @@ private final class TonConnectFakeSessionStore: LegacyTonConnectSessionStoring {
     private let readLock = NSLock()
     private var holdsNextRead = false
     private var heldRead: CheckedContinuation<Void, Never>?
+    /// Signalled as a held read fails, from the store's own thread.
+    let heldReadFailed = DispatchSemaphore(value: 0)
     /// A disconnect removes the session, then throws this (as one recorded but not finished).
     var removalError: Error?
     init(values: [LegacyTonConnectSession]) { self.values = values }
@@ -598,6 +600,7 @@ private final class TonConnectFakeSessionStore: LegacyTonConnectSessionStoring {
             await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
                 readLock.lock(); heldRead = continuation; readLock.unlock()
             }
+            heldReadFailed.signal()
             throw LegacyTonConnectError.invalidSession
         }
         if failReads { throw LegacyTonConnectError.invalidSession }
@@ -3193,6 +3196,36 @@ final class LegacyTonConnectReconnectOfferViewTests: XCTestCase {
         XCTAssertEqual(controller.tableView.numberOfRows(inSection: 0), 1)
     }
 
+    /// Codex review (round 4): the failed read's completion is queued on the main actor before the unlock is posted.
+    @MainActor
+    func testAFailedLoadQueuedBeforeTheUnlockIsNotShownAndTheListLoadsAndOffers() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        store.waiting = [bridge]
+        store.holdNextReadAndFailIt()
+        let lockState = ApplicationLockState.shared
+        lockState.markLockPending()
+        defer { lockState.cancelPendingLock() }
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: TonConnectFakeTransport()))
+        let (_, close) = try host(controller)
+        defer { close() }
+        try await waitUntil { store.isHoldingRead }
+        XCTAssertTrue(store.isHoldingRead)
+
+        // The failed read's completion is queued on the main actor (held here, without suspending) before the
+        // unlock is posted: the unlock must still win over the failure.
+        store.releaseRead()
+        XCTAssertEqual(store.heldReadFailed.wait(timeout: .now() + 10), .success)
+        Thread.sleep(forTimeInterval: 0.5)
+        lockState.cancelPendingLock()
+
+        try await waitUntil { controller.presentedViewController is UIAlertController }
+        let alert = try XCTUnwrap(controller.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages),
+                       "The offer, not the error of a read the lock held back")
+        XCTAssertEqual(controller.tableView.numberOfRows(inSection: 0), 1)
+    }
+
     @MainActor
     func testASwipeWhoseRemovalIsUnfinishedShowsTheErrorAndDropsTheRow() async throws {
         let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
@@ -3204,6 +3237,7 @@ final class LegacyTonConnectReconnectOfferViewTests: XCTestCase {
         defer { close() }
         try await waitUntil { controller.tableView(controller.tableView, cellForRowAt: IndexPath(row: 0, section: 0)).textLabel?.text == bridge.name }
 
+        let removalError = try XCTUnwrap(store.removalError)
         let action = try XCTUnwrap(controller.tableView(controller.tableView, trailingSwipeActionsConfigurationForRowAt: IndexPath(row: 0, section: 0))?.actions.first)
         var completed: [Bool] = []
         action.handler(action, UIView()) { completed.append($0) }
@@ -3216,8 +3250,8 @@ final class LegacyTonConnectReconnectOfferViewTests: XCTestCase {
         }
         XCTAssertEqual(controller.tableView(controller.tableView, cellForRowAt: IndexPath(row: 0, section: 0)).textLabel?.text,
                        "No connected applications", "The retired session leaves the list")
-        XCTAssertNotEqual((controller.presentedViewController as? UIAlertController)?.title,
-                          R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages))
+        let shown = try XCTUnwrap(controller.presentedViewController as? UIAlertController, "The cleanup error is shown")
+        XCTAssertEqual(shown.message, removalError.localizedDescription)
     }
 
     @MainActor

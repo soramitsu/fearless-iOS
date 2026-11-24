@@ -220,7 +220,8 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
             object: ApplicationLockState.shared,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.resume() }
+            // At once, ahead of any load completion already queued on the main actor.
+            MainActor.assumeIsolated { self?.resume() }
         }
         reload()
     }
@@ -254,6 +255,7 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
             return
         }
         isLoading = true
+        let startedLocked = ApplicationLockState.shared.isLocked
         Task { @MainActor in
             let outcome: Result<[LegacyTonConnectSession], Error>
             do {
@@ -273,8 +275,13 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
                 needsReload = true
                 guard !again else { break }
                 refreshControl?.endRefreshing()
-                // Behind the lock (the Keychain may be unreadable) the list loads again after the unlock instead.
-                if !ApplicationLockState.shared.isLocked {
+                // A load that ran behind the lock (the Keychain may have been unreadable) is not reported: the list
+                // loads again once unlocked, at once if the unlock came while it ran.
+                if startedLocked || ApplicationLockState.shared.isLocked {
+                    if !ApplicationLockState.shared.isLocked, viewIfLoaded?.window != nil {
+                        reload()
+                    }
+                } else {
                     show(error)
                 }
                 return
@@ -328,6 +335,10 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         if alert.presentingViewController == nil {
             // UIKit refused it (for example mid-transition): nothing was asked, so the next load asks.
             isOfferingReconnect = false
+            if checksOfferAgain {
+                checksOfferAgain = false
+                requestOffer()
+            }
         }
     }
 
