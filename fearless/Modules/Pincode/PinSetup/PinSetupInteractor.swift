@@ -62,6 +62,7 @@ class PinSetupInteractor {
     private let locale: Locale
     private let attemptLimiter: PincodeAttemptLimiting
     private let enrollmentGuard: BiometryEnrollmentGuarding
+    private let authorizedUnlock: WalletAuthorizedUnlock
     private var generation: UInt64 = 0
     private(set) var pincode: String?
     private(set) var state: PinSetupState = .waitingPincode
@@ -72,7 +73,8 @@ class PinSetupInteractor {
         biometryAuth: BiometryAuthProtocol,
         locale: Locale,
         attemptLimiter: PincodeAttemptLimiting = PincodeAttemptLimiter.shared,
-        enrollmentGuard: BiometryEnrollmentGuarding = BiometryEnrollmentGuard.shared
+        enrollmentGuard: BiometryEnrollmentGuarding = BiometryEnrollmentGuard.shared,
+        authorizedUnlock: WalletAuthorizedUnlock = .shared
     ) {
         self.secretManager = secretManager
         self.settingsManager = settingsManager
@@ -80,6 +82,7 @@ class PinSetupInteractor {
         self.locale = locale
         self.attemptLimiter = attemptLimiter
         self.enrollmentGuard = enrollmentGuard
+        self.authorizedUnlock = authorizedUnlock
     }
 
     private func onMain(_ action: @escaping () -> Void) {
@@ -129,6 +132,8 @@ class PinSetupInteractor {
                     if biometryEnabled == true {
                         self.enrollmentGuard.trustCurrentEnrollment()
                     }
+                    // Whoever just chose the PIN is the owner: wallet work that needs secrets may run.
+                    self.authorizedUnlock.recordUnlock()
                     self.changeState(to: .submitedPincode)
                     output.didSavePin()
                 }

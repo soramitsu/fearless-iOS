@@ -210,6 +210,7 @@ class LocalAuthInteractor {
     private var generation: UInt64 = 0
     private let attemptLimiter: PincodeAttemptLimiting
     private let enrollmentGuard: BiometryEnrollmentGuarding
+    private let authorizedUnlock: WalletAuthorizedUnlock
 
     init(
         secretManager: SecretStoreManagerProtocol,
@@ -217,7 +218,8 @@ class LocalAuthInteractor {
         biometryAuth: BiometryAuthProtocol,
         locale: Locale,
         attemptLimiter: PincodeAttemptLimiting = PincodeAttemptLimiter.shared,
-        enrollmentGuard: BiometryEnrollmentGuarding = BiometryEnrollmentGuard.shared
+        enrollmentGuard: BiometryEnrollmentGuarding = BiometryEnrollmentGuard.shared,
+        authorizedUnlock: WalletAuthorizedUnlock = .shared
     ) {
         self.secretManager = secretManager
         self.settingsManager = settingsManager
@@ -225,6 +227,7 @@ class LocalAuthInteractor {
         self.locale = locale
         self.attemptLimiter = attemptLimiter
         self.enrollmentGuard = enrollmentGuard
+        self.authorizedUnlock = authorizedUnlock
     }
 
     // State and ownership live on the main queue, including replies from secret/biometric providers.
@@ -276,7 +279,10 @@ class LocalAuthInteractor {
         // lockout, which only limits PIN guesses, and it never clears the count of wrong PINs.
         let accepted = result && enrollmentGuard.isCurrentEnrollmentTrusted()
         changeState(to: accepted ? .completed : .waitingPincode)
-        if accepted { deliver(attempt) { $0.didCompleteAuth() } }
+        if accepted {
+            authorizedUnlock.recordUnlock()
+            deliver(attempt) { $0.didCompleteAuth() }
+        }
     }
 
     private func processStored(pin stored: String?, attempt: UInt64) {
@@ -307,6 +313,7 @@ class LocalAuthInteractor {
         }
         attemptLimiter.reset()
         enrollmentGuard.trustCurrentEnrollment()
+        authorizedUnlock.recordUnlock()
         changeState(to: .completed)
         deliver(attempt) { $0.didCompleteAuth() }
     }

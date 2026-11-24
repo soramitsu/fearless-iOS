@@ -146,11 +146,24 @@ final class CovHWMCInteractorHarness {
     let noticeTracker: UniversalWalletPasswordNoticeTracker
     let wallet: MetaAccountModel
     let interactor: WalletMainContainerInteractor
+    let unlock: WalletAuthorizedUnlock
 
-    init(wallet: MetaAccountModel = AccountGenerator.generateMetaAccount()) {
+    /// `unlocked`: the user has just unlocked the app, so checks that read the wallet's words run.
+    /// `watching`: the wallet has a watched network, the only kind whose words the check reads.
+    init(
+        wallet: MetaAccountModel = AccountGenerator.generateMetaAccount(),
+        unlocked: Bool = true,
+        watching: Set<UniversalWalletSlot> = [.solana],
+        unlockNotifications: NotificationCenter = NotificationCenter()
+    ) {
         self.wallet = wallet
         watched = UniversalWalletWatchedAccountsStore(userDefaults: defaults)
+        watched.watch(watching, in: wallet.metaId)
         noticeTracker = UniversalWalletPasswordNoticeTracker(userDefaults: defaults)
+        unlock = WalletAuthorizedUnlock(notificationCenter: unlockNotifications)
+        if unlocked {
+            unlock.recordUnlock()
+        }
         let facade = UserDataStorageTestFacade()
         interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(
@@ -171,7 +184,8 @@ final class CovHWMCInteractorHarness {
             passwordSwitcher: UniversalWalletPasswordSwitcher(mnemonicProvider: switcherWords),
             passwordNoticeTracker: noticeTracker,
             watchedAccounts: watched,
-            watchedAccountsChecker: UniversalWalletWatchedAccountsChecker(mnemonicProvider: checkerWords, watchedAccounts: watched)
+            watchedAccountsChecker: UniversalWalletWatchedAccountsChecker(mnemonicProvider: checkerWords, watchedAccounts: watched),
+            authorizedUnlock: unlock
         )
     }
 
@@ -316,6 +330,47 @@ final class CovHWMCInteractorTests: XCTestCase {
         CovHAssetListFixture.spin { harness.checkerWords.reads > checks }
 
         XCTAssertGreaterThan(harness.checkerWords.reads, checks)
+    }
+
+    func testRefreshAndForegroundOutsideAnUnlockReadNoWords() {
+        let harness = CovHWMCInteractorHarness(unlocked: false)
+        harness.interactor.setup(with: harness.output)
+        CovHAssetListFixture.spin { !harness.output.nftAvailability.isEmpty && !harness.output.filters.isEmpty }
+
+        NotificationCenter.default.post(name: .universalWalletPortfolioRefreshed, object: nil)
+        harness.interactor.didReceiveWillEnterForeground(notification: Notification(name: UIApplication.willEnterForegroundNotification))
+        CovHAssetListFixture.spin(timeout: 0.3) { false }
+        CovHAssetListFixture.drainMain()
+
+        XCTAssertEqual(harness.checkerWords.reads, 0, "A refresh or foreground alone never reads the words")
+        XCTAssertEqual(harness.switcherWords.reads, 0, "The password notice waits for an unlock")
+    }
+
+    func testWalletWithoutWatchedNetworksIsNotCheckedEvenRightAfterUnlock() {
+        let harness = CovHWMCInteractorHarness(watching: [])
+        harness.interactor.setup(with: harness.output)
+        CovHAssetListFixture.spin { harness.switcherWords.reads > 0 }
+
+        NotificationCenter.default.post(name: .universalWalletPortfolioRefreshed, object: nil)
+        CovHAssetListFixture.spin(timeout: 0.3) { false }
+        CovHAssetListFixture.drainMain()
+
+        XCTAssertEqual(harness.checkerWords.reads, 0)
+    }
+
+    func testUnlockRunsTheChecksThatWaited() {
+        let notifications = NotificationCenter.default
+        let harness = CovHWMCInteractorHarness(unlocked: false, unlockNotifications: notifications)
+        harness.interactor.setup(with: harness.output)
+        CovHAssetListFixture.spin(timeout: 0.3) { false }
+        XCTAssertEqual(harness.checkerWords.reads, 0)
+        XCTAssertEqual(harness.switcherWords.reads, 0)
+
+        harness.unlock.recordUnlock()
+        CovHAssetListFixture.spin { harness.checkerWords.reads > 0 && harness.switcherWords.reads > 0 }
+
+        XCTAssertGreaterThan(harness.checkerWords.reads, 0)
+        XCTAssertGreaterThan(harness.switcherWords.reads, 0)
     }
 
     func testSelectedWalletChangeFollowsTheStoredSelection() {

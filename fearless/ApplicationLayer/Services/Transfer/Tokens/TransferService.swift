@@ -223,6 +223,8 @@ final class BitcoinTransferService: TransferServiceProtocol {
     private let sendService: BitcoinSendService
     private let balanceSync: BitcoinBalanceSync
     private let mnemonicProvider: BitcoinMnemonicProviding
+    private let descriptorProvider: BitcoinAccountDescriptorProviding
+    private let descriptorBackfill: BitcoinAccountDescriptorBackfill
     private let sendGate: UniversalSendGate
     private let pendingStore: BitcoinPendingBroadcastStoring
     private let feeQuoteStore = BitcoinTransferFeeQuoteStore()
@@ -233,6 +235,7 @@ final class BitcoinTransferService: TransferServiceProtocol {
         chain: ChainModel,
         client: BitcoinIndexerClientProtocol = BitcoinFailoverIndexerClient(),
         mnemonicProvider: BitcoinMnemonicProviding = KeychainBitcoinMnemonicProvider(),
+        descriptorStore: BitcoinAccountDescriptorStore = .shared,
         sendGate: UniversalSendGate = .production,
         pendingStore: BitcoinPendingBroadcastStoring = BitcoinPendingBroadcastStore.shared,
         statusPolling: BitcoinSendService.StatusPolling = .standard
@@ -245,6 +248,8 @@ final class BitcoinTransferService: TransferServiceProtocol {
             discovery: BitcoinReceiveDiscovery(client: client)
         )
         self.mnemonicProvider = mnemonicProvider
+        descriptorProvider = descriptorStore
+        descriptorBackfill = BitcoinAccountDescriptorBackfill(store: descriptorStore)
         self.sendGate = sendGate
         self.pendingStore = pendingStore
     }
@@ -268,20 +273,33 @@ final class BitcoinTransferService: TransferServiceProtocol {
         let generation = feeQuoteStore.begin(identity: quoteIdentity)
 
         do {
-            guard let secret = try resolveMnemonic(
-                context: context,
-                required: true,
-                failure: TransferServiceError.cannotEstimateFee(reason:)
-            ) else {
-                throw TransferServiceError.cannotEstimateFee(
-                    reason: "Bitcoin mnemonic root material is unavailable"
+            // A quote is made while the amount is typed: it reads the account's public descriptor,
+            // and the phrase only for an account that has none yet.
+            let sources: [BitcoinUtxoSource]
+            if let descriptor = descriptorProvider.descriptor(for: wallet, chain: chain),
+               descriptor.network == bitcoinKeyDerivationNetwork(for: context.network) {
+                sources = try await resolveSpendSources(
+                    context: context,
+                    descriptor: descriptor,
+                    failure: TransferServiceError.cannotEstimateFee(reason:)
+                )
+            } else {
+                guard let secret = try resolveMnemonic(
+                    context: context,
+                    required: true,
+                    failure: TransferServiceError.cannotEstimateFee(reason:)
+                ) else {
+                    throw TransferServiceError.cannotEstimateFee(
+                        reason: "Bitcoin mnemonic root material is unavailable"
+                    )
+                }
+                recordDescriptor(from: secret)
+                sources = try await resolveSpendSources(
+                    context: context,
+                    secret: secret,
+                    failure: TransferServiceError.cannotEstimateFee(reason:)
                 )
             }
-            let sources = try await resolveSpendSources(
-                context: context,
-                secret: secret,
-                failure: TransferServiceError.cannotEstimateFee(reason:)
-            )
             // A transfer that replaces an unresolved one must spend that one's coins, so the
             // fee shown is the fee of exactly that transaction.
             var requiredOutpoints = replacementOutpoints(for: context)
@@ -389,6 +407,8 @@ final class BitcoinTransferService: TransferServiceProtocol {
                 reason: "Bitcoin mnemonic root material is unavailable"
             )
         }
+        // The user confirmed this transfer: later refreshes and quotes can use the descriptor.
+        recordDescriptor(from: secret)
         let sources = try await resolveSpendSources(
             context: context,
             secret: secret,
@@ -682,6 +702,47 @@ final class BitcoinTransferService: TransferServiceProtocol {
         }
 
         return secret
+    }
+
+    private func recordDescriptor(from secret: UniversalWalletSecret) {
+        guard let slot = UniversalWalletSlot(chainId: chain.chainId) else {
+            return
+        }
+        _ = try? descriptorBackfill.record(secret, for: wallet, slot: slot)
+    }
+
+    /// The funded addresses, found from the account's public descriptor. The scan is the one
+    /// the phrase would make, so it shares the wallet's balance cache entry.
+    private func resolveSpendSources(
+        context: BitcoinTransferContext,
+        descriptor: BitcoinKeyDerivation.AccountDescriptor,
+        failure: (String) -> TransferServiceError
+    ) async throws -> [BitcoinUtxoSource] {
+        let firstSource = BitcoinUtxoSource(
+            address: context.sourceAddress,
+            derivationPath: bitcoinKeyDerivationNetwork(for: context.network).firstReceivePath
+        )
+        do {
+            let result = try await BitcoinWalletBalanceCache.shared.value(
+                for: balanceCacheKey(for: context),
+                staleOnFailure: true
+            ) {
+                try await self.balanceSync.balance(
+                    descriptor: descriptor,
+                    baseURL: context.baseURL,
+                    gapLimit: nil,
+                    maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+                )
+            }
+            let fundedSources = BitcoinBalanceSync.spendSources(in: result.discovery).map {
+                BitcoinUtxoSource(address: $0.address, derivationPath: $0.path)
+            }
+            return fundedSources.isEmpty ? [firstSource] : fundedSources
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            throw failure("Bitcoin spendable-address discovery failed")
+        }
     }
 
     private func resolveSpendSources(

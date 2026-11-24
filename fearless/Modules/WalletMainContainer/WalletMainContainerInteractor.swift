@@ -26,6 +26,8 @@ final class WalletMainContainerInteractor {
     private let watchedAccountsChecker: UniversalWalletWatchedAccountsChecker
     private var isCheckingWatchedAccounts = false
     private var portfolioRefreshObserver: NSObjectProtocol?
+    private var authorizedUnlockObserver: NSObjectProtocol?
+    private let authorizedUnlock: WalletAuthorizedUnlock
 
     // MARK: - Constructor
 
@@ -44,7 +46,8 @@ final class WalletMainContainerInteractor {
         passwordSwitcher: UniversalWalletPasswordSwitcher = UniversalWalletPasswordSwitcher(),
         passwordNoticeTracker: UniversalWalletPasswordNoticeTracker = UniversalWalletPasswordNoticeTracker(),
         watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore(),
-        watchedAccountsChecker: UniversalWalletWatchedAccountsChecker = UniversalWalletWatchedAccountsChecker()
+        watchedAccountsChecker: UniversalWalletWatchedAccountsChecker = UniversalWalletWatchedAccountsChecker(),
+        authorizedUnlock: WalletAuthorizedUnlock = .shared
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -61,7 +64,14 @@ final class WalletMainContainerInteractor {
         self.passwordNoticeTracker = passwordNoticeTracker
         self.watchedAccounts = watchedAccounts
         self.watchedAccountsChecker = watchedAccountsChecker
+        self.authorizedUnlock = authorizedUnlock
         applicationHandler.delegate = self
+    }
+
+    deinit {
+        [portfolioRefreshObserver, authorizedUnlockObserver].compactMap { $0 }.forEach {
+            NotificationCenter.default.removeObserver($0)
+        }
     }
 
     // MARK: - Private method
@@ -135,9 +145,11 @@ final class WalletMainContainerInteractor {
     }
 
     /// Shows once per wallet that its password does not protect some universal accounts yet.
+    /// It reads the wallet's words, so it runs only right after the user unlocked the app; a
+    /// check skipped now runs at the next unlock.
     private func checkUniversalWalletPassword() {
         let wallet = self.wallet
-        guard !passwordNoticeTracker.wasShown(for: wallet.metaId) else {
+        guard !passwordNoticeTracker.wasShown(for: wallet.metaId), authorizedUnlock.isWindowOpen else {
             return
         }
         let switcher = passwordSwitcher
@@ -156,7 +168,11 @@ final class WalletMainContainerInteractor {
 
     /// The account a watched network of a password wallet does not show stays watched: funds
     /// there make the network show it when the shown account is empty, and are reported otherwise.
+    /// Reads the wallet's words, so it runs for a wallet with watched networks only, and only
+    /// right after the user unlocked the app: a portfolio refresh alone never reads a secret.
     private func checkWatchedOldAddresses() {
+        guard !watchedAccounts.watchedSlots(in: wallet.metaId).isEmpty,
+              authorizedUnlock.isWindowOpen else { return }
         guard !isCheckingWatchedAccounts else { return }
         isCheckingWatchedAccounts = true
         let wallet = self.wallet
@@ -234,6 +250,14 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
             object: nil,
             queue: .main
         ) { [weak self] _ in
+            self?.checkWatchedOldAddresses()
+        }
+        authorizedUnlockObserver = NotificationCenter.default.addObserver(
+            forName: .walletAuthorizedUnlock,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.checkUniversalWalletPassword()
             self?.checkWatchedOldAddresses()
         }
     }

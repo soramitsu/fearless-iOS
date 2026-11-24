@@ -3523,7 +3523,10 @@
 		FAE6016A2ECA700100000001 /* BitcoinReceiveDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6016B2ECA700100000001 /* BitcoinReceiveDiscovery.swift */; };
 		FAE6016C2ECA700100000001 /* BitcoinReceiveDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6016D2ECA700100000001 /* BitcoinReceiveDiscoveryTests.swift */; };
 		FAE6016E2ECA700100000001 /* BitcoinBalanceSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6016F2ECA700100000001 /* BitcoinBalanceSync.swift */; };
+		62C738269B320CDD22F94707 /* WalletAuthorizedMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2F153FAE0AB48287F1315D9 /* WalletAuthorizedMaintenance.swift */; };
+		7DE7DD50587B39FBCF372ABB /* BitcoinAccountDescriptorStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397267BB9E4B2AFE5A554872 /* BitcoinAccountDescriptorStore.swift */; };
 		FAE601702ECA700100000001 /* BitcoinBalanceSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601712ECA700100000001 /* BitcoinBalanceSyncTests.swift */; };
+		3ACAB14C9436CAF50CE4B0B8 /* PassiveSecretReadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD631578A4D4C1D484AD3BF /* PassiveSecretReadTests.swift */; };
 		FAE601722ECA700100000001 /* BitcoinFeeEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601732ECA700100000001 /* BitcoinFeeEstimator.swift */; };
 		FAE601742ECA700100000001 /* BitcoinFeeEstimatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601752ECA700100000001 /* BitcoinFeeEstimatorTests.swift */; };
 		FAE601762ECA700100000001 /* BitcoinUtxoSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601772ECA700100000001 /* BitcoinUtxoSelector.swift */; };
@@ -7338,7 +7341,10 @@
 		FAE6016B2ECA700100000001 /* BitcoinReceiveDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinReceiveDiscovery.swift; sourceTree = "<group>"; };
 		FAE6016D2ECA700100000001 /* BitcoinReceiveDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinReceiveDiscoveryTests.swift; sourceTree = "<group>"; };
 		FAE6016F2ECA700100000001 /* BitcoinBalanceSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinBalanceSync.swift; sourceTree = "<group>"; };
+		F2F153FAE0AB48287F1315D9 /* WalletAuthorizedMaintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAuthorizedMaintenance.swift; sourceTree = "<group>"; };
+		397267BB9E4B2AFE5A554872 /* BitcoinAccountDescriptorStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinAccountDescriptorStore.swift; sourceTree = "<group>"; };
 		FAE601712ECA700100000001 /* BitcoinBalanceSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinBalanceSyncTests.swift; sourceTree = "<group>"; };
+		ACD631578A4D4C1D484AD3BF /* PassiveSecretReadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassiveSecretReadTests.swift; sourceTree = "<group>"; };
 		FAE601732ECA700100000001 /* BitcoinFeeEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinFeeEstimator.swift; sourceTree = "<group>"; };
 		FAE601752ECA700100000001 /* BitcoinFeeEstimatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinFeeEstimatorTests.swift; sourceTree = "<group>"; };
 		FAE601772ECA700100000001 /* BitcoinUtxoSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinUtxoSelector.swift; sourceTree = "<group>"; };
@@ -11118,6 +11124,7 @@
 				FAE601432ECA700100000001 /* BitcoinIndexerClientTests.swift */,
 				FAE6016D2ECA700100000001 /* BitcoinReceiveDiscoveryTests.swift */,
 				FAE601712ECA700100000001 /* BitcoinBalanceSyncTests.swift */,
+				ACD631578A4D4C1D484AD3BF /* PassiveSecretReadTests.swift */,
 				FAE601752ECA700100000001 /* BitcoinFeeEstimatorTests.swift */,
 				FAE601792ECA700100000001 /* BitcoinUtxoSelectorTests.swift */,
 				FAE6017D2ECA700100000001 /* BitcoinSendPlannerTests.swift */,
@@ -11452,6 +11459,8 @@
 				FAE601412ECA700100000001 /* BitcoinIndexerClient.swift */,
 				FAE6016B2ECA700100000001 /* BitcoinReceiveDiscovery.swift */,
 				FAE6016F2ECA700100000001 /* BitcoinBalanceSync.swift */,
+				F2F153FAE0AB48287F1315D9 /* WalletAuthorizedMaintenance.swift */,
+				397267BB9E4B2AFE5A554872 /* BitcoinAccountDescriptorStore.swift */,
 				FAE601732ECA700100000001 /* BitcoinFeeEstimator.swift */,
 				FAE601772ECA700100000001 /* BitcoinUtxoSelector.swift */,
 				FAE6017B2ECA700100000001 /* BitcoinSendPlanner.swift */,
@@ -19160,6 +19169,8 @@
 				FAE601402ECA700100000001 /* BitcoinIndexerClient.swift in Sources */,
 				FAE6016A2ECA700100000001 /* BitcoinReceiveDiscovery.swift in Sources */,
 				FAE6016E2ECA700100000001 /* BitcoinBalanceSync.swift in Sources */,
+				62C738269B320CDD22F94707 /* WalletAuthorizedMaintenance.swift in Sources */,
+				7DE7DD50587B39FBCF372ABB /* BitcoinAccountDescriptorStore.swift in Sources */,
 				FAE601722ECA700100000001 /* BitcoinFeeEstimator.swift in Sources */,
 				FAE601762ECA700100000001 /* BitcoinUtxoSelector.swift in Sources */,
 				FAE6017A2ECA700100000001 /* BitcoinSendPlanner.swift in Sources */,
@@ -21428,6 +21439,7 @@
 				FAE601422ECA700100000001 /* BitcoinIndexerClientTests.swift in Sources */,
 				FAE6016C2ECA700100000001 /* BitcoinReceiveDiscoveryTests.swift in Sources */,
 				FAE601702ECA700100000001 /* BitcoinBalanceSyncTests.swift in Sources */,
+				3ACAB14C9436CAF50CE4B0B8 /* PassiveSecretReadTests.swift in Sources */,
 				FAE601742ECA700100000001 /* BitcoinFeeEstimatorTests.swift in Sources */,
 				FAE601782ECA700100000001 /* BitcoinUtxoSelectorTests.swift in Sources */,
 				FAE6017C2ECA700100000001 /* BitcoinSendPlannerTests.swift in Sources */,

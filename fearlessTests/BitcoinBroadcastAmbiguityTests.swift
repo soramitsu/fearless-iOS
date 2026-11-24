@@ -1012,6 +1012,21 @@ final class BitcoinTestMnemonicProvider: BitcoinMnemonicProviding {
     }
 }
 
+/// The public descriptor of `BitcoinTestWallet.mnemonic`, as an authorized unlock saves it.
+final class BitcoinTestDescriptorProvider: BitcoinAccountDescriptorProviding {
+    private let descriptor: BitcoinKeyDerivation.AccountDescriptor?
+    private(set) var callCount = 0
+
+    init(mnemonic: String? = BitcoinTestWallet.mnemonic, network: BitcoinKeyDerivation.Network = .mainnet) {
+        descriptor = mnemonic.flatMap { try? BitcoinKeyDerivation.deriveAccountDescriptor(mnemonic: $0, network: network) }
+    }
+
+    func descriptor(for _: MetaAccountModel, chain _: ChainModel) -> BitcoinKeyDerivation.AccountDescriptor? {
+        callCount += 1
+        return descriptor
+    }
+}
+
 /// The parts of a signed transaction the tests reason about, read back from the bytes the
 /// wallet handed to the network.
 struct ParsedBitcoinTransaction: Equatable {

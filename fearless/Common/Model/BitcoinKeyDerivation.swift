@@ -965,6 +965,171 @@ enum BitcoinKeyDerivation {
     ]
 }
 
+// MARK: - Public account descriptor
+
+extension BitcoinKeyDerivation {
+    /// The public half of a BIP84 account node (`m/84'/coin'/0'`): its compressed public key and
+    /// chain code. It derives every receive and change address of the account and nothing that can
+    /// spend, so balance and fee reads use it instead of the recovery phrase.
+    struct AccountDescriptor: Equatable {
+        let network: Network
+        let publicKey: Data
+        let chainCode: Data
+
+        init(network: Network, publicKey: Data, chainCode: Data) throws {
+            guard publicKey.count == BitcoinKeyDerivation.publicKeyLength else {
+                throw DerivationError.invalidPublicKeyLength
+            }
+            guard chainCode.count == BitcoinKeyDerivation.chainCodeLength else {
+                throw DerivationError.invalidDerivationPath
+            }
+            // Rejects bytes that are not a point on the curve.
+            _ = try BitcoinKeyDerivation.normalizedPublicKey(publicKey)
+            self.network = network
+            self.publicKey = publicKey
+            self.chainCode = chainCode
+        }
+
+        /// The key of `m/84'/coin'/0'/change/index`.
+        func publicKey(change: UInt32, index: UInt32) throws -> Data {
+            guard change == 0 || change == 1, index <= BitcoinKeyDerivation.maxChildIndex else {
+                throw DerivationError.invalidDerivationIndex
+            }
+            let branch = try BitcoinKeyDerivation.publicChild(
+                publicKey: publicKey,
+                chainCode: chainCode,
+                index: change
+            )
+            return try BitcoinKeyDerivation.publicChild(
+                publicKey: branch.publicKey,
+                chainCode: branch.chainCode,
+                index: index
+            ).publicKey
+        }
+
+        func address(change: UInt32, index: UInt32) throws -> String {
+            try BitcoinKeyDerivation.address(
+                fromPublicKey: publicKey(change: change, index: index),
+                network: network
+            )
+        }
+
+        /// The key the wallet stores as its Bitcoin account (`.../0/0`), which binds the
+        /// descriptor to that account.
+        func firstReceivePublicKey() throws -> Data {
+            try publicKey(change: 0, index: 0)
+        }
+    }
+
+    /// Reads the recovery phrase once to make the account's public descriptor.
+    static func deriveAccountDescriptor(
+        mnemonic: String,
+        passphrase: String = "",
+        network: Network = .mainnet
+    ) throws -> AccountDescriptor {
+        let normalizedMnemonic = try normalizeMnemonic(mnemonic)
+        let seed = try bip39Seed(mnemonic: normalizedMnemonic, passphrase: passphrase)
+        let accountNode = try derivePrivateKey(seed: seed, derivationPath: network.accountPath)
+        return try AccountDescriptor(
+            network: network,
+            publicKey: publicKey(fromPrivateKey: accountNode.privateKey),
+            chainCode: accountNode.chainCode
+        )
+    }
+
+    /// BIP32 CKDpub for a non-hardened `index`: `point(IL) + K`, chain code `IR`.
+    static func publicChild(
+        publicKey parentPublicKey: Data,
+        chainCode parentChainCode: Data,
+        index: UInt32
+    ) throws -> (publicKey: Data, chainCode: Data) {
+        guard index <= maxChildIndex else {
+            // Hardened children need the private key.
+            throw DerivationError.invalidDerivationIndex
+        }
+        guard parentPublicKey.count == publicKeyLength else {
+            throw DerivationError.invalidPublicKeyLength
+        }
+        guard parentChainCode.count == chainCodeLength else {
+            throw DerivationError.invalidDerivationPath
+        }
+
+        var data = Data(parentPublicKey)
+        appendUInt32(index, to: &data)
+        let digest = hmacSha512(key: parentChainCode, data: data)
+        let tweak = Data(digest.prefix(privateKeyLength))
+        guard BigUInt(tweak) < curveOrder else {
+            throw DerivationError.childPrivateKeyTweakOutOfRange
+        }
+
+        guard let context = secp256k1_context_create(
+            UInt32(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY)
+        ) else {
+            throw DerivationError.secp256k1ContextUnavailable
+        }
+        defer { secp256k1_context_destroy(context) }
+
+        var point = try parsePublicKey(parentPublicKey, context: context)
+        let tweaked = tweak.withUnsafeBytes { tweakBytes -> Int32 in
+            guard let tweakPointer = tweakBytes.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
+                return 0
+            }
+            return secp256k1_ec_pubkey_tweak_add(context, &point, tweakPointer)
+        }
+        guard tweaked != 0 else {
+            // IL >= n or the sum is the point at infinity: BIP32 skips such an index.
+            throw DerivationError.childPrivateKeyIsZero
+        }
+
+        return (try serializeCompressed(point, context: context), Data(digest.suffix(chainCodeLength)))
+    }
+
+    /// The compressed encoding of `publicKey`, which must be a point on the curve.
+    static func normalizedPublicKey(_ publicKey: Data) throws -> Data {
+        guard let context = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_VERIFY)) else {
+            throw DerivationError.secp256k1ContextUnavailable
+        }
+        defer { secp256k1_context_destroy(context) }
+        return try serializeCompressed(parsePublicKey(publicKey, context: context), context: context)
+    }
+
+    private static func parsePublicKey(_ publicKey: Data, context: OpaquePointer) throws -> secp256k1_pubkey {
+        var point = secp256k1_pubkey()
+        let parsed = publicKey.withUnsafeBytes { keyBytes -> Int32 in
+            guard let keyPointer = keyBytes.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
+                return 0
+            }
+            return secp256k1_ec_pubkey_parse(context, &point, keyPointer, publicKey.count)
+        }
+        guard parsed != 0 else {
+            throw DerivationError.invalidPublicKeyLength
+        }
+        return point
+    }
+
+    private static func serializeCompressed(_ point: secp256k1_pubkey, context: OpaquePointer) throws -> Data {
+        var point = point
+        var outputLength = publicKeyLength
+        var output = Data(repeating: 0, count: outputLength)
+        let serialized = output.withUnsafeMutableBytes { outputBytes -> Int32 in
+            guard let outputPointer = outputBytes.baseAddress?.assumingMemoryBound(to: UInt8.self) else {
+                return 0
+            }
+            return secp256k1_ec_pubkey_serialize(
+                context,
+                outputPointer,
+                &outputLength,
+                &point,
+                UInt32(SECP256K1_EC_COMPRESSED)
+            )
+        }
+        guard serialized != 0, outputLength == publicKeyLength else {
+            throw DerivationError.publicKeyCannotBeSerialized
+        }
+        return output
+    }
+}
+
 private extension BigUInt {
     func fixedLengthData(_ length: Int) throws -> Data {
         let serialized = serialize()

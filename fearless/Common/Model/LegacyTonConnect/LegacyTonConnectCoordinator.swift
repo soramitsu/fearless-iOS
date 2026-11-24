@@ -207,9 +207,13 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         guard ready, current.legacyTonAccount == account else { throw LegacyTonConnectError.unavailableWallet }
         guard isEnabled() else { throw LegacyTonConnectError.disabled }
         guard !requestsProof || isSigningEnabled() else { throw LegacyTonConnectError.signingPaused }
-        let credentials = try account.signingCredentials(keystore: keystore, metaId: walletId)
+        // An address-only connection shares public data: the spending key is read only to sign
+        // the ownership proof the user just approved.
+        let privateKey = requestsProof
+            ? try account.signingCredentials(keystore: keystore, metaId: walletId).legacyNativePrivateKey
+            : nil
         let response = try LegacyTonConnectProtocol.connectEvent(
-            account: account, privateKey: credentials.legacyNativePrivateKey,
+            account: account, privateKey: privateKey,
             network: network, request: request, manifest: manifest, timestamp: UInt64(Date().timeIntervalSince1970),
             vouchedBy: pageOrigin
         )

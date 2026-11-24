@@ -29,6 +29,57 @@ final class CovFMiscServiceCoordinatorTests: XCTestCase {
         }
     }
 
+    func testAccountChangeOutsideAnUnlockReadsNoSecret() throws {
+        let wallet = AccountGenerator.generateMetaAccount()
+        let fixture = try CovFMiscCoordinatorFixture(selected: wallet, mnemonic: CovFMiscMnemonic(error: nil), unlocked: false)
+        fixture.coordinator.updateOnAccountChange()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+        XCTAssertEqual(fixture.accountInfo.updates, [wallet.metaId])
+        XCTAssertEqual(fixture.mnemonic.calls, 0, "Provisioning waits for the next unlock")
+
+        fixture.unlock.recordUnlock()
+        fixture.coordinator.updateOnAccountChange()
+        try covFMiscEventually { fixture.mnemonic.calls == 1 }
+    }
+
+    func testProvisionedWalletReadsNoSecretEvenRightAfterUnlock() throws {
+        let base = AccountGenerator.generateMetaAccount()
+        let store = BitcoinAccountDescriptorStore(userDefaults: CovHAssetListFixture.defaults())
+        let wallet = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
+            to: base,
+            mnemonic: BitcoinTestWallet.mnemonic,
+            descriptorStore: store
+        )
+        XCTAssertTrue(UniversalWalletAccountProvisioning.missingSlots(in: wallet).isEmpty)
+        let fixture = try CovFMiscCoordinatorFixture(
+            selected: wallet,
+            mnemonic: CovFMiscMnemonic(error: nil),
+            descriptorStore: store
+        )
+        fixture.coordinator.updateOnAccountChange()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+        XCTAssertEqual(fixture.mnemonic.calls, 0, "Nothing is missing, so nothing is read")
+        XCTAssertEqual(fixture.slotSecrets.calls, 0, "Its Bitcoin descriptors were saved when the accounts were added")
+    }
+
+    func testMissingBitcoinDescriptorIsMadeRightAfterUnlockOnly() throws {
+        let base = AccountGenerator.generateMetaAccount()
+        let wallet = try UniversalWalletAccountProvisioning.addingMissingAppOwnedAccounts(
+            to: base,
+            mnemonic: BitcoinTestWallet.mnemonic,
+            descriptorStore: nil
+        )
+        let locked = try CovFMiscCoordinatorFixture(selected: wallet, mnemonic: CovFMiscMnemonic(error: nil), unlocked: false)
+        locked.coordinator.updateOnAccountChange()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+        XCTAssertEqual(locked.slotSecrets.calls, 0)
+
+        let unlocked = try CovFMiscCoordinatorFixture(selected: wallet, mnemonic: CovFMiscMnemonic(error: nil))
+        unlocked.coordinator.updateOnAccountChange()
+        try covFMiscEventually { unlocked.slotSecrets.calls == 2 }
+        XCTAssertEqual(unlocked.mnemonic.calls, 0, "No network was missing")
+    }
+
     func testWithoutSelectedWalletNothingIsUpdated() throws {
         let fixture = try CovFMiscCoordinatorFixture(selected: nil, mnemonic: CovFMiscMnemonic(error: nil))
         fixture.coordinator.updateOnAccountChange()
@@ -56,9 +107,20 @@ private final class CovFMiscCoordinatorFixture {
     let assets = CovFMiscAssetsObserver()
     let mnemonic: CovFMiscMnemonic
     let coordinator: ServiceCoordinator
+    let unlock = WalletAuthorizedUnlock(notificationCenter: NotificationCenter())
+    let slotSecrets = CovFMiscNoSlotSecret()
 
-    init(selected: fearless.MetaAccountModel?, mnemonic: CovFMiscMnemonic) throws {
+    /// `unlocked`: the user has just unlocked the app, the only time provisioning reads a secret.
+    init(
+        selected: fearless.MetaAccountModel?,
+        mnemonic: CovFMiscMnemonic,
+        unlocked: Bool = true,
+        descriptorStore: BitcoinAccountDescriptorStore = BitcoinAccountDescriptorStore(userDefaults: CovHAssetListFixture.defaults())
+    ) throws {
         self.mnemonic = mnemonic
+        if unlocked {
+            unlock.recordUnlock()
+        }
         let settings = SelectedWalletSettings(storageFacade: UserDataStorageTestFacade(), operationQueue: OperationQueue())
         if let selected {
             let saved = XCTestExpectation(description: "selected")
@@ -76,6 +138,13 @@ private final class CovFMiscCoordinatorFixture {
             walletAssetsObserver: assets,
             pricesService: CovFMiscPricesServiceStub(),
             bitcoinMnemonicProvider: mnemonic,
+            descriptorBackfill: BitcoinAccountDescriptorBackfill(
+                secretProvider: slotSecrets,
+                store: descriptorStore,
+                logger: nil
+            ),
+            authorizedUnlock: unlock,
+            allWallets: { [] },
             notificationCenter: NotificationCenter()
         )
     }
@@ -120,6 +189,25 @@ final class CovFMiscWalletConnect: CovFMiscApplicationService, WalletConnectServ
     func legacySessionsNeedingReconnect() -> [WalletConnectLegacySession] { [] }
     func submit(proposalDecision _: WalletConnectProposalDecision) async throws {}
     func submit(signDecision _: WalletConnectSignDecision) async throws {}
+}
+
+/// Descriptor backfill that never finds a secret (the wallets here have no Bitcoin account).
+final class CovFMiscNoSlotSecret: UniversalWalletSlotSecretProviding {
+    private let lock = NSLock()
+    private var count = 0
+
+    var calls: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return count
+    }
+
+    func secret(for _: fearless.MetaAccountModel, slot _: UniversalWalletSlot) throws -> UniversalWalletSecret? {
+        lock.lock()
+        count += 1
+        lock.unlock()
+        return nil
+    }
 }
 
 final class CovFMiscMnemonic: UniversalWalletRootMnemonicProviding {

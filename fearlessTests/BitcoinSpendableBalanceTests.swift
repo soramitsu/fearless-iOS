@@ -174,7 +174,7 @@ final class BitcoinSpendableBalanceTests: XCTestCase {
         )
         let service = AccountInfoRemoteServiceDefault(
             bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: ledger)),
-            bitcoinMnemonicProvider: BitcoinTestMnemonicProvider(),
+            bitcoinDescriptorProvider: BitcoinTestDescriptorProvider(),
             storagePerformer: EmptyStorageRequestPerformer()
         )
         let chainAsset = ChainAsset(chain: BitcoinTestWallet.chain, asset: BitcoinTestWallet.asset)

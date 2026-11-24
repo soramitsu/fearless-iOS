@@ -203,6 +203,21 @@ private final class TonConnectFixtureKeychain: KeystoreProtocol {
     func deleteKey(for identifier: String) throws { values.removeValue(forKey: identifier) }
 }
 
+/// Passes everything to `keys` and records each secret read.
+private final class TonConnectSecretReadSpy: KeystoreProtocol {
+    private let keys: KeystoreProtocol
+    private(set) var reads: [String] = []
+    init(_ keys: KeystoreProtocol) { self.keys = keys }
+    func addKey(_ key: Data, with identifier: String) throws { try keys.addKey(key, with: identifier) }
+    func updateKey(_ key: Data, with identifier: String) throws { try keys.updateKey(key, with: identifier) }
+    func fetchKey(for identifier: String) throws -> Data {
+        reads.append(identifier)
+        return try keys.fetchKey(for: identifier)
+    }
+    func checkKey(for identifier: String) throws -> Bool { try keys.checkKey(for: identifier) }
+    func deleteKey(for identifier: String) throws { try keys.deleteKey(for: identifier) }
+}
+
 final class LegacyTonConnectStoreTests: XCTestCase {
     func testReleasedSessionsReloadWithOriginalKeysAndMissingTypeWithoutRewritingRows() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -672,6 +687,35 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
         coordinator.throttle()
     }
 
+    /// MoldyRoost step 1: an address-only connection shares public data and reads no wallet
+    /// secret; the key is read once, only to sign an approved ownership proof.
+    @MainActor
+    func testAddressOnlyConnectReadsNoWalletSecretAndAProofReadsTheKeyOnce() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let secrets = TonConnectSecretReadSpy(keys)
+        let storage = TonConnectFakeSessionStore(values: [])
+        let coordinator = LegacyTonConnectCoordinator(store: storage, transport: TonConnectFakeTransport(), replies: .init(keystore: keys),
+            keystore: secrets, selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet },
+            isEnabled: { true }, isSigningEnabled: { true })
+        await coordinator.activate()
+
+        let addressOnly = try await coordinator.connect(walletId: wallet.metaId, clientId: "", request: request, manifest: manifest, connectionType: "js")
+        let addressItems = try XCTUnwrap(((JSONSerialization.jsonObject(with: addressOnly) as? [String: Any])?["payload"] as? [String: Any])?["items"] as? [[String: Any]])
+        XCTAssertEqual(addressItems.count, 1)
+        XCTAssertEqual(secrets.reads, [], "An address-only connection must not read the spending key")
+
+        let proofRequest = LegacyTonConnectConnectRequest(
+            manifestUrl: request.manifestUrl,
+            items: request.items + [.init(name: "ton_proof", payload: "moldyroost-proof")]
+        )
+        let proofResponse = try await coordinator.connect(walletId: wallet.metaId, clientId: "", request: proofRequest, manifest: manifest, connectionType: "js")
+        let proofItems = try XCTUnwrap(((JSONSerialization.jsonObject(with: proofResponse) as? [String: Any])?["payload"] as? [String: Any])?["items"] as? [[String: Any]])
+        XCTAssertNotNil(proofItems.last?["proof"])
+        XCTAssertEqual(secrets.reads, [KeystoreTagV2.tonSecretKeyTagForMetaId(wallet.metaId)])
+        coordinator.throttle()
+    }
+
     @MainActor
     func testDeclinedHTTPConnectionRepliesWithoutPersistingSessionOrChangingSecrets() async throws {
         let keys = TonConnectFixtureKeychain()
@@ -835,6 +879,8 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
         coordinator.throttle()
     }
 
+    /// An address-only connection never reads the key, so a damaged key cannot stop it and is
+    /// left as it is; a proof sign-in reads it, refuses it and saves nothing.
     @MainActor
     func testDamagedExistingNativeSecretDoesNotReplaceItOnReconnect() async throws {
         let keys = TonConnectFixtureKeychain()
@@ -843,11 +889,20 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
         keys.values[tag] = Data(repeating: 0, count: 64)
         let storage = TonConnectFakeSessionStore(values: [])
         let coordinator = LegacyTonConnectCoordinator(store: storage, transport: TonConnectFakeTransport(), replies: .init(keystore: keys),
-            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet })
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet },
+            isEnabled: { true }, isSigningEnabled: { true })
         await coordinator.activate()
-        do { _ = try await coordinator.connect(walletId: wallet.metaId, clientId: "", request: request, manifest: manifest, connectionType: "js"); XCTFail("Damaged original key") } catch {}
+        let proofRequest = LegacyTonConnectConnectRequest(
+            manifestUrl: request.manifestUrl,
+            items: request.items + [.init(name: "ton_proof", payload: "damaged-key-proof")]
+        )
+        do { _ = try await coordinator.connect(walletId: wallet.metaId, clientId: "", request: proofRequest, manifest: manifest, connectionType: "js"); XCTFail("Damaged original key") } catch {}
         XCTAssertEqual(keys.values[tag], Data(repeating: 0, count: 64))
         XCTAssertTrue(storage.values.isEmpty)
+
+        _ = try await coordinator.connect(walletId: wallet.metaId, clientId: "", request: request, manifest: manifest, connectionType: "js")
+        XCTAssertEqual(keys.values[tag], Data(repeating: 0, count: 64), "The damaged key is never replaced")
+        XCTAssertEqual(storage.values.count, 1)
         coordinator.throttle()
     }
 

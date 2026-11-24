@@ -23,6 +23,30 @@ final class BitcoinBalanceSync {
             gapLimit: gapLimit,
             maxLookahead: maxLookahead
         )
+        return try await balance(of: discoveryResult, network: network, baseURL: baseURL)
+    }
+
+    /// The whole account's balance from its public descriptor; reads no secret.
+    func balance(
+        descriptor: BitcoinKeyDerivation.AccountDescriptor,
+        baseURL: String? = nil,
+        gapLimit: Int? = nil,
+        maxLookahead: Int = BitcoinReceiveDiscovery.defaultMaxLookahead
+    ) async throws -> BitcoinBalanceSyncResult {
+        let discoveryResult = try await discovery.discoverWallet(
+            descriptor: descriptor,
+            baseURL: baseURL,
+            gapLimit: gapLimit,
+            maxLookahead: maxLookahead
+        )
+        return try await balance(of: discoveryResult, network: descriptor.network, baseURL: baseURL)
+    }
+
+    private func balance(
+        of discoveryResult: BitcoinReceiveDiscoveryResult,
+        network: BitcoinKeyDerivation.Network,
+        baseURL: String?
+    ) async throws -> BitcoinBalanceSyncResult {
         var confirmedSats: Int64 = 0
         var mempoolSats: Int64 = 0
 

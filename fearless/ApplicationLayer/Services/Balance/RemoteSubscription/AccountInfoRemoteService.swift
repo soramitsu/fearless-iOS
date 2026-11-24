@@ -172,6 +172,14 @@ protocol BitcoinBalanceSyncing {
         network: BitcoinKeyDerivation.Network,
         baseURL: String?
     ) async throws -> BitcoinAddressBalanceResult
+
+    /// Every address of the account, from its public descriptor.
+    func balance(
+        descriptor: BitcoinKeyDerivation.AccountDescriptor,
+        baseURL: String?,
+        gapLimit: Int?,
+        maxLookahead: Int
+    ) async throws -> BitcoinBalanceSyncResult
 }
 
 extension BitcoinBalanceSync: BitcoinBalanceSyncing {}
@@ -183,6 +191,15 @@ extension BitcoinBalanceSyncing {
         baseURL _: String?
     ) async throws -> BitcoinAddressBalanceResult {
         throw ConvenienceError(error: "Direct Bitcoin address discovery is unavailable")
+    }
+
+    func balance(
+        descriptor _: BitcoinKeyDerivation.AccountDescriptor,
+        baseURL _: String?,
+        gapLimit _: Int?,
+        maxLookahead _: Int
+    ) async throws -> BitcoinBalanceSyncResult {
+        throw ConvenienceError(error: "Bitcoin descriptor discovery is unavailable")
     }
 }
 
@@ -283,6 +300,31 @@ final class KeychainUniversalWalletMnemonicProvider:
 
         // A root read/format failure stays an error unless independently verified
         // historical child material above was available for this exact account.
+        if case let .failure(error) = rootResult {
+            throw error
+        }
+        return nil
+    }
+
+    /// The words and passphrase that derive the account `wallet` stores for `slot`, checked against
+    /// that account's key: the root (with or without the wallet password), or the chain-specific
+    /// phrase an older release wrote for it. Nil when nothing stored derives it.
+    func secret(for wallet: MetaAccountModel, slot: UniversalWalletSlot) throws -> UniversalWalletSecret? {
+        guard let account = slot.storedAccount(in: wallet) else {
+            return nil
+        }
+        let rootResult = Result { try rootSecret(for: wallet) }
+        if let root = try? rootResult.get(),
+           let match = slot.matchingSecret(root, publicKey: account.publicKey) {
+            return match
+        }
+        if let accountMnemonic = try mnemonicIfPresent(metaId: wallet.metaId, accountId: account.accountId),
+           let match = slot.matchingSecret(
+               UniversalWalletSecret(mnemonic: accountMnemonic, passphrase: ""),
+               publicKey: account.publicKey
+           ) {
+            return match
+        }
         if case let .failure(error) = rootResult {
             throw error
         }
@@ -397,7 +439,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     private let ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol?
     private let tonRemoteBalanceFetching: AccountInfoRemoteService?
     private let bitcoinBalanceSync: BitcoinBalanceSyncing?
-    private let bitcoinMnemonicProvider: BitcoinMnemonicProviding
+    /// Refresh reads public descriptors only: it never holds a wallet secret.
+    private let bitcoinDescriptorProvider: BitcoinAccountDescriptorProviding
     private let solanaBalanceSync: SolanaBalanceSyncing?
     private let irohaToriiClient: IrohaToriiClientProtocol?
     private let dynamicAssetCatalogInjector: DynamicAssetCatalogInjecting?
@@ -407,7 +450,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol? = nil,
         tonRemoteBalanceFetching: AccountInfoRemoteService? = nil,
         bitcoinBalanceSync: BitcoinBalanceSyncing? = nil,
-        bitcoinMnemonicProvider: BitcoinMnemonicProviding = KeychainBitcoinMnemonicProvider(),
+        bitcoinDescriptorProvider: BitcoinAccountDescriptorProviding = BitcoinAccountDescriptorStore.shared,
         solanaBalanceSync: SolanaBalanceSyncing? = nil,
         irohaToriiClient: IrohaToriiClientProtocol? = IrohaToriiClient(),
         dynamicAssetCatalogInjector: DynamicAssetCatalogInjecting? = nil,
@@ -416,7 +459,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         self.ethereumRemoteBalanceFetching = ethereumRemoteBalanceFetching
         self.tonRemoteBalanceFetching = tonRemoteBalanceFetching
         self.bitcoinBalanceSync = bitcoinBalanceSync
-        self.bitcoinMnemonicProvider = bitcoinMnemonicProvider
+        self.bitcoinDescriptorProvider = bitcoinDescriptorProvider
         self.solanaBalanceSync = solanaBalanceSync
         self.irohaToriiClient = irohaToriiClient
         self.dynamicAssetCatalogInjector = dynamicAssetCatalogInjector
@@ -731,7 +774,10 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         guard let bitcoinBalanceSync else {
             throw ConvenienceError(error: "Bitcoin discovery is unavailable")
         }
-        guard let secret = try bitcoinMnemonicProvider.secret(for: wallet, chain: chain) else {
+        // A descriptor made at an authorized moment covers every address. Until one exists the
+        // stored address alone is read and the scan says its coverage is limited.
+        guard let descriptor = bitcoinDescriptorProvider.descriptor(for: wallet, chain: chain),
+              descriptor.network == bitcoinKeyDerivationNetwork(for: network) else {
             guard let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
                 throw ConvenienceError(error: "Bitcoin account address is unavailable")
             }
@@ -780,9 +826,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 for: cacheKey
             ) {
                 try await bitcoinBalanceSync.balance(
-                    mnemonic: secret.mnemonic,
-                    passphrase: secret.passphrase,
-                    network: keyNetwork,
+                    descriptor: descriptor,
                     baseURL: baseURL,
                     gapLimit: network.defaultGapLimit,
                     maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead

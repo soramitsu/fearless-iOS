@@ -53,6 +53,7 @@ extension WalletOptionInteractor: WalletOptionInteractorInput {
             if (try? await metaAccountRepository.saveAsync(insert: [], deleteIds: [wallet.identifier])) != nil {
                 // Watched old addresses go only with their wallet.
                 UniversalWalletWatchedAccountsStore().forget(walletId: wallet.info.metaId)
+                BitcoinAccountDescriptorStore.shared.forget(walletId: wallet.info.metaId)
                 // The user asked to forget this wallet: its secrets go too. Keys are removed
                 // only after the row is gone, so a failure can never leave a keyless wallet.
                 let remaining = (try? await metaAccountRepository.fetchAllAsync()) ?? []
