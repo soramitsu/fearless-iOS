@@ -2315,10 +2315,14 @@ private final class TonConnectRetryGate {
     var pass: @MainActor (UInt64) async -> Void {
         { [self] delay in
             await wait(delay)
-            lock.lock()
-            resumedCount += 1
-            lock.unlock()
+            markResumed()
         }
+    }
+
+    private func markResumed() {
+        lock.lock()
+        resumedCount += 1
+        lock.unlock()
     }
 
     func wait(_: UInt64) async {
@@ -2411,7 +2415,8 @@ private final class TonConnectLockedFlag {
 }
 
 /// Refuses the first `failures` sends, then takes them; sends from `gatedFromAttempt` on wait for `gate` first.
-/// Counters are read on main while sends and the listener run elsewhere.
+/// `send` runs on the main actor like the retry, so a try is counted in the same job as the decision to send it.
+/// Counters are read on main while the listener runs elsewhere.
 private final class TonConnectFlakyReplyTransport: LegacyTonConnectBridgeTransporting {
     let gate = TonConnectSendGate()
     private let lock = NSLock()
@@ -2448,6 +2453,7 @@ private final class TonConnectFlakyReplyTransport: LegacyTonConnectBridgeTranspo
         return .init(url: url, name: "Fixture", iconUrl: nil)
     }
 
+    @MainActor
     func send(_ data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String) async throws {
         let gated: Bool = locked {
             attemptCount += 1
@@ -2707,7 +2713,8 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         let wallet = try tonConnectNativeWallet(keys)
         let gate = TonConnectRetryGate()
         let transport = TonConnectFlakyReplyTransport(failures: .max)
-        let storage = TonConnectFakeSessionStore(values: [])
+        // On the main actor, like the retry and the transport's send: a wrong decision would show in the same job.
+        let storage = TonConnectHookedSessionStore()
         var errors: [Error] = []
         let coordinator = LegacyTonConnectCoordinator(
             store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
@@ -2776,7 +2783,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         var answers = [true, false]
         var errors: [Error] = []
         let coordinator = LegacyTonConnectCoordinator(
-            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys),
+            store: TonConnectHookedSessionStore(), transport: transport, replies: .init(keystore: keys),
             keystore: keys, selectedWallet: { wallet }, approval: { _, _ in answers.removeFirst() },
             walletLoader: { _ in wallet }, isEnabled: { true }, replyRetryNanoseconds: [1, 1, 1],
             replyRetryWait: gate.pass, reportError: { errors.append($0) }
