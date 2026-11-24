@@ -1,6 +1,7 @@
 import AppKit
 import DesignSystem
 import Foundation
+import Observation
 import SwiftUI
 import Testing
 import WalletCore
@@ -33,6 +34,13 @@ private struct EditorSettings: Equatable {
         inlinePrediction = editor.inlinePredictionType
         inputSources = editor.allowedInputSourceLocales
     }
+}
+
+/// Derivation options SwiftUI observes, like `OnboardingModel.derivation`.
+@MainActor
+@Observable
+private final class OptionsHolder {
+    var options = DerivationOptions.standard
 }
 
 /// A window that is never shown, for driving fields and hosted views.
@@ -134,10 +142,13 @@ private func expectEveryTextServiceOff(_ editor: SecretFieldEditor, sourceLocati
         #expect(editor.writingToolsBehavior == .none, "Writing Tools", sourceLocation: sourceLocation)
     }
     #expect(!editor.allowsCharacterPickerTouchBarItem, sourceLocation: sourceLocation)
+    #expect(!editor.usesRolloverButtonForSelection, "the selection's Services button", sourceLocation: sourceLocation)
 }
 
+// Serialized: hosted views share NSApp's windows, and Continue commits
+// compositions in all of them.
 @MainActor
-@Suite("Secret text fields")
+@Suite("Secret text fields", .serialized)
 struct SecretTextFieldTests {
     // MARK: AppKit field and editor
 
@@ -477,5 +488,302 @@ struct SecretTextFieldTests {
         await hidden.pump()
         #expect(secret.selectableTextViews.count == 1, "only the key type stays selectable; neither password path is")
         #expect(hidden.selectableTextViews.isEmpty)
+    }
+
+    // MARK: Review round 1
+
+    @Test func refusedActionsDoNothingEvenWhenCalledDirectly() {
+        let editor = SecretFieldEditor(entry: .derivationPath)
+        for name in SecretFieldEditor.refusedActions.sorted() {
+            let selector = NSSelectorFromString(name)
+            guard SecretFieldEditor.instancesRespond(to: selector) else { continue }
+            _ = editor.perform(selector, with: nil)
+            #expect(!editor.tryToPerform(selector, with: nil), "\(name) is not dispatched to the editor")
+        }
+        expectEveryTextServiceOff(editor)
+    }
+
+    @Test func dragsOfTheSelectionAreRefused() throws {
+        let field = SecretEntryTextField(entry: .derivationPath)
+        let host = TestWindow(field)
+        defer { host.close() }
+        #expect(host.window.makeFirstResponder(field))
+        type("//hard///secret", into: field.secretEditor)
+        field.secretEditor.selectAll(nil)
+        let event = try #require(NSEvent.mouseEvent(
+            with: .leftMouseDragged, location: .zero, modifierFlags: [], timestamp: 0,
+            windowNumber: host.window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1
+        ))
+        #expect(!field.secretEditor.dragSelection(with: event, offset: .zero, slideBack: true))
+    }
+
+    @Test func deleteToCommandsLeaveTheKillRingAlone() throws {
+        let killed = NSTextView(frame: NSRect(x: 0, y: 0, width: 200, height: 20))
+        let yanked = NSTextView(frame: NSRect(x: 0, y: 0, width: 200, height: 20))
+        let field = SecretEntryTextField(entry: .derivationPath)
+        let host = TestWindow(killed, yanked, field)
+        defer { host.close() }
+
+        killed.string = "ordinary"
+        killed.setSelectedRange(NSRange(location: 0, length: 0))
+        killed.deleteToEndOfParagraph(nil)
+        yanked.yank(nil)
+        #expect(yanked.string == "ordinary", "control: the kill ring works here")
+
+        #expect(host.window.makeFirstResponder(field))
+        let editor = field.secretEditor
+        type("//hard///secret", into: editor)
+        editor.setSelectedRange(NSRange(location: 0, length: 0))
+        editor.doCommand(by: #selector(NSResponder.deleteToEndOfParagraph(_:)))
+        #expect(field.currentText.isEmpty, "Control-K still deletes")
+        type("//a///b", into: editor)
+        editor.doCommand(by: #selector(NSResponder.deleteToBeginningOfLine(_:)))
+        #expect(field.currentText.isEmpty)
+        type("//c///d", into: editor)
+        editor.setSelectedRange(NSRange(location: 3, length: 0))
+        editor.doCommand(by: #selector(NSResponder.deleteToEndOfLine(_:)))
+        #expect(field.currentText == "//c")
+        editor.doCommand(by: #selector(NSResponder.deleteToBeginningOfParagraph(_:)))
+        #expect(field.currentText.isEmpty)
+        type("//e///f", into: editor)
+        editor.setSelectedRange(NSRange(location: 3, length: 4))
+        editor.delete(nil)
+        #expect(field.currentText == "//e", "Edit ▸ Delete still deletes the selection")
+
+        yanked.string = ""
+        yanked.yank(nil)
+        #expect(yanked.string == "ordinary", "Control-Y elsewhere never gets the secret: got \(yanked.string)")
+    }
+
+    @Test func wordFieldsUseSingleLineModeAndPathFieldsKeepSeparators() {
+        #expect(SecretEntryTextField(entry: .recoveryWord).usesSingleLineMode)
+        #expect(!SecretEntryTextField(entry: .derivationPath).usesSingleLineMode)
+        #expect(SecretEntryTextField(entry: .derivationPath).maximumNumberOfLines == 1)
+    }
+
+    @Test func exactOptionsTellCanonicallyEquivalentPathsApart() {
+        let composed = DerivationOptions(substrateDerivationPath: "//\u{E9}")
+        let decomposed = DerivationOptions(substrateDerivationPath: "//e\u{301}")
+        #expect(composed == decomposed, "control: Swift calls them equal")
+        #expect(ExactDerivationOptions(composed) != ExactDerivationOptions(decomposed))
+        #expect(ExactDerivationOptions(composed) == ExactDerivationOptions(DerivationOptions(substrateDerivationPath: "//\u{E9}")))
+        #expect(ExactDerivationOptions(DerivationOptions(evmDerivationPath: "m/44'/60'/0'/0/0///e\u{301}"))
+            != ExactDerivationOptions(DerivationOptions(evmDerivationPath: "m/44'/60'/0'/0/0///\u{E9}")))
+        #expect(DerivationPath.hasLineBreak("//a///p\u{2028}w"))
+        #expect(DerivationPath.hasLineBreak("//a\n"))
+        #expect(!DerivationPath.hasLineBreak("//a///p w"))
+    }
+
+    private func hostedForm(_ holder: OptionsHolder) async -> (TestWindow, substrate: SecretEntryTextField, evm: SecretEntryTextField)? {
+        let host = TestWindow(hosting: DerivationOptionsForm(
+            options: Binding(get: { holder.options }, set: { holder.options = $0 }),
+            showsEVM: true
+        ))
+        guard await host.waitUntil({ host.views(SecretEntryTextField.self).count == 2 }) else { return nil }
+        let fields = host.views(SecretEntryTextField.self)
+        guard let substrate = fields.first(where: { $0.stringValue.isEmpty }),
+              let evm = fields.first(where: { $0.stringValue == DerivationOptions.defaultEVMPath }) else { return nil }
+        return (host, substrate, evm)
+    }
+
+    @Test func pathsKeepCanonicallyEquivalentBytes() async throws {
+        let holder = OptionsHolder()
+        let (host, substrate, _) = try #require(await hostedForm(holder))
+        defer { host.close() }
+        #expect(host.window.makeFirstResponder(substrate))
+        let editor = substrate.secretEditor
+
+        type("//\u{E9}", into: editor)
+        #expect(Array(holder.options.substrateDerivationPath.utf8) == [47, 47, 0xC3, 0xA9])
+        editor.selectAll(nil)
+        editor.insertText("//e\u{301}", replacementRange: editor.selectedRange())
+        #expect(Array(holder.options.substrateDerivationPath.utf8) == [47, 47, 0x65, 0xCC, 0x81], "the new bytes reach the options")
+        await host.pump()
+        #expect(Array(substrate.currentText.utf8) == [47, 47, 0x65, 0xCC, 0x81], "a refresh keeps them")
+    }
+
+    @Test func pastedPathKeepsLineSeparatorsExactly() async throws {
+        let holder = OptionsHolder()
+        let (host, substrate, evm) = try #require(await hostedForm(holder))
+        defer { host.close() }
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("fearless.tests.path-paste.\(UUID().uuidString)"))
+        defer { pasteboard.releaseGlobally() }
+
+        #expect(host.window.makeFirstResponder(substrate))
+        pasteboard.clearContents()
+        pasteboard.setString("//a///p\u{2028}w\n", forType: .string)
+        #expect(substrate.secretEditor.readSelection(from: pasteboard))
+        #expect(Array(holder.options.substrateDerivationPath.unicodeScalars) == Array("//a///p\u{2028}w\n".unicodeScalars))
+
+        #expect(host.window.makeFirstResponder(evm))
+        evm.secretEditor.selectAll(nil)
+        pasteboard.clearContents()
+        pasteboard.setString("m/44'/60'/0'/0/0///\u{2029}x", forType: .string)
+        #expect(evm.secretEditor.readSelection(from: pasteboard))
+        #expect(Array(holder.options.evmDerivationPath.unicodeScalars) == Array("m/44'/60'/0'/0/0///\u{2029}x".unicodeScalars))
+    }
+
+    @Test func aCommittedCompositionReachesTheOptionsWithoutAnotherKey() async throws {
+        let holder = OptionsHolder()
+        let (host, substrate, _) = try #require(await hostedForm(holder))
+        defer { host.close() }
+        #expect(host.window.makeFirstResponder(substrate))
+        let editor = substrate.secretEditor
+        let noReplacement = NSRange(location: NSNotFound, length: 0)
+
+        type("//a///", into: editor)
+        editor.setMarkedText("ぱす", selectedRange: NSRange(location: 2, length: 0), replacementRange: noReplacement)
+        #expect(holder.options.substrateDerivationPath == "//a///", "nothing is pushed while composing")
+        holder.options.substrateCryptoType = .ed25519
+        await host.pump()
+        #expect(editor.hasMarkedText() && editor.string == "//a///ぱす", "a refresh leaves the composition alone")
+
+        editor.unmarkText()
+        #expect(holder.options.substrateDerivationPath == "//a///ぱす", "committing without a text change still updates the options")
+        await host.pump()
+        #expect(substrate.currentText == "//a///ぱす", "a refresh does not restore the old path")
+
+        // Continue finishes a composition still in progress before it reads the options.
+        editor.setMarkedText("か", selectedRange: NSRange(location: 1, length: 0), replacementRange: noReplacement)
+        SecretTextField.finishComposition(in: host.window)
+        #expect(!editor.hasMarkedText())
+        #expect(holder.options.substrateDerivationPath == "//a///ぱすか")
+    }
+
+    // MARK: Review round 1, recovery-word grid
+
+    private func hostedGrid() async -> (OnboardingModel, TestWindow, [SecretEntryTextField])? {
+        let model = await onboarding(.importPhrase)
+        let host = TestWindow(hosting: ImportPhraseStep(model: model, compact: false))
+        guard await host.waitUntil({ host.views(SecretEntryTextField.self).count == 12 }) else { return nil }
+        let fields = host.views(SecretEntryTextField.self)
+        guard await host.waitUntil({ fields[0].isEditing }) else { return nil }
+        return (model, host, fields)
+    }
+
+    @Test func theNextKeyAfterTabOrSpaceLandsInTheNextWord() async throws {
+        let (model, host, fields) = try #require(await hostedGrid())
+        defer { host.close() }
+        let entry = model.phraseEntry
+
+        type("aba", into: fields[0].secretEditor)
+        fields[0].secretEditor.doCommand(by: #selector(NSResponder.insertTab(_:)))
+        let second = try #require(host.window.firstResponder as? SecretFieldEditor)
+        #expect(second === fields[1].secretEditor, "focus moved before the key returned")
+        type("abil", into: second)
+        type(" ", into: second)
+        let third = try #require(host.window.firstResponder as? SecretFieldEditor)
+        #expect(third === fields[2].secretEditor)
+        type("l", into: third)
+
+        #expect(entry.words[0] == "abandon")
+        #expect(entry.words[1] == "ability")
+        #expect(entry.words[2] == "l")
+        await host.pump()
+        await host.pump()
+        #expect(entry.words[0] == "abandon" && entry.words[1] == "ability", "no stale prefix is pushed back")
+        #expect(fields[0].stringValue == "abandon")
+        #expect(entry.focusedIndex == 2)
+    }
+
+    @Test func gridBoundariesKeepTheirKeys() async throws {
+        let (model, host, fields) = try #require(await hostedGrid())
+        defer { host.close() }
+        let entry = model.phraseEntry
+
+        // Shift-Tab in the first word and Tab in the last are left to AppKit.
+        fields[0].secretEditor.doCommand(by: #selector(NSResponder.insertBacktab(_:)))
+        #expect(entry.words.allSatisfy { $0.isEmpty })
+
+        let phrase = PreviewWalletServices.samplePhrase(.words12)
+        entry.setText(phrase.joined(separator: " "), at: 0)
+        #expect(await host.waitUntil { fields[11].isEditing })
+        await entry.revalidate()
+        #expect(model.canContinueImport)
+        fields[11].secretEditor.doCommand(by: #selector(NSResponder.insertTab(_:)))
+        #expect(entry.words == phrase)
+
+        // Return in the last word of a valid phrase continues.
+        #expect(host.window.makeFirstResponder(fields[11]))
+        fields[11].secretEditor.doCommand(by: #selector(NSResponder.insertNewline(_:)))
+        #expect(await host.waitUntil { model.step == .confirm })
+    }
+
+    @Test func aPhrasePastedIntoAWordReplacesItAndFillsTheGrid() async throws {
+        let (model, host, fields) = try #require(await hostedGrid())
+        defer { host.close() }
+        let entry = model.phraseEntry
+        #expect(host.window.makeFirstResponder(fields[3]))
+        type("aban", into: fields[3].secretEditor)
+        #expect(entry.words[3] == "aban")
+
+        let phrase = PreviewWalletServices.samplePhrase(.words12)
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("fearless.tests.phrase-lines.\(UUID().uuidString)"))
+        defer { pasteboard.releaseGlobally() }
+        pasteboard.clearContents()
+        pasteboard.setString(phrase.joined(separator: "\n") + "\n", forType: .string)
+        #expect(fields[3].secretEditor.readSelection(from: pasteboard))
+        #expect(entry.words == phrase, "one word per line, pasted at the caret of a typed word")
+        #expect(await host.waitUntil { fields.map(\.stringValue) == phrase })
+
+        // A single word still pastes at the caret.
+        #expect(host.window.makeFirstResponder(fields[5]))
+        fields[5].secretEditor.selectAll(nil)
+        pasteboard.clearContents()
+        pasteboard.setString("abandon", forType: .string)
+        #expect(fields[5].secretEditor.readSelection(from: pasteboard))
+        #expect(entry.words[5] == "abandon")
+    }
+
+    @Test func anUnknownWordIsInItsAccessibilityLabel() async throws {
+        let (model, host, fields) = try #require(await hostedGrid())
+        defer { host.close() }
+        model.phraseEntry.setText("fearles", at: 3)
+        model.phraseEntry.focusedIndex = 0
+        #expect(await host.waitUntil { fields[3].accessibilityLabel() == "Word 4, not in the word list" })
+        #expect(fields[2].accessibilityLabel() == "Word 3")
+    }
+
+    // MARK: Review round 1, seed and settings
+
+    @Test(arguments: [false, true])
+    func hexPasteReachesTheSecureField(shown: Bool) async throws {
+        let model = await onboarding(.importSeed)
+        let host = TestWindow(hosting: ImportSeedStep(model: model, compact: false, isVisible: shown))
+        defer { host.close() }
+        #expect(await host.waitUntil { host.views(NSSecureTextField.self).count == 1 })
+        let secure = try #require(host.views(NSSecureTextField.self).first)
+        #expect(host.window.makeFirstResponder(secure))
+        let editor = try #require(secure.currentEditor() as? NSTextView)
+
+        let hex = "0x" + String(repeating: "0f", count: 32)
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("fearless.tests.hex.\(UUID().uuidString)"))
+        defer { pasteboard.releaseGlobally() }
+        pasteboard.clearContents()
+        pasteboard.setString(hex, forType: .string)
+        #expect(editor.readSelection(from: pasteboard))
+        #expect(await host.waitUntil { model.seedHex == hex })
+        #expect(model.isSeedValid)
+        #expect(host.views(NSSecureTextField.self).count == 1)
+        #expect(!host.views(NSTextField.self).contains { !($0 is NSSecureTextField) && $0.stringValue == hex })
+    }
+
+    @Test func thePasswordPathCopyButtonCopiesConcealed() async throws {
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("fearless.tests.path-copy.\(UUID().uuidString)"))
+        defer { pasteboard.releaseGlobally() }
+        pasteboard.clearContents()
+        let path = "//polkadot///秘密"
+        let host = TestWindow(hosting: DerivationDetailsView(
+            options: DerivationOptions(substrateDerivationPath: path),
+            isRevealed: true,
+            clipboard: Clipboard(pasteboard: pasteboard)
+        ))
+        defer { host.close() }
+        #expect(await host.waitUntil { !host.views(NSButton.self).isEmpty })
+        let buttons = host.views(NSButton.self)
+        #expect(buttons.count == 1, "only the password path has a copy button")
+        buttons.first?.performClick(nil)
+        #expect(await host.waitUntil { pasteboard.string(forType: .string) == path })
+        #expect(pasteboard.types?.contains(Clipboard.concealedType) == true)
     }
 }

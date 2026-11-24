@@ -34,21 +34,25 @@ public struct CopyButton: View {
     private let value: String
     private let label: String
     private let concealed: Bool
+    private let clipboard: Clipboard?
 
     @State private var copied = false
 
-    public init(value: String, label: String = "Copy", concealed: Bool = false) {
+    /// `clipboard` is for tests; nil copies to the shared clipboard.
+    public init(value: String, label: String = "Copy", concealed: Bool = false, clipboard: Clipboard? = nil) {
         self.value = value
         self.label = label
         self.concealed = concealed
+        self.clipboard = clipboard
     }
 
     public var body: some View {
         Button {
+            let target = clipboard ?? .shared
             if concealed {
-                Clipboard.shared.copyConcealed(value)
+                target.copyConcealed(value)
             } else {
-                Clipboard.shared.copy(value)
+                target.copy(value)
             }
             copied = true
             Task {

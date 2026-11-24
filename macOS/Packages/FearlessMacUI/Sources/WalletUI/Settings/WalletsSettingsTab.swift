@@ -349,6 +349,8 @@ struct WalletSecretSheet: View {
 struct DerivationDetailsView: View {
     let options: DerivationOptions
     let isRevealed: Bool
+    /// For tests; nil copies to the shared clipboard.
+    var clipboard: Clipboard?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -385,7 +387,7 @@ struct DerivationDetailsView: View {
                     text.textSelection(.disabled)
                 }
                 if presentation.copiesConcealed {
-                    CopyButton(value: value, label: "Copy \(label)", concealed: true)
+                    CopyButton(value: value, label: "Copy \(label)", concealed: true, clipboard: clipboard)
                 }
             }
         }

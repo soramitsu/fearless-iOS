@@ -1,17 +1,20 @@
 import AppKit
 import DesignSystem
 import SwiftUI
+import WalletCore
 
 /// What a field that takes a wallet secret holds. Both kinds edit in an
 /// AppKit field editor that belongs to the field alone, with every text
 /// service off: spelling and grammar checking, autocorrection, text
 /// replacement, completion, smart quotes, dashes and insert/delete, link and
-/// data detection, inline prediction, math completion and Writing Tools.
-/// The window's shared field editor, used by every other field, is never
-/// touched.
+/// data detection, inline prediction, math completion, Writing Tools, Share,
+/// Look Up and the selection's Services button. The window's shared field
+/// editor, used by every other field, is never touched.
 enum SecretTextEntry: Sendable {
-    /// One English recovery word. Only Roman input sources can be chosen
-    /// while the field has focus, so no input method sees the words.
+    /// One English recovery word. Only Roman-script input sources can be
+    /// selected while the field has focus, which keeps kana, kanji and other
+    /// conversion dictionaries away from the words. (An input method's own
+    /// Roman mode still receives the keys.)
     case recoveryWord
     /// A derivation path, which may end in a `///password`. Every input
     /// source stays available, so a Unicode password can still be typed.
@@ -25,32 +28,76 @@ enum SecretTextEntry: Sendable {
         case .derivationPath: return nil
         }
     }
+
+    /// Single-line mode turns typed or pasted line and paragraph separators
+    /// into spaces. That is harmless between recovery words, but a path goes
+    /// to derivation exactly as entered, so path fields keep them.
+    var usesSingleLineMode: Bool {
+        self == .recoveryWord
+    }
 }
 
-/// Derivation paths that carry a password.
+/// Derivation paths that carry a password or invisible line breaks.
 enum DerivationPath {
     /// True when `path` has a `///password` part, which the engine splits off
     /// at the first `///` for both Substrate and Ethereum paths.
     static func holdsPassword(_ path: String) -> Bool {
         path.contains("///")
     }
+
+    /// True when `path` contains a line or paragraph separator. No field
+    /// shows one, but derivation uses it.
+    static func hasLineBreak(_ path: String) -> Bool {
+        path.unicodeScalars.contains { CharacterSet.newlines.contains($0) }
+    }
 }
 
-/// The field editor of one secret field. Text services stay off, Copy and
+/// Byte-for-byte text comparison. Swift's `==` treats canonically
+/// equivalent strings (é and e + ◌́) as equal, but derivation encodes a path
+/// as UTF-8, so the two give different accounts.
+enum ExactText {
+    static func same(_ lhs: String, _ rhs: String) -> Bool {
+        lhs.utf8.elementsEqual(rhs.utf8)
+    }
+}
+
+/// Derivation options compared byte for byte (see `ExactText`).
+struct ExactDerivationOptions: Equatable {
+    let options: DerivationOptions
+
+    init(_ options: DerivationOptions) {
+        self.options = options
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.options.substrateCryptoType == rhs.options.substrateCryptoType
+            && ExactText.same(lhs.options.substrateDerivationPath, rhs.options.substrateDerivationPath)
+            && ExactText.same(lhs.options.evmDerivationPath, rhs.options.evmDerivationPath)
+    }
+}
+
+/// The field editor of one secret field. Text services stay off. Copy and
 /// Cut go through `Clipboard.copyConcealed` (concealed, this Mac only,
-/// cleared after 60 seconds), and the selection cannot be dragged out or
-/// sent to Services. Paste works as usual.
+/// cleared after 60 seconds), the "delete to" commands skip the kill ring,
+/// and the selection cannot be dragged out, shared, looked up or sent to
+/// Services. Paste and drops insert plain text exactly as it is.
 final class SecretFieldEditor: NSTextView {
     private(set) var entry: SecretTextEntry = .recoveryWord
     /// Where Copy and Cut put the selection.
     var clipboard: Clipboard = .shared
     /// Asked before a typed space is inserted; true means it was handled.
     var onSpace: (() -> Bool)?
+    /// Offered plain text from Paste or a drop first; true means handled.
+    var onPaste: ((String) -> Bool)?
     /// Told when the editor gains (true) or loses (false) keyboard focus.
     var onFocusChange: ((Bool) -> Void)?
+    /// Told when an input method's composition becomes ordinary text
+    /// without any text change (`unmarkText`).
+    var onCompositionCommit: (() -> Void)?
 
     /// Menu and key-binding actions that would turn a text service back on,
-    /// check the text against a dictionary or hand it to Writing Tools.
+    /// check the text against a dictionary, or hand it to Writing Tools,
+    /// Share or Look Up. Each one is also a no-op below.
     nonisolated static let refusedActions: Set<String> = [
         "toggleContinuousSpellChecking:",
         "toggleGrammarChecking:",
@@ -64,9 +111,13 @@ final class SecretFieldEditor: NSTextView {
         "toggleAutomaticDataDetection:",
         "checkSpelling:",
         "showGuessPanel:",
+        "ignoreSpelling:",
+        "changeSpelling:",
         "checkTextInSelection:",
         "checkTextInDocument:",
         "orderFrontSubstitutionsPanel:",
+        "orderFrontSharingServicePicker:",
+        "quickLookPreviewItems:",
         "complete:",
         "showWritingTools:"
     ]
@@ -111,6 +162,7 @@ final class SecretFieldEditor: NSTextView {
             mathExpressionCompletionType = .no
             writingToolsBehavior = .none
         }
+        usesRolloverButtonForSelection = false
         allowsCharacterPickerTouchBarItem = false
         usesFindBar = false
         usesFindPanel = false
@@ -138,12 +190,25 @@ final class SecretFieldEditor: NSTextView {
         return resigned
     }
 
-    // MARK: Typing
+    // MARK: Typing and composition
 
     override func insertText(_ string: Any, replacementRange: NSRange) {
         let text = (string as? String) ?? (string as? NSAttributedString)?.string
         if text == " ", !hasMarkedText(), let onSpace, onSpace() { return }
         super.insertText(string, replacementRange: replacementRange)
+    }
+
+    override func unmarkText() {
+        let hadMarkedText = hasMarkedText()
+        super.unmarkText()
+        if hadMarkedText { onCompositionCommit?() }
+    }
+
+    /// Makes text an input method is still composing ordinary text, as typed.
+    func commitComposition() {
+        guard hasMarkedText() else { return }
+        unmarkText()
+        inputContext?.discardMarkedText()
     }
 
     /// No dictionary completion list (Escape and F5 would otherwise show one).
@@ -171,6 +236,18 @@ final class SecretFieldEditor: NSTextView {
         }
     }
 
+    /// Paste and drops read plain text only and insert it exactly as it is.
+    override func readSelection(from pboard: NSPasteboard, type: NSPasteboard.PasteboardType) -> Bool {
+        guard let text = pboard.string(forType: .string) else { return false }
+        if let onPaste, onPaste(text) { return true }
+        let range = rangeForUserTextChange
+        guard range.location != NSNotFound, shouldChangeText(in: range, replacementString: text) else { return false }
+        replaceCharacters(in: range, with: text)
+        setSelectedRange(NSRange(location: range.location + (text as NSString).length, length: 0))
+        didChangeText()
+        return true
+    }
+
     override func dragSelection(with event: NSEvent, offset mouseOffset: NSSize, slideBack: Bool) -> Bool {
         false
     }
@@ -179,7 +256,49 @@ final class SecretFieldEditor: NSTextView {
         nil
     }
 
-    // MARK: Menus
+    // MARK: Deletion without the kill ring
+
+    // Control-K and the other "delete to" commands copy what they delete
+    // into AppKit's kill ring, which Control-Y pastes in any other field.
+    // Here they only delete.
+
+    override func deleteToEndOfLine(_ sender: Any?) {
+        deleteSelection { super.moveToEndOfLineAndModifySelection($0) }
+    }
+
+    override func deleteToEndOfParagraph(_ sender: Any?) {
+        deleteSelection { super.moveToEndOfParagraphAndModifySelection($0) }
+    }
+
+    override func deleteToBeginningOfLine(_ sender: Any?) {
+        deleteSelection { super.moveToBeginningOfLineAndModifySelection($0) }
+    }
+
+    override func deleteToBeginningOfParagraph(_ sender: Any?) {
+        deleteSelection { super.moveToBeginningOfParagraphAndModifySelection($0) }
+    }
+
+    override func deleteToMark(_ sender: Any?) {
+        deleteSelection { super.selectToMark($0) }
+    }
+
+    /// Edit ▸ Delete: removes the selection without adding it to the kill ring.
+    override func delete(_ sender: Any?) {
+        deleteSelection { _ in }
+    }
+
+    /// Deletes the selection, first extending an empty one. `delete(_:)`
+    /// would add the text to the kill ring, so the text is replaced instead.
+    private func deleteSelection(extending extend: (Any?) -> Void) {
+        if selectedRange().length == 0 { extend(nil) }
+        let range = selectedRange()
+        guard range.length > 0, shouldChangeText(in: range, replacementString: "") else { return }
+        replaceCharacters(in: range, with: "")
+        setSelectedRange(NSRange(location: range.location, length: 0))
+        didChangeText()
+    }
+
+    // MARK: Refused actions
 
     nonisolated override func responds(to aSelector: Selector!) -> Bool {
         if let aSelector, Self.refusedActions.contains(NSStringFromSelector(aSelector)) { return false }
@@ -191,8 +310,33 @@ final class SecretFieldEditor: NSTextView {
         return super.validateUserInterfaceItem(item)
     }
 
+    override func toggleContinuousSpellChecking(_ sender: Any?) {}
+    override func toggleGrammarChecking(_ sender: Any?) {}
+    override func toggleAutomaticSpellingCorrection(_ sender: Any?) {}
+    override func toggleAutomaticTextReplacement(_ sender: Any?) {}
+    override func toggleAutomaticTextCompletion(_ sender: Any?) {}
+    override func toggleAutomaticQuoteSubstitution(_ sender: Any?) {}
+    override func toggleAutomaticDashSubstitution(_ sender: Any?) {}
+    override func toggleSmartInsertDelete(_ sender: Any?) {}
+    override func toggleAutomaticLinkDetection(_ sender: Any?) {}
+    override func toggleAutomaticDataDetection(_ sender: Any?) {}
+    override func checkSpelling(_ sender: Any?) {}
+    override func showGuessPanel(_ sender: Any?) {}
+    override func ignoreSpelling(_ sender: Any?) {}
+    override func changeSpelling(_ sender: Any?) {}
+    override func checkTextInSelection(_ sender: Any?) {}
+    override func checkTextInDocument(_ sender: Any?) {}
+    override func orderFrontSubstitutionsPanel(_ sender: Any?) {}
+    override func orderFrontSharingServicePicker(_ sender: Any?) {}
+    override func quickLookPreviewItems(_ sender: Any?) {}
+    override func quickLook(with event: NSEvent) {}
+    @available(macOS 15.2, *)
+    override func showWritingTools(_ sender: Any?) {}
+
+    // MARK: Menus
+
     /// Cut, Copy, Paste and Select All only: no Spelling, Substitutions,
-    /// Services, AutoFill or Writing Tools entries.
+    /// Services, Share, Look Up, AutoFill or Writing Tools entries.
     override func menu(for event: NSEvent) -> NSMenu? {
         Self.editingMenu()
     }
@@ -210,7 +354,7 @@ final class SecretFieldEditor: NSTextView {
     }
 }
 
-/// A single-line AppKit text field that edits in its own `SecretFieldEditor`.
+/// A one-line AppKit text field that edits in its own `SecretFieldEditor`.
 final class SecretEntryTextField: NSTextField {
     enum Style {
         /// No border or background; the surrounding view draws them.
@@ -235,7 +379,8 @@ final class SecretEntryTextField: NSTextField {
         super.init(frame: .zero)
         isEditable = true
         isSelectable = true
-        usesSingleLineMode = true
+        usesSingleLineMode = entry.usesSingleLineMode
+        maximumNumberOfLines = 1
         lineBreakMode = .byClipping
         cell?.isScrollable = true
         cell?.wraps = false
@@ -255,7 +400,7 @@ final class SecretEntryTextField: NSTextField {
         nil
     }
 
-    func apply(_ style: Style) {
+    private func apply(_ style: Style) {
         switch style {
         case .plain:
             isBezeled = false
@@ -273,6 +418,11 @@ final class SecretEntryTextField: NSTextField {
     /// True while the field's own editor is editing it.
     var isEditing: Bool {
         currentEditor() === secretEditor
+    }
+
+    /// The text as the user sees it, including edits not yet ended.
+    var currentText: String {
+        isEditing ? secretEditor.string : stringValue
     }
 
     /// True from the moment the field starts leaving its window.
@@ -306,6 +456,48 @@ final class SecretEntryTextFieldCell: NSTextFieldCell {
     }
 }
 
+/// Moves keyboard focus between a group of secret fields at once, inside
+/// the key event that asked for it, so the next key already lands in the
+/// new field.
+@MainActor
+final class SecretFieldFocus {
+    private final class Slot {
+        weak var field: SecretEntryTextField?
+
+        init(_ field: SecretEntryTextField) {
+            self.field = field
+        }
+    }
+
+    private var slots: [Int: Slot] = [:]
+
+    func register(_ field: SecretEntryTextField, id: Int) {
+        if slots[id]?.field !== field { slots[id] = Slot(field) }
+    }
+
+    func unregister(_ field: SecretEntryTextField) {
+        slots = slots.filter { $0.value.field != nil && $0.value.field !== field }
+    }
+
+    func field(_ id: Int) -> SecretEntryTextField? {
+        slots[id]?.field
+    }
+
+    /// Gives field `id` keyboard focus now, or takes it away from whichever
+    /// field of the group has it when `id` is nil. Text an input method is
+    /// still composing is committed first.
+    func move(to id: Int?) {
+        if let id {
+            guard let field = field(id), let window = field.window, !field.isEditing else { return }
+            SecretTextField.finishComposition(in: window)
+            window.makeFirstResponder(field)
+        } else if let editing = slots.values.compactMap(\.field).first(where: \.isEditing) {
+            editing.secretEditor.commitComposition()
+            editing.window?.makeFirstResponder(nil)
+        }
+    }
+}
+
 /// A SwiftUI field for a wallet secret, backed by `SecretEntryTextField`.
 struct SecretTextField: NSViewRepresentable {
     /// Keys the owner may handle before the field does.
@@ -319,14 +511,48 @@ struct SecretTextField: NSViewRepresentable {
     /// Fixed when the field is made.
     var style: SecretEntryTextField.Style = .bezeled
     var accessibilityLabel: String
-    var accessibilityHelp: String?
     /// Whether the owner wants this field to have keyboard focus. The field
     /// takes focus when this becomes true and gives it up when it becomes
     /// false while the field is still editing.
     var isFocused = false
+    /// The group this field moves focus in, and its place there.
+    var focusGroup: SecretFieldFocus?
+    var focusID: Int?
     var onFocusChange: ((Bool) -> Void)?
     /// Returns true when the owner handled the key.
     var onCommand: ((Command) -> Bool)?
+    /// Offered pasted or dropped plain text first; true when handled.
+    var onPaste: ((String) -> Bool)?
+
+    /// Nesting depth of focus changes made while SwiftUI updates the view;
+    /// focus reports are not sent then, because the owner asked for them.
+    @MainActor private static var reconciling = 0
+
+    /// Commits any composition in progress in a secret field, so its text
+    /// reaches the binding before the owner reads it (on Continue).
+    @MainActor
+    static func finishComposition() {
+        for window in NSApp.windows {
+            finishComposition(in: window)
+        }
+    }
+
+    @MainActor
+    static func finishComposition(in window: NSWindow) {
+        (window.firstResponder as? SecretFieldEditor)?.commitComposition()
+    }
+
+    @MainActor
+    private static func isComposing(in window: NSWindow) -> Bool {
+        (window.firstResponder as? NSTextView)?.hasMarkedText() ?? false
+    }
+
+    @MainActor
+    private static func reconcile(_ body: () -> Void) {
+        reconciling += 1
+        defer { reconciling -= 1 }
+        body()
+    }
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -338,8 +564,12 @@ struct SecretTextField: NSViewRepresentable {
         coordinator.field = field
         field.delegate = coordinator
         field.stringValue = text
-        field.secretEditor.onSpace = { [weak coordinator] in coordinator?.perform(.space) ?? false }
-        field.secretEditor.onFocusChange = { [weak coordinator] focused in coordinator?.focusChanged(focused) }
+        coordinator.lastSynced = text
+        let editor = field.secretEditor
+        editor.onSpace = { [weak coordinator] in coordinator?.perform(.space) ?? false }
+        editor.onPaste = { [weak coordinator] text in coordinator?.parent.onPaste?(text) ?? false }
+        editor.onFocusChange = { [weak coordinator] focused in coordinator?.focusChanged(focused) }
+        editor.onCompositionCommit = { [weak coordinator] in coordinator?.pushFieldText() }
         field.onWindowChange = { [weak coordinator] in coordinator?.claimFocusIfWanted() }
         return field
     }
@@ -347,30 +577,37 @@ struct SecretTextField: NSViewRepresentable {
     func updateNSView(_ field: SecretEntryTextField, context: Context) {
         let coordinator = context.coordinator
         coordinator.parent = self
+        if let focusGroup, let focusID { focusGroup.register(field, id: focusID) }
         field.placeholderString = placeholder
         field.setAccessibilityLabel(accessibilityLabel)
-        field.setAccessibilityHelp(accessibilityHelp)
         // Never replace text while an input method is composing it.
-        if !(field.isEditing && field.secretEditor.hasMarkedText()), field.stringValue != text {
+        let composing = field.isEditing && field.secretEditor.hasMarkedText()
+        if !composing, !ExactText.same(field.currentText, text) {
+            if field.isEditing { field.secretEditor.string = text }
             field.stringValue = text
+            coordinator.lastSynced = text
         }
         let wasFocused = coordinator.wantsFocus
         coordinator.wantsFocus = isFocused
-        if isFocused, !wasFocused {
-            if let window = field.window {
-                if !field.isEditing { window.makeFirstResponder(field) }
+        if isFocused, !wasFocused, !field.isEditing {
+            if let window = field.window, !Self.isComposing(in: window) {
+                Self.reconcile { _ = window.makeFirstResponder(field) }
             } else {
                 coordinator.claimFocusIfWanted()
             }
-        } else if !isFocused, wasFocused, field.isEditing {
-            field.window?.makeFirstResponder(nil)
+        } else if !isFocused, wasFocused, field.isEditing, !composing {
+            Self.reconcile { _ = field.window?.makeFirstResponder(nil) }
         }
     }
 
     static func dismantleNSView(_ field: SecretEntryTextField, coordinator: Coordinator) {
+        coordinator.parent.focusGroup?.unregister(field)
         coordinator.field = nil
-        field.secretEditor.onSpace = nil
-        field.secretEditor.onFocusChange = nil
+        let editor = field.secretEditor
+        editor.onSpace = nil
+        editor.onPaste = nil
+        editor.onFocusChange = nil
+        editor.onCompositionCommit = nil
         field.onWindowChange = nil
         field.delegate = nil
     }
@@ -385,6 +622,10 @@ struct SecretTextField: NSViewRepresentable {
         var parent: SecretTextField
         weak var field: SecretEntryTextField?
         var wantsFocus = false
+        /// The field text the binding was last given or took. Ending an edit
+        /// does not push it again, so a word replaced by an accepted
+        /// suggestion is not overwritten by the stale prefix still shown.
+        var lastSynced = ""
         private var claimScheduled = false
 
         init(_ parent: SecretTextField) {
@@ -392,13 +633,13 @@ struct SecretTextField: NSViewRepresentable {
         }
 
         func controlTextDidChange(_ notification: Notification) {
-            guard let field = notification.object as? SecretEntryTextField, !field.secretEditor.hasMarkedText() else { return }
-            push(field.stringValue)
+            guard let field, !field.secretEditor.hasMarkedText() else { return }
+            pushFieldText()
         }
 
         func controlTextDidEndEditing(_ notification: Notification) {
-            guard let field = notification.object as? SecretEntryTextField else { return }
-            push(field.stringValue)
+            guard let field, !ExactText.same(field.currentText, lastSynced) else { return }
+            pushFieldText()
         }
 
         func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
@@ -414,11 +655,19 @@ struct SecretTextField: NSViewRepresentable {
             parent.onCommand?(command) ?? false
         }
 
+        /// Hands the field's text to the binding, byte for byte.
+        func pushFieldText() {
+            guard let field else { return }
+            let value = field.currentText
+            lastSynced = value
+            if !ExactText.same(parent.text, value) { parent.text = value }
+        }
+
         /// Reported at once, so the owner's idea of the focus never lags
-        /// behind the keys that move it. Nothing is reported while the field
-        /// leaves its window, which happens inside SwiftUI view updates.
+        /// behind the keys that move it. Not reported while the field leaves
+        /// its window or while SwiftUI applies a focus change it asked for.
         func focusChanged(_ focused: Bool) {
-            guard let field, field.window != nil, !field.isLeavingWindow else { return }
+            guard SecretTextField.reconciling == 0, let field, field.window != nil, !field.isLeavingWindow else { return }
             parent.onFocusChange?(focused)
         }
 
@@ -431,12 +680,9 @@ struct SecretTextField: NSViewRepresentable {
                 guard let self else { return }
                 self.claimScheduled = false
                 guard self.wantsFocus, let field = self.field, let window = field.window, !field.isEditing else { return }
+                SecretTextField.finishComposition(in: window)
                 window.makeFirstResponder(field)
             }
-        }
-
-        private func push(_ value: String) {
-            if parent.text != value { parent.text = value }
         }
     }
 }

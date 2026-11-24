@@ -11,6 +11,7 @@ struct ImportPhraseStep: View {
     var onCancel: (() -> Void)?
 
     @State private var showAdvanced = false
+    @State private var focusGroup = SecretFieldFocus()
 
     private var entry: PhraseEntryModel { model.phraseEntry }
 
@@ -73,7 +74,8 @@ struct ImportPhraseStep: View {
                     DerivationOptionsForm(options: $model.derivation, showsEVM: true)
                         .padding(.top, 8)
                 }
-                .onChange(of: model.derivation) { _, _ in Task { await model.refreshPreview() } }
+                // Byte for byte: é and e + ◌́ are equal strings but derive different accounts.
+                .onChange(of: ExactDerivationOptions(model.derivation)) { _, _ in Task { await model.refreshPreview() } }
                 .onChange(of: entry.isValid) { _, _ in Task { await model.refreshPreview() } }
 
                 if entry.isValid, let preview = model.addressPreview {
@@ -87,7 +89,7 @@ struct ImportPhraseStep: View {
             StepBackButtons(model: model, onCancel: onCancel)
             Spacer()
             StepProgress(isWorking: model.isWorking)
-            Button("Continue") { Task { await model.continueImport() } }
+            Button("Continue") { continueImport() }
                 .brandProminentButton()
                 .keyboardShortcut(.defaultAction)
                 .disabled(!model.canContinueImport)
@@ -106,18 +108,20 @@ struct ImportPhraseStep: View {
                 .foregroundStyle(.secondary)
                 .frame(width: 18, alignment: .trailing)
                 .accessibilityHidden(true)
-            // An AppKit field with its own editor: Roman input sources only and
-            // every text service off, so neither an input method nor the
-            // system's spelling, prediction or Writing Tools sees the words.
+            // An AppKit field with its own editor: Roman-script input sources
+            // only and every text service off, so no conversion dictionary,
+            // spelling, prediction or Writing Tools sees the words.
             SecretTextField(
                 entry: .recoveryWord,
                 text: Binding(get: { entry.words[safe: index] ?? "" }, set: { entry.setText($0, at: index) }),
                 style: .plain,
-                accessibilityLabel: "Word \(index + 1)",
-                accessibilityHelp: unknown ? "Not in the word list" : nil,
+                accessibilityLabel: unknown ? "Word \(index + 1), not in the word list" : "Word \(index + 1)",
                 isFocused: focused,
+                focusGroup: focusGroup,
+                focusID: index,
                 onFocusChange: { isFocused in focusChanged(isFocused, at: index) },
-                onCommand: { command in handle(command, at: index) }
+                onCommand: { command in handle(command, at: index) },
+                onPaste: { text in pasted(text, at: index) }
             )
         }
         .padding(.horizontal, 8)
@@ -178,6 +182,8 @@ struct ImportPhraseStep: View {
 
     /// Space and Return accept the first suggestion or move on; Tab accepts
     /// the first suggestion, or moves between the words like Shift-Tab.
+    /// Keyboard focus moves before the key returns, so the next key lands
+    /// in the next word.
     private func handle(_ command: SecretTextField.Command, at index: Int) -> Bool {
         switch command {
         case .space, .submit:
@@ -186,16 +192,31 @@ struct ImportPhraseStep: View {
         case .tab:
             if let first = entry.suggestions(at: index).first {
                 entry.acceptSuggestion(first, at: index)
+                focusGroup.move(to: entry.focusedIndex)
                 return true
             }
             guard index + 1 < entry.wordCount else { return false }
-            entry.focusedIndex = index + 1
+            moveFocus(to: index + 1)
             return true
         case .backtab:
             guard index > 0 else { return false }
-            entry.focusedIndex = index - 1
+            moveFocus(to: index - 1)
             return true
         }
+    }
+
+    private func moveFocus(to index: Int?) {
+        entry.focusedIndex = index
+        focusGroup.move(to: index)
+    }
+
+    /// Several words pasted or dropped into a field go to the grid as they
+    /// are, replacing the field's text rather than joining it; one word is
+    /// pasted as usual.
+    private func pasted(_ text: String, at index: Int) -> Bool {
+        guard PhraseEntryModel.tokens(in: text).count > 1 else { return false }
+        entry.setText(text, at: index)
+        return true
     }
 
     private func acceptOrAdvance(_ index: Int) {
@@ -203,11 +224,17 @@ struct ImportPhraseStep: View {
         let suggestions = entry.suggestions(at: index)
         if !text.isEmpty, !entry.wordList.contains(text), let first = suggestions.first {
             entry.acceptSuggestion(first, at: index)
+            focusGroup.move(to: entry.focusedIndex)
         } else if index + 1 < entry.wordCount {
-            entry.focusedIndex = index + 1
+            moveFocus(to: index + 1)
         } else if model.canContinueImport {
-            Task { await model.continueImport() }
+            continueImport()
         }
+    }
+
+    private func continueImport() {
+        SecretTextField.finishComposition()
+        Task { await model.continueImport() }
     }
 }
 
@@ -264,6 +291,14 @@ struct DerivationOptionsForm: View {
                                 .controlSize(.small)
                         }
                     }
+                }
+            }
+            if DerivationPath.hasLineBreak(options.substrateDerivationPath)
+                || (showsEVM && DerivationPath.hasLineBreak(options.evmDerivationPath)) {
+                GridRow {
+                    Color.clear.frame(width: 1, height: 1)
+                    // Kept exactly as entered, since derivation uses every character.
+                    InlineMessage("A derivation path contains a line break. Remove it unless the wallet was made with one.", kind: .warning)
                 }
             }
             GridRow {
@@ -387,10 +422,13 @@ struct ImportSeedStep: View {
             StepBackButtons(model: model)
             Spacer()
             StepProgress(isWorking: model.isWorking)
-            Button("Continue") { Task { await model.continueImport() } }
-                .brandProminentButton()
-                .keyboardShortcut(.defaultAction)
-                .disabled(!model.canContinueImport)
+            Button("Continue") {
+                SecretTextField.finishComposition()
+                Task { await model.continueImport() }
+            }
+            .brandProminentButton()
+            .keyboardShortcut(.defaultAction)
+            .disabled(!model.canContinueImport)
         }
         .background(CaptureProtection(isActive: isVisible && !staticRendering))
         .onChange(of: controlActiveState) { _, state in
