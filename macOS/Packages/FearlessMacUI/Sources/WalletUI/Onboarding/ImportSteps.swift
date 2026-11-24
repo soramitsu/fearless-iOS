@@ -248,7 +248,9 @@ struct ImportPhraseStep: View {
             secretFields.move(to: entry.focusedIndex.map(SecretFieldID.word))
         } else if index + 1 < entry.wordCount {
             moveFocus(to: index + 1)
-        } else if model.canContinueImport {
+        } else if entry.isComplete, !model.isWorking {
+            // The last word: Continue's own check decides, even while the
+            // phrase is still being validated.
             continueImport()
         }
     }
@@ -263,7 +265,8 @@ struct ImportPhraseStep: View {
 
     /// Waits for the phrase to be checked, then continues with exactly the
     /// input `request` took, if nothing changed it meanwhile.
-    static func continueAfterCommit(_ model: OnboardingModel, _ request: OnboardingModel.ContinueRequest) async {
+    static func continueAfterCommit(_ model: OnboardingModel, _ request: OnboardingModel.ContinueRequest?) async {
+        guard request != nil else { return }
         await model.phraseEntry.revalidate()
         await model.continueImport(request)
     }

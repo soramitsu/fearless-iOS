@@ -1672,4 +1672,54 @@ struct SecretTextFieldTests {
         path.secretEditor.setMarkedText("ぱす", selectedRange: NSRange(location: 2, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
         #expect(model.confirmationGeneration == during, "only the start of a composition counts")
     }
+
+    // MARK: Review round 7 follow-ups
+
+    @Test func aSecondContinueWhileTheFirstIsPreparedLeavesItAlone() async throws {
+        let (model, gated) = await gatedModel("//late///secret")
+        let first = Task { await model.continueImport() }
+        #expect(await waitUntil(timeout: .seconds(5)) { gated.startedCount == 1 && model.isWorking })
+        await model.continueImport()   // Return pressed again
+        #expect(model.continueRequest() == nil, "no new request while one is prepared")
+        gated.release()
+        await first.value
+        #expect(model.step == .confirm, "the first Continue still confirms")
+    }
+
+    @Test func returnInTheLastWordContinuesWhileThePhraseIsChecked() async throws {
+        let base = PreviewWalletServices.make(scenario: PreviewScenario.emptyWalletList.instant())
+        let gated = GatedWallets(base: base.wallets, gatedPath: "//never-previewed")
+        let services = WalletServices(
+            vault: base.vault, wallets: gated, catalog: base.catalog, nodes: base.nodes,
+            balances: base.balances, prices: base.prices, transfers: base.transfers, activity: base.activity
+        )
+        let model = OnboardingModel(mode: .firstWallet, services: services) { _ in }
+        await model.choose(.importPhrase)
+        let group = SecretFieldGroup()
+        let host = TestWindow(hosting: ImportPhraseStep(model: model, compact: false, secretFields: group))
+        defer { host.close() }
+        #expect(await host.waitUntil { group.field(.word(11))?.window != nil })
+        gated.gateValidation()
+        let phrase = PreviewWalletServices.samplePhrase(.words12)
+        ImportPhraseStep.paste(phrase.joined(separator: " "), at: 0, into: model.phraseEntry, fields: group)
+        let last = try #require(group.field(.word(11)))
+        #expect(last.isEditing)
+        #expect(!model.phraseEntry.isValid, "validation is still pending")
+
+        last.secretEditor.doCommand(by: #selector(NSResponder.insertNewline(_:)))
+        gated.release()
+        #expect(await host.waitUntil { model.step == .confirm }, "one Return is enough")
+    }
+
+    @Test func backToWelcomeForgetsThePreview() async throws {
+        let model = await onboarding(.importPhrase)
+        model.phraseEntry.setText(PreviewWalletServices.samplePhrase(.words12).joined(separator: " "), at: 0)
+        await model.phraseEntry.revalidate()
+        model.derivation.substrateDerivationPath = "//a///secret"
+        await model.refreshPreview()
+        #expect(model.addressPreviewKey != nil)
+        model.back()
+        #expect(model.step == .welcome)
+        #expect(model.addressPreviewKey == nil && model.addressPreview == nil, "the password-bearing key is gone at once")
+    }
 }

@@ -239,6 +239,7 @@ final class OnboardingModel: Identifiable {
         if previous == .welcome {
             path = nil
             derivation = .standard
+            forgetPreview()
         }
     }
 
@@ -438,7 +439,10 @@ final class OnboardingModel: Identifiable {
         fileprivate let source: WalletImportSource?
     }
 
-    func continueRequest() -> ContinueRequest {
+    /// Nil while a confirmation is already being prepared: a repeated
+    /// Continue or Return then leaves the first one alone.
+    func continueRequest() -> ContinueRequest? {
+        guard !isWorking else { return nil }
         confirmationGeneration += 1
         return ContinueRequest(generation: confirmationGeneration, step: step, source: importSource)
     }
@@ -449,8 +453,8 @@ final class OnboardingModel: Identifiable {
 
     /// Continues with exactly the input of `request`, if nothing changed it
     /// since (a new composition, an edit, Back or a wipe).
-    func continueImport(_ request: ContinueRequest) async {
-        guard request.generation == confirmationGeneration, request.step == step,
+    func continueImport(_ request: ContinueRequest?) async {
+        guard let request, request.generation == confirmationGeneration, request.step == step,
               canContinueImport, let source = importSource, let requested = request.source,
               Self.sameSource(source, requested) else { return }
         await prepareConfirmation(source: source, generation: request.generation)
