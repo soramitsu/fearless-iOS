@@ -10,8 +10,8 @@ class CheckPincodeWireframe: PinSetupWireframeProtocol {
     }
 
     func showMain(from view: PinSetupViewProtocol?) {
+        // Without its own screen there is no lock this PIN may end.
         guard let controller = view?.controller else {
-            lockState.unlock()
             return
         }
 

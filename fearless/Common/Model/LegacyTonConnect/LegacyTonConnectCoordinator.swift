@@ -38,6 +38,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     private let isSigningEnabled: () -> Bool
     private var ready = false
     private var queuedURL: URL?
+    private var unlockObserver: NSObjectProtocol?
     private var approving = false
     private weak var approvalController: LegacyTonConnectApprovalViewController?
 
@@ -101,8 +102,10 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     func open(_ url: URL) {
         precondition(Thread.isMainThread)
-        guard ready else {
+        // A link opened while the app is locked waits for the unlock instead of being lost.
+        guard ready, !ApplicationLockState.shared.isLocked else {
             queuedURL = url
+            observeUnlockIfNeeded()
             return
         }
         Task { @MainActor in
@@ -112,9 +115,30 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
                 guard let wallet = selectedWallet() else { throw LegacyTonConnectError.unavailableWallet }
                 let manifest = try await transport.manifest(at: link.request.manifestUrl)
                 _ = try await connect(walletId: wallet.metaId, clientId: link.clientId, request: link.request, manifest: manifest, connectionType: "http")
+            } catch LegacyTonConnectError.busy where ApplicationLockState.shared.isLocked {
+                // The app locked while the link was being prepared: ask again once it is unlocked.
+                queuedURL = url
+                observeUnlockIfNeeded()
             } catch {
                 present(error: error)
             }
+        }
+    }
+
+    private func observeUnlockIfNeeded() {
+        guard unlockObserver == nil else { return }
+        unlockObserver = NotificationCenter.default.addObserver(
+            forName: ApplicationLockState.didChangeNotification,
+            object: ApplicationLockState.shared,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self, self.ready, !ApplicationLockState.shared.isLocked, let url = self.queuedURL else { return }
+            self.queuedURL = nil
+            if let observer = self.unlockObserver {
+                NotificationCenter.default.removeObserver(observer)
+                self.unlockObserver = nil
+            }
+            self.open(url)
         }
     }
 

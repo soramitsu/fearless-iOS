@@ -82,8 +82,10 @@ final class PendingSessionLock {
     private var retryTimer: Timer?
     private var isAttempting = false
     private var backgroundEnteredUptime: TimeInterval?
-    /// Presented, but UIKit has not yet reported the presentation finished.
+    /// The PIN this request presented, the window it went to, and whether UIKit reported the presentation done.
     private weak var presentingPin: UIViewController?
+    private weak var presentingWindow: UIWindow?
+    private var presentationCompleted = false
 
     init(
         pinPresence: @escaping () -> AppPinPresence = {
@@ -133,6 +135,8 @@ final class PendingSessionLock {
     @discardableResult
     func request(in scene: UIWindowScene? = nil) -> Attempt {
         isPending = true
+        // Authentications that began before now do not end this lock.
+        lockState.beginDueLock()
         return attempt(in: scene)
     }
 
@@ -169,17 +173,20 @@ final class PendingSessionLock {
         isAttempting = true
         defer { isAttempting = false }
 
-        if let pin = presentingPin {
-            if Self.isOnScreen(pin) {
-                finish(restoringKeyWindow: false, window: pin.view.window)
+        let window = scene.flatMap { mainWindow($0) } ?? mainWindow(nil)
+        if let pin = presentingPin, let target = presentingWindow, window == nil || window === target {
+            if presentationCompleted, Self.isFrontmost(pin, in: target) {
+                finish(restoringKeyWindow: false, window: target)
                 return .locked
             }
-            if pin.presentingViewController != nil, !pin.isBeingDismissed {
+            if !presentationCompleted, pin.presentingViewController != nil, !pin.isBeingDismissed {
                 // Still on its way: the presentation completion, or a later attempt, ends the wait.
                 return .locked
             }
-            presentingPin = nil
         }
+        // Not presented, gone, or the app's window changed: present again.
+        presentingPin = nil
+        presentingWindow = nil
 
         switch pinPresence() {
         case .absent:
@@ -190,14 +197,15 @@ final class PendingSessionLock {
             wait()
             return .waiting
         case .present:
-            let window = scene.flatMap { mainWindow($0) } ?? mainWindow(nil)
             let presentation = FearlessApplication.showLock(
                 on: window,
                 lockState: lockState,
-                makePin: { [weak self] in
+                makePin: { [weak self, weak window] in
                     let pin = self?.makePin()
                     // Known before presenting, in case UIKit reports the presentation finished at once.
                     self?.presentingPin = pin
+                    self?.presentingWindow = window
+                    self?.presentationCompleted = false
                     return pin
                 },
                 afterDismissal: { [weak self] in self?.attempt(in: scene) },
@@ -206,13 +214,16 @@ final class PendingSessionLock {
             switch presentation {
             case .presented:
                 if isPending {
-                    // The cover, if up, stays until the presentation has finished.
+                    // Until UIKit reports the PIN presented and it is frontmost in its window, the cover stays (and
+                    // goes up now if it was not), so the scene's app-switcher cover never comes off an open wallet.
+                    cover.show(in: scenes())
                     scheduleRetry()
                 }
                 return .locked
-            case .alreadyShown:
+            case let .alreadyShown(pin):
+                // The PIN on screen becomes this lock's owner, so its unlock ends the lock and prompts are told.
+                lockState.lock(with: pin)
                 finish(restoringKeyWindow: false, window: window)
-                lockState.cancelPendingLock()
                 return .locked
             case .noWindow, .dismissing, .notPresented:
                 presentingPin = nil
@@ -226,6 +237,7 @@ final class PendingSessionLock {
         guard isPending, presentingPin === pin else {
             return
         }
+        presentationCompleted = true
         // Checked on the next turn: UIKit may report the presentation before the PIN is in its window, and this can
         // run inside the attempt that presented it.
         DispatchQueue.main.async { [weak self] in
@@ -233,9 +245,14 @@ final class PendingSessionLock {
         }
     }
 
-    /// Presented, in a window and not leaving.
-    private static func isOnScreen(_ pin: UIViewController) -> Bool {
-        pin.viewIfLoaded?.window != nil && pin.presentingViewController != nil && !pin.isBeingDismissed
+    /// Presented in `window`, frontmost there, settled, and the window is visible.
+    private static func isFrontmost(_ pin: UIViewController, in window: UIWindow) -> Bool {
+        var frontmost = window.rootViewController
+        while let presented = frontmost?.presentedViewController {
+            frontmost = presented
+        }
+        return !window.isHidden && frontmost === pin && pin.viewIfLoaded?.window === window
+            && !pin.isBeingPresented && !pin.isBeingDismissed
     }
 
     private func wait() {
@@ -247,6 +264,8 @@ final class PendingSessionLock {
     private func finish(restoringKeyWindow: Bool, window: UIWindow?) {
         isPending = false
         presentingPin = nil
+        presentingWindow = nil
+        presentationCompleted = false
         retryTimer?.invalidate()
         retryTimer = nil
         cover.hide(restoringKeyWindow: restoringKeyWindow)

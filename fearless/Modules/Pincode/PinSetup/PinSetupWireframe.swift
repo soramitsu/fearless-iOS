@@ -3,8 +3,17 @@ import UIKit
 class PinSetupWireframe: PinSetupWireframeProtocol {
     /// The wallet lands after an unlock: a crossfade while it settles from 1.06 to 1 (kit v3 launch, part 1).
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = FWLandingAnimationCoordinator()
+    private let lockState: ApplicationLockState
+
+    init(lockState: ApplicationLockState = .shared) {
+        self.lockState = lockState
+    }
 
     func showMain(from view: PinSetupViewProtocol?) {
+        // A re-lock may have adopted this startup PIN as its lock; authenticated, it ends that lock.
+        if let controller = view?.controller {
+            lockState.unlock(from: controller)
+        }
         let presentingWindow = view?.controller.view.window as? ApplicationStatusPresentable
         guard let mainViewController = MainTabBarViewFactory
             .createView(presentingWindow: presentingWindow)?

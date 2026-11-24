@@ -459,7 +459,9 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
         XCTAssertFalse(WalletConnectSheetVisibility.isHiddenWithItsWindow(sheet))
     }
 
-    func testCheckPincode_whenThePinIsAccepted_thenTheLockEnds() {
+    /// Only a PIN screen ends the lock it holds (the presented case is in CovJOnPinWireframeTests): without its
+    /// screen, an accepted PIN ends no lock, so it can never end a newer one.
+    func testCheckPincode_whenThePinScreenIsGone_thenNoLockEnds() {
         let lockState = ApplicationLockState(notificationCenter: NotificationCenter())
         let lockScreen = UIViewController()
         lockState.lock(with: lockScreen)
@@ -467,6 +469,8 @@ final class WalletConnectAuthorizationAndLockTests: XCTestCase {
 
         CheckPincodeWireframe(lockState: lockState).showMain(from: nil)
 
+        XCTAssertTrue(lockState.isLocked)
+        lockState.unlock(from: lockScreen)
         XCTAssertFalse(lockState.isLocked)
     }
 

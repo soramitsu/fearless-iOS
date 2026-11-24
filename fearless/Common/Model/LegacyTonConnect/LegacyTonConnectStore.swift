@@ -120,14 +120,22 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
             let fetch = NSFetchRequest<NSManagedObject>(entityName: "CDTonConnectedApp")
             fetch.predicate = NSPredicate(format: "identifier == %@", session.identifier)
             let rows = try context.fetch(fetch)
+            let reference = LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
             for row in rows {
-                guard try self.read(row).session == session else { throw LegacyTonConnectError.invalidSession }
+                let matches: Bool
+                do {
+                    matches = try self.read(row).session == session
+                } catch LegacyTonConnectError.invalidSession {
+                    // An earlier disconnect removed the key but could not delete the row: finish it.
+                    matches = try self.isMovedRowWithoutKey(row, of: session, reference: reference)
+                }
+                guard matches else { throw LegacyTonConnectError.invalidSession }
             }
             guard !rows.isEmpty else { return }
             // The key goes first, a key left by an interrupted move included. If the Keychain cannot delete it the
             // disconnect fails and the row stays, so no session survives a reported disconnect, not even through a
-            // retained copy of its row. If the row then cannot be deleted, a moved session stays unreadable.
-            let reference = LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
+            // retained copy of its row. If the row then cannot be deleted, a moved session stays unreadable and a
+            // later disconnect finishes the removal.
             try self.keys.deleteKey(reference: reference.account)
             rows.forEach(context.delete)
             try context.save()
@@ -152,6 +160,24 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
         let session: LegacyTonConnectSession
         /// The row still holds the raw key.
         let isLegacy: Bool
+    }
+
+    /// The row names this session's Keychain item, which is confirmed gone, and its identity columns match.
+    private func isMovedRowWithoutKey(
+        _ row: NSManagedObject,
+        of session: LegacyTonConnectSession,
+        reference: LegacyTonConnectSessionKeyReference
+    ) throws -> Bool {
+        var identityMatches = false
+        try SafeObjectiveCExceptionBoundary.perform {
+            identityMatches = row.value(forKey: "identifier") as? String == session.identifier
+                && row.value(forKey: "walletId") as? String == session.walletId
+                && row.value(forKey: "clientId") as? String == session.clientId
+                && row.value(forKey: "appUrl") as? URL == session.appUrl
+                && row.value(forKey: "publicKey") as? Data == session.publicKey
+                && row.value(forKey: "privateKey") as? Data == reference.column
+        }
+        return try identityMatches && keys.loadKey(reference: reference.account) == nil
     }
 
     /// A released row's raw key with what it is bound to.

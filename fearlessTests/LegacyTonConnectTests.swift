@@ -287,6 +287,61 @@ private final class TonConnectFakeSessionKeys: LegacyTonConnectSessionKeyStoring
     }
 }
 
+private final class TonConnectGatedSessionStore: LegacyTonConnectSessionStoring {
+    private let lock = NSLock()
+    private var waiter: CheckedContinuation<Void, Error>?
+    private var callCount = 0
+    let values: [LegacyTonConnectSession]
+
+    init(values: [LegacyTonConnectSession]) {
+        self.values = values
+    }
+
+    var calls: Int { lock.lock(); defer { lock.unlock() }; return callCount }
+
+    func waitForCaller() async throws {
+        for _ in 0 ..< 200 {
+            lock.lock()
+            let waiting = waiter != nil
+            lock.unlock()
+            if waiting { return }
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTFail("start() never read the sessions")
+    }
+
+    func release(throwing: Bool) {
+        lock.lock()
+        let continuation = waiter
+        waiter = nil
+        lock.unlock()
+        if throwing {
+            continuation?.resume(throwing: LegacyTonConnectError.invalidSession)
+        } else {
+            continuation?.resume()
+        }
+    }
+
+    func sessions() async throws -> [LegacyTonConnectSession] {
+        lock.lock()
+        callCount += 1
+        let first = callCount == 1
+        lock.unlock()
+        if first {
+            try await withCheckedThrowingContinuation { continuation in
+                lock.lock()
+                waiter = continuation
+                lock.unlock()
+            }
+        }
+        return values
+    }
+
+    func save(_: LegacyTonConnectSession) async throws {}
+    func remove(_: LegacyTonConnectSession) async throws {}
+    func bridgeURL(network _: String) async throws -> URL { URL(string: "https://bridge.example.org/bridge")! }
+}
+
 private final class TonConnectFlakySessionStore: LegacyTonConnectSessionStoring {
     private let lock = NSLock()
     private var failures: Int
@@ -495,9 +550,13 @@ private final class TonConnectFakeSessionStore: LegacyTonConnectSessionStoring {
 
 private final class TonConnectFakeTransport: LegacyTonConnectBridgeTransporting {
     var onListen: (() -> Void)?
+    private(set) var manifestCalls = 0
     var sent: [(Data, LegacyTonConnectSession, URL, String)] = []
     var manifestValue: LegacyTonConnectManifest?
-    func manifest(at url: URL) async throws -> LegacyTonConnectManifest { manifestValue ?? .init(url: url, name: "Fixture", iconUrl: nil) }
+    func manifest(at url: URL) async throws -> LegacyTonConnectManifest {
+        manifestCalls += 1
+        return manifestValue ?? .init(url: url, name: "Fixture", iconUrl: nil)
+    }
     func send(_ data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String) async throws {
         sent.append((data, session, bridge, topic))
     }
@@ -828,6 +887,44 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
         let proofItems = try XCTUnwrap(((JSONSerialization.jsonObject(with: proofResponse) as? [String: Any])?["payload"] as? [String: Any])?["items"] as? [[String: Any]])
         XCTAssertNotNil(proofItems.last?["proof"])
         XCTAssertEqual(secrets.reads, [KeystoreTagV2.tonSecretKeyTagForMetaId(wallet.metaId)])
+        coordinator.throttle()
+    }
+
+    /// Codex review (round 2): a TON Connect link opened while the app is locked waits for the unlock.
+    @MainActor
+    func testALinkOpenedWhileLockedIsKeptUntilTheUnlock() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let transport = TonConnectFakeTransport()
+        var approvals = 0
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return false },
+            walletLoader: { _ in wallet }, isEnabled: { true }
+        )
+        await coordinator.activate()
+        let peer = try tonConnectTestSession().clientId
+        var parts = URLComponents(string: "tc://")!
+        parts.queryItems = [
+            .init(name: "v", value: "2"), .init(name: "id", value: peer),
+            .init(name: "r", value: #"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#)
+        ]
+        let url = try XCTUnwrap(parts.url)
+        let lockState = ApplicationLockState.shared
+        lockState.markLockPending()
+        defer { lockState.cancelPendingLock() }
+
+        coordinator.open(url)
+        try await Task.sleep(nanoseconds: 200_000_000)
+        XCTAssertEqual(transport.manifestCalls, 0, "Nothing is prepared behind the lock")
+        XCTAssertEqual(approvals, 0)
+
+        lockState.cancelPendingLock()
+        for _ in 0 ..< 100 where approvals == 0 {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(transport.manifestCalls, 1, "The kept link runs once the app is unlocked")
+        XCTAssertEqual(approvals, 1)
         coordinator.throttle()
     }
 
@@ -1853,6 +1950,90 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         XCTAssertGreaterThan(afterStop, 1, "It retried while started")
         try await Task.sleep(nanoseconds: 150_000_000)
         XCTAssertEqual(store.sessionCalls, afterStop, "No retry after stop")
+    }
+
+    /// Codex review (round 2): a replayed disconnect is acknowledged only once the session and its key are gone.
+    func testDisconnectReplayIsAcknowledgedOnlyAfterTheSessionIsGone() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let session = try tonConnectTestSession()
+        try await store.save(session)
+        let service = LegacyTonConnectService(
+            store: store, replies: LegacyTonConnectReplyStore(keystore: TonConnectFixtureKeychain()),
+            transport: TonConnectFakeTransport(), legacyEventId: { nil }
+        )
+        let disconnect = Data(#"{"id":"7","method":"disconnect","params":[]}"#.utf8)
+
+        keys.failDeletes = errSecInteractionNotAllowed
+        for _ in 0 ..< 2 {
+            do {
+                _ = try await service.handle(disconnect, session: session, network: "-239")
+                XCTFail("No acknowledgement while the session is still usable")
+            } catch {}
+        }
+        let stillThere = try await store.sessions()
+        XCTAssertEqual(stillThere, [session])
+
+        keys.failDeletes = nil
+        let reply = try await service.handle(disconnect, session: session, network: "-239")
+        XCTAssertFalse(reply.isEmpty)
+        let gone = try await store.sessions()
+        XCTAssertTrue(gone.isEmpty)
+        XCTAssertNil(keys.items[reference(session).account])
+    }
+
+    /// Codex review (round 2): a disconnect whose key went but whose row stayed can be finished later.
+    func testADisconnectThatRemovedOnlyTheKeyCanBeFinished() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let session = try tonConnectTestSession()
+        let other = try tonConnectTestSession(id: "other")
+        try await store.save(session)
+        try await store.save(other)
+        keys.items[reference(session).account] = nil
+
+        let listed = try await store.sessions()
+        XCTAssertEqual(listed, [other], "The half-removed session is not usable")
+        try await store.remove(session)
+
+        let rows = try fixture.snapshot()
+        XCTAssertEqual(rows.count, 1)
+        XCTAssertEqual(rows.first?["identifier"], Data(other.identifier.utf8))
+        // A row that only looks similar is not removed without its key.
+        let impostor = LegacyTonConnectSession(
+            identifier: other.identifier, walletId: "another-wallet", clientId: other.clientId, appUrl: other.appUrl,
+            name: other.name, iconUrl: nil, publicKey: other.publicKey, privateKey: other.privateKey, connectionType: "http"
+        )
+        do {
+            try await store.remove(impostor)
+            XCTFail("Another wallet's session must not be removed")
+        } catch {}
+        XCTAssertEqual(try fixture.snapshot().count, 1)
+    }
+
+    /// Codex review (round 2): a discovery still running when stop() or a newer start() comes does nothing after.
+    func testADiscoveryThatResumesAfterStopStartsNothing() async throws {
+        let session = try tonConnectTestSession()
+        let store = TonConnectGatedSessionStore(values: [session])
+        let transport = TonConnectFakeTransport()
+        var listens = 0
+        transport.onListen = { listens += 1 }
+        let service = LegacyTonConnectService(
+            store: store, replies: LegacyTonConnectReplyStore(keystore: TonConnectFixtureKeychain()), transport: transport,
+            legacyEventId: { nil }, startRetryNanoseconds: 20_000_000
+        )
+
+        let starting = Task { await service.start(selectedNetwork: "-239") }
+        try await store.waitForCaller()
+        await service.stop()
+        store.release(throwing: false)
+        await starting.value
+        try await Task.sleep(nanoseconds: 200_000_000)
+
+        XCTAssertEqual(listens, 0, "No listener after stop()")
+        XCTAssertEqual(store.calls, 1, "No retry after stop()")
     }
 
     /// The real Keychain item: device-only, unlocked-only, not synchronized, and apart from wallet keys.

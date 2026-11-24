@@ -2447,6 +2447,32 @@ final class PendingSessionLockTests: XCTestCase {
         func authenticate(localizedReason _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) {}
     }
 
+    private final class InteractorSpy: LocalAuthInteractorInputProtocol {
+        var allowManualBiometryAuth = false
+        var availableBiometryType = AvailableBiometryType.none
+        private(set) var starts = 0
+        private(set) var cancels = 0
+        func startAuth(with _: LocalAuthInteractorOutputProtocol) { starts += 1 }
+        func process(pin _: String) {}
+        func cancelAuth() { cancels += 1 }
+    }
+
+    private final class WireframeSpy: PinSetupWireframeProtocol {
+        private(set) var mains = 0
+        func showMain(from _: PinSetupViewProtocol?) { mains += 1 }
+        func showSignup(from _: PinSetupViewProtocol?) {}
+    }
+
+    private final class PinViewStub: UIViewController, PinSetupViewProtocol {
+        private(set) var resets = 0
+        func didFailSavingPin() {}
+        func didReceiveLockout(remaining _: TimeInterval) {}
+        func resetAuthenticationInput() { resets += 1 }
+        func didRequestBiometryUsage(biometryType _: AvailableBiometryType, completionBlock _: @escaping (Bool) -> Void) {}
+        func didChangeAccessoryState(enabled _: Bool, availableBiometryType _: AvailableBiometryType) {}
+        func didReceiveWrongPincode() {}
+    }
+
     private final class ThrowingKeystore: KeystoreProtocol {
         func addKey(_: Data, with _: String) throws { throw KeystoreError.unexpectedFail }
         func updateKey(_: Data, with _: String) throws { throw KeystoreError.unexpectedFail }
@@ -2701,7 +2727,7 @@ final class PendingSessionLockTests: XCTestCase {
         XCTAssertFalse(window.accessibilityElementsHidden)
     }
 
-    func testExistingPinLocksAtOnceWithoutACover() throws {
+    func testExistingPinIsPresentedAtOnceAndTheCoverStaysUntilItIsOnScreen() throws {
         let scene = try scene()
         let (window, root) = makeAppWindow(in: scene)
         let center = NotificationCenter()
@@ -2711,11 +2737,94 @@ final class PendingSessionLockTests: XCTestCase {
 
         XCTAssertEqual(lock.request(), .locked)
         XCTAssertTrue(root.presentedViewController === pin)
-        XCTAssertNil(lock.cover.shownWindows.first, "No cover was needed")
         XCTAssertTrue(lockState.isLocked)
+        if lock.isPending {
+            // Codex review: the scene removes its app-switcher cover right after this call.
+            try assertCoverBlocksTheApp(lock, appWindow: window)
+        }
         settle(lock)
         XCTAssertFalse(lock.isPending, "Done once UIKit reports the PIN presented")
+        XCTAssertFalse(lock.isCoverShown)
         XCTAssertTrue(pin.viewIfLoaded?.window === window)
+        XCTAssertTrue(window.isKeyWindow)
+    }
+
+    /// Codex review: if the app's window changes before the PIN is on screen, the PIN goes to the new window.
+    func testAChangedAppWindowGetsThePin() throws {
+        let scene = try scene()
+        let (first, _) = makeAppWindow(in: scene)
+        var target = first
+        let center = NotificationCenter()
+        let lockState = ApplicationLockState(notificationCenter: center)
+        var made: [UIViewController] = []
+        let lock = makeLock(in: scene, center: center, lockState: lockState, presence: { .present }, window: { target }) {
+            let pin = UIViewController()
+            made.append(pin)
+            return pin
+        }
+
+        XCTAssertEqual(lock.request(), .locked)
+        let (second, secondRoot) = makeAppWindow(in: scene)
+        target = second
+        center.post(name: UIScene.didActivateNotification, object: scene)
+        settle(lock)
+
+        XCTAssertEqual(made.count, 2)
+        XCTAssertTrue(secondRoot.presentedViewController === made.last)
+        XCTAssertFalse(lock.isPending)
+        XCTAssertFalse(lock.isCoverShown)
+    }
+
+    /// Codex review blocker (round 2): an authentication that began before a newer lock became due, such as a
+    /// success queued across a long absence, does not end that lock; the PIN asks again.
+    func testAnAuthenticationThatBeganBeforeANewLockDoesNotEndIt() throws {
+        let lockState = ApplicationLockState(notificationCenter: NotificationCenter())
+        let interactor = InteractorSpy()
+        let wireframe = WireframeSpy()
+        let presenter = LocalAuthPresenter(wireframe: wireframe, interactor: interactor, lockState: lockState)
+        let view = PinViewStub()
+        presenter.didLoad(view: view)
+        XCTAssertEqual(interactor.starts, 1)
+
+        lockState.beginDueLock()
+        presenter.didCompleteAuth()
+        spin()
+        XCTAssertEqual(wireframe.mains, 0, "A success from before the new lock does not unlock it")
+        XCTAssertEqual(interactor.cancels, 1)
+        XCTAssertEqual(interactor.starts, 2, "Asked again")
+        XCTAssertEqual(view.resets, 1)
+
+        presenter.didCompleteAuth()
+        spin()
+        XCTAssertEqual(wireframe.mains, 1, "A success that began in this lock unlocks")
+
+        lockState.beginDueLock()
+        presenter.submit(pin: "1234")
+        presenter.didCompleteAuth()
+        spin()
+        XCTAssertEqual(wireframe.mains, 2, "A PIN typed after the lock became due counts")
+    }
+
+    /// Codex review (round 2): a PIN already on screen becomes the lock's owner, so its unlock tells prompts.
+    func testAnUnlockPinAlreadyOnScreenIsAdoptedAsTheLock() throws {
+        let scene = try scene()
+        let window = FearlessWindow(windowScene: scene)
+        window.frame = CGRect(x: 0, y: 0, width: 393, height: 852)
+        let unlock = makeUnlockPin()
+        window.rootViewController = unlock
+        window.makeKeyAndVisible()
+        windows.append(window)
+        let lockState = ApplicationLockState(notificationCenter: NotificationCenter())
+        let lock = makeLock(in: scene, center: NotificationCenter(), lockState: lockState, presence: { .present }, window: { window }) {
+            XCTFail("No second PIN screen")
+            return nil
+        }
+
+        XCTAssertEqual(lock.request(), .locked)
+        XCTAssertTrue(lockState.isLocked)
+        XCTAssertFalse(lock.isPending)
+        lockState.unlock(from: unlock)
+        XCTAssertFalse(lockState.isLocked)
     }
 
     /// Before this fix the PIN was presented from a root that was still presenting: UIKit refused it, only logged

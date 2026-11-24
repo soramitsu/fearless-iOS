@@ -11,6 +11,10 @@ final class ApplicationLockState {
     private weak var lockScreen: UIViewController?
     private var isLockPending = false
 
+    /// Counts the locks that became due. An unlock PIN accepts only an authentication that began in the current
+    /// generation, so a PIN or biometric success started before a newer lock became due cannot end that lock.
+    private(set) var generation: UInt64 = 0
+
     init(notificationCenter: NotificationCenter = .default) {
         self.notificationCenter = notificationCenter
     }
@@ -25,6 +29,11 @@ final class ApplicationLockState {
         lockScreen = screen
         isLockPending = false
         notificationCenter.post(name: Self.didChangeNotification, object: self)
+    }
+
+    /// A new lock is due: authentications that began before now no longer unlock.
+    func beginDueLock() {
+        generation &+= 1
     }
 
     /// A re-lock is due but its PIN screen is not on screen yet.

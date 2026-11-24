@@ -98,6 +98,13 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
             name: UIApplication.didBecomeActiveNotification,
             object: nil
         )
+        // What waited behind the PIN screen or the re-lock cover is shown once the app is unlocked.
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive),
+            name: ApplicationLockState.didChangeNotification,
+            object: nil
+        )
     }
 
     deinit {
@@ -204,6 +211,7 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
 
     private func presentPendingApprovalIfPossible() {
         guard UIApplication.shared.applicationState == .active,
+              !ApplicationLockState.shared.isLocked,
               coveringWindow == nil,
               let pendingApproval else {
             return
