@@ -137,6 +137,9 @@ final class OnboardingModel: Identifiable {
     /// Bumped by every preview request and by Continue, so a preview that
     /// finishes late never replaces a newer one or the confirmation's.
     @ObservationIgnored private var previewGeneration = 0
+    /// Bumped by Continue and by `wipeSecrets`, so a confirmation that
+    /// finishes after a wipe writes nothing back.
+    @ObservationIgnored private var confirmationGeneration = 0
     /// What `addressPreview` was derived from on the phrase step.
     private(set) var addressPreviewKey: ImportPreviewKey?
 
@@ -426,16 +429,20 @@ final class OnboardingModel: Identifiable {
     /// last step. Stays put, with the reason, if the source is not usable.
     private func prepareConfirmation(source: WalletImportSource) async {
         previewGeneration += 1
+        confirmationGeneration += 1
+        let generation = confirmationGeneration
         let key = livePreviewKey
         isWorking = true
         defer { isWorking = false }
         do {
             let preview = try await services.wallets.previewAddresses(for: source)
+            guard generation == confirmationGeneration else { return }
             addressPreview = preview
             addressPreviewKey = key
             pendingSource = source
             go(to: .confirm)
         } catch {
+            guard generation == confirmationGeneration else { return }
             errorMessage = ErrorText.message(for: error)
         }
     }
@@ -457,7 +464,12 @@ final class OnboardingModel: Identifiable {
     /// Refreshes the preview after the words or a derivation option changed.
     /// The result is kept only if it still belongs to the input on screen.
     func refreshPreview() async {
-        guard let key = livePreviewKey else { return }
+        guard let key = livePreviewKey else {
+            // The phrase is no longer valid (Clear, an edit): forget the
+            // preview and what it was derived from.
+            if step == .importPhrase { forgetPreview() }
+            return
+        }
         previewGeneration += 1
         let generation = previewGeneration
         let preview = try? await services.wallets.previewAddresses(for: .mnemonic(words: key.words, options: key.options.options))
@@ -494,7 +506,17 @@ final class OnboardingModel: Identifiable {
     }
 
     /// Drops every secret the flow held.
+    /// Drops the address preview and the words and options it came from.
+    private func forgetPreview() {
+        previewGeneration += 1
+        addressPreview = nil
+        addressPreviewKey = nil
+    }
+
     func wipeSecrets() {
+        forgetPreview()
+        confirmationGeneration += 1
+        derivation = .standard
         phrase = []
         verification = nil
         isPhraseRevealed = false

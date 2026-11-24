@@ -104,6 +104,8 @@ final class SecretFieldEditor: NSTextView {
     /// Told when an input method's composition becomes ordinary text
     /// without any text change (`unmarkText`).
     var onCompositionCommit: (() -> Void)?
+    /// Told when a composition starts or ends.
+    var onCompositionChange: (() -> Void)?
 
     /// Menu and key-binding actions that would turn a text service back on,
     /// check the text against a dictionary, read it aloud, or hand it to
@@ -214,10 +216,16 @@ final class SecretFieldEditor: NSTextView {
     /// True while a composition is being discarded; nothing is pushed then.
     private(set) var isCancellingComposition = false
 
+    override func setMarkedText(_ string: Any, selectedRange: NSRange, replacementRange: NSRange) {
+        super.setMarkedText(string, selectedRange: selectedRange, replacementRange: replacementRange)
+        onCompositionChange?()
+    }
+
     override func unmarkText() {
         let hadMarkedText = hasMarkedText()
         super.unmarkText()
         if hadMarkedText, !isCancellingComposition { onCompositionCommit?() }
+        if hadMarkedText { onCompositionChange?() }
     }
 
     /// Discards text an input method is still composing, without handing
@@ -508,12 +516,25 @@ final class SecretEntryTextFieldCell: NSTextFieldCell {
     }
 }
 
+/// A secret field's place on its screen.
+enum SecretFieldID: Hashable, Sendable {
+    case word(Int)
+    case substratePath
+    case evmPath
+
+    var isWord: Bool {
+        if case .word = self { return true }
+        return false
+    }
+}
+
 /// The secret fields of one screen. Its owner moves keyboard focus between
 /// them inside the key event that asked for it, so the next key already
-/// lands in the new field; shows every field's bound text at once after a
-/// change; and commits or discards compositions before reading or
-/// replacing what the fields hold. Fields join through the environment.
+/// lands in the new field; shows fields' bound text at once after a change;
+/// and commits or discards compositions before reading or replacing what
+/// the fields hold. Fields join through the environment.
 @MainActor
+@Observable
 final class SecretFieldGroup {
     private final class Member {
         weak var field: SecretEntryTextField?
@@ -525,67 +546,102 @@ final class SecretFieldGroup {
         }
     }
 
-    private var members: [Member] = []
-    private var slots: [Int: Member] = [:]
+    @ObservationIgnored private var members: [SecretFieldID: Member] = [:]
+    /// A focus move to a field not made yet (a growing grid), done when it joins.
+    @ObservationIgnored private var pendingFocus: (id: SecretFieldID, caretAtEnd: Bool)?
+    /// Fields whose editor holds text an input method is still composing.
+    private(set) var composing: Set<SecretFieldID> = []
 
-    func add(_ field: SecretEntryTextField, focusID: Int?, showBindingText: @escaping () -> Void) {
-        members.removeAll { $0.field == nil }
-        let member: Member
-        if let existing = members.first(where: { $0.field === field }) {
-            existing.showBindingText = showBindingText
-            member = existing
+    var isComposing: Bool {
+        !composing.isEmpty
+    }
+
+    func add(_ field: SecretEntryTextField, id: SecretFieldID, showBindingText: @escaping () -> Void) {
+        if let member = members[id], member.field === field {
+            member.showBindingText = showBindingText
         } else {
-            member = Member(field, showBindingText: showBindingText)
-            members.append(member)
+            members[id] = Member(field, showBindingText: showBindingText)
         }
-        if let focusID, slots[focusID] !== member { slots[focusID] = member }
+        if let pending = pendingFocus, pending.id == id, field.window != nil {
+            pendingFocus = nil
+            move(to: id, caretAtEnd: pending.caretAtEnd)
+        }
     }
 
     func remove(_ field: SecretEntryTextField) {
-        members.removeAll { $0.field == nil || $0.field === field }
-        slots = slots.filter { $0.value.field != nil && $0.value.field !== field }
+        members = members.filter { $0.value.field != nil && $0.value.field !== field }
+        updateComposing()
     }
 
-    func field(_ focusID: Int) -> SecretEntryTextField? {
-        slots[focusID]?.field
+    func field(_ id: SecretFieldID) -> SecretEntryTextField? {
+        members[id]?.field
     }
 
-    private var fields: [SecretEntryTextField] {
-        members.compactMap(\.field)
+    private func fields(where include: (SecretFieldID) -> Bool) -> [SecretEntryTextField] {
+        members.filter { include($0.key) }.compactMap(\.value.field)
+    }
+
+    /// Recomputes which fields are composing, after the current event.
+    func compositionChanged() {
+        DispatchQueue.main.async { [weak self] in self?.updateComposing() }
+    }
+
+    private func updateComposing() {
+        let now = Set(members.filter { $0.value.field?.secretEditor.hasMarkedText() == true }.keys)
+        if now != composing { composing = now }
     }
 
     /// Commits text an input method is still composing in the group's
     /// fields, so it reaches the bindings. Other windows are left alone.
-    func finishComposition() {
-        fields.forEach { $0.secretEditor.commitComposition() }
+    func finishComposition(where include: (SecretFieldID) -> Bool = { _ in true }) {
+        fields(where: include).forEach { $0.secretEditor.commitComposition() }
+        updateComposing()
     }
 
-    /// Discards unfinished compositions, before the owner replaces the text.
-    func cancelComposition() {
-        fields.forEach { $0.secretEditor.cancelComposition() }
+    /// Discards unfinished compositions in the fields whose text the owner
+    /// is about to replace; other fields keep theirs.
+    func cancelComposition(where include: (SecretFieldID) -> Bool) {
+        fields(where: include).forEach { $0.secretEditor.cancelComposition() }
+        updateComposing()
     }
 
-    /// Shows every field's bound text now, before the next key arrives.
-    func showBindingText() {
-        members.filter { $0.field != nil }.forEach { $0.showBindingText() }
+    /// Shows the bound text of the given fields now, before the next key.
+    func showBindingText(where include: (SecretFieldID) -> Bool) {
+        members.filter { include($0.key) && $0.value.field != nil }.forEach { $0.value.showBindingText() }
     }
 
-    /// Gives the field at `focusID` keyboard focus now, or takes it away
-    /// from whichever field of the group has it when `focusID` is nil or the
-    /// field is not made yet (a growing grid claims it when it appears).
+    /// Gives the field `id` keyboard focus now, committing compositions in
+    /// the other fields first, or takes focus away from the group when `id`
+    /// is nil. A field that is not made yet (a growing grid) is laid out at
+    /// once; if it still does not exist, it takes focus when it joins.
     /// `caretAtEnd` puts the caret after the field's text instead of
     /// selecting it.
-    func move(to focusID: Int?, caretAtEnd: Bool = false) {
+    func move(to id: SecretFieldID?, caretAtEnd: Bool = false) {
         finishComposition()
-        guard let focusID, let field = field(focusID) else {
-            if let editing = fields.first(where: \.isEditing) { editing.window?.makeFirstResponder(nil) }
+        guard let id else {
+            pendingFocus = nil
+            resign()
             return
         }
-        guard let window = field.window else { return }
+        if field(id) == nil {
+            members.values.compactMap(\.field).first?.window?.contentView?.layoutSubtreeIfNeeded()
+        }
+        guard let field = field(id), let window = field.window else {
+            pendingFocus = (id, caretAtEnd)
+            resign()
+            return
+        }
+        pendingFocus = nil
         if !field.isEditing { window.makeFirstResponder(field) }
         if caretAtEnd, field.isEditing {
             let editor = field.secretEditor
             editor.setSelectedRange(NSRange(location: (editor.string as NSString).length, length: 0))
+        }
+    }
+
+    private func resign() {
+        if let editing = members.values.compactMap(\.field).first(where: \.isEditing) {
+            editing.window?.makeFirstResponder(nil)
         }
     }
 }
@@ -612,8 +668,8 @@ struct SecretTextField: NSViewRepresentable {
     /// takes focus when this becomes true and gives it up when it becomes
     /// false while the field is still editing.
     var isFocused = false
-    /// The field's place in the environment's `SecretFieldGroup`, for focus moves.
-    var focusID: Int?
+    /// The field's place in the environment's `SecretFieldGroup`.
+    var groupID: SecretFieldID?
     var onFocusChange: ((Bool) -> Void)?
     /// Returns true when the owner handled the key.
     var onCommand: ((Command) -> Bool)?
@@ -631,7 +687,7 @@ struct SecretTextField: NSViewRepresentable {
         style: SecretEntryTextField.Style = .bezeled,
         accessibilityLabel: String,
         isFocused: Bool = false,
-        focusID: Int? = nil,
+        groupID: SecretFieldID? = nil,
         onFocusChange: ((Bool) -> Void)? = nil,
         onCommand: ((Command) -> Bool)? = nil,
         onPaste: ((String) -> Bool)? = nil
@@ -642,7 +698,7 @@ struct SecretTextField: NSViewRepresentable {
         self.style = style
         self.accessibilityLabel = accessibilityLabel
         self.isFocused = isFocused
-        self.focusID = focusID
+        self.groupID = groupID
         self.onFocusChange = onFocusChange
         self.onCommand = onCommand
         self.onPaste = onPaste
@@ -686,6 +742,7 @@ struct SecretTextField: NSViewRepresentable {
         editor.onPaste = { [weak coordinator] text in coordinator?.pasted(text) ?? false }
         editor.onFocusChange = { [weak coordinator] focused in coordinator?.focusChanged(focused) }
         editor.onCompositionCommit = { [weak coordinator] in coordinator?.pushFieldText() }
+        editor.onCompositionChange = { [weak coordinator] in coordinator?.group?.compositionChanged() }
         field.onWindowChange = { [weak coordinator] in coordinator?.claimFocusIfWanted() }
         return field
     }
@@ -698,9 +755,11 @@ struct SecretTextField: NSViewRepresentable {
             coordinator.group?.remove(field)
             coordinator.group = group
         }
-        group?.add(field, focusID: focusID) { [weak coordinator] in
-            guard let coordinator else { return }
-            coordinator.show(coordinator.parent.text)
+        if let group, let groupID {
+            group.add(field, id: groupID) { [weak coordinator] in
+                guard let coordinator else { return }
+                coordinator.show(coordinator.parent.text)
+            }
         }
         field.placeholderString = placeholder
         field.setAccessibilityLabel(accessibilityLabel)
@@ -734,6 +793,7 @@ struct SecretTextField: NSViewRepresentable {
         editor.onPaste = nil
         editor.onFocusChange = nil
         editor.onCompositionCommit = nil
+        editor.onCompositionChange = nil
         field.onWindowChange = nil
         field.delegate = nil
     }

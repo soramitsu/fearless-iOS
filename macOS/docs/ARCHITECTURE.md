@@ -85,7 +85,9 @@ So the two public entry points are fixed:
   adds read-only, non-selectable text. The import steps ask macOS to keep
   their window out of screenshots and screen sharing (`sharingType = .none`).
   That is best effort, since not every recorder honours it, so the steps
-  also tell the user to stop screen sharing or recording first.
+  also tell the user to stop screen sharing or recording first. On macOS 27
+  a window keeps `.none` once it is set, so it stays out of capture after
+  the step too.
 - No telemetry, no analytics, no closed-source libraries (owner rule:
   source-available licences count as closed). Every dependency must name its
   source and licence.

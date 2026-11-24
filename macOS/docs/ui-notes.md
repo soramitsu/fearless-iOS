@@ -178,8 +178,9 @@ on. It never shows amounts while locked and follows privacy mode.
 
 **Secrets.** The interface never writes a secret to UserDefaults (a test
 checks the stored keys). Phrases are hidden until Reveal, hide again when
-the window is not key, are kept out of screenshots and screen sharing while
-visible (`NSWindow.sharingType = .none`), and are copied as concealed
+the window is not key, ask macOS to keep the window out of screenshots and
+screen sharing while visible (`NSWindow.sharingType = .none`; best effort,
+not every recorder honours it), and are copied as concealed
 pasteboard items that are cleared after 60 seconds if unchanged. Recovery
 words and derivation paths are typed into `SecretTextField`, an AppKit field
 with a field editor of its own and AppKit's text services off (the shared

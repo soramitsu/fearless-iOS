@@ -53,7 +53,7 @@ struct ImportPhraseStep: View {
                     }
                     .help("Paste a whole phrase from the clipboard")
                     Button("Clear") { Self.replaceWords(in: entry, fields: secretFields) { entry.clear() } }
-                        .disabled(entry.filledCount == 0)
+                        .disabled(entry.filledCount == 0 && !secretFields.composing.contains(where: \.isWord))
                     Spacer()
                     Text("\(entry.filledCount) of \(entry.wordCount)")
                         .font(.caption.monospacedDigit())
@@ -87,10 +87,11 @@ struct ImportPhraseStep: View {
                 }
                 // Keyed by the validated words and the options byte for byte
                 // (é and e + ◌́ are equal strings but derive different accounts).
-                .onChange(of: model.livePreviewKey) { _, _ in Task { await model.refreshPreview() } }
+                .onChange(of: model.livePreviewKey, initial: true) { _, _ in Task { await model.refreshPreview() } }
 
-                // Only a preview of the words and options on screen is shown.
-                if let preview = model.livePreview {
+                // Only a preview of the words and options on screen is shown:
+                // none while a word or path is still being composed.
+                if !secretFields.isComposing, let preview = model.livePreview {
                     AddressPreviewCard(preview: preview)
                 }
                 ScreenSharingHint()
@@ -134,7 +135,7 @@ struct ImportPhraseStep: View {
                 style: .plain,
                 accessibilityLabel: unknown ? "Word \(index + 1), not in the word list" : "Word \(index + 1)",
                 isFocused: focused,
-                focusID: index,
+                groupID: .word(index),
                 onFocusChange: { isFocused in focusChanged(isFocused, at: index) },
                 onCommand: { command in handle(command, at: index) },
                 onPaste: { text in pasted(text, at: index) }
@@ -208,7 +209,7 @@ struct ImportPhraseStep: View {
         case .tab:
             if let first = entry.suggestions(at: index).first {
                 entry.acceptSuggestion(first, at: index)
-                secretFields.move(to: entry.focusedIndex)
+                secretFields.move(to: entry.focusedIndex.map(SecretFieldID.word))
                 return true
             }
             guard index + 1 < entry.wordCount else { return false }
@@ -223,7 +224,7 @@ struct ImportPhraseStep: View {
 
     private func moveFocus(to index: Int?) {
         entry.focusedIndex = index
-        secretFields.move(to: index)
+        secretFields.move(to: index.map(SecretFieldID.word))
     }
 
     /// Several words pasted or dropped into a field go to the grid as they
@@ -240,7 +241,7 @@ struct ImportPhraseStep: View {
         let suggestions = entry.suggestions(at: index)
         if !text.isEmpty, !entry.wordList.contains(text), let first = suggestions.first {
             entry.acceptSuggestion(first, at: index)
-            secretFields.move(to: entry.focusedIndex)
+            secretFields.move(to: entry.focusedIndex.map(SecretFieldID.word))
         } else if index + 1 < entry.wordCount {
             moveFocus(to: index + 1)
         } else if model.canContinueImport {
@@ -254,19 +255,20 @@ struct ImportPhraseStep: View {
     }
 
     /// Replaces what the grid holds (Clear, word count, paste): unfinished
-    /// compositions are discarded first, so they cannot be committed over
-    /// the new words, and every field shows its new word before the next key.
+    /// compositions in the words are discarded first, so they cannot be
+    /// committed over the new words, and every word shows its new text
+    /// before the next key. Path fields keep their compositions.
     static func replaceWords(in entry: PhraseEntryModel, fields: SecretFieldGroup, _ change: () -> Void) {
-        fields.cancelComposition()
+        fields.cancelComposition(where: \.isWord)
         change()
-        fields.showBindingText()
+        fields.showBindingText(where: \.isWord)
     }
 
     /// A pasted phrase: the grid takes the words, and keyboard focus moves
     /// past them with the caret after the last one, before the next key.
     static func paste(_ text: String, at index: Int, into entry: PhraseEntryModel, fields: SecretFieldGroup) {
         replaceWords(in: entry, fields: fields) { entry.setText(text, at: index) }
-        fields.move(to: entry.focusedIndex, caretAtEnd: true)
+        fields.move(to: entry.focusedIndex.map(SecretFieldID.word), caretAtEnd: true)
     }
 }
 
@@ -304,7 +306,8 @@ struct DerivationOptionsForm: View {
                     entry: .derivationPath,
                     placeholder: "None, for example //polkadot",
                     text: $options.substrateDerivationPath,
-                    accessibilityLabel: "Polkadot derivation path"
+                    accessibilityLabel: "Polkadot derivation path",
+                    groupID: .substratePath
                 )
                 .frame(maxWidth: 300)
             }
@@ -316,15 +319,13 @@ struct DerivationOptionsForm: View {
                             entry: .derivationPath,
                             placeholder: DerivationOptions.defaultEVMPath,
                             text: $options.evmDerivationPath,
-                            accessibilityLabel: "Ethereum derivation path"
+                            accessibilityLabel: "Ethereum derivation path",
+                            groupID: .evmPath
                         )
                         .frame(maxWidth: 300)
-                        if options.evmDerivationPath != DerivationOptions.defaultEVMPath {
-                            Button("Reset") {
-                                secretFields?.cancelComposition()
-                                options.evmDerivationPath = DerivationOptions.defaultEVMPath
-                                secretFields?.showBindingText()
-                            }
+                        if options.evmDerivationPath != DerivationOptions.defaultEVMPath
+                            || secretFields?.composing.contains(.evmPath) == true {
+                            Button("Reset") { Self.resetEVMPath($options, fields: secretFields) }
                                 .controlSize(.small)
                         }
                     }
@@ -346,6 +347,16 @@ struct DerivationOptionsForm: View {
             }
         }
         .font(.callout)
+    }
+}
+
+extension DerivationOptionsForm {
+    /// The Reset button: the Ethereum path goes back to the default. Only
+    /// that field's unfinished composition is discarded.
+    static func resetEVMPath(_ options: Binding<DerivationOptions>, fields: SecretFieldGroup?) {
+        fields?.cancelComposition { $0 == .evmPath }
+        options.wrappedValue.evmDerivationPath = DerivationOptions.defaultEVMPath
+        fields?.showBindingText { $0 == .evmPath }
     }
 }
 
@@ -496,24 +507,47 @@ struct ScreenSharingHint: View {
     }
 }
 
-/// A revealed secret as read-only text: it cannot be selected, copied or
-/// edited. VoiceOver reads it character by character.
+/// A revealed secret as read-only text: it cannot be edited, selected or
+/// copied. It is an AppKit label, so what it shows can be checked.
 struct RevealedSecretText: View {
     let name: String
     let value: String
 
     var body: some View {
-        Text(value)
-            .font(.system(.callout, design: .monospaced))
-            .textSelection(.disabled)
-            .fixedSize(horizontal: false, vertical: true)
+        RevealedSecretLabel(name: name, value: value)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
             .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(name), shown")
-            .accessibilityValue(Text(value).speechSpellsOutCharacters())
+    }
+}
+
+/// A wrapping, non-selectable label in the monospaced callout font.
+struct RevealedSecretLabel: NSViewRepresentable {
+    let name: String
+    let value: String
+
+    func makeNSView(context: Context) -> NSTextField {
+        let label = NSTextField(wrappingLabelWithString: value)
+        label.isEditable = false
+        label.isSelectable = false
+        label.allowsEditingTextAttributes = false
+        label.drawsBackground = false
+        label.lineBreakMode = .byCharWrapping
+        label.font = .monospacedSystemFont(ofSize: NSFont.preferredFont(forTextStyle: .callout).pointSize, weight: .regular)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        return label
+    }
+
+    func updateNSView(_ label: NSTextField, context: Context) {
+        if label.stringValue != value { label.stringValue = value }
+        label.setAccessibilityLabel("\(name), shown")
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, nsView label: NSTextField, context: Context) -> CGSize? {
+        let width = proposal.width.flatMap { $0.isFinite ? $0 : nil } ?? 420
+        let height = label.cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: width, height: .greatestFiniteMagnitude)).height ?? 18
+        return CGSize(width: width, height: ceil(height))
     }
 }
 

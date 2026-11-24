@@ -2,19 +2,95 @@ import AppKit
 import DesignSystem
 import SwiftUI
 
-/// Keeps the window out of screenshots and screen sharing while a secret is
-/// on screen.
+/// Asks macOS to keep the window out of screenshots and screen sharing
+/// while a secret is on screen (`sharingType = .none`). Best effort: not
+/// every recorder honours it.
 struct CaptureProtection: NSViewRepresentable {
     let isActive: Bool
 
-    func makeNSView(context: Context) -> NSView { NSView() }
-
-    func updateNSView(_ nsView: NSView, context: Context) {
-        nsView.window?.sharingType = isActive ? .none : .readOnly
+    func makeNSView(context: Context) -> CaptureProtectionView {
+        CaptureProtectionView()
     }
 
-    static func dismantleNSView(_ nsView: NSView, coordinator: ()) {
-        nsView.window?.sharingType = .readOnly
+    func updateNSView(_ nsView: CaptureProtectionView, context: Context) {
+        nsView.isActive = isActive
+    }
+
+    static func dismantleNSView(_ nsView: CaptureProtectionView, coordinator: ()) {
+        nsView.isActive = false
+    }
+}
+
+/// Applies the protection when it is put in a window (SwiftUI may update it
+/// before that) and gives the window back its own sharing type when it
+/// leaves or turns off. Protections in one window are counted, so one
+/// ending does not lift another.
+final class CaptureProtectionView: NSView {
+    private final class Hold {
+        weak var window: NSWindow?
+        var count: Int
+        let original: NSWindow.SharingType
+
+        init(_ window: NSWindow) {
+            self.window = window
+            count = 0
+            original = window.sharingType
+        }
+    }
+
+    private static var holds: [ObjectIdentifier: Hold] = [:]
+
+    var isActive = false {
+        didSet { if isActive != oldValue { sync() } }
+    }
+
+    private weak var heldWindow: NSWindow?
+
+    override func viewWillMove(toWindow newWindow: NSWindow?) {
+        if newWindow !== heldWindow { release() }
+        super.viewWillMove(toWindow: newWindow)
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        sync()
+    }
+
+    private func sync() {
+        if isActive, let window {
+            if heldWindow !== window {
+                release()
+                hold(window)
+            }
+        } else {
+            release()
+        }
+    }
+
+    private func hold(_ window: NSWindow) {
+        let key = ObjectIdentifier(window)
+        let hold: Hold
+        if let existing = Self.holds[key], existing.window === window {
+            hold = existing
+        } else {
+            hold = Hold(window)
+            Self.holds[key] = hold
+        }
+        hold.count += 1
+        window.sharingType = .none
+        heldWindow = window
+    }
+
+    private func release() {
+        guard let window = heldWindow else { return }
+        heldWindow = nil
+        let key = ObjectIdentifier(window)
+        guard let hold = Self.holds[key], hold.window === window else { return }
+        hold.count -= 1
+        if hold.count <= 0 {
+            Self.holds[key] = nil
+            window.sharingType = hold.original
+        }
     }
 }
 
