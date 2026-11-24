@@ -85,7 +85,9 @@ public final class ProtectedKeychain {
         try check(SecItemUpdate(query as CFDictionary, attributes as CFDictionary))
     }
 
-    /// Attributes only: never prompts.
+    /// Attributes only: never prompts. Reading attributes needs no authentication, so
+    /// `errSecInteractionNotAllowed` here means the keychain itself is unavailable (the device is
+    /// locked) and is thrown, never taken as an answer either way.
     public func exists(for account: String) throws -> Bool {
         var query = baseQuery(account)
         query[kSecReturnAttributes as String] = kCFBooleanTrue
@@ -94,7 +96,7 @@ public final class ProtectedKeychain {
 
         let status = SecItemCopyMatching(query as CFDictionary, nil)
         switch status {
-        case errSecSuccess, errSecInteractionNotAllowed:
+        case errSecSuccess:
             return true
         case errSecItemNotFound:
             return false

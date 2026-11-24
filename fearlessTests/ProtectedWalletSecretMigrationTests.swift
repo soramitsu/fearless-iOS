@@ -640,6 +640,84 @@ final class PincodeVerifierTests: XCTestCase {
     }
 }
 
+/// The unlock screen's interactor with a verifier, a plain PIN and the in-place upgrade.
+final class PincodeVerifierUnlockTests: XCTestCase {
+    private final class Output: LocalAuthInteractorOutputProtocol {
+        var completed = 0
+        var wrong = 0
+        var onEvent: (() -> Void)?
+        func didEnterWrongPincode() { wrong += 1; onEvent?() }
+        func didCompleteAuth() { completed += 1; onEvent?() }
+        func didChangeState(to _: LocalAuthInteractor.LocalAuthState) {}
+        func didUnexpectedFail() { XCTFail("unexpected") }
+    }
+
+    private final class NoBiometry: BiometryAuthProtocol {
+        var availableBiometryType: AvailableBiometryType { .none }
+        func authenticate(localizedReason _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) {}
+    }
+
+    private final class Enrollment: BiometryEnrollmentGuarding {
+        func isCurrentEnrollmentTrusted() -> Bool { false }
+        func trustCurrentEnrollment() {}
+    }
+
+    private func interactor(_ store: PinStoreDouble, upgrades: Bool) -> LocalAuthInteractor {
+        LocalAuthInteractor(
+            secretManager: store,
+            settingsManager: InMemorySettingsManager(),
+            biometryAuth: NoBiometry(),
+            locale: Locale(identifier: "en"),
+            attemptLimiter: PincodeAttemptLimiter(keystore: InMemoryKeychain()),
+            enrollmentGuard: Enrollment(),
+            authorizedUnlock: WalletAuthorizedUnlock(notificationCenter: NotificationCenter()),
+            upgradesPincode: { upgrades }
+        )
+    }
+
+    private func enter(_ pin: String, into interactor: LocalAuthInteractor, output: Output) {
+        let answered = expectation(description: "answered")
+        output.onEvent = { answered.fulfill() }
+        interactor.startAuth(with: output)
+        interactor.process(pin: pin)
+        wait(for: [answered], timeout: 30)
+        output.onEvent = nil
+    }
+
+    func testVerifierUnlocksWithTheRightPinOnly() throws {
+        let store = PinStoreDouble(value: try PincodeVerifier.make(pin: "112233", iterations: 5000))
+        let output = Output()
+        let unlock = interactor(store, upgrades: false)
+
+        enter("445566", into: unlock, output: output)
+        XCTAssertEqual(output.wrong, 1)
+        XCTAssertEqual(output.completed, 0)
+
+        enter("112233", into: unlock, output: output)
+        XCTAssertEqual(output.completed, 1)
+    }
+
+    func testPlainPinUnlocksAndIsReplacedByAVerifierOnlyWhenTheFlagIsOn() throws {
+        for upgrades in [false, true] {
+            let store = PinStoreDouble(value: "778899")
+            let output = Output()
+            enter("778899", into: interactor(store, upgrades: upgrades), output: output)
+            XCTAssertEqual(output.completed, 1)
+            if upgrades {
+                let deadline = Date().addingTimeInterval(30)
+                while !PincodeVerifier.isVerifier(store.value ?? ""), Date() < deadline {
+                    RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+                }
+                XCTAssertTrue(PincodeVerifier.isVerifier(store.value ?? ""))
+                XCTAssertTrue(PincodeVerifier.matches("778899", stored: store.value ?? ""))
+            } else {
+                RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+                XCTAssertEqual(store.value, "778899", "Flag off: the stored PIN is left as it was")
+            }
+        }
+    }
+}
+
 final class PinStoreDouble: SecretStoreManagerProtocol {
     private let lock = NSLock()
     private(set) var value: String?

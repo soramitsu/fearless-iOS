@@ -61,6 +61,7 @@ extension WalletOptionInteractor: WalletOptionInteractorInput {
                     of: [wallet.info],
                     remainingMetaIds: Set(remaining.map(\.info.metaId))
                 )
+                ProtectedWalletSecretCoordinator.shared.forget(walletId: wallet.info.metaId)
             }
             // Disconnect WC sessions if any; errors are non-fatal for UX here.
             try? await walletConnectDisconnectService.disconnect(wallet: wallet.info)

@@ -263,6 +263,9 @@ explicit `false` vetoes and is remembered, an explicit `true` clears a veto. `is
   after the move that read needs the owner, so outside an operation they are skipped instead of
   prompting. A public cache of the password and no-password account keys (filled during the move)
   removes this; until then such wallets see the notice at their next authorized operation.
+- Opening a moved password wallet's details reads its words to list accounts the password does
+  not protect yet (`UniversalWalletPasswordSwitcher.noPasswordAccounts`), so that screen shows the
+  system sheet. The same public cache removes it.
 - `.protectedWalletSecretsLost` is posted and logged, but no screen shows it yet.
 - Main-thread readers still exist (export option checks and some presenters). They work (the sheet
   blocks the main thread) and should move to background queues.

@@ -84,6 +84,15 @@ final class ProtectedWalletSecretCoordinator {
         }
     }
 
+    /// The wallet was removed and its secrets erased: its journal entry goes too. Protected items
+    /// left by an erase that failed stay readable through the router's tag rule.
+    func forget(walletId: MetaAccountId) {
+        lock.lock()
+        let journal = self.journal
+        lock.unlock()
+        try? journal?.remove(walletId: walletId)
+    }
+
     /// Moves every eligible wallet, one system sheet for all of them (none after a Face ID unlock).
     func migrateAfterUnlock() {
         guard isEnabled() else {
