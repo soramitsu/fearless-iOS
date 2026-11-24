@@ -10,8 +10,9 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
     private var externalDismissalOutcome: Bool??
     /// A swipe is still being dragged: nothing is decided until UIKit commits or cancels it.
     private var isInteractivelyDismissing = false
-    /// A finish requested during that drag (for example a throttle), applied if the swipe is cancelled.
-    private var finishAfterInteraction: Bool?
+    /// The first outcome requested during that drag (for example a throttle's interruption), resolved when it was
+    /// requested and applied unchanged once a cancelled swipe has settled. `nil`: none requested.
+    private var finishAfterInteraction: Bool??
     private let details: String
 
     init(title: String, details: String) {
@@ -72,10 +73,18 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
     @objc private func cancelPressed() { finish(approved: false) }
 
     func finish(approved: Bool) {
+        guard completion != nil else { return }
+        // Decided now, as the sheet starts to close; a lock or throttle during the animation changes nothing.
+        finish(resolved: approved ? true : (isInterrupted() ? nil : false))
+    }
+
+    private func finish(resolved outcome: Bool?) {
         guard let callback = completion else { return }
         guard !isInteractivelyDismissing else {
-            // Keep the callbacks until UIKit resolves the swipe.
-            finishAfterInteraction = approved
+            // Keep the callbacks until UIKit has settled the swipe; the first request wins, unchanged.
+            if finishAfterInteraction == nil {
+                finishAfterInteraction = .some(outcome)
+            }
             return
         }
         completion = nil
@@ -85,8 +94,6 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
             callback(captured)
             return
         }
-        // Decided now, as the sheet starts to close; a lock or throttle during the animation changes nothing.
-        let outcome: Bool? = approved ? true : (isInterrupted() ? nil : false)
         if let presentingViewController {
             presentingViewController.dismiss(animated: true) { callback(outcome) }
         } else {
@@ -111,27 +118,35 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
             return
         }
         isInteractivelyDismissing = true
-        transition.notifyWhenInteractionChanges { [weak self] context in
+        // Runs once the whole transition is over, a cancelled swipe's return animation included.
+        transition.animate(alongsideTransition: nil) { [weak self] context in
             guard let self else { return }
             self.isInteractivelyDismissing = false
             if context.isCancelled {
-                // The sheet stays: nothing was decided. A finish that came meanwhile applies now.
+                // The sheet stayed: nothing was decided. A finish requested meanwhile applies now, as resolved then.
                 self.externalDismissalOutcome = nil
-                if let approved = self.finishAfterInteraction {
+                if let pending = self.finishAfterInteraction {
                     self.finishAfterInteraction = nil
-                    self.finish(approved: approved)
+                    self.finish(resolved: pending)
                 }
             } else {
-                // Committed: the drag's start decided it; viewDidDisappear delivers it once.
+                // Committed: the drag's start decided it, delivered once (here or in viewDidDisappear).
                 self.finishAfterInteraction = nil
                 self.externalDismissalOutcome = .some(decided)
+                self.deliverExternalDismissal()
             }
         }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        guard isBeingDismissed || presentingViewController == nil, let callback = completion else { return }
+        // A swipe is delivered by its transition's completion.
+        guard !isInteractivelyDismissing, isBeingDismissed || presentingViewController == nil else { return }
+        deliverExternalDismissal()
+    }
+
+    private func deliverExternalDismissal() {
+        guard let callback = completion else { return }
         completion = nil
         onApprove = nil
         callback(externalDismissalOutcome ?? (isInterrupted() ? nil : false))
