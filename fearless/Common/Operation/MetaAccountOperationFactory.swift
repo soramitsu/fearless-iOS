@@ -62,6 +62,40 @@ final class MetaAccountOperationFactory {
         ).publicKey
     }
 
+    /// The root items the released mnemonic import writes for `entropy` and these paths, by tag
+    /// suffix (`newMetaAccountOperation(request: MetaAccountImportMnemonicRequest)`). A
+    /// recovery-phrase check compares the stored items with these byte for byte.
+    func rootItemsForMnemonicImport(
+        entropy: Data,
+        substratePath: String,
+        ethereumPath: String,
+        cryptoType: CryptoType
+    ) throws -> [String: Data] {
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+        let substrate = try getQuery(
+            seedSource: .mnemonic(mnemonic), derivationPath: substratePath,
+            cryptoType: cryptoType, ethereumBased: false
+        )
+        let ethereum = try getQuery(
+            seedSource: .mnemonic(mnemonic), derivationPath: ethereumPath,
+            cryptoType: .ecdsa, ethereumBased: true
+        )
+        var items: [String: Data] = [
+            "-entropy": entropy,
+            "-substrateSecretKey": substrate.privateKey,
+            "-substrateSeed": substrate.seed,
+            "-ethereumSecretKey": ethereum.privateKey,
+            "-ethereumSeed": ethereum.privateKey
+        ]
+        if !substratePath.isEmpty {
+            items["-substrateDeriv"] = Data(substratePath.utf8)
+        }
+        if !ethereumPath.isEmpty {
+            items["-ethereumDeriv"] = Data(ethereumPath.utf8)
+        }
+        return items
+    }
+
     /// True when the entropy and path re-derive `publicKey` under one of the rules that read the
     /// path's password differently (SubstratePasswordRule): an import may have opened the account
     /// an earlier browser extension made.

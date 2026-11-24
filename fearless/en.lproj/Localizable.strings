@@ -1655,5 +1655,6 @@ belongs to the right network";
 "protected.recovery.check.action" = "Check";
 "protected.recovery.check.mismatch" = "These words do not match this wallet. Nothing was changed.";
 "protected.recovery.check.stays" = "This wallet can't be checked here, so it stays as it is. Nothing was changed.";
+"protected.recovery.later" = "Not now";
 "protected.keychain.read.reason" = "Approve access to your wallet keys";
 "protected.keychain.migration.reason" = "Protect your wallet keys with your device passcode";

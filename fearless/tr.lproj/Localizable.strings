@@ -1621,5 +1621,6 @@ ait olduğundan emin olun.";
 "protected.recovery.check.action" = "Kontrol et";
 "protected.recovery.check.mismatch" = "Bu kelimeler bu cüzdanla eşleşmiyor. Hiçbir şey değiştirilmedi.";
 "protected.recovery.check.stays" = "Bu cüzdan burada kontrol edilemiyor, bu yüzden olduğu gibi kalıyor. Hiçbir şey değiştirilmedi.";
+"protected.recovery.later" = "Şimdi değil";
 "protected.keychain.read.reason" = "Cüzdan anahtarlarınıza erişimi onaylayın";
 "protected.keychain.migration.reason" = "Cüzdan anahtarlarınızı cihaz parolanızla koruyun";

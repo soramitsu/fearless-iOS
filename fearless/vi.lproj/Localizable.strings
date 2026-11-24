@@ -1623,5 +1623,6 @@ thuộc đúng mạng";
 "protected.recovery.check.action" = "Kiểm tra";
 "protected.recovery.check.mismatch" = "Các từ này không khớp với ví này. Không có gì thay đổi.";
 "protected.recovery.check.stays" = "Không thể kiểm tra ví này tại đây, nên ví được giữ nguyên. Không có gì thay đổi.";
+"protected.recovery.later" = "Để sau";
 "protected.keychain.read.reason" = "Cho phép truy cập khóa ví của bạn";
 "protected.keychain.migration.reason" = "Bảo vệ khóa ví của bạn bằng mật mã thiết bị";

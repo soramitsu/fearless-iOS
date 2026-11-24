@@ -515,7 +515,8 @@ private extension WalletMainContainerPresenter {
     }
 
     /// Step 1 of the recovery-phrase check, after every other notice: one action, one warning.
-    /// Any close records the one offer for this wallet; "Not now" leaves the wallet as it is.
+    /// Showing it records the one offer for this wallet, so a sheet the app lock or anything else
+    /// closes is never shown again; "Not now" leaves the wallet as it is.
     func presentRecoveryCheckOffer(retriesLeft: Int) {
         guard let candidate = pendingRecoveryCheckWallet else {
             return
@@ -539,6 +540,7 @@ private extension WalletMainContainerPresenter {
         }
 
         pendingRecoveryCheckWallet = nil
+        interactor.acknowledgeRecoveryCheckOffer(for: candidate.metaId)
         var followUp: (() -> Void)?
         let locale = selectedLocale
         let viewModel = SheetAlertPresentableViewModel.protectedRecoveryCheckOffer(
@@ -549,8 +551,7 @@ private extension WalletMainContainerPresenter {
                     self.router.showProtectedRecoveryCheck(wallet: candidate, locale: locale, from: self.view)
                 }
             },
-            onClose: { [weak self] in
-                self?.interactor.acknowledgeRecoveryCheckOffer(for: candidate.metaId)
+            onClose: {
                 followUp?()
             }
         )

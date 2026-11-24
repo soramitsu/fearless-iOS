@@ -1650,5 +1650,6 @@ Euro cash";
 "protected.recovery.check.action" = "Проверить";
 "protected.recovery.check.mismatch" = "Эти слова не подходят к этому кошельку. Ничего не изменено.";
 "protected.recovery.check.stays" = "Этот кошелёк нельзя проверить здесь, поэтому он остаётся как есть. Ничего не изменено.";
+"protected.recovery.later" = "Не сейчас";
 "protected.keychain.read.reason" = "Подтвердите доступ к ключам кошелька";
 "protected.keychain.migration.reason" = "Защитите ключи кошелька код-паролем устройства";

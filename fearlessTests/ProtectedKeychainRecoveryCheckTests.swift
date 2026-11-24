@@ -146,10 +146,221 @@ final class ProtectedKeychainRecoveryCheckTests: XCTestCase {
         XCTAssertEqual(verified, 0)
         XCTAssertTrue(fixture.originals.keys.allSatisfy { !fixture.evidence.covers(tag: $0, walletId: fixture.wallet.metaId) })
     }
+
+    // MARK: Codex review 3
+
+    private func assertNoEvidence(_ fixture: ProtectedFixture, file: StaticString = #filePath, line: UInt = #line) {
+        let tags = (try? fixture.legacy.applicationTags()) ?? []
+        XCTAssertTrue(
+            tags.allSatisfy { !fixture.evidence.covers(tag: $0, walletId: fixture.wallet.metaId) },
+            "No item gained evidence", file: file, line: line
+        )
+    }
+
+    private func replace(_ suffix: String, in fixture: ProtectedFixture, with data: Data) throws {
+        try fixture.legacy.updateKey(data, with: fixture.wallet.metaId + suffix)
+    }
+
+    /// Finding 1: an Ethereum key from another backup, on a wallet row that kept only the address.
+    func testEthereumKeyTheWordsDoNotWriteIsNeverCredited() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let foreign = try SECKeyFactory().createRandomKeypair().privateKey().rawData()
+        try replace("-ethereumSecretKey", in: fixture, with: foreign)
+        try replace("-ethereumSeed", in: fixture, with: foreign)
+        let addressOnly = fixture.wallet.replacingEthereumPublicKeyWithNil()
+
+        XCTAssertEqual(check(fixture).verify(phrase: ProtectedFixture.phrase, wallet: addressOnly), .unavailable)
+        assertNoEvidence(fixture)
+        XCTAssertEqual(fixture.migrator().migrateOffMain(addressOnly), .deferred(.recoveryUnverified))
+    }
+
+    /// Finding 2: 4.0.x kept a child account's seed under the wallet's own `-substrateSeed` tag.
+    func testChildSeedUnderTheRootTagIsNeverCredited() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        try replace("-substrateSeed", in: fixture, with: Data(repeating: 7, count: 32))
+
+        XCTAssertEqual(check(fixture).verify(phrase: ProtectedFixture.phrase, wallet: fixture.wallet), .unavailable)
+        assertNoEvidence(fixture)
+    }
+
+    /// Finding 2: an account imported on its own after the offer is never credited.
+    func testAccountImportedAfterTheOfferIsNeverCredited() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let check = check(fixture)
+        XCTAssertTrue(check.shouldOffer(fixture.wallet))
+        let child = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(fixture.wallet.metaId, accountId: Data(repeating: 3, count: 32))
+        try fixture.legacy.addKey(Data([1]), with: child)
+
+        XCTAssertEqual(check.verify(phrase: ProtectedFixture.phrase, wallet: fixture.wallet), .unavailable)
+        assertNoEvidence(fixture)
+    }
+
+    /// Finding 2: evidence is bound to the bytes it compared; an item rewritten later is not covered.
+    func testItemChangedAfterTheCheckDoesNotMove() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        XCTAssertEqual(check(fixture).verify(phrase: ProtectedFixture.phrase, wallet: fixture.wallet), .verified)
+        let original = try fixture.legacy.fetchKey(for: fixture.wallet.metaId + "-substrateSeed")
+        try replace("-substrateSeed", in: fixture, with: Data(repeating: 9, count: 32))
+
+        XCTAssertEqual(fixture.migrator().migrateOffMain(fixture.wallet), .deferred(.recoveryUnverified))
+        XCTAssertTrue(fixture.protected.items.isEmpty)
+
+        // The same bytes again: covered again. A write this build makes from a typed phrase
+        // replaces the binding.
+        try replace("-substrateSeed", in: fixture, with: original)
+        XCTAssertTrue(fixture.evidence.stillMatches(fixture.originals, walletId: fixture.wallet.metaId))
+        fixture.evidence.record(walletId: fixture.wallet.metaId, tags: [fixture.wallet.metaId + "-substrateSeed"])
+        XCTAssertTrue(fixture.evidence.stillMatches(
+            [fixture.wallet.metaId + "-substrateSeed": Data([1])], walletId: fixture.wallet.metaId
+        ))
+    }
+
+    /// Finding 4: closed while deriving, or vetoed meanwhile: nothing is recorded.
+    func testCancelledOrVetoedCheckRecordsNothing() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        XCTAssertEqual(
+            check(fixture).verify(phrase: ProtectedFixture.phrase, wallet: fixture.wallet, isCancelled: { true }),
+            .unavailable
+        )
+        assertNoEvidence(fixture)
+
+        var answers = [true, false]
+        let vetoed = ProtectedKeychainRecoveryCheck(
+            inventory: fixture.legacy, keystore: fixture.legacy, evidence: fixture.evidence,
+            userDefaults: CovHAssetListFixture.defaults(),
+            isEnabled: { answers.isEmpty ? false : answers.removeFirst() }
+        )
+        XCTAssertEqual(vetoed.verify(phrase: ProtectedFixture.phrase, wallet: fixture.wallet), .unavailable)
+        assertNoEvidence(fixture)
+    }
+
+    /// Finding 5: a wallet with evidence on any item is never offered.
+    func testPartialEvidenceIsNeverOffered() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        fixture.evidence.record(walletId: fixture.wallet.metaId, tags: [fixture.wallet.metaId + "-entropy"])
+        XCTAssertFalse(check(fixture).shouldOffer(fixture.wallet))
+    }
+
+    /// Finding 6: a historical TON backup with spacing kept exactly as typed.
+    func testTonBackupWithItsExactSpacingIsAccepted() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let spaced = recoveryTonPhrase.replacingOccurrences(of: "notice ", with: "notice  ")
+        let pair = try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: spaced.components(separatedBy: " "))
+        let normalized = try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: recoveryTonPhrase.components(separatedBy: " "))
+        XCTAssertNotEqual(pair.publicKey.data, normalized.publicKey.data, "The spacing is part of the key")
+        let (wallet, metaId) = try tonWallet(in: fixture, phrase: spaced, pair: pair)
+        let check = check(fixture)
+
+        XCTAssertEqual(check.verify(phrase: recoveryTonPhrase, wallet: wallet), .mismatch)
+        XCTAssertEqual(check.verify(phrase: spaced, wallet: wallet), .verified)
+        XCTAssertTrue(fixture.evidence.covers(tag: fearless.KeystoreTagV2.entropyTagForMetaId(metaId), walletId: metaId))
+    }
+
+    func testTonSigningKeyFromAnotherPhraseIsNeverCredited() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let pair = try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: recoveryTonPhrase.components(separatedBy: " "))
+        let (wallet, metaId) = try tonWallet(in: fixture, phrase: recoveryTonPhrase, pair: pair)
+        try fixture.legacy.updateKey(Data(repeating: 5, count: 64), with: fearless.KeystoreTagV2.tonSecretKeyTagForMetaId(metaId))
+
+        XCTAssertEqual(check(fixture).verify(phrase: recoveryTonPhrase, wallet: wallet), .unavailable)
+        XCTAssertFalse(fixture.evidence.covers(tag: fearless.KeystoreTagV2.entropyTagForMetaId(metaId), walletId: metaId))
+    }
+
+    private func tonWallet(
+        in fixture: ProtectedFixture,
+        phrase: String,
+        pair: TonSwift.KeyPair
+    ) throws -> (MetaAccountModel, MetaAccountId) {
+        let account = try LegacyTonAccount(
+            serializedAddress: JSONEncoder().encode(WalletV4R2(publicKey: pair.publicKey.data).address()),
+            publicKey: pair.publicKey.data,
+            contractVersion: "v4R2"
+        )
+        let metaId = UUID().uuidString
+        try fixture.legacy.addKey(pair.privateKey.data, with: fearless.KeystoreTagV2.tonSecretKeyTagForMetaId(metaId))
+        try fixture.legacy.addKey(Data(phrase.utf8), with: fearless.KeystoreTagV2.entropyTagForMetaId(metaId))
+        let wallet = MetaAccountModel(
+            metaId: metaId, name: "TON", substrateAccountId: nil, substrateCryptoType: 0, substratePublicKey: nil,
+            ethereumAddress: nil, ethereumPublicKey: nil, chainAccounts: [], assetKeysOrder: nil,
+            canExportEthereumMnemonic: false, unusedChainIds: nil, selectedCurrency: .defaultCurrency(),
+            networkManagmentFilter: nil, assetsVisibility: [], hasBackup: true, favouriteChainIds: [],
+            legacyTonAccount: account
+        )
+        return (wallet, metaId)
+    }
+
+    /// Finding 3: while the screen is recorded the keyboard stays down; drag is off.
+    @MainActor
+    func testRecordedScreenKeepsTheKeyboardDownAndDragOff() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let controller = ProtectedKeychainRecoveryCheckViewController(
+            wallet: fixture.wallet, check: check(fixture), locale: Locale(identifier: "en"),
+            isScreenCaptured: { _ in true }
+        ) {}
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        controller.loadViewIfNeeded()
+        controller.viewDidAppear(false)
+
+        XCTAssertFalse(controller.phraseView.isFirstResponder)
+        XCTAssertEqual(controller.phraseView.textDragInteraction?.isEnabled ?? false, false)
+        window.isHidden = true
+    }
+
+    /// Finding 4 on screen: Check, then close before the check runs: nothing is recorded.
+    @MainActor
+    func testClosingWhileCheckingRecordsNothing() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let queue = DispatchQueue(label: "recovery-check-test")
+        queue.suspend()
+        var verified = 0
+        let controller = ProtectedKeychainRecoveryCheckViewController(
+            wallet: fixture.wallet, check: check(fixture), locale: Locale(identifier: "en"), workQueue: queue
+        ) { verified += 1 }
+        controller.loadViewIfNeeded()
+        controller.phraseView.text = ProtectedFixture.phrase
+
+        controller.didTapCheck()
+        controller.didTapClose()
+        queue.resume()
+        queue.sync {}
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+
+        XCTAssertEqual(verified, 0)
+        XCTAssertNil(controller.attempt)
+        assertNoEvidence(fixture)
+    }
+
+    /// Finding 7: the skip action is localized in every language the app ships (`pt.lproj` is in
+    /// the repository but not in the app; Portuguese ships as `pt-PT`).
+    func testSkipActionIsLocalized() throws {
+        let expected = [
+            "en": "Not now", "ja": "今はしない", "id": "Nanti saja", "pt-PT": "Agora não",
+            "ru": "Не сейчас", "tr": "Şimdi değil", "vi": "Để sau", "zh-Hans": "以后再说"
+        ]
+        for (language, text) in expected {
+            XCTAssertEqual(R.string.localizable.protectedRecoveryLater(preferredLanguages: [language]), text, language)
+        }
+    }
 }
 
-/// Step 1 of 3 on the main screen: one action, one warning, after the other notices; any close
-/// counts as the one offer and changes nothing else.
+private extension MetaAccountModel {
+    func replacingEthereumPublicKeyWithNil() -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId, name: name, substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType, substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress, ethereumPublicKey: nil, chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder, canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds, selectedCurrency: selectedCurrency,
+            networkManagmentFilter: networkManagmentFilter, assetsVisibility: assetsVisibility,
+            hasBackup: hasBackup, favouriteChainIds: favouriteChainIds, legacyTonAccount: legacyTonAccount
+        )
+    }
+}
+
+/// Step 1 of 3 on the main screen: one action, one warning, after the other notices; showing it is
+/// the one offer and changes nothing else.
 final class ProtectedKeychainRecoveryOfferPresenterTests: XCTestCase {
     @MainActor
     func testNotNowRecordsTheOfferAndOpensNothing() throws {
@@ -160,6 +371,10 @@ final class ProtectedKeychainRecoveryOfferPresenterTests: XCTestCase {
         let sheet = try XCTUnwrap(fixture.router.sheets.last)
         XCTAssertEqual(sheet.title, R.string.localizable.protectedRecoveryOfferTitle(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages))
         XCTAssertEqual(sheet.actions.count, 1, "One action")
+        XCTAssertEqual(
+            fixture.interactor.recoveryOffersClosed, [fixture.wallet.metaId],
+            "Recorded when shown: an app lock that closes the sheet never brings it back"
+        )
 
         sheet.dismissCompletion?()
 
@@ -281,6 +496,34 @@ final class ProtectedKeychainFlagOffParityTests: XCTestCase {
         XCTAssertEqual(protectedTags, [], "Nothing in the protected service")
         let journal = try KeychainProtectedWalletSecretJournal()
         XCTAssertNil(journal.record(for: wallet.metaId), "No journal entry")
+    }
+
+    /// Finding 8: the empty-install PIN cleanup decides exactly as the shipping build while
+    /// protected storage is not in use, whatever the protected service answers.
+    func testEmptyInstallPinCleanupMatchesTheShippingBuild() throws {
+        struct Unreadable: Error {}
+        let fails: () throws -> [String] = { throw Unreadable() }
+
+        XCTAssertThrowsError(try EmergencyWalletMaterialReader.pinCleanupFindsNoWalletTags(
+            legacy: fails, protected: { [] }, protectedInUse: { false }
+        ), "Legacy inventory errors surface exactly as before")
+        XCTAssertFalse(try EmergencyWalletMaterialReader.pinCleanupFindsNoWalletTags(
+            legacy: { ["w-entropy"] }, protected: fails, protectedInUse: { false }
+        ))
+        XCTAssertTrue(try EmergencyWalletMaterialReader.pinCleanupFindsNoWalletTags(
+            legacy: { [] }, protected: fails, protectedInUse: { false }
+        ), "Flag off and nothing moved: the protected service cannot stop startup")
+        XCTAssertTrue(try EmergencyWalletMaterialReader.pinCleanupFindsNoWalletTags(
+            legacy: { [] }, protected: { [] }, protectedInUse: { false }
+        ))
+
+        XCTAssertFalse(try EmergencyWalletMaterialReader.pinCleanupFindsNoWalletTags(
+            legacy: { [] }, protected: fails, protectedInUse: { true }
+        ), "Protected storage in use and unreadable: the PIN stays")
+        XCTAssertFalse(try EmergencyWalletMaterialReader.pinCleanupFindsNoWalletTags(
+            legacy: { [] }, protected: { ["w-entropy"] }, protectedInUse: { true }
+        ))
+        XCTAssertFalse(ProtectedKeychainPolicy.isEnabled)
     }
 
     func testBiometricContextIsNotKeptWhileNothingIsProtected() {

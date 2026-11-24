@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import LocalAuthentication
 import Security
@@ -448,6 +449,9 @@ final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
 final class ProtectedKeychainRecoveryEvidence {
     static let shared = ProtectedKeychainRecoveryEvidence()
     static let storageKey = "protectedKeychain.recoveryEvidence.v2"
+    /// SHA-256 of items whose evidence is a recovery-phrase check: covered only while the item
+    /// still holds those bytes.
+    static let digestsKey = "protectedKeychain.recoveryEvidence.digests.v1"
 
     private let userDefaults: UserDefaults
     private let lock = NSLock()
@@ -462,7 +466,17 @@ final class ProtectedKeychainRecoveryEvidence {
         record(walletId: walletId, tags: written)
     }
 
+    /// Items this build wrote from the phrase the user just entered or confirmed.
     func record(walletId: MetaAccountId, tags: [String]) {
+        record(walletId: walletId, tags: tags, digests: [:])
+    }
+
+    /// Items a recovery-phrase check proved, bound to the exact bytes it compared.
+    func record(walletId: MetaAccountId, items: [String: Data]) {
+        record(walletId: walletId, tags: Array(items.keys), digests: items.mapValues(Self.digest))
+    }
+
+    private func record(walletId: MetaAccountId, tags: [String], digests: [String: String]) {
         let owned = tags.filter { WalletSecretTag.belongs($0, to: walletId) }
         guard !owned.isEmpty else {
             return
@@ -471,6 +485,14 @@ final class ProtectedKeychainRecoveryEvidence {
         defer { lock.unlock() }
         var stored = (userDefaults.dictionary(forKey: Self.storageKey) as? [String: [String]]) ?? [:]
         stored[walletId] = Array(Set(stored[walletId] ?? []).union(owned)).sorted()
+        var allDigests = (userDefaults.dictionary(forKey: Self.digestsKey) as? [String: [String: String]]) ?? [:]
+        var walletDigests = allDigests[walletId] ?? [:]
+        for tag in owned {
+            // A write this build made replaces an earlier check's binding.
+            walletDigests[tag] = digests[tag]
+        }
+        allDigests[walletId] = walletDigests.isEmpty ? nil : walletDigests
+        userDefaults.set(allDigests, forKey: Self.digestsKey)
         userDefaults.set(stored, forKey: Self.storageKey)
     }
 
@@ -481,11 +503,29 @@ final class ProtectedKeychainRecoveryEvidence {
         return stored[walletId]?.contains(tag) == true
     }
 
+    /// True when every item in `items` that a check bound to bytes still holds those bytes.
+    func stillMatches(_ items: [String: Data], walletId: MetaAccountId) -> Bool {
+        lock.lock()
+        let digests = ((userDefaults.dictionary(forKey: Self.digestsKey) as? [String: [String: String]]) ?? [:])[walletId]
+        lock.unlock()
+        guard let digests else {
+            return true
+        }
+        return items.allSatisfy { tag, data in digests[tag].map { $0 == Self.digest(data) } ?? true }
+    }
+
     func forget(walletId: MetaAccountId) {
         lock.lock()
         defer { lock.unlock() }
         var stored = (userDefaults.dictionary(forKey: Self.storageKey) as? [String: [String]]) ?? [:]
         stored[walletId] = nil
         userDefaults.set(stored, forKey: Self.storageKey)
+        var digests = (userDefaults.dictionary(forKey: Self.digestsKey) as? [String: [String: String]]) ?? [:]
+        digests[walletId] = nil
+        userDefaults.set(digests, forKey: Self.digestsKey)
+    }
+
+    private static func digest(_ data: Data) -> String {
+        SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
 }

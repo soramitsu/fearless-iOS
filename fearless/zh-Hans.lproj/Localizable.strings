@@ -1620,5 +1620,6 @@
 "protected.recovery.check.action" = "检查";
 "protected.recovery.check.mismatch" = "这些单词与此钱包不匹配。没有任何更改。";
 "protected.recovery.check.stays" = "此钱包无法在此检查，因此保持不变。没有任何更改。";
+"protected.recovery.later" = "以后再说";
 "protected.keychain.read.reason" = "批准访问你的钱包密钥";
 "protected.keychain.migration.reason" = "用设备密码保护你的钱包密钥";

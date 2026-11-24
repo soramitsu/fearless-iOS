@@ -51,6 +51,25 @@ final class RecoveryPhraseTextView: UITextView {
     override func cut(_: Any?) {}
 }
 
+/// One press of Check. Closing the screen cancels it: a check still deriving keys then records
+/// nothing.
+final class RecoveryCheckAttempt {
+    private let lock = NSLock()
+    private var cancelled = false
+
+    var isCancelled: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return cancelled
+    }
+
+    func cancel() {
+        lock.lock()
+        cancelled = true
+        lock.unlock()
+    }
+}
+
 /// Step 2 of 3 of the recovery check: type the phrase from the backup. A match records recovery
 /// evidence and starts the move (the system sheet follows); a mismatch changes nothing.
 final class ProtectedKeychainRecoveryCheckViewController: UIViewController, ControllerBackedProtocol {
@@ -59,11 +78,13 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
     private let locale: Locale
     private let onVerified: () -> Void
     private let workQueue: DispatchQueue
-    private var isChecking = false
+    private let isScreenCaptured: (UIViewController) -> Bool
+    private(set) var attempt: RecoveryCheckAttempt?
 
     private lazy var captureGuard = SecretCaptureGuard(
         owner: self,
-        languages: { [weak self] in self?.locale.rLanguages }
+        languages: { [weak self] in self?.locale.rLanguages },
+        isCaptured: isScreenCaptured
     )
 
     let titleLabel: UILabel = {
@@ -126,12 +147,14 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
         check: ProtectedKeychainRecoveryCheck = .shared,
         locale: Locale,
         workQueue: DispatchQueue = .global(qos: .userInitiated),
+        isScreenCaptured: @escaping (UIViewController) -> Bool = SecretCaptureGuard.isScreenCaptured,
         onVerified: @escaping () -> Void
     ) {
         self.wallet = wallet
         self.check = check
         self.locale = locale
         self.workQueue = workQueue
+        self.isScreenCaptured = isScreenCaptured
         self.onVerified = onVerified
         super.init(nibName: nil, bundle: nil)
         isModalInPresentation = false
@@ -150,7 +173,9 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
         titleLabel.text = R.string.localizable.protectedRecoveryCheckTitle(preferredLanguages: languages)
         messageLabel.text = R.string.localizable.protectedRecoveryCheckHint(preferredLanguages: languages)
         checkButton.imageWithTitleView?.title = R.string.localizable.protectedRecoveryCheckAction(preferredLanguages: languages)
-        closeButton.setTitle(R.string.localizable.commonNot_now(preferredLanguages: languages), for: .normal)
+        closeButton.setTitle(R.string.localizable.protectedRecoveryLater(preferredLanguages: languages), for: .normal)
+        // Selected words never leave by drag and drop either.
+        phraseView.textDragInteraction?.isEnabled = false
         checkButton.addTarget(self, action: #selector(didTapCheck), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(didTapClose), for: .touchUpInside)
         captureGuard.protect([phraseContainer])
@@ -163,13 +188,18 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        phraseView.becomeFirstResponder()
+        // While the screen is recorded the field is covered and the keyboard stays down: key
+        // previews would show the words.
+        if !isScreenCaptured(self) {
+            phraseView.becomeFirstResponder()
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         captureGuard.stop()
-        // The words never outlive the screen.
+        // A check still running when the screen goes records nothing, and the words never outlive it.
+        attempt?.cancel()
         phraseView.text = ""
     }
 
@@ -194,30 +224,44 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
         ])
     }
 
-    @objc private func didTapCheck() {
-        guard !isChecking else {
+    @objc func didTapCheck() {
+        guard attempt == nil else {
             return
         }
         let phrase = phraseView.text ?? ""
-        isChecking = true
+        let attempt = RecoveryCheckAttempt()
+        self.attempt = attempt
         checkButton.applyDisabledStyle()
         let check = self.check
         let wallet = self.wallet
         workQueue.async { [weak self] in
-            let outcome = check.verify(phrase: phrase, wallet: wallet)
+            let outcome = check.verify(phrase: phrase, wallet: wallet, isCancelled: { attempt.isCancelled })
             DispatchQueue.main.async {
-                self?.show(outcome)
+                self?.finish(attempt, outcome: outcome)
             }
         }
     }
 
-    @objc private func didTapClose() {
+    @objc func didTapClose() {
         // Closing changes nothing: the wallet stays as it is.
+        attempt?.cancel()
         dismiss(animated: true)
     }
 
+    private func finish(_ finished: RecoveryCheckAttempt, outcome: ProtectedKeychainRecoveryCheck.Outcome) {
+        guard finished === attempt else {
+            return
+        }
+        attempt = nil
+        // A cancelled swipe-to-close keeps the screen; the check it cancelled recorded nothing.
+        guard !finished.isCancelled else {
+            checkButton.applyEnabledStyle()
+            return
+        }
+        show(outcome)
+    }
+
     func show(_ outcome: ProtectedKeychainRecoveryCheck.Outcome) {
-        isChecking = false
         let languages = locale.rLanguages
         switch outcome {
         case .verified:
@@ -239,7 +283,7 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
 }
 
 extension SheetAlertPresentableViewModel {
-    /// Step 1 of 3: one action, one warning. Any close counts as the one offer for this wallet.
+    /// Step 1 of 3: one action, one warning. Showing it is the one offer for this wallet.
     static func protectedRecoveryCheckOffer(
         locale: Locale,
         onCheck: @escaping () -> Void,
@@ -256,7 +300,7 @@ extension SheetAlertPresentableViewModel {
             title: R.string.localizable.protectedRecoveryOfferTitle(preferredLanguages: languages),
             message: R.string.localizable.protectedRecoveryOfferMessage(preferredLanguages: languages),
             actions: [check],
-            closeAction: R.string.localizable.commonNot_now(preferredLanguages: languages),
+            closeAction: R.string.localizable.protectedRecoveryLater(preferredLanguages: languages),
             dismissCompletion: onClose,
             icon: R.image.iconWarningBig()
         )

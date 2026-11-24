@@ -1,115 +1,61 @@
 # Device test plan: wallet secrets that need the device owner
 
-For `docs/wallet-secret-user-presence.md`, step 2. Run this before `ProtectedKeychainPolicy.isCompiledIn`
-becomes `true`. The simulator cannot run it: it has no device passcode, so passcode-bound items
-cannot be created there and every move defers (`ProtectedKeychainHostedTests`).
+For `docs/wallet-secret-user-presence.md`, step 2. About 40 minutes. The simulator cannot run it
+(no device passcode, so passcode-bound items cannot be created there).
 
-Record each run in `build/reports/ios-keychain-user-presence-<date>/device/` with the build's commit,
-the device model and iOS version, a screen recording, and the console log filtered for
-`Protected keychain`.
+**Use a spare test iPhone with throwaway wallets, never a phone that holds real wallets.** Set a
+device passcode and Face ID on it. Record each run in
+`build/reports/ios-keychain-user-presence-<date>/device/`: the build's commit, device model, iOS
+version, and the console log filtered for `Protected keychain`.
 
 ## Builds
 
-| Build | How the flag is on | Bundle | Use |
-| --- | --- | --- | --- |
-| Debug from this branch | launch argument `-FearlessProtectedKeychain YES` (Xcode scheme, or `xcrun devicectl device process launch … -- -FearlessProtectedKeychain YES`) | `jp.co.soramitsu.fearlesswallet.dev` | D1–D9 |
-| Debug from the base (`87739d9f6`) | — | `.dev` | the "before" app for D1 |
-| Release with `isCompiledIn = true`, TestFlight **internal** group only | compiled in | production | D10 (upgrade from the App Store build); never promoted |
+- **Store**: the build live on the App Store (also in TestFlight → Previous Builds).
+- **Off**: TestFlight internal build of this branch as it is (flag compiled off).
+- **On**: Debug build of this branch launched with `-FearlessProtectedKeychain YES` (bundle `.dev`).
+- **Base**: Debug build of `release/consolidated-20261110` (bundle `.dev`), for T3's older wallets.
 
-Debug-only stop switch: environment `FEARLESS_PROTECTED_KEYCHAIN_STOP_AT=staging|written|verified|committed`
-ends the process right after that journal state is saved (D5).
+## Wallets (make them in the build each case starts from; write down every address)
 
-## Devices
-
-- A: Face ID iPhone, current iOS 26.x, passcode set.
-- B: Touch ID iPhone on iOS 16.7.x or 18.x (oldest supported family in use), passcode set. Also
-  the PIN-timing check (D9).
-- C: any iPhone with **no** passcode (D6).
-- An iPad with Touch ID or Face ID for one pass of D2.
-
-## Wallet fixtures (create with the "before" build)
-
-1. Created wallet, phrase confirmed (backed up).
-2. Created wallet, phrase **not** confirmed (no backup).
-3. Imported 12-word phrase with a `///password` Substrate path.
-4. Imported raw Substrate seed (raw-seed bridge).
-5. Imported JSON (Substrate) plus an Ethereum key.
-6. A released native TON wallet (24 words).
-7. A wallet with a chain account imported for one network.
-8. A wallet holding testnet BTC on a change address (to see full balance coverage).
+- W1 created, phrase confirmed. W2 imported 12-word phrase, standard paths.
+- W3 imported phrase with a `///password` path. W4 native TON 24-word wallet. W5 raw seed.
 
 ## Cases
 
-**D1. Upgrade, PIN unlock.** Install the "before" Debug build, add fixtures 1–8, set an app PIN,
-note every address and balance. Install this branch's Debug build over it with the flag on.
-Unlock with the PIN.
-- Expect one system sheet ("Protect your wallet keys with your iPhone passcode") and no second.
-- Expect the fixtures imported or confirmed with **this** build `committed` and every fixture made
-  by the "before" build not moved (`recoveryUnverified`: no recovery evidence; see design doc 6).
-  For D1 therefore re-import fixtures 3–8 with this build first (and create fixture 1 with the
-  phrase confirmed), keeping fixture 2 unconfirmed. Check the console for
-  `Protected keychain: a wallet moved` per wallet.
-- Every address and balance equals the notes; Bitcoin balance of fixture 8 is complete.
-- Export each moved wallet's phrase / JSON: one system sheet each, the material equals the
-  original. Send a small testnet amount from fixtures 1 and 8 and sign a TON proof from fixture 6:
-  one sheet each.
-- Kill and relaunch: nothing moves again, no sheet at unlock.
+**T1. Flag off is today (the merge gate).** Store build with W1–W5 and an app PIN. Install **Off**
+over it. Unlock with the PIN, then with Face ID; every address and balance as noted; export W1's
+phrase (app PIN only); send a small testnet amount. Then install **Store** again from TestFlight →
+Previous Builds: unlock with the same PIN, export W2's phrase. Expect no system sheet and no new
+screen anywhere, and every wallet working in both directions.
 
-**D2. Upgrade, Face ID / Touch ID unlock.** As D1, unlocking with biometrics. Expect **no** extra
-sheet: the unlock's context is reused (`BiometryAuth` hand-over). If iOS shows a second sheet,
-note it: the evaluated biometric context did not satisfy `.userPresence` on that iOS version
-(still correct, one more prompt).
+**T2. Upgrade with the flag on.** In **On**: make W1, import W2–W5, set a PIN, relaunch, unlock
+with the PIN. Expect one system sheet, then all five wallets move (`a wallet moved` in the log). Relaunch and unlock with Face ID: no sheet. Export W1 and send from
+W1: one sheet each. Repeat the unlock on a Touch ID iPhone if one is at hand: PIN unlock takes
+under 0.4 s.
 
-**D3. Cancel.** Cancel the migration sheet: nothing moves, no sheet again until relaunch, every
-operation still works from the legacy items. Relaunch and accept: wallets move. Then cancel the
-sheet during a send and during an export: the operation stops with an error and nothing falls back
-to an unprotected read (console shows no legacy read for that tag).
+**T3. Recovery-phrase check for an older wallet.** Make W2 and W3 in **Base**, then install **On** over it and unlock. Expect one offer, "Protect this wallet with your
+passcode", for W2 only. Turn on screen recording, tap "Enter recovery phrase": the field is covered
+and the keyboard stays down; stop recording. Type a wrong phrase: "These words do not match this
+wallet. Nothing was changed." Type W2's phrase: one system sheet, then W2 moves. Relaunch: no offer
+again, and none ever for W3. On another wallet, tap "Not now": it stays as it is and is never
+offered again.
 
-**D4. Background and interruptions.** During the migration sheet and during a send sheet:
-press the side button (lock), take a call, switch apps. On return: either the operation finished or
-it failed cleanly; every wallet still exports.
+**T4. Interruptions.** In **On**, with a wallet not yet moved: cancel the system sheet (nothing
+moves, every operation still works); lock the phone during the sheet. Launch with environment
+`FEARLESS_PROTECTED_KEYCHAIN_STOP_AT=written` (app exits), relaunch normally: no sheet at launch,
+every wallet exports, the next unlock finishes the move. Same with `=verified`.
 
-**D5. Kill at each step.** For each of `staging`, `written`, `verified`, `committed`: launch with
-`FEARLESS_PROTECTED_KEYCHAIN_STOP_AT=<state>`, unlock with the PIN, accept the sheet; the app
-exits. Relaunch without the variable. Expect: no sheet at launch (recovery never prompts), every
-wallet exports and signs, the journal ends `deferred` (staging, written) or `committed`
-(verified, committed), and the next unlock completes deferred moves.
+**T5. Passcode removed.** After T2, with every backup in hand: turn the device passcode off,
+relaunch. Expect moved wallets reported lost (`lost their protected items` in the log) and wallets
+never moved intact. Restore each lost wallet from its backup: it works. Turn the passcode back on.
 
-**D6. No passcode.** Device C: the flag on, unlock. Expect no sheet, no move (`passcodeNotSet`),
-everything works as before. Then set a passcode, relaunch, unlock: wallets move.
-
-**D7. Passcode removed after the move.** Device A after D1, with every fixture's backup in hand:
-Settings → Face ID & Passcode → Turn Passcode Off. Relaunch Fearless.
-- Expect the moved wallets marked lost (console `lost their protected items`,
-  `.protectedWalletSecretsLost`), fixture 2 (never moved) intact.
-- Restore each lost wallet from its backup; it works. (This is why precondition 3 exists.)
-
-**D8. Biometric changes.** After D1: add a second face / finger, then remove all biometrics, then
-re-enroll. After each change: unlock, send, export. Expect the passcode always works and nothing
-is lost (`.userPresence` is not bound to the enrolled set).
-
-**D9. App PIN.** After D1 (flag on), the PIN item holds `fearless-pin-v1$…` (read it with the
-Xcode debugger: `Keychain().fetchKey(for: "pincode")`). Wrong PIN ×6: the lockout counts as before.
-Change the PIN: the new value is a verifier. Unlock only with biometrics on a fresh install of the
-"before" build: the plain PIN stays until the PIN is typed once. Measure unlock latency on device B
-(PBKDF2 310 000 rounds): under 400 ms, otherwise lower `PincodeVerifier.iterations` and re-measure.
-
-**D10. App Store upgrade.** On device A with the App Store build and fixtures 1, 3, 6 (production
-wallets with small balances), install the TestFlight internal build (`isCompiledIn = true`), unlock
-with the PIN, accept the sheet. Repeat D1's checks. Then veto: set `protected_keychain_enabled: false`
-in the development remote config the build reads, relaunch: moved wallets still work, new wallets
-do not move. Clear the veto.
-
-**D10b. Older wallets.** With the "before" build's fixtures left as they are, confirm nothing moves
-and every operation works exactly as before (no sheet at all).
-
-**D11. Dump check.** Exit criterion, not optional. On the device after D1, from the Xcode debugger (Debug build) run a query for
-`kSecClassKey` items with the moved wallets' tags: none. Query the protected items with an
-`LAContext` whose `interactionNotAllowed = true`: `errSecInteractionNotAllowed` (the item exists
-but needs the owner). This is the property DarkSword's dump would hit.
+**T6. Dump check (the point of step 2).** After T2, in the Xcode debugger: a `kSecClassKey` query
+for a moved wallet's tags returns nothing; reading its protected item with an `LAContext` whose
+`interactionNotAllowed = true` returns `errSecInteractionNotAllowed`.
 
 ## Exit criteria
 
-D1–D9 pass on devices A and B, D6 on C, D10 on A. Every failure is a blocking bug unless it is
-only an extra prompt (record those for the owner's UX review). Then the owner approves the prompts
-(design doc, section 8) and `isCompiledIn` changes in its own commit.
+T1 passes before step 2 merges into the release line. T2–T6 pass before
+`ProtectedKeychainPolicy.isCompiledIn` becomes `true` (its own commit, after the owner approves the
+prompts in design doc section 8). Any failure blocks, except an extra prompt, which goes to the
+owner's UX review.

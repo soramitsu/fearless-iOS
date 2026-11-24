@@ -372,6 +372,10 @@ final class ProtectedWalletSecretMigrator {
         guard let originals = try? read(tags) else {
             return deferMigration(of: wallet, .keychainUnavailable)
         }
+        // An item a recovery-phrase check proved must still hold the bytes it compared.
+        guard evidence.stillMatches(originals, walletId: wallet.metaId) else {
+            return deferMigration(of: wallet, .recoveryUnverified)
+        }
         let expected = identityCheck.fingerprint(of: wallet, keystore: legacy)
         guard ProtectedWalletIdentityCheck.provesEveryIdentity(expected),
               identityCheck.requiredEntries(for: wallet).allSatisfy(expected.contains),

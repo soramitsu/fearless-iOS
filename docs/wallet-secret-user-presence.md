@@ -281,29 +281,44 @@ failing the whole remote document.
 
 Wallets an earlier release made carry no recovery evidence, so they cannot move until their owner
 shows they still have the backup (`ProtectedKeychainRecoveryCheck`). Owner rules: offered only while
-the flag is on, only for wallets without evidence, once per wallet; short copy (one action, one
+the flag is on, only for wallets without evidence, once per wallet; never for wallets created,
+imported or confirmed in this build (they already have evidence); short copy (one action, one
 warning, at most three steps) in the 9 languages of the OS notice; skipping leaves the wallet exactly
 as it is.
 
 1. **Offer** (last startup notice on the main screen, `SheetAlertPresentableViewModel.protectedRecoveryCheckOffer`):
    "Protect this wallet with your passcode", one warning (turning off the passcode removes protected
-   keys from this device, so keep the backup), "Enter recovery phrase" or "Not now". Any close
-   records the one offer.
+   keys from this device, so keep the backup), "Enter recovery phrase" or "Not now". The offer is
+   recorded when the sheet is shown, so a sheet the app lock closes never comes back.
 2. **Type the phrase** (`ProtectedKeychainRecoveryCheckViewController`): the stored phrase is never
    shown. The field (`RecoveryPhraseTextView`) has no autocorrect, spelling, prediction, smart
-   punctuation, writing tools, shortcuts bar, paste, copy or cut; `SecretCaptureGuard` covers it
-   during recording or mirroring; third-party keyboards are blocked app-wide; the words are cleared
-   when the screen goes away.
+   punctuation, writing tools, shortcuts bar, paste, copy, cut or text drag; `SecretCaptureGuard`
+   covers it during recording or mirroring, and the keyboard is not raised while the screen is
+   captured (key previews would show the words); third-party keyboards are blocked app-wide; the
+   words are cleared when the screen goes away.
 3. **Result:** a match records evidence and starts the move (the system sheet follows). A mismatch
-   says so and changes nothing. A wallet with a custom derivation path or wallet password, or one
-   that cannot be read, stays as it is.
+   says so and changes nothing. Anything that cannot be proved here (custom derivation path or
+   wallet password, an item the phrase does not write, an unreadable keychain, a check closed while
+   running, the flag turned off meanwhile) says "stays as it is" and changes nothing.
 
-A match means the typed words (BIP39, standard paths: Substrate `""`, Ethereum
-`//44//60//0/0/0`) re-derive the stored Substrate key (`entropyReproducesPublicKey`), the stored
-Ethereum address and every stored universal account; or, for a released native TON wallet, the
-stored TON key. Offered only to wallets whose items are all root items of one phrase (no account
-imported on its own, no raw-seed bridge, no JSON-only wallet), decided from public data and an
-attributes-only inventory.
+**What a match proves.** Held under `WalletSecretWriteLock` from reading the items to recording:
+
+- BIP39 wallets: the typed phrase is the stored one (`-entropy`), and **every** stored item of the
+  wallet equals, byte for byte, what the released import writes for that phrase with the standard
+  paths (Substrate `""`, Ethereum `//44//60//0/0/0`; `MetaAccountOperationFactory.rootItemsForMnemonicImport`).
+  An Ethereum key from another backup (older rows may keep only the address), a child seed 4.0.x
+  kept under the wallet's `-substrateSeed`, or an account imported after the offer fails this. The
+  stored Substrate key, Ethereum address/key and every universal account must also re-derive.
+- Native TON wallets: the typed words, as typed or normalized (the forms native import accepts),
+  give the wallet's key, and the stored phrase and stored signing key give that same key.
+- The check is re-checked for cancellation and the flag right before recording.
+- Evidence holds a SHA-256 of each item it proved (`protectedKeychain.recoveryEvidence.digests.v1`);
+  the migrator defers (`recoveryUnverified`) when a covered item no longer holds those bytes. A
+  write this build makes from a typed phrase replaces the binding.
+
+Offered only to wallets whose items are all root items of one phrase (no account imported on its
+own, no raw-seed bridge, no JSON-only wallet) and with no evidence on any item, decided from public
+data and an attributes-only inventory.
 
 ## 4. Unchanged and adjusted
 
@@ -334,8 +349,9 @@ attributes-only inventory.
 - **Older wallets** get evidence through the recovery-phrase check (3.9). Wallets it cannot cover
   (an account imported on its own, a raw seed, JSON only, a custom path or wallet password) stay on
   the legacy store, exactly as safe as today.
-- Evidence binds to the items an import wrote, not to their bytes; the identity checks at the move
-  (3.5.1) are what tie those items to the wallet's public keys.
+- Import evidence binds to the items an import wrote, not to their bytes; the identity checks at
+  the move (3.5.1) tie those items to the wallet's public keys. Recovery-check evidence also binds
+  each item's bytes (3.9).
 - Codex follow-up items left for before enabling: binding a protected-only update to per-tag write
   authority in the journal (a reload of `verified` can discard a newer legacy write when the journal
   was damaged), a historical 4.0.x per-chain seed export option that is hidden after a move until
@@ -364,7 +380,8 @@ attributes-only inventory.
 | Send / sign / connect with a proof | app confirmation if enabled | same, then one system sheet unless an in-app Face ID check just ran |
 | Export phrase or JSON, cloud backup | app PIN | app PIN, then one system sheet |
 | Balance refresh, foreground, address-only connect | silent | silent |
-| Wallet without a verified backup | — | stays as today; nothing shown |
+| Older phrase wallet (no evidence yet) | — | once, after the other notices: "Protect this wallet with your passcode" → type the phrase → on a match, one system sheet; "Not now" leaves it as today |
+| Wallet that cannot be checked (custom path, password, account imported on its own, raw seed, JSON) | — | stays as today; nothing shown |
 | Passcode removed after the move | — | wallet must be restored from its backup |
 
 **Decided (2026-11-24, under the owner's "keep going" and conservative-default rule): the app PIN

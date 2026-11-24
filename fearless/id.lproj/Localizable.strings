@@ -1609,5 +1609,6 @@ akan muncul di sini";
 "protected.recovery.check.action" = "Periksa";
 "protected.recovery.check.mismatch" = "Kata-kata ini tidak cocok dengan dompet ini. Tidak ada yang diubah.";
 "protected.recovery.check.stays" = "Dompet ini tidak dapat diperiksa di sini, jadi tetap seperti sebelumnya. Tidak ada yang diubah.";
+"protected.recovery.later" = "Nanti saja";
 "protected.keychain.read.reason" = "Setujui akses ke kunci dompet Anda";
 "protected.keychain.migration.reason" = "Lindungi kunci dompet Anda dengan kode sandi perangkat";

@@ -1569,5 +1569,6 @@ pertence à rede certa";
 "protected.recovery.check.action" = "Verificar";
 "protected.recovery.check.mismatch" = "Estas palavras não correspondem a esta carteira. Nada foi alterado.";
 "protected.recovery.check.stays" = "Esta carteira não pode ser verificada aqui, então continua como está. Nada foi alterado.";
+"protected.recovery.later" = "Agora não";
 "protected.keychain.read.reason" = "Autorize o acesso às chaves da sua carteira";
 "protected.keychain.migration.reason" = "Proteja as chaves da sua carteira com o código do dispositivo";

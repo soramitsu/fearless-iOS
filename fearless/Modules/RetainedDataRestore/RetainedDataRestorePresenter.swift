@@ -36,10 +36,24 @@ final class EmergencyWalletMaterialReader: EmergencyWalletMaterialReading {
         return try legacyWalletTags() + protectedTags
     }
 
-    /// Both stores, each answered for certain; for decisions that remove something (the empty-install
-    /// PIN cleanup). A store that cannot answer is an error, never an empty list.
-    static func definitiveWalletTags() throws -> [String] {
-        try legacyWalletTags() + ProtectedKeychain().allAccounts().filter(isWalletTag)
+    /// For the empty-install PIN cleanup: true only when no wallet item is known to exist. The
+    /// legacy inventory must answer, exactly as in the shipping build (its error is thrown as
+    /// before). The protected inventory is asked too; when it cannot answer while protected
+    /// storage may be in use on this device, the PIN stays. With protected storage never in use,
+    /// the protected answer cannot matter and the result is the shipping one.
+    static func pinCleanupFindsNoWalletTags(
+        legacy: () throws -> [String] = legacyWalletTags,
+        protected: () throws -> [String] = { try ProtectedKeychain().allAccounts().filter(isWalletTag) },
+        protectedInUse: () -> Bool = { Keychain.itemRouter != nil || ProtectedKeychainPolicy.isEnabled }
+    ) throws -> Bool {
+        guard try legacy().isEmpty else {
+            return false
+        }
+        do {
+            return try protected().isEmpty
+        } catch {
+            return !protectedInUse()
+        }
     }
 
     static func legacyWalletTags() throws -> [String] {
