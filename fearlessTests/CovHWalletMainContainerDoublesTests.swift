@@ -104,8 +104,13 @@ final class CovHWalletMainInteractor: WalletMainContainerInteractorInput {
     var switches: [[UniversalWalletNoPasswordAccount]] = []
     var arrivals: [[UniversalWalletOldAddressArrival]] = []
     var recoveryOffersClosed: [String] = []
+    var recoveryOfferDue = true
     func setup(with output: WalletMainContainerInteractorOutput) { self.output = output }
-    func acknowledgeRecoveryCheckOffer(for walletId: MetaAccountId) { recoveryOffersClosed.append(walletId) }
+    func claimRecoveryCheckOffer(for wallet: MetaAccountModel) -> Bool {
+        guard recoveryOfferDue else { return false }
+        recoveryOffersClosed.append(wallet.metaId)
+        return true
+    }
     func walletConnect(uri: String) async throws {
         uris.append(uri)
         if let error { throw error }

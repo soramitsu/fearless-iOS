@@ -235,9 +235,9 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
         let check = self.check
         let wallet = self.wallet
         workQueue.async { [weak self] in
-            let outcome = check.verify(phrase: phrase, wallet: wallet, isCancelled: { attempt.isCancelled })
+            let (outcome, proof) = check.prove(phrase: phrase, wallet: wallet)
             DispatchQueue.main.async {
-                self?.finish(attempt, outcome: outcome)
+                self?.finish(attempt, outcome: outcome, proof: proof)
             }
         }
     }
@@ -248,7 +248,13 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
         dismiss(animated: true)
     }
 
-    private func finish(_ finished: RecoveryCheckAttempt, outcome: ProtectedKeychainRecoveryCheck.Outcome) {
+    /// On the main thread, like every close: a check closed before this runs records nothing, and
+    /// one recorded here was not closed.
+    private func finish(
+        _ finished: RecoveryCheckAttempt,
+        outcome: ProtectedKeychainRecoveryCheck.Outcome,
+        proof: ProtectedKeychainRecoveryCheck.Proof?
+    ) {
         guard finished === attempt else {
             return
         }
@@ -258,7 +264,7 @@ final class ProtectedKeychainRecoveryCheckViewController: UIViewController, Cont
             checkButton.applyEnabledStyle()
             return
         }
-        show(outcome)
+        show(proof.map(check.record) ?? outcome)
     }
 
     func show(_ outcome: ProtectedKeychainRecoveryCheck.Outcome) {

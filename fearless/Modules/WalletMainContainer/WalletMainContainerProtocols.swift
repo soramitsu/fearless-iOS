@@ -30,12 +30,15 @@ protocol WalletMainContainerInteractorInput: AnyObject {
     func acknowledgeUniversalWalletPasswordNotice()
     func switchNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount])
     func acknowledgeOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival])
-    /// The recovery-phrase check was offered for `walletId` and closed: it is not offered again.
-    func acknowledgeRecoveryCheckOffer(for walletId: MetaAccountId)
+    /// Called as the recovery-phrase check is offered: true when it is still due for `wallet`, and
+    /// then it is recorded as that wallet's one offer.
+    func claimRecoveryCheckOffer(for wallet: MetaAccountModel) -> Bool
 }
 
 extension WalletMainContainerInteractorInput {
-    func acknowledgeRecoveryCheckOffer(for _: MetaAccountId) {}
+    func claimRecoveryCheckOffer(for _: MetaAccountModel) -> Bool {
+        false
+    }
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {

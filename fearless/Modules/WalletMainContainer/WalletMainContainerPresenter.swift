@@ -540,7 +540,11 @@ private extension WalletMainContainerPresenter {
         }
 
         pendingRecoveryCheckWallet = nil
-        interactor.acknowledgeRecoveryCheckOffer(for: candidate.metaId)
+        // Checked again as it is shown (the flag may have gone off, or a second queued check may
+        // already have shown it) and recorded as the one offer.
+        guard interactor.claimRecoveryCheckOffer(for: candidate) else {
+            return
+        }
         var followUp: (() -> Void)?
         let locale = selectedLocale
         let viewModel = SheetAlertPresentableViewModel.protectedRecoveryCheckOffer(

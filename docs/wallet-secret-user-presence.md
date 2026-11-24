@@ -289,7 +289,9 @@ as it is.
 1. **Offer** (last startup notice on the main screen, `SheetAlertPresentableViewModel.protectedRecoveryCheckOffer`):
    "Protect this wallet with your passcode", one warning (turning off the passcode removes protected
    keys from this device, so keep the backup), "Enter recovery phrase" or "Not now". The offer is
-   recorded when the sheet is shown, so a sheet the app lock closes never comes back.
+   checked again and recorded as the sheet is shown (`claimOffer`), so a sheet the app lock closes
+   never comes back, a second queued check shows nothing, and a remote veto that arrived while it
+   waited behind other notices stops it.
 2. **Type the phrase** (`ProtectedKeychainRecoveryCheckViewController`): the stored phrase is never
    shown. The field (`RecoveryPhraseTextView`) has no autocorrect, spelling, prediction, smart
    punctuation, writing tools, shortcuts bar, paste, copy, cut or text drag; `SecretCaptureGuard`
@@ -312,14 +314,18 @@ as it is.
 - Native TON wallets: one of exactly the candidates native import tries for the typed text (as
   typed, or with whitespace collapsed) gives the wallet's key, so that text restores this wallet;
   the stored phrase and stored signing key give that same key.
-- The check is re-checked for cancellation and the flag right before recording.
+- The comparison (`prove`, off the main thread) records nothing. Recording (`record`) runs on the
+  main thread, where closing the screen also runs, and only if the screen was not closed, the flag
+  is still on and the wallet still holds exactly the items compared.
+- Wallets the 2.x single-to-multiasset migration moved keep the BIP32 seed under `-ethereumSeed`;
+  that value is accepted too (it also comes from the phrase).
 - Evidence holds a SHA-256 of each item it proved (`protectedKeychain.recoveryEvidence.v3.digests`; evidence itself is under `.v3`, so evidence that review builds wrote under `.v2` never counts);
   the migrator defers (`recoveryUnverified`) when a covered item no longer holds those bytes. A
   write this build makes from a typed phrase replaces the binding.
 
 Offered only to wallets whose items are all root items of one phrase (no account imported on its
-own, no raw-seed bridge, no JSON-only wallet) and with no evidence on any item, decided from public
-data and an attributes-only inventory.
+own, no raw-seed bridge, no JSON-only wallet, no stored Substrate path) and with no evidence on any
+item, decided from public data and an attributes-only inventory.
 
 ## 4. Unchanged and adjusted
 
@@ -362,6 +368,11 @@ data and an attributes-only inventory.
   no-password account keys (filled during the move) removes this. Opening that wallet's details
   lists nothing for the same reason.
 - `.protectedWalletSecretsLost` is posted and logged, but no screen shows it yet.
+- Empty-install PIN cleanup on a device that ran with the flag on and now runs with it off: if the
+  journal and the protected inventory are both unreadable at that moment, no router is installed and
+  cleanup decides as the shipping build (it may remove the PIN although protected items exist).
+  Only Debug builds with `-FearlessProtectedKeychain YES` can reach this; settle it before the flag
+  ships (Codex review 4).
 - A context approved for one operation serves any wallet for its 10 s (Codex 12); binding it to the
   operation's wallet is a refinement.
 - Main-thread readers still exist in some presenters. They work (the sheet blocks the main thread)

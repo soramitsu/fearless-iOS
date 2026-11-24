@@ -299,8 +299,8 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         passwordNoticeTracker.markShown(for: wallet.metaId)
     }
 
-    func acknowledgeRecoveryCheckOffer(for walletId: MetaAccountId) {
-        recoveryCheck.markOffered(walletId)
+    func claimRecoveryCheckOffer(for wallet: MetaAccountModel) -> Bool {
+        recoveryCheck.claimOffer(wallet)
     }
 
     func acknowledgeOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival]) {

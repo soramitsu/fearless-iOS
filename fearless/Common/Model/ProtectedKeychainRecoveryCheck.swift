@@ -27,6 +27,12 @@ final class ProtectedKeychainRecoveryCheck {
         case unavailable
     }
 
+    /// The exact items a check proved, to be recorded only if nothing changed meanwhile.
+    struct Proof {
+        let walletId: MetaAccountId
+        let items: [String: Data]
+    }
+
     static let shared = ProtectedKeychainRecoveryCheck()
     static let offeredKey = "protectedKeychain.recoveryCheckOffered.v1"
 
@@ -36,6 +42,7 @@ final class ProtectedKeychainRecoveryCheck {
     private let userDefaults: UserDefaults
     private let isEnabled: () -> Bool
     private let lock = NSLock()
+    private let claimLock = NSLock()
 
     init(
         inventory: LegacyKeychainInventory = Keychain(routed: false),
@@ -58,7 +65,10 @@ final class ProtectedKeychainRecoveryCheck {
     /// of one phrase (a BIP39 phrase, or a released native TON phrase) with no account of its own.
     func shouldOffer(_ wallet: MetaAccountModel) -> Bool {
         guard isEnabled(), !wasOffered(wallet.metaId), let tags = walletTags(wallet),
-              Self.isPhraseWallet(wallet, tags: tags)
+              Self.isPhraseWallet(wallet, tags: tags),
+              // A stored Substrate path means a custom path or wallet password (only non-empty paths
+              // are written): the check could not prove it, so it is not offered.
+              !tags.contains(KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId))
         else {
             return false
         }
@@ -69,6 +79,18 @@ final class ProtectedKeychainRecoveryCheck {
             return true
         }
         return wallet.substratePublicKey != nil || wallet.ethereumPublicKey != nil
+    }
+
+    /// Called as the offer is shown: true when it is still due (the flag may have gone off, or
+    /// another check may have shown it meanwhile), and then it is recorded as this wallet's one offer.
+    func claimOffer(_ wallet: MetaAccountModel) -> Bool {
+        claimLock.lock()
+        defer { claimLock.unlock() }
+        guard shouldOffer(wallet) else {
+            return false
+        }
+        markOffered(wallet.metaId)
+        return true
     }
 
     /// Recorded when the offer is shown: it is never shown for this wallet again, however it closes.
@@ -88,28 +110,33 @@ final class ProtectedKeychainRecoveryCheck {
 
     // MARK: Check
 
-    /// Checks `phrase` against `wallet` and records evidence on a match. Slow (key derivation): call
-    /// it off the main thread. It holds `WalletSecretWriteLock` from reading the items to recording,
-    /// so no wallet-secret write lands in between; `isCancelled` and the flag are checked again
-    /// right before recording.
+    /// Checks `phrase` against `wallet` and records evidence on a match (`prove`, then `record`).
+    /// Slow: call it off the main thread. The screen calls the two steps itself so that recording
+    /// happens on the main thread, where closing the screen cannot slip in between.
     func verify(
         phrase: String,
         wallet: MetaAccountModel,
-        isCancelled: @escaping () -> Bool = { false }
+        isCancelled: () -> Bool = { false }
     ) -> Outcome {
-        WalletSecretWriteLock.perform {
-            guard isEnabled(), let tags = walletTags(wallet), Self.isPhraseWallet(wallet, tags: tags) else {
-                return .unavailable
-            }
-            var stored: [String: Data] = [:]
-            do {
-                for tag in tags {
-                    stored[tag] = try keystore.fetchKey(for: tag)
-                }
-            } catch {
-                return .unavailable
-            }
+        let (outcome, proof) = prove(phrase: phrase, wallet: wallet)
+        guard let proof else {
+            return outcome
+        }
+        guard !isCancelled() else {
+            return .unavailable
+        }
+        return record(proof)
+    }
 
+    /// Compares `phrase` with every stored item of `wallet` (slow key derivation; off the main
+    /// thread). Records nothing: a match returns the proof to `record`.
+    func prove(phrase: String, wallet: MetaAccountModel) -> (Outcome, Proof?) {
+        WalletSecretWriteLock.perform {
+            guard isEnabled(), let tags = walletTags(wallet), Self.isPhraseWallet(wallet, tags: tags),
+                  let stored = read(tags)
+            else {
+                return (.unavailable, nil)
+            }
             let outcome: Outcome
             if let ton = wallet.legacyTonAccount {
                 outcome = Self.verifyTon(phrase, account: ton, walletId: wallet.metaId, stored: stored)
@@ -117,14 +144,35 @@ final class ProtectedKeychainRecoveryCheck {
                 outcome = Self.verifyBip39(phrase, wallet: wallet, stored: stored)
             }
             guard outcome == .verified else {
-                return outcome
+                return (outcome, nil)
             }
-            guard !isCancelled(), isEnabled() else {
+            return (.verified, Proof(walletId: wallet.metaId, items: stored))
+        }
+    }
+
+    /// Records evidence for a proof while the flag is still on and the wallet still holds exactly
+    /// the items it proved (no item added, removed or changed since). Cheap: no derivation.
+    func record(_ proof: Proof) -> Outcome {
+        WalletSecretWriteLock.perform {
+            guard isEnabled(), let tags = inventoryTags(of: proof.walletId),
+                  Set(tags) == Set(proof.items.keys), read(tags) == proof.items
+            else {
                 return .unavailable
             }
-            evidence.record(walletId: wallet.metaId, items: stored)
+            evidence.record(walletId: proof.walletId, items: proof.items)
             return .verified
         }
+    }
+
+    private func read(_ tags: [String]) -> [String: Data]? {
+        var stored: [String: Data] = [:]
+        for tag in tags {
+            guard let data = try? keystore.fetchKey(for: tag) else {
+                return nil
+            }
+            stored[tag] = data
+        }
+        return stored
     }
 
     static func words(_ phrase: String) -> [String] {
@@ -213,10 +261,14 @@ final class ProtectedKeychainRecoveryCheck {
             return .unavailable
         }
 
-        // Every stored item, byte for byte, is one this phrase writes.
+        // Every stored item, byte for byte, is one this phrase writes. Wallets the 2.x
+        // single-to-multiasset migration moved keep the BIP32 seed under -ethereumSeed.
+        let historicalEthereumSeed = try? EthereumAccountImportWrapper().importEntropy(
+            entropy, derivationPath: standardEthereum
+        ).seed
         for (tag, bytes) in stored {
             guard let suffix = WalletSecretTag.suffixes.first(where: { tag == metaId + $0 }),
-                  expected[suffix] == bytes
+                  expected[suffix] == bytes || (suffix == "-ethereumSeed" && historicalEthereumSeed == bytes)
             else {
                 return .unavailable
             }
@@ -260,10 +312,14 @@ final class ProtectedKeychainRecoveryCheck {
     /// The wallet's legacy wallet-secret tags, from attributes only; nil when unreadable or when a
     /// tag starting with its id is not a known wallet tag.
     private func walletTags(_ wallet: MetaAccountModel) -> [String]? {
+        inventoryTags(of: wallet.metaId)
+    }
+
+    private func inventoryTags(of walletId: MetaAccountId) -> [String]? {
         guard let all = try? inventory.applicationTags(),
-              WalletSecretTag.unknownTags(in: all, of: wallet.metaId).isEmpty else {
+              WalletSecretTag.unknownTags(in: all, of: walletId).isEmpty else {
             return nil
         }
-        return all.filter { WalletSecretTag.belongs($0, to: wallet.metaId) }.sorted()
+        return all.filter { WalletSecretTag.belongs($0, to: walletId) }.sorted()
     }
 }

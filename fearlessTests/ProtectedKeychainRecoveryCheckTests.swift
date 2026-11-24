@@ -234,6 +234,90 @@ final class ProtectedKeychainRecoveryCheckTests: XCTestCase {
         assertNoEvidence(fixture)
     }
 
+    // MARK: Codex review 4
+
+    /// Closing the screen after the keys were compared but before the result reaches the screen:
+    /// nothing is recorded (recording happens on the main thread, after the close check).
+    @MainActor
+    func testClosingAfterTheComparisonRecordsNothing() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let queue = DispatchQueue(label: "recovery-check-proved")
+        var verified = 0
+        let controller = ProtectedKeychainRecoveryCheckViewController(
+            wallet: fixture.wallet, check: check(fixture), locale: Locale(identifier: "en"), workQueue: queue
+        ) { verified += 1 }
+        controller.loadViewIfNeeded()
+        controller.phraseView.text = ProtectedFixture.phrase
+
+        controller.didTapCheck()
+        queue.sync {}
+        assertNoEvidence(fixture)
+        controller.didTapClose()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+
+        XCTAssertEqual(verified, 0)
+        assertNoEvidence(fixture)
+    }
+
+    /// A proof records only while the wallet holds exactly the items it compared.
+    func testProofOfChangedItemsRecordsNothing() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let check = check(fixture)
+        let (outcome, proof) = check.prove(phrase: ProtectedFixture.phrase, wallet: fixture.wallet)
+        XCTAssertEqual(outcome, .verified)
+        assertNoEvidence(fixture)
+        let child = fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(fixture.wallet.metaId, accountId: Data(repeating: 4, count: 32))
+        try fixture.legacy.addKey(Data([1]), with: child)
+
+        XCTAssertEqual(check.record(try XCTUnwrap(proof)), .unavailable)
+        assertNoEvidence(fixture)
+
+        try fixture.legacy.deleteKey(for: child)
+        try replace("-substrateSeed", in: fixture, with: Data(repeating: 6, count: 32))
+        XCTAssertEqual(check.record(try XCTUnwrap(proof)), .unavailable)
+        assertNoEvidence(fixture)
+    }
+
+    /// Wallets the 2.x single-to-multiasset migration moved keep the BIP32 seed under -ethereumSeed.
+    func testHistoricalEthereumSeedIsAccepted() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        let entropy = try IRMnemonicCreator().mnemonic(fromList: ProtectedFixture.phrase).entropy()
+        let seed = try EthereumAccountImportWrapper().importEntropy(
+            entropy, derivationPath: DerivationPathConstants.defaultEthereum
+        ).seed
+        try replace("-ethereumSeed", in: fixture, with: seed)
+
+        XCTAssertEqual(check(fixture).verify(phrase: ProtectedFixture.phrase, wallet: fixture.wallet), .verified)
+    }
+
+    /// A stored Substrate path (custom path or wallet password) is visible from attributes: no offer.
+    func testCustomSubstratePathIsNotOffered() throws {
+        let fixture = try ProtectedFixture(passwordPath: true, imported: false)
+        XCTAssertFalse(check(fixture).shouldOffer(fixture.wallet))
+    }
+
+    /// The offer is claimed as it is shown: once, and not after the flag goes off.
+    func testOfferIsClaimedOnceAndNotAfterTheFlagGoesOff() throws {
+        let fixture = try ProtectedFixture(imported: false)
+        var enabled = true
+        let check = ProtectedKeychainRecoveryCheck(
+            inventory: fixture.legacy, keystore: fixture.legacy, evidence: fixture.evidence,
+            userDefaults: CovHAssetListFixture.defaults(), isEnabled: { enabled }
+        )
+        XCTAssertTrue(check.claimOffer(fixture.wallet))
+        XCTAssertFalse(check.claimOffer(fixture.wallet), "A second queued check shows nothing")
+
+        let other = try ProtectedFixture(imported: false)
+        let vetoed = ProtectedKeychainRecoveryCheck(
+            inventory: other.legacy, keystore: other.legacy, evidence: other.evidence,
+            userDefaults: CovHAssetListFixture.defaults(), isEnabled: { enabled }
+        )
+        XCTAssertTrue(vetoed.shouldOffer(other.wallet))
+        enabled = false
+        XCTAssertFalse(vetoed.claimOffer(other.wallet))
+        XCTAssertFalse(vetoed.wasOffered(other.wallet.metaId))
+    }
+
     /// Codex review 4: evidence written by review builds under the old key never counts.
     func testEvidenceFromReviewBuildsDoesNotCount() throws {
         let defaults = CovHAssetListFixture.defaults()
@@ -407,6 +491,17 @@ final class ProtectedKeychainRecoveryOfferPresenterTests: XCTestCase {
 
         XCTAssertEqual(fixture.router.recoveryChecks, [fixture.wallet.metaId])
         XCTAssertEqual(fixture.interactor.recoveryOffersClosed, [fixture.wallet.metaId], "Offered once either way")
+    }
+
+    @MainActor
+    func testAnOfferNoLongerDueIsNotShown() {
+        let fixture = CovHWalletMainFixture()
+        fixture.start(hosted: true)
+        fixture.interactor.recoveryOfferDue = false
+        let before = fixture.router.sheets.count
+        fixture.interactor.output?.didReceiveRecoveryCheckOffer(for: fixture.wallet)
+        XCTAssertEqual(fixture.router.sheets.count, before)
+        XCTAssertTrue(fixture.interactor.recoveryOffersClosed.isEmpty)
     }
 
     @MainActor
