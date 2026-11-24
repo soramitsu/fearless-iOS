@@ -136,12 +136,27 @@ final class AccountImportViewLayout: UIView {
         view.textColor = R.color.colorWhite()
         view.font = .p1Paragraph
         view.tintColor = R.color.colorWhite()
-        view.keyboardType = .default
-        view.autocapitalizationType = .none
-        view.autocorrectionType = .no
+        AccountImportViewLayout.applySecretEntryTraits(to: view)
         view.isScrollEnabled = false
         return view
     }()
+
+    /// Recovery phrases, raw seeds and keystore JSON are typed here. Only English word lists are
+    /// supported, so an ASCII keyboard is enough; it keeps the phrase out of input methods that
+    /// convert, suggest and learn what is typed (Japanese, Chinese and other IMEs), and off the
+    /// keyboard's spelling, prediction and smart-punctuation paths.
+    static func applySecretEntryTraits(to view: UITextView) {
+        view.keyboardType = .asciiCapable
+        view.autocapitalizationType = .none
+        view.autocorrectionType = .no
+        view.spellCheckingType = .no
+        view.smartQuotesType = .no
+        view.smartDashesType = .no
+        view.smartInsertDeleteType = .no
+        if #available(iOS 17.0, *) {
+            view.inlinePredictionType = .no
+        }
+    }
 
     let textTriangularedView: TriangularedView = {
         let view = TriangularedView()

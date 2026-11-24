@@ -3686,3 +3686,21 @@ extension AccountImportTests {
         ))
     }
 }
+
+final class AccountImportSecretEntryTraitsTests: XCTestCase {
+    func testPhraseFieldKeepsTypedSecretsAwayFromInputMethodsAndPredictions() {
+        let layout = AccountImportViewLayout(frame: .zero)
+        let field = layout.textView
+
+        XCTAssertEqual(field.keyboardType, .asciiCapable)
+        XCTAssertEqual(field.autocapitalizationType, .none)
+        XCTAssertEqual(field.autocorrectionType, .no)
+        XCTAssertEqual(field.spellCheckingType, .no)
+        XCTAssertEqual(field.smartQuotesType, .no)
+        XCTAssertEqual(field.smartDashesType, .no)
+        XCTAssertEqual(field.smartInsertDeleteType, .no)
+        if #available(iOS 17.0, *) {
+            XCTAssertEqual(field.inlinePredictionType, .no)
+        }
+    }
+}
