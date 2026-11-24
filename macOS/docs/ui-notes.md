@@ -180,7 +180,12 @@ on. It never shows amounts while locked and follows privacy mode.
 checks the stored keys). Phrases are hidden until Reveal, hide again when
 the window is not key, are kept out of screenshots and screen sharing while
 visible (`NSWindow.sharingType = .none`), and are copied as concealed
-pasteboard items that are cleared after 60 seconds if unchanged. Locking
+pasteboard items that are cleared after 60 seconds if unchanged. Recovery
+words and derivation paths are typed into `SecretTextField`, an AppKit field
+with a field editor of its own and every text service off (the shared field
+editor of other fields is untouched); a shown raw seed is plain text beside
+its `SecureField`, and a shown path with a `///password` is copied only with
+its concealed copy button. Locking
 drops wallets, balances, history, open sheets and typed passwords at once,
 before the vault confirms.
 

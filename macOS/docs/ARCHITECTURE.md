@@ -72,6 +72,12 @@ So the two public entry points are fixed:
 - Revealing a phrase, exporting, and every transfer re-verify the user
   (`UserApproval`). The UI auto-locks on sleep, screen lock and idle timeout.
 - Copied secrets are marked concealed on the pasteboard and cleared after 60 s.
+- Typed secrets never reach the system text services. Recovery words and
+  derivation paths (which may hold a `///password`) edit in their own AppKit
+  field editor (`SecretTextField`) with spelling, correction, replacement,
+  completion, smart punctuation, prediction, math completion and Writing
+  Tools off; recovery words also allow Roman input sources only. Raw seeds
+  stay in a `SecureField`; showing one adds read-only, non-selectable text.
 - No telemetry, no analytics, no closed-source libraries (owner rule:
   source-available licences count as closed). Every dependency must name its
   source and licence.
