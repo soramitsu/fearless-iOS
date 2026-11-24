@@ -182,18 +182,19 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         }
     }
 
-    /// Nothing wakes the queue when the app stays active and unlocked but had no screen to present on: look again
-    /// every second, without loading anything, until a screen exists.
+    /// Nothing wakes the queue when the app stays active and unlocked but had no settled screen to present on (none,
+    /// or UIKit refused the sheet mid-transition): look again every second, without loading anything, until one
+    /// exists and no other approval is open.
     private func schedulePresenterCheckIfNeeded() {
-        guard !presenterCheckScheduled, !approving, canOpenURLs, UIApplication.topViewController() == nil else {
+        guard !presenterCheckScheduled, !approving, canOpenURLs else {
             return
         }
         presenterCheckScheduled = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             guard let self else { return }
             self.presenterCheckScheduled = false
-            guard self.waitsForTrigger, !self.pendingURLs.isEmpty else { return }
-            if UIApplication.topViewController() != nil {
+            guard self.waitsForTrigger, !self.pendingURLs.isEmpty, !self.approving, self.canOpenURLs else { return }
+            if let top = UIApplication.topViewController(), !top.isBeingPresented, !top.isBeingDismissed {
                 self.drainPendingURLs(trigger: true)
             } else {
                 self.schedulePresenterCheckIfNeeded()
@@ -465,7 +466,14 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         // Never over the PIN screen or the re-lock cover: wallet and request details wait for an unlocked app.
         guard UIApplication.shared.applicationState == .active, !ApplicationLockState.shared.isLocked,
               let presenting = UIApplication.topViewController() else { throw LegacyTonConnectError.busy }
-        return await withCheckedContinuation { continuation in
+        // nil: the user did not answer (UIKit refused the sheet, or the lock or a throttle closed it).
+        let outcome: Bool? = await withCheckedContinuation { continuation in
+            var resumed = false
+            let resume: (Bool?) -> Void = { value in
+                guard !resumed else { return }
+                resumed = true
+                continuation.resume(returning: value)
+            }
             let controller = LegacyTonConnectApprovalViewController(title: title, details: details)
             approvalController = controller
             controller.onApprove = { [weak self, weak controller] in
@@ -476,10 +484,21 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
             }
             controller.completion = { [weak self] approved in
                 self?.approvalController = nil
-                continuation.resume(returning: approved)
+                let interrupted = !approved && (ApplicationLockState.shared.isLocked || self?.ready != true)
+                resume(interrupted ? nil : approved)
             }
             presenting.present(controller, animated: true)
+            // UIKit declines a presentation during another transition and only logs it; the sheet then never
+            // answers, which would hold the approval slot and every waiting link.
+            if controller.presentingViewController == nil {
+                controller.completion = nil
+                controller.onApprove = nil
+                approvalController = nil
+                resume(nil)
+            }
         }
+        guard let outcome else { throw LegacyTonConnectError.busy }
+        return outcome
     }
 
     @MainActor

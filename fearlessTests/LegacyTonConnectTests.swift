@@ -999,31 +999,50 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
         coordinator.throttle()
     }
 
-    /// Codex review (round 5): a wallet throttled while a request was prepared asks nothing.
+    /// Codex review (rounds 5 and 6): a wallet throttled while a request was being prepared asks nothing.
     @MainActor
     func testAThrottledWalletIsNeverAskedToApprove() async throws {
         let keys = TonConnectFixtureKeychain()
         let wallet = try wallet(keys)
         var approvals = 0
+        var lookup: CheckedContinuation<Void, Never>?
         let coordinator = LegacyTonConnectCoordinator(
             store: TonConnectFakeSessionStore(values: []), transport: TonConnectFakeTransport(), replies: .init(keystore: keys),
             keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return true },
-            walletLoader: { _ in wallet }, isEnabled: { true }
+            walletLoader: { _ in
+                await withCheckedContinuation { lookup = $0 }
+                return wallet
+            },
+            isEnabled: { true }
         )
         await coordinator.activate()
-        coordinator.throttle()
-        try await Task.sleep(nanoseconds: 50_000_000)
         let request = try JSONDecoder().decode(
             LegacyTonConnectConnectRequest.self,
             from: Data(#"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#.utf8)
         )
-        do {
-            _ = try await coordinator.connect(
-                walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: request,
-                manifest: .init(url: URL(string: "https://example.org")!, name: "Fixture", iconUrl: nil), connectionType: "http"
-            )
-            XCTFail("No approval from a throttled wallet")
-        } catch {}
+        let connecting = Task { @MainActor () -> Error? in
+            do {
+                _ = try await coordinator.connect(
+                    walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: request,
+                    manifest: .init(url: URL(string: "https://example.org")!, name: "Fixture", iconUrl: nil), connectionType: "http"
+                )
+                return nil
+            } catch {
+                return error
+            }
+        }
+        for _ in 0 ..< 100 where lookup == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertNotNil(lookup, "connect passed its entry check and is loading the wallet")
+        coordinator.throttle()
+        try await Task.sleep(nanoseconds: 50_000_000)
+        lookup?.resume()
+        let error = await connecting.value
+
+        guard case LegacyTonConnectError.busy? = error as? LegacyTonConnectError else {
+            return XCTFail("Expected busy, got \(String(describing: error))")
+        }
         XCTAssertEqual(approvals, 0)
     }
 
