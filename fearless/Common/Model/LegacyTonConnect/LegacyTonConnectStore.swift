@@ -52,6 +52,8 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
     private let service: CoreDataServiceProtocol
     private let keys: LegacyTonConnectSessionKeyStoring
     private let migrationBoundaryHook: (KeyMigrationBoundary) throws -> Void
+    /// Items whose key differs from their row's raw key, already logged. Used only under `operationLock`.
+    private var reportedKeyConflicts: Set<String> = []
 
     init(
         service: CoreDataServiceProtocol = SubstrateDataStorageFacade.shared.databaseService,
@@ -124,9 +126,10 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                 return
             }
             let reference = LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
-            let createdItem = try self.keys.loadKey(reference: reference.account) == nil
+            // Throws, having added nothing, when another key is stored under this reference.
+            let createdItem = try self.keys.saveKey(session.privateKey, reference: reference.account)
             do {
-                try self.storeVerified(LegacyKey(session), reference: reference)
+                try self.verifyStored(LegacyKey(session), reference: reference)
                 let row = NSEntityDescription.insertNewObject(forEntityName: "CDTonConnectedApp", into: context)
                 row.setValue(session.identifier, forKey: "identifier")
                 row.setValue(session.walletId, forKey: "walletId")
@@ -139,7 +142,7 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                 row.setValue(session.connectionType, forKey: "connectionType")
                 try context.save()
             } catch {
-                // Nothing refers to an item this save created (store operations are serialized); an item that was
+                // Nothing refers to an item this save added (store operations are serialized); an item that was
                 // already there may belong to a row in a retained store and stays.
                 if createdItem {
                     try? self.keys.deleteKey(reference: reference.account)
@@ -369,9 +372,11 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
             try context.save()
         } catch LegacyTonConnectSessionKeyError.existingKeyDiffers {
             // Another key is stored under this row's reference. Neither is given up: the item keeps its key and the
-            // row keeps its raw key and stays in use.
+            // row keeps its raw key and stays in use. Every read meets it again, so it is reported once.
             context.rollback()
-            Logger.shared.warning("TON Connect session key stays in its row: another key is stored for it; both are kept")
+            if reportedKeyConflicts.insert(reference.account).inserted {
+                Logger.shared.warning("TON Connect session key stays in its row: another key is stored for it")
+            }
         } catch {
             // The Keychain item, if written, holds the same key and is reused by the next attempt.
             context.rollback()
@@ -379,9 +384,14 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
         }
     }
 
-    /// Writes the key, reads it back and checks it still opens the session: same bytes, same public key.
+    /// Writes the key, never over another one, and checks it as `verifyStored` does.
     private func storeVerified(_ key: LegacyKey, reference: LegacyTonConnectSessionKeyReference) throws {
         try keys.saveKey(key.privateKey, reference: reference.account)
+        try verifyStored(key, reference: reference)
+    }
+
+    /// Reads the key back and checks it still opens the session: same bytes, same public key.
+    private func verifyStored(_ key: LegacyKey, reference: LegacyTonConnectSessionKeyReference) throws {
         guard let stored = try keys.loadKey(reference: reference.account),
               stored == key.privateKey,
               try NaclBox.keyPair(fromSecretKey: stored).publicKey == key.publicKey else {
@@ -502,8 +512,10 @@ enum LegacyTonConnectSessionKeyError: Error, Equatable {
 /// Where TON Connect session transport keys are kept, apart from every wallet key.
 protocol LegacyTonConnectSessionKeyStoring: AnyObject {
     /// Adds the item. When an item with this reference exists already, succeeds only if it holds exactly these bytes,
-    /// and otherwise throws `existingKeyDiffers`; an existing item's value is never replaced.
-    func saveKey(_ key: Data, reference: String) throws
+    /// and otherwise throws `existingKeyDiffers`; an existing item's value is never replaced. Returns whether this
+    /// call added the item.
+    @discardableResult
+    func saveKey(_ key: Data, reference: String) throws -> Bool
     /// Nil when there is no such item. Throws `keychainUnavailable` when the Keychain cannot answer.
     func loadKey(reference: String) throws -> Data?
     /// Succeeds when there is no such item.
@@ -523,14 +535,15 @@ final class LegacyTonConnectSessionKeychain: LegacyTonConnectSessionKeyStoring {
     /// Retirement records: no secret, readable after the first unlock, never synchronized or restored elsewhere.
     static let retiredService = "jp.co.soramitsu.fearless.tonconnect.retired-session.v1"
 
-    func saveKey(_ key: Data, reference: String) throws {
+    @discardableResult
+    func saveKey(_ key: Data, reference: String) throws -> Bool {
         var item = query(reference)
         item[kSecValueData as String] = key
         item[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         // Twice at most: an item that goes between the add and the read is added again once.
         for _ in 0 ..< 2 {
             let status = SecItemAdd(item as CFDictionary, nil)
-            if status == errSecSuccess { return }
+            if status == errSecSuccess { return true }
             guard status == errSecDuplicateItem else {
                 throw LegacyTonConnectSessionKeyError.keychainUnavailable(status)
             }
@@ -542,7 +555,7 @@ final class LegacyTonConnectSessionKeychain: LegacyTonConnectSessionKeyStoring {
             let protection = [kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly]
             let updated = SecItemUpdate(query(reference) as CFDictionary, protection as CFDictionary)
             guard updated == errSecSuccess else { throw LegacyTonConnectSessionKeyError.keychainUnavailable(updated) }
-            return
+            return false
         }
         throw LegacyTonConnectSessionKeyError.keychainUnavailable(errSecDuplicateItem)
     }
