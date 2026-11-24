@@ -1582,6 +1582,10 @@
 "tonconnect.disabled" = "TON Connect 暂时停用，请稍后再试。";
 "tonconnect.domain.mismatch" = "自称是 %@，但未经验证。";
 "tonconnect.proof.refused" = "此链接来自 %1$@，却自称是 %2$@。已拒绝登录。";
+"tonconnect.reconnect.action" = "断开连接";
+"tonconnect.reconnect.later" = "以后再说";
+"tonconnect.reconnect.message" = "旧版本以较不安全的方式存储了这些应用的连接密钥。您的钱包密钥不受影响。请立即断开连接，然后在各个应用中重新连接。";
+"tonconnect.reconnect.title" = "请重新连接您的 TON 应用";
 
 /* Kit v3 feel: Settings switches and the arrival banner. */
 "fw.feedback.sound_effects" = "音效";

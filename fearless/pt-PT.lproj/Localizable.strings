@@ -1555,6 +1555,10 @@ pertence à rede certa";
 "tonconnect.disabled" = "O TON Connect está pausado de momento. Tente novamente mais tarde.";
 "tonconnect.domain.mismatch" = "Diz ser %@. Isto não foi verificado.";
 "tonconnect.proof.refused" = "Esta ligação vem de %1$@, mas diz ser %2$@. O início de sessão foi recusado.";
+"tonconnect.reconnect.action" = "Desligar";
+"tonconnect.reconnect.later" = "Agora não";
+"tonconnect.reconnect.message" = "Uma versão anterior guardava as chaves de ligação destas aplicações de forma menos segura. As chaves da sua carteira não foram afetadas. Desligue agora e volte a ligar a partir de cada aplicação.";
+"tonconnect.reconnect.title" = "Volte a ligar as suas aplicações TON";
 
 /* Kit v3 feel: Settings switches and the arrival banner. */
 "fw.feedback.sound_effects" = "Efeitos sonoros";

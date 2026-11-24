@@ -36,6 +36,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// The remote signing veto (`RemoteKillSwitch.tonDappSigning`): transactions and `ton_proof` sign-ins, as on
     /// Android. An absent key keeps signing on.
     private let isSigningEnabled: () -> Bool
+    /// How long a disconnect waits for its notice to reach the application's bridge.
+    private let disconnectNoticeNanoseconds: UInt64
     private var ready = false
     /// Links in arrival order, opened one at a time. The one being opened stays first until it is done, so a
     /// duplicate arriving meanwhile is merged with it.
@@ -72,7 +74,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
             return wallet
         },
         isEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonConnectEnabled },
-        isSigningEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonDappSigningEnabled }
+        isSigningEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonDappSigningEnabled },
+        disconnectNoticeNanoseconds: UInt64 = 5_000_000_000
     ) {
         self.store = store
         self.transport = transport
@@ -83,6 +86,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         self.walletLoader = walletLoader
         self.isEnabled = isEnabled
         self.isSigningEnabled = isSigningEnabled
+        self.disconnectNoticeNanoseconds = disconnectNoticeNanoseconds
         service = LegacyTonConnectService(store: store, replies: replies, transport: transport)
         super.init()
     }
@@ -525,8 +529,72 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         return try await service.sessions(walletId: wallet.metaId)
     }
 
+    /// The user disconnects a session in the wallet. A bridge application is told first, so it stops trusting the
+    /// session's transport key.
     func disconnect(_ session: LegacyTonConnectSession) async throws {
+        await notifyDisconnect(session)
         try await service.disconnect(session)
+    }
+
+    /// Bridge sessions of the selected wallet whose transport key an older version kept in the database, and whose
+    /// offer to reconnect the user has not answered. An in-app browser session never uses its key, so it is not
+    /// offered.
+    @MainActor
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession] {
+        guard let wallet = selectedWallet() else { return [] }
+        return try await store.sessionsToReconnect().filter { $0.walletId == wallet.metaId && $0.connectionType == "http" }
+    }
+
+    /// The user chose to reconnect: every session is disconnected, and the first failure is reported once all were
+    /// tried. A disconnect that never started leaves its session waiting, so it is offered again; one cut short after
+    /// it started is finished by the next read.
+    func reconnect(_ sessions: [LegacyTonConnectSession]) async throws {
+        var firstFailure: Error?
+        for session in sessions {
+            do {
+                try await disconnect(session)
+            } catch {
+                firstFailure = firstFailure ?? error
+            }
+        }
+        if let firstFailure {
+            throw firstFailure
+        }
+    }
+
+    /// The user chose to keep these sessions as they are: they are not offered again.
+    func keepWithoutReconnecting(_ sessions: [LegacyTonConnectSession]) async throws {
+        try await store.finishReconnectOffer(for: sessions)
+    }
+
+    /// TON Connect has a wallet tell a bridge application that the user disconnected it, so the application drops
+    /// the session and its transport key. Best effort and bounded: an unreachable bridge never keeps a session the
+    /// user removed, and a paused TON Connect sends nothing.
+    private func notifyDisconnect(_ session: LegacyTonConnectSession) async {
+        guard session.connectionType == "http", isEnabled() else { return }
+        let service = service
+        let transport = transport
+        let network = selectedNetwork
+        let limit = disconnectNoticeNanoseconds
+        do {
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    let context = try await service.context(for: session, selectedNetwork: network)
+                    let event = try JSONSerialization.data(withJSONObject: [
+                        "event": "disconnect", "id": UInt64(Date().timeIntervalSince1970), "payload": [String: String]()
+                    ])
+                    try await transport.send(event, session: session, bridge: context.bridgeURL, topic: "disconnect")
+                }
+                group.addTask {
+                    try await Task.sleep(nanoseconds: limit)
+                    throw LegacyTonConnectError.unavailableBridge
+                }
+                defer { group.cancelAll() }
+                _ = try await group.next()
+            }
+        } catch {
+            Logger.shared.warning("TON Connect application was not told about the disconnect; the session is removed")
+        }
     }
 
     @MainActor

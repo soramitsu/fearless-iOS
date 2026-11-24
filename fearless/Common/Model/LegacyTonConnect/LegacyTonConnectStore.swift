@@ -8,6 +8,12 @@ import TweetNacl
 
 protocol LegacyTonConnectSessionStoring {
     func sessions() async throws -> [LegacyTonConnectSession]
+    /// Listed sessions whose key was moved out of a row that held it raw, and whose offer to reconnect the user has
+    /// not answered yet. Copies of the store from before the move may still hold those keys.
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession]
+    /// The user answered the offer to reconnect these sessions, so it is not made again. Only rows that still wait
+    /// for that answer and name these sessions' own items change; a session's key and identity never do.
+    func finishReconnectOffer(for sessions: [LegacyTonConnectSession]) async throws
     func save(_ session: LegacyTonConnectSession) async throws
     func remove(_ session: LegacyTonConnectSession) async throws
     func bridgeURL(network: String) async throws -> URL
@@ -21,6 +27,13 @@ protocol LegacyTonConnectSessionStoring {
 /// column replaced by the reference, in a single Core Data save. Any failure leaves the row exactly as it was and
 /// usable, and the move is tried again on the next read. Rows restored from a retained or older store are legacy
 /// input like any other. Wallet keys are never read or written here.
+///
+/// A moved row is marked in the same save (`LegacyTonConnectSessionKeyReference.movedColumn`): the raw key can
+/// outlive the move in SQLite free pages, the write-ahead log, device backups and retained store archives, so the
+/// user is offered, once, to disconnect and connect the application again, which retires that key everywhere.
+/// The store is not vacuumed for this: a vacuum cannot reach archives or backups, rewrites a store that can be
+/// hundreds of megabytes while the wallet starts, and changes the files the cache-recovery transaction verifies by
+/// SHA-256. Apple's SQLite already zeroes the replaced cell in the page the move rewrites (`secure_delete` FAST).
 final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
     /// Points where a test can stop a key move, as an interrupted process would.
     enum KeyMigrationBoundary: Equatable {
@@ -50,31 +63,39 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
     /// retry instead of treating every moved session as gone.
     func sessions() async throws -> [LegacyTonConnectSession] {
         try await perform { context in
-            let rows = try context.fetch(NSFetchRequest<NSManagedObject>(entityName: "CDTonConnectedApp"))
-            var sessions: [LegacyTonConnectSession] = []
-            for row in rows {
-                // A disconnect that could not finish earlier is finished now, never listed.
-                if self.finishRemovalIfMarked(row, in: context) {
-                    continue
+            try self.listed(in: context).map(\.session)
+        }
+    }
+
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession] {
+        try await perform { context in
+            try self.listed(in: context).filter(\.wasMoved).map(\.session)
+        }
+    }
+
+    func finishReconnectOffer(for sessions: [LegacyTonConnectSession]) async throws {
+        guard !sessions.isEmpty else { return }
+        try await perform { context in
+            var changed = false
+            for session in sessions {
+                let reference = LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
+                let fetch = NSFetchRequest<NSManagedObject>(entityName: "CDTonConnectedApp")
+                fetch.predicate = NSPredicate(format: "identifier == %@", session.identifier)
+                for row in try context.fetch(fetch) {
+                    var waits = false
+                    try SafeObjectiveCExceptionBoundary.perform {
+                        waits = row.value(forKey: "publicKey") as? Data == session.publicKey
+                            && row.value(forKey: "privateKey") as? Data == reference.movedColumn
+                    }
+                    guard waits else { continue }
+                    // The same item, no longer waiting for an answer.
+                    row.setValue(reference.column, forKey: "privateKey")
+                    changed = true
                 }
-                // A released row's key leaves SQLite whenever its key pair is sound, even if the row is not listed
-                // (for example an unknown connection type).
-                if let legacy = Self.legacyKey(in: row) {
-                    self.moveKeyToKeychain(row: row, key: legacy, in: context)
-                }
-                let session: LegacyTonConnectSession
-                do {
-                    session = try self.read(row).session
-                    _ = try session.validated()
-                } catch LegacyTonConnectSessionKeyError.keychainUnavailable(_) {
-                    throw LegacyTonConnectError.invalidSession
-                } catch {
-                    // One unreadable or future session must not hide all other sessions.
-                    continue
-                }
-                sessions.append(session)
             }
-            return sessions
+            if changed {
+                try context.save()
+            }
         }
     }
 
@@ -167,6 +188,37 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
         let session: LegacyTonConnectSession
         /// The row still holds the raw key.
         let isLegacy: Bool
+        /// The key was moved out of this row, and the offer to reconnect has not been answered.
+        let wasMoved: Bool
+    }
+
+    /// Every session a read lists, in row order. Finishes interrupted disconnects and moves raw keys on the way.
+    private func listed(in context: NSManagedObjectContext) throws -> [StoredSession] {
+        let rows = try context.fetch(NSFetchRequest<NSManagedObject>(entityName: "CDTonConnectedApp"))
+        var sessions: [StoredSession] = []
+        for row in rows {
+            // A disconnect that could not finish earlier is finished now, never listed.
+            if finishRemovalIfMarked(row, in: context) {
+                continue
+            }
+            // A released row's key leaves SQLite whenever its key pair is sound, even if the row is not listed
+            // (for example an unknown connection type).
+            if let legacy = Self.legacyKey(in: row) {
+                moveKeyToKeychain(row: row, key: legacy, in: context)
+            }
+            let stored: StoredSession
+            do {
+                stored = try read(row)
+                _ = try stored.session.validated()
+            } catch LegacyTonConnectSessionKeyError.keychainUnavailable(_) {
+                throw LegacyTonConnectError.invalidSession
+            } catch {
+                // One unreadable or future session must not hide all other sessions.
+                continue
+            }
+            sessions.append(stored)
+        }
+        return sessions
     }
 
     /// The row's identity columns match and it is either marked as being removed, or names this session's Keychain
@@ -188,7 +240,8 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
         }
         guard identityMatches else { return false }
         if column == reference.removingColumn { return true }
-        return try column == reference.column && keys.loadKey(reference: reference.account) == nil
+        guard column == reference.column || column == reference.movedColumn else { return false }
+        return try keys.loadKey(reference: reference.account) == nil
     }
 
     /// Finishes a disconnect that was cut short: deletes the key, then the row. Returns whether the row was marked.
@@ -255,12 +308,13 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
     }
 
     /// Moves one legacy row's key into the Keychain. On any failure the row keeps its raw key and stays usable.
+    /// The row is marked as moved in the same save, so the offer to reconnect is never lost to an interruption.
     private func moveKeyToKeychain(row: NSManagedObject, key: LegacyKey, in context: NSManagedObjectContext) {
         let reference = LegacyTonConnectSessionKeyReference(identifier: key.identifier, publicKey: key.publicKey)
         do {
             try storeVerified(key, reference: reference)
             try migrationBoundaryHook(.keyStored)
-            row.setValue(reference.column, forKey: "privateKey")
+            row.setValue(reference.movedColumn, forKey: "privateKey")
             try migrationBoundaryHook(.rowUpdated)
             try context.save()
         } catch {
@@ -294,11 +348,16 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
             }
             let privateKey: Data
             let isLegacy: Bool
-            switch LegacyTonConnectSessionKeyReference.Column(column) {
+            var wasMoved = false
+            let parsed = LegacyTonConnectSessionKeyReference.Column(column)
+            switch parsed {
             case let .legacy(key):
                 privateKey = key
                 isLegacy = true
-            case let .keychain(digest):
+            case let .keychain(digest), let .moved(digest):
+                if case .moved = parsed {
+                    wasMoved = true
+                }
                 // The row may only name the item made for its own identifier and public key.
                 let reference = LegacyTonConnectSessionKeyReference(identifier: identifier, publicKey: publicKey)
                 guard digest == reference.digest else { throw LegacyTonConnectError.invalidSession }
@@ -330,7 +389,8 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                     name: name, iconUrl: row.value(forKey: "iconUrl") as? URL,
                     publicKey: publicKey, privateKey: privateKey, connectionType: connectionType
                 ),
-                isLegacy: isLegacy
+                isLegacy: isLegacy,
+                wasMoved: wasMoved
             )
         }
         guard let stored else { throw LegacyTonConnectError.invalidSession }
@@ -449,12 +509,16 @@ final class LegacyTonConnectSessionKeychain: LegacyTonConnectSessionKeyStoring {
 /// raw key. A released row holds exactly 32 key bytes; a reference has another length and a fixed prefix.
 struct LegacyTonConnectSessionKeyReference: Equatable {
     static let columnPrefix = Data("fwtck1".utf8)
+    /// Like `columnPrefix`, for a key moved out of a row that held it raw, until the user answers the offer to
+    /// reconnect the application.
+    static let movedPrefix = Data("fwtck2".utf8)
     /// A disconnect has begun: the row is no longer a session, and its key and then the row are being removed.
     static let removingPrefix = Data("fwtck0".utf8)
 
     enum Column: Equatable {
         case legacy(Data)
         case keychain(Data)
+        case moved(Data)
         case removing(Data)
 
         init?(_ value: Data) {
@@ -464,6 +528,9 @@ struct LegacyTonConnectSessionKeyReference: Equatable {
             } else if value.count == prefixLength + 32,
                       value.prefix(prefixLength) == LegacyTonConnectSessionKeyReference.columnPrefix {
                 self = .keychain(Data(value.suffix(32)))
+            } else if value.count == prefixLength + 32,
+                      value.prefix(prefixLength) == LegacyTonConnectSessionKeyReference.movedPrefix {
+                self = .moved(Data(value.suffix(32)))
             } else if value.count == prefixLength + 32,
                       value.prefix(prefixLength) == LegacyTonConnectSessionKeyReference.removingPrefix {
                 self = .removing(Data(value.suffix(32)))
@@ -492,6 +559,12 @@ struct LegacyTonConnectSessionKeyReference: Equatable {
     /// What the row's `privateKey` column holds once the key is in the Keychain.
     var column: Data {
         Self.columnPrefix + digest
+    }
+
+    /// What the row's `privateKey` column holds once a raw key has been moved to the Keychain, until the user has
+    /// answered the offer to reconnect.
+    var movedColumn: Data {
+        Self.movedPrefix + digest
     }
 
     /// What the row's `privateKey` column holds while its disconnect is being finished.

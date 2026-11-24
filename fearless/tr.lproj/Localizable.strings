@@ -1583,6 +1583,10 @@ ait olduğundan emin olun.";
 "tonconnect.disabled" = "TON Connect şu anda duraklatıldı. Daha sonra tekrar deneyin.";
 "tonconnect.domain.mismatch" = "%@ olduğunu iddia ediyor. Bu doğrulanmadı.";
 "tonconnect.proof.refused" = "Bu bağlantı %1$@ adresinden geliyor ancak %2$@ olduğunu iddia ediyor. Giriş reddedildi.";
+"tonconnect.reconnect.action" = "Bağlantıyı kes";
+"tonconnect.reconnect.later" = "Şimdi değil";
+"tonconnect.reconnect.message" = "Eski bir sürüm bu uygulamaların bağlantı anahtarlarını daha az güvenli biçimde saklıyordu. Cüzdan anahtarlarınız etkilenmedi. Bağlantıyı şimdi kesin, ardından her uygulamadan yeniden bağlanın.";
+"tonconnect.reconnect.title" = "TON uygulamalarınızı yeniden bağlayın";
 
 /* Kit v3 feel: Settings switches and the arrival banner. */
 "fw.feedback.sound_effects" = "Ses efektleri";

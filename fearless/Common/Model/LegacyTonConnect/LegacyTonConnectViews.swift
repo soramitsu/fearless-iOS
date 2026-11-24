@@ -140,9 +140,54 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
     }
 }
 
+/// The one-time offer to retire transport keys an older version kept in the database: one warning, one action, and
+/// the hosts it applies to.
+enum LegacyTonConnectReconnectOffer {
+    /// Hosts named before the rest are left out.
+    static let maximumListedHosts = 5
+
+    static func alert(
+        for sessions: [LegacyTonConnectSession],
+        languages: [String]?,
+        disconnect: @escaping () -> Void,
+        keep: @escaping () -> Void
+    ) -> UIAlertController {
+        var hosts: [String] = []
+        for session in sessions {
+            let host = session.appUrl.host ?? session.appUrl.absoluteString
+            if !hosts.contains(host) {
+                hosts.append(host)
+            }
+        }
+        var listed = hosts.prefix(maximumListedHosts).joined(separator: "\n")
+        if hosts.count > maximumListedHosts {
+            listed += "\n…"
+        }
+        let alert = UIAlertController(
+            title: R.string.localizable.tonconnectReconnectTitle(preferredLanguages: languages),
+            message: R.string.localizable.tonconnectReconnectMessage(preferredLanguages: languages) + "\n\n" + listed,
+            preferredStyle: .alert
+        )
+        let later = UIAlertAction(
+            title: R.string.localizable.tonconnectReconnectLater(preferredLanguages: languages),
+            style: .cancel
+        ) { _ in keep() }
+        let reconnect = UIAlertAction(
+            title: R.string.localizable.tonconnectReconnectAction(preferredLanguages: languages),
+            style: .destructive
+        ) { _ in disconnect() }
+        alert.addAction(later)
+        alert.addAction(reconnect)
+        alert.preferredAction = reconnect
+        return alert
+    }
+}
+
 final class LegacyTonConnectSessionsViewController: UITableViewController {
     private let coordinator: LegacyTonConnectCoordinator
     private var sessions: [LegacyTonConnectSession] = []
+    /// The offer to reconnect is on screen or its answer is being carried out.
+    private var isOfferingReconnect = false
 
     init(coordinator: LegacyTonConnectCoordinator) {
         self.coordinator = coordinator
@@ -166,11 +211,58 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
 
     @objc private func reload() {
         Task { @MainActor in
-            defer { refreshControl?.endRefreshing() }
             do {
                 sessions = try await coordinator.selectedSessions()
                 tableView.reloadData()
-            } catch { show(error) }
+                refreshControl?.endRefreshing()
+            } catch {
+                refreshControl?.endRefreshing()
+                show(error)
+                return
+            }
+            await offerReconnectIfNeeded()
+        }
+    }
+
+    /// Offers, once, to reconnect the listed bridge sessions whose keys an older version kept in the database. Asked
+    /// only while this list is on screen with nothing over it; until the user answers, the next load asks again.
+    private func offerReconnectIfNeeded() async {
+        guard !isOfferingReconnect else { return }
+        isOfferingReconnect = true
+        let waiting = ((try? await coordinator.sessionsToReconnect()) ?? []).filter { sessions.contains($0) }
+        guard !waiting.isEmpty, viewIfLoaded?.window != nil, presentedViewController == nil,
+              !ApplicationLockState.shared.isLocked else {
+            isOfferingReconnect = false
+            return
+        }
+        let alert = LegacyTonConnectReconnectOffer.alert(
+            for: waiting,
+            languages: LegacyTonConnectProtocol.languages,
+            disconnect: { [weak self] in self?.answerReconnectOffer(waiting, reconnect: true) },
+            keep: { [weak self] in self?.answerReconnectOffer(waiting, reconnect: false) }
+        )
+        present(alert, animated: true)
+        if alert.presentingViewController == nil {
+            // UIKit refused it (for example mid-transition): nothing was asked, so the next load asks.
+            isOfferingReconnect = false
+        }
+    }
+
+    private func answerReconnectOffer(_ waiting: [LegacyTonConnectSession], reconnect: Bool) {
+        Task { @MainActor in
+            defer { isOfferingReconnect = false }
+            do {
+                if reconnect {
+                    try await coordinator.reconnect(waiting)
+                } else {
+                    try await coordinator.keepWithoutReconnecting(waiting)
+                }
+            } catch {
+                show(error)
+            }
+            if reconnect {
+                reload()
+            }
         }
     }
 
