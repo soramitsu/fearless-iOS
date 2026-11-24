@@ -3,27 +3,16 @@ import SSFModels
 import UIKit
 
 /// A text view for a recovery phrase: no autocorrect, spelling, prediction, smart punctuation,
-/// writing tools, shortcuts bar, paste, copy or cut. The words go nowhere but this view.
+/// writing tools, math completion, grammar checking, shortcuts bar, paste, copy or cut. The words
+/// go nowhere but this view.
 final class RecoveryPhraseTextView: UITextView {
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
-        autocorrectionType = .no
-        autocapitalizationType = .none
-        spellCheckingType = .no
-        smartQuotesType = .no
-        smartDashesType = .no
-        smartInsertDeleteType = .no
-        keyboardType = .asciiCapable
+        // The same keyboard settings as every other recovery-phrase field (ASCII-capable; no
+        // correction, prediction, writing tools, math completion or grammar checking).
+        SecretTextEntry.configureRecoveryInput(self)
         textContentType = nil
         pasteConfiguration = nil
-        if #available(iOS 17.0, *) {
-            inlinePredictionType = .no
-        }
-        #if compiler(>=6.0)
-            if #available(iOS 18.0, *) {
-                writingToolsBehavior = .none
-            }
-        #endif
         inputAssistantItem.leadingBarButtonGroups = []
         inputAssistantItem.trailingBarButtonGroups = []
     }
