@@ -103,7 +103,9 @@ final class CovHWalletMainInteractor: WalletMainContainerInteractorInput {
     var passwordAcknowledgements = 0
     var switches: [[UniversalWalletNoPasswordAccount]] = []
     var arrivals: [[UniversalWalletOldAddressArrival]] = []
+    var recoveryOffersClosed: [String] = []
     func setup(with output: WalletMainContainerInteractorOutput) { self.output = output }
+    func acknowledgeRecoveryCheckOffer(for walletId: MetaAccountId) { recoveryOffersClosed.append(walletId) }
     func walletConnect(uri: String) async throws {
         uris.append(uri)
         if let error { throw error }
@@ -122,6 +124,10 @@ final class CovHWalletMainRouter: WalletMainContainerRouterInput {
     var sheets: [SheetAlertPresentableViewModel] = []
     var errors: [Error] = []
     var statusCount = 0
+    var recoveryChecks: [String] = []
+    func showProtectedRecoveryCheck(wallet: MetaAccountModel, locale _: Locale, from _: ControllerBackedProtocol?) {
+        recoveryChecks.append(wallet.metaId)
+    }
     func showWalletManagment(from view: WalletMainContainerViewInput?, moduleOutput: WalletsManagmentModuleOutput?) { calls.append("wallets") }
     func showScanQr(from view: WalletMainContainerViewInput?, moduleOutput: ScanQRModuleOutput) { calls.append("qr") }
     func showSearch(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel) { calls.append("search"); wallets.append(wallet) }

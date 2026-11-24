@@ -1634,3 +1634,13 @@
 "invoice_scan.error.gallery_restricted_previously" = "Unfortunately, you denied access to photos previously. Would you like to allow access now?";
 "invoice_scan.error.gallery_title" = "Photos Access";
 "invoice_scan.error.no_info" = "QR can't be decoded";
+"protected.recovery.offer.title" = "このウォレットをパスコードで保護";
+"protected.recovery.offer.message" = "バックアップにあるこのウォレットのリカバリーフレーズを入力してください。一致すると、鍵の使用にFace ID、Touch ID、またはデバイスのパスコードが必要になります。バックアップは保管してください。パスコードをオフにすると、保護された鍵はこのデバイスから削除されます。";
+"protected.recovery.offer.action" = "リカバリーフレーズを入力";
+"protected.recovery.check.title" = "リカバリーフレーズを入力";
+"protected.recovery.check.hint" = "バックアップの単語を順番どおりに、スペースで区切って入力してください。";
+"protected.recovery.check.action" = "確認";
+"protected.recovery.check.mismatch" = "この単語はこのウォレットと一致しません。何も変更されていません。";
+"protected.recovery.check.stays" = "このウォレットはここでは確認できないため、そのままになります。何も変更されていません。";
+"protected.keychain.read.reason" = "ウォレットの鍵へのアクセスを承認してください";
+"protected.keychain.migration.reason" = "ウォレットの鍵をデバイスのパスコードで保護します";

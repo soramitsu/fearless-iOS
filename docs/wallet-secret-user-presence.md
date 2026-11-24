@@ -277,6 +277,34 @@ explicit `false` vetoes and is remembered, an explicit `true` clears a veto. `is
 `false` in this build. The switch is decoded on its own: a malformed value is ignored instead of
 failing the whole remote document.
 
+### 3.9 Recovery-phrase check for older wallets
+
+Wallets an earlier release made carry no recovery evidence, so they cannot move until their owner
+shows they still have the backup (`ProtectedKeychainRecoveryCheck`). Owner rules: offered only while
+the flag is on, only for wallets without evidence, once per wallet; short copy (one action, one
+warning, at most three steps) in the 9 languages of the OS notice; skipping leaves the wallet exactly
+as it is.
+
+1. **Offer** (last startup notice on the main screen, `SheetAlertPresentableViewModel.protectedRecoveryCheckOffer`):
+   "Protect this wallet with your passcode", one warning (turning off the passcode removes protected
+   keys from this device, so keep the backup), "Enter recovery phrase" or "Not now". Any close
+   records the one offer.
+2. **Type the phrase** (`ProtectedKeychainRecoveryCheckViewController`): the stored phrase is never
+   shown. The field (`RecoveryPhraseTextView`) has no autocorrect, spelling, prediction, smart
+   punctuation, writing tools, shortcuts bar, paste, copy or cut; `SecretCaptureGuard` covers it
+   during recording or mirroring; third-party keyboards are blocked app-wide; the words are cleared
+   when the screen goes away.
+3. **Result:** a match records evidence and starts the move (the system sheet follows). A mismatch
+   says so and changes nothing. A wallet with a custom derivation path or wallet password, or one
+   that cannot be read, stays as it is.
+
+A match means the typed words (BIP39, standard paths: Substrate `""`, Ethereum
+`//44//60//0/0/0`) re-derive the stored Substrate key (`entropyReproducesPublicKey`), the stored
+Ethereum address and every stored universal account; or, for a released native TON wallet, the
+stored TON key. Offered only to wallets whose items are all root items of one phrase (no account
+imported on its own, no raw-seed bridge, no JSON-only wallet), decided from public data and an
+attributes-only inventory.
+
 ## 4. Unchanged and adjusted
 
 - Signing, export, cloud backup and emergency export call `Keychain` as before; the router and the
@@ -303,11 +331,9 @@ failing the whole remote document.
 
 ## 6. Before the flag goes on (open)
 
-- **Existing wallets have no recovery evidence.** Only wallets imported, restored or confirmed with
-  this release onward carry it, so every wallet created by an earlier release stays on the legacy
-  store. Moving them needs a "verify your recovery phrase / backup" step whose UX the owner approves
-  (section 8). Until then they are exactly as safe as today. Accounts imported on their own never
-  carry evidence yet, so a wallet with one stays too.
+- **Older wallets** get evidence through the recovery-phrase check (3.9). Wallets it cannot cover
+  (an account imported on its own, a raw seed, JSON only, a custom path or wallet password) stay on
+  the legacy store, exactly as safe as today.
 - Evidence binds to the items an import wrote, not to their bytes; the identity checks at the move
   (3.5.1) are what tie those items to the wallet's public keys.
 - Codex follow-up items left for before enabling: binding a protected-only update to per-tag write
@@ -341,6 +367,9 @@ failing the whole remote document.
 | Wallet without a verified backup | — | stays as today; nothing shown |
 | Passcode removed after the move | — | wallet must be restored from its backup |
 
-Open choice: keep the app PIN in front of the system sheet (two steps for PIN users), or let the
-system sheet replace the app's own confirmation for signing when the flag is on. This build keeps
-both.
+**Decided (2026-11-24, under the owner's "keep going" and conservative-default rule): the app PIN
+stays in front.** Unlocking works exactly as today. The system sheet (Face ID / Touch ID /
+passcode) appears only after a correct PIN or in-app Face ID, and only where step 2 needs it: the
+first move of a wallet, and send or export, unless an in-app Face ID check just ran. Reason: it adds
+a layer and changes nothing existing users already know; replacing the app PIN would change the
+unlock every user is used to and remove the PIN as a second factor.

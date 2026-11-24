@@ -1035,6 +1035,7 @@
 		4D44ACFB841F7CE18CE98559 /* MultichainAssetSelectionAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9596692C164228636164C830 /* MultichainAssetSelectionAssembly.swift */; };
 		4D56353FBB1160698C542499 /* CrashConsistentStoreReplacerResourceLimitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEC2067F2D6F4E9D194E239 /* CrashConsistentStoreReplacerResourceLimitTests.swift */; };
 		4D822D169784790EBF173EEE /* WalletMainContainerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D738FE711DD760B47C0BA65 /* WalletMainContainerPresenter.swift */; };
+		275BC52008EC63F5A8267064 /* ProtectedKeychainRecoveryCheckViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57515A7DF6A745AA63CCF985 /* ProtectedKeychainRecoveryCheckViewController.swift */; };
 		4F12420C17B321F52D694E92 /* AddCustomNodeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900E67A76C0702F8123EBB47 /* AddCustomNodeInteractor.swift */; };
 		4F66A13E327CBDD04A2411FA /* WalletTransactionHistoryViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB1161D25AF1FC90AA23B7A /* WalletTransactionHistoryViewLayout.swift */; };
 		4FBD73DD27CAA339727616B5 /* StakingUnbondSetupPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCECA20E6DCA5D228F44477 /* StakingUnbondSetupPresenter.swift */; };
@@ -3524,6 +3525,7 @@
 		FAE6016C2ECA700100000001 /* BitcoinReceiveDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6016D2ECA700100000001 /* BitcoinReceiveDiscoveryTests.swift */; };
 		FAE6016E2ECA700100000001 /* BitcoinBalanceSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE6016F2ECA700100000001 /* BitcoinBalanceSync.swift */; };
 		62C738269B320CDD22F94707 /* WalletAuthorizedMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2F153FAE0AB48287F1315D9 /* WalletAuthorizedMaintenance.swift */; };
+		E472EE14610FDDA1141B0A63 /* ProtectedKeychainRecoveryCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ABA7D6946D828C51206A77D /* ProtectedKeychainRecoveryCheck.swift */; };
 		2BAC38B7338A0E8B0253C841 /* PincodeVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 216524911B747C81A3201F0C /* PincodeVerifier.swift */; };
 		49C988B9317DC93BE3288ACC /* ProtectedWalletSecretCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153B5787DAAA65550654377F /* ProtectedWalletSecretCoordinator.swift */; };
 		5B467B7F5D34C77BA7981EB6 /* ProtectedWalletSecretMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7FEDF28210626A658504EC /* ProtectedWalletSecretMigrator.swift */; };
@@ -3533,6 +3535,7 @@
 		FAE601702ECA700100000001 /* BitcoinBalanceSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601712ECA700100000001 /* BitcoinBalanceSyncTests.swift */; };
 		3ACAB14C9436CAF50CE4B0B8 /* PassiveSecretReadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD631578A4D4C1D484AD3BF /* PassiveSecretReadTests.swift */; };
 		12057640F27448082413A882 /* ProtectedWalletSecretMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782908978AAED22D7CC70B80 /* ProtectedWalletSecretMigrationTests.swift */; };
+		C6DF9D0A3CCB584F7ACC130A /* ProtectedKeychainRecoveryCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F452E41F669B5C578B7E1429 /* ProtectedKeychainRecoveryCheckTests.swift */; };
 		FAE601722ECA700100000001 /* BitcoinFeeEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601732ECA700100000001 /* BitcoinFeeEstimator.swift */; };
 		FAE601742ECA700100000001 /* BitcoinFeeEstimatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601752ECA700100000001 /* BitcoinFeeEstimatorTests.swift */; };
 		FAE601762ECA700100000001 /* BitcoinUtxoSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE601772ECA700100000001 /* BitcoinUtxoSelector.swift */; };
@@ -4738,6 +4741,7 @@
 		1CC566D6EACB81469B926611 /* ExportMnemonicConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportMnemonicConfirmInteractor.swift; sourceTree = "<group>"; };
 		1D651E438F86F37CC07D6D3F /* StakingPoolCreateViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewController.swift; sourceTree = "<group>"; };
 		1D738FE711DD760B47C0BA65 /* WalletMainContainerPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletMainContainerPresenter.swift; sourceTree = "<group>"; };
+		57515A7DF6A745AA63CCF985 /* ProtectedKeychainRecoveryCheckViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProtectedKeychainRecoveryCheckViewController.swift; sourceTree = "<group>"; };
 		1DECC58C93DB18E79A03B5A0 /* AssetSelectionProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AssetSelectionProtocols.swift; sourceTree = "<group>"; };
 		1E5CB64B91B35804B3671456 /* ControllerAccountPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountPresenter.swift; sourceTree = "<group>"; };
 		1F3B726402D4DB25059EF156 /* AnalyticsValidatorsProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsProtocols.swift; sourceTree = "<group>"; };
@@ -7348,6 +7352,7 @@
 		FAE6016D2ECA700100000001 /* BitcoinReceiveDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinReceiveDiscoveryTests.swift; sourceTree = "<group>"; };
 		FAE6016F2ECA700100000001 /* BitcoinBalanceSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinBalanceSync.swift; sourceTree = "<group>"; };
 		F2F153FAE0AB48287F1315D9 /* WalletAuthorizedMaintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAuthorizedMaintenance.swift; sourceTree = "<group>"; };
+		5ABA7D6946D828C51206A77D /* ProtectedKeychainRecoveryCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtectedKeychainRecoveryCheck.swift; sourceTree = "<group>"; };
 		216524911B747C81A3201F0C /* PincodeVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PincodeVerifier.swift; sourceTree = "<group>"; };
 		153B5787DAAA65550654377F /* ProtectedWalletSecretCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtectedWalletSecretCoordinator.swift; sourceTree = "<group>"; };
 		CA7FEDF28210626A658504EC /* ProtectedWalletSecretMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtectedWalletSecretMigrator.swift; sourceTree = "<group>"; };
@@ -7357,6 +7362,7 @@
 		FAE601712ECA700100000001 /* BitcoinBalanceSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinBalanceSyncTests.swift; sourceTree = "<group>"; };
 		ACD631578A4D4C1D484AD3BF /* PassiveSecretReadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassiveSecretReadTests.swift; sourceTree = "<group>"; };
 		782908978AAED22D7CC70B80 /* ProtectedWalletSecretMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtectedWalletSecretMigrationTests.swift; sourceTree = "<group>"; };
+		F452E41F669B5C578B7E1429 /* ProtectedKeychainRecoveryCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtectedKeychainRecoveryCheckTests.swift; sourceTree = "<group>"; };
 		FAE601732ECA700100000001 /* BitcoinFeeEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinFeeEstimator.swift; sourceTree = "<group>"; };
 		FAE601752ECA700100000001 /* BitcoinFeeEstimatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinFeeEstimatorTests.swift; sourceTree = "<group>"; };
 		FAE601772ECA700100000001 /* BitcoinUtxoSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinUtxoSelector.swift; sourceTree = "<group>"; };
@@ -8572,6 +8578,7 @@
 				C8312AF0B70350EE27DB5B4A /* WalletMainContainerProtocols.swift */,
 				80C632A122CE8D02B84806C3 /* WalletMainContainerRouter.swift */,
 				1D738FE711DD760B47C0BA65 /* WalletMainContainerPresenter.swift */,
+				57515A7DF6A745AA63CCF985 /* ProtectedKeychainRecoveryCheckViewController.swift */,
 				DEC72ACCA21471C6A9580180 /* WalletMainContainerInteractor.swift */,
 				961642321C9AD1885325A3D7 /* WalletMainContainerViewController.swift */,
 				44FDDC470A6921DC2258939E /* WalletMainContainerViewLayout.swift */,
@@ -11138,6 +11145,7 @@
 				FAE601712ECA700100000001 /* BitcoinBalanceSyncTests.swift */,
 				ACD631578A4D4C1D484AD3BF /* PassiveSecretReadTests.swift */,
 				782908978AAED22D7CC70B80 /* ProtectedWalletSecretMigrationTests.swift */,
+				F452E41F669B5C578B7E1429 /* ProtectedKeychainRecoveryCheckTests.swift */,
 				FAE601752ECA700100000001 /* BitcoinFeeEstimatorTests.swift */,
 				FAE601792ECA700100000001 /* BitcoinUtxoSelectorTests.swift */,
 				FAE6017D2ECA700100000001 /* BitcoinSendPlannerTests.swift */,
@@ -11473,6 +11481,7 @@
 				FAE6016B2ECA700100000001 /* BitcoinReceiveDiscovery.swift */,
 				FAE6016F2ECA700100000001 /* BitcoinBalanceSync.swift */,
 				F2F153FAE0AB48287F1315D9 /* WalletAuthorizedMaintenance.swift */,
+				5ABA7D6946D828C51206A77D /* ProtectedKeychainRecoveryCheck.swift */,
 				216524911B747C81A3201F0C /* PincodeVerifier.swift */,
 				153B5787DAAA65550654377F /* ProtectedWalletSecretCoordinator.swift */,
 				CA7FEDF28210626A658504EC /* ProtectedWalletSecretMigrator.swift */,
@@ -19188,6 +19197,7 @@
 				FAE6016A2ECA700100000001 /* BitcoinReceiveDiscovery.swift in Sources */,
 				FAE6016E2ECA700100000001 /* BitcoinBalanceSync.swift in Sources */,
 				62C738269B320CDD22F94707 /* WalletAuthorizedMaintenance.swift in Sources */,
+				E472EE14610FDDA1141B0A63 /* ProtectedKeychainRecoveryCheck.swift in Sources */,
 				2BAC38B7338A0E8B0253C841 /* PincodeVerifier.swift in Sources */,
 				49C988B9317DC93BE3288ACC /* ProtectedWalletSecretCoordinator.swift in Sources */,
 				5B467B7F5D34C77BA7981EB6 /* ProtectedWalletSecretMigrator.swift in Sources */,
@@ -20658,6 +20668,7 @@
 				5967C80AC5F477E589DA4793 /* WalletMainContainerRouter.swift in Sources */,
 				FAC6CD9A2BA809160013A17E /* ReceiveInfo.swift in Sources */,
 				4D822D169784790EBF173EEE /* WalletMainContainerPresenter.swift in Sources */,
+				275BC52008EC63F5A8267064 /* ProtectedKeychainRecoveryCheckViewController.swift in Sources */,
 				CFAC59D34B15A2FAC4CD8256 /* WalletMainContainerInteractor.swift in Sources */,
 				6FA6FA6944AD6519FB8A2AC0 /* WalletMainContainerViewController.swift in Sources */,
 				FA7254412AC2E48500EC47A6 /* ABIParsing.swift in Sources */,
@@ -21464,6 +21475,7 @@
 				FAE601702ECA700100000001 /* BitcoinBalanceSyncTests.swift in Sources */,
 				3ACAB14C9436CAF50CE4B0B8 /* PassiveSecretReadTests.swift in Sources */,
 				12057640F27448082413A882 /* ProtectedWalletSecretMigrationTests.swift in Sources */,
+				C6DF9D0A3CCB584F7ACC130A /* ProtectedKeychainRecoveryCheckTests.swift in Sources */,
 				FAE601742ECA700100000001 /* BitcoinFeeEstimatorTests.swift in Sources */,
 				FAE601782ECA700100000001 /* BitcoinUtxoSelectorTests.swift in Sources */,
 				FAE6017C2ECA700100000001 /* BitcoinSendPlannerTests.swift in Sources */,

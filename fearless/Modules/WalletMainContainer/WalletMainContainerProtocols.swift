@@ -30,6 +30,12 @@ protocol WalletMainContainerInteractorInput: AnyObject {
     func acknowledgeUniversalWalletPasswordNotice()
     func switchNoPasswordAccounts(_ accounts: [UniversalWalletNoPasswordAccount])
     func acknowledgeOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival])
+    /// The recovery-phrase check was offered for `walletId` and closed: it is not offered again.
+    func acknowledgeRecoveryCheckOffer(for walletId: MetaAccountId)
+}
+
+extension WalletMainContainerInteractorInput {
+    func acknowledgeRecoveryCheckOffer(for _: MetaAccountId) {}
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {
@@ -49,9 +55,16 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     /// Funds reached old addresses while the wallet keeps its password-protected ones.
     func didReceiveUniversalWalletOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival])
     func didReceive(syncUpdate: WalletSyncUpdate)
+    /// The wallet can show it still has its recovery phrase and move to protected storage.
+    func didReceiveRecoveryCheckOffer(for wallet: MetaAccountModel)
+}
+
+extension WalletMainContainerInteractorOutput {
+    func didReceiveRecoveryCheckOffer(for _: MetaAccountModel) {}
 }
 
 protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {
+    func showProtectedRecoveryCheck(wallet: MetaAccountModel, locale: Locale, from view: ControllerBackedProtocol?)
     /// A startup notice; `onInterrupted` runs when something else, such as the lock screen,
     /// closes it before the user did.
     func presentNotice(
@@ -98,6 +111,22 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
     func showReceive(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel, chainAsset: ChainAsset)
     func showAssetDetails(from view: WalletMainContainerViewInput?, chainAsset: ChainAsset)
     func showSwap(from view: WalletMainContainerViewInput?)
+}
+
+extension WalletMainContainerRouterInput {
+    /// Step 2 of the recovery-phrase check. A match starts the move to protected storage, whose
+    /// system sheet follows; closing changes nothing.
+    func showProtectedRecoveryCheck(
+        wallet: MetaAccountModel,
+        locale: Locale,
+        from view: ControllerBackedProtocol?
+    ) {
+        let controller = ProtectedKeychainRecoveryCheckViewController(wallet: wallet, locale: locale) {
+            ProtectedWalletSecretCoordinator.shared.migrateAfterUnlock()
+        }
+        controller.modalPresentationStyle = .formSheet
+        view?.controller.present(controller, animated: true)
+    }
 }
 
 protocol WalletMainContainerModuleInput: AnyObject {}

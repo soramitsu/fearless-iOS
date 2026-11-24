@@ -28,6 +28,8 @@ final class WalletMainContainerPresenter {
     private var pendingPasswordNoticeAccounts: [UniversalWalletNoPasswordAccount] = []
     /// Funds that reached watched old addresses, shown after the other notices.
     private var pendingOldAddressArrivals: [UniversalWalletOldAddressArrival] = []
+    /// The selected wallet may take the recovery-phrase check (offered once, last in the queue).
+    private var pendingRecoveryCheckWallet: MetaAccountModel?
     /// Switch is checking balances; its outcome shows before the arrivals that wait meanwhile.
     private var isSwitchingNoPasswordAccounts = false
     private var pendingSwitchOutcome: (
@@ -304,6 +306,14 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
     }
 
+    func didReceiveRecoveryCheckOffer(for wallet: MetaAccountModel) {
+        guard wallet.metaId == self.wallet.metaId else {
+            return
+        }
+        pendingRecoveryCheckWallet = wallet
+        presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+    }
+
     func didReceiveUniversalWalletSwitchOutcomes(
         _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
         for accounts: [UniversalWalletNoPasswordAccount]
@@ -504,11 +514,58 @@ private extension WalletMainContainerPresenter {
         router.present(viewModel: viewModel, from: view)
     }
 
+    /// Step 1 of the recovery-phrase check, after every other notice: one action, one warning.
+    /// Any close records the one offer for this wallet; "Not now" leaves the wallet as it is.
+    func presentRecoveryCheckOffer(retriesLeft: Int) {
+        guard let candidate = pendingRecoveryCheckWallet else {
+            return
+        }
+        guard candidate.metaId == wallet.metaId else {
+            pendingRecoveryCheckWallet = nil
+            return
+        }
+        guard
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            controller.presentedViewController == nil
+        else {
+            guard retriesLeft > 0 else {
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
+                self?.presentRecoveryCheckOffer(retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+
+        pendingRecoveryCheckWallet = nil
+        var followUp: (() -> Void)?
+        let locale = selectedLocale
+        let viewModel = SheetAlertPresentableViewModel.protectedRecoveryCheckOffer(
+            locale: locale,
+            onCheck: { [weak self] in
+                followUp = {
+                    guard let self else { return }
+                    self.router.showProtectedRecoveryCheck(wallet: candidate, locale: locale, from: self.view)
+                }
+            },
+            onClose: { [weak self] in
+                self?.interactor.acknowledgeRecoveryCheckOffer(for: candidate.metaId)
+                followUp?()
+            }
+        )
+        router.present(viewModel: viewModel, from: view)
+    }
+
     /// Funds at an old address the wallet left; its password-protected account stays because it
     /// holds funds too or could not be checked.
     func presentOldAddressArrivals(retriesLeft: Int) {
         // A retry scheduled earlier waits for Switch's outcome, which goes first.
-        guard !pendingOldAddressArrivals.isEmpty, !isSwitchingNoPasswordAccounts, pendingSwitchOutcome == nil else {
+        guard !isSwitchingNoPasswordAccounts, pendingSwitchOutcome == nil else {
+            return
+        }
+        guard !pendingOldAddressArrivals.isEmpty else {
+            presentRecoveryCheckOffer(retriesLeft: retriesLeft)
             return
         }
         guard

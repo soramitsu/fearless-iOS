@@ -27,6 +27,7 @@ final class WalletMainContainerInteractor {
     private var isCheckingWatchedAccounts = false
     private var authorizedUnlockObserver: NSObjectProtocol?
     private let authorizedUnlock: WalletAuthorizedUnlock
+    private let recoveryCheck: ProtectedKeychainRecoveryCheck
 
     // MARK: - Constructor
 
@@ -46,7 +47,8 @@ final class WalletMainContainerInteractor {
         passwordNoticeTracker: UniversalWalletPasswordNoticeTracker = UniversalWalletPasswordNoticeTracker(),
         watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore(),
         watchedAccountsChecker: UniversalWalletWatchedAccountsChecker = UniversalWalletWatchedAccountsChecker(),
-        authorizedUnlock: WalletAuthorizedUnlock = .shared
+        authorizedUnlock: WalletAuthorizedUnlock = .shared,
+        recoveryCheck: ProtectedKeychainRecoveryCheck = .shared
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -64,6 +66,7 @@ final class WalletMainContainerInteractor {
         self.watchedAccounts = watchedAccounts
         self.watchedAccountsChecker = watchedAccountsChecker
         self.authorizedUnlock = authorizedUnlock
+        self.recoveryCheck = recoveryCheck
         applicationHandler.delegate = self
     }
 
@@ -218,6 +221,22 @@ final class WalletMainContainerInteractor {
         )
     }
 
+    /// Public data only (the flag, the offer record, the evidence and an attribute inventory): whether
+    /// to offer the recovery-phrase check for the selected wallet. Off while the flag is off.
+    private func checkRecoveryOffer() {
+        let wallet = self.wallet
+        let check = recoveryCheck
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard check.shouldOffer(wallet) else {
+                return
+            }
+            DispatchQueue.main.async {
+                guard let self, self.wallet.metaId == wallet.metaId else { return }
+                self.output?.didReceiveRecoveryCheckOffer(for: wallet)
+            }
+        }
+    }
+
     private func checkNftAvailability() {
         let fetchOperation = featureToggleService.fetchConfigOperation()
 
@@ -247,6 +266,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         // portfolio refreshed or the app came to the foreground.
         checkUniversalWalletPassword()
         checkWatchedOldAddresses()
+        checkRecoveryOffer()
         authorizedUnlockObserver = NotificationCenter.default.addObserver(
             forName: .walletAuthorizedUnlock,
             object: nil,
@@ -254,6 +274,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         ) { [weak self] _ in
             self?.checkUniversalWalletPassword()
             self?.checkWatchedOldAddresses()
+            self?.checkRecoveryOffer()
         }
     }
 
@@ -276,6 +297,10 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
     func acknowledgeUniversalWalletPasswordNotice() {
         passwordNoticeTracker.markShown(for: wallet.metaId)
+    }
+
+    func acknowledgeRecoveryCheckOffer(for walletId: MetaAccountId) {
+        recoveryCheck.markOffered(walletId)
     }
 
     func acknowledgeOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival]) {
@@ -369,6 +394,7 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         // selected at an unlock is still checked (without a sheet once its keys are protected).
         checkUniversalWalletPassword(requiresUnlock: false)
         checkWatchedOldAddresses(requiresUnlock: false)
+        checkRecoveryOffer()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
