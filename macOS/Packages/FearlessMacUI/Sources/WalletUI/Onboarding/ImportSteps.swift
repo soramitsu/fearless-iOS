@@ -111,12 +111,10 @@ struct ImportPhraseStep: View {
         }
         .environment(\.secretFieldGroup, secretFields)
         .background(CaptureProtection(isActive: !staticRendering))
-        // A new composition means the input is changing: a confirmation
-        // still being prepared is dropped.
-        .onChange(of: secretFields.isComposing) { _, composing in
-            if composing { model.invalidatePendingConfirmation() }
-        }
         .onAppear {
+            // A new composition means the input is changing: a confirmation
+            // still being prepared is dropped at once.
+            secretFields.onCompositionStart = { [weak model] in model?.invalidatePendingConfirmation() }
             if entry.focusedIndex == nil { entry.focusedIndex = 0 }
         }
     }
@@ -259,14 +257,15 @@ struct ImportPhraseStep: View {
     /// checked, so a valid phrase continues on the first click.
     private func continueImport() {
         secretFields.finishComposition()
-        Task { await Self.continueAfterCommit(model) }
+        let request = model.continueRequest()
+        Task { await Self.continueAfterCommit(model, request) }
     }
 
-    /// Waits for the phrase on screen to be checked, then continues if it
-    /// is valid.
-    static func continueAfterCommit(_ model: OnboardingModel) async {
+    /// Waits for the phrase to be checked, then continues with exactly the
+    /// input `request` took, if nothing changed it meanwhile.
+    static func continueAfterCommit(_ model: OnboardingModel, _ request: OnboardingModel.ContinueRequest) async {
         await model.phraseEntry.revalidate()
-        await model.continueImport()
+        await model.continueImport(request)
     }
 
     /// Replaces the words at `indices` (Clear, word count, paste): their
@@ -537,7 +536,8 @@ struct ImportSeedStep: View {
             StepProgress(isWorking: model.isWorking)
             Button("Continue") {
                 secretFields.finishComposition()
-                Task { await model.continueImport() }
+                let request = model.continueRequest()
+                Task { await model.continueImport(request) }
             }
             .brandProminentButton()
             .keyboardShortcut(.defaultAction)
@@ -545,8 +545,8 @@ struct ImportSeedStep: View {
         }
         .environment(\.secretFieldGroup, secretFields)
         .background(CaptureProtection(isActive: !staticRendering))
-        .onChange(of: secretFields.isComposing) { _, composing in
-            if composing { model.invalidatePendingConfirmation() }
+        .onAppear {
+            secretFields.onCompositionStart = { [weak model] in model?.invalidatePendingConfirmation() }
         }
         .onChange(of: controlActiveState) { _, state in
             if state != .key, !staticRendering { isVisible = false }

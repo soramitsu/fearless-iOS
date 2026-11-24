@@ -137,9 +137,9 @@ final class OnboardingModel: Identifiable {
     /// Bumped by every preview request and by Continue, so a preview that
     /// finishes late never replaces a newer one or the confirmation's.
     @ObservationIgnored private var previewGeneration = 0
-    /// Bumped by Continue and by `wipeSecrets`, so a confirmation that
-    /// finishes after a wipe writes nothing back.
-    @ObservationIgnored private var confirmationGeneration = 0
+    /// Bumped by Continue, Back, a new composition and `wipeSecrets`, so a
+    /// confirmation that finishes after any of them writes nothing back.
+    @ObservationIgnored private(set) var confirmationGeneration = 0
     /// What `addressPreview` was derived from on the phrase step.
     private(set) var addressPreviewKey: ImportPreviewKey?
 
@@ -206,6 +206,11 @@ final class OnboardingModel: Identifiable {
                 || !watchEVMAddress.trimmingCharacters(in: .whitespaces).isEmpty
         default: return false
         }
+    }
+
+    /// True while a source is waiting on the Confirm step.
+    var hasPendingSource: Bool {
+        pendingSource != nil
     }
 
     var canFinish: Bool {
@@ -424,9 +429,31 @@ final class OnboardingModel: Identifiable {
         }
     }
 
+    /// What Continue was asked to confirm: taken when the click has
+    /// committed the fields, and checked again after validation and after
+    /// the addresses are derived.
+    struct ContinueRequest {
+        fileprivate let generation: Int
+        fileprivate let step: Step
+        fileprivate let source: WalletImportSource?
+    }
+
+    func continueRequest() -> ContinueRequest {
+        confirmationGeneration += 1
+        return ContinueRequest(generation: confirmationGeneration, step: step, source: importSource)
+    }
+
     func continueImport() async {
-        guard canContinueImport, let source = importSource else { return }
-        await prepareConfirmation(source: source)
+        await continueImport(continueRequest())
+    }
+
+    /// Continues with exactly the input of `request`, if nothing changed it
+    /// since (a new composition, an edit, Back or a wipe).
+    func continueImport(_ request: ContinueRequest) async {
+        guard request.generation == confirmationGeneration, request.step == step,
+              canContinueImport, let source = importSource, let requested = request.source,
+              Self.sameSource(source, requested) else { return }
+        await prepareConfirmation(source: source, generation: request.generation)
     }
 
     /// Asks the engine which addresses the source gives and moves to the
@@ -478,11 +505,17 @@ final class OnboardingModel: Identifiable {
     }
 
     /// `current` reads the source on screen now; the import screens' by default.
-    private func prepareConfirmation(source: WalletImportSource, current: (() -> WalletImportSource?)? = nil) async {
+    /// `generation` is the request's (a new one otherwise); `current` reads
+    /// the source on screen now, the import screens' by default.
+    private func prepareConfirmation(
+        source: WalletImportSource,
+        generation requested: Int? = nil,
+        current: (() -> WalletImportSource?)? = nil
+    ) async {
         let current = current ?? { [unowned self] in self.importSource }
         previewGeneration += 1
-        confirmationGeneration += 1
-        let generation = confirmationGeneration
+        if requested == nil { confirmationGeneration += 1 }
+        let generation = requested ?? confirmationGeneration
         let startStep = step
         let key = livePreviewKey
         isWorking = true

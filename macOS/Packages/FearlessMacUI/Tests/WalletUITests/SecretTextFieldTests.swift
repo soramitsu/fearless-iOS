@@ -58,6 +58,7 @@ private final class GatedWallets: WalletServicing, @unchecked Sendable {
     private var waiters: [CheckedContinuation<Void, Never>] = []
     private var isOpen = false
     private var started = 0
+    private var gatesValidation = false
 
     init(base: any WalletServicing, gatedPath: String) {
         self.base = base
@@ -66,6 +67,26 @@ private final class GatedWallets: WalletServicing, @unchecked Sendable {
 
     var startedCount: Int {
         lock.withLock { started }
+    }
+
+    /// From now on, phrase validation also waits for `release()`.
+    func gateValidation() {
+        lock.withLock {
+            gatesValidation = true
+            isOpen = false
+        }
+    }
+
+    private func waitForRelease() async {
+        await withCheckedContinuation { continuation in
+            let resumeNow: Bool = lock.withLock {
+                started += 1
+                if isOpen { return true }
+                waiters.append(continuation)
+                return false
+            }
+            if resumeNow { continuation.resume() }
+        }
     }
 
     func release() {
@@ -79,15 +100,7 @@ private final class GatedWallets: WalletServicing, @unchecked Sendable {
 
     func previewAddresses(for source: WalletImportSource) async throws -> WalletAddressPreview {
         if case let .mnemonic(_, options) = source, options.substrateDerivationPath == gatedPath {
-            await withCheckedContinuation { continuation in
-                let resumeNow: Bool = lock.withLock {
-                    started += 1
-                    if isOpen { return true }
-                    waiters.append(continuation)
-                    return false
-                }
-                if resumeNow { continuation.resume() }
-            }
+            await waitForRelease()
         }
         return try await base.previewAddresses(for: source)
     }
@@ -95,7 +108,10 @@ private final class GatedWallets: WalletServicing, @unchecked Sendable {
     var mnemonicWordList: [String] { base.mnemonicWordList }
     func wallets() async throws -> [Wallet] { try await base.wallets() }
     func generateMnemonic(length: MnemonicLength) async throws -> [String] { try await base.generateMnemonic(length: length) }
-    func validateMnemonic(_ words: [String]) async -> MnemonicValidation { await base.validateMnemonic(words) }
+    func validateMnemonic(_ words: [String]) async -> MnemonicValidation {
+        if lock.withLock({ gatesValidation }) { await waitForRelease() }
+        return await base.validateMnemonic(words)
+    }
     func addWallet(name: String, source: WalletImportSource) async throws -> Wallet { try await base.addWallet(name: name, source: source) }
     func renameWallet(_ id: WalletID, to name: String) async throws { try await base.renameWallet(id, to: name) }
     func deleteWallet(_ id: WalletID) async throws { try await base.deleteWallet(id) }
@@ -1517,6 +1533,7 @@ struct SecretTextFieldTests {
         await model.continueImport()
         #expect(model.step == .confirm && model.canFinish)
         model.back()
+        #expect(!model.hasPendingSource, "Back drops the confirmed phrase and path at once")
         model.phraseEntry.clear()
         #expect(model.step == .importPhrase)
         #expect(!model.canFinish, "nothing can be stored from the phrase step")
@@ -1552,16 +1569,25 @@ struct SecretTextFieldTests {
         defer { host.close() }
         let phrase = PreviewWalletServices.samplePhrase(.words12)
         ImportPhraseStep.paste(phrase.joined(separator: " "), at: 0, into: model.phraseEntry, fields: group)
-        #expect(await host.waitUntil { !host.selectableTextViews.isEmpty })
+        #expect(await host.waitUntil { model.livePreview != nil && !host.selectableTextViews.isEmpty })
+        let before = try #require(model.livePreview)
+        let alternative = try #require(model.phraseEntry.wordList.first { word in
+            word != phrase[11] && PreviewBIP39.validate(Array(phrase.dropLast()) + [word]) == .valid
+        })
+        let changed = Array(phrase.dropLast()) + [alternative]
+        let expected = try await PreviewWalletServices.make(scenario: PreviewScenario.emptyWalletList.instant()).wallets
+            .previewAddresses(for: .mnemonic(words: changed, options: .standard))
+        #expect(expected != before)
 
         let editor = fields[11].secretEditor
         editor.selectAll(nil)
-        editor.setMarkedText(phrase[11], selectedRange: NSRange(location: 0, length: 0), replacementRange: editor.selectedRange())
+        editor.setMarkedText(alternative, selectedRange: NSRange(location: 0, length: 0), replacementRange: editor.selectedRange())
         #expect(await host.waitUntil { group.composing == [.word(11)] && host.selectableTextViews.isEmpty })
-        editor.insertText(phrase[11], replacementRange: NSRange(location: NSNotFound, length: 0))   // the input method commits
+        editor.insertText(alternative, replacementRange: NSRange(location: NSNotFound, length: 0))   // the input method commits
+        #expect(model.phraseEntry.words[11] == alternative)
         #expect(await host.waitUntil { group.composing.isEmpty })
-        #expect(await host.waitUntil { !host.selectableTextViews.isEmpty }, "the card returns once the input is final")
-        #expect(model.phraseEntry.words == phrase)
+        #expect(await host.waitUntil { model.livePreview == expected }, "the card shows the committed phrase's addresses")
+        #expect(!host.selectableTextViews.isEmpty)
     }
 
     @Test func aFocusMoveWaitingForItsFieldIsDoneWhenTheFieldAttaches() throws {
@@ -1601,8 +1627,49 @@ struct SecretTextFieldTests {
         // buttons cannot be clicked in a headless test.)
         group.finishComposition()
         #expect(!model.phraseEntry.isValid, "the changed word is not checked yet")
-        await ImportPhraseStep.continueAfterCommit(model)
+        await ImportPhraseStep.continueAfterCommit(model, model.continueRequest())
         #expect(model.step == .confirm, "one click commits, checks and continues")
         #expect(model.phraseEntry.words[11] == alternative)
+    }
+
+    // MARK: Review round 6
+
+    @Test func aCompositionDuringValidationStopsContinue() async throws {
+        let (model, gated) = await gatedModel("//never-previewed")
+        model.derivation.substrateDerivationPath = "//a///old"
+        gated.gateValidation()
+        let request = model.continueRequest()   // the click, after committing the fields
+        let continuing = Task { await ImportPhraseStep.continueAfterCommit(model, request) }
+        #expect(await waitUntil(timeout: .seconds(5)) { gated.startedCount == 1 }, "validation is pending")
+        model.invalidatePendingConfirmation()   // a new composition in the path field
+        gated.release()
+        await continuing.value
+        #expect(model.step == .importPhrase, "the old password is not confirmed")
+
+        // Nothing changed: the same sequence continues.
+        let (unchanged, gate) = await gatedModel("//never-previewed")
+        gate.gateValidation()
+        let next = unchanged.continueRequest()
+        let going = Task { await ImportPhraseStep.continueAfterCommit(unchanged, next) }
+        #expect(await waitUntil(timeout: .seconds(5)) { gate.startedCount == 1 })
+        gate.release()
+        await going.value
+        #expect(unchanged.step == .confirm)
+    }
+
+    @Test func startingACompositionInvalidatesContinueAtOnce() async throws {
+        let model = await onboarding(.importSeed)
+        let host = TestWindow(hosting: ImportSeedStep(model: model, compact: false))
+        defer { host.close() }
+        #expect(await host.waitUntil { host.views(SecretEntryTextField.self).first?.window != nil })
+        await host.pump()
+        let path = try #require(host.views(SecretEntryTextField.self).first)
+        #expect(host.window.makeFirstResponder(path))
+        let before = model.confirmationGeneration
+        path.secretEditor.setMarkedText("ぱ", selectedRange: NSRange(location: 1, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
+        #expect(model.confirmationGeneration > before, "invalidated inside the key event, before the main thread yields")
+        let during = model.confirmationGeneration
+        path.secretEditor.setMarkedText("ぱす", selectedRange: NSRange(location: 2, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
+        #expect(model.confirmationGeneration == during, "only the start of a composition counts")
     }
 }

@@ -106,6 +106,8 @@ final class SecretFieldEditor: NSTextView {
     var onCompositionCommit: (() -> Void)?
     /// Told when a composition starts or ends.
     var onCompositionChange: (() -> Void)?
+    /// Told at once when a composition starts.
+    var onCompositionStart: (() -> Void)?
 
     /// Menu and key-binding actions that would turn a text service back on,
     /// check the text against a dictionary, read it aloud, or hand it to
@@ -220,7 +222,9 @@ final class SecretFieldEditor: NSTextView {
     private(set) var isCancellingComposition = false
 
     override func setMarkedText(_ string: Any, selectedRange: NSRange, replacementRange: NSRange) {
+        let hadMarkedText = hasMarkedText()
         super.setMarkedText(string, selectedRange: selectedRange, replacementRange: replacementRange)
+        if !hadMarkedText, hasMarkedText() { onCompositionStart?() }
         onCompositionChange?()
     }
 
@@ -554,6 +558,13 @@ final class SecretFieldGroup {
     @ObservationIgnored private var pendingFocus: (id: SecretFieldID, caretAtEnd: Bool)?
     /// Fields whose editor holds text an input method is still composing.
     private(set) var composing: Set<SecretFieldID> = []
+    /// Called at once, inside the key event, when a field starts composing.
+    @ObservationIgnored var onCompositionStart: (() -> Void)?
+
+    /// A field started composing.
+    func compositionStarted() {
+        onCompositionStart?()
+    }
 
     var isComposing: Bool {
         !composing.isEmpty
@@ -754,6 +765,7 @@ struct SecretTextField: NSViewRepresentable {
         editor.onFocusChange = { [weak coordinator] focused in coordinator?.focusChanged(focused) }
         editor.onCompositionCommit = { [weak coordinator] in coordinator?.pushFieldText() }
         editor.onCompositionChange = { [weak coordinator] in coordinator?.group?.compositionChanged() }
+        editor.onCompositionStart = { [weak coordinator] in coordinator?.group?.compositionStarted() }
         field.onWindowChange = { [weak coordinator, weak field] in
             coordinator?.claimFocusIfWanted()
             if let field { coordinator?.group?.attached(field) }
@@ -808,6 +820,7 @@ struct SecretTextField: NSViewRepresentable {
         editor.onFocusChange = nil
         editor.onCompositionCommit = nil
         editor.onCompositionChange = nil
+        editor.onCompositionStart = nil
         field.onWindowChange = nil
         field.delegate = nil
     }
