@@ -169,7 +169,8 @@ final class BitcoinSpendableBalanceTests: XCTestCase {
                 network: .mainnet,
                 baseURL: BitcoinIndexerNetwork.mainnet.defaultBaseURL.absoluteString,
                 gapLimit: UniversalWalletRegistry.bitcoinMainnet.defaultGapLimit,
-                maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+                maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead,
+                account: BitcoinTestWallet.address
             )
         )
         let service = AccountInfoRemoteServiceDefault(

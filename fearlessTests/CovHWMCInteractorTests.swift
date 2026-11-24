@@ -316,20 +316,23 @@ final class CovHWMCInteractorTests: XCTestCase {
         harness.deprecation.issue = .stash(address: "stash-address")
         let checks = harness.checkerWords.reads
         harness.interactor.didReceiveWillEnterForeground(notification: Notification(name: UIApplication.willEnterForegroundNotification))
-        CovHAssetListFixture.spin { !harness.output.stashAddresses.isEmpty && harness.checkerWords.reads > checks }
+        CovHAssetListFixture.spin { !harness.output.stashAddresses.isEmpty }
+        CovHAssetListFixture.spin(timeout: 0.3) { false }
         XCTAssertEqual(harness.output.stashAddresses, ["stash-address"])
-        XCTAssertGreaterThan(harness.checkerWords.reads, checks, "Coming back to the app checks the watched addresses")
+        XCTAssertEqual(harness.checkerWords.reads, checks, "Coming back to the app alone never reads the words")
     }
 
-    func testPortfolioRefreshChecksTheWatchedAddressesAgain() {
+    /// Even right after an unlock, a portfolio refresh does not read the words: only the unlock does.
+    func testPortfolioRefreshNeverReadsTheWords() {
         let harness = CovHWMCInteractorHarness()
         harness.setup()
         let checks = harness.checkerWords.reads
 
         NotificationCenter.default.post(name: .universalWalletPortfolioRefreshed, object: nil)
-        CovHAssetListFixture.spin { harness.checkerWords.reads > checks }
+        CovHAssetListFixture.spin(timeout: 0.3) { false }
+        CovHAssetListFixture.drainMain()
 
-        XCTAssertGreaterThan(harness.checkerWords.reads, checks)
+        XCTAssertEqual(harness.checkerWords.reads, checks)
     }
 
     func testRefreshAndForegroundOutsideAnUnlockReadNoWords() {

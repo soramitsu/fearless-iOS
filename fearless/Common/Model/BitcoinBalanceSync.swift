@@ -156,6 +156,25 @@ actor BitcoinWalletBalanceCache {
         let baseURL: String?
         let gapLimit: Int
         let maxLookahead: Int
+        /// The account's first receive address, lowercased. A password wallet can switch to
+        /// another account under the same wallet id; a scan of one account never answers for another.
+        let account: String
+
+        init(
+            walletId: MetaAccountId,
+            network: BitcoinIndexerNetwork,
+            baseURL: String?,
+            gapLimit: Int,
+            maxLookahead: Int,
+            account: String = ""
+        ) {
+            self.walletId = walletId
+            self.network = network
+            self.baseURL = baseURL
+            self.gapLimit = gapLimit
+            self.maxLookahead = maxLookahead
+            self.account = account.lowercased()
+        }
     }
 
     static let shared = BitcoinWalletBalanceCache()

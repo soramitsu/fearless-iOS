@@ -778,6 +778,16 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         // stored address alone is read and the scan says its coverage is limited.
         guard let descriptor = bitcoinDescriptorProvider.descriptor(for: wallet, chain: chain),
               descriptor.network == bitcoinKeyDerivationNetwork(for: network) else {
+            // Until the first authorized unlock makes the descriptor, one address would undercount
+            // change and later receive addresses: the total a full scan saved stays as it is.
+            if bitcoinDescriptorProvider.isDescriptorPending(for: wallet, chain: chain) {
+                let retained = RemoteLastKnownBalanceStore.load(chain: chain, walletId: wallet.metaId)
+                if !retained.isEmpty {
+                    NetworkScanStateStore.markSuccess(for: chain, coverage: .limited, walletId: wallet.metaId)
+                    retained.forEach { accountInfos[$0.key] = $0.value }
+                    return accountInfos
+                }
+            }
             guard let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
                 throw ConvenienceError(error: "Bitcoin account address is unavailable")
             }
@@ -797,8 +807,17 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                       result.totalSats >= 0 else {
                     return
                 }
+                // Coins not confirmed yet are owned but not spendable, as in a full scan.
+                let spendable = max(0, min(result.confirmedSats, result.totalSats))
                 accountInfos[chainAsset.chainAssetId] = AccountInfo(
-                    ethBalance: BigUInt(UInt64(result.totalSats))
+                    nonce: 0,
+                    consumers: 0,
+                    providers: 0,
+                    data: AccountData(
+                        free: BigUInt(UInt64(result.totalSats)),
+                        reserved: .zero,
+                        frozen: BigUInt(UInt64(result.totalSats - spendable))
+                    )
                 )
             }
             RemoteLastKnownBalanceStore.save(
@@ -820,7 +839,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 network: indexerNetwork,
                 baseURL: baseURL,
                 gapLimit: network.defaultGapLimit,
-                maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+                maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead,
+                account: try descriptor.address(change: 0, index: 0)
             )
             let result = try await BitcoinWalletBalanceCache.shared.value(
                 for: cacheKey

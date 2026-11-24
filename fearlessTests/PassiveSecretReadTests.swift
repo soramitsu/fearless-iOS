@@ -256,6 +256,61 @@ final class PassiveSecretReadTests: XCTestCase {
         XCTAssertEqual(spy.reads, [])
     }
 
+    /// Right after the update, before the first unlock makes the descriptor, refresh keeps the
+    /// total an earlier full scan saved instead of replacing it with one address.
+    func testPendingDescriptorKeepsTheLastCompleteTotal() async throws {
+        let chainAsset = ChainAsset(chain: BitcoinTestWallet.chain, asset: BitcoinTestWallet.asset)
+        let defaults = UserDefaults.standard
+        RemoteLastKnownBalanceStore.save(
+            [chainAsset.chainAssetId: AccountInfo(ethBalance: BigUInt(70_000))],
+            chain: BitcoinTestWallet.chain,
+            walletId: wallet.metaId,
+            userDefaults: defaults
+        )
+        ledger.fund(BitcoinTestWallet.address, sats: 10_000)
+        let service = AccountInfoRemoteServiceDefault(
+            bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: ledger)),
+            bitcoinDescriptorProvider: store,
+            storagePerformer: PassiveSecretReadEmptyStorage()
+        )
+        await BitcoinWalletBalanceCache.shared.invalidate(walletId: wallet.metaId)
+
+        let pending = try await service.fetchAccountInfos(for: BitcoinTestWallet.chain, wallet: wallet)
+        XCTAssertEqual(try XCTUnwrap(pending[chainAsset.chainAssetId] ?? nil).data.total, BigUInt(70_000))
+        XCTAssertTrue(ledger.utxoRequests.isEmpty, "Nothing is scanned while the descriptor is pending")
+
+        // The backfill finds no secret for the account: refresh stops waiting and reads the address.
+        let account = try XCTUnwrap(UniversalWalletSlot.bitcoinMainnet.storedAccount(in: wallet))
+        store.markUnavailable(walletId: wallet.metaId, network: .mainnet, accountPublicKey: account.publicKey)
+        let limited = try await service.fetchAccountInfos(for: BitcoinTestWallet.chain, wallet: wallet)
+        XCTAssertEqual(try XCTUnwrap(limited[chainAsset.chainAssetId] ?? nil).data.total, BigUInt(10_000))
+        XCTAssertEqual(spy.reads, [])
+    }
+
+    /// Two accounts of one wallet (a password switch) never share a cached scan.
+    func testCachedScanIsBoundToTheAccount() async throws {
+        let cache = BitcoinWalletBalanceCache()
+        func key(_ account: String) -> BitcoinWalletBalanceCache.Key {
+            BitcoinWalletBalanceCache.Key(
+                walletId: "wallet", network: .mainnet, baseURL: nil, gapLimit: 20,
+                maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead, account: account
+            )
+        }
+        func result(_ sats: Int64) -> BitcoinBalanceSyncResult {
+            BitcoinBalanceSyncResult(
+                confirmedSats: sats, mempoolSats: 0, totalSats: sats, usedAddresses: [],
+                discovery: BitcoinReceiveDiscoveryResult(
+                    addresses: [], gapLimit: 20, lastUsedIndex: nil, nextReceiveAddress: "",
+                    nextReceiveIndex: 0, usedAddresses: []
+                )
+            )
+        }
+        _ = try await cache.value(for: key("bc1qold")) { result(1) }
+        let other = try await cache.value(for: key("BC1QNEW")) { result(2) }
+        XCTAssertEqual(other.totalSats, 2)
+        XCTAssertEqual(key("BC1QNEW"), key("bc1qnew"), "Addresses compare without case")
+    }
+
     /// A transfer the user confirmed reads the phrase anyway: it leaves the descriptor behind,
     /// so the next fee quote reads nothing.
     func testConfirmedTransferLeavesADescriptorAndLaterQuotesReadNoSecret() async throws {

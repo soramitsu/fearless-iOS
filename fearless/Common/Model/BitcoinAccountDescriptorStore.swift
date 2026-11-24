@@ -7,6 +7,15 @@ protocol BitcoinAccountDescriptorProviding {
     /// The descriptor of the Bitcoin account `wallet` shows on `chain`, only when the descriptor
     /// derives exactly that account's key and address.
     func descriptor(for wallet: MetaAccountModel, chain: ChainModel) -> BitcoinKeyDerivation.AccountDescriptor?
+    /// True while the account has no descriptor yet but one can still be made at the next
+    /// authorized unlock (its wallet's secret was not found to lack it).
+    func isDescriptorPending(for wallet: MetaAccountModel, chain: ChainModel) -> Bool
+}
+
+extension BitcoinAccountDescriptorProviding {
+    func isDescriptorPending(for _: MetaAccountModel, chain _: ChainModel) -> Bool {
+        false
+    }
 }
 
 /// Stores account descriptors per wallet and network, keyed by the account key they derive.
@@ -48,6 +57,40 @@ final class BitcoinAccountDescriptorStore: BitcoinAccountDescriptorProviding {
         return descriptor
     }
 
+    func isDescriptorPending(for wallet: MetaAccountModel, chain: ChainModel) -> Bool {
+        guard let slot = UniversalWalletSlot(chainId: chain.chainId),
+              let network = slot.bitcoinNetwork,
+              let account = slot.storedAccount(in: wallet) else {
+            return false
+        }
+        return !hasDescriptor(walletId: wallet.metaId, network: network, accountPublicKey: account.publicKey)
+            && !isUnavailable(walletId: wallet.metaId, network: network, accountPublicKey: account.publicKey)
+    }
+
+    /// Records that no stored secret derives this account (the backfill looked and found none),
+    /// so refresh stops waiting for a descriptor and reads the stored address alone.
+    func markUnavailable(walletId: MetaAccountId, network: BitcoinKeyDerivation.Network, accountPublicKey: Data) {
+        let marker = Self.unavailableMarker(network: network, accountPublicKey: accountPublicKey)
+        update { stored in
+            var entries = stored[walletId] ?? []
+            if !entries.contains(marker) {
+                entries.append(marker)
+            }
+            stored[walletId] = entries
+        }
+    }
+
+    func isUnavailable(walletId: MetaAccountId, network: BitcoinKeyDerivation.Network, accountPublicKey: Data) -> Bool {
+        let marker = Self.unavailableMarker(network: network, accountPublicKey: accountPublicKey)
+        Self.lock.lock()
+        defer { Self.lock.unlock() }
+        return (read()[walletId] ?? []).contains(marker)
+    }
+
+    private static func unavailableMarker(network: BitcoinKeyDerivation.Network, accountPublicKey: Data) -> String {
+        ["none", network == .mainnet ? "mainnet" : "testnet", accountPublicKey.toHex()].joined(separator: "|")
+    }
+
     /// The stored descriptor whose first receive key is `accountPublicKey`.
     func descriptor(
         walletId: MetaAccountId,
@@ -85,8 +128,12 @@ final class BitcoinAccountDescriptorStore: BitcoinAccountDescriptorProviding {
             publicKey: descriptor.publicKey,
             chainCode: descriptor.chainCode
         )
+        let marker = Self.unavailableMarker(network: entry.network, accountPublicKey: entry.accountPublicKey)
         update { stored in
-            var entries = (stored[walletId] ?? []).compactMap(Entry.init(encoded:))
+            let raw = stored[walletId] ?? []
+            var entries = raw.compactMap(Entry.init(encoded:))
+            // Markers for other accounts stay; this account now has a descriptor.
+            let markers = raw.filter { Entry(encoded: $0) == nil && $0 != marker }
             entries.removeAll { $0.network == entry.network && $0.accountPublicKey == entry.accountPublicKey }
             entries.append(entry)
             let sameNetwork = entries.filter { $0.network == entry.network }
@@ -94,7 +141,7 @@ final class BitcoinAccountDescriptorStore: BitcoinAccountDescriptorProviding {
                let oldest = sameNetwork.first {
                 entries.removeAll { $0 == oldest }
             }
-            stored[walletId] = entries.map(\.encoded)
+            stored[walletId] = entries.map(\.encoded) + markers
         }
     }
 

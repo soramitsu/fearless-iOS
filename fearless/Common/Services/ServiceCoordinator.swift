@@ -184,9 +184,15 @@ private extension ServiceCoordinator {
 
         Task.detached(priority: .utility) { [self] in
             do {
+                // The window is checked again at each read: the queue or a network check may have
+                // taken it past its end.
+                guard authorizedUnlock.isWindowOpen else {
+                    finishAppOwnedProvisioning(for: wallet.metaId)
+                    return
+                }
                 guard needsProvisioning,
                       let root = try appOwnedMnemonicProvider.rootSecret(for: wallet) else {
-                    descriptorBackfill.backfill(wallet)
+                    backfillDescriptorsAndRefresh(wallet)
                     finishAppOwnedProvisioning(for: wallet.metaId)
                     return
                 }
@@ -197,7 +203,7 @@ private extension ServiceCoordinator {
                     probe: universalWalletFundsProbe()
                 )
                 guard updatedWallet != wallet else {
-                    descriptorBackfill.backfill(wallet)
+                    backfillDescriptorsAndRefresh(wallet)
                     finishAppOwnedProvisioning(for: wallet.metaId)
                     return
                 }
@@ -239,6 +245,21 @@ private extension ServiceCoordinator {
         }
     }
 
+    /// Makes the wallet's missing Bitcoin descriptors while the window is still open, and has the
+    /// selected wallet's balances read again with them.
+    func backfillDescriptorsAndRefresh(_ wallet: MetaAccountModel) {
+        guard authorizedUnlock.isWindowOpen, descriptorBackfill.backfill(wallet) > 0 else {
+            return
+        }
+        Task { @MainActor [weak self] in
+            await BitcoinWalletBalanceCache.shared.invalidate(walletId: wallet.metaId)
+            guard let self, let selected = self.walletSettings.value, selected.metaId == wallet.metaId else {
+                return
+            }
+            self.accountInfoService.update(selectedMetaAccount: selected)
+        }
+    }
+
     /// Every wallet's balance is refreshed from public data, the wallets not selected too, so
     /// each one's missing Bitcoin descriptors are made right after an unlock.
     func backfillDescriptorsOfAllWallets() {
@@ -258,7 +279,7 @@ private extension ServiceCoordinator {
                 guard authorizedUnlock.isWindowOpen else {
                     break
                 }
-                descriptorBackfill.backfill(wallet)
+                backfillDescriptorsAndRefresh(wallet)
             }
             descriptorBackfillLock.lock()
             isBackfillingDescriptors = false

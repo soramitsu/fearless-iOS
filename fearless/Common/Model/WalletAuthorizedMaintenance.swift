@@ -83,7 +83,8 @@ final class BitcoinAccountDescriptorBackfill {
         self.logger = logger
     }
 
-    /// The Bitcoin slots of `wallet` with a stored account and no descriptor. Reads no secret.
+    /// The Bitcoin slots of `wallet` with a stored account, no descriptor, and no earlier finding
+    /// that no secret derives it. Reads no secret.
     func missingSlots(in wallet: MetaAccountModel) -> [UniversalWalletSlot] {
         [UniversalWalletSlot.bitcoinMainnet, .bitcoinTestnet].filter { slot in
             guard let network = slot.bitcoinNetwork,
@@ -91,6 +92,7 @@ final class BitcoinAccountDescriptorBackfill {
                 return false
             }
             return !store.hasDescriptor(walletId: wallet.metaId, network: network, accountPublicKey: account.publicKey)
+                && !store.isUnavailable(walletId: wallet.metaId, network: network, accountPublicKey: account.publicKey)
         }
     }
 
@@ -101,6 +103,14 @@ final class BitcoinAccountDescriptorBackfill {
         for slot in missingSlots(in: wallet) {
             do {
                 guard let secret = try secretProvider.secret(for: wallet, slot: slot) else {
+                    // Nothing stored derives this account: refresh reads its address alone.
+                    if let network = slot.bitcoinNetwork, let account = slot.storedAccount(in: wallet) {
+                        store.markUnavailable(
+                            walletId: wallet.metaId,
+                            network: network,
+                            accountPublicKey: account.publicKey
+                        )
+                    }
                     continue
                 }
                 if try record(secret, for: wallet, slot: slot) {

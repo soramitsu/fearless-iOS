@@ -25,7 +25,6 @@ final class WalletMainContainerInteractor {
     private let watchedAccounts: UniversalWalletWatchedAccountsStore
     private let watchedAccountsChecker: UniversalWalletWatchedAccountsChecker
     private var isCheckingWatchedAccounts = false
-    private var portfolioRefreshObserver: NSObjectProtocol?
     private var authorizedUnlockObserver: NSObjectProtocol?
     private let authorizedUnlock: WalletAuthorizedUnlock
 
@@ -69,7 +68,7 @@ final class WalletMainContainerInteractor {
     }
 
     deinit {
-        [portfolioRefreshObserver, authorizedUnlockObserver].compactMap { $0 }.forEach {
+        [authorizedUnlockObserver].compactMap { $0 }.forEach {
             NotificationCenter.default.removeObserver($0)
         }
     }
@@ -243,15 +242,11 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         fetchNetworkManagmentFilter()
         checkNftAvailability()
         checkStoredWalletRecords()
+        // Both read the wallet's words: they run when the user has just unlocked the app (now, if
+        // this screen opened right after the unlock, and at every later unlock), never because the
+        // portfolio refreshed or the app came to the foreground.
         checkUniversalWalletPassword()
         checkWatchedOldAddresses()
-        portfolioRefreshObserver = NotificationCenter.default.addObserver(
-            forName: .universalWalletPortfolioRefreshed,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.checkWatchedOldAddresses()
-        }
         authorizedUnlockObserver = NotificationCenter.default.addObserver(
             forName: .walletAuthorizedUnlock,
             object: nil,
@@ -370,8 +365,7 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         }
 
         fetchNetworkManagmentFilter()
-        checkUniversalWalletPassword()
-        checkWatchedOldAddresses()
+        // The words of the newly selected wallet are read at the next unlock, not on the switch.
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
@@ -398,6 +392,5 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
 extension WalletMainContainerInteractor: ApplicationHandlerDelegate {
     func didReceiveWillEnterForeground(notification _: Notification) {
         checkDeprecatedAccountIssues()
-        checkWatchedOldAddresses()
     }
 }

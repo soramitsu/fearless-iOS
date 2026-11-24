@@ -795,7 +795,8 @@ final class BitcoinTransferService: TransferServiceProtocol {
             baseURL: context.baseURL,
             gapLimit: network?.defaultGapLimit
                 ?? UniversalWalletRegistry.bitcoinMainnet.defaultGapLimit,
-            maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+            maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead,
+            account: context.sourceAddress
         )
     }
 
