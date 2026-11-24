@@ -176,3 +176,61 @@ private final class WalletEntryAnimatedTextField: AnimatedTextField {
         textField.frame = bounds.inset(by: contentInsets)
     }
 }
+
+/// Keyboard settings for fields that take wallet secrets: recovery words, raw seeds,
+/// derivation paths that can carry a `///password`, and backup or keystore passwords.
+/// They turn off corrections, spelling, smart punctuation, inline predictions and,
+/// from iOS 18, Writing Tools and math completion. iOS applies most of this to secure
+/// fields by itself; setting it here also covers a password while its eye button shows it.
+enum SecretTextEntry {
+    /// Recovery words and hex seeds. Only English word lists are supported, so this also
+    /// requests an ASCII-capable keyboard instead of an input method that converts, suggests
+    /// and learns what is typed. UIKit treats the keyboard type as a request, not a filter:
+    /// pasting is unchanged.
+    static func configureRecoveryInput(_ view: UITextView) {
+        view.keyboardType = .asciiCapable
+        disableTextAssistance(view)
+    }
+
+    /// Passwords keep the full keyboard (they may be any Unicode text) and suggest no content.
+    static func configurePassword(_ field: UITextField) {
+        field.textContentType = nil
+        disableTextAssistance(field)
+    }
+
+    static func disableTextAssistance(_ field: UITextField) {
+        field.autocapitalizationType = .none
+        field.autocorrectionType = .no
+        field.spellCheckingType = .no
+        field.smartQuotesType = .no
+        field.smartDashesType = .no
+        field.smartInsertDeleteType = .no
+        if #available(iOS 17.0, *) {
+            field.inlinePredictionType = .no
+        }
+        #if compiler(>=6.0)
+            if #available(iOS 18.0, *) {
+                field.writingToolsBehavior = .none
+                field.mathExpressionCompletionType = .no
+            }
+        #endif
+    }
+
+    static func disableTextAssistance(_ view: UITextView) {
+        view.autocapitalizationType = .none
+        view.autocorrectionType = .no
+        view.spellCheckingType = .no
+        view.smartQuotesType = .no
+        view.smartDashesType = .no
+        view.smartInsertDeleteType = .no
+        if #available(iOS 17.0, *) {
+            view.inlinePredictionType = .no
+        }
+        #if compiler(>=6.0)
+            if #available(iOS 18.0, *) {
+                view.writingToolsBehavior = .none
+                view.mathExpressionCompletionType = .no
+            }
+        #endif
+    }
+}

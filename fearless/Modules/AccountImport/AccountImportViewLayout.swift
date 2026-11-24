@@ -114,6 +114,7 @@ final class AccountImportViewLayout: UIView {
         inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
         inputView.defaultSetup()
         inputView.animatedInputField.textField.isSecureTextEntry = true
+        SecretTextEntry.configurePassword(inputView.animatedInputField.textField)
         return inputView
     }()
 
@@ -136,27 +137,10 @@ final class AccountImportViewLayout: UIView {
         view.textColor = R.color.colorWhite()
         view.font = .p1Paragraph
         view.tintColor = R.color.colorWhite()
-        AccountImportViewLayout.applySecretEntryTraits(to: view)
+        SecretTextEntry.configureRecoveryInput(view)
         view.isScrollEnabled = false
         return view
     }()
-
-    /// Recovery phrases, raw seeds and keystore JSON are typed here. Only English word lists are
-    /// supported, so an ASCII keyboard is enough; it keeps the phrase out of input methods that
-    /// convert, suggest and learn what is typed (Japanese, Chinese and other IMEs), and off the
-    /// keyboard's spelling, prediction and smart-punctuation paths.
-    static func applySecretEntryTraits(to view: UITextView) {
-        view.keyboardType = .asciiCapable
-        view.autocapitalizationType = .none
-        view.autocorrectionType = .no
-        view.spellCheckingType = .no
-        view.smartQuotesType = .no
-        view.smartDashesType = .no
-        view.smartInsertDeleteType = .no
-        if #available(iOS 17.0, *) {
-            view.inlinePredictionType = .no
-        }
-    }
 
     let textTriangularedView: TriangularedView = {
         let view = TriangularedView()
@@ -259,6 +243,7 @@ final class AccountImportViewLayout: UIView {
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .never
         view.returnKeyType = .done
+        SecretTextEntry.disableTextAssistance(view)
         return view
     }()
 
@@ -268,6 +253,7 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .never
+        SecretTextEntry.disableTextAssistance(view)
         return view
     }()
 

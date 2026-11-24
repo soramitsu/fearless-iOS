@@ -3688,19 +3688,62 @@ extension AccountImportTests {
 }
 
 final class AccountImportSecretEntryTraitsTests: XCTestCase {
-    func testPhraseFieldKeepsTypedSecretsAwayFromInputMethodsAndPredictions() {
-        let layout = AccountImportViewLayout(frame: .zero)
-        let field = layout.textView
+    private func assertNoTextAssistance(
+        _ traits: UITextInputTraits,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssertEqual(traits.autocapitalizationType, UITextAutocapitalizationType.none, file: file, line: line)
+        XCTAssertEqual(traits.autocorrectionType, .no, file: file, line: line)
+        XCTAssertEqual(traits.spellCheckingType, .no, file: file, line: line)
+        XCTAssertEqual(traits.smartQuotesType, .no, file: file, line: line)
+        XCTAssertEqual(traits.smartDashesType, .no, file: file, line: line)
+        XCTAssertEqual(traits.smartInsertDeleteType, .no, file: file, line: line)
+        if #available(iOS 17.0, *) {
+            XCTAssertEqual(traits.inlinePredictionType, .no, file: file, line: line)
+        }
+        #if compiler(>=6.0)
+            if #available(iOS 18.0, *) {
+                XCTAssertEqual(traits.writingToolsBehavior, UIWritingToolsBehavior.none, file: file, line: line)
+                XCTAssertEqual(traits.mathExpressionCompletionType, .no, file: file, line: line)
+            }
+        #endif
+    }
+
+    @MainActor
+    func testImportTextViewConfiguresSecretEntryTraits() {
+        let field = AccountImportViewLayout(frame: .zero).textView
 
         XCTAssertEqual(field.keyboardType, .asciiCapable)
-        XCTAssertEqual(field.autocapitalizationType, .none)
-        XCTAssertEqual(field.autocorrectionType, .no)
-        XCTAssertEqual(field.spellCheckingType, .no)
-        XCTAssertEqual(field.smartQuotesType, .no)
-        XCTAssertEqual(field.smartDashesType, .no)
-        XCTAssertEqual(field.smartInsertDeleteType, .no)
-        if #available(iOS 17.0, *) {
-            XCTAssertEqual(field.inlinePredictionType, .no)
+        assertNoTextAssistance(field)
+    }
+
+    @MainActor
+    func testDerivationPathAndPasswordFieldsConfigureSecretEntryTraits() {
+        let importLayout = AccountImportViewLayout(frame: .zero)
+        let createLayout = AccountCreateViewLayout(flow: .wallet)
+        let passwordFields: [UITextField] = [
+            importLayout.passwordTextField.animatedInputField.textField,
+            BackupCreatePasswordViewLayout().passwordTextField.animatedInputField.textField,
+            BackupCreatePasswordViewLayout().confirmPasswordTextField.animatedInputField.textField,
+            BackupPasswordViewLayout().passwordTextField.animatedInputField.textField
+        ]
+        let pathFields: [UITextField] = [
+            importLayout.substrateDerivationPathField,
+            importLayout.ethereumDerivationPathField,
+            createLayout.substrateDerivationPathField,
+            createLayout.ethereumDerivationPathField
+        ]
+
+        for field in pathFields {
+            XCTAssertEqual(field.keyboardType, .default)
+            assertNoTextAssistance(field)
+        }
+        for field in passwordFields {
+            XCTAssertTrue(field.isSecureTextEntry)
+            XCTAssertNil(field.textContentType)
+            XCTAssertEqual(field.keyboardType, .default)
+            assertNoTextAssistance(field)
         }
     }
 }

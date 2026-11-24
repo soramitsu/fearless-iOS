@@ -117,6 +117,7 @@ final class AccountCreateViewLayout: UIView {
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
         view.returnKeyType = .done
+        SecretTextEntry.disableTextAssistance(view)
         return view
     }()
 
@@ -127,6 +128,7 @@ final class AccountCreateViewLayout: UIView {
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
         view.returnKeyType = .done
+        SecretTextEntry.disableTextAssistance(view)
         return view
     }()
 
