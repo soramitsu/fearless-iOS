@@ -45,6 +45,15 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// a trigger instead of being retried at once.
     private var waitsForTrigger = false
     private var drainObservers: [NSObjectProtocol] = []
+    private var presenterCheckScheduled = false
+
+    /// Set by `approve`, in the opening link's own task, once the user has decided on it. A link is queued again
+    /// only for a failure before that decision, so nobody is asked twice about one link.
+    private final class LinkDecision {
+        var made = false
+    }
+
+    @TaskLocal private static var linkDecision: LinkDecision?
     private var approving = false
     private weak var approvalController: LegacyTonConnectApprovalViewController?
 
@@ -134,6 +143,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         isOpeningURL = true
         Task { @MainActor in
             var blocked = false
+            let decision = LinkDecision()
             defer {
                 isOpeningURL = false
                 if blocked {
@@ -152,15 +162,41 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
                     blocked = true
                     return
                 }
-                _ = try await connect(walletId: wallet.metaId, clientId: link.clientId, request: link.request, manifest: manifest, connectionType: "http")
-            } catch LegacyTonConnectError.busy {
-                // Another approval is open, or the app locked or left: the link waits for that to end.
+                _ = try await Self.$linkDecision.withValue(decision) {
+                    try await connect(
+                        walletId: wallet.metaId, clientId: link.clientId, request: link.request, manifest: manifest,
+                        connectionType: "http"
+                    )
+                }
+            } catch LegacyTonConnectError.busy where !decision.made {
+                // Another approval is open, the app locked or left, or nothing can present the request: the link
+                // waits for that to end.
                 blocked = true
-            } catch where !canOpenURLs {
+                schedulePresenterCheckIfNeeded()
+            } catch where !canOpenURLs && !decision.made {
                 // The wallet stopped being ready while the link was prepared: it waits for the next activation.
                 blocked = true
             } catch {
                 present(error: error)
+            }
+        }
+    }
+
+    /// Nothing wakes the queue when the app stays active and unlocked but had no screen to present on: look again
+    /// every second, without loading anything, until a screen exists.
+    private func schedulePresenterCheckIfNeeded() {
+        guard !presenterCheckScheduled, !approving, canOpenURLs, UIApplication.topViewController() == nil else {
+            return
+        }
+        presenterCheckScheduled = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            guard let self else { return }
+            self.presenterCheckScheduled = false
+            guard self.waitsForTrigger, !self.pendingURLs.isEmpty else { return }
+            if UIApplication.topViewController() != nil {
+                self.drainPendingURLs(trigger: true)
+            } else {
+                self.schedulePresenterCheckIfNeeded()
             }
         }
     }
@@ -406,14 +442,26 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     @MainActor
     private func approve(title: String, details: String) async throws -> Bool {
-        guard !approving else { throw LegacyTonConnectError.busy }
+        // A wallet that stopped being ready (throttled while the request was prepared) asks nothing.
+        guard ready, !approving else { throw LegacyTonConnectError.busy }
         approving = true
         defer {
             approving = false
             // A link that waited for this approval to end may go now.
             drainPendingURLs(trigger: true)
         }
-        if let approval { return try await approval(title, details) }
+        let approved: Bool
+        if let approval {
+            approved = try await approval(title, details)
+        } else {
+            approved = try await presentApproval(title: title, details: details)
+        }
+        Self.linkDecision?.made = true
+        return approved
+    }
+
+    @MainActor
+    private func presentApproval(title: String, details: String) async throws -> Bool {
         // Never over the PIN screen or the re-lock cover: wallet and request details wait for an unlocked app.
         guard UIApplication.shared.applicationState == .active, !ApplicationLockState.shared.isLocked,
               let presenting = UIApplication.topViewController() else { throw LegacyTonConnectError.busy }

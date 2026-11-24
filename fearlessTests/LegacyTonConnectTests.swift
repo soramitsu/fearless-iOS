@@ -557,7 +557,9 @@ private final class TonConnectFakeTransport: LegacyTonConnectBridgeTransporting 
         manifestCalls += 1
         return manifestValue ?? .init(url: url, name: "Fixture", iconUrl: nil)
     }
+    var failSends = false
     func send(_ data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String) async throws {
+        if failSends { throw URLError(.notConnectedToInternet) }
         sent.append((data, session, bridge, topic))
     }
     func listen(session _: LegacyTonConnectSession, context _: LegacyTonConnectSessionContext, receive _: @escaping (Data, String?) async throws -> Void) async throws {
@@ -994,6 +996,75 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
         try await Task.sleep(nanoseconds: 200_000_000)
         XCTAssertEqual(approvals, 2, "The kept link is asked once, after the other approval ended")
         XCTAssertEqual(transport.manifestCalls, 2)
+        coordinator.throttle()
+    }
+
+    /// Codex review (round 5): a wallet throttled while a request was prepared asks nothing.
+    @MainActor
+    func testAThrottledWalletIsNeverAskedToApprove() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        var approvals = 0
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectFakeSessionStore(values: []), transport: TonConnectFakeTransport(), replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return true },
+            walletLoader: { _ in wallet }, isEnabled: { true }
+        )
+        await coordinator.activate()
+        coordinator.throttle()
+        try await Task.sleep(nanoseconds: 50_000_000)
+        let request = try JSONDecoder().decode(
+            LegacyTonConnectConnectRequest.self,
+            from: Data(#"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#.utf8)
+        )
+        do {
+            _ = try await coordinator.connect(
+                walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: request,
+                manifest: .init(url: URL(string: "https://example.org")!, name: "Fixture", iconUrl: nil), connectionType: "http"
+            )
+            XCTFail("No approval from a throttled wallet")
+        } catch {}
+        XCTAssertEqual(approvals, 0)
+    }
+
+    /// Codex review (round 5): a link that fails after the user decided is not asked about again.
+    @MainActor
+    func testALinkThatFailsAfterTheDecisionIsNotAskedAgain() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let transport = TonConnectFakeTransport()
+        transport.failSends = true
+        var approvals = 0
+        let lockState = ApplicationLockState.shared
+        defer { lockState.cancelPendingLock() }
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet },
+            approval: { _, _ in
+                approvals += 1
+                // The app locks right after the decision; the declined reply then fails to leave.
+                lockState.markLockPending()
+                return false
+            },
+            walletLoader: { _ in wallet }, isEnabled: { true }
+        )
+        await coordinator.activate()
+        let peer = try NaclBox.keyPair(fromSecretKey: Data(repeating: 5, count: 32)).publicKey
+        var parts = URLComponents(string: "tc://")!
+        parts.queryItems = [
+            .init(name: "v", value: "2"), .init(name: "id", value: peer.map { String(format: "%02x", $0) }.joined()),
+            .init(name: "r", value: #"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#)
+        ]
+        coordinator.open(try XCTUnwrap(parts.url))
+        for _ in 0 ..< 100 where approvals == 0 {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        try await Task.sleep(nanoseconds: 200_000_000)
+        lockState.cancelPendingLock()
+        try await Task.sleep(nanoseconds: 400_000_000)
+
+        XCTAssertEqual(approvals, 1, "Decided once, never asked again")
+        XCTAssertEqual(transport.manifestCalls, 1)
         coordinator.throttle()
     }
 
