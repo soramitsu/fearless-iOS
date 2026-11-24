@@ -1008,9 +1008,12 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
         var lookup: CheckedContinuation<Void, Never>?
         let coordinator = LegacyTonConnectCoordinator(
             store: TonConnectFakeSessionStore(values: []), transport: TonConnectFakeTransport(), replies: .init(keystore: keys),
-            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return true },
+            // Declines, so a regression fails the assertions instead of waiting for a second lookup.
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return false },
             walletLoader: { _ in
-                await withCheckedContinuation { lookup = $0 }
+                if lookup == nil {
+                    await withCheckedContinuation { lookup = $0 }
+                }
                 return wallet
             },
             isEnabled: { true }
@@ -1348,7 +1351,7 @@ final class LegacyTonConnectViewTests: XCTestCase {
         let buttons = stack.arrangedSubviews.compactMap { $0 as? UIButton }
         XCTAssertEqual(buttons.count, 2)
         XCTAssertTrue(buttons.allSatisfy { $0.bounds.height >= 48 && $0.bounds.width <= 280 })
-        var completions: [Bool] = []
+        var completions: [Bool?] = []
         controller.completion = { completions.append($0) }
         controller.finish(approved: false)
         controller.finish(approved: true)

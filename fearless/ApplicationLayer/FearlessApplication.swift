@@ -138,8 +138,10 @@ final class PendingSessionLock {
     func request(in scene: UIWindowScene? = nil) -> Attempt {
         isPending = true
         needsFreshAuthentication = true
-        // Authentications that began before now do not end this lock.
+        // Authentications that began before now do not end this lock, and the app counts as locked from now on,
+        // even before the PIN is shown (a sheet the lock closes is not taken for the user's answer).
         lockState.beginDueLock()
+        lockState.markLockPending()
         return attempt(in: scene)
     }
 

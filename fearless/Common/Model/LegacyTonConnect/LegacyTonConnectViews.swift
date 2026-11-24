@@ -3,7 +3,11 @@ import WebKit
 
 final class LegacyTonConnectApprovalViewController: UIViewController, ControllerBackedProtocol {
     var onApprove: (() -> Void)?
-    var completion: ((Bool) -> Void)?
+    /// true: approved; false: declined by the user; nil: not answered (closed by the lock or a throttle).
+    var completion: ((Bool?) -> Void)?
+    /// Asked when a dismissal starts, never after it: whether the sheet is closing for the lock or a throttle.
+    var isInterrupted: () -> Bool = { false }
+    private var externalDismissalOutcome: Bool??
     private let details: String
 
     init(title: String, details: String) {
@@ -67,16 +71,29 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
         guard let callback = completion else { return }
         completion = nil
         onApprove = nil
+        // Decided now, as the sheet starts to close; a lock or throttle during the animation changes nothing.
+        let outcome: Bool? = approved ? true : (isInterrupted() ? nil : false)
         if let presentingViewController {
-            presentingViewController.dismiss(animated: true) { callback(approved) }
+            presentingViewController.dismiss(animated: true) { callback(outcome) }
         } else {
-            callback(false)
+            callback(outcome == true ? false : outcome)
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Closed from outside (the lock, a swipe): what it means is decided as the dismissal starts.
+        if completion != nil, isBeingDismissed || presentingViewController == nil {
+            externalDismissalOutcome = .some(isInterrupted() ? nil : false)
         }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        if isBeingDismissed || presentingViewController == nil { finish(approved: false) }
+        guard isBeingDismissed || presentingViewController == nil, let callback = completion else { return }
+        completion = nil
+        onApprove = nil
+        callback(externalDismissalOutcome ?? (isInterrupted() ? nil : false))
     }
 }
 
