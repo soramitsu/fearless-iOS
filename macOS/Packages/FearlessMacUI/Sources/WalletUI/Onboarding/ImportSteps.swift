@@ -11,8 +11,16 @@ struct ImportPhraseStep: View {
     var onCancel: (() -> Void)?
 
     @State private var showAdvanced = false
-    @State private var secretFields = SecretFieldGroup()
+    @State private var secretFields: SecretFieldGroup
     @Environment(\.staticRendering) private var staticRendering
+
+    /// `secretFields` is for tests; the step makes its own otherwise.
+    init(model: OnboardingModel, compact: Bool, onCancel: (() -> Void)? = nil, secretFields: SecretFieldGroup? = nil) {
+        self.model = model
+        self.compact = compact
+        self.onCancel = onCancel
+        _secretFields = State(initialValue: secretFields ?? SecretFieldGroup())
+    }
 
     private var entry: PhraseEntryModel { model.phraseEntry }
 
@@ -28,7 +36,9 @@ struct ImportPhraseStep: View {
         ) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 10) {
-                    Picker("Words", selection: Binding(get: { entry.wordCount }, set: { entry.setWordCount($0) })) {
+                    Picker("Words", selection: Binding(get: { entry.wordCount }, set: { count in
+                        Self.replaceWords(in: entry, fields: secretFields) { entry.setWordCount(count) }
+                    })) {
                         ForEach(PhraseEntryModel.lengths, id: \.self) { count in
                             Text("\(count) words").tag(count)
                         }
@@ -37,12 +47,12 @@ struct ImportPhraseStep: View {
                     .labelsHidden()
                     .accessibilityLabel("Number of words")
                     Button {
-                        if let text = Clipboard.shared.string() { entry.setText(text, at: 0) }
+                        if let text = Clipboard.shared.string() { Self.paste(text, at: 0, into: entry, fields: secretFields) }
                     } label: {
                         Label("Paste", systemImage: "doc.on.clipboard")
                     }
                     .help("Paste a whole phrase from the clipboard")
-                    Button("Clear") { entry.clear() }
+                    Button("Clear") { Self.replaceWords(in: entry, fields: secretFields) { entry.clear() } }
                         .disabled(entry.filledCount == 0)
                     Spacer()
                     Text("\(entry.filledCount) of \(entry.wordCount)")
@@ -75,13 +85,15 @@ struct ImportPhraseStep: View {
                     DerivationOptionsForm(options: $model.derivation, showsEVM: true)
                         .padding(.top, 8)
                 }
-                // Byte for byte: é and e + ◌́ are equal strings but derive different accounts.
-                .onChange(of: ExactDerivationOptions(model.derivation)) { _, _ in Task { await model.refreshPreview() } }
-                .onChange(of: entry.isValid) { _, _ in Task { await model.refreshPreview() } }
+                // Keyed by the validated words and the options byte for byte
+                // (é and e + ◌́ are equal strings but derive different accounts).
+                .onChange(of: model.livePreviewKey) { _, _ in Task { await model.refreshPreview() } }
 
-                if entry.isValid, let preview = model.addressPreview {
+                // Only a preview of the words and options on screen is shown.
+                if let preview = model.livePreview {
                     AddressPreviewCard(preview: preview)
                 }
+                ScreenSharingHint()
                 if let error = model.errorMessage {
                     InlineMessage(error, kind: .error)
                 }
@@ -96,7 +108,7 @@ struct ImportPhraseStep: View {
                 .disabled(!model.canContinueImport)
         }
         .environment(\.secretFieldGroup, secretFields)
-        .background(CaptureProtection(isActive: showsSecrets && !staticRendering))
+        .background(CaptureProtection(isActive: !staticRendering))
         .onAppear {
             if entry.focusedIndex == nil { entry.focusedIndex = 0 }
         }
@@ -219,8 +231,7 @@ struct ImportPhraseStep: View {
     /// pasted as usual.
     private func pasted(_ text: String, at index: Int) -> Bool {
         guard PhraseEntryModel.tokens(in: text).count > 1 else { return false }
-        entry.setText(text, at: index)
-        secretFields.move(to: entry.focusedIndex)
+        Self.paste(text, at: index, into: entry, fields: secretFields)
         return true
     }
 
@@ -242,12 +253,20 @@ struct ImportPhraseStep: View {
         Task { await model.continueImport() }
     }
 
-    /// Typed words, or a path with a password, are kept out of screenshots
-    /// and screen sharing ("remote support" scams ask to watch this screen).
-    private var showsSecrets: Bool {
-        entry.filledCount > 0
-            || DerivationPath.holdsPassword(model.derivation.substrateDerivationPath)
-            || DerivationPath.holdsPassword(model.derivation.evmDerivationPath)
+    /// Replaces what the grid holds (Clear, word count, paste): unfinished
+    /// compositions are discarded first, so they cannot be committed over
+    /// the new words, and every field shows its new word before the next key.
+    static func replaceWords(in entry: PhraseEntryModel, fields: SecretFieldGroup, _ change: () -> Void) {
+        fields.cancelComposition()
+        change()
+        fields.showBindingText()
+    }
+
+    /// A pasted phrase: the grid takes the words, and keyboard focus moves
+    /// past them with the caret after the last one, before the next key.
+    static func paste(_ text: String, at index: Int, into entry: PhraseEntryModel, fields: SecretFieldGroup) {
+        replaceWords(in: entry, fields: fields) { entry.setText(text, at: index) }
+        fields.move(to: entry.focusedIndex, caretAtEnd: true)
     }
 }
 
@@ -265,6 +284,7 @@ extension Array {
 struct DerivationOptionsForm: View {
     @Binding var options: DerivationOptions
     let showsEVM: Bool
+    @Environment(\.secretFieldGroup) private var secretFields
 
     var body: some View {
         Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 12, verticalSpacing: 10) {
@@ -300,7 +320,11 @@ struct DerivationOptionsForm: View {
                         )
                         .frame(maxWidth: 300)
                         if options.evmDerivationPath != DerivationOptions.defaultEVMPath {
-                            Button("Reset") { options.evmDerivationPath = DerivationOptions.defaultEVMPath }
+                            Button("Reset") {
+                                secretFields?.cancelComposition()
+                                options.evmDerivationPath = DerivationOptions.defaultEVMPath
+                                secretFields?.showBindingText()
+                            }
                                 .controlSize(.small)
                         }
                     }
@@ -437,6 +461,7 @@ struct ImportSeedStep: View {
                 if model.seedEcosystem == .substrate {
                     DerivationOptionsForm(options: $model.derivation, showsEVM: false)
                 }
+                ScreenSharingHint()
                 if let error = model.errorMessage {
                     InlineMessage(error, kind: .error)
                 }
@@ -454,12 +479,20 @@ struct ImportSeedStep: View {
             .disabled(!model.canContinueImport)
         }
         .environment(\.secretFieldGroup, secretFields)
-        .background(CaptureProtection(
-            isActive: (isVisible || DerivationPath.holdsPassword(model.derivation.substrateDerivationPath)) && !staticRendering
-        ))
+        .background(CaptureProtection(isActive: !staticRendering))
         .onChange(of: controlActiveState) { _, state in
             if state != .key, !staticRendering { isVisible = false }
         }
+    }
+}
+
+/// The import steps keep their window out of screenshots and screen
+/// sharing, but not every recorder honours that, so the user is told.
+struct ScreenSharingHint: View {
+    var body: some View {
+        Label("Stop any screen sharing or recording before you type these.", systemImage: "eye.slash")
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 }
 

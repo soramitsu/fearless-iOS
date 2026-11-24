@@ -82,8 +82,10 @@ So the two public entry points are fixed:
   sources only (an input method's Roman mode still receives the keys); paths
   allow every input source, so a Unicode password can be typed, and reach
   derivation byte for byte. Raw seeds stay in a `SecureField`; showing one
-  adds read-only, non-selectable text. Import screens that show typed
-  secrets are kept out of screenshots and screen sharing.
+  adds read-only, non-selectable text. The import steps ask macOS to keep
+  their window out of screenshots and screen sharing (`sharingType = .none`).
+  That is best effort, since not every recorder honours it, so the steps
+  also tell the user to stop screen sharing or recording first.
 - No telemetry, no analytics, no closed-source libraries (owner rule:
   source-available licences count as closed). Every dependency must name its
   source and licence.

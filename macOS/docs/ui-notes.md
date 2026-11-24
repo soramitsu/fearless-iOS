@@ -187,7 +187,8 @@ field editor of other fields is untouched): words take Roman-script input
 sources only, paths take any input source and reach derivation byte for
 byte. A shown raw seed is plain text beside its `SecureField`, a shown path
 with a `///password` is copied only with its concealed copy button, and the
-import screens are kept out of screen capture while they show typed secrets. Locking
+import steps ask macOS to keep their window out of screen capture (best
+effort; not every recorder honours it) and tell the user to stop sharing. Locking
 drops wallets, balances, history, open sheets and typed passwords at once,
 before the vault confirms.
 

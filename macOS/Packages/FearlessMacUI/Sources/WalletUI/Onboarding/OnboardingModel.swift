@@ -137,6 +137,8 @@ final class OnboardingModel: Identifiable {
     /// Bumped by every preview request and by Continue, so a preview that
     /// finishes late never replaces a newer one or the confirmation's.
     @ObservationIgnored private var previewGeneration = 0
+    /// What `addressPreview` was derived from on the phrase step.
+    private(set) var addressPreviewKey: ImportPreviewKey?
 
     init(
         mode: Mode,
@@ -236,6 +238,7 @@ final class OnboardingModel: Identifiable {
         self.path = path
         derivation = .standard
         addressPreview = nil
+        addressPreviewKey = nil
         pendingSource = nil
         errorMessage = nil
         if !vaultInitialized {
@@ -423,11 +426,13 @@ final class OnboardingModel: Identifiable {
     /// last step. Stays put, with the reason, if the source is not usable.
     private func prepareConfirmation(source: WalletImportSource) async {
         previewGeneration += 1
+        let key = livePreviewKey
         isWorking = true
         defer { isWorking = false }
         do {
             let preview = try await services.wallets.previewAddresses(for: source)
             addressPreview = preview
+            addressPreviewKey = key
             pendingSource = source
             go(to: .confirm)
         } catch {
@@ -435,20 +440,30 @@ final class OnboardingModel: Identifiable {
         }
     }
 
-    /// Refreshes the preview after a derivation option changed. The result
-    /// is shown only if it still belongs to the words and options on screen.
+    /// The validated words and exact options on the phrase step; nil until
+    /// the phrase is valid.
+    var livePreviewKey: ImportPreviewKey? {
+        guard step == .importPhrase, phraseEntry.isValid else { return nil }
+        return ImportPreviewKey(words: phraseEntry.normalizedWords, options: ExactDerivationOptions(derivation))
+    }
+
+    /// The preview of exactly the words and options on screen, or nil while
+    /// it is being derived. A preview of earlier input is never shown.
+    var livePreview: WalletAddressPreview? {
+        guard let key = livePreviewKey, key == addressPreviewKey else { return nil }
+        return addressPreview
+    }
+
+    /// Refreshes the preview after the words or a derivation option changed.
+    /// The result is kept only if it still belongs to the input on screen.
     func refreshPreview() async {
-        guard step == .importPhrase, phraseEntry.isValid else { return }
+        guard let key = livePreviewKey else { return }
         previewGeneration += 1
         let generation = previewGeneration
-        let words = phraseEntry.normalizedWords
-        let options = derivation
-        let preview = try? await services.wallets.previewAddresses(for: .mnemonic(words: words, options: options))
-        guard generation == previewGeneration,
-              step == .importPhrase,
-              phraseEntry.normalizedWords.elementsEqual(words, by: ExactText.same),
-              ExactDerivationOptions(derivation) == ExactDerivationOptions(options) else { return }
+        let preview = try? await services.wallets.previewAddresses(for: .mnemonic(words: key.words, options: key.options.options))
+        guard generation == previewGeneration, livePreviewKey == key else { return }
         addressPreview = preview
+        addressPreviewKey = key
     }
 
     // MARK: Finish

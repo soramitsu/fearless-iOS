@@ -12,9 +12,8 @@ import WalletCore
 /// editor, used by every other field, is never touched.
 enum SecretTextEntry: Sendable {
     /// One English recovery word. Only Roman-script input sources can be
-    /// selected while the field has focus, which keeps kana, kanji and other
-    /// conversion dictionaries away from the words. (An input method's own
-    /// Roman mode still receives the keys.)
+    /// selected while the field has focus. An input method's own Roman mode
+    /// still receives the keys and decides how it processes them.
     case recoveryWord
     /// A derivation path, which may end in a `///password`. Every input
     /// source stays available, so a Unicode password can still be typed.
@@ -73,6 +72,17 @@ struct ExactDerivationOptions: Equatable {
         lhs.options.substrateCryptoType == rhs.options.substrateCryptoType
             && ExactText.same(lhs.options.substrateDerivationPath, rhs.options.substrateDerivationPath)
             && ExactText.same(lhs.options.evmDerivationPath, rhs.options.evmDerivationPath)
+    }
+}
+
+/// What a live address preview was derived from: the validated words and
+/// the derivation options, both compared byte for byte.
+struct ImportPreviewKey: Equatable {
+    let words: [String]
+    let options: ExactDerivationOptions
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.words.elementsEqual(rhs.words, by: ExactText.same) && lhs.options == rhs.options
     }
 }
 
@@ -201,10 +211,28 @@ final class SecretFieldEditor: NSTextView {
         super.insertText(string, replacementRange: replacementRange)
     }
 
+    /// True while a composition is being discarded; nothing is pushed then.
+    private(set) var isCancellingComposition = false
+
     override func unmarkText() {
         let hadMarkedText = hasMarkedText()
         super.unmarkText()
-        if hadMarkedText { onCompositionCommit?() }
+        if hadMarkedText, !isCancellingComposition { onCompositionCommit?() }
+    }
+
+    /// Discards text an input method is still composing, without handing
+    /// it to the binding (before the owner replaces the field's text).
+    func cancelComposition() {
+        guard hasMarkedText() else { return }
+        let marked = markedRange()
+        isCancellingComposition = true
+        defer { isCancellingComposition = false }
+        unmarkText()
+        inputContext?.discardMarkedText()
+        guard marked.location != NSNotFound, NSMaxRange(marked) <= (string as NSString).length,
+              shouldChangeText(in: marked, replacementString: "") else { return }
+        replaceCharacters(in: marked, with: "")
+        didChangeText()
     }
 
     /// Makes text an input method is still composing ordinary text, as typed.
@@ -291,14 +319,14 @@ final class SecretFieldEditor: NSTextView {
     }
 
     /// Deletes the selection, first extending an empty one. With
-    /// `orFollowingBreak`, a caret already at the end of a line or paragraph
-    /// deletes the break that follows instead (CR LF counts as one), as
-    /// Control-K does elsewhere. `delete(_:)` would add the text to the kill
+    /// `orFollowingBreak`, a caret right before a line or paragraph break
+    /// deletes only that break (CR LF counts as one), as Control-K does
+    /// elsewhere. `delete(_:)` would add the text to the kill
     /// ring, so the text is replaced instead.
     private func deleteSelection(orFollowingBreak: Bool = false, extending extend: (Any?) -> Void) {
         if selectedRange().length == 0 {
-            extend(nil)
-            if orFollowingBreak, selectedRange().length == 0 { selectFollowingLineBreak() }
+            if orFollowingBreak { selectFollowingLineBreak() }
+            if selectedRange().length == 0 { extend(nil) }
         }
         let range = selectedRange()
         guard range.length > 0, shouldChangeText(in: range, replacementString: "") else { return }
@@ -482,25 +510,35 @@ final class SecretEntryTextFieldCell: NSTextFieldCell {
 
 /// The secret fields of one screen. Its owner moves keyboard focus between
 /// them inside the key event that asked for it, so the next key already
-/// lands in the new field, and commits their compositions before reading
-/// what they hold. Fields join the group in the SwiftUI environment.
+/// lands in the new field; shows every field's bound text at once after a
+/// change; and commits or discards compositions before reading or
+/// replacing what the fields hold. Fields join through the environment.
 @MainActor
 final class SecretFieldGroup {
     private final class Member {
         weak var field: SecretEntryTextField?
+        var showBindingText: () -> Void
 
-        init(_ field: SecretEntryTextField) {
+        init(_ field: SecretEntryTextField, showBindingText: @escaping () -> Void) {
             self.field = field
+            self.showBindingText = showBindingText
         }
     }
 
     private var members: [Member] = []
     private var slots: [Int: Member] = [:]
 
-    func add(_ field: SecretEntryTextField, focusID: Int?) {
+    func add(_ field: SecretEntryTextField, focusID: Int?, showBindingText: @escaping () -> Void) {
         members.removeAll { $0.field == nil }
-        if !members.contains(where: { $0.field === field }) { members.append(Member(field)) }
-        if let focusID, slots[focusID]?.field !== field { slots[focusID] = Member(field) }
+        let member: Member
+        if let existing = members.first(where: { $0.field === field }) {
+            existing.showBindingText = showBindingText
+            member = existing
+        } else {
+            member = Member(field, showBindingText: showBindingText)
+            members.append(member)
+        }
+        if let focusID, slots[focusID] !== member { slots[focusID] = member }
     }
 
     func remove(_ field: SecretEntryTextField) {
@@ -512,23 +550,42 @@ final class SecretFieldGroup {
         slots[focusID]?.field
     }
 
-    /// Commits text an input method is still composing in any field of the
-    /// group, so it reaches the bindings. Other windows are left alone.
-    func finishComposition() {
-        for field in members.compactMap(\.field) {
-            field.secretEditor.commitComposition()
-        }
+    private var fields: [SecretEntryTextField] {
+        members.compactMap(\.field)
     }
 
-    /// Gives the field at `focusID` keyboard focus now, or takes it away from
-    /// whichever field of the group has it when `focusID` is nil.
-    func move(to focusID: Int?) {
+    /// Commits text an input method is still composing in the group's
+    /// fields, so it reaches the bindings. Other windows are left alone.
+    func finishComposition() {
+        fields.forEach { $0.secretEditor.commitComposition() }
+    }
+
+    /// Discards unfinished compositions, before the owner replaces the text.
+    func cancelComposition() {
+        fields.forEach { $0.secretEditor.cancelComposition() }
+    }
+
+    /// Shows every field's bound text now, before the next key arrives.
+    func showBindingText() {
+        members.filter { $0.field != nil }.forEach { $0.showBindingText() }
+    }
+
+    /// Gives the field at `focusID` keyboard focus now, or takes it away
+    /// from whichever field of the group has it when `focusID` is nil or the
+    /// field is not made yet (a growing grid claims it when it appears).
+    /// `caretAtEnd` puts the caret after the field's text instead of
+    /// selecting it.
+    func move(to focusID: Int?, caretAtEnd: Bool = false) {
         finishComposition()
-        if let focusID {
-            guard let field = field(focusID), let window = field.window, !field.isEditing else { return }
-            window.makeFirstResponder(field)
-        } else if let editing = members.compactMap(\.field).first(where: \.isEditing) {
-            editing.window?.makeFirstResponder(nil)
+        guard let focusID, let field = field(focusID) else {
+            if let editing = fields.first(where: \.isEditing) { editing.window?.makeFirstResponder(nil) }
+            return
+        }
+        guard let window = field.window else { return }
+        if !field.isEditing { window.makeFirstResponder(field) }
+        if caretAtEnd, field.isEditing {
+            let editor = field.secretEditor
+            editor.setSelectedRange(NSRange(location: (editor.string as NSString).length, length: 0))
         }
     }
 }
@@ -641,7 +698,10 @@ struct SecretTextField: NSViewRepresentable {
             coordinator.group?.remove(field)
             coordinator.group = group
         }
-        group?.add(field, focusID: focusID)
+        group?.add(field, focusID: focusID) { [weak coordinator] in
+            guard let coordinator else { return }
+            coordinator.show(coordinator.parent.text)
+        }
         field.placeholderString = placeholder
         field.setAccessibilityLabel(accessibilityLabel)
         let composing = field.isEditing && field.secretEditor.hasMarkedText()
@@ -762,7 +822,7 @@ struct SecretTextField: NSViewRepresentable {
 
         /// Hands the field's text to the binding, byte for byte.
         func pushFieldText() {
-            guard !isShowingBindingText, let field else { return }
+            guard !isShowingBindingText, let field, !field.secretEditor.isCancellingComposition else { return }
             let value = field.currentText
             lastSynced = value
             if !ExactText.same(parent.text, value) { parent.text = value }
