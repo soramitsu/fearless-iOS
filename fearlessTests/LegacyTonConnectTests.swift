@@ -218,31 +218,65 @@ private final class TonConnectSecretReadSpy: KeystoreProtocol {
     func deleteKey(for identifier: String) throws { try keys.deleteKey(for: identifier) }
 }
 
+private func withoutKeyColumn(_ row: [String: Data]) -> [String: Data] {
+    row.filter { $0.key != "privateKey" }
+}
+
+private final class TonConnectFakeSessionKeys: LegacyTonConnectSessionKeyStoring {
+    var items: [String: Data] = [:]
+    var failSaves: OSStatus?
+    var failLoads: OSStatus?
+    var corruptReads = false
+    private(set) var saveCount = 0
+
+    func saveKey(_ key: Data, reference: String) throws {
+        if let status = failSaves { throw LegacyTonConnectSessionKeyError.keychainUnavailable(status) }
+        items[reference] = key
+        saveCount += 1
+    }
+
+    func loadKey(reference: String) throws -> Data? {
+        if let status = failLoads { throw LegacyTonConnectSessionKeyError.keychainUnavailable(status) }
+        guard let value = items[reference] else { return nil }
+        guard corruptReads else { return value }
+        var corrupted = value
+        corrupted[corrupted.startIndex] ^= 0xFF
+        return corrupted
+    }
+
+    func deleteKey(reference: String) throws {
+        items.removeValue(forKey: reference)
+    }
+}
+
 final class LegacyTonConnectStoreTests: XCTestCase {
-    func testReleasedSessionsReloadWithOriginalKeysAndMissingTypeWithoutRewritingRows() async throws {
+    func testReleasedSessionsReloadWithOriginalKeysAndMissingTypeRewritingOnlyTheKeyColumn() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
         let file = directory.appendingPathComponent("legacy.sqlite")
         let fixture = try TonConnectFixtureCoreDataService(url: file)
+        let keys = TonConnectFakeSessionKeys()
         let http = try tonConnectTestSession(id: "old-http")
         let js = try tonConnectTestSession(id: "old-js", clientId: UUID().uuidString, type: "js")
         try fixture.insert(http, missingType: true)
         try fixture.insert(js, missingType: true)
         var malformed = try fixture.snapshot()
         XCTAssertEqual(malformed.count, 2)
-        let store = LegacyTonConnectStore(service: fixture)
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
         let sessions = try await store.sessions()
         XCTAssertEqual(Set(sessions.map(\.identifier)), [http.identifier, js.identifier])
         XCTAssertEqual(sessions.first(where: { $0.identifier == http.identifier })?.connectionType, "http")
         XCTAssertEqual(sessions.first(where: { $0.identifier == js.identifier })?.connectionType, "js")
         XCTAssertEqual(sessions.first(where: { $0.identifier == http.identifier })?.privateKey, http.privateKey)
-        XCTAssertEqual(try fixture.snapshot(), malformed)
+        // Only the key column changes: every other value, the missing type included, stays as released.
+        XCTAssertEqual(try fixture.snapshot().map(withoutKeyColumn), malformed.map(withoutKeyColumn))
         try fixture.close()
         let reopened = try TonConnectFixtureCoreDataService(url: file)
-        let restored = try await LegacyTonConnectStore(service: reopened).sessions()
+        let restored = try await LegacyTonConnectStore(service: reopened, keys: keys).sessions()
         XCTAssertEqual(restored.count, 2)
         XCTAssertEqual(restored.first(where: { $0.identifier == js.identifier })?.publicKey, js.publicKey)
+        XCTAssertEqual(restored.first(where: { $0.identifier == js.identifier })?.privateKey, js.privateKey)
         malformed = try reopened.snapshot()
         XCTAssertFalse(malformed.contains { $0["connectionType"] != nil })
         try reopened.close()
@@ -250,7 +284,8 @@ final class LegacyTonConnectStoreTests: XCTestCase {
 
     func testSessionSaveConflictAndDisconnectPreserveOtherLegacyRows() async throws {
         let fixture = try TonConnectFixtureCoreDataService()
-        let store = LegacyTonConnectStore(service: fixture)
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
         let original = try tonConnectTestSession()
         try await store.save(original)
         try await store.save(original)
@@ -265,6 +300,9 @@ final class LegacyTonConnectStoreTests: XCTestCase {
         try await store.remove(original)
         let remaining = try await store.sessions()
         XCTAssertEqual(remaining, [second])
+        XCTAssertNil(keys.items[LegacyTonConnectSessionKeyReference(identifier: original.identifier, publicKey: original.publicKey).account],
+                     "A disconnected session's key goes with its row")
+        XCTAssertEqual(keys.items.count, 1)
         try await store.remove(original)
     }
 
@@ -275,7 +313,7 @@ final class LegacyTonConnectStoreTests: XCTestCase {
         let invalid = LegacyTonConnectSession(identifier: "invalid", walletId: original.walletId, clientId: "unknown", appUrl: original.appUrl, name: original.name,
                                               iconUrl: nil, publicKey: Data(repeating: 0, count: 32), privateKey: original.privateKey, connectionType: "future")
         try fixture.insert(invalid)
-        let store = LegacyTonConnectStore(service: fixture)
+        let store = LegacyTonConnectStore(service: fixture, keys: TonConnectFakeSessionKeys())
         let sessions = try await store.sessions()
         XCTAssertEqual(sessions, [original])
         XCTAssertEqual(try fixture.snapshot().count, 2)
@@ -454,6 +492,17 @@ private final class TonConnectFixtureCoreDataService: CoreDataServiceProtocol {
                                        "appUrl": session.appUrl, "name": session.name, "publicKey": session.publicKey, "privateKey": session.privateKey]
             values.forEach { row.setValue($0.value, forKey: $0.key) }
             row.setValue(missingType ? nil : session.connectionType, forKey: "connectionType")
+            try context.save()
+        }
+    }
+
+    func insertRaw(_ session: LegacyTonConnectSession, privateKeyColumn: Data) throws {
+        try context.performAndWait {
+            let row = NSEntityDescription.insertNewObject(forEntityName: "CDTonConnectedApp", into: context)
+            let values: [String: Any] = ["identifier": session.identifier, "walletId": session.walletId, "clientId": session.clientId,
+                                         "appUrl": session.appUrl, "name": session.name, "publicKey": session.publicKey,
+                                         "privateKey": privateKeyColumn, "connectionType": session.connectionType]
+            values.forEach { row.setValue($0.value, forKey: $0.key) }
             try context.save()
         }
     }
@@ -1394,5 +1443,273 @@ extension LegacyTonConnectCoordinatorTests {
         XCTAssertEqual(storage.values.count, 1)
         XCTAssertFalse(LegacyTonConnectError.signingPaused.localizedDescription.isEmpty)
         plain.throttle()
+    }
+}
+
+/// TON Connect transport keys leave the SQLite store for device-only Keychain items (2026-11-23 audit, finding 5).
+final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
+    private var directory: URL!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        directory = FileManager.default.temporaryDirectory.appendingPathComponent("TonKeyMove-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: directory)
+        try super.tearDownWithError()
+    }
+
+    private func reference(_ session: LegacyTonConnectSession) -> LegacyTonConnectSessionKeyReference {
+        LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
+    }
+
+    private func copyFamily(of file: URL, to destination: URL) throws {
+        try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+        for suffix in ["", "-wal", "-shm"] {
+            let source = URL(fileURLWithPath: file.path + suffix)
+            guard FileManager.default.fileExists(atPath: source.path) else { continue }
+            try FileManager.default.copyItem(at: source, to: URL(fileURLWithPath: destination.path + suffix))
+        }
+    }
+
+    func testOldHTTPAndJSSessionsMoveTheirKeysToTheKeychainAndKeepWorking() async throws {
+        let file = directory.appendingPathComponent("SubstrateDataModel.sqlite")
+        let fixture = try TonConnectFixtureCoreDataService(url: file)
+        let keys = TonConnectFakeSessionKeys()
+        let http = try tonConnectTestSession(id: "old-http")
+        let js = try tonConnectTestSession(id: "old-js", clientId: UUID().uuidString, type: "js")
+        try fixture.insert(http)
+        try fixture.insert(js, missingType: true)
+        let before = try fixture.snapshot()
+        XCTAssertTrue(before.allSatisfy { $0["privateKey"]?.count == 32 }, "Released rows hold the raw key")
+
+        let sessions = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
+
+        XCTAssertEqual(Set(sessions.map(\.identifier)), [http.identifier, js.identifier])
+        XCTAssertEqual(sessions.first { $0.identifier == http.identifier }, http)
+        XCTAssertEqual(sessions.first { $0.identifier == js.identifier }?.privateKey, js.privateKey)
+        let after = try fixture.snapshot()
+        for session in [http, js] {
+            let row = try XCTUnwrap(after.first { $0["identifier"] == Data(session.identifier.utf8) })
+            XCTAssertEqual(row["privateKey"], reference(session).column, "The row names its Keychain item")
+            XCTAssertNotEqual(row["privateKey"], session.privateKey)
+            XCTAssertFalse(try XCTUnwrap(row["privateKey"]).range(of: session.privateKey) != nil)
+            XCTAssertEqual(keys.items[reference(session).account], session.privateKey)
+        }
+        XCTAssertEqual(after.map(withoutKeyColumn), before.map(withoutKeyColumn), "No other column changes")
+        XCTAssertEqual(keys.items.count, 2, "Only the two session keys are written")
+
+        // A moved session still talks to its original peer with its original key.
+        let peer = try NaclBox.keyPair(fromSecretKey: Data(repeating: 9, count: 32))
+        let restored = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
+        let restoredHTTP = try XCTUnwrap(restored.first { $0.identifier == http.identifier })
+        let sealed = try restoredHTTP.encrypt(Data("hello".utf8))
+        let opened = try NaclBox.open(message: Data(sealed.dropFirst(24)), nonce: Data(sealed.prefix(24)),
+                                      publicKey: http.publicKey, secretKey: peer.secretKey)
+        XCTAssertEqual(opened, Data("hello".utf8))
+        XCTAssertEqual(keys.saveCount, 2, "A moved row is not moved again")
+        try fixture.close()
+    }
+
+    func testKeychainFailureOrWrongReadBackLeavesTheOldRowUsableAndUnchanged() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let http = try tonConnectTestSession(id: "old-http")
+        try fixture.insert(http)
+        let before = try fixture.snapshot()
+
+        keys.failSaves = errSecInteractionNotAllowed
+        let whileUnavailable = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
+        XCTAssertEqual(whileUnavailable, [http])
+        XCTAssertEqual(try fixture.snapshot(), before)
+
+        keys.failSaves = nil
+        keys.corruptReads = true
+        let withWrongReadBack = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
+        XCTAssertEqual(withWrongReadBack, [http])
+        XCTAssertEqual(try fixture.snapshot(), before, "A key that does not read back is never trusted")
+
+        keys.corruptReads = false
+        let moved = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
+        XCTAssertEqual(moved, [http])
+        XCTAssertEqual(try fixture.snapshot().first?["privateKey"], reference(http).column)
+    }
+
+    func testKeychainUnavailableForAMovedSessionIsAnErrorNotAnEmptyList() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let session = try tonConnectTestSession()
+        try await store.save(session)
+        keys.failLoads = errSecInteractionNotAllowed
+        do {
+            _ = try await store.sessions()
+            XCTFail("A locked Keychain must not look like no sessions")
+        } catch {
+            guard case LegacyTonConnectError.invalidSession? = error as? LegacyTonConnectError else {
+                return XCTFail("Unexpected error \(error)")
+            }
+        }
+        keys.failLoads = nil
+        let sessions = try await store.sessions()
+        XCTAssertEqual(sessions, [session])
+    }
+
+    func testInterruptedMoveKeepsTheRawKeyAndTheNextReadFinishesIt() async throws {
+        let file = directory.appendingPathComponent("SubstrateDataModel.sqlite")
+        let fixture = try TonConnectFixtureCoreDataService(url: file)
+        let keys = TonConnectFakeSessionKeys()
+        let http = try tonConnectTestSession(id: "old-http")
+        let js = try tonConnectTestSession(id: "old-js", clientId: UUID().uuidString, type: "js")
+        try fixture.insert(http)
+        try fixture.insert(js)
+        let before = try fixture.snapshot()
+
+        for boundary in [LegacyTonConnectStore.KeyMigrationBoundary.keyStored, .rowUpdated] {
+            struct Interrupted: Error {}
+            let interrupted = LegacyTonConnectStore(service: fixture, keys: keys) { reached in
+                if reached == boundary { throw Interrupted() }
+            }
+            let sessions = try await interrupted.sessions()
+            XCTAssertEqual(Set(sessions.map(\.identifier)), [http.identifier, js.identifier], "\(boundary)")
+            XCTAssertEqual(try fixture.snapshot(), before, "Stopped at \(boundary): the rows keep their raw keys")
+        }
+        XCTAssertEqual(keys.items.count, 2, "The written items are kept for the next attempt")
+
+        // As after a relaunch: a new store reopened from disk finishes the move with the same items.
+        try fixture.close()
+        let reopened = try TonConnectFixtureCoreDataService(url: file)
+        let sessions = try await LegacyTonConnectStore(service: reopened, keys: keys).sessions()
+        XCTAssertEqual(Set(sessions.map(\.identifier)), [http.identifier, js.identifier])
+        XCTAssertEqual(Set(try reopened.snapshot().compactMap { $0["privateKey"] }), [reference(http).column, reference(js).column])
+        XCTAssertEqual(keys.items.count, 2)
+        try reopened.close()
+    }
+
+    func testRestoredWALAndRetainedStoreRowsAreReadAsLegacyInput() async throws {
+        let live = directory.appendingPathComponent("CoreData/SubstrateDataModel.sqlite")
+        try FileManager.default.createDirectory(at: live.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let fixture = try TonConnectFixtureCoreDataService(url: live)
+        let keys = TonConnectFakeSessionKeys()
+        let http = try tonConnectTestSession(id: "old-http")
+        let js = try tonConnectTestSession(id: "old-js", clientId: UUID().uuidString, type: "js")
+        try fixture.insert(http)
+        try fixture.insert(js, missingType: true)
+
+        // A retained archive taken while the store is open: the rows are in its write-ahead log.
+        let preMove = directory.appendingPathComponent("CoreData/SubstrateStoreRetained/\(UUID().uuidString)/SubstrateDataModel.sqlite")
+        try copyFamily(of: live, to: preMove)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: preMove.path + "-wal"))
+
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        _ = try await store.sessions()
+        XCTAssertTrue(try fixture.snapshot().allSatisfy { $0["privateKey"]?.count != 32 })
+        let postMove = directory.appendingPathComponent("CoreData/SubstrateStoreRetained/\(UUID().uuidString)/SubstrateDataModel.sqlite")
+        try copyFamily(of: live, to: postMove)
+        try await store.remove(js)
+        try fixture.close()
+
+        // Restoring the archive from before the move: its rows hold raw keys and are moved again, to the same items.
+        let restoredOld = try TonConnectFixtureCoreDataService(url: preMove)
+        let oldSessions = try await LegacyTonConnectStore(service: restoredOld, keys: keys).sessions()
+        XCTAssertEqual(Set(oldSessions.map(\.identifier)), [http.identifier, js.identifier])
+        XCTAssertEqual(oldSessions.first { $0.identifier == js.identifier }?.privateKey, js.privateKey)
+        XCTAssertEqual(Set(try restoredOld.snapshot().compactMap { $0["privateKey"] }), [reference(http).column, reference(js).column])
+        XCTAssertEqual(keys.items[reference(js).account], js.privateKey)
+        try restoredOld.close()
+
+        // Restoring the archive from after the move, once js was disconnected again: its row is hidden, kept, and
+        // does not hide the other session.
+        try keys.deleteKey(reference: reference(js).account)
+        let restoredNew = try TonConnectFixtureCoreDataService(url: postMove)
+        let newSessions = try await LegacyTonConnectStore(service: restoredNew, keys: keys).sessions()
+        XCTAssertEqual(newSessions, [http])
+        XCTAssertEqual(try restoredNew.snapshot().count, 2, "An unreadable row is preserved, never deleted")
+        try restoredNew.close()
+    }
+
+    func testNewSessionsKeepOnlyAReferenceAndFailClosedWithoutTheKeychain() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let session = try tonConnectTestSession(id: "new-http")
+
+        keys.failSaves = errSecInteractionNotAllowed
+        do {
+            try await store.save(session)
+            XCTFail("A new session is never stored with its raw key")
+        } catch {}
+        XCTAssertTrue(try fixture.snapshot().isEmpty)
+        XCTAssertTrue(keys.items.isEmpty)
+
+        keys.failSaves = nil
+        keys.corruptReads = true
+        do {
+            try await store.save(session)
+            XCTFail("A key that does not read back is never referenced")
+        } catch {}
+        XCTAssertTrue(try fixture.snapshot().isEmpty)
+        XCTAssertTrue(keys.items.isEmpty, "The item this save created is removed again")
+
+        keys.corruptReads = false
+        try await store.save(session)
+        try await store.save(session)
+        XCTAssertEqual(try fixture.snapshot().map { $0["privateKey"] }, [reference(session).column])
+        XCTAssertEqual(keys.items, [reference(session).account: session.privateKey])
+        let sessions = try await store.sessions()
+        XCTAssertEqual(sessions, [session])
+    }
+
+    func testKeyColumnFormatAndARowNamingAnotherSessionsItem() async throws {
+        let session = try tonConnectTestSession()
+        let other = try tonConnectTestSession(id: "other")
+        XCTAssertEqual(LegacyTonConnectSessionKeyReference.Column(session.privateKey), .legacy(session.privateKey))
+        XCTAssertEqual(LegacyTonConnectSessionKeyReference.Column(reference(session).column), .keychain(reference(session).digest))
+        XCTAssertEqual(reference(session).column.count, 38)
+        XCTAssertNil(LegacyTonConnectSessionKeyReference.Column(Data(repeating: 1, count: 38)))
+        XCTAssertNil(LegacyTonConnectSessionKeyReference.Column(Data(repeating: 1, count: 31)))
+        XCTAssertNotEqual(reference(session).account, reference(other).account)
+        XCTAssertEqual(reference(session).account.count, 64)
+
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        try await store.save(other)
+        // A row that points at another session's item is not read with that key.
+        try fixture.insertRaw(session, privateKeyColumn: reference(other).column)
+        let sessions = try await store.sessions()
+        XCTAssertEqual(sessions, [other])
+    }
+
+    /// The real Keychain item: device-only, unlocked-only, not synchronized, and apart from wallet keys.
+    func testSessionKeyItemIsDeviceOnlyNotSynchronizedAndApartFromWalletKeys() throws {
+        let keychain = LegacyTonConnectSessionKeychain()
+        let wallet = Keychain()
+        let name = "fearless-tests-tonconnect-" + UUID().uuidString
+        let walletKey = Data(repeating: 0xA5, count: 32)
+        try wallet.addKey(walletKey, with: name)
+        defer {
+            try? wallet.deleteKey(for: name)
+            try? keychain.deleteKey(reference: name)
+        }
+
+        let key = Data(repeating: 0x11, count: 32)
+        try keychain.saveKey(key, reference: name)
+        XCTAssertEqual(try keychain.loadKey(reference: name), key)
+        let attributes = try XCTUnwrap(try keychain.attributes(reference: name))
+        XCTAssertEqual(attributes[kSecAttrAccessible as String] as? String, kSecAttrAccessibleWhenUnlockedThisDeviceOnly as String)
+        XCTAssertEqual((attributes[kSecAttrSynchronizable as String] as? NSNumber)?.boolValue ?? false, false)
+        XCTAssertEqual(attributes[kSecAttrService as String] as? String, LegacyTonConnectSessionKeychain.service)
+
+        let replacement = Data(repeating: 0x22, count: 32)
+        try keychain.saveKey(replacement, reference: name)
+        XCTAssertEqual(try keychain.loadKey(reference: name), replacement)
+        try keychain.deleteKey(reference: name)
+        XCTAssertNil(try keychain.loadKey(reference: name))
+        try keychain.deleteKey(reference: name)
+
+        XCTAssertEqual(try wallet.fetchKey(for: name), walletKey, "A wallet key with the same name is untouched")
     }
 }

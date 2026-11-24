@@ -267,8 +267,67 @@ final class RetainedDataRestoreInteractor: RetainedDataArchiveManaging {
 
 extension RetainedDataRestoreInteractor.Kind: Codable {}
 
+/// The live stores, their set-aside archives and the recovery and replacement copies all live under
+/// `Documents/CoreData`. Core Data marks that directory as excluded from device backups only when it creates it, so
+/// an existing directory, possibly made by an older release, is checked and corrected on every launch. Older rows in
+/// these stores, and copies of them, can hold TON Connect session keys.
+enum StoreBackupExclusion {
+    static let directoryNames = [
+        RetainedStoreSetAside.userRootName,
+        RetainedStoreSetAside.substrateRootName,
+        CrashConsistentSubstrateCacheRecovery.recoveryRootName,
+        CrashConsistentStoreReplacer.recoveryRootName
+    ]
+
+    /// Marks the storage directory and each existing archive directory in it as excluded from backups, reads the
+    /// flag back, and returns the directories that are still not excluded. Never throws and never creates anything.
+    @discardableResult
+    static func ensureExcluded(
+        storageDirectory: URL = SubstrateStorageParams.storageDirectoryURL,
+        fileManager: FileManager = .default,
+        setExcluded: (URL) throws -> Void = { url in
+            var resourceURL = url
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try resourceURL.setResourceValues(values)
+        }
+    ) -> [URL] {
+        let directories = [storageDirectory] + directoryNames.map {
+            storageDirectory.appendingPathComponent($0, isDirectory: true)
+        }
+        var notExcluded: [URL] = []
+        for directory in directories where isRealDirectory(directory, fileManager: fileManager) {
+            if !isExcluded(directory) {
+                try? setExcluded(directory)
+            }
+            if !isExcluded(directory) {
+                notExcluded.append(directory)
+            }
+        }
+        if !notExcluded.isEmpty {
+            Logger.shared.error("\(notExcluded.count) store directories are still included in device backups")
+        }
+        return notExcluded
+    }
+
+    static func isExcluded(_ url: URL) -> Bool {
+        var fresh = url
+        fresh.removeAllCachedResourceValues()
+        return (try? fresh.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup) == true
+    }
+
+    private static func isRealDirectory(_ url: URL, fileManager: FileManager) -> Bool {
+        guard let attributes = try? fileManager.attributesOfItem(atPath: url.path) else {
+            return false
+        }
+        // A symbolic link is not followed: the flag belongs on the directory itself.
+        return attributes[.type] as? FileAttributeType == .typeDirectory
+    }
+}
+
 final class RetainedDataStartupRecovery: Migrating {
     func migrate() throws {
+        StoreBackupExclusion.ensureExcluded()
         // Finish a user-requested set-aside before the wallet store is opened.
         _ = try RetainedStoreSetAside(
             storeURL: UserStorageParams.storageURL,

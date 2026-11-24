@@ -54,8 +54,15 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         snapshotCover.show(in: windowScene)
     }
 
-    func sceneWillEnterForeground(_: UIScene) {
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        // A re-lock that is due, or still pending from before, goes on screen (or behind its cover) before the
+        // app-switcher cover is removed, so the app is never shown unlocked in between.
+        FearlessApplication.current?.sessionLock.willEnterForeground(in: scene as? UIWindowScene)
         snapshotCover.hide()
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        FearlessApplication.current?.sessionLock.attempt(in: scene as? UIWindowScene)
     }
 
     func sceneDidDisconnect(_: UIScene) {
