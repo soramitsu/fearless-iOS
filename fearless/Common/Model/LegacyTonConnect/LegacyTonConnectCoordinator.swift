@@ -37,9 +37,13 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// Android. An absent key keeps signing on.
     private let isSigningEnabled: () -> Bool
     private var ready = false
-    /// Links that arrived while the wallet could not answer them, in arrival order; opened one at a time.
+    /// Links in arrival order, opened one at a time. The one being opened stays first until it is done, so a
+    /// duplicate arriving meanwhile is merged with it.
     private var pendingURLs: [URL] = []
     private var isOpeningURL = false
+    /// The first link was blocked (another approval, a lock, the app inactive or the wallet not ready): it waits for
+    /// a trigger instead of being retried at once.
+    private var waitsForTrigger = false
     private var drainObservers: [NSObjectProtocol] = []
     private var approving = false
     private weak var approvalController: LegacyTonConnectApprovalViewController?
@@ -83,7 +87,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         ready = true
         await service.set(handler: self)
         await service.start(selectedNetwork: selectedNetwork)
-        drainPendingURLs()
+        drainPendingURLs(trigger: true)
     }
 
     func throttle() {
@@ -112,21 +116,31 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         ready && !ApplicationLockState.shared.isLocked && UIApplication.shared.applicationState == .active
     }
 
-    private func drainPendingURLs() {
-        guard !pendingURLs.isEmpty else {
+    /// `trigger`: something that may unblock the first link happened (unlock, activation, an approval ended, the
+    /// coordinator was activated).
+    private func drainPendingURLs(trigger: Bool = false) {
+        if trigger {
+            waitsForTrigger = false
+        }
+        guard let url = pendingURLs.first else {
             drainObservers.forEach { NotificationCenter.default.removeObserver($0) }
             drainObservers = []
             return
         }
-        guard canOpenURLs, !isOpeningURL else {
+        guard canOpenURLs, !isOpeningURL, !waitsForTrigger else {
             observeDrainTriggersIfNeeded()
             return
         }
-        let url = pendingURLs.removeFirst()
         isOpeningURL = true
         Task { @MainActor in
+            var blocked = false
             defer {
                 isOpeningURL = false
+                if blocked {
+                    waitsForTrigger = true
+                } else {
+                    pendingURLs.removeAll { $0 == url }
+                }
                 drainPendingURLs()
             }
             do {
@@ -134,10 +148,17 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
                 let link = try LegacyTonConnectProtocol.parseLink(url)
                 guard let wallet = selectedWallet() else { throw LegacyTonConnectError.unavailableWallet }
                 let manifest = try await transport.manifest(at: link.request.manifestUrl)
+                guard canOpenURLs else {
+                    blocked = true
+                    return
+                }
                 _ = try await connect(walletId: wallet.metaId, clientId: link.clientId, request: link.request, manifest: manifest, connectionType: "http")
-            } catch LegacyTonConnectError.busy where !canOpenURLs {
-                // The app locked or left while the link was being prepared: it waits at the front of the queue.
-                pendingURLs.insert(url, at: 0)
+            } catch LegacyTonConnectError.busy {
+                // Another approval is open, or the app locked or left: the link waits for that to end.
+                blocked = true
+            } catch where !canOpenURLs {
+                // The wallet stopped being ready while the link was prepared: it waits for the next activation.
+                blocked = true
             } catch {
                 present(error: error)
             }
@@ -152,7 +173,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         ]
         drainObservers = triggers.map { name, object in
             NotificationCenter.default.addObserver(forName: name, object: object, queue: .main) { [weak self] _ in
-                self?.drainPendingURLs()
+                self?.drainPendingURLs(trigger: true)
             }
         }
     }
@@ -387,7 +408,11 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     private func approve(title: String, details: String) async throws -> Bool {
         guard !approving else { throw LegacyTonConnectError.busy }
         approving = true
-        defer { approving = false }
+        defer {
+            approving = false
+            // A link that waited for this approval to end may go now.
+            drainPendingURLs(trigger: true)
+        }
         if let approval { return try await approval(title, details) }
         // Never over the PIN screen or the re-lock cover: wallet and request details wait for an unlocked app.
         guard UIApplication.shared.applicationState == .active, !ApplicationLockState.shared.isLocked,

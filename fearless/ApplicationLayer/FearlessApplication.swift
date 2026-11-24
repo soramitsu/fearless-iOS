@@ -177,18 +177,25 @@ final class PendingSessionLock {
         defer { isAttempting = false }
 
         let window = scene.flatMap { mainWindow($0) } ?? mainWindow(nil)
-        if let pin = presentingPin, let target = presentingWindow, window == nil || window === target,
+        if let pin = presentingPin, let target = presentingWindow,
            pin.presentingViewController != nil, !pin.isBeingDismissed {
-            if presentationCompleted, Self.isFrontmost(pin, in: target) {
-                finish(restoringKeyWindow: false, window: target)
+            guard let window else {
+                // The app's window is not known right now: never finish on the old one; the cover stays.
                 return .locked
             }
-            if presentationCompleted, pin.presentedViewController != nil {
-                // Something was put over the PIN: it goes, and a later attempt checks again.
-                pin.dismiss(animated: false)
+            if window === target, Self.chain(of: target).contains(where: { $0 === pin }) {
+                if presentationCompleted, Self.isFrontmost(pin, in: target) {
+                    finish(restoringKeyWindow: false, window: target)
+                    return .locked
+                }
+                if presentationCompleted, pin.presentedViewController != nil {
+                    // Something was put over the PIN: it goes, and a later attempt checks again.
+                    pin.dismiss(animated: false)
+                }
+                // Still settling: the cover stays and a later attempt checks again.
+                return .locked
             }
-            // Still settling: the cover stays and a later attempt checks again.
-            return .locked
+            // The app's window or its root changed: the PIN is presented again there.
         }
         // Not presented, gone, or the app's window changed: present again.
         presentingPin = nil
@@ -262,13 +269,18 @@ final class PendingSessionLock {
         }
     }
 
+    /// The window's root and everything presented over it, in order.
+    private static func chain(of window: UIWindow) -> [UIViewController] {
+        var controllers = [window.rootViewController].compactMap { $0 }
+        while let presented = controllers.last?.presentedViewController {
+            controllers.append(presented)
+        }
+        return controllers
+    }
+
     /// Presented in `window`, frontmost there, settled, and the window is visible.
     private static func isFrontmost(_ pin: UIViewController, in window: UIWindow) -> Bool {
-        var frontmost = window.rootViewController
-        while let presented = frontmost?.presentedViewController {
-            frontmost = presented
-        }
-        return !window.isHidden && frontmost === pin && pin.viewIfLoaded?.window === window
+        !window.isHidden && chain(of: window).last === pin && pin.viewIfLoaded?.window === window
             && !pin.isBeingPresented && !pin.isBeingDismissed
     }
 

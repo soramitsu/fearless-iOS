@@ -2786,6 +2786,39 @@ final class PendingSessionLockTests: XCTestCase {
         XCTAssertFalse(lock.isCoverShown)
     }
 
+    /// Codex review (round 4): with the app's window unknown the lock never finishes on the old window, and a
+    /// replaced root gets the PIN again.
+    func testTheLockFinishesOnlyInTheCurrentWindowWithThePinInItsChain() throws {
+        let scene = try scene()
+        let (window, _) = makeAppWindow(in: scene)
+        var current: UIWindow? = window
+        let center = NotificationCenter()
+        let lockState = ApplicationLockState(notificationCenter: center)
+        var made: [UIViewController] = []
+        let lock = makeLock(in: scene, center: center, lockState: lockState, presence: { .present }, window: { current }) {
+            let pin = UIViewController()
+            made.append(pin)
+            return pin
+        }
+
+        XCTAssertEqual(lock.request(), .locked)
+        current = nil
+        spin(0.5)
+        XCTAssertTrue(lock.isPending, "No current window: not finished")
+        XCTAssertTrue(lock.isCoverShown)
+
+        let newRoot = UIViewController()
+        window.rootViewController = newRoot
+        current = window
+        center.post(name: UIScene.didActivateNotification, object: scene)
+        settle(lock)
+
+        XCTAssertEqual(made.count, 2, "The replaced root got its own PIN")
+        XCTAssertTrue(newRoot.presentedViewController === made.last)
+        XCTAssertFalse(lock.isPending)
+        XCTAssertFalse(lock.isCoverShown)
+    }
+
     /// Codex review blocker (round 2): an authentication that began before a newer lock became due, such as a
     /// success queued across a long absence, does not end that lock; the PIN asks again.
     func testAnAuthenticationThatBeganBeforeANewLockDoesNotEndIt() throws {

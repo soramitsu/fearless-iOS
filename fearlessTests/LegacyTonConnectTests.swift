@@ -933,6 +933,70 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
         coordinator.throttle()
     }
 
+    /// Codex review (round 4): a link that meets another open approval waits for it, and a duplicate arriving while
+    /// it is handled is merged with it.
+    @MainActor
+    func testALinkWaitsForAnotherApprovalAndDuplicatesAreMerged() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try wallet(keys)
+        let transport = TonConnectFakeTransport()
+        var approvals = 0
+        var gate: CheckedContinuation<Void, Never>?
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet },
+            approval: { _, _ in
+                approvals += 1
+                if approvals == 1 {
+                    await withCheckedContinuation { gate = $0 }
+                }
+                return false
+            },
+            walletLoader: { _ in wallet }, isEnabled: { true }
+        )
+        await coordinator.activate()
+        let request = try JSONDecoder().decode(
+            LegacyTonConnectConnectRequest.self,
+            from: Data(#"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#.utf8)
+        )
+        let competing = Task { @MainActor in
+            _ = try? await coordinator.connect(
+                walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: request,
+                manifest: .init(url: URL(string: "https://example.org")!, name: "Other", iconUrl: nil), connectionType: "http"
+            )
+        }
+        for _ in 0 ..< 100 where gate == nil {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertNotNil(gate, "Another approval is open")
+
+        let peer = try NaclBox.keyPair(fromSecretKey: Data(repeating: 5, count: 32)).publicKey
+        var parts = URLComponents(string: "tc://")!
+        parts.queryItems = [
+            .init(name: "v", value: "2"), .init(name: "id", value: peer.map { String(format: "%02x", $0) }.joined()),
+            .init(name: "r", value: #"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#)
+        ]
+        let url = try XCTUnwrap(parts.url)
+        coordinator.open(url)
+        for _ in 0 ..< 100 where transport.manifestCalls == 0 {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        coordinator.open(url)
+        try await Task.sleep(nanoseconds: 200_000_000)
+        XCTAssertEqual(approvals, 1, "The link waits while the other approval is open")
+        XCTAssertEqual(transport.manifestCalls, 1)
+
+        gate?.resume()
+        await competing.value
+        for _ in 0 ..< 150 where approvals < 2 {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        try await Task.sleep(nanoseconds: 200_000_000)
+        XCTAssertEqual(approvals, 2, "The kept link is asked once, after the other approval ended")
+        XCTAssertEqual(transport.manifestCalls, 2)
+        coordinator.throttle()
+    }
+
     @MainActor
     func testDeclinedHTTPConnectionRepliesWithoutPersistingSessionOrChangingSecrets() async throws {
         let keys = TonConnectFixtureKeychain()

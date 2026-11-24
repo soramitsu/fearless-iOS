@@ -44,7 +44,7 @@ class LocalAuthPresenter: PinSetupPresenterProtocol {
     /// A new lock adopted this PIN screen while it was on screen: any attempt in flight is dropped and the PIN asks
     /// again, as for a newly shown lock.
     func restartAuthentication() {
-        authenticationGeneration = lockState.generation
+        // The generation is taken again only when the interactor accepts the new attempt.
         interactor.cancelAuth()
         view?.didStopLoading()
         view?.resetAuthenticationInput()
@@ -80,15 +80,22 @@ extension LocalAuthPresenter: LocalAuthInteractorOutputProtocol {
     }
 
     func didCompleteAuth() {
-        DispatchQueue.main.async { [weak self] in
-            guard let strongSelf = self else { return }
-            guard strongSelf.lockState.generation == strongSelf.authenticationGeneration else {
+        // Checked and acted on in the same main-queue turn the interactor delivered it in (it already dropped
+        // results of cancelled attempts), so nothing can relabel the attempt in between.
+        let complete = { [weak self] in
+            guard let self else { return }
+            guard self.lockState.generation == self.authenticationGeneration else {
                 // Began before a newer lock became due (for example a success queued across a long absence): it
                 // does not end that lock. Ask again.
-                strongSelf.restartAuthentication()
+                self.restartAuthentication()
                 return
             }
-            strongSelf.wireframe.showMain(from: strongSelf.view)
+            self.wireframe.showMain(from: self.view)
+        }
+        if Thread.isMainThread {
+            complete()
+        } else {
+            DispatchQueue.main.async(execute: complete)
         }
     }
 
