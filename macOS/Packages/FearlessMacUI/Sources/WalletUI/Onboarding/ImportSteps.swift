@@ -24,9 +24,6 @@ struct ImportPhraseStep: View {
 
     private var entry: PhraseEntryModel { model.phraseEntry }
 
-    private var columns: [GridItem] {
-        Array(repeating: GridItem(.flexible(minimum: 100), spacing: 8), count: entry.wordCount > 12 ? 4 : 3)
-    }
 
     var body: some View {
         StepScaffold(
@@ -37,7 +34,9 @@ struct ImportPhraseStep: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 10) {
                     Picker("Words", selection: Binding(get: { entry.wordCount }, set: { count in
-                        Self.replaceWords(in: entry, fields: secretFields) { entry.setWordCount(count) }
+                        Self.replaceWords(entry.indicesRemoved(bySettingWordCount: count), in: entry, fields: secretFields) {
+                            entry.setWordCount(count)
+                        }
                     })) {
                         ForEach(PhraseEntryModel.lengths, id: \.self) { count in
                             Text("\(count) words").tag(count)
@@ -52,7 +51,7 @@ struct ImportPhraseStep: View {
                         Label("Paste", systemImage: "doc.on.clipboard")
                     }
                     .help("Paste a whole phrase from the clipboard")
-                    Button("Clear") { Self.replaceWords(in: entry, fields: secretFields) { entry.clear() } }
+                    Button("Clear") { Self.replaceWords(0..<entry.wordCount, in: entry, fields: secretFields) { entry.clear() } }
                         .disabled(entry.filledCount == 0 && !secretFields.composing.contains(where: \.isWord))
                     Spacer()
                     Text("\(entry.filledCount) of \(entry.wordCount)")
@@ -62,7 +61,9 @@ struct ImportPhraseStep: View {
                 }
                 .controlSize(.small)
 
-                LazyVGrid(columns: columns, spacing: 8) {
+                // Built eagerly, so a field that focus moves to exists as soon
+                // as the grid is laid out.
+                WordGridLayout(columns: entry.wordCount > 12 ? 4 : 3, spacing: 8) {
                     ForEach(0..<entry.wordCount, id: \.self) { index in
                         wordField(index)
                     }
@@ -110,6 +111,11 @@ struct ImportPhraseStep: View {
         }
         .environment(\.secretFieldGroup, secretFields)
         .background(CaptureProtection(isActive: !staticRendering))
+        // A new composition means the input is changing: a confirmation
+        // still being prepared is dropped.
+        .onChange(of: secretFields.isComposing) { _, composing in
+            if composing { model.invalidatePendingConfirmation() }
+        }
         .onAppear {
             if entry.focusedIndex == nil { entry.focusedIndex = 0 }
         }
@@ -249,26 +255,74 @@ struct ImportPhraseStep: View {
         }
     }
 
+    /// Commits compositions, then continues once the phrase they leave is
+    /// checked, so a valid phrase continues on the first click.
     private func continueImport() {
         secretFields.finishComposition()
-        Task { await model.continueImport() }
+        Task { await Self.continueAfterCommit(model) }
     }
 
-    /// Replaces what the grid holds (Clear, word count, paste): unfinished
-    /// compositions in the words are discarded first, so they cannot be
-    /// committed over the new words, and every word shows its new text
-    /// before the next key. Path fields keep their compositions.
-    static func replaceWords(in entry: PhraseEntryModel, fields: SecretFieldGroup, _ change: () -> Void) {
-        fields.cancelComposition(where: \.isWord)
+    /// Waits for the phrase on screen to be checked, then continues if it
+    /// is valid.
+    static func continueAfterCommit(_ model: OnboardingModel) async {
+        await model.phraseEntry.revalidate()
+        await model.continueImport()
+    }
+
+    /// Replaces the words at `indices` (Clear, word count, paste): their
+    /// unfinished compositions are discarded first, so they cannot be
+    /// committed over the new words, and they show their new text before the
+    /// next key. Other words and the path fields keep their compositions.
+    static func replaceWords(_ indices: Range<Int>, in entry: PhraseEntryModel, fields: SecretFieldGroup, _ change: () -> Void) {
+        let replaced: (SecretFieldID) -> Bool = { id in
+            if case .word(let index) = id { return indices.contains(index) }
+            return false
+        }
+        fields.cancelComposition(where: replaced)
         change()
         fields.showBindingText(where: \.isWord)
     }
 
     /// A pasted phrase: the grid takes the words, and keyboard focus moves
     /// past them with the caret after the last one, before the next key.
+    /// Moving focus commits compositions in the words it does not replace.
     static func paste(_ text: String, at index: Int, into entry: PhraseEntryModel, fields: SecretFieldGroup) {
-        replaceWords(in: entry, fields: fields) { entry.setText(text, at: index) }
+        replaceWords(entry.indicesReplaced(bySetting: text, at: index), in: entry, fields: fields) { entry.setText(text, at: index) }
         fields.move(to: entry.focusedIndex.map(SecretFieldID.word), caretAtEnd: true)
+    }
+}
+
+/// The recovery-word grid: equal columns, rows as tall as their tallest
+/// field. Unlike LazyVGrid it makes every field at once, and a field keeps
+/// its identity when the column count changes.
+struct WordGridLayout: Layout {
+    let columns: Int
+    let spacing: CGFloat
+
+    private func metrics(width: CGFloat, subviews: Subviews) -> (cell: CGFloat, row: CGFloat, rows: Int) {
+        let columns = max(columns, 1)
+        let cell = max((width - spacing * CGFloat(columns - 1)) / CGFloat(columns), 0)
+        let row = subviews.map { $0.sizeThatFits(ProposedViewSize(width: cell, height: nil)).height }.max() ?? 0
+        let rows = (subviews.count + columns - 1) / columns
+        return (cell, row, rows)
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width.flatMap { $0.isFinite ? $0 : nil } ?? CGFloat(columns) * 160
+        let (_, row, rows) = metrics(width: width, subviews: subviews)
+        return CGSize(width: width, height: rows == 0 ? 0 : CGFloat(rows) * row + CGFloat(rows - 1) * spacing)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let (cell, row, _) = metrics(width: bounds.width, subviews: subviews)
+        let columns = max(columns, 1)
+        for (index, subview) in subviews.enumerated() {
+            let origin = CGPoint(
+                x: bounds.minX + CGFloat(index % columns) * (cell + spacing),
+                y: bounds.minY + CGFloat(index / columns) * (row + spacing)
+            )
+            subview.place(at: origin, proposal: ProposedViewSize(width: cell, height: row))
+        }
     }
 }
 
@@ -491,6 +545,9 @@ struct ImportSeedStep: View {
         }
         .environment(\.secretFieldGroup, secretFields)
         .background(CaptureProtection(isActive: !staticRendering))
+        .onChange(of: secretFields.isComposing) { _, composing in
+            if composing { model.invalidatePendingConfirmation() }
+        }
         .onChange(of: controlActiveState) { _, state in
             if state != .key, !staticRendering { isVisible = false }
         }
@@ -519,6 +576,9 @@ struct RevealedSecretText: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
             .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(name), shown")
+            .accessibilityValue(Text(value).speechSpellsOutCharacters())
     }
 }
 
@@ -541,7 +601,6 @@ struct RevealedSecretLabel: NSViewRepresentable {
 
     func updateNSView(_ label: NSTextField, context: Context) {
         if label.stringValue != value { label.stringValue = value }
-        label.setAccessibilityLabel("\(name), shown")
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, nsView label: NSTextField, context: Context) -> CGSize? {

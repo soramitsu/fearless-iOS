@@ -1145,7 +1145,7 @@ struct SecretTextFieldTests {
         editor.setMarkedText("´", selectedRange: NSRange(location: 1, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
         #expect(entry.words[0].isEmpty, "only marked text so far")
 
-        ImportPhraseStep.replaceWords(in: entry, fields: group) { entry.clear() }   // the Clear button
+        ImportPhraseStep.replaceWords(0..<entry.wordCount, in: entry, fields: group) { entry.clear() }   // the Clear button
         #expect(!editor.hasMarkedText())
         #expect(fields[0].currentText.isEmpty)
         editor.unmarkText()
@@ -1301,7 +1301,7 @@ struct SecretTextFieldTests {
         path.secretEditor.setMarkedText("ぱ", selectedRange: NSRange(location: 1, length: 0), replacementRange: noReplacement)
 
         let entry = PhraseEntryModel(wordList: ["abandon"], wordCount: 12) { _ in .valid }
-        ImportPhraseStep.replaceWords(in: entry, fields: group) { entry.clear() }   // Clear
+        ImportPhraseStep.replaceWords(0..<entry.wordCount, in: entry, fields: group) { entry.clear() }   // Clear
         #expect(!word.secretEditor.hasMarkedText(), "the word's composition is discarded")
         #expect(path.secretEditor.hasMarkedText(), "the path keeps its composition")
         #expect(path.currentText == "//a///ぱ")
@@ -1467,5 +1467,142 @@ struct SecretTextFieldTests {
         let host = TestWindow(hosting: ImportPhraseStep(model: model, compact: false))
         defer { host.close() }
         #expect(await host.waitUntil { model.livePreview != nil }, "the step refreshes on appearing")
+    }
+
+    // MARK: Review round 5
+
+    private func gatedModel(_ gatedPath: String) async -> (OnboardingModel, GatedWallets) {
+        let base = PreviewWalletServices.make(scenario: PreviewScenario.emptyWalletList.instant())
+        let gated = GatedWallets(base: base.wallets, gatedPath: gatedPath)
+        let services = WalletServices(
+            vault: base.vault, wallets: gated, catalog: base.catalog, nodes: base.nodes,
+            balances: base.balances, prices: base.prices, transfers: base.transfers, activity: base.activity
+        )
+        let model = OnboardingModel(mode: .firstWallet, services: services) { _ in }
+        await model.choose(.importPhrase)
+        model.phraseEntry.setText(PreviewWalletServices.samplePhrase(.words12).joined(separator: " "), at: 0)
+        await model.phraseEntry.revalidate()
+        model.derivation.substrateDerivationPath = gatedPath
+        return (model, gated)
+    }
+
+    @Test func clearingOrEditingDuringContinueConfirmsNothing() async throws {
+        for edit in ["clear", "path", "composition"] {
+            let (model, gated) = await gatedModel("//late///secret")
+            let confirming = Task { await model.continueImport() }
+            #expect(await waitUntil(timeout: .seconds(5)) { gated.startedCount == 1 })
+            switch edit {
+            case "clear": model.phraseEntry.clear()
+            case "path": model.derivation.substrateDerivationPath = "//other"
+            default: model.invalidatePendingConfirmation()   // what a new composition does
+            }
+            gated.release()
+            await confirming.value
+            #expect(model.step == .importPhrase, "\(edit): the old input is not confirmed")
+            #expect(!model.canFinish)
+        }
+
+        // Unchanged input still confirms.
+        let (model, gated) = await gatedModel("//late///secret")
+        gated.release()
+        await model.continueImport()
+        #expect(model.step == .confirm && model.canFinish)
+    }
+
+    @Test func backFromConfirmDropsTheConfirmedSource() async throws {
+        let model = await onboarding(.importPhrase)
+        model.phraseEntry.setText(PreviewWalletServices.samplePhrase(.words12).joined(separator: " "), at: 0)
+        await model.phraseEntry.revalidate()
+        model.derivation.substrateDerivationPath = "//a///secret"
+        await model.continueImport()
+        #expect(model.step == .confirm && model.canFinish)
+        model.back()
+        model.phraseEntry.clear()
+        #expect(model.step == .importPhrase)
+        #expect(!model.canFinish, "nothing can be stored from the phrase step")
+        await model.finish()
+        #expect(model.step == .importPhrase)
+    }
+
+    @Test func resizingKeepsTheCompositionsOfWordsItKeeps() async throws {
+        let group = SecretFieldGroup()
+        let (model, host, fields) = try #require(await hostedGrid(fields: group))
+        defer { host.close() }
+        let entry = model.phraseEntry
+        #expect(host.window.makeFirstResponder(fields[8]))
+        type("ab", into: fields[8].secretEditor)
+        fields[8].secretEditor.setMarkedText("a", selectedRange: NSRange(location: 1, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
+
+        ImportPhraseStep.replaceWords(entry.indicesRemoved(bySettingWordCount: 24), in: entry, fields: group) { entry.setWordCount(24) }
+        #expect(fields[8].secretEditor.hasMarkedText(), "word 9 is kept, and so is its composition")
+        await host.pump()
+        #expect(fields[8].secretEditor.hasMarkedText())
+
+        // A two-word paste at the start replaces words 1 and 2 only; moving
+        // focus commits word 9's composition instead of discarding it.
+        ImportPhraseStep.paste("abandon ability", at: 0, into: entry, fields: group)
+        #expect(entry.words[0] == "abandon" && entry.words[1] == "ability")
+        #expect(entry.words[8] == "aba", "the kept word's composition is committed")
+        #expect(!fields[8].secretEditor.hasMarkedText())
+    }
+
+    @Test func aCompositionCommittedByInsertingTextBringsThePreviewBack() async throws {
+        let group = SecretFieldGroup()
+        let (model, host, fields) = try #require(await hostedGrid(fields: group))
+        defer { host.close() }
+        let phrase = PreviewWalletServices.samplePhrase(.words12)
+        ImportPhraseStep.paste(phrase.joined(separator: " "), at: 0, into: model.phraseEntry, fields: group)
+        #expect(await host.waitUntil { !host.selectableTextViews.isEmpty })
+
+        let editor = fields[11].secretEditor
+        editor.selectAll(nil)
+        editor.setMarkedText(phrase[11], selectedRange: NSRange(location: 0, length: 0), replacementRange: editor.selectedRange())
+        #expect(await host.waitUntil { group.composing == [.word(11)] && host.selectableTextViews.isEmpty })
+        editor.insertText(phrase[11], replacementRange: NSRange(location: NSNotFound, length: 0))   // the input method commits
+        #expect(await host.waitUntil { group.composing.isEmpty })
+        #expect(await host.waitUntil { !host.selectableTextViews.isEmpty }, "the card returns once the input is final")
+        #expect(model.phraseEntry.words == phrase)
+    }
+
+    @Test func aFocusMoveWaitingForItsFieldIsDoneWhenTheFieldAttaches() throws {
+        let group = SecretFieldGroup()
+        group.move(to: .word(30), caretAtEnd: true)   // not made yet
+        let field = SecretEntryTextField(entry: .recoveryWord)
+        field.stringValue = "abandon"
+        field.onWindowChange = { [weak field] in if let field { group.attached(field) } }
+        group.add(field, id: .word(30)) {}
+        #expect(!field.isEditing, "joining before it has a window changes nothing")
+
+        let host = TestWindow(field)
+        defer { host.close() }
+        #expect(field.isEditing, "it takes the focus as it attaches")
+        #expect(field.secretEditor.selectedRange() == NSRange(location: 7, length: 0), "with the caret after its text")
+    }
+
+    @Test func continueAfterCommittingAChangedWordNeedsOneClick() async throws {
+        let group = SecretFieldGroup()
+        let (model, host, fields) = try #require(await hostedGrid(fields: group))
+        defer { host.close() }
+        let phrase = PreviewWalletServices.samplePhrase(.words12)
+        ImportPhraseStep.paste(phrase.joined(separator: " "), at: 0, into: model.phraseEntry, fields: group)
+        await model.phraseEntry.revalidate()
+        #expect(model.canContinueImport)
+        let wordList = model.phraseEntry.wordList
+        let alternative = try #require(wordList.first { word in
+            word != phrase[11] && PreviewBIP39.validate(Array(phrase.dropLast()) + [word]) == .valid
+        })
+
+        let editor = fields[11].secretEditor
+        editor.selectAll(nil)
+        editor.setMarkedText(alternative, selectedRange: NSRange(location: 0, length: 0), replacementRange: editor.selectedRange())
+        #expect(model.canContinueImport, "Continue is still enabled for the phrase in the binding")
+        // Clicking Continue: compositions are committed, then it continues.
+        // (Return is the input method's while it composes, and SwiftUI
+        // buttons cannot be clicked in a headless test.)
+        group.finishComposition()
+        #expect(!model.phraseEntry.isValid, "the changed word is not checked yet")
+        await ImportPhraseStep.continueAfterCommit(model)
+        #expect(model.step == .confirm, "one click commits, checks and continues")
+        #expect(model.phraseEntry.words[11] == alternative)
     }
 }

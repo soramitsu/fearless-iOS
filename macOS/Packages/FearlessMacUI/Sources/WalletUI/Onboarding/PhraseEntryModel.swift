@@ -78,6 +78,23 @@ final class PhraseEntryModel {
         changed()
     }
 
+    /// The fields `setText(text, at: index)` overwrites or removes: one
+    /// word replaces its own field, several words the fields they spread
+    /// over, and a whole phrase the whole grid.
+    func indicesReplaced(bySetting text: String, at index: Int) -> Range<Int> {
+        let count = Self.tokens(in: text).count
+        guard words.indices.contains(index) else { return index..<index }
+        if count > 1, Self.lengths.contains(count), count != wordCount || index != 0 {
+            return 0..<wordCount
+        }
+        return index..<min(index + max(count, 1), wordCount)
+    }
+
+    /// The fields `setWordCount(count)` removes.
+    func indicesRemoved(bySettingWordCount count: Int) -> Range<Int> {
+        count < wordCount ? count..<wordCount : wordCount..<wordCount
+    }
+
     /// Lowercased words of a pasted or typed text; numbering, commas and
     /// other punctuation are dropped.
     static func tokens(in text: String) -> [String] {

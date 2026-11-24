@@ -209,8 +209,11 @@ final class SecretFieldEditor: NSTextView {
 
     override func insertText(_ string: Any, replacementRange: NSRange) {
         let text = (string as? String) ?? (string as? NSAttributedString)?.string
-        if text == " ", !hasMarkedText(), let onSpace, onSpace() { return }
+        let hadMarkedText = hasMarkedText()
+        if text == " ", !hadMarkedText, let onSpace, onSpace() { return }
         super.insertText(string, replacementRange: replacementRange)
+        // An input method commits by inserting over its marked text.
+        if hadMarkedText != hasMarkedText() { onCompositionChange?() }
     }
 
     /// True while a composition is being discarded; nothing is pushed then.
@@ -581,6 +584,14 @@ final class SecretFieldGroup {
         members.filter { include($0.key) }.compactMap(\.value.field)
     }
 
+    /// A field was put in its window: a focus move that waited for it is
+    /// done now, with its caret request.
+    func attached(_ field: SecretEntryTextField) {
+        guard let pending = pendingFocus, members[pending.id]?.field === field, field.window != nil else { return }
+        pendingFocus = nil
+        move(to: pending.id, caretAtEnd: pending.caretAtEnd)
+    }
+
     /// Recomputes which fields are composing, after the current event.
     func compositionChanged() {
         DispatchQueue.main.async { [weak self] in self?.updateComposing() }
@@ -743,7 +754,10 @@ struct SecretTextField: NSViewRepresentable {
         editor.onFocusChange = { [weak coordinator] focused in coordinator?.focusChanged(focused) }
         editor.onCompositionCommit = { [weak coordinator] in coordinator?.pushFieldText() }
         editor.onCompositionChange = { [weak coordinator] in coordinator?.group?.compositionChanged() }
-        field.onWindowChange = { [weak coordinator] in coordinator?.claimFocusIfWanted() }
+        field.onWindowChange = { [weak coordinator, weak field] in
+            coordinator?.claimFocusIfWanted()
+            if let field { coordinator?.group?.attached(field) }
+        }
         return field
     }
 
@@ -823,6 +837,7 @@ struct SecretTextField: NSViewRepresentable {
         }
 
         func controlTextDidChange(_ notification: Notification) {
+            group?.compositionChanged()
             guard let field, !field.secretEditor.hasMarkedText() else { return }
             pushFieldText()
         }
@@ -857,9 +872,12 @@ struct SecretTextField: NSViewRepresentable {
             return true
         }
 
-        /// Shows `text` from the binding in the field.
+        /// Shows `text` from the binding in the field. A field still being
+        /// composed is left alone; a change made elsewhere reaches it in
+        /// `updateNSView`, which drops the composition only then.
         func show(_ text: String) {
-            guard let field, !ExactText.same(field.currentText, text) || !ExactText.same(lastSynced, text) else { return }
+            guard let field, !(field.isEditing && field.secretEditor.hasMarkedText()) else { return }
+            guard !ExactText.same(field.currentText, text) || !ExactText.same(lastSynced, text) else { return }
             isShowingBindingText = true
             defer { isShowingBindingText = false }
             if field.isEditing { field.secretEditor.string = text }

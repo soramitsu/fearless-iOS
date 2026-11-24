@@ -209,7 +209,7 @@ final class OnboardingModel: Identifiable {
     }
 
     var canFinish: Bool {
-        !walletName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && pendingSource != nil && !isWorking
+        step == .confirm && !walletName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && pendingSource != nil && !isWorking
     }
 
     // MARK: Navigation
@@ -222,6 +222,10 @@ final class OnboardingModel: Identifiable {
 
     func back() {
         guard canGoBack, let previous = history.popLast() else { return }
+        // A confirmation being prepared belongs to the step being left, and
+        // the source confirmed is dropped with the Confirm step.
+        confirmationGeneration += 1
+        if step == .confirm { pendingSource = nil }
         // Leaving the phrase hides it again; leaving the Touch ID offer declines it.
         isPhraseRevealed = false
         if step == .biometrics { clearPassword() }
@@ -360,13 +364,13 @@ final class OnboardingModel: Identifiable {
     func completeVerification() async {
         guard verification?.isComplete == true else { return }
         backupVerified = true
-        await prepareConfirmation(source: .created(words: phrase, options: .standard))
+        await prepareConfirmation(source: .created(words: phrase, options: .standard), current: createdSource)
     }
 
     /// Skip the check; the wallet keeps a backup warning until it is done.
     func backUpLater() async {
         backupVerified = false
-        await prepareConfirmation(source: .created(words: phrase, options: .standard))
+        await prepareConfirmation(source: .created(words: phrase, options: .standard), current: createdSource)
     }
 
     // MARK: Import
@@ -427,22 +431,72 @@ final class OnboardingModel: Identifiable {
 
     /// Asks the engine which addresses the source gives and moves to the
     /// last step. Stays put, with the reason, if the source is not usable.
-    private func prepareConfirmation(source: WalletImportSource) async {
+    /// Drops a confirmation still being prepared (the input changed).
+    func invalidatePendingConfirmation() {
+        confirmationGeneration += 1
+    }
+
+    /// The source of the create path: the phrase made here.
+    private func createdSource() -> WalletImportSource? {
+        phrase.isEmpty ? nil : .created(words: phrase, options: .standard)
+    }
+
+    /// True while a confirmation started at `generation` from `source` on
+    /// `startStep` still matches what `current` reads now, byte for byte.
+    private func confirmationIsCurrent(
+        _ generation: Int,
+        source: WalletImportSource,
+        startStep: Step,
+        current: () -> WalletImportSource?
+    ) -> Bool {
+        guard generation == confirmationGeneration, step == startStep, let now = current() else { return false }
+        return Self.sameSource(now, source)
+    }
+
+    private static func sameSource(_ lhs: WalletImportSource, _ rhs: WalletImportSource) -> Bool {
+        let sameOptions = { (a: DerivationOptions, b: DerivationOptions) in ExactDerivationOptions(a) == ExactDerivationOptions(b) }
+        let sameOptional = { (a: String?, b: String?) in
+            switch (a, b) {
+            case (nil, nil): return true
+            case let (a?, b?): return ExactText.same(a, b)
+            default: return false
+            }
+        }
+        switch (lhs, rhs) {
+        case let (.mnemonic(words1, options1), .mnemonic(words2, options2)),
+             let (.created(words1, options1), .created(words2, options2)):
+            return words1.elementsEqual(words2, by: ExactText.same) && sameOptions(options1, options2)
+        case let (.seed(hex1, ecosystem1, options1), .seed(hex2, ecosystem2, options2)):
+            return ExactText.same(hex1, hex2) && ecosystem1 == ecosystem2 && sameOptions(options1, options2)
+        case let (.json(data1, password1), .json(data2, password2)):
+            return data1 == data2 && ExactText.same(password1, password2)
+        case let (.watchOnly(substrate1, evm1), .watchOnly(substrate2, evm2)):
+            return sameOptional(substrate1, substrate2) && sameOptional(evm1, evm2)
+        default:
+            return false
+        }
+    }
+
+    /// `current` reads the source on screen now; the import screens' by default.
+    private func prepareConfirmation(source: WalletImportSource, current: (() -> WalletImportSource?)? = nil) async {
+        let current = current ?? { [unowned self] in self.importSource }
         previewGeneration += 1
         confirmationGeneration += 1
         let generation = confirmationGeneration
+        let startStep = step
         let key = livePreviewKey
         isWorking = true
         defer { isWorking = false }
         do {
             let preview = try await services.wallets.previewAddresses(for: source)
-            guard generation == confirmationGeneration else { return }
+            // Cleared, edited, left or wiped meanwhile: nothing is confirmed.
+            guard confirmationIsCurrent(generation, source: source, startStep: startStep, current: current) else { return }
             addressPreview = preview
             addressPreviewKey = key
             pendingSource = source
             go(to: .confirm)
         } catch {
-            guard generation == confirmationGeneration else { return }
+            guard confirmationIsCurrent(generation, source: source, startStep: startStep, current: current) else { return }
             errorMessage = ErrorText.message(for: error)
         }
     }
