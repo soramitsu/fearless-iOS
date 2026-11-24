@@ -26,7 +26,9 @@ protocol LegacyTonConnectSessionStoring {
 /// the key is written to the Keychain, read back and checked against the row's public key, and only then is the
 /// column replaced by the reference, in a single Core Data save. Any failure leaves the row exactly as it was and
 /// usable, and the move is tried again on the next read. Rows restored from a retained or older store are legacy
-/// input like any other. Wallet keys are never read or written here.
+/// input like any other. A Keychain item that already exists under a row's reference is never overwritten: holding
+/// the same bytes, it is the moved key; holding other bytes, both it and the raw row are kept exactly as they are,
+/// and the row stays in use with its raw key. Wallet keys are never read or written here.
 ///
 /// A moved row is marked in the same save (`LegacyTonConnectSessionKeyReference.movedColumn`): the raw key can
 /// outlive the move in SQLite free pages, the write-ahead log, device backups and retained store archives, so the
@@ -365,6 +367,11 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
             row.setValue(reference.movedColumn, forKey: "privateKey")
             try migrationBoundaryHook(.rowUpdated)
             try context.save()
+        } catch LegacyTonConnectSessionKeyError.existingKeyDiffers {
+            // Another key is stored under this row's reference. Neither is given up: the item keeps its key and the
+            // row keeps its raw key and stays in use.
+            context.rollback()
+            Logger.shared.warning("TON Connect session key stays in its row: another key is stored for it; both are kept")
         } catch {
             // The Keychain item, if written, holds the same key and is reused by the next attempt.
             context.rollback()
@@ -488,11 +495,14 @@ enum LegacyTonConnectSessionKeyError: Error, Equatable {
     case keychainUnavailable(OSStatus)
     /// The key read back is not the key written, or does not match the session's public key.
     case mismatch
+    /// An item with this reference holds other bytes. It is left as it is: a save never replaces a stored key.
+    case existingKeyDiffers
 }
 
 /// Where TON Connect session transport keys are kept, apart from every wallet key.
 protocol LegacyTonConnectSessionKeyStoring: AnyObject {
-    /// Adds the item, or replaces the value of an existing one with the same reference.
+    /// Adds the item. When an item with this reference exists already, succeeds only if it holds exactly these bytes,
+    /// and otherwise throws `existingKeyDiffers`; an existing item's value is never replaced.
     func saveKey(_ key: Data, reference: String) throws
     /// Nil when there is no such item. Throws `keychainUnavailable` when the Keychain cannot answer.
     func loadKey(reference: String) throws -> Data?
@@ -514,15 +524,27 @@ final class LegacyTonConnectSessionKeychain: LegacyTonConnectSessionKeyStoring {
     static let retiredService = "jp.co.soramitsu.fearless.tonconnect.retired-session.v1"
 
     func saveKey(_ key: Data, reference: String) throws {
-        let attributes: [String: Any] = [
-            kSecValueData as String: key,
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-        ]
-        var status = SecItemAdd(query(reference).merging(attributes) { _, new in new } as CFDictionary, nil)
-        if status == errSecDuplicateItem {
-            status = SecItemUpdate(query(reference) as CFDictionary, attributes as CFDictionary)
+        var item = query(reference)
+        item[kSecValueData as String] = key
+        item[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        // Twice at most: an item that goes between the add and the read is added again once.
+        for _ in 0 ..< 2 {
+            let status = SecItemAdd(item as CFDictionary, nil)
+            if status == errSecSuccess { return }
+            guard status == errSecDuplicateItem else {
+                throw LegacyTonConnectSessionKeyError.keychainUnavailable(status)
+            }
+            // The item there may be the one a row names, in this store or in a retained copy of it: its value is
+            // never replaced. The same bytes are the same key, saved already.
+            guard let existing = try loadKey(reference: reference) else { continue }
+            guard existing == key else { throw LegacyTonConnectSessionKeyError.existingKeyDiffers }
+            // Only the protection class is set again, as every save sets it; the value stays as it is.
+            let protection = [kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly]
+            let updated = SecItemUpdate(query(reference) as CFDictionary, protection as CFDictionary)
+            guard updated == errSecSuccess else { throw LegacyTonConnectSessionKeyError.keychainUnavailable(updated) }
+            return
         }
-        guard status == errSecSuccess else { throw LegacyTonConnectSessionKeyError.keychainUnavailable(status) }
+        throw LegacyTonConnectSessionKeyError.keychainUnavailable(errSecDuplicateItem)
     }
 
     func loadKey(reference: String) throws -> Data? {

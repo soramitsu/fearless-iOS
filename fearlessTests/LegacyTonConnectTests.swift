@@ -264,10 +264,13 @@ private final class TonConnectFakeSessionKeys: LegacyTonConnectSessionKeyStoring
     func saveKey(_ key: Data, reference: String) throws {
         enter(); defer { leave() }
         if let status = failSaves { throw LegacyTonConnectSessionKeyError.keychainUnavailable(status) }
-        guardLock.lock()
+        guardLock.lock(); defer { guardLock.unlock() }
+        // As the Keychain class does: a stored value is never replaced; the same bytes count as saved.
+        if let existing = storage[reference], existing != key {
+            throw LegacyTonConnectSessionKeyError.existingKeyDiffers
+        }
         storage[reference] = key
         saveCount += 1
-        guardLock.unlock()
     }
 
     func loadKey(reference: String) throws -> Data? {
@@ -2330,9 +2333,13 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         XCTAssertEqual((attributes[kSecAttrSynchronizable as String] as? NSNumber)?.boolValue ?? false, false)
         XCTAssertEqual(attributes[kSecAttrService as String] as? String, LegacyTonConnectSessionKeychain.service)
 
+        try keychain.saveKey(key, reference: name)
+        XCTAssertEqual(try keychain.loadKey(reference: name), key, "Saving the same bytes again is done")
         let replacement = Data(repeating: 0x22, count: 32)
-        try keychain.saveKey(replacement, reference: name)
-        XCTAssertEqual(try keychain.loadKey(reference: name), replacement)
+        XCTAssertThrowsError(try keychain.saveKey(replacement, reference: name)) { error in
+            XCTAssertEqual(error as? LegacyTonConnectSessionKeyError, .existingKeyDiffers)
+        }
+        XCTAssertEqual(try keychain.loadKey(reference: name), key, "A stored key is never replaced")
         try keychain.deleteKey(reference: name)
         XCTAssertNil(try keychain.loadKey(reference: name))
         try keychain.deleteKey(reference: name)
@@ -2365,6 +2372,218 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         XCTAssertEqual(try keychain.loadKey(reference: name), key, "A retirement record is not the session key")
         try keychain.deleteKey(reference: name)
         XCTAssertTrue(try keychain.isRetired(reference: name), "Deleting the key keeps the record")
+    }
+}
+
+// MARK: - A save never replaces a stored session key (Codex review, 2026-11-24)
+
+/// An item already stored under a session's reference is never overwritten. The same bytes count as saved; other
+/// bytes are refused, and both the item and the row's raw key are kept. Uses the real Keychain (signed build).
+final class LegacyTonConnectSessionKeyDuplicateTests: XCTestCase {
+    private let keychain = LegacyTonConnectSessionKeychain()
+    private var accounts: [String] = []
+
+    override func tearDownWithError() throws {
+        for account in accounts {
+            try? keychain.deleteKey(reference: account)
+            SecItemDelete([
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: LegacyTonConnectSessionKeychain.retiredService,
+                kSecAttrAccount as String: account,
+                kSecUseDataProtectionKeychain as String: true
+            ] as CFDictionary)
+        }
+        accounts = []
+        try super.tearDownWithError()
+    }
+
+    private func reference(_ session: LegacyTonConnectSession) -> LegacyTonConnectSessionKeyReference {
+        LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
+    }
+
+    /// A session with its own fresh key pair and Keychain item name, cleaned up after the test.
+    private func uniqueSession(host: String = "a.example.org") throws -> LegacyTonConnectSession {
+        let session = try tonConnectTestSession(id: "duplicate-" + UUID().uuidString, walletId: "legacy-wallet", host: host)
+        accounts.append(reference(session).account)
+        return session
+    }
+
+    private func uniqueAccount() -> String {
+        let account = "fearless-tests-tonconnect-duplicate-" + UUID().uuidString
+        accounts.append(account)
+        return account
+    }
+
+    /// Other bytes that make the same key pair: X25519 clears the scalar's three low bits, so only a byte comparison
+    /// tells this key from the original.
+    private func sameKeyPairOtherBytes(_ key: Data) -> Data {
+        var other = key
+        other[other.startIndex] ^= 0x01
+        return other
+    }
+
+    private func protectionClass(_ account: String) throws -> String? {
+        try XCTUnwrap(try keychain.attributes(reference: account))[kSecAttrAccessible as String] as? String
+    }
+
+    func testFreshSaveAddsADeviceOnlyItem() throws {
+        let account = uniqueAccount()
+        XCTAssertNil(try keychain.loadKey(reference: account))
+        let key = Data(repeating: 0x41, count: 32)
+
+        try keychain.saveKey(key, reference: account)
+
+        XCTAssertEqual(try keychain.loadKey(reference: account), key)
+        XCTAssertEqual(try protectionClass(account), kSecAttrAccessibleWhenUnlockedThisDeviceOnly as String)
+    }
+
+    func testSavingTheSameBytesAgainIsDoneAndOnlyResetsTheProtectionClass() throws {
+        let account = uniqueAccount()
+        let key = Data(repeating: 0x42, count: 32)
+        // The same bytes under a looser protection class, which no release wrote: the save still ends unlocked-only.
+        let added = SecItemAdd([
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: LegacyTonConnectSessionKeychain.service,
+            kSecAttrAccount as String: account,
+            kSecAttrSynchronizable as String: false,
+            kSecUseDataProtectionKeychain as String: true,
+            kSecValueData as String: key,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        ] as CFDictionary, nil)
+        XCTAssertEqual(added, errSecSuccess)
+
+        try keychain.saveKey(key, reference: account)
+        try keychain.saveKey(key, reference: account)
+
+        XCTAssertEqual(try keychain.loadKey(reference: account), key)
+        XCTAssertEqual(try protectionClass(account), kSecAttrAccessibleWhenUnlockedThisDeviceOnly as String)
+    }
+
+    func testSavingOtherBytesNeverReplacesTheStoredKey() throws {
+        let account = uniqueAccount()
+        let stored = try NaclBox.keyPair().secretKey
+        try keychain.saveKey(stored, reference: account)
+
+        for other in [Data(repeating: 0x44, count: 32), sameKeyPairOtherBytes(stored), Data(stored.prefix(31))] {
+            XCTAssertThrowsError(try keychain.saveKey(other, reference: account)) { error in
+                XCTAssertEqual(error as? LegacyTonConnectSessionKeyError, .existingKeyDiffers)
+            }
+            XCTAssertEqual(try keychain.loadKey(reference: account), stored, "The stored key is kept as it was")
+        }
+        XCTAssertEqual(try protectionClass(account), kSecAttrAccessibleWhenUnlockedThisDeviceOnly as String)
+    }
+
+    /// The upgrade path: a released row's key meets another key stored under the row's reference. Neither is lost:
+    /// the item keeps its key, the row keeps its raw key, and the session keeps working with it.
+    func testMoveOverAnItemWithOtherBytesKeepsTheItemAndTheRawRow() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let session = try uniqueSession()
+        let occupying = sameKeyPairOtherBytes(session.privateKey)
+        XCTAssertNotEqual(occupying, session.privateKey)
+        XCTAssertEqual(try NaclBox.keyPair(fromSecretKey: occupying).publicKey, session.publicKey,
+                       "The stored key would pass a public-key check")
+        try keychain.saveKey(occupying, reference: reference(session).account)
+        try fixture.insert(session)
+        let before = try fixture.snapshot()
+        XCTAssertEqual(before.first?["privateKey"], session.privateKey)
+        let store = LegacyTonConnectStore(service: fixture, keys: keychain)
+
+        for attempt in 0 ..< 2 {
+            let listed = try await store.sessions()
+            XCTAssertEqual(listed, [session], "Read \(attempt): listed with the row's own raw key")
+            XCTAssertEqual(try fixture.snapshot(), before, "Read \(attempt): the raw row is unchanged")
+            XCTAssertEqual(try keychain.loadKey(reference: reference(session).account), occupying,
+                           "Read \(attempt): the stored item is not overwritten")
+        }
+        let waiting = try await store.sessionsToReconnect()
+        XCTAssertTrue(waiting.isEmpty, "Nothing moved, so nothing is offered")
+
+        // Saving the same session again tries the same move and keeps both as well.
+        try await store.save(session)
+        XCTAssertEqual(try fixture.snapshot(), before)
+        XCTAssertEqual(try keychain.loadKey(reference: reference(session).account), occupying)
+
+        // Encryption still uses the row's key with the original peer.
+        let peer = try NaclBox.keyPair(fromSecretKey: Data(repeating: 9, count: 32))
+        let current = try await store.sessions()
+        let sealed = try XCTUnwrap(current.first).encrypt(Data("hello".utf8))
+        let opened = try NaclBox.open(message: Data(sealed.dropFirst(24)), nonce: Data(sealed.prefix(24)),
+                                      publicKey: session.publicKey, secretKey: peer.secretKey)
+        XCTAssertEqual(opened, Data("hello".utf8))
+        try fixture.close()
+    }
+
+    /// An item left with the same bytes (an interrupted move, or a move of a retained copy) completes the move.
+    func testMoveOverAnItemWithTheSameBytesCompletesTheMove() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let session = try uniqueSession()
+        try keychain.saveKey(session.privateKey, reference: reference(session).account)
+        try fixture.insert(session)
+        let store = LegacyTonConnectStore(service: fixture, keys: keychain)
+
+        let listed = try await store.sessions()
+
+        XCTAssertEqual(listed, [session])
+        XCTAssertEqual(try fixture.snapshot().first?["privateKey"], reference(session).movedColumn)
+        XCTAssertEqual(try keychain.loadKey(reference: reference(session).account), session.privateKey)
+        let waiting = try await store.sessionsToReconnect()
+        XCTAssertEqual(waiting, [session], "A moved key is offered for reconnection as before")
+        try fixture.close()
+    }
+
+    /// New sessions: a fresh item is saved; an item with the same bytes (a save whose row was never written) is
+    /// used; an item with other bytes refuses the save, which writes no row and leaves the item in place.
+    func testNewSessionSavesFreshOrEqualItemsAndNeverOverwritesAnother() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let store = LegacyTonConnectStore(service: fixture, keys: keychain)
+
+        let fresh = try uniqueSession(host: "a.example.org")
+        XCTAssertNil(try keychain.loadKey(reference: reference(fresh).account))
+        try await store.save(fresh)
+        XCTAssertEqual(try fixture.snapshot().map { $0["privateKey"] }, [reference(fresh).column])
+        XCTAssertEqual(try keychain.loadKey(reference: reference(fresh).account), fresh.privateKey)
+
+        let resumed = try uniqueSession(host: "b.example.org")
+        try keychain.saveKey(resumed.privateKey, reference: reference(resumed).account)
+        try await store.save(resumed)
+        XCTAssertEqual(try keychain.loadKey(reference: reference(resumed).account), resumed.privateKey)
+
+        let blocked = try uniqueSession(host: "c.example.org")
+        let occupying = try NaclBox.keyPair().secretKey
+        try keychain.saveKey(occupying, reference: reference(blocked).account)
+        do {
+            try await store.save(blocked)
+            XCTFail("A new session never overwrites a stored key")
+        } catch {
+            XCTAssertEqual(error as? LegacyTonConnectSessionKeyError, .existingKeyDiffers)
+        }
+        XCTAssertEqual(try keychain.loadKey(reference: reference(blocked).account), occupying,
+                       "The item is neither replaced nor removed")
+
+        let rows = try fixture.snapshot()
+        XCTAssertEqual(Set(rows.compactMap { $0["privateKey"] }), [reference(fresh).column, reference(resumed).column])
+        let listed = try await store.sessions()
+        XCTAssertEqual(Set(listed.map(\.identifier)), [fresh.identifier, resumed.identifier])
+        XCTAssertEqual(listed.first { $0.identifier == resumed.identifier }, resumed)
+        try fixture.close()
+    }
+
+    /// The store keeps both keys with any key store that refuses to overwrite, the in-memory one included.
+    func testAMoveThatMeetsAnotherStoredKeyKeepsBothWithTheInMemoryKeyStore() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let session = try tonConnectTestSession(id: "occupied", walletId: "legacy-wallet", host: "a.example.org")
+        let occupying = Data(repeating: 0x5A, count: 32)
+        keys.items[reference(session).account] = occupying
+        try fixture.insert(session)
+        let before = try fixture.snapshot()
+
+        let listed = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
+
+        XCTAssertEqual(listed, [session])
+        XCTAssertEqual(try fixture.snapshot(), before)
+        XCTAssertEqual(keys.items, [reference(session).account: occupying])
+        XCTAssertEqual(keys.saveCount, 0)
     }
 }
 
