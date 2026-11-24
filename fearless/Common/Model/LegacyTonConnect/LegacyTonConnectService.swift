@@ -158,7 +158,7 @@ actor LegacyTonConnectService {
         }
         let canonical = try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
         if let saved = try replies.reply(sessionId: session.identifier, requestId: requestId, request: canonical) {
-            if (object["method"] as? String) == "disconnect" {
+            if (try? LegacyTonConnectRPCRequest.decode(data))?.method == "disconnect" {
                 // A replayed disconnect is acknowledged only once the session is really gone: an earlier attempt
                 // may have saved this reply and then failed to remove the session or its key.
                 try await store.remove(session)

@@ -910,21 +910,26 @@ final class LegacyTonConnectCoordinatorTests: XCTestCase {
             .init(name: "r", value: #"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#)
         ]
         let url = try XCTUnwrap(parts.url)
+        let otherPeer = try NaclBox.keyPair(fromSecretKey: Data(repeating: 5, count: 32)).publicKey
+        parts.queryItems?[1] = .init(name: "id", value: otherPeer.map { String(format: "%02x", $0) }.joined())
+        let second = try XCTUnwrap(parts.url)
         let lockState = ApplicationLockState.shared
         lockState.markLockPending()
         defer { lockState.cancelPendingLock() }
 
+        coordinator.open(url)
+        coordinator.open(second)
         coordinator.open(url)
         try await Task.sleep(nanoseconds: 200_000_000)
         XCTAssertEqual(transport.manifestCalls, 0, "Nothing is prepared behind the lock")
         XCTAssertEqual(approvals, 0)
 
         lockState.cancelPendingLock()
-        for _ in 0 ..< 100 where approvals == 0 {
+        for _ in 0 ..< 150 where approvals < 2 {
             try await Task.sleep(nanoseconds: 20_000_000)
         }
-        XCTAssertEqual(transport.manifestCalls, 1, "The kept link runs once the app is unlocked")
-        XCTAssertEqual(approvals, 1)
+        XCTAssertEqual(approvals, 2, "Both kept links run, once each, after the unlock")
+        XCTAssertEqual(transport.manifestCalls, 2)
         coordinator.throttle()
     }
 
@@ -1891,15 +1896,19 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
             try await store.remove(session)
             XCTFail("The disconnect cannot succeed while the key stays")
         } catch {}
-        XCTAssertEqual(try fixture.snapshot().count, 1, "The row stays with its key")
+        XCTAssertEqual(try fixture.snapshot().first?["privateKey"], reference(session).removingColumn,
+                       "The row is durably marked as being removed")
         XCTAssertEqual(keys.items[reference(session).account], session.privateKey)
-        let stillListed = try await store.sessions()
-        XCTAssertEqual(stillListed, [session])
+        let whileKeyStays = try await store.sessions()
+        XCTAssertTrue(whileKeyStays.isEmpty, "A session being removed is never listed again")
+        XCTAssertEqual(try fixture.snapshot().count, 1, "Kept until its key is gone")
 
         keys.failDeletes = nil
-        try await store.remove(session)
-        XCTAssertTrue(try fixture.snapshot().isEmpty)
+        let afterRecovery = try await store.sessions()
+        XCTAssertTrue(afterRecovery.isEmpty)
+        XCTAssertTrue(try fixture.snapshot().isEmpty, "The next read finished the removal")
         XCTAssertNil(keys.items[reference(session).account])
+        try await store.remove(session)
     }
 
     /// Codex review: a released row that is not listed (here an unknown connection type) still loses its raw key.
@@ -1972,15 +1981,35 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
                 XCTFail("No acknowledgement while the session is still usable")
             } catch {}
         }
-        let stillThere = try await store.sessions()
-        XCTAssertEqual(stillThere, [session])
+        XCTAssertEqual(keys.items[reference(session).account], session.privateKey)
 
         keys.failDeletes = nil
-        let reply = try await service.handle(disconnect, session: session, network: "-239")
-        XCTAssertFalse(reply.isEmpty)
         let gone = try await store.sessions()
         XCTAssertTrue(gone.isEmpty)
+        XCTAssertTrue(try fixture.snapshot().isEmpty)
         XCTAssertNil(keys.items[reference(session).account])
+    }
+
+    /// Codex review (round 3): replaying a disconnect that was rejected as malformed changes nothing.
+    func testReplayOfARejectedDisconnectKeepsTheSession() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let session = try tonConnectTestSession()
+        try await store.save(session)
+        let service = LegacyTonConnectService(
+            store: store, replies: LegacyTonConnectReplyStore(keystore: TonConnectFixtureKeychain()),
+            transport: TonConnectFakeTransport(), legacyEventId: { nil }
+        )
+        let malformed = Data(#"{"id":"8","method":"disconnect","params":["a","b"]}"#.utf8)
+
+        let first = try await service.handle(malformed, session: session, network: "-239")
+        let replay = try await service.handle(malformed, session: session, network: "-239")
+
+        XCTAssertEqual(first, replay)
+        let listed = try await store.sessions()
+        XCTAssertEqual(listed, [session])
+        XCTAssertEqual(keys.items[reference(session).account], session.privateKey)
     }
 
     /// Codex review (round 2): a disconnect whose key went but whose row stayed can be finished later.

@@ -10,18 +10,24 @@ class PinSetupWireframe: PinSetupWireframeProtocol {
     }
 
     func showMain(from view: PinSetupViewProtocol?) {
-        // A re-lock may have adopted this startup PIN as its lock; authenticated, it ends that lock.
-        if let controller = view?.controller {
-            lockState.unlock(from: controller)
-        }
-        let presentingWindow = view?.controller.view.window as? ApplicationStatusPresentable
+        let pinWindow = view?.controller.viewIfLoaded?.window
+        let presentingWindow = pinWindow as? ApplicationStatusPresentable
         guard let mainViewController = MainTabBarViewFactory
             .createView(presentingWindow: presentingWindow)?
             .controller else {
             return
         }
 
-        rootAnimator.animateTransition(to: mainViewController)
+        // The wallet goes into the PIN's own window, and only then may a re-lock that adopted this startup PIN end:
+        // its unlock lets prompt windows return and take the key window.
+        if let pinWindow {
+            rootAnimator.animateTransition(to: mainViewController, in: pinWindow)
+        } else {
+            rootAnimator.animateTransition(to: mainViewController)
+        }
+        if let controller = view?.controller {
+            lockState.unlock(from: controller)
+        }
     }
 
     func showSignup(from _: PinSetupViewProtocol?) {

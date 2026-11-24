@@ -2447,13 +2447,24 @@ final class PendingSessionLockTests: XCTestCase {
         func authenticate(localizedReason _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) {}
     }
 
+    /// Reports an attempt as the real interactor does, through `didChangeState`, unless it is busy and ignores input.
     private final class InteractorSpy: LocalAuthInteractorInputProtocol {
         var allowManualBiometryAuth = false
         var availableBiometryType = AvailableBiometryType.none
+        var ignoresInput = false
+        private weak var output: LocalAuthInteractorOutputProtocol?
         private(set) var starts = 0
         private(set) var cancels = 0
-        func startAuth(with _: LocalAuthInteractorOutputProtocol) { starts += 1 }
-        func process(pin _: String) {}
+        func startAuth(with output: LocalAuthInteractorOutputProtocol) {
+            self.output = output
+            starts += 1
+            if !ignoresInput { output.didChangeState(to: .checkingBiometry) }
+        }
+
+        func process(pin _: String) {
+            if !ignoresInput { output?.didChangeState(to: .checkingPincode) }
+        }
+
         func cancelAuth() { cancels += 1 }
     }
 
@@ -2803,6 +2814,17 @@ final class PendingSessionLockTests: XCTestCase {
         presenter.didCompleteAuth()
         spin()
         XCTAssertEqual(wireframe.mains, 2, "A PIN typed after the lock became due counts")
+
+        // Codex review round 3: input the interactor ignores (it is still checking an older attempt) must not make
+        // that older attempt count for the new lock.
+        presenter.submit(pin: "1234")
+        lockState.beginDueLock()
+        interactor.ignoresInput = true
+        presenter.activateBiometricAuth()
+        presenter.submit(pin: "5678")
+        presenter.didCompleteAuth()
+        spin()
+        XCTAssertEqual(wireframe.mains, 2, "The older attempt does not unlock the newer lock")
     }
 
     /// Codex review (round 2): a PIN already on screen becomes the lock's owner, so its unlock tells prompts.
@@ -2814,6 +2836,7 @@ final class PendingSessionLockTests: XCTestCase {
         window.rootViewController = unlock
         window.makeKeyAndVisible()
         windows.append(window)
+        spin()
         let lockState = ApplicationLockState(notificationCenter: NotificationCenter())
         let lock = makeLock(in: scene, center: NotificationCenter(), lockState: lockState, presence: { .present }, window: { window }) {
             XCTFail("No second PIN screen")

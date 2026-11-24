@@ -53,6 +53,10 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
             let rows = try context.fetch(NSFetchRequest<NSManagedObject>(entityName: "CDTonConnectedApp"))
             var sessions: [LegacyTonConnectSession] = []
             for row in rows {
+                // A disconnect that could not finish earlier is finished now, never listed.
+                if self.finishRemovalIfMarked(row, in: context) {
+                    continue
+                }
                 // A released row's key leaves SQLite whenever its key pair is sound, even if the row is not listed
                 // (for example an unknown connection type).
                 if let legacy = Self.legacyKey(in: row) {
@@ -126,17 +130,20 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                 do {
                     matches = try self.read(row).session == session
                 } catch LegacyTonConnectError.invalidSession {
-                    // An earlier disconnect removed the key but could not delete the row: finish it.
-                    matches = try self.isMovedRowWithoutKey(row, of: session, reference: reference)
+                    // An earlier disconnect was cut short: finish it.
+                    matches = try self.isUnfinishedRemoval(row, of: session, reference: reference)
                 }
                 guard matches else { throw LegacyTonConnectError.invalidSession }
             }
             guard !rows.isEmpty else { return }
-            // The key goes first, a key left by an interrupted move included. If the Keychain cannot delete it the
-            // disconnect fails and the row stays, so no session survives a reported disconnect, not even through a
-            // retained copy of its row. If the row then cannot be deleted, a moved session stays unreadable and a
-            // later disconnect finishes the removal.
+            // 1. The rows are marked as being removed, durably, so no read lists them again and a later read
+            //    finishes the removal if this one is cut short.
+            rows.forEach { $0.setValue(reference.removingColumn, forKey: "privateKey") }
+            try context.save()
+            // 2. The key goes, a key left by an interrupted move included. If the Keychain cannot delete it, the
+            //    disconnect is reported as failed and the next read retries; the session is already unusable.
             try self.keys.deleteKey(reference: reference.account)
+            // 3. The rows go.
             rows.forEach(context.delete)
             try context.save()
         }
@@ -162,22 +169,56 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
         let isLegacy: Bool
     }
 
-    /// The row names this session's Keychain item, which is confirmed gone, and its identity columns match.
-    private func isMovedRowWithoutKey(
+    /// The row's identity columns match and it is either marked as being removed, or names this session's Keychain
+    /// item, which is confirmed gone.
+    private func isUnfinishedRemoval(
         _ row: NSManagedObject,
         of session: LegacyTonConnectSession,
         reference: LegacyTonConnectSessionKeyReference
     ) throws -> Bool {
         var identityMatches = false
+        var column: Data?
         try SafeObjectiveCExceptionBoundary.perform {
             identityMatches = row.value(forKey: "identifier") as? String == session.identifier
                 && row.value(forKey: "walletId") as? String == session.walletId
                 && row.value(forKey: "clientId") as? String == session.clientId
                 && row.value(forKey: "appUrl") as? URL == session.appUrl
                 && row.value(forKey: "publicKey") as? Data == session.publicKey
-                && row.value(forKey: "privateKey") as? Data == reference.column
+            column = row.value(forKey: "privateKey") as? Data
         }
-        return try identityMatches && keys.loadKey(reference: reference.account) == nil
+        guard identityMatches else { return false }
+        if column == reference.removingColumn { return true }
+        return try column == reference.column && keys.loadKey(reference: reference.account) == nil
+    }
+
+    /// Finishes a disconnect that was cut short: deletes the key, then the row. Returns whether the row was marked.
+    /// Any failure leaves the mark for the next read.
+    private func finishRemovalIfMarked(_ row: NSManagedObject, in context: NSManagedObjectContext) -> Bool {
+        var marked: (identifier: String, publicKey: Data, digest: Data)?
+        try? SafeObjectiveCExceptionBoundary.perform {
+            guard let column = row.value(forKey: "privateKey") as? Data,
+                  case let .removing(digest) = LegacyTonConnectSessionKeyReference.Column(column) else {
+                return
+            }
+            marked = (
+                (row.value(forKey: "identifier") as? String) ?? "",
+                (row.value(forKey: "publicKey") as? Data) ?? Data(),
+                digest
+            )
+        }
+        guard let marked else { return false }
+        let reference = LegacyTonConnectSessionKeyReference(identifier: marked.identifier, publicKey: marked.publicKey)
+        do {
+            // Only the item this row's own identity names.
+            if reference.digest == marked.digest {
+                try keys.deleteKey(reference: reference.account)
+            }
+            context.delete(row)
+            try context.save()
+        } catch {
+            context.rollback()
+        }
+        return true
     }
 
     /// A released row's raw key with what it is bound to.
@@ -267,7 +308,7 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                 }
                 privateKey = loaded
                 isLegacy = false
-            case .none:
+            case .removing, .none:
                 throw LegacyTonConnectError.invalidSession
             }
             // Before 4.0.4 the released model had no connectionType. HTTP peers
@@ -408,18 +449,24 @@ final class LegacyTonConnectSessionKeychain: LegacyTonConnectSessionKeyStoring {
 /// raw key. A released row holds exactly 32 key bytes; a reference has another length and a fixed prefix.
 struct LegacyTonConnectSessionKeyReference: Equatable {
     static let columnPrefix = Data("fwtck1".utf8)
+    /// A disconnect has begun: the row is no longer a session, and its key and then the row are being removed.
+    static let removingPrefix = Data("fwtck0".utf8)
 
     enum Column: Equatable {
         case legacy(Data)
         case keychain(Data)
+        case removing(Data)
 
         init?(_ value: Data) {
+            let prefixLength = LegacyTonConnectSessionKeyReference.columnPrefix.count
             if value.count == 32 {
                 self = .legacy(value)
-            } else if value.count == LegacyTonConnectSessionKeyReference.columnPrefix.count + 32,
-                      value.prefix(LegacyTonConnectSessionKeyReference.columnPrefix.count)
-                      == LegacyTonConnectSessionKeyReference.columnPrefix {
+            } else if value.count == prefixLength + 32,
+                      value.prefix(prefixLength) == LegacyTonConnectSessionKeyReference.columnPrefix {
                 self = .keychain(Data(value.suffix(32)))
+            } else if value.count == prefixLength + 32,
+                      value.prefix(prefixLength) == LegacyTonConnectSessionKeyReference.removingPrefix {
+                self = .removing(Data(value.suffix(32)))
             } else {
                 return nil
             }
@@ -445,6 +492,11 @@ struct LegacyTonConnectSessionKeyReference: Equatable {
     /// What the row's `privateKey` column holds once the key is in the Keychain.
     var column: Data {
         Self.columnPrefix + digest
+    }
+
+    /// What the row's `privateKey` column holds while its disconnect is being finished.
+    var removingColumn: Data {
+        Self.removingPrefix + digest
     }
 }
 

@@ -86,6 +86,8 @@ final class PendingSessionLock {
     private weak var presentingPin: UIViewController?
     private weak var presentingWindow: UIWindow?
     private var presentationCompleted = false
+    /// Set by `request()`: a PIN already on screen must start a fresh authentication for this lock.
+    private var needsFreshAuthentication = false
 
     init(
         pinPresence: @escaping () -> AppPinPresence = {
@@ -135,6 +137,7 @@ final class PendingSessionLock {
     @discardableResult
     func request(in scene: UIWindowScene? = nil) -> Attempt {
         isPending = true
+        needsFreshAuthentication = true
         // Authentications that began before now do not end this lock.
         lockState.beginDueLock()
         return attempt(in: scene)
@@ -174,15 +177,18 @@ final class PendingSessionLock {
         defer { isAttempting = false }
 
         let window = scene.flatMap { mainWindow($0) } ?? mainWindow(nil)
-        if let pin = presentingPin, let target = presentingWindow, window == nil || window === target {
+        if let pin = presentingPin, let target = presentingWindow, window == nil || window === target,
+           pin.presentingViewController != nil, !pin.isBeingDismissed {
             if presentationCompleted, Self.isFrontmost(pin, in: target) {
                 finish(restoringKeyWindow: false, window: target)
                 return .locked
             }
-            if !presentationCompleted, pin.presentingViewController != nil, !pin.isBeingDismissed {
-                // Still on its way: the presentation completion, or a later attempt, ends the wait.
-                return .locked
+            if presentationCompleted, pin.presentedViewController != nil {
+                // Something was put over the PIN: it goes, and a later attempt checks again.
+                pin.dismiss(animated: false)
             }
+            // Still settling: the cover stays and a later attempt checks again.
+            return .locked
         }
         // Not presented, gone, or the app's window changed: present again.
         presentingPin = nil
@@ -206,6 +212,8 @@ final class PendingSessionLock {
                     self?.presentingPin = pin
                     self?.presentingWindow = window
                     self?.presentationCompleted = false
+                    // A new PIN screen starts its own authentication.
+                    self?.needsFreshAuthentication = false
                     return pin
                 },
                 afterDismissal: { [weak self] in self?.attempt(in: scene) },
@@ -223,6 +231,15 @@ final class PendingSessionLock {
             case let .alreadyShown(pin):
                 // The PIN on screen becomes this lock's owner, so its unlock ends the lock and prompts are told.
                 lockState.lock(with: pin)
+                if needsFreshAuthentication {
+                    needsFreshAuthentication = false
+                    ((pin as? PinSetupViewController)?.presenter as? LocalAuthPresenter)?.restartAuthentication()
+                }
+                guard let window, Self.isFrontmost(pin, in: window) else {
+                    // On screen per the chain but not settled or not visible: keep the cover and look again.
+                    wait()
+                    return .waiting
+                }
                 finish(restoringKeyWindow: false, window: window)
                 return .locked
             case .noWindow, .dismissing, .notPresented:
@@ -263,6 +280,7 @@ final class PendingSessionLock {
 
     private func finish(restoringKeyWindow: Bool, window: UIWindow?) {
         isPending = false
+        needsFreshAuthentication = false
         presentingPin = nil
         presentingWindow = nil
         presentationCompleted = false

@@ -37,8 +37,10 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// Android. An absent key keeps signing on.
     private let isSigningEnabled: () -> Bool
     private var ready = false
-    private var queuedURL: URL?
-    private var unlockObserver: NSObjectProtocol?
+    /// Links that arrived while the wallet could not answer them, in arrival order; opened one at a time.
+    private var pendingURLs: [URL] = []
+    private var isOpeningURL = false
+    private var drainObservers: [NSObjectProtocol] = []
     private var approving = false
     private weak var approvalController: LegacyTonConnectApprovalViewController?
 
@@ -81,10 +83,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         ready = true
         await service.set(handler: self)
         await service.start(selectedNetwork: selectedNetwork)
-        if let url = queuedURL {
-            queuedURL = nil
-            open(url)
-        }
+        drainPendingURLs()
     }
 
     func throttle() {
@@ -102,43 +101,59 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     func open(_ url: URL) {
         precondition(Thread.isMainThread)
-        // A link opened while the app is locked waits for the unlock instead of being lost.
-        guard ready, !ApplicationLockState.shared.isLocked else {
-            queuedURL = url
-            observeUnlockIfNeeded()
+        // Links wait, in order, while the wallet is not ready, the app is locked or not active.
+        if !pendingURLs.contains(url) {
+            pendingURLs.append(url)
+        }
+        drainPendingURLs()
+    }
+
+    private var canOpenURLs: Bool {
+        ready && !ApplicationLockState.shared.isLocked && UIApplication.shared.applicationState == .active
+    }
+
+    private func drainPendingURLs() {
+        guard !pendingURLs.isEmpty else {
+            drainObservers.forEach { NotificationCenter.default.removeObserver($0) }
+            drainObservers = []
             return
         }
+        guard canOpenURLs, !isOpeningURL else {
+            observeDrainTriggersIfNeeded()
+            return
+        }
+        let url = pendingURLs.removeFirst()
+        isOpeningURL = true
         Task { @MainActor in
+            defer {
+                isOpeningURL = false
+                drainPendingURLs()
+            }
             do {
                 guard isEnabled() else { throw LegacyTonConnectError.disabled }
                 let link = try LegacyTonConnectProtocol.parseLink(url)
                 guard let wallet = selectedWallet() else { throw LegacyTonConnectError.unavailableWallet }
                 let manifest = try await transport.manifest(at: link.request.manifestUrl)
                 _ = try await connect(walletId: wallet.metaId, clientId: link.clientId, request: link.request, manifest: manifest, connectionType: "http")
-            } catch LegacyTonConnectError.busy where ApplicationLockState.shared.isLocked {
-                // The app locked while the link was being prepared: ask again once it is unlocked.
-                queuedURL = url
-                observeUnlockIfNeeded()
+            } catch LegacyTonConnectError.busy where !canOpenURLs {
+                // The app locked or left while the link was being prepared: it waits at the front of the queue.
+                pendingURLs.insert(url, at: 0)
             } catch {
                 present(error: error)
             }
         }
     }
 
-    private func observeUnlockIfNeeded() {
-        guard unlockObserver == nil else { return }
-        unlockObserver = NotificationCenter.default.addObserver(
-            forName: ApplicationLockState.didChangeNotification,
-            object: ApplicationLockState.shared,
-            queue: .main
-        ) { [weak self] _ in
-            guard let self, self.ready, !ApplicationLockState.shared.isLocked, let url = self.queuedURL else { return }
-            self.queuedURL = nil
-            if let observer = self.unlockObserver {
-                NotificationCenter.default.removeObserver(observer)
-                self.unlockObserver = nil
+    private func observeDrainTriggersIfNeeded() {
+        guard drainObservers.isEmpty else { return }
+        let triggers: [(Notification.Name, Any?)] = [
+            (ApplicationLockState.didChangeNotification, ApplicationLockState.shared),
+            (UIApplication.didBecomeActiveNotification, nil)
+        ]
+        drainObservers = triggers.map { name, object in
+            NotificationCenter.default.addObserver(forName: name, object: object, queue: .main) { [weak self] _ in
+                self?.drainPendingURLs()
             }
-            self.open(url)
         }
     }
 

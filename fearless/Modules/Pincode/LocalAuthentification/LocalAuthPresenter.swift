@@ -6,7 +6,8 @@ class LocalAuthPresenter: PinSetupPresenterProtocol {
     private let wireframe: PinSetupWireframeProtocol
     private let interactor: LocalAuthInteractorInputProtocol
     private let lockState: ApplicationLockState
-    /// The lock generation in which the current authentication began.
+    /// The lock generation in which the interactor's current attempt (biometry or a PIN check) began. Set only when
+    /// the interactor reports it started one, never for input it may ignore.
     private var authenticationGeneration: UInt64
 
     init(
@@ -22,7 +23,6 @@ class LocalAuthPresenter: PinSetupPresenterProtocol {
 
     func didLoad(view: PinSetupViewProtocol) {
         self.view = view
-        authenticationGeneration = lockState.generation
 
         self.view?.didChangeAccessoryState(
             enabled: interactor.allowManualBiometryAuth,
@@ -34,13 +34,21 @@ class LocalAuthPresenter: PinSetupPresenterProtocol {
     func cancel() {}
 
     func activateBiometricAuth() {
-        authenticationGeneration = lockState.generation
         interactor.startAuth(with: self)
     }
 
     func submit(pin: String) {
-        authenticationGeneration = lockState.generation
         interactor.process(pin: pin)
+    }
+
+    /// A new lock adopted this PIN screen while it was on screen: any attempt in flight is dropped and the PIN asks
+    /// again, as for a newly shown lock.
+    func restartAuthentication() {
+        authenticationGeneration = lockState.generation
+        interactor.cancelAuth()
+        view?.didStopLoading()
+        view?.resetAuthenticationInput()
+        interactor.startAuth(with: self)
     }
 }
 
@@ -60,10 +68,15 @@ extension LocalAuthPresenter: LocalAuthInteractorOutputProtocol {
     }
 
     func didChangeState(to state: LocalAuthInteractor.LocalAuthState) {
-        guard case .completed = state else {
-            return
+        switch state {
+        case .checkingBiometry, .checkingPincode:
+            // The interactor accepted an attempt: it belongs to the lock that is due now.
+            authenticationGeneration = lockState.generation
+        case .completed:
+            view?.didStartLoading()
+        case .waitingPincode, .unexpectedFail:
+            break
         }
-        view?.didStartLoading()
     }
 
     func didCompleteAuth() {
@@ -72,11 +85,7 @@ extension LocalAuthPresenter: LocalAuthInteractorOutputProtocol {
             guard strongSelf.lockState.generation == strongSelf.authenticationGeneration else {
                 // Began before a newer lock became due (for example a success queued across a long absence): it
                 // does not end that lock. Ask again.
-                strongSelf.authenticationGeneration = strongSelf.lockState.generation
-                strongSelf.interactor.cancelAuth()
-                strongSelf.view?.didStopLoading()
-                strongSelf.view?.resetAuthenticationInput()
-                strongSelf.interactor.startAuth(with: strongSelf)
+                strongSelf.restartAuthentication()
                 return
             }
             strongSelf.wireframe.showMain(from: strongSelf.view)
