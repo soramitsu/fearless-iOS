@@ -343,9 +343,9 @@ struct WalletSecretSheet: View {
 }
 
 /// Crypto type and derivation paths of a wallet whose words alone do not
-/// restore it. The Substrate path may end in a `///password` part, so the
-/// values follow the same reveal rule as the words: hidden until the user
-/// reveals the phrase, hidden again when it is hidden.
+/// restore it. Either path may end in a `///password` part, so the values
+/// follow the same reveal rule as the words: hidden until the user reveals
+/// the phrase, hidden again when it is hidden.
 struct DerivationDetailsView: View {
     let options: DerivationOptions
     let isRevealed: Bool
@@ -369,15 +369,40 @@ struct DerivationDetailsView: View {
     }
 
     private func row(_ label: String, _ value: String) -> some View {
-        GridRow {
+        let presentation = Self.presentation(of: value, isRevealed: isRevealed)
+        let text = Text(presentation.shown)
+            .font(.system(.callout, design: .monospaced))
+            .accessibilityLabel(label)
+            .accessibilityValue(isRevealed ? value : "Hidden")
+        return GridRow {
             Text(label)
                 .font(.callout)
                 .foregroundStyle(.secondary)
-            Text(isRevealed ? value : "••••••")
-                .font(.system(.callout, design: .monospaced))
-                .textSelection(.enabled)
-                .accessibilityLabel(label)
-                .accessibilityValue(isRevealed ? value : "Hidden")
+            HStack(spacing: 6) {
+                if presentation.isSelectable {
+                    text.textSelection(.enabled)
+                } else {
+                    text.textSelection(.disabled)
+                }
+                if presentation.copiesConcealed {
+                    CopyButton(value: value, label: "Copy \(label)", concealed: true)
+                }
+            }
         }
+    }
+
+    /// How a value is shown. A revealed path with a `///password` cannot be
+    /// selected: it is copied only with its button, which marks the copy
+    /// concealed, keeps it on this Mac and clears it after 60 seconds.
+    struct Presentation: Equatable {
+        let shown: String
+        let isSelectable: Bool
+        let copiesConcealed: Bool
+    }
+
+    static func presentation(of value: String, isRevealed: Bool) -> Presentation {
+        guard isRevealed else { return Presentation(shown: "••••••", isSelectable: false, copiesConcealed: false) }
+        let holdsPassword = DerivationPath.holdsPassword(value)
+        return Presentation(shown: value, isSelectable: !holdsPassword, copiesConcealed: holdsPassword)
     }
 }

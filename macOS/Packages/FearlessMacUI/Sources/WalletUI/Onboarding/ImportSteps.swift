@@ -10,7 +10,6 @@ struct ImportPhraseStep: View {
     let compact: Bool
     var onCancel: (() -> Void)?
 
-    @FocusState private var focus: Int?
     @State private var showAdvanced = false
 
     private var entry: PhraseEntryModel { model.phraseEntry }
@@ -93,10 +92,8 @@ struct ImportPhraseStep: View {
                 .keyboardShortcut(.defaultAction)
                 .disabled(!model.canContinueImport)
         }
-        .onAppear { focus = entry.focusedIndex ?? 0 }
-        .onChange(of: focus) { _, newValue in entry.focusedIndex = newValue }
-        .onChange(of: entry.focusedIndex) { _, newValue in
-            if focus != newValue { focus = newValue }
+        .onAppear {
+            if entry.focusedIndex == nil { entry.focusedIndex = 0 }
         }
     }
 
@@ -109,23 +106,19 @@ struct ImportPhraseStep: View {
                 .foregroundStyle(.secondary)
                 .frame(width: 18, alignment: .trailing)
                 .accessibilityHidden(true)
-            TextField("", text: Binding(get: { entry.words[safe: index] ?? "" }, set: { entry.setText($0, at: index) }))
-                .textFieldStyle(.plain)
-                .font(.system(.body, design: .monospaced))
-                .autocorrectionDisabled()
-                .focused($focus, equals: index)
-                .onSubmit { acceptOrAdvance(index) }
-                .onKeyPress(.space) {
-                    acceptOrAdvance(index)
-                    return .handled
-                }
-                .onKeyPress(.tab) {
-                    guard let first = entry.suggestions(at: index).first else { return .ignored }
-                    entry.acceptSuggestion(first, at: index)
-                    return .handled
-                }
-                .accessibilityLabel("Word \(index + 1)")
-                .accessibilityValue(unknown ? "Not in the word list" : "")
+            // An AppKit field with its own editor: Roman input sources only and
+            // every text service off, so neither an input method nor the
+            // system's spelling, prediction or Writing Tools sees the words.
+            SecretTextField(
+                entry: .recoveryWord,
+                text: Binding(get: { entry.words[safe: index] ?? "" }, set: { entry.setText($0, at: index) }),
+                style: .plain,
+                accessibilityLabel: "Word \(index + 1)",
+                accessibilityHelp: unknown ? "Not in the word list" : nil,
+                isFocused: focused,
+                onFocusChange: { isFocused in focusChanged(isFocused, at: index) },
+                onCommand: { command in handle(command, at: index) }
+            )
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -175,13 +168,43 @@ struct ImportPhraseStep: View {
         .frame(height: 24)
     }
 
+    private func focusChanged(_ isFocused: Bool, at index: Int) {
+        if isFocused {
+            if entry.focusedIndex != index { entry.focusedIndex = index }
+        } else if entry.focusedIndex == index {
+            entry.focusedIndex = nil
+        }
+    }
+
+    /// Space and Return accept the first suggestion or move on; Tab accepts
+    /// the first suggestion, or moves between the words like Shift-Tab.
+    private func handle(_ command: SecretTextField.Command, at index: Int) -> Bool {
+        switch command {
+        case .space, .submit:
+            acceptOrAdvance(index)
+            return true
+        case .tab:
+            if let first = entry.suggestions(at: index).first {
+                entry.acceptSuggestion(first, at: index)
+                return true
+            }
+            guard index + 1 < entry.wordCount else { return false }
+            entry.focusedIndex = index + 1
+            return true
+        case .backtab:
+            guard index > 0 else { return false }
+            entry.focusedIndex = index - 1
+            return true
+        }
+    }
+
     private func acceptOrAdvance(_ index: Int) {
         let text = entry.words[safe: index] ?? ""
         let suggestions = entry.suggestions(at: index)
         if !text.isEmpty, !entry.wordList.contains(text), let first = suggestions.first {
             entry.acceptSuggestion(first, at: index)
         } else if index + 1 < entry.wordCount {
-            focus = index + 1
+            entry.focusedIndex = index + 1
         } else if model.canContinueImport {
             Task { await model.continueImport() }
         }
@@ -196,7 +219,9 @@ extension Array {
 }
 
 /// Crypto type and derivation paths. The defaults match the Fearless apps
-/// on iPhone and Android.
+/// on iPhone and Android. A path may end in a `///password`, so both path
+/// fields are secret fields that keep every input source (for Unicode
+/// passwords) and pass the text to derivation exactly as typed.
 struct DerivationOptionsForm: View {
     @Binding var options: DerivationOptions
     let showsEVM: Bool
@@ -215,21 +240,25 @@ struct DerivationOptionsForm: View {
             }
             GridRow {
                 Text("Polkadot derivation path")
-                TextField("None, for example //polkadot", text: $options.substrateDerivationPath)
-                    .textFieldStyle(.roundedBorder)
-                    .font(.system(.body, design: .monospaced))
-                    .autocorrectionDisabled()
-                    .frame(maxWidth: 300)
+                SecretTextField(
+                    entry: .derivationPath,
+                    placeholder: "None, for example //polkadot",
+                    text: $options.substrateDerivationPath,
+                    accessibilityLabel: "Polkadot derivation path"
+                )
+                .frame(maxWidth: 300)
             }
             if showsEVM {
                 GridRow {
                     Text("Ethereum derivation path")
                     HStack(spacing: 6) {
-                        TextField(DerivationOptions.defaultEVMPath, text: $options.evmDerivationPath)
-                            .textFieldStyle(.roundedBorder)
-                            .font(.system(.body, design: .monospaced))
-                            .autocorrectionDisabled()
-                            .frame(maxWidth: 300)
+                        SecretTextField(
+                            entry: .derivationPath,
+                            placeholder: DerivationOptions.defaultEVMPath,
+                            text: $options.evmDerivationPath,
+                            accessibilityLabel: "Ethereum derivation path"
+                        )
+                        .frame(maxWidth: 300)
                         if options.evmDerivationPath != DerivationOptions.defaultEVMPath {
                             Button("Reset") { options.evmDerivationPath = DerivationOptions.defaultEVMPath }
                                 .controlSize(.small)
@@ -290,7 +319,19 @@ struct ImportSeedStep: View {
     @Bindable var model: OnboardingModel
     let compact: Bool
 
-    @State private var isVisible = false
+    @State private var isVisible: Bool
+    @Environment(\.controlActiveState) private var controlActiveState
+    @Environment(\.staticRendering) private var staticRendering
+
+    init(model: OnboardingModel, compact: Bool, isVisible: Bool = false) {
+        self.model = model
+        self.compact = compact
+        _isVisible = State(initialValue: isVisible)
+    }
+
+    private var secretName: String {
+        model.seedEcosystem == .substrate ? "Seed" : "Private key"
+    }
 
     var body: some View {
         StepScaffold(
@@ -310,26 +351,26 @@ struct ImportSeedStep: View {
                 .accessibilityLabel("Account type")
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(model.seedEcosystem == .substrate ? "Seed" : "Private key").font(.callout.weight(.medium))
+                    Text(secretName).font(.callout.weight(.medium))
                     HStack(spacing: 6) {
-                        Group {
-                            if isVisible {
-                                TextField("0x…", text: $model.seedHex)
-                            } else {
-                                SecureField("0x…", text: $model.seedHex)
-                            }
-                        }
-                        .textFieldStyle(.roundedBorder)
-                        .font(.system(.body, design: .monospaced))
-                        .autocorrectionDisabled()
-                        .accessibilityLabel(model.seedEcosystem == .substrate ? "Seed" : "Private key")
+                        // The secure field is the only editor, shown or not:
+                        // it accepts paste but no copy, and no text service
+                        // or input method sees the hex.
+                        SecureField("0x…", text: $model.seedHex)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.system(.body, design: .monospaced))
+                            .autocorrectionDisabled()
+                            .accessibilityLabel(secretName)
                         Button {
                             isVisible.toggle()
                         } label: {
                             Image(systemName: isVisible ? "eye.slash" : "eye")
                         }
                         .help(isVisible ? "Hide" : "Show")
-                        .accessibilityLabel(isVisible ? "Hide seed" : "Show seed")
+                        .accessibilityLabel(isVisible ? "Hide \(secretName.lowercased())" : "Show \(secretName.lowercased())")
+                    }
+                    if isVisible, !model.seedHex.isEmpty {
+                        RevealedSecretText(name: secretName, value: model.seedHex)
                     }
                     if !model.seedHex.isEmpty, !model.isSeedValid {
                         InlineMessage("Enter exactly 64 hexadecimal characters (0–9, a–f), with or without 0x.", kind: .error)
@@ -351,6 +392,31 @@ struct ImportSeedStep: View {
                 .keyboardShortcut(.defaultAction)
                 .disabled(!model.canContinueImport)
         }
+        .background(CaptureProtection(isActive: isVisible && !staticRendering))
+        .onChange(of: controlActiveState) { _, state in
+            if state != .key, !staticRendering { isVisible = false }
+        }
+    }
+}
+
+/// A revealed secret as read-only text: it cannot be selected, copied or
+/// edited. VoiceOver reads it character by character.
+struct RevealedSecretText: View {
+    let name: String
+    let value: String
+
+    var body: some View {
+        Text(value)
+            .font(.system(.callout, design: .monospaced))
+            .textSelection(.disabled)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(name), shown")
+            .accessibilityValue(Text(value).speechSpellsOutCharacters())
     }
 }
 
