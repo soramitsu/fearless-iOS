@@ -142,8 +142,15 @@ final class LiveGallery {
         }
         guard let first = vectors.first else { return }
         inputs.recipient = vectors.dropFirst().first?.expected.substrate.polkadotAddress ?? first.expected.substrate.polkadotAddress
+        let words = first.mnemonic.split(separator: " ").map(String.init)
+
+        // The recovery-word grid over the live engine's word list and
+        // validation, while the vault holds no wallet. Nothing is stored.
+        inputs.importWords = words
+        await shoot(.onboardingPhraseImport, .dark)
+        await shoot(.onboardingConfirm, .dark)
+
         do {
-            let words = first.mnemonic.split(separator: " ").map(String.init)
             _ = try await services.wallets.addWallet(name: "Public test vector", source: .mnemonic(words: words, options: .standard))
         } catch {
             failures.append("addWallet: \(error.localizedDescription)")
