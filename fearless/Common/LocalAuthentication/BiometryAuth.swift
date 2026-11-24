@@ -25,12 +25,17 @@ extension BiometryAuthProtocol {
 
 class BiometryAuth: BiometryAuthProtocol {
     private let contextFactory: () -> LAContext
+    private let secretAuthorization: WalletSecretAuthorization
     private let contextLock = NSLock()
     private var activeContext: LAContext?
     private var activeAttempt: UUID?
 
-    init(contextFactory: @escaping () -> LAContext = { LAContext() }) {
+    init(
+        contextFactory: @escaping () -> LAContext = { LAContext() },
+        secretAuthorization: WalletSecretAuthorization = .shared
+    ) {
         self.contextFactory = contextFactory
+        self.secretAuthorization = secretAuthorization
     }
 
     deinit {
@@ -89,7 +94,13 @@ class BiometryAuth: BiometryAuthProtocol {
                 self.activeAttempt = nil
                 self.activeContext = nil
                 self.contextLock.unlock()
-                completedContext?.invalidate()
+                // A face or finger the device owner just presented also opens protected wallet
+                // items for the next few seconds, so the operation it confirmed asks only once.
+                if result, let completedContext, self.secretAuthorization.isAccepting {
+                    self.secretAuthorization.adopt(completedContext)
+                } else {
+                    completedContext?.invalidate()
+                }
                 completionBlock(result)
             }
         }

@@ -15,6 +15,7 @@ and it can never turn on anything this build compiles off or keeps behind signed
 | `bitcoin_send_enabled` | on (`UniversalSendReleasePolicy.production`) | off, remembered | clears a remembered veto | keeps the remembered state |
 | `solana_send_enabled` | on (`UniversalSendReleasePolicy.production`) | off, remembered | clears a remembered veto | keeps the remembered state |
 | `demeter_mutations_enabled`, `polkamarkt_mutations_enabled`, `cross_chain_mutations_enabled` | off | stays off | needs signed `mutation_authorization` as before | off |
+| `protected_keychain_enabled` (wallet secrets that need the device owner, PIN verifier; `docs/wallet-secret-user-presence.md`) | off in this build (`ProtectedKeychainPolicy.isCompiledIn`) | no new moves, remembered; moved wallets stay readable | clears a remembered veto; cannot turn on a build that compiles it off | keeps the remembered state |
 
 - A veto is stored (`RemoteKillSwitchStore`, `UserDefaults` keys
   `feature.kill_switch.polkaswap_mutations`, `feature.kill_switch.bitcoin_send`,

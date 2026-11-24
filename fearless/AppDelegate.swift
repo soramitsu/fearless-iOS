@@ -17,6 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         guard !isUnitTesting else { return true }
 
+        // Before anything reads a wallet secret: routes moved wallets to their protected items.
+        ProtectedWalletSecretCoordinator.shared.install()
+
         URLHandlingService.shared.setup(children: [
             IrohaConnectURLHandler.shared, LegacyTonConnectURLHandler.shared, WalletConnectURLHandler.shared,
             GoogleDriveBackupURLHandler.shared

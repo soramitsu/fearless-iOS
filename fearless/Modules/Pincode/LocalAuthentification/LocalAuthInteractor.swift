@@ -211,6 +211,8 @@ class LocalAuthInteractor {
     private let attemptLimiter: PincodeAttemptLimiting
     private let enrollmentGuard: BiometryEnrollmentGuarding
     private let authorizedUnlock: WalletAuthorizedUnlock
+    private let upgradesPincode: () -> Bool
+    private let verifierQueue: DispatchQueue
 
     init(
         secretManager: SecretStoreManagerProtocol,
@@ -219,8 +221,12 @@ class LocalAuthInteractor {
         locale: Locale,
         attemptLimiter: PincodeAttemptLimiting = PincodeAttemptLimiter.shared,
         enrollmentGuard: BiometryEnrollmentGuarding = BiometryEnrollmentGuard.shared,
-        authorizedUnlock: WalletAuthorizedUnlock = .shared
+        authorizedUnlock: WalletAuthorizedUnlock = .shared,
+        upgradesPincode: @escaping () -> Bool = { ProtectedKeychainPolicy.isEnabled },
+        verifierQueue: DispatchQueue = .global(qos: .userInitiated)
     ) {
+        self.upgradesPincode = upgradesPincode
+        self.verifierQueue = verifierQueue
         self.secretManager = secretManager
         self.settingsManager = settingsManager
         self.biometryAuth = biometryAuth
@@ -285,7 +291,23 @@ class LocalAuthInteractor {
         }
     }
 
-    private func processStored(pin stored: String?, attempt: UInt64) {
+    /// A stored verifier takes a moment to check, so it is checked off the main queue; a plain PIN an
+    /// earlier release saved is compared at once, as before.
+    private func checkStored(pin stored: String?, attempt: UInt64) {
+        guard generation == attempt, state == .checkingPincode else { return }
+        guard let stored, PincodeVerifier.isVerifier(stored), let entered = pincode else {
+            processStored(pin: stored, matched: nil, attempt: attempt)
+            return
+        }
+        verifierQueue.async { [weak self] in
+            let matched = PincodeVerifier.matches(entered, stored: stored)
+            self?.onMain { [weak self] in
+                self?.processStored(pin: stored, matched: matched, attempt: attempt)
+            }
+        }
+    }
+
+    private func processStored(pin stored: String?, matched precomputed: Bool?, attempt: UInt64) {
         guard generation == attempt, state == .checkingPincode else { return }
         let entered = pincode
         pincode = nil
@@ -302,7 +324,7 @@ class LocalAuthInteractor {
             deliver(attempt) { $0.didReceiveLockout(remaining: lockout) }
             return
         }
-        guard PincodeComparison.matches(entered, stored) else {
+        guard precomputed ?? PincodeVerifier.matches(entered, stored: stored) else {
             let nextLockout = attemptLimiter.registerFailure()
             changeState(to: .waitingPincode)
             deliver(attempt) { output in
@@ -313,6 +335,9 @@ class LocalAuthInteractor {
         }
         attemptLimiter.reset()
         enrollmentGuard.trustCurrentEnrollment()
+        if !PincodeVerifier.isVerifier(stored), upgradesPincode() {
+            PincodeVerifierUpgrade.upgrade(pin: entered, secretManager: secretManager)
+        }
         authorizedUnlock.recordUnlock()
         changeState(to: .completed)
         deliver(attempt) { $0.didCompleteAuth() }
@@ -370,7 +395,7 @@ extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
                 completionQueue: .main
             ) { [weak self] secret in
                 self?.onMain { [weak self] in
-                    self?.processStored(pin: secret?.toUTF8String(), attempt: attempt)
+                    self?.checkStored(pin: secret?.toUTF8String(), attempt: attempt)
                 }
             }
         }

@@ -17,6 +17,10 @@ enum RemoteKillSwitch: String, CaseIterable {
     case polkadotDappSigning = "polkadot_dapp_signing"
     /// Signing TON Connect transactions and `ton_proof` sign-ins. Remote key `ton_dapp_signing_enabled`.
     case tonDappSigning = "ton_dapp_signing"
+    /// Moving wallet secrets to items that need the device owner, and storing the app PIN as a
+    /// verifier (`ProtectedKeychainPolicy`). Remote key `protected_keychain_enabled`. A veto stops
+    /// new migrations only; wallets already moved stay readable.
+    case protectedKeychain = "protected_keychain"
 
     var storageKey: String {
         "feature.kill_switch.\(rawValue)"
@@ -36,6 +40,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
     let evmDappSigningEnabled: Bool
     let polkadotDappSigningEnabled: Bool
     let tonDappSigningEnabled: Bool
+    let protectedKeychainEnabled: Bool
     let assetDiscoveryShadowMode: Bool
     let signedMutationAuthorization: String?
     /// Kill-switch values the payload stated explicitly. Only these record or
@@ -55,6 +60,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
         evmDappSigningEnabled: Bool = true,
         polkadotDappSigningEnabled: Bool = true,
         tonDappSigningEnabled: Bool = true,
+        protectedKeychainEnabled: Bool = true,
         assetDiscoveryShadowMode: Bool = true,
         signedMutationAuthorization: String? = nil,
         explicitKillSwitches: [RemoteKillSwitch: Bool] = [:]
@@ -71,6 +77,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
         self.evmDappSigningEnabled = evmDappSigningEnabled
         self.polkadotDappSigningEnabled = polkadotDappSigningEnabled
         self.tonDappSigningEnabled = tonDappSigningEnabled
+        self.protectedKeychainEnabled = protectedKeychainEnabled
         self.assetDiscoveryShadowMode = assetDiscoveryShadowMode
         self.signedMutationAuthorization = signedMutationAuthorization
         self.explicitKillSwitches = explicitKillSwitches
@@ -96,6 +103,8 @@ struct FeatureToggleConfig: Decodable, Equatable {
         case polkadotDappSigningEnabledLegacy = "polkadot_dapp_signing_enabled"
         case tonDappSigningEnabled
         case tonDappSigningEnabledLegacy = "ton_dapp_signing_enabled"
+        case protectedKeychainEnabled
+        case protectedKeychainEnabledLegacy = "protected_keychain_enabled"
         case assetDiscoveryShadowMode
         case signedMutationAuthorization = "mutation_authorization"
         case normalizedMutationAuthorization = "mutationAuthorization"
@@ -154,6 +163,13 @@ struct FeatureToggleConfig: Decodable, Equatable {
             Bool.self,
             forKey: .tonDappSigningEnabledLegacy
         )
+        let remoteProtectedKeychain = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .protectedKeychainEnabled
+        ) ?? container.decodeIfPresent(
+            Bool.self,
+            forKey: .protectedKeychainEnabledLegacy
+        )
         polkaswapMutationsEnabled = remotePolkaswap ?? true
         bitcoinSendEnabled = remoteBitcoinSend ?? true
         solanaSendEnabled = remoteSolanaSend ?? true
@@ -161,6 +177,7 @@ struct FeatureToggleConfig: Decodable, Equatable {
         evmDappSigningEnabled = remoteEvmDappSigning ?? true
         polkadotDappSigningEnabled = remotePolkadotDappSigning ?? true
         tonDappSigningEnabled = remoteTonDappSigning ?? true
+        protectedKeychainEnabled = remoteProtectedKeychain ?? true
         let remoteKillSwitches: [RemoteKillSwitch: Bool?] = [
             .polkaswapMutations: remotePolkaswap,
             .bitcoinSend: remoteBitcoinSend,
@@ -168,7 +185,8 @@ struct FeatureToggleConfig: Decodable, Equatable {
             .tonConnect: remoteTonConnect,
             .evmDappSigning: remoteEvmDappSigning,
             .polkadotDappSigning: remotePolkadotDappSigning,
-            .tonDappSigning: remoteTonDappSigning
+            .tonDappSigning: remoteTonDappSigning,
+            .protectedKeychain: remoteProtectedKeychain
         ]
         explicitKillSwitches = remoteKillSwitches.compactMapValues { $0 }
         demeterMutationsEnabled = try container.decodeIfPresent(
@@ -277,6 +295,7 @@ enum MultiChainFeaturePolicy {
             evmDappSigningEnabled: config.evmDappSigningEnabled && !vetoes.contains(.evmDappSigning),
             polkadotDappSigningEnabled: config.polkadotDappSigningEnabled && !vetoes.contains(.polkadotDappSigning),
             tonDappSigningEnabled: config.tonDappSigningEnabled && !vetoes.contains(.tonDappSigning),
+            protectedKeychainEnabled: config.protectedKeychainEnabled && !vetoes.contains(.protectedKeychain),
             assetDiscoveryShadowMode: config.assetDiscoveryShadowMode
         )
     }

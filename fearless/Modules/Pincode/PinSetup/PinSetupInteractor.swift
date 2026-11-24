@@ -11,6 +11,7 @@ final class PinSaveCoordinator {
     func save(
         _ pin: String,
         using secretManager: SecretStoreManagerProtocol,
+        storesVerifier: Bool = ProtectedKeychainPolicy.isEnabled,
         isCurrent: @escaping () -> Bool,
         completion: @escaping (Bool) -> Void
     ) {
@@ -18,23 +19,50 @@ final class PinSaveCoordinator {
         requests.append { [weak self] in
             guard let self = self else { return }
             guard isCurrent() else { self.finish(); return }
-            var answered = false
-            secretManager.saveSecret(pin, for: KeystoreTag.pincode.rawValue, completionQueue: .main) { saved in
-                let deliver = {
-                    guard !answered else { return }
-                    answered = true
-                    completion(saved)
-                    self.finish()
-                }
-                if Thread.isMainThread {
-                    deliver()
-                } else {
-                    DispatchQueue.main.async(execute: deliver)
+            guard storesVerifier else {
+                self.store(pin, using: secretManager, completion: completion)
+                return
+            }
+            // A new PIN is stored as a salted, slow verifier (`PincodeVerifier`), never as digits.
+            DispatchQueue.global(qos: .userInitiated).async {
+                let value = try? PincodeVerifier.make(pin: pin)
+                DispatchQueue.main.async {
+                    guard isCurrent() else {
+                        self.finish()
+                        return
+                    }
+                    guard let value else {
+                        completion(false)
+                        self.finish()
+                        return
+                    }
+                    self.store(value, using: secretManager, completion: completion)
                 }
             }
         }
         if requests.count == 1 {
             requests[0]()
+        }
+    }
+
+    private func store(
+        _ value: String,
+        using secretManager: SecretStoreManagerProtocol,
+        completion: @escaping (Bool) -> Void
+    ) {
+        var answered = false
+        secretManager.saveSecret(value, for: KeystoreTag.pincode.rawValue, completionQueue: .main) { saved in
+            let deliver = {
+                guard !answered else { return }
+                answered = true
+                completion(saved)
+                self.finish()
+            }
+            if Thread.isMainThread {
+                deliver()
+            } else {
+                DispatchQueue.main.async(execute: deliver)
+            }
         }
     }
 
