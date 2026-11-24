@@ -180,7 +180,7 @@ private final class WalletEntryAnimatedTextField: AnimatedTextField {
 /// Keyboard settings for fields that take wallet secrets: recovery words, raw seeds,
 /// derivation paths that can carry a `///password`, and backup or keystore passwords.
 /// They turn off corrections, spelling, smart punctuation, inline predictions and,
-/// from iOS 18, Writing Tools and math completion. iOS applies most of this to secure
+/// from iOS 18, Writing Tools and math completion (and grammar checking from iOS 27). iOS applies most of this to secure
 /// fields by itself; setting it here also covers a password while its eye button shows it.
 enum SecretTextEntry {
     /// Recovery words and hex seeds. Only English word lists are supported, so this also
@@ -214,6 +214,11 @@ enum SecretTextEntry {
                 field.mathExpressionCompletionType = .no
             }
         #endif
+        #if compiler(>=6.4)
+            if #available(iOS 27.0, *) {
+                field.grammarCheckingType = .no
+            }
+        #endif
     }
 
     static func disableTextAssistance(_ view: UITextView) {
@@ -230,6 +235,11 @@ enum SecretTextEntry {
             if #available(iOS 18.0, *) {
                 view.writingToolsBehavior = .none
                 view.mathExpressionCompletionType = .no
+            }
+        #endif
+        #if compiler(>=6.4)
+            if #available(iOS 27.0, *) {
+                view.grammarCheckingType = .no
             }
         #endif
     }

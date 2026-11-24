@@ -874,6 +874,7 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
         for (index, eye) in eyes.enumerated() {
             await activate(eye, in: window)
             XCTAssertFalse(fields[index].textField.isSecureTextEntry)
+            assertSecretPasswordTraits(fields[index].textField)
             await reveal(fields[index].textField, in: window)
             XCTAssertTrue(isVisible(fields[index].textField))
             XCTAssertGreaterThan(
