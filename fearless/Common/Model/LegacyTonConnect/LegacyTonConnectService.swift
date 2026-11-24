@@ -15,6 +15,12 @@ protocol LegacyTonConnectRequestHandling: AnyObject {
         session: LegacyTonConnectSession, network: String,
         request: LegacyTonConnectRPCRequest, messageHashHex: String
     ) async throws
+    /// Called before a disconnect (by the user or the application) removes the session.
+    func sessionWillDisconnect(_ session: LegacyTonConnectSession) async
+}
+
+extension LegacyTonConnectRequestHandling {
+    func sessionWillDisconnect(_: LegacyTonConnectSession) async {}
 }
 
 actor LegacyTonConnectService {
@@ -144,6 +150,7 @@ actor LegacyTonConnectService {
 
     func disconnect(_ session: LegacyTonConnectSession) async throws {
         // This is only called for an authenticated disconnect or an explicit UI action.
+        await handler?.sessionWillDisconnect(session)
         try await store.remove(session)
         listeners.removeValue(forKey: session.identifier)?.cancel()
     }
@@ -161,6 +168,7 @@ actor LegacyTonConnectService {
             if (try? LegacyTonConnectRPCRequest.decode(data))?.method == "disconnect" {
                 // A replayed disconnect is acknowledged only once the session is really gone: an earlier attempt
                 // may have saved this reply and then failed to remove the session or its key.
+                await handler?.sessionWillDisconnect(session)
                 try await store.remove(session)
             }
             if let hash = saved.messageHashHex {
@@ -187,6 +195,7 @@ actor LegacyTonConnectService {
             try replies.save(response: response, sessionId: session.identifier, requestId: request.id, request: canonical)
             // Allow the authenticated disconnect reply to leave before its
             // listener observes the removed row and exits on the next cycle.
+            await handler?.sessionWillDisconnect(session)
             try await store.remove(session)
             return response
         }

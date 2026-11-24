@@ -49,10 +49,12 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// Links the user answered whose reply is still being sent again, with that delivery: the same link arriving
     /// meanwhile is merged with it instead of being asked about a second time.
     private var answeredURLs: [URL: UUID] = [:]
-    /// Decided replies being sent again, by session: a disconnect or a newer reply for that session ends one.
-    private var replyDeliveries: [String: (token: UUID, task: Task<Void, Never>)] = [:]
+    /// The decided reply each session owes its application, from its first try until it left or was given up; with
+    /// the task that sends it again. A disconnect or a newer reply for that session ends it.
+    private var replyDeliveries: [String: (token: UUID, task: Task<Void, Never>?)] = [:]
     /// Waits before each further try of a decided connection's reply that the bridge did not take.
     private let replyRetryNanoseconds: [UInt64]
+    private let replyRetryWait: (UInt64) async throws -> Void
     private let authorizationViewFactory: (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol?
     private let reportError: ((Error) -> Void)?
 
@@ -88,6 +90,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         isEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonConnectEnabled },
         isSigningEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonDappSigningEnabled },
         replyRetryNanoseconds: [UInt64] = [1, 2, 4, 8, 16].map { $0 * 1_000_000_000 },
+        replyRetryWait: @escaping (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) },
         authorizationViewFactory: @escaping (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol? = {
             PinViewFactory.createScreenAuthorizationView(with: $0, cancellable: $1)
         },
@@ -103,6 +106,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         self.isEnabled = isEnabled
         self.isSigningEnabled = isSigningEnabled
         self.replyRetryNanoseconds = replyRetryNanoseconds
+        self.replyRetryWait = replyRetryWait
         self.authorizationViewFactory = authorizationViewFactory
         self.reportError = reportError
         service = LegacyTonConnectService(store: store, replies: replies, transport: transport)
@@ -561,8 +565,6 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     func disconnect(_ session: LegacyTonConnectSession) async throws {
         try await service.disconnect(session)
-        // Its connect reply, if still being sent again, is moot now.
-        await MainActor.run { replyDeliveries.removeValue(forKey: session.identifier)?.task.cancel() }
     }
 
     @MainActor
@@ -616,17 +618,23 @@ extension LegacyTonConnectCoordinator {
     private func deliverConnectReply(
         _ reply: Data, session: LegacyTonConnectSession, bridge: URL, sessionIsSaved: Bool
     ) async {
+        // Claimed before the first try: an older reply still pending for the session is superseded at once.
+        let token = UUID()
+        replyDeliveries.removeValue(forKey: session.identifier)?.task?.cancel()
+        replyDeliveries[session.identifier] = (token, nil)
         do {
             try await transport.send(reply, session: session, bridge: bridge, topic: "connect")
+            endReplyDelivery(token, session: session, link: nil)
             return
         } catch {}
-        let token = UUID()
+        // A disconnect or a newer reply for the session during that try made this one moot.
+        guard replyDeliveries[session.identifier]?.token == token else { return }
         let link = Self.linkDecision?.url
-        let delivery = Task { @MainActor [weak self, replyRetryNanoseconds] in
+        let delivery = Task { @MainActor [weak self, replyRetryNanoseconds, replyRetryWait] in
             // Ends with the task itself, so a link opened after the last try is a new request.
             defer { self?.endReplyDelivery(token, session: session, link: link) }
             for delay in replyRetryNanoseconds {
-                do { try await Task.sleep(nanoseconds: delay) } catch { return }
+                do { try await replyRetryWait(delay) } catch { return }
                 guard let self else { return }
                 switch await self.replyDeliveryCheck(session: session, sessionIsSaved: sessionIsSaved) {
                 case .stop: return
@@ -639,13 +647,12 @@ extension LegacyTonConnectCoordinator {
                 } catch {}
             }
             // Every try failed. A throttle, veto or disconnect meanwhile made the reply moot: nothing to tell then.
-            guard let self, self.ready else { return }
+            guard let self else { return }
             let check = await self.replyDeliveryCheck(session: session, sessionIsSaved: sessionIsSaved)
-            guard check != .stop else { return }
+            guard check != .stop, self.ready else { return }
             self.present(error: LegacyTonConnectError.transportFailed)
         }
-        // Registered before the task can run (both on the main actor); a newer reply for the session replaces it.
-        replyDeliveries.removeValue(forKey: session.identifier)?.task.cancel()
+        // Registered before the task can run (both on the main actor).
         replyDeliveries[session.identifier] = (token, delivery)
         if let link {
             answeredURLs[link] = token
@@ -666,9 +673,17 @@ extension LegacyTonConnectCoordinator {
     ) async -> ReplyDeliveryCheck {
         guard !Task.isCancelled, isEnabled() else { return .stop }
         guard sessionIsSaved else { return .send }
-        guard let stored = try? await store.sessions().contains(session) else { return .later }
-        guard stored, !Task.isCancelled, isEnabled() else { return .stop }
-        return .send
+        let stored = try? await store.sessions().contains(session)
+        // Looked up across a suspension: a veto, or a disconnect (which cancels this task first), still stops it.
+        guard !Task.isCancelled, isEnabled() else { return .stop }
+        guard let stored else { return .later }
+        return stored ? .send : .stop
+    }
+
+    /// Every disconnect path (the user, the application, a replayed request) ends the session's pending reply before
+    /// the row is removed.
+    func sessionWillDisconnect(_ session: LegacyTonConnectSession) async {
+        await MainActor.run { replyDeliveries.removeValue(forKey: session.identifier)?.task?.cancel() }
     }
 
     private func endReplyDelivery(_ token: UUID, session: LegacyTonConnectSession, link: URL?) {
