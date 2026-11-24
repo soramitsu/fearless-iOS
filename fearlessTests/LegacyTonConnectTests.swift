@@ -571,15 +571,45 @@ private final class TonConnectFakeSessionStore: LegacyTonConnectSessionStoring {
     var waiting: [LegacyTonConnectSession] = []
     /// Reads fail as with an unreadable Keychain.
     var failReads = false
+    /// The next read waits for `releaseRead()`, then fails.
+    private let readLock = NSLock()
+    private var holdsNextRead = false
+    private var heldRead: CheckedContinuation<Void, Never>?
+    /// A disconnect removes the session, then throws this (as one recorded but not finished).
+    var removalError: Error?
     init(values: [LegacyTonConnectSession]) { self.values = values }
+    func holdNextReadAndFailIt() {
+        readLock.lock(); holdsNextRead = true; readLock.unlock()
+    }
+    var isHoldingRead: Bool { readLock.lock(); defer { readLock.unlock() }; return heldRead != nil }
+    func releaseRead() {
+        readLock.lock()
+        let held = heldRead
+        heldRead = nil
+        readLock.unlock()
+        held?.resume()
+    }
     func sessions() async throws -> [LegacyTonConnectSession] {
+        readLock.lock()
+        let hold = holdsNextRead
+        holdsNextRead = false
+        readLock.unlock()
+        if hold {
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                readLock.lock(); heldRead = continuation; readLock.unlock()
+            }
+            throw LegacyTonConnectError.invalidSession
+        }
         if failReads { throw LegacyTonConnectError.invalidSession }
         return values
     }
     func sessionsToReconnect() async throws -> [LegacyTonConnectSession] { waiting.filter { values.contains($0) } }
     func finishReconnectOffer(for sessions: [LegacyTonConnectSession]) async throws { waiting.removeAll { sessions.contains($0) } }
     func save(_ session: LegacyTonConnectSession) async throws { if !values.contains(session) { values.append(session) } }
-    func remove(_ session: LegacyTonConnectSession) async throws { values.removeAll { $0 == session } }
+    func remove(_ session: LegacyTonConnectSession) async throws {
+        values.removeAll { $0 == session }
+        if let removalError { throw removalError }
+    }
     func bridgeURL(network _: String) async throws -> URL { URL(string: "https://bridge.example.org/bridge")! }
 }
 
@@ -3135,6 +3165,59 @@ final class LegacyTonConnectReconnectOfferViewTests: XCTestCase {
         XCTAssertEqual(alert.title, R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages),
                        "The offer, not an error, after the unlock and without a refresh")
         XCTAssertEqual(controller.tableView.numberOfRows(inSection: 0), 1)
+    }
+
+    @MainActor
+    func testAnUnlockDuringAFailingFirstLoadStillLoadsAndOffers() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        store.waiting = [bridge]
+        store.holdNextReadAndFailIt()
+        let lockState = ApplicationLockState.shared
+        lockState.markLockPending()
+        defer { lockState.cancelPendingLock() }
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: TonConnectFakeTransport()))
+        let (_, close) = try host(controller)
+        defer { close() }
+        try await waitUntil { store.isHoldingRead }
+        XCTAssertTrue(store.isHoldingRead, "The first load is still running")
+
+        lockState.cancelPendingLock()
+        try await Task.sleep(nanoseconds: 200_000_000)
+        store.releaseRead()
+
+        try await waitUntil { controller.presentedViewController is UIAlertController }
+        let alert = try XCTUnwrap(controller.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages),
+                       "The load asked for by the unlock runs and offers; the superseded failure is not shown")
+        XCTAssertEqual(controller.tableView.numberOfRows(inSection: 0), 1)
+    }
+
+    @MainActor
+    func testASwipeWhoseRemovalIsUnfinishedShowsTheErrorAndDropsTheRow() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        store.removalError = LegacyTonConnectUnfinishedRemoval(underlying: LegacyTonConnectSessionKeyError.keychainUnavailable(errSecInteractionNotAllowed))
+        let transport = TonConnectFakeTransport()
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: transport))
+        let (_, close) = try host(controller)
+        defer { close() }
+        try await waitUntil { controller.tableView(controller.tableView, cellForRowAt: IndexPath(row: 0, section: 0)).textLabel?.text == bridge.name }
+
+        let action = try XCTUnwrap(controller.tableView(controller.tableView, trailingSwipeActionsConfigurationForRowAt: IndexPath(row: 0, section: 0))?.actions.first)
+        var completed: [Bool] = []
+        action.handler(action, UIView()) { completed.append($0) }
+        try await waitUntil { !completed.isEmpty && controller.presentedViewController is UIAlertController }
+
+        XCTAssertEqual(completed, [false])
+        XCTAssertEqual(transport.sent.map { $0.3 }, ["disconnect"], "The application is told")
+        try await waitUntil {
+            controller.tableView(controller.tableView, cellForRowAt: IndexPath(row: 0, section: 0)).textLabel?.text == "No connected applications"
+        }
+        XCTAssertEqual(controller.tableView(controller.tableView, cellForRowAt: IndexPath(row: 0, section: 0)).textLabel?.text,
+                       "No connected applications", "The retired session leaves the list")
+        XCTAssertNotEqual((controller.presentedViewController as? UIAlertController)?.title,
+                          R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages))
     }
 
     @MainActor

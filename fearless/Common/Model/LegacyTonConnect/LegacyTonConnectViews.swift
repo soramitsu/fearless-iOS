@@ -190,6 +190,11 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     private var isOfferingReconnect = false
     /// The last load failed, so `sessions` is not the stored list: the next appearance or unlock loads again.
     private var needsReload = false
+    /// A load is running; one asked for meanwhile runs once it ends, and a failure it supersedes is not shown.
+    private var isLoading = false
+    private var loadsAgain = false
+    /// An offer check asked for while another ran (for example on an unlock) runs once that one ends unanswered.
+    private var checksOfferAgain = false
     private var lockObserver: NSObjectProtocol?
 
     init(coordinator: LegacyTonConnectCoordinator) {
@@ -232,25 +237,41 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         resume()
     }
 
-    /// On screen and unlocked: loads again after a failed load (which then offers), otherwise offers.
+    /// On screen and unlocked: loads again after a failed load or one still running (each load then offers),
+    /// otherwise offers.
     private func resume() {
         guard viewIfLoaded?.window != nil, !ApplicationLockState.shared.isLocked else { return }
-        if needsReload {
+        if needsReload || isLoading {
             reload()
         } else {
-            Task { @MainActor in await offerReconnectIfNeeded() }
+            requestOffer()
         }
     }
 
     @objc private func reload() {
+        guard !isLoading else {
+            loadsAgain = true
+            return
+        }
+        isLoading = true
         Task { @MainActor in
+            let outcome: Result<[LegacyTonConnectSession], Error>
             do {
-                sessions = try await coordinator.selectedSessions()
+                outcome = .success(try await coordinator.selectedSessions())
+            } catch {
+                outcome = .failure(error)
+            }
+            isLoading = false
+            let again = loadsAgain
+            loadsAgain = false
+            switch outcome {
+            case let .success(loaded):
+                sessions = loaded
                 needsReload = false
                 tableView.reloadData()
-                refreshControl?.endRefreshing()
-            } catch {
+            case let .failure(error):
                 needsReload = true
+                guard !again else { break }
                 refreshControl?.endRefreshing()
                 // Behind the lock (the Keychain may be unreadable) the list loads again after the unlock instead.
                 if !ApplicationLockState.shared.isLocked {
@@ -258,20 +279,43 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
                 }
                 return
             }
-            await offerReconnectIfNeeded()
+            if again {
+                // Asked for while this load ran (an unlock, a refresh): that load decides what is shown.
+                reload()
+                return
+            }
+            refreshControl?.endRefreshing()
+            requestOffer()
         }
+    }
+
+    private func requestOffer() {
+        guard !isOfferingReconnect else {
+            checksOfferAgain = true
+            return
+        }
+        Task { @MainActor in await offerReconnectIfNeeded() }
     }
 
     /// Offers, once, to reconnect the listed bridge sessions whose keys an older version kept in the database. Asked
     /// only while this list is on screen with nothing over it and the wallet unlocked: after each load, each time
     /// the list appears and after an unlock. Until the user answers, the next of those asks again.
     private func offerReconnectIfNeeded() async {
-        guard !isOfferingReconnect else { return }
+        guard !isOfferingReconnect else {
+            checksOfferAgain = true
+            return
+        }
         isOfferingReconnect = true
+        checksOfferAgain = false
         let waiting = ((try? await coordinator.sessionsToReconnect()) ?? []).filter { sessions.contains($0) }
         guard !waiting.isEmpty, viewIfLoaded?.window != nil, presentedViewController == nil,
               !ApplicationLockState.shared.isLocked else {
             isOfferingReconnect = false
+            if checksOfferAgain {
+                // Something that may change the answer (an unlock) happened during this check.
+                checksOfferAgain = false
+                requestOffer()
+            }
             return
         }
         let alert = LegacyTonConnectReconnectOffer.alert(
@@ -363,6 +407,10 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
                     completion(true)
                 } catch {
                     self.show(error)
+                    if error is LegacyTonConnectUnfinishedRemoval {
+                        // Retired for good: it leaves the list now; the next read finishes its removal.
+                        self.reload()
+                    }
                     completion(false)
                 }
             }
