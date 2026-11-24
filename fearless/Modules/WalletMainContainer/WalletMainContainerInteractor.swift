@@ -146,9 +146,9 @@ final class WalletMainContainerInteractor {
     /// Shows once per wallet that its password does not protect some universal accounts yet.
     /// It reads the wallet's words, so it runs only right after the user unlocked the app; a
     /// check skipped now runs at the next unlock.
-    private func checkUniversalWalletPassword() {
+    private func checkUniversalWalletPassword(requiresUnlock: Bool = true) {
         let wallet = self.wallet
-        guard !passwordNoticeTracker.wasShown(for: wallet.metaId), authorizedUnlock.isWindowOpen else {
+        guard !passwordNoticeTracker.wasShown(for: wallet.metaId), !requiresUnlock || authorizedUnlock.isWindowOpen else {
             return
         }
         let switcher = passwordSwitcher
@@ -169,9 +169,9 @@ final class WalletMainContainerInteractor {
     /// there make the network show it when the shown account is empty, and are reported otherwise.
     /// Reads the wallet's words, so it runs for a wallet with watched networks only, and only
     /// right after the user unlocked the app: a portfolio refresh alone never reads a secret.
-    private func checkWatchedOldAddresses() {
+    private func checkWatchedOldAddresses(requiresUnlock: Bool = true) {
         guard !watchedAccounts.watchedSlots(in: wallet.metaId).isEmpty,
-              authorizedUnlock.isWindowOpen else { return }
+              !requiresUnlock || authorizedUnlock.isWindowOpen else { return }
         guard !isCheckingWatchedAccounts else { return }
         isCheckingWatchedAccounts = true
         let wallet = self.wallet
@@ -365,7 +365,10 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         }
 
         fetchNetworkManagmentFilter()
-        // The words of the newly selected wallet are read at the next unlock, not on the switch.
+        // Choosing a wallet is the user's own action: its checks run now, so a wallet that is never
+        // selected at an unlock is still checked (without a sheet once its keys are protected).
+        checkUniversalWalletPassword(requiresUnlock: false)
+        checkWatchedOldAddresses(requiresUnlock: false)
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {

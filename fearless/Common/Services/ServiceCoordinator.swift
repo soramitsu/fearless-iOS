@@ -253,6 +253,12 @@ private extension ServiceCoordinator {
         }
         Task { @MainActor [weak self] in
             await BitcoinWalletBalanceCache.shared.invalidate(walletId: wallet.metaId)
+            // The portfolio scans Bitcoin again, now over every address.
+            NotificationCenter.default.post(
+                name: .bitcoinAccountDescriptorsSaved,
+                object: nil,
+                userInfo: ["walletId": wallet.metaId]
+            )
             guard let self, let selected = self.walletSettings.value, selected.metaId == wallet.metaId else {
                 return
             }

@@ -110,6 +110,42 @@ enum RemoteLastKnownBalanceStore {
     }
 }
 
+/// Which Bitcoin account the last saved total of a wallet and network belongs to. A password
+/// wallet can switch accounts under one wallet id; a total of one account never stands in for another.
+enum BitcoinLastKnownAccountStore {
+    static let storageKey = "bitcoin.lastKnownAccount.v1"
+    private static let lock = NSLock()
+
+    static func record(_ address: String, walletId: MetaAccountId, chain: ChainModel, userDefaults: UserDefaults = .standard) {
+        lock.lock()
+        defer { lock.unlock() }
+        var stored = (userDefaults.dictionary(forKey: storageKey) as? [String: String]) ?? [:]
+        stored[key(walletId, chain)] = address.lowercased()
+        userDefaults.set(stored, forKey: storageKey)
+    }
+
+    /// True when the saved total is this account's, or was saved by a release that did not record
+    /// the account (it scanned the account the wallet showed then).
+    static func mayBelong(
+        to address: String,
+        walletId: MetaAccountId,
+        chain: ChainModel,
+        userDefaults: UserDefaults = .standard
+    ) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        let stored = (userDefaults.dictionary(forKey: storageKey) as? [String: String]) ?? [:]
+        guard let account = stored[key(walletId, chain)] else {
+            return true
+        }
+        return account == address.lowercased()
+    }
+
+    private static func key(_ walletId: MetaAccountId, _ chain: ChainModel) -> String {
+        "\(walletId)|\(chain.chainId)"
+    }
+}
+
 protocol SolanaBalanceSyncing {
     func balances(
         wallet: String,
@@ -780,16 +816,25 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
               descriptor.network == bitcoinKeyDerivationNetwork(for: network) else {
             // Until the first authorized unlock makes the descriptor, one address would undercount
             // change and later receive addresses: the total a full scan saved stays as it is.
-            if bitcoinDescriptorProvider.isDescriptorPending(for: wallet, chain: chain) {
+            guard let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
+                throw ConvenienceError(error: "Bitcoin account address is unavailable")
+            }
+            // Shown, never offered for sending: it is the last full scan's total of this same
+            // account, kept until a real scan replaces it.
+            if bitcoinDescriptorProvider.isDescriptorPending(for: wallet, chain: chain),
+               BitcoinLastKnownAccountStore.mayBelong(to: address, walletId: wallet.metaId, chain: chain) {
                 let retained = RemoteLastKnownBalanceStore.load(chain: chain, walletId: wallet.metaId)
                 if !retained.isEmpty {
                     NetworkScanStateStore.markSuccess(for: chain, coverage: .limited, walletId: wallet.metaId)
-                    retained.forEach { accountInfos[$0.key] = $0.value }
+                    retained.forEach { key, info in
+                        let total = info?.data.total ?? .zero
+                        accountInfos[key] = AccountInfo(
+                            nonce: 0, consumers: 0, providers: 0,
+                            data: AccountData(free: total, reserved: .zero, frozen: total)
+                        )
+                    }
                     return accountInfos
                 }
-            }
-            guard let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
-                throw ConvenienceError(error: "Bitcoin account address is unavailable")
             }
             let result = try await bitcoinBalanceSync.balance(
                 address: address,
@@ -807,8 +852,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                       result.totalSats >= 0 else {
                     return
                 }
-                // Coins not confirmed yet are owned but not spendable, as in a full scan.
-                let spendable = max(0, min(result.confirmedSats, result.totalSats))
+                // Only confirmed coins nothing in the mempool spends can be sent; unknown is none.
+                let spendable = max(0, min(result.confirmedSpendableSats ?? 0, result.totalSats))
                 accountInfos[chainAsset.chainAssetId] = AccountInfo(
                     nonce: 0,
                     consumers: 0,
@@ -825,6 +870,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 chain: chain,
                 walletId: wallet.metaId
             )
+            BitcoinLastKnownAccountStore.record(address, walletId: wallet.metaId, chain: chain)
             return accountInfos
         }
 
@@ -870,6 +916,9 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 chain: chain,
                 walletId: wallet.metaId
             )
+            if let address = try? descriptor.address(change: 0, index: 0) {
+                BitcoinLastKnownAccountStore.record(address, walletId: wallet.metaId, chain: chain)
+            }
         } catch is CancellationError {
             throw CancellationError()
         } catch {

@@ -64,6 +64,8 @@ final class WalletAuthorizedUnlock {
 extension Notification.Name {
     /// The user unlocked the app with the PIN or a trusted biometric check.
     static let walletAuthorizedUnlock = Notification.Name("walletAuthorizedUnlock")
+    /// A wallet's Bitcoin descriptors were made (`userInfo["walletId"]`): its balances can be read in full.
+    static let bitcoinAccountDescriptorsSaved = Notification.Name("bitcoinAccountDescriptorsSaved")
 }
 
 /// Makes the public Bitcoin descriptors that balance refresh reads, from the wallet's secret,

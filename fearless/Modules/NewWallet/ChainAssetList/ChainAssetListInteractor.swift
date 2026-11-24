@@ -39,6 +39,7 @@ final class ChainAssetListInteractor {
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
+    private var descriptorObserver: NSObjectProtocol?
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -590,6 +591,21 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         eventCenter.add(observer: self, dispatchIn: .main)
         // Delivering the existing issues also reads the muted networks.
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
+        descriptorObserver.map(NotificationCenter.default.removeObserver)
+        descriptorObserver = NotificationCenter.default.addObserver(
+            forName: .bitcoinAccountDescriptorsSaved,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self,
+                  notification.userInfo?["walletId"] as? String == self.wallet.metaId,
+                  let chainAssets = self.chainAssets else {
+                return
+            }
+            self.refreshRemoteBalances(for: chainAssets.filter {
+                UniversalWalletRegistry.bitcoinNetwork(for: $0.chain.chainId) != nil
+            })
+        }
     }
 
     func updateChainAssets(

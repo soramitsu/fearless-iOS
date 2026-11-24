@@ -277,6 +277,8 @@ final class PassiveSecretReadTests: XCTestCase {
 
         let pending = try await service.fetchAccountInfos(for: BitcoinTestWallet.chain, wallet: wallet)
         XCTAssertEqual(try XCTUnwrap(pending[chainAsset.chainAssetId] ?? nil).data.total, BigUInt(70_000))
+        XCTAssertEqual(try XCTUnwrap(pending[chainAsset.chainAssetId] ?? nil).data.sendAvailable, 0,
+                       "A kept total is shown, never offered for sending")
         XCTAssertTrue(ledger.utxoRequests.isEmpty, "Nothing is scanned while the descriptor is pending")
 
         // The backfill finds no secret for the account: refresh stops waiting and reads the address.
@@ -285,6 +287,30 @@ final class PassiveSecretReadTests: XCTestCase {
         let limited = try await service.fetchAccountInfos(for: BitcoinTestWallet.chain, wallet: wallet)
         XCTAssertEqual(try XCTUnwrap(limited[chainAsset.chainAssetId] ?? nil).data.total, BigUInt(10_000))
         XCTAssertEqual(spy.reads, [])
+    }
+
+    /// A total saved for another account of the wallet (a password switch) is never shown for this one.
+    func testPendingTotalOfAnotherAccountIsNotShown() async throws {
+        let chainAsset = ChainAsset(chain: BitcoinTestWallet.chain, asset: BitcoinTestWallet.asset)
+        RemoteLastKnownBalanceStore.save(
+            [chainAsset.chainAssetId: AccountInfo(ethBalance: BigUInt(70_000))],
+            chain: BitcoinTestWallet.chain,
+            walletId: wallet.metaId
+        )
+        BitcoinLastKnownAccountStore.record("bc1qanotheraccount", walletId: wallet.metaId, chain: BitcoinTestWallet.chain)
+        ledger.fund(BitcoinTestWallet.address, sats: 10_000)
+        let service = AccountInfoRemoteServiceDefault(
+            bitcoinBalanceSync: BitcoinBalanceSync(discovery: BitcoinReceiveDiscovery(client: ledger)),
+            bitcoinDescriptorProvider: store,
+            storagePerformer: PassiveSecretReadEmptyStorage()
+        )
+        await BitcoinWalletBalanceCache.shared.invalidate(walletId: wallet.metaId)
+
+        let infos = try await service.fetchAccountInfos(for: BitcoinTestWallet.chain, wallet: wallet)
+
+        let info = try XCTUnwrap(infos[chainAsset.chainAssetId] ?? nil)
+        XCTAssertEqual(info.data.total, BigUInt(10_000))
+        XCTAssertEqual(info.data.sendAvailable, BigUInt(10_000), "Confirmed, unspent coins at the address")
     }
 
     /// Two accounts of one wallet (a password switch) never share a cached scan.

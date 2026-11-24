@@ -103,7 +103,14 @@ final class BitcoinBalanceSync {
         network: BitcoinKeyDerivation.Network,
         baseURL: String? = nil
     ) async throws -> BitcoinAddressBalanceResult {
-        try await discovery.balance(address: address, network: network, baseURL: baseURL)
+        var result = try await discovery.balance(address: address, network: network, baseURL: baseURL)
+        // What Send may offer: confirmed coins nothing in the mempool already spends.
+        result.confirmedSpendableSats = try? await discovery.confirmedSpendableSats(
+            address: address,
+            network: network,
+            baseURL: baseURL
+        )
+        return result
     }
 
     private func safeAdd(_ left: Int64, _ right: Int64) throws -> Int64 {
@@ -293,4 +300,6 @@ struct BitcoinAddressBalanceResult: Equatable {
     let confirmedSats: Int64
     let mempoolSats: Int64
     let totalSats: Int64
+    /// Confirmed coins no mempool transaction spends; nil when the coins could not be read.
+    var confirmedSpendableSats: Int64?
 }

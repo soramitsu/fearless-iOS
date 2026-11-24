@@ -26,6 +26,8 @@ extension BitcoinAccountDescriptorProviding {
 /// descriptor is ignored and refresh falls back to the single stored address.
 final class BitcoinAccountDescriptorStore: BitcoinAccountDescriptorProviding {
     static let storageKey = "bitcoinAccountDescriptors.v1"
+    /// Wallets removed from this device: a backfill already under way never saves for them again.
+    static let removedKey = "bitcoinAccountDescriptors.removed.v1"
     static let shared = BitcoinAccountDescriptorStore()
 
     /// A wallet keeps a few accounts per network at most: the one it shows and, for a password
@@ -70,6 +72,9 @@ final class BitcoinAccountDescriptorStore: BitcoinAccountDescriptorProviding {
     /// Records that no stored secret derives this account (the backfill looked and found none),
     /// so refresh stops waiting for a descriptor and reads the stored address alone.
     func markUnavailable(walletId: MetaAccountId, network: BitcoinKeyDerivation.Network, accountPublicKey: Data) {
+        guard !isRemoved(walletId) else {
+            return
+        }
         let marker = Self.unavailableMarker(network: network, accountPublicKey: accountPublicKey)
         update { stored in
             var entries = stored[walletId] ?? []
@@ -129,6 +134,9 @@ final class BitcoinAccountDescriptorStore: BitcoinAccountDescriptorProviding {
             chainCode: descriptor.chainCode
         )
         let marker = Self.unavailableMarker(network: entry.network, accountPublicKey: entry.accountPublicKey)
+        guard !isRemoved(walletId) else {
+            return
+        }
         update { stored in
             let raw = stored[walletId] ?? []
             var entries = raw.compactMap(Entry.init(encoded:))
@@ -145,9 +153,20 @@ final class BitcoinAccountDescriptorStore: BitcoinAccountDescriptorProviding {
         }
     }
 
-    /// The only way an entry goes: the wallet itself is removed.
+    /// The only way an entry goes: the wallet itself is removed. Wallet ids are never reused.
     func forget(walletId: MetaAccountId) {
+        Self.lock.lock()
+        var removed = Set(userDefaults.stringArray(forKey: Self.removedKey) ?? [])
+        removed.insert(walletId)
+        userDefaults.set(removed.sorted(), forKey: Self.removedKey)
+        Self.lock.unlock()
         update { $0[walletId] = nil }
+    }
+
+    private func isRemoved(_ walletId: MetaAccountId) -> Bool {
+        Self.lock.lock()
+        defer { Self.lock.unlock() }
+        return (userDefaults.stringArray(forKey: Self.removedKey) ?? []).contains(walletId)
     }
 
     private func entries(walletId: MetaAccountId) -> [Entry] {
