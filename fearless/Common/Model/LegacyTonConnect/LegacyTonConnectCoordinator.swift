@@ -36,8 +36,12 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// The remote signing veto (`RemoteKillSwitch.tonDappSigning`): transactions and `ton_proof` sign-ins, as on
     /// Android. An absent key keeps signing on.
     private let isSigningEnabled: () -> Bool
-    /// How long a disconnect waits for its notice to reach the application's bridge.
+    /// How long a disconnect notice may take to reach the application's bridge before it is given up.
     private let disconnectNoticeNanoseconds: UInt64
+    private let logger: LoggerProtocol
+    /// Disconnect notices still on their way to applications' bridges. Nobody waits for them; each ends by itself
+    /// within `disconnectNoticeNanoseconds`.
+    private var disconnectNotices: [UUID: Task<Void, Never>] = [:]
     private var ready = false
     /// Links in arrival order, opened one at a time. The one being opened stays first until it is done, so a
     /// duplicate arriving meanwhile is merged with it.
@@ -97,7 +101,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         authorizationViewFactory: @escaping (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol? = {
             PinViewFactory.createScreenAuthorizationView(with: $0, cancellable: $1)
         },
-        reportError: ((Error) -> Void)? = nil
+        reportError: ((Error) -> Void)? = nil,
+        logger: LoggerProtocol = Logger.shared
     ) {
         self.store = store
         self.transport = transport
@@ -113,6 +118,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         self.replyRetryWait = replyRetryWait
         self.authorizationViewFactory = authorizationViewFactory
         self.reportError = reportError
+        self.logger = logger
         service = LegacyTonConnectService(store: store, replies: replies, transport: transport)
         super.init()
     }
@@ -572,18 +578,34 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// takes the largest id an application can compare, above every connect event's (Unix seconds).
     static let disconnectEventId: UInt64 = 9_007_199_254_740_991
 
-    /// The user disconnects a session in the wallet. It stops working at once; a bridge application is then told,
-    /// so it stops trusting the session's transport key.
+    /// The user disconnects a session in the wallet. It stops working at once, and this returns as soon as it is
+    /// removed here; a bridge application is then told in the background, so it stops trusting the session's
+    /// transport key.
     @MainActor
     func disconnect(_ session: LegacyTonConnectSession) async throws {
         do {
             try await service.disconnect(session)
         } catch let unfinished as LegacyTonConnectUnfinishedRemoval {
             // Retired for good though not fully removed yet: the application is told all the same.
-            await notifyDisconnected([session])
+            notifyDisconnected([session])
             throw unfinished
         }
-        await notifyDisconnected([session])
+        notifyDisconnected([session])
+    }
+
+    /// Disconnect notices sent and not yet delivered, failed or given up.
+    @MainActor
+    var disconnectNoticesInFlight: Int {
+        disconnectNotices.count
+    }
+
+    /// Returns once every disconnect notice sent so far was delivered, failed or given up; for tests; nothing in the
+    /// app waits for a notice.
+    @MainActor
+    func waitForDisconnectNotices() async {
+        while let notice = disconnectNotices.values.first {
+            await notice.value
+        }
     }
 
     /// Bridge sessions of the selected wallet whose transport key an older version kept in the database, and whose
@@ -597,8 +619,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     /// The user chose to reconnect: every session is disconnected, and the first failure is reported once all were
     /// tried. A disconnect that never started leaves its session waiting, so it is offered again; one recorded but
-    /// not finished is finished by the next read. Applications are told once every disconnect was recorded, each
-    /// recorded one included.
+    /// not finished is finished by the next read. Once every disconnect was recorded, applications are told in the
+    /// background, each recorded one included.
     @MainActor
     func reconnect(_ sessions: [LegacyTonConnectSession]) async throws {
         var disconnected: [LegacyTonConnectSession] = []
@@ -614,7 +636,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
                 firstFailure = firstFailure ?? error
             }
         }
-        await notifyDisconnected(disconnected)
+        notifyDisconnected(disconnected)
         if let firstFailure {
             throw firstFailure
         }
@@ -628,16 +650,22 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     /// TON Connect has a wallet tell a bridge application that the user disconnected it, so the application drops
     /// the session and its transport key. Called once the sessions are removed, with their keys still in memory.
-    /// Best effort: the notices go out together, the wait ends after `disconnectNoticeNanoseconds` whether or not
-    /// they finish (late ones are cancelled), and a paused TON Connect sends nothing.
+    /// Best effort, in the background: the notices go out together and are given up (cancelled) after
+    /// `disconnectNoticeNanoseconds`; a paused TON Connect sends nothing and logs that it did not.
     @MainActor
-    private func notifyDisconnected(_ sessions: [LegacyTonConnectSession]) async {
+    private func notifyDisconnected(_ sessions: [LegacyTonConnectSession]) {
         let bridged = sessions.filter { $0.connectionType == "http" }
-        guard !bridged.isEmpty, isEnabled() else { return }
+        guard !bridged.isEmpty else { return }
+        guard isEnabled() else {
+            logger.warning("TON Connect is paused: a disconnect notice to \(bridged.count) application(s) was not sent")
+            return
+        }
         let service = service
         let transport = transport
         let network = selectedNetwork
         let eventId = Self.disconnectEventId
+        let deadline = disconnectNoticeNanoseconds
+        let logger = logger
         let notices = Task { () -> Bool in
             await withTaskGroup(of: Bool.self) { group in
                 for session in bridged {
@@ -657,10 +685,15 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
                 return await group.reduce(true) { $0 && $1 }
             }
         }
-        let delivered = await Self.value(of: notices, within: disconnectNoticeNanoseconds)
-        if delivered != true {
-            notices.cancel()
-            Logger.shared.warning("A TON Connect application was not told about a disconnect; the session is removed")
+        let id = UUID()
+        // Registered before the task can run (both on the main actor); the task removes itself as it ends.
+        disconnectNotices[id] = Task { @MainActor [weak self] in
+            let delivered = await LegacyTonConnectCoordinator.value(of: notices, within: deadline)
+            if delivered != true {
+                notices.cancel()
+                logger.warning("A TON Connect application was not told about a disconnect; the session is removed")
+            }
+            self?.disconnectNotices[id] = nil
         }
     }
 

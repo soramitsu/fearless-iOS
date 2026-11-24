@@ -184,13 +184,18 @@ enum LegacyTonConnectReconnectOffer {
         ) { _ in disconnect() }
         alert.addAction(keepConnected)
         alert.addAction(reconnect)
-        alert.preferredAction = reconnect
+        // No preferred action: Return on a hardware keyboard must never choose the destructive answer.
         return alert
     }
 }
 
 final class LegacyTonConnectSessionsViewController: UITableViewController {
     private let coordinator: LegacyTonConnectCoordinator
+    /// Where the lock, protected-data and activation notices that resume a held-back load arrive.
+    private let notificationCenter: NotificationCenter
+    /// The app is in front and the device unlocked (protected data available). A Keychain read can fail for either
+    /// alone, like it can behind the app's own lock.
+    private let isDeviceReadable: () -> Bool
     private var sessions: [LegacyTonConnectSession] = []
     /// The offer to reconnect is on screen or its answer is being carried out.
     private var isOfferingReconnect = false
@@ -201,10 +206,18 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     private var loadsAgain = false
     /// An offer check asked for while another ran (for example on an unlock) runs once that one ends unanswered.
     private var checksOfferAgain = false
-    private var lockObserver: NSObjectProtocol?
+    private var resumeObservers: [NSObjectProtocol] = []
 
-    init(coordinator: LegacyTonConnectCoordinator) {
+    init(
+        coordinator: LegacyTonConnectCoordinator,
+        notificationCenter: NotificationCenter = .default,
+        isDeviceReadable: @escaping () -> Bool = {
+            UIApplication.shared.applicationState == .active && UIApplication.shared.isProtectedDataAvailable
+        }
+    ) {
         self.coordinator = coordinator
+        self.notificationCenter = notificationCenter
+        self.isDeviceReadable = isDeviceReadable
         super.init(style: .insetGrouped)
     }
 
@@ -220,22 +233,30 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         ]
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(reload), for: .valueChanged)
-        // A load or offer held back by the lock happens once the wallet is unlocked, while this list is on screen.
-        lockObserver = NotificationCenter.default.addObserver(
-            forName: ApplicationLockState.didChangeNotification,
-            object: ApplicationLockState.shared,
-            queue: .main
-        ) { [weak self] _ in
-            // At once, ahead of any load completion already queued on the main actor.
-            MainActor.assumeIsolated { self?.resume() }
+        // A load or offer held back by the lock, a locked device or an inactive app happens once the wallet and the
+        // device are unlocked and the app is in front, while this list is on screen.
+        let triggers: [(Notification.Name, Any?)] = [
+            (ApplicationLockState.didChangeNotification, ApplicationLockState.shared),
+            (UIApplication.protectedDataDidBecomeAvailableNotification, nil),
+            (UIApplication.didBecomeActiveNotification, nil)
+        ]
+        resumeObservers = triggers.map { name, object in
+            notificationCenter.addObserver(forName: name, object: object, queue: .main) { [weak self] _ in
+                // At once, ahead of any load completion already queued on the main actor.
+                MainActor.assumeIsolated { self?.resume() }
+            }
         }
         reload()
     }
 
     deinit {
-        if let lockObserver {
-            NotificationCenter.default.removeObserver(lockObserver)
-        }
+        resumeObservers.forEach { notificationCenter.removeObserver($0) }
+    }
+
+    /// The wallet is locked, or the device is, or the app is not in front: a read may fail for that alone, and
+    /// nothing is offered.
+    private var isHeldBack: Bool {
+        ApplicationLockState.shared.isLocked || !isDeviceReadable()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -244,10 +265,10 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         resume()
     }
 
-    /// On screen and unlocked: loads again after a failed load or one still running (each load then offers),
+    /// On screen and not held back: loads again after a failed load or one still running (each load then offers),
     /// otherwise offers.
     private func resume() {
-        guard viewIfLoaded?.window != nil, !ApplicationLockState.shared.isLocked else { return }
+        guard viewIfLoaded?.window != nil, !isHeldBack else { return }
         if needsReload || isLoading {
             reload()
         } else {
@@ -261,7 +282,7 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
             return
         }
         isLoading = true
-        let startedLocked = ApplicationLockState.shared.isLocked
+        let startedLocked = isHeldBack
         Task { @MainActor in
             let outcome: Result<[LegacyTonConnectSession], Error>
             do {
@@ -281,10 +302,11 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
                 needsReload = true
                 guard !again else { break }
                 refreshControl?.endRefreshing()
-                // A load that ran behind the lock (the Keychain may have been unreadable) is not reported: the list
-                // loads again once unlocked, at once if the unlock came while it ran.
-                if startedLocked || ApplicationLockState.shared.isLocked {
-                    if !ApplicationLockState.shared.isLocked, viewIfLoaded?.window != nil {
+                // A load that ran behind the lock, on a locked device or in an inactive app (the Keychain may have
+                // been unreadable) is not reported: the list loads again once that ends, at once if it ended while
+                // the load ran, with or without a notice.
+                if startedLocked || isHeldBack {
+                    if !isHeldBack, viewIfLoaded?.window != nil {
                         reload()
                     }
                 } else {
@@ -311,8 +333,8 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     }
 
     /// Offers, once, to reconnect the listed bridge sessions whose keys an older version kept in the database. Asked
-    /// only while this list is on screen with nothing over it and the wallet unlocked: after each load, each time
-    /// the list appears and after an unlock. Until the user answers, the next of those asks again.
+    /// only while this list is on screen with nothing over it and nothing holds it back: after each load, each time
+    /// the list appears and after an unlock or activation. Until the user answers, the next of those asks again.
     private func offerReconnectIfNeeded() async {
         guard !isOfferingReconnect else {
             checksOfferAgain = true
@@ -321,8 +343,7 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         isOfferingReconnect = true
         checksOfferAgain = false
         let waiting = ((try? await coordinator.sessionsToReconnect()) ?? []).filter { sessions.contains($0) }
-        guard !waiting.isEmpty, viewIfLoaded?.window != nil, presentedViewController == nil,
-              !ApplicationLockState.shared.isLocked else {
+        guard !waiting.isEmpty, viewIfLoaded?.window != nil, presentedViewController == nil, !isHeldBack else {
             isOfferingReconnect = false
             if checksOfferAgain {
                 // Something that may change the answer (an unlock) happened during this check.
@@ -419,6 +440,7 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
             guard let self else { completion(false); return }
             Task { @MainActor in
                 do {
+                    // Returns once the session is removed here; the application is told in the background.
                     try await self.coordinator.disconnect(session)
                     self.reload()
                     completion(true)
