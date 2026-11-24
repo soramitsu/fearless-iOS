@@ -101,47 +101,34 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
         }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        // A swipe that was cancelled decided nothing.
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Back on screen after a cancelled swipe (UIKit balances the appearance calls): nothing was decided, and a
+        // finish requested during the drag applies now, as resolved when it was requested.
         externalDismissalOutcome = nil
+        guard isInteractivelyDismissing else { return }
+        isInteractivelyDismissing = false
+        if let pending = finishAfterInteraction {
+            finishAfterInteraction = nil
+            finish(resolved: pending)
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        // Closed from outside (the lock, a swipe): what it means is decided as the dismissal starts, or, for a
-        // swipe, once the user lets go and UIKit commits it.
+        // Closed from outside (the lock, a swipe): what it means is decided as the dismissal starts. A swipe can
+        // still be cancelled, so until it ends nothing is delivered and finishes wait.
         guard completion != nil, isBeingDismissed || presentingViewController == nil else { return }
-        let decided: Bool? = isInterrupted() ? nil : false
-        guard let transition = transitionCoordinator, transition.isInteractive else {
-            externalDismissalOutcome = .some(decided)
-            return
-        }
-        isInteractivelyDismissing = true
-        // Runs once the whole transition is over, a cancelled swipe's return animation included.
-        transition.animate(alongsideTransition: nil) { [weak self] context in
-            guard let self else { return }
-            self.isInteractivelyDismissing = false
-            if context.isCancelled {
-                // The sheet stayed: nothing was decided. A finish requested meanwhile applies now, as resolved then.
-                self.externalDismissalOutcome = nil
-                if let pending = self.finishAfterInteraction {
-                    self.finishAfterInteraction = nil
-                    self.finish(resolved: pending)
-                }
-            } else {
-                // Committed: the drag's start decided it, delivered once (here or in viewDidDisappear).
-                self.finishAfterInteraction = nil
-                self.externalDismissalOutcome = .some(decided)
-                self.deliverExternalDismissal()
-            }
-        }
+        externalDismissalOutcome = .some(isInterrupted() ? nil : false)
+        isInteractivelyDismissing = transitionCoordinator?.isInteractive == true
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        // A swipe is delivered by its transition's completion.
-        guard !isInteractivelyDismissing, isBeingDismissed || presentingViewController == nil else { return }
+        guard isBeingDismissed || presentingViewController == nil else { return }
+        // Gone, a committed swipe included: its outcome is delivered once; a finish requested meanwhile is moot.
+        isInteractivelyDismissing = false
+        finishAfterInteraction = nil
         deliverExternalDismissal()
     }
 
