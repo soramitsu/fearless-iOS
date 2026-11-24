@@ -28,12 +28,18 @@ final class EmergencyWalletMaterialReader: EmergencyWalletMaterialReading {
         walletSuffixes.contains { tag.hasSuffix($0) && tag.count > $0.count }
     }
 
-    /// Wallet tags in both stores: legacy key items and items moved to protected storage
-    /// (`ProtectedKeychain`), both read from attributes only. A protected inventory that cannot be
-    /// read is an error, never an empty list.
+    /// Wallet tags for export and erasure: every legacy key item, plus the items moved to protected
+    /// storage when that inventory can be read. Each store is listed on its own, so a protected
+    /// store that cannot answer never hides a readable legacy key.
     static func walletTags() throws -> [String] {
-        let protectedTags = try ProtectedKeychain().allAccounts().filter(isWalletTag)
+        let protectedTags = (try? ProtectedKeychain().allAccounts().filter(isWalletTag)) ?? []
         return try legacyWalletTags() + protectedTags
+    }
+
+    /// Both stores, each answered for certain; for decisions that remove something (the empty-install
+    /// PIN cleanup). A store that cannot answer is an error, never an empty list.
+    static func definitiveWalletTags() throws -> [String] {
+        try legacyWalletTags() + ProtectedKeychain().allAccounts().filter(isWalletTag)
     }
 
     static func legacyWalletTags() throws -> [String] {

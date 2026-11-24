@@ -61,6 +61,10 @@ final class ProtectedWalletSecretCoordinator {
         guard isEnabled() || moved else {
             if journal == nil || protectedItems == nil {
                 retryInstallLater(journal: makeJournal, protected: protected)
+            } else {
+                // A definite "nothing moved": stop asking.
+                retryObservers.forEach(notificationCenter.removeObserver)
+                retryObservers.removeAll()
             }
             return
         }

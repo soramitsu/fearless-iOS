@@ -132,7 +132,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
                 // An empty list after recovery is not consent to forget the
                 // existing authentication protecting retained keys and records.
                 guard try retained.retainedArchiveURLs().isEmpty,
-                      try EmergencyWalletMaterialReader.walletTags().isEmpty else { return }
+                      try EmergencyWalletMaterialReader.definitiveWalletTags().isEmpty else { return }
                 try dependencies.keystore.deleteKeyIfExists(
                     for: KeystoreTag.pincode.rawValue
                 )

@@ -343,7 +343,12 @@ final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
             guard try protected.exists(for: identifier) else {
                 return try legacy.fetchKey(for: identifier)
             }
-            return try readProtected(identifier)
+            do {
+                return try readProtected(identifier)
+            } catch ProtectedKeychainError.noKeyFound {
+                // Gone between the check and the read (the passcode was just removed).
+                return try legacy.fetchKey(for: identifier)
+            }
         }
         do {
             return try legacy.fetchKey(for: identifier)
@@ -420,9 +425,13 @@ final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
     }
 
     private func readProtected(_ tag: String) throws -> Data {
-        if WalletSecretAuthorization.isPromptSuppressed, authorization.currentContext() == nil {
-            // Background maintenance never shows a sheet; it waits for an operation the user starts.
-            throw ProtectedKeychainError.interactionNotAllowed
+        if WalletSecretAuthorization.isPromptSuppressed {
+            // Background maintenance never shows a sheet: it uses an approved context it already
+            // holds, captured once, or does not read at all.
+            guard let context = authorization.currentContext() else {
+                throw ProtectedKeychainError.interactionNotAllowed
+            }
+            return try protected.read(for: tag, context: context)
         }
         let context = try authorization.context(reason: ProtectedKeychainStrings.readReason, authorizer: authorizer)
         return try protected.read(for: tag, context: context)
@@ -431,15 +440,14 @@ final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
 
 // MARK: - Recovery evidence
 
-/// What the user has shown they can recover, per wallet: its root items ("") or an account
-/// imported on its own (the account id in hex). Recorded when the material was just typed in
-/// (an import, a restore from a backup) or a new phrase was confirmed word by word; never by
-/// "skip" or a partial cloud backup. A move takes only tags the evidence covers, because
-/// removing the device passcode erases protected items.
+/// The items a wallet's user has shown they can recover: exactly the items one import, restore from
+/// a backup, or creation with the phrase confirmed word by word wrote, recorded right then. Nothing
+/// else adds to it ("skip", "I will risk it", partial cloud backups, accounts added later, recovery
+/// into an existing wallet). A move takes only wallets whose every item is listed, because removing
+/// the device passcode erases protected items.
 final class ProtectedKeychainRecoveryEvidence {
     static let shared = ProtectedKeychainRecoveryEvidence()
-    static let storageKey = "protectedKeychain.recoveryEvidence.v1"
-    static let rootScope = ""
+    static let storageKey = "protectedKeychain.recoveryEvidence.v2"
 
     private let userDefaults: UserDefaults
     private let lock = NSLock()
@@ -448,24 +456,29 @@ final class ProtectedKeychainRecoveryEvidence {
         self.userDefaults = userDefaults
     }
 
-    func record(walletId: MetaAccountId, scope: String = ProtectedKeychainRecoveryEvidence.rootScope) {
+    /// Records the wallet's root items present in `keystore` (the store the import just wrote).
+    func recordWrittenRootItems(walletId: MetaAccountId, keystore: KeystoreProtocol) {
+        let written = WalletSecretTag.suffixes.map { walletId + $0 }.filter { (try? keystore.checkKey(for: $0)) == true }
+        record(walletId: walletId, tags: written)
+    }
+
+    func record(walletId: MetaAccountId, tags: [String]) {
+        let owned = tags.filter { WalletSecretTag.belongs($0, to: walletId) }
+        guard !owned.isEmpty else {
+            return
+        }
         lock.lock()
         defer { lock.unlock() }
         var stored = (userDefaults.dictionary(forKey: Self.storageKey) as? [String: [String]]) ?? [:]
-        var scopes = Set(stored[walletId] ?? [])
-        scopes.insert(scope)
-        stored[walletId] = scopes.sorted()
+        stored[walletId] = Array(Set(stored[walletId] ?? []).union(owned)).sorted()
         userDefaults.set(stored, forKey: Self.storageKey)
     }
 
     func covers(tag: String, walletId: MetaAccountId) -> Bool {
-        guard let scope = WalletSecretTag.accountScope(of: tag, walletId: walletId) else {
-            return false
-        }
         lock.lock()
         defer { lock.unlock() }
         let stored = (userDefaults.dictionary(forKey: Self.storageKey) as? [String: [String]]) ?? [:]
-        return stored[walletId]?.contains(scope) == true
+        return stored[walletId]?.contains(tag) == true
     }
 
     func forget(walletId: MetaAccountId) {

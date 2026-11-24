@@ -132,12 +132,9 @@ private extension MetaAccountOperationFactory {
         wallet: MetaAccountModel, entropy: Data,
         body: @escaping () throws -> MetaAccountModel
     ) -> BaseOperation<MetaAccountModel> {
-        let recoveryEvidence = recoveryEvidence
-        return PersistenceBoundImportOperation(keystore: keystore, replacing: wallet) { transactionalStore in
+        PersistenceBoundImportOperation(keystore: keystore, replacing: wallet) { transactionalStore in
             let recovered = try body()
             try transactionalStore.saveKey(entropy, with: KeystoreTagV2.entropyTagForMetaId(wallet.metaId))
-            // The user just typed in the root phrase.
-            recoveryEvidence.record(walletId: wallet.metaId)
             return recovered
         }
     }
@@ -521,7 +518,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
             try factory.saveEntropy(request.mnemonic.entropy(), metaId: metaId)
             if isBackuped {
-                factory.recoveryEvidence.record(walletId: metaId)
+                factory.recoveryEvidence.recordWrittenRootItems(walletId: metaId, keystore: factory.keystore)
             }
 
             return metaAccount
@@ -584,7 +581,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try factory.saveUniversalWalletSeedBridgeContract(metaId: metaId)
 
             if isBackuped {
-                factory.recoveryEvidence.record(walletId: metaId)
+                factory.recoveryEvidence.recordWrittenRootItems(walletId: metaId, keystore: factory.keystore)
             }
 
             return metaAccount
@@ -654,7 +651,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 try factory.saveSecretKey(ethereumKeystore.secretKeyData, metaId: metaId, ethereumBased: true)
             }
             if isBackuped {
-                factory.recoveryEvidence.record(walletId: metaId)
+                factory.recoveryEvidence.recordWrittenRootItems(walletId: metaId, keystore: factory.keystore)
             }
 
             return MetaAccountModel(
@@ -750,8 +747,6 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: request.isEthereum
             )
 
-            // Material typed in for this account alone.
-            factory.recoveryEvidence.record(walletId: metaId, scope: accountId.toHex())
             return request.meta.insertingChainAccount(chainAccount)
         }
     }
@@ -797,8 +792,6 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: request.isEthereum
             )
 
-            // Material typed in for this account alone.
-            factory.recoveryEvidence.record(walletId: metaId, scope: accountId.toHex())
             return request.meta.insertingChainAccount(chainAccount)
         }
     }
@@ -861,8 +854,6 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: request.isEthereum
             )
 
-            // Material typed in for this account alone.
-            factory.recoveryEvidence.record(walletId: request.meta.metaId, scope: accountId.toHex())
             return request.meta.insertingChainAccount(chainAccount)
         }
     }

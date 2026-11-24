@@ -440,24 +440,55 @@ final class ProtectedWalletSecretMigrationTests: XCTestCase {
         XCTAssertEqual(fixture.owner.evaluations, evaluations, "No sheet for an item that is gone")
     }
 
-    func testEvidenceCoversOnlyWhatWasTypedIn() throws {
+    func testEvidenceCoversExactlyTheItemsAnImportWrote() throws {
         let fixture = try ProtectedFixture(imported: false)
         XCTAssertEqual(fixture.migrator().migrateOffMain(fixture.wallet), .deferred(.recoveryUnverified))
 
         let metaId = fixture.wallet.metaId
-        let accountId = Data(repeating: 7, count: 32)
-        fixture.evidence.record(walletId: metaId)
-        XCTAssertTrue(fixture.evidence.covers(tag: fearless.KeystoreTagV2.entropyTagForMetaId(metaId), walletId: metaId))
+        let tags = fixture.originals.keys.sorted()
+        fixture.evidence.record(walletId: metaId, tags: Array(tags.dropLast()))
+        XCTAssertEqual(fixture.migrator().migrateOffMain(fixture.wallet), .deferred(.recoveryUnverified),
+                       "One item the user never showed they can recover keeps the whole wallet in place")
         XCTAssertFalse(fixture.evidence.covers(
-            tag: fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId),
+            tag: fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: Data(repeating: 7, count: 32)),
             walletId: metaId
-        ), "An account imported on its own needs its own evidence")
-        fixture.evidence.record(walletId: metaId, scope: accountId.toHex())
-        XCTAssertTrue(fixture.evidence.covers(
-            tag: fearless.KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId),
-            walletId: metaId
-        ))
+        ), "An account added later is never covered by the wallet's evidence")
+        XCTAssertFalse(fixture.evidence.covers(tag: UUID().uuidString + "-entropy", walletId: metaId))
+
+        fixture.evidence.record(walletId: metaId, tags: tags)
         XCTAssertEqual(fixture.migrator().migrateOffMain(fixture.wallet), .committed)
+    }
+
+    func testImportRecordsTheItemsItWroteAndSkippedConfirmationRecordsNothing() throws {
+        let imported = try ProtectedFixture()
+        for tag in imported.originals.keys {
+            XCTAssertTrue(imported.evidence.covers(tag: tag, walletId: imported.wallet.metaId), tag)
+        }
+        let skipped = try ProtectedFixture(imported: false)
+        XCTAssertTrue(skipped.originals.keys.allSatisfy { !skipped.evidence.covers(tag: $0, walletId: skipped.wallet.metaId) })
+    }
+
+    /// Codex follow-up: a copy updated after `verified` is newer than its original. When another
+    /// copy is missing, nothing is deleted on either side.
+    func testNewerCopyIsKeptWhenAnotherCopyIsMissing() throws {
+        let fixture = try ProtectedFixture()
+        let tags = fixture.originals.keys.sorted()
+        let updated = tags[0]
+        let missingCopy = tags[1]
+        for tag in tags where tag != missingCopy {
+            try fixture.protected.add(fixture.originals[tag]!, for: tag)
+        }
+        try fixture.protected.delete(for: updated)
+        try fixture.protected.add(Data("newer".utf8), for: updated)
+        try fixture.journal.save(ProtectedWalletSecretRecord(
+            walletId: fixture.wallet.metaId, state: .verified, tags: tags, attempts: 1, reason: nil, updatedAt: Date()
+        ))
+
+        XCTAssertEqual(fixture.migrator().recoverInterrupted(), [])
+
+        XCTAssertEqual(fixture.protected.items[updated], Data("newer".utf8), "The newer bytes survive")
+        XCTAssertNotNil(fixture.legacy.items[missingCopy])
+        XCTAssertEqual(fixture.journal.record(for: fixture.wallet.metaId)?.reason, "copyMissing")
     }
 
     func testCancelledSheetDefersAndTouchesNothing() throws {

@@ -518,6 +518,7 @@ final class ProtectedWalletSecretMigrator {
     private func finishCommit(_ record: ProtectedWalletSecretRecord) -> CommitResult {
         var copyMissing = false
         var protectedOnly = false
+        var anyCopy = false
         for tag in record.tags {
             guard let hasCopy = try? protected.exists(for: tag),
                   let hasOriginal = try? legacy.checkKey(for: tag) else {
@@ -531,11 +532,12 @@ final class ProtectedWalletSecretMigrator {
                 copyMissing = true
             case (true, false):
                 protectedOnly = true
+                anyCopy = true
             case (true, true):
-                break
+                anyCopy = true
             }
         }
-        if copyMissing, !protectedOnly {
+        if copyMissing, !anyCopy {
             // Every original is still there (copies vanished, typically the passcode was removed):
             // authority goes back to them and a later move may start again.
             deleteCopiesBackedByOriginals(record.tags)
@@ -543,7 +545,8 @@ final class ProtectedWalletSecretMigrator {
             return .pending(.passcodeNotSet)
         }
         if copyMissing {
-            // Some items are protected only, others legacy only: never delete either side.
+            // Some copies remain (possibly newer than their originals) and others are gone: keep
+            // every copy and every original; nothing is retried over them.
             save(record, state: .deferred, reason: DeferReason.copyMissing.rawValue)
             return .pending(.copyMissing)
         }
