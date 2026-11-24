@@ -2786,6 +2786,26 @@ final class PendingSessionLockTests: XCTestCase {
         XCTAssertFalse(lock.isCoverShown)
     }
 
+    /// Codex review (round 8): a second request while the PIN is still being presented does not leave the app
+    /// marked locked once that PIN is unlocked.
+    func testASecondRequestDuringPresentationEndsWithThePinAsTheOnlyLock() throws {
+        let scene = try scene()
+        let (window, root) = makeAppWindow(in: scene)
+        let center = NotificationCenter()
+        let lockState = ApplicationLockState(notificationCenter: center)
+        let pin = UIViewController()
+        let lock = makeLock(in: scene, center: center, lockState: lockState, presence: { .present }, window: { window }) { pin }
+
+        XCTAssertEqual(lock.request(), .locked)
+        XCTAssertEqual(lock.request(), .locked, "Still settling: the same PIN")
+        settle(lock)
+
+        XCTAssertTrue(root.presentedViewController === pin)
+        XCTAssertTrue(lockState.isLocked)
+        lockState.unlock(from: pin)
+        XCTAssertFalse(lockState.isLocked, "No pending mark is left behind")
+    }
+
     /// Codex review (round 4): with the app's window unknown the lock never finishes on the old window, and a
     /// replaced root gets the PIN again.
     func testTheLockFinishesOnlyInTheCurrentWindowWithThePinInItsChain() throws {

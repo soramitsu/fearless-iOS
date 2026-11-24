@@ -71,6 +71,11 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
         guard let callback = completion else { return }
         completion = nil
         onApprove = nil
+        if let captured = externalDismissalOutcome {
+            // Already closing from outside (a committed swipe, the lock): that decided it, once.
+            callback(captured)
+            return
+        }
         // Decided now, as the sheet starts to close; a lock or throttle during the animation changes nothing.
         let outcome: Bool? = approved ? true : (isInterrupted() ? nil : false)
         if let presentingViewController {
@@ -78,6 +83,12 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
         } else {
             callback(outcome == true ? false : outcome)
         }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // A swipe that was cancelled decided nothing.
+        externalDismissalOutcome = nil
     }
 
     override func viewWillDisappear(_ animated: Bool) {

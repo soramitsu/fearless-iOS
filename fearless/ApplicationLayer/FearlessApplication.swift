@@ -187,7 +187,7 @@ final class PendingSessionLock {
             }
             if window === target, Self.chain(of: target).contains(where: { $0 === pin }) {
                 if presentationCompleted, Self.isFrontmost(pin, in: target) {
-                    finish(restoringKeyWindow: false, window: target)
+                    finishLocked(by: pin, in: target)
                     return .locked
                 }
                 if presentationCompleted, pin.presentedViewController != nil {
@@ -238,18 +238,12 @@ final class PendingSessionLock {
                 }
                 return .locked
             case let .alreadyShown(pin):
-                // The PIN on screen becomes this lock's owner, so its unlock ends the lock and prompts are told.
-                lockState.lock(with: pin)
-                if needsFreshAuthentication {
-                    needsFreshAuthentication = false
-                    ((pin as? PinSetupViewController)?.presenter as? LocalAuthPresenter)?.restartAuthentication()
-                }
                 guard let window, Self.isFrontmost(pin, in: window) else {
                     // On screen per the chain but not settled or not visible: keep the cover and look again.
                     wait()
                     return .waiting
                 }
-                finish(restoringKeyWindow: false, window: window)
+                finishLocked(by: pin, in: window)
                 return .locked
             case .noWindow, .dismissing, .notPresented:
                 presentingPin = nil
@@ -284,6 +278,16 @@ final class PendingSessionLock {
     private static func isFrontmost(_ pin: UIViewController, in window: UIWindow) -> Bool {
         !window.isHidden && chain(of: window).last === pin && pin.viewIfLoaded?.window === window
             && !pin.isBeingPresented && !pin.isBeingDismissed
+    }
+
+    /// The PIN on screen holds the lock: it becomes the lock's owner (which also ends a pending mark that a newer
+    /// request set meanwhile), asks again if a newer request came after its authentication began, and the cover goes.
+    private func finishLocked(by pin: UIViewController, in window: UIWindow) {
+        lockState.lock(with: pin)
+        if needsFreshAuthentication {
+            ((pin as? PinSetupViewController)?.presenter as? LocalAuthPresenter)?.restartAuthentication()
+        }
+        finish(restoringKeyWindow: false, window: window)
     }
 
     private func wait() {
