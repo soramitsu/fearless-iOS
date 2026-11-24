@@ -168,15 +168,15 @@ enum LegacyTonConnectReconnectOffer {
             message: R.string.localizable.tonconnectReconnectMessage(preferredLanguages: languages) + "\n\n" + listed,
             preferredStyle: .alert
         )
-        let later = UIAlertAction(
-            title: R.string.localizable.tonconnectReconnectLater(preferredLanguages: languages),
+        let keepConnected = UIAlertAction(
+            title: R.string.localizable.tonconnectReconnectKeep(preferredLanguages: languages),
             style: .cancel
         ) { _ in keep() }
         let reconnect = UIAlertAction(
             title: R.string.localizable.tonconnectReconnectAction(preferredLanguages: languages),
             style: .destructive
         ) { _ in disconnect() }
-        alert.addAction(later)
+        alert.addAction(keepConnected)
         alert.addAction(reconnect)
         alert.preferredAction = reconnect
         return alert
@@ -188,6 +188,7 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     private var sessions: [LegacyTonConnectSession] = []
     /// The offer to reconnect is on screen or its answer is being carried out.
     private var isOfferingReconnect = false
+    private var lockObserver: NSObjectProtocol?
 
     init(coordinator: LegacyTonConnectCoordinator) {
         self.coordinator = coordinator
@@ -206,7 +207,27 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         ]
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(reload), for: .valueChanged)
+        // An offer held back by the lock is made once the wallet is unlocked, while this list is on screen.
+        lockObserver = NotificationCenter.default.addObserver(
+            forName: ApplicationLockState.didChangeNotification,
+            object: ApplicationLockState.shared,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in await self?.offerReconnectIfNeeded() }
+        }
         reload()
+    }
+
+    deinit {
+        if let lockObserver {
+            NotificationCenter.default.removeObserver(lockObserver)
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // The first load can finish before the sheet is on screen; the offer is made once it is.
+        Task { @MainActor in await offerReconnectIfNeeded() }
     }
 
     @objc private func reload() {
@@ -225,7 +246,8 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     }
 
     /// Offers, once, to reconnect the listed bridge sessions whose keys an older version kept in the database. Asked
-    /// only while this list is on screen with nothing over it; until the user answers, the next load asks again.
+    /// only while this list is on screen with nothing over it and the wallet unlocked: after each load, each time
+    /// the list appears and after an unlock. Until the user answers, the next of those asks again.
     private func offerReconnectIfNeeded() async {
         guard !isOfferingReconnect else { return }
         isOfferingReconnect = true

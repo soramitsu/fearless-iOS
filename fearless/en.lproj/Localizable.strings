@@ -1618,7 +1618,7 @@ belongs to the right network";
 "tonconnect.domain.mismatch" = "Claims to be %@. This is not verified.";
 "tonconnect.proof.refused" = "This link comes from %1$@ but claims to be %2$@. Sign-in was refused.";
 "tonconnect.reconnect.action" = "Disconnect";
-"tonconnect.reconnect.later" = "Not now";
+"tonconnect.reconnect.keep" = "Keep connected";
 "tonconnect.reconnect.message" = "An older version stored the connection keys for these apps less securely. Your wallet keys are not affected. Disconnect now, then connect again from each app.";
 "tonconnect.reconnect.title" = "Reconnect your TON apps";
 

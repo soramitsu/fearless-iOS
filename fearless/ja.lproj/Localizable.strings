@@ -1605,7 +1605,7 @@
 "tonconnect.domain.mismatch" = "%@ を名乗っていますが、確認されていません。";
 "tonconnect.proof.refused" = "このリンクは %1$@ からのものですが、%2$@ を名乗っています。サインインを拒否しました。";
 "tonconnect.reconnect.action" = "切断";
-"tonconnect.reconnect.later" = "後で";
+"tonconnect.reconnect.keep" = "接続を維持";
 "tonconnect.reconnect.message" = "以前のバージョンでは、これらのアプリとの接続キーが安全性の低い方法で保存されていました。ウォレットのキーには影響ありません。今すぐ切断し、各アプリからもう一度接続してください。";
 "tonconnect.reconnect.title" = "TONアプリを接続し直してください";
 

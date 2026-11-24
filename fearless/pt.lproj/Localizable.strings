@@ -1532,7 +1532,7 @@ pertence à rede certa";
 "tonconnect.domain.mismatch" = "Diz ser %@. Isso não foi verificado.";
 "tonconnect.proof.refused" = "Este link vem de %1$@, mas diz ser %2$@. O login foi recusado.";
 "tonconnect.reconnect.action" = "Desconectar";
-"tonconnect.reconnect.later" = "Agora não";
+"tonconnect.reconnect.keep" = "Manter conectado";
 "tonconnect.reconnect.message" = "Uma versão anterior armazenava as chaves de conexão desses apps de forma menos segura. As chaves da sua carteira não foram afetadas. Desconecte agora e depois conecte de novo a partir de cada app.";
 "tonconnect.reconnect.title" = "Reconecte seus apps TON";
 

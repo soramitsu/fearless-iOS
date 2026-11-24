@@ -66,6 +66,12 @@ actor LegacyTonConnectService {
         return context
     }
 
+    /// Where a bridge session's application listens, without binding a context: for telling it the session ended.
+    func bridgeURL(for session: LegacyTonConnectSession, selectedNetwork: String) async throws -> URL {
+        if let stored = try replies.context(sessionId: session.identifier) { return stored.bridgeURL }
+        return try await store.bridgeURL(network: selectedNetwork)
+    }
+
     func start(selectedNetwork: String) async {
         startRetry?.cancel()
         startRetry = nil

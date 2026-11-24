@@ -1613,7 +1613,7 @@ Euro cash";
 "tonconnect.domain.mismatch" = "Выдаёт себя за %@. Это не подтверждено.";
 "tonconnect.proof.refused" = "Эта ссылка пришла с %1$@, но выдаёт себя за %2$@. Вход отклонён.";
 "tonconnect.reconnect.action" = "Отключить";
-"tonconnect.reconnect.later" = "Не сейчас";
+"tonconnect.reconnect.keep" = "Не отключать";
 "tonconnect.reconnect.message" = "Старая версия хранила ключи подключения к этим приложениям менее надёжно. Ключи кошелька не затронуты. Отключите их сейчас, затем подключитесь снова из каждого приложения.";
 "tonconnect.reconnect.title" = "Переподключите приложения TON";
 

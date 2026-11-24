@@ -1586,7 +1586,7 @@ thuộc đúng mạng";
 "tonconnect.domain.mismatch" = "Tự nhận là %@. Điều này chưa được xác minh.";
 "tonconnect.proof.refused" = "Liên kết này đến từ %1$@ nhưng tự nhận là %2$@. Đăng nhập đã bị từ chối.";
 "tonconnect.reconnect.action" = "Ngắt kết nối";
-"tonconnect.reconnect.later" = "Để sau";
+"tonconnect.reconnect.keep" = "Giữ kết nối";
 "tonconnect.reconnect.message" = "Phiên bản cũ đã lưu khóa kết nối của các ứng dụng này kém an toàn hơn. Khóa ví của bạn không bị ảnh hưởng. Hãy ngắt kết nối ngay, rồi kết nối lại từ từng ứng dụng.";
 "tonconnect.reconnect.title" = "Kết nối lại các ứng dụng TON";
 
