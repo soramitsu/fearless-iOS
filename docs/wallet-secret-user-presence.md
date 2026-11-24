@@ -1,9 +1,9 @@
 # Wallet secrets that need the device owner (iOS)
 
-Status (2026-11-24): step 1 is on `release/consolidated-20261110` (`28ebbb15d`, `458e4ddd4`). Step 2
-is implemented behind `ProtectedKeychainPolicy`, which is **off** in this build. An independent
-Codex review (gpt-6.2-astra, ultra) of both steps found 15 issues; all are fixed below or listed in
-section 6. The owner reviews the prompts (section 8) before the flag is turned on. Device checks:
+Status (2026-11-24): step 1 is on `release/consolidated-20261110` (`28ebbb15d`, `458e4ddd4`,
+`7eeae2317`). Step 2 is implemented behind `ProtectedKeychainPolicy`, which is **off** in this build.
+Two independent Codex reviews (gpt-6.2-astra, ultra) of both steps found 15 and then 8 issues; they
+are fixed below or listed in section 6. The owner reviews the prompts (section 8) before the flag is turned on. Device checks:
 `docs/wallet-secret-user-presence-device-test-plan.md`.
 
 Background: the 2026 MoldyRoost campaign delivers the Coruna and DarkSword iPhone exploit kits
@@ -56,16 +56,19 @@ moment the user has just proved who they are. Commit `28ebbb15d`.
   60 s or when the app goes to the background. Work that missed it runs at the next unlock
   (`.walletAuthorizedUnlock`).
 - **Watched old addresses and the password notice** (`WalletMainContainerInteractor`) run at an
-  unlock only (and when the main screen opens inside the window), and the watched check only for
-  wallets that have watched networks. A portfolio refresh, a foreground event or a wallet switch
-  reads nothing.
+  unlock (and when the main screen opens inside the window) and when the user chooses a wallet;
+  the watched check only for wallets that have watched networks. A portfolio refresh or a foreground
+  event reads nothing.
 - **Account-bound scans:** the Bitcoin scan cache key includes the account's first address, so a
   password wallet that switches accounts never gets the other account's scan.
 - **No undercount after the update:** until an account's descriptor exists, refresh keeps the total
-  a full scan saved instead of replacing it with one address; once the backfill has looked and found
-  no secret for the account, refresh reads the stored address with a confirmed/pending split. A
-  backfill that saves a descriptor refreshes the selected wallet. The window is checked again at the
-  read itself, after any queue or network wait.
+  a full scan saved for **that account** (`BitcoinLastKnownAccountStore`) instead of replacing it
+  with one address, and offers none of it for sending until a real scan replaces it. Once the
+  backfill has looked and found no secret for the account, refresh reads the stored address and
+  offers only its confirmed coins that nothing in the mempool spends (from its UTXOs). A saved
+  descriptor triggers the portfolio's Bitcoin scan (`.bitcoinAccountDescriptorsSaved`). The window
+  is checked again at the read itself, after any queue or network wait. A removed wallet's
+  descriptors are never saved again.
 - **TON Connect** reads the spending key only to sign an approved `ton_proof`; an address-only
   connection uses the public account.
 - **Tests:** `PassiveSecretReadTests` (a `SecretStoreSpy` sees zero reads through background
@@ -171,11 +174,12 @@ defers the wallet and writes nothing:
 2. the device has a passcode (`canEvaluatePolicy(.deviceOwnerAuthentication)`);
 3. every legacy item whose tag starts with the wallet's id is a known wallet tag (attributes-only
    inventory, `Keychain.applicationTags()`);
-4. recovery evidence covers **every** item (`ProtectedKeychainRecoveryEvidence`): the root items
-   when the wallet was imported or restored from a backup, or a new phrase was confirmed word by word
-   (`isBackuped` at creation); an account imported on its own when that account was. `hasBackup` is
-   not evidence: "I will risk it" and a partial Google Drive backup set it. A wallet whose only copy
-   might be this phone never moves, because removing the passcode would erase it;
+4. recovery evidence covers **every** item (`ProtectedKeychainRecoveryEvidence`): exactly the items
+   one import, restore from a backup, or creation with the phrase confirmed word by word wrote,
+   recorded right then (`isBackuped` at creation). Nothing else adds to it: not "skip", not "I will
+   risk it", not a partial cloud backup, not an account imported later on its own, not a recovery
+   into an existing wallet. `hasBackup` is not evidence. A wallet whose only copy might be this phone
+   never moves, because removing the passcode would erase it;
 5. at least one item exists, every identity the wallet stores is a positive proof (3.5.1), and the
    identities come out identically from the legacy store and from the wallet's own items alone.
 
@@ -224,8 +228,8 @@ Recovery goes tag by tag and never deletes the only copy of an item:
 | during step 2 | `staging` | delete copies whose original exists, `deferred`; originals were never touched |
 | steps 3–5 | `written` | same |
 | during step 8 | `verified` | per tag: copy and original → delete the original (copy re-checked first); copy only → done; then `committed` |
-| copies gone, originals all there | `verified` | delete nothing that is alone, `deferred` (retry later) |
-| some items copy-only, others original-only | `verified` | keep both sides, `deferred` (`copyMissing`), never retried over |
+| every copy gone, originals all there | `verified` | `deferred` (retry later); nothing to delete |
+| some copies gone, others present (copy-only or newer than its original) | `verified` | keep every copy and original, `deferred` (`copyMissing`), never retried over |
 | a tag with neither | any | `lost` |
 | after step 9 | `committed` | nothing |
 | journal unreadable, damaged or lost | — | router: the store that holds each tag |
@@ -277,9 +281,9 @@ failing the whole remote document.
 
 - Signing, export, cloud backup and emergency export call `Keychain` as before; the router and the
   authorization window add the sheet.
-- Inventories that decide what exists (emergency export, erasure, the empty-install PIN cleanup in
-  `RootPresenterFactory`) list protected items too (`EmergencyWalletMaterialReader.walletTags`); a
-  protected inventory that cannot be read is an error, never an empty list.
+- Emergency export and erasure list each store on its own (`EmergencyWalletMaterialReader.walletTags`):
+  a protected store that cannot answer never hides a readable legacy key. The empty-install PIN
+  cleanup in `RootPresenterFactory` needs both stores answered for certain (`definitiveWalletTags`).
 - Export options are listed without a sheet: a moved item's presence is enough; the export reads
   and verifies it.
 - Removing a wallet or logging out forgets its journal entry, recovery evidence and descriptors.
@@ -302,7 +306,14 @@ failing the whole remote document.
 - **Existing wallets have no recovery evidence.** Only wallets imported, restored or confirmed with
   this release onward carry it, so every wallet created by an earlier release stays on the legacy
   store. Moving them needs a "verify your recovery phrase / backup" step whose UX the owner approves
-  (section 8). Until then they are exactly as safe as today.
+  (section 8). Until then they are exactly as safe as today. Accounts imported on their own never
+  carry evidence yet, so a wallet with one stays too.
+- Evidence binds to the items an import wrote, not to their bytes; the identity checks at the move
+  (3.5.1) are what tie those items to the wallet's public keys.
+- Codex follow-up items left for before enabling: binding a protected-only update to per-tag write
+  authority in the journal (a reload of `verified` can discard a newer legacy write when the journal
+  was damaged), a historical 4.0.x per-chain seed export option that is hidden after a move until
+  verified, and launch still querying both keychain services synchronously.
 - The watched-address check and the password notice of a **moved password wallet** read its words;
   after the move they run without a sheet, so they are skipped. A public cache of the password and
   no-password account keys (filled during the move) removes this. Opening that wallet's details
