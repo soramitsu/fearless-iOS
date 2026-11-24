@@ -134,6 +134,9 @@ final class OnboardingModel: Identifiable {
     var walletName: String
     private(set) var addressPreview: WalletAddressPreview?
     @ObservationIgnored private var pendingSource: WalletImportSource?
+    /// Bumped by every preview request and by Continue, so a preview that
+    /// finishes late never replaces a newer one or the confirmation's.
+    @ObservationIgnored private var previewGeneration = 0
 
     init(
         mode: Mode,
@@ -419,6 +422,7 @@ final class OnboardingModel: Identifiable {
     /// Asks the engine which addresses the source gives and moves to the
     /// last step. Stays put, with the reason, if the source is not usable.
     private func prepareConfirmation(source: WalletImportSource) async {
+        previewGeneration += 1
         isWorking = true
         defer { isWorking = false }
         do {
@@ -431,16 +435,20 @@ final class OnboardingModel: Identifiable {
         }
     }
 
-    /// Refreshes the preview after a derivation option changed.
+    /// Refreshes the preview after a derivation option changed. The result
+    /// is shown only if it still belongs to the words and options on screen.
     func refreshPreview() async {
         guard step == .importPhrase, phraseEntry.isValid else { return }
-        do {
-            addressPreview = try await services.wallets.previewAddresses(
-                for: .mnemonic(words: phraseEntry.normalizedWords, options: derivation)
-            )
-        } catch {
-            addressPreview = nil
-        }
+        previewGeneration += 1
+        let generation = previewGeneration
+        let words = phraseEntry.normalizedWords
+        let options = derivation
+        let preview = try? await services.wallets.previewAddresses(for: .mnemonic(words: words, options: options))
+        guard generation == previewGeneration,
+              step == .importPhrase,
+              phraseEntry.normalizedWords.elementsEqual(words, by: ExactText.same),
+              ExactDerivationOptions(derivation) == ExactDerivationOptions(options) else { return }
+        addressPreview = preview
     }
 
     // MARK: Finish

@@ -43,6 +43,83 @@ private final class OptionsHolder {
     var options = DerivationOptions.standard
 }
 
+@MainActor
+@Observable
+private final class VisibilityHolder {
+    var isVisible = false
+}
+
+/// Wallet services whose address preview for one Substrate path waits
+/// until `release()`.
+private final class GatedWallets: WalletServicing, @unchecked Sendable {
+    private let base: any WalletServicing
+    private let gatedPath: String
+    private let lock = NSLock()
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+    private var isOpen = false
+    private var started = 0
+
+    init(base: any WalletServicing, gatedPath: String) {
+        self.base = base
+        self.gatedPath = gatedPath
+    }
+
+    var startedCount: Int {
+        lock.withLock { started }
+    }
+
+    func release() {
+        let waiting: [CheckedContinuation<Void, Never>] = lock.withLock {
+            isOpen = true
+            defer { waiters = [] }
+            return waiters
+        }
+        waiting.forEach { $0.resume() }
+    }
+
+    func previewAddresses(for source: WalletImportSource) async throws -> WalletAddressPreview {
+        if case let .mnemonic(_, options) = source, options.substrateDerivationPath == gatedPath {
+            await withCheckedContinuation { continuation in
+                let resumeNow: Bool = lock.withLock {
+                    started += 1
+                    if isOpen { return true }
+                    waiters.append(continuation)
+                    return false
+                }
+                if resumeNow { continuation.resume() }
+            }
+        }
+        return try await base.previewAddresses(for: source)
+    }
+
+    var mnemonicWordList: [String] { base.mnemonicWordList }
+    func wallets() async throws -> [Wallet] { try await base.wallets() }
+    func generateMnemonic(length: MnemonicLength) async throws -> [String] { try await base.generateMnemonic(length: length) }
+    func validateMnemonic(_ words: [String]) async -> MnemonicValidation { await base.validateMnemonic(words) }
+    func addWallet(name: String, source: WalletImportSource) async throws -> Wallet { try await base.addWallet(name: name, source: source) }
+    func renameWallet(_ id: WalletID, to name: String) async throws { try await base.renameWallet(id, to: name) }
+    func deleteWallet(_ id: WalletID) async throws { try await base.deleteWallet(id) }
+    func markBackedUp(_ id: WalletID) async throws { try await base.markBackedUp(id) }
+    func exportMnemonic(_ id: WalletID, approval: UserApproval) async throws -> MnemonicBackup {
+        try await base.exportMnemonic(id, approval: approval)
+    }
+    func exportJSON(_ id: WalletID, ecosystem: Ecosystem, approval: UserApproval, exportPassword: String) async throws -> Data {
+        try await base.exportJSON(id, ecosystem: ecosystem, approval: approval, exportPassword: exportPassword)
+    }
+    func address(of id: WalletID, on chainID: ChainID) async throws -> String { try await base.address(of: id, on: chainID) }
+}
+
+/// The derivation form under a parent that reads the options in its body,
+/// as the import steps do, so a change re-renders the form.
+private struct FormHost: View {
+    @Bindable var holder: OptionsHolder
+
+    var body: some View {
+        DerivationOptionsForm(options: $holder.options, showsEVM: true)
+            .onChange(of: ExactDerivationOptions(holder.options)) { _, _ in }
+    }
+}
+
 /// A window that is never shown, for driving fields and hosted views.
 @MainActor
 private final class TestWindow {
@@ -264,7 +341,9 @@ struct SecretTextFieldTests {
     @Test func textServiceActionsServicesAndDragsAreRefused() {
         let editor = SecretFieldEditor(entry: .derivationPath)
         for name in SecretFieldEditor.refusedActions {
-            #expect(!editor.responds(to: NSSelectorFromString(name)), "\(name) must not reach the editor")
+            let item = NSMenuItem(title: name, action: NSSelectorFromString(name), keyEquivalent: "")
+            #expect(!editor.validateMenuItem(item), "\(name) is disabled in menus")
+            #expect(!editor.validateUserInterfaceItem(item))
         }
         #expect(editor.responds(to: #selector(NSText.paste(_:))))
         #expect(editor.responds(to: #selector(NSText.copy(_:))))
@@ -452,7 +531,7 @@ struct SecretTextFieldTests {
 
         let hidden = TestWindow(hosting: ImportSeedStep(model: model, compact: false))
         defer { hidden.close() }
-        let shown = TestWindow(hosting: ImportSeedStep(model: model, compact: false, isVisible: true))
+        let shown = TestWindow(hosting: ImportSeedStep(model: model, compact: false, isVisible: .constant(true)))
         defer { shown.close() }
         #expect(await shown.waitUntil { !shown.views(NSSecureTextField.self).isEmpty && !hidden.views(NSSecureTextField.self).isEmpty })
         await shown.pump()
@@ -498,7 +577,7 @@ struct SecretTextFieldTests {
             let selector = NSSelectorFromString(name)
             guard SecretFieldEditor.instancesRespond(to: selector) else { continue }
             _ = editor.perform(selector, with: nil)
-            #expect(!editor.tryToPerform(selector, with: nil), "\(name) is not dispatched to the editor")
+            #expect(editor.tryToPerform(selector, with: nil), "\(name) stops at the editor, which does nothing")
         }
         expectEveryTextServiceOff(editor)
     }
@@ -575,10 +654,7 @@ struct SecretTextFieldTests {
     }
 
     private func hostedForm(_ holder: OptionsHolder) async -> (TestWindow, substrate: SecretEntryTextField, evm: SecretEntryTextField)? {
-        let host = TestWindow(hosting: DerivationOptionsForm(
-            options: Binding(get: { holder.options }, set: { holder.options = $0 }),
-            showsEVM: true
-        ))
+        let host = TestWindow(hosting: FormHost(holder: holder))
         guard await host.waitUntil({ host.views(SecretEntryTextField.self).count == 2 }) else { return nil }
         let fields = host.views(SecretEntryTextField.self)
         guard let substrate = fields.first(where: { $0.stringValue.isEmpty }),
@@ -645,7 +721,7 @@ struct SecretTextFieldTests {
 
         // Continue finishes a composition still in progress before it reads the options.
         editor.setMarkedText("か", selectedRange: NSRange(location: 1, length: 0), replacementRange: noReplacement)
-        SecretTextField.finishComposition(in: host.window)
+        SecretTextField.finishComposition(in: host.window)   // what the field group's Continue does for its own fields
         #expect(!editor.hasMarkedText())
         #expect(holder.options.substrateDerivationPath == "//a///ぱすか")
     }
@@ -691,9 +767,11 @@ struct SecretTextFieldTests {
         defer { host.close() }
         let entry = model.phraseEntry
 
-        // Shift-Tab in the first word and Tab in the last are left to AppKit.
+        // Shift-Tab in the first word and Tab in the last are left to AppKit,
+        // which moves to the previous or next key view instead of trapping focus.
         fields[0].secretEditor.doCommand(by: #selector(NSResponder.insertBacktab(_:)))
         #expect(entry.words.allSatisfy { $0.isEmpty })
+        #expect(!fields[0].isEditing, "Shift-Tab leaves the first word")
 
         let phrase = PreviewWalletServices.samplePhrase(.words12)
         entry.setText(phrase.joined(separator: " "), at: 0)
@@ -702,6 +780,7 @@ struct SecretTextFieldTests {
         #expect(model.canContinueImport)
         fields[11].secretEditor.doCommand(by: #selector(NSResponder.insertTab(_:)))
         #expect(entry.words == phrase)
+        #expect(!fields[11].isEditing, "Tab leaves the last word")
 
         // Return in the last word of a valid phrase continues.
         #expect(host.window.makeFirstResponder(fields[11]))
@@ -749,7 +828,7 @@ struct SecretTextFieldTests {
     @Test(arguments: [false, true])
     func hexPasteReachesTheSecureField(shown: Bool) async throws {
         let model = await onboarding(.importSeed)
-        let host = TestWindow(hosting: ImportSeedStep(model: model, compact: false, isVisible: shown))
+        let host = TestWindow(hosting: ImportSeedStep(model: model, compact: false, isVisible: .constant(shown)))
         defer { host.close() }
         #expect(await host.waitUntil { host.views(NSSecureTextField.self).count == 1 })
         let secure = try #require(host.views(NSSecureTextField.self).first)
@@ -785,5 +864,228 @@ struct SecretTextFieldTests {
         buttons.first?.performClick(nil)
         #expect(await host.waitUntil { pasteboard.string(forType: .string) == path })
         #expect(pasteboard.types?.contains(Clipboard.concealedType) == true)
+    }
+
+    // MARK: Review round 2
+
+    @Test func aLatePreviewNeverReplacesTheConfirmation() async throws {
+        let base = PreviewWalletServices.make(scenario: PreviewScenario.emptyWalletList.instant())
+        let gated = GatedWallets(base: base.wallets, gatedPath: "//late")
+        let services = WalletServices(
+            vault: base.vault, wallets: gated, catalog: base.catalog, nodes: base.nodes,
+            balances: base.balances, prices: base.prices, transfers: base.transfers, activity: base.activity
+        )
+        let model = OnboardingModel(mode: .firstWallet, services: services) { _ in }
+        await model.choose(.importPhrase)
+        model.phraseEntry.setText(PreviewWalletServices.samplePhrase(.words12).joined(separator: " "), at: 0)
+        await model.phraseEntry.revalidate()
+
+        model.derivation.substrateDerivationPath = "//late"
+        let late = Task { await model.refreshPreview() }
+        #expect(await waitUntil(timeout: .seconds(5)) { gated.startedCount == 1 })
+        model.derivation.substrateDerivationPath = "//final"
+        await model.continueImport()
+        #expect(model.step == .confirm)
+        let confirmed = try #require(model.addressPreview)
+
+        gated.release()
+        await late.value
+        #expect(model.addressPreview == confirmed, "the late preview for //late is dropped")
+
+        // Without a race, a refresh still lands.
+        let fresh = OnboardingModel(mode: .firstWallet, services: services) { _ in }
+        await fresh.choose(.importPhrase)
+        fresh.phraseEntry.setText(PreviewWalletServices.samplePhrase(.words12).joined(separator: " "), at: 0)
+        await fresh.phraseEntry.revalidate()
+        fresh.derivation.substrateDerivationPath = "//final"
+        await fresh.refreshPreview()
+        #expect(fresh.addressPreview == confirmed)
+    }
+
+    @Test func resetWinsOverAComposition() async throws {
+        let holder = OptionsHolder()
+        let (host, _, evm) = try #require(await hostedForm(holder))
+        defer { host.close() }
+        #expect(host.window.makeFirstResponder(evm))
+        let editor = evm.secretEditor
+        editor.setSelectedRange(NSRange(location: (editor.string as NSString).length, length: 0))
+        type("///pw", into: editor)
+        #expect(holder.options.evmDerivationPath == DerivationOptions.defaultEVMPath + "///pw")
+        await host.pump()
+        editor.setMarkedText("ぱ", selectedRange: NSRange(location: 1, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
+        await host.pump()
+        #expect(editor.hasMarkedText())
+
+        holder.options.evmDerivationPath = DerivationOptions.defaultEVMPath   // the Reset button
+        #expect(await host.waitUntil { evm.currentText == DerivationOptions.defaultEVMPath })
+        #expect(!editor.hasMarkedText())
+        await host.pump()
+        #expect(holder.options.evmDerivationPath == DerivationOptions.defaultEVMPath, "the old password is not pushed back")
+    }
+
+    @Test func clearAndPasteWinOverAComposition() async throws {
+        let (model, host, fields) = try #require(await hostedGrid())
+        defer { host.close() }
+        let entry = model.phraseEntry
+        type("ab", into: fields[0].secretEditor)
+        fields[0].secretEditor.setMarkedText("´", selectedRange: NSRange(location: 1, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
+        entry.clear()   // the Clear button
+        #expect(await host.waitUntil { fields[0].currentText.isEmpty })
+        #expect(!fields[0].secretEditor.hasMarkedText())
+        #expect(entry.words.allSatisfy { $0.isEmpty })
+    }
+
+    @Test func aNavigationKeyCommitsTheCompositionBeforeSuggestions() async throws {
+        let (model, host, fields) = try #require(await hostedGrid())
+        defer { host.close() }
+        let entry = model.phraseEntry
+        let editor = fields[0].secretEditor
+        type("ab", into: editor)
+        editor.setMarkedText("a", selectedRange: NSRange(location: 1, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
+        #expect(entry.words[0] == "ab")
+        editor.doCommand(by: #selector(NSResponder.insertTab(_:)))
+        #expect(entry.words[0] == "abandon", "the committed word aba picks the suggestion")
+        #expect(host.window.firstResponder === fields[1].secretEditor)
+        #expect(!editor.hasMarkedText())
+    }
+
+    @Test func typingRightAfterAPasteLandsWhereTheGridShowsIt() async throws {
+        let (model, host, fields) = try #require(await hostedGrid())
+        defer { host.close() }
+        let entry = model.phraseEntry
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("fearless.tests.paste-type.\(UUID().uuidString)"))
+        defer { pasteboard.releaseGlobally() }
+
+        #expect(host.window.makeFirstResponder(fields[3]))
+        type("aban", into: fields[3].secretEditor)
+        pasteboard.clearContents()
+        pasteboard.setString("abandon ability", forType: .string)
+        #expect(fields[3].secretEditor.readSelection(from: pasteboard))
+        #expect(fields[3].stringValue == "abandon", "the source field shows its new word at once")
+        let next = try #require(host.window.firstResponder as? SecretFieldEditor)
+        #expect(next === fields[5].secretEditor, "focus moved past the pasted words")
+        type("x", into: next)
+        #expect(entry.words[3] == "abandon" && entry.words[4] == "ability" && entry.words[5] == "x")
+
+        // In the last field the pasted word stays in place and typing extends it.
+        #expect(host.window.makeFirstResponder(fields[11]))
+        pasteboard.clearContents()
+        pasteboard.setString("able about", forType: .string)
+        #expect(fields[11].secretEditor.readSelection(from: pasteboard))
+        #expect(fields[11].currentText == "able")
+        type("x", into: fields[11].secretEditor)
+        #expect(entry.words[11] == "ablex")
+    }
+
+    @Test func aGroupCommitsOnlyItsOwnCompositions() throws {
+        let group = SecretFieldGroup()
+        let own = SecretEntryTextField(entry: .derivationPath)
+        let other = SecretEntryTextField(entry: .derivationPath)
+        let ownHost = TestWindow(own)
+        defer { ownHost.close() }
+        let otherHost = TestWindow(other)
+        defer { otherHost.close() }
+        group.add(own, focusID: nil)
+        let noReplacement = NSRange(location: NSNotFound, length: 0)
+        for (host, field) in [(ownHost, own), (otherHost, other)] {
+            #expect(host.window.makeFirstResponder(field))
+            field.secretEditor.setMarkedText("か", selectedRange: NSRange(location: 1, length: 0), replacementRange: noReplacement)
+        }
+        group.finishComposition()
+        #expect(!own.secretEditor.hasMarkedText())
+        #expect(other.secretEditor.hasMarkedText(), "another window's composition is left alone")
+    }
+
+    @Test func returnInTheSeedStepCommitsThePathCompositionFirst() async throws {
+        let model = await onboarding(.importSeed)
+        model.seedHex = String(repeating: "ab", count: 32)
+        let host = TestWindow(hosting: ImportSeedStep(model: model, compact: false))
+        defer { host.close() }
+        #expect(await host.waitUntil { host.views(SecretEntryTextField.self).count == 1 })
+        let path = try #require(host.views(SecretEntryTextField.self).first)
+        #expect(host.window.makeFirstResponder(path))
+        type("//a///", into: path.secretEditor)
+        path.secretEditor.setMarkedText("ぱ", selectedRange: NSRange(location: 1, length: 0), replacementRange: NSRange(location: NSNotFound, length: 0))
+        #expect(model.derivation.substrateDerivationPath == "//a///")
+
+        let returnKey = try #require(NSEvent.keyEvent(
+            with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: host.window.windowNumber,
+            context: nil, characters: "\r", charactersIgnoringModifiers: "\r", isARepeat: false, keyCode: 36
+        ))
+        #expect(host.window.performKeyEquivalent(with: returnKey), "Return is Continue's shortcut")
+        #expect(await host.waitUntil { model.step == .confirm })
+        #expect(model.derivation.substrateDerivationPath == "//a///ぱ", "the composition was committed before the options were read")
+    }
+
+    @Test func controlKAtALineBreakDeletesTheBreak() throws {
+        let killed = NSTextView(frame: NSRect(x: 0, y: 0, width: 200, height: 20))
+        let yanked = NSTextView(frame: NSRect(x: 0, y: 0, width: 200, height: 20))
+        let field = SecretEntryTextField(entry: .derivationPath)
+        let host = TestWindow(killed, yanked, field)
+        defer { host.close() }
+        killed.string = "ordinary"
+        killed.setSelectedRange(NSRange(location: 0, length: 0))
+        killed.deleteToEndOfParagraph(nil)
+
+        #expect(host.window.makeFirstResponder(field))
+        let editor = field.secretEditor
+        for (text, expected) in [("ab\ncd", "abcd"), ("ab\r\ncd", "abcd"), ("ab\u{2028}cd", "abcd")] {
+            editor.string = text
+            editor.setSelectedRange(NSRange(location: 2, length: 0))
+            editor.doCommand(by: #selector(NSResponder.deleteToEndOfParagraph(_:)))
+            editor.doCommand(by: #selector(NSResponder.deleteToEndOfLine(_:)))
+            #expect(Array(field.currentText.unicodeScalars) == Array("ab".unicodeScalars) || field.currentText == expected)
+        }
+        editor.string = "ab\ncd"
+        editor.setSelectedRange(NSRange(location: 2, length: 0))
+        editor.doCommand(by: #selector(NSResponder.deleteToEndOfParagraph(_:)))
+        #expect(field.currentText == "abcd", "the break goes first")
+        editor.doCommand(by: #selector(NSResponder.deleteToEndOfParagraph(_:)))
+        #expect(field.currentText == "ab", "then the rest of the paragraph")
+        editor.string = "ab\ncd"
+        editor.setSelectedRange(NSRange(location: 3, length: 0))
+        editor.doCommand(by: #selector(NSResponder.deleteToBeginningOfLine(_:)))
+        #expect(field.currentText == "ab\ncd", "at the start of a line nothing before the break is deleted")
+
+        yanked.yank(nil)
+        #expect(yanked.string == "ordinary")
+    }
+
+    @Test func hexPasteSurvivesTheEyeButton() async throws {
+        let model = await onboarding(.importSeed)
+        let visible = VisibilityHolder()
+        let host = TestWindow(hosting: ImportSeedStep(
+            model: model, compact: false,
+            isVisible: Binding(get: { visible.isVisible }, set: { visible.isVisible = $0 })
+        ))
+        defer { host.close() }
+        #expect(await host.waitUntil { host.views(NSSecureTextField.self).count == 1 })
+        let secure = try #require(host.views(NSSecureTextField.self).first)
+        #expect(host.window.makeFirstResponder(secure))
+        let editor = try #require(secure.currentEditor() as? NSTextView)
+        let pasteboard = NSPasteboard(name: NSPasteboard.Name("fearless.tests.hex-eye.\(UUID().uuidString)"))
+        defer { pasteboard.releaseGlobally() }
+
+        let first = "0x" + String(repeating: "0f", count: 16)
+        pasteboard.clearContents()
+        pasteboard.setString(first, forType: .string)
+        #expect(editor.readSelection(from: pasteboard))
+        #expect(await host.waitUntil { model.seedHex == first })
+
+        visible.isVisible = true
+        await host.pump()
+        #expect(host.views(NSSecureTextField.self).first === secure, "showing the seed keeps the same editor")
+        #expect(secure.currentEditor() === editor)
+        let second = String(repeating: "f0", count: 16)
+        pasteboard.clearContents()
+        pasteboard.setString(second, forType: .string)
+        #expect(editor.readSelection(from: pasteboard))
+        #expect(await host.waitUntil { model.seedHex == first + second })
+        #expect(model.isSeedValid)
+
+        visible.isVisible = false
+        await host.pump()
+        #expect(host.views(NSSecureTextField.self).first === secure)
+        #expect(model.seedHex == first + second)
     }
 }

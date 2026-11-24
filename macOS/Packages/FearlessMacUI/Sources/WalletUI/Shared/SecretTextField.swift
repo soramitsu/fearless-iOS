@@ -96,8 +96,10 @@ final class SecretFieldEditor: NSTextView {
     var onCompositionCommit: (() -> Void)?
 
     /// Menu and key-binding actions that would turn a text service back on,
-    /// check the text against a dictionary, or hand it to Writing Tools,
-    /// Share or Look Up. Each one is also a no-op below.
+    /// check the text against a dictionary, read it aloud, or hand it to
+    /// Writing Tools, Share or Look Up. The editor takes each of them (so a
+    /// nil-targeted action stops here instead of travelling further up the
+    /// responder chain), does nothing, and disables their menu items.
     nonisolated static let refusedActions: Set<String> = [
         "toggleContinuousSpellChecking:",
         "toggleGrammarChecking:",
@@ -118,6 +120,7 @@ final class SecretFieldEditor: NSTextView {
         "orderFrontSubstitutionsPanel:",
         "orderFrontSharingServicePicker:",
         "quickLookPreviewItems:",
+        "startSpeaking:",
         "complete:",
         "showWritingTools:"
     ]
@@ -263,11 +266,11 @@ final class SecretFieldEditor: NSTextView {
     // Here they only delete.
 
     override func deleteToEndOfLine(_ sender: Any?) {
-        deleteSelection { super.moveToEndOfLineAndModifySelection($0) }
+        deleteSelection(orFollowingBreak: true) { super.moveToEndOfLineAndModifySelection($0) }
     }
 
     override func deleteToEndOfParagraph(_ sender: Any?) {
-        deleteSelection { super.moveToEndOfParagraphAndModifySelection($0) }
+        deleteSelection(orFollowingBreak: true) { super.moveToEndOfParagraphAndModifySelection($0) }
     }
 
     override func deleteToBeginningOfLine(_ sender: Any?) {
@@ -287,10 +290,16 @@ final class SecretFieldEditor: NSTextView {
         deleteSelection { _ in }
     }
 
-    /// Deletes the selection, first extending an empty one. `delete(_:)`
-    /// would add the text to the kill ring, so the text is replaced instead.
-    private func deleteSelection(extending extend: (Any?) -> Void) {
-        if selectedRange().length == 0 { extend(nil) }
+    /// Deletes the selection, first extending an empty one. With
+    /// `orFollowingBreak`, a caret already at the end of a line or paragraph
+    /// deletes the break that follows instead (CR LF counts as one), as
+    /// Control-K does elsewhere. `delete(_:)` would add the text to the kill
+    /// ring, so the text is replaced instead.
+    private func deleteSelection(orFollowingBreak: Bool = false, extending extend: (Any?) -> Void) {
+        if selectedRange().length == 0 {
+            extend(nil)
+            if orFollowingBreak, selectedRange().length == 0 { selectFollowingLineBreak() }
+        }
         let range = selectedRange()
         guard range.length > 0, shouldChangeText(in: range, replacementString: "") else { return }
         replaceCharacters(in: range, with: "")
@@ -298,11 +307,25 @@ final class SecretFieldEditor: NSTextView {
         didChangeText()
     }
 
+    private func selectFollowingLineBreak() {
+        let text = string as NSString
+        let location = selectedRange().location
+        guard location < text.length else { return }
+        if text.length - location >= 2, text.substring(with: NSRange(location: location, length: 2)) == "\r\n" {
+            setSelectedRange(NSRange(location: location, length: 2))
+            return
+        }
+        let next = text.rangeOfComposedCharacterSequence(at: location)
+        if text.substring(with: next).unicodeScalars.allSatisfy({ CharacterSet.newlines.contains($0) }) {
+            setSelectedRange(next)
+        }
+    }
+
     // MARK: Refused actions
 
-    nonisolated override func responds(to aSelector: Selector!) -> Bool {
-        if let aSelector, Self.refusedActions.contains(NSStringFromSelector(aSelector)) { return false }
-        return super.responds(to: aSelector)
+    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if let action = menuItem.action, Self.refusedActions.contains(NSStringFromSelector(action)) { return false }
+        return super.validateMenuItem(menuItem)
     }
 
     override func validateUserInterfaceItem(_ item: NSValidatedUserInterfaceItem) -> Bool {
@@ -330,6 +353,7 @@ final class SecretFieldEditor: NSTextView {
     override func orderFrontSharingServicePicker(_ sender: Any?) {}
     override func quickLookPreviewItems(_ sender: Any?) {}
     override func quickLook(with event: NSEvent) {}
+    override func startSpeaking(_ sender: Any?) {}
     @available(macOS 15.2, *)
     override func showWritingTools(_ sender: Any?) {}
 
@@ -456,12 +480,13 @@ final class SecretEntryTextFieldCell: NSTextFieldCell {
     }
 }
 
-/// Moves keyboard focus between a group of secret fields at once, inside
-/// the key event that asked for it, so the next key already lands in the
-/// new field.
+/// The secret fields of one screen. Its owner moves keyboard focus between
+/// them inside the key event that asked for it, so the next key already
+/// lands in the new field, and commits their compositions before reading
+/// what they hold. Fields join the group in the SwiftUI environment.
 @MainActor
-final class SecretFieldFocus {
-    private final class Slot {
+final class SecretFieldGroup {
+    private final class Member {
         weak var field: SecretEntryTextField?
 
         init(_ field: SecretEntryTextField) {
@@ -469,33 +494,48 @@ final class SecretFieldFocus {
         }
     }
 
-    private var slots: [Int: Slot] = [:]
+    private var members: [Member] = []
+    private var slots: [Int: Member] = [:]
 
-    func register(_ field: SecretEntryTextField, id: Int) {
-        if slots[id]?.field !== field { slots[id] = Slot(field) }
+    func add(_ field: SecretEntryTextField, focusID: Int?) {
+        members.removeAll { $0.field == nil }
+        if !members.contains(where: { $0.field === field }) { members.append(Member(field)) }
+        if let focusID, slots[focusID]?.field !== field { slots[focusID] = Member(field) }
     }
 
-    func unregister(_ field: SecretEntryTextField) {
+    func remove(_ field: SecretEntryTextField) {
+        members.removeAll { $0.field == nil || $0.field === field }
         slots = slots.filter { $0.value.field != nil && $0.value.field !== field }
     }
 
-    func field(_ id: Int) -> SecretEntryTextField? {
-        slots[id]?.field
+    func field(_ focusID: Int) -> SecretEntryTextField? {
+        slots[focusID]?.field
     }
 
-    /// Gives field `id` keyboard focus now, or takes it away from whichever
-    /// field of the group has it when `id` is nil. Text an input method is
-    /// still composing is committed first.
-    func move(to id: Int?) {
-        if let id {
-            guard let field = field(id), let window = field.window, !field.isEditing else { return }
-            SecretTextField.finishComposition(in: window)
+    /// Commits text an input method is still composing in any field of the
+    /// group, so it reaches the bindings. Other windows are left alone.
+    func finishComposition() {
+        for field in members.compactMap(\.field) {
+            field.secretEditor.commitComposition()
+        }
+    }
+
+    /// Gives the field at `focusID` keyboard focus now, or takes it away from
+    /// whichever field of the group has it when `focusID` is nil.
+    func move(to focusID: Int?) {
+        finishComposition()
+        if let focusID {
+            guard let field = field(focusID), let window = field.window, !field.isEditing else { return }
             window.makeFirstResponder(field)
-        } else if let editing = slots.values.compactMap(\.field).first(where: \.isEditing) {
-            editing.secretEditor.commitComposition()
+        } else if let editing = members.compactMap(\.field).first(where: \.isEditing) {
             editing.window?.makeFirstResponder(nil)
         }
     }
+}
+
+extension EnvironmentValues {
+    /// The group the secret fields below join; nil for none.
+    @Entry var secretFieldGroup: SecretFieldGroup?
 }
 
 /// A SwiftUI field for a wallet secret, backed by `SecretEntryTextField`.
@@ -515,27 +555,46 @@ struct SecretTextField: NSViewRepresentable {
     /// takes focus when this becomes true and gives it up when it becomes
     /// false while the field is still editing.
     var isFocused = false
-    /// The group this field moves focus in, and its place there.
-    var focusGroup: SecretFieldFocus?
+    /// The field's place in the environment's `SecretFieldGroup`, for focus moves.
     var focusID: Int?
     var onFocusChange: ((Bool) -> Void)?
     /// Returns true when the owner handled the key.
     var onCommand: ((Command) -> Bool)?
     /// Offered pasted or dropped plain text first; true when handled.
     var onPaste: ((String) -> Bool)?
+    /// The bound text when the view was made. SwiftUI compares a binding by
+    /// where it points, not by its value, so without this a change made
+    /// elsewhere (Reset, Clear) would not reach `updateNSView`.
+    private let textSnapshot: String
+
+    init(
+        entry: SecretTextEntry,
+        placeholder: String = "",
+        text: Binding<String>,
+        style: SecretEntryTextField.Style = .bezeled,
+        accessibilityLabel: String,
+        isFocused: Bool = false,
+        focusID: Int? = nil,
+        onFocusChange: ((Bool) -> Void)? = nil,
+        onCommand: ((Command) -> Bool)? = nil,
+        onPaste: ((String) -> Bool)? = nil
+    ) {
+        self.entry = entry
+        self.placeholder = placeholder
+        _text = text
+        self.style = style
+        self.accessibilityLabel = accessibilityLabel
+        self.isFocused = isFocused
+        self.focusID = focusID
+        self.onFocusChange = onFocusChange
+        self.onCommand = onCommand
+        self.onPaste = onPaste
+        textSnapshot = text.wrappedValue
+    }
 
     /// Nesting depth of focus changes made while SwiftUI updates the view;
     /// focus reports are not sent then, because the owner asked for them.
     @MainActor private static var reconciling = 0
-
-    /// Commits any composition in progress in a secret field, so its text
-    /// reaches the binding before the owner reads it (on Continue).
-    @MainActor
-    static func finishComposition() {
-        for window in NSApp.windows {
-            finishComposition(in: window)
-        }
-    }
 
     @MainActor
     static func finishComposition(in window: NSWindow) {
@@ -567,7 +626,7 @@ struct SecretTextField: NSViewRepresentable {
         coordinator.lastSynced = text
         let editor = field.secretEditor
         editor.onSpace = { [weak coordinator] in coordinator?.perform(.space) ?? false }
-        editor.onPaste = { [weak coordinator] text in coordinator?.parent.onPaste?(text) ?? false }
+        editor.onPaste = { [weak coordinator] text in coordinator?.pasted(text) ?? false }
         editor.onFocusChange = { [weak coordinator] focused in coordinator?.focusChanged(focused) }
         editor.onCompositionCommit = { [weak coordinator] in coordinator?.pushFieldText() }
         field.onWindowChange = { [weak coordinator] in coordinator?.claimFocusIfWanted() }
@@ -577,15 +636,21 @@ struct SecretTextField: NSViewRepresentable {
     func updateNSView(_ field: SecretEntryTextField, context: Context) {
         let coordinator = context.coordinator
         coordinator.parent = self
-        if let focusGroup, let focusID { focusGroup.register(field, id: focusID) }
+        let group = context.environment.secretFieldGroup
+        if coordinator.group !== group {
+            coordinator.group?.remove(field)
+            coordinator.group = group
+        }
+        group?.add(field, focusID: focusID)
         field.placeholderString = placeholder
         field.setAccessibilityLabel(accessibilityLabel)
-        // Never replace text while an input method is composing it.
         let composing = field.isEditing && field.secretEditor.hasMarkedText()
-        if !composing, !ExactText.same(field.currentText, text) {
-            if field.isEditing { field.secretEditor.string = text }
-            field.stringValue = text
-            coordinator.lastSynced = text
+        if composing {
+            // The user's own composition is left alone, but a change made
+            // elsewhere meanwhile (Reset, Clear, Paste) wins over it.
+            if !ExactText.same(text, coordinator.lastSynced) { coordinator.replaceComposition(with: text) }
+        } else if !ExactText.same(field.currentText, text) {
+            coordinator.show(text)
         }
         let wasFocused = coordinator.wantsFocus
         coordinator.wantsFocus = isFocused
@@ -595,13 +660,14 @@ struct SecretTextField: NSViewRepresentable {
             } else {
                 coordinator.claimFocusIfWanted()
             }
-        } else if !isFocused, wasFocused, field.isEditing, !composing {
+        } else if !isFocused, wasFocused, field.isEditing, !field.secretEditor.hasMarkedText() {
             Self.reconcile { _ = field.window?.makeFirstResponder(nil) }
         }
     }
 
     static func dismantleNSView(_ field: SecretEntryTextField, coordinator: Coordinator) {
-        coordinator.parent.focusGroup?.unregister(field)
+        coordinator.group?.remove(field)
+        coordinator.group = nil
         coordinator.field = nil
         let editor = field.secretEditor
         editor.onSpace = nil
@@ -621,12 +687,16 @@ struct SecretTextField: NSViewRepresentable {
     final class Coordinator: NSObject, NSTextFieldDelegate {
         var parent: SecretTextField
         weak var field: SecretEntryTextField?
+        weak var group: SecretFieldGroup?
         var wantsFocus = false
         /// The field text the binding was last given or took. Ending an edit
         /// does not push it again, so a word replaced by an accepted
         /// suggestion is not overwritten by the stale prefix still shown.
         var lastSynced = ""
         private var claimScheduled = false
+        /// Set while the field shows text given by the binding, so nothing
+        /// is pushed back.
+        private var isShowingBindingText = false
 
         init(_ parent: SecretTextField) {
             self.parent = parent
@@ -651,13 +721,48 @@ struct SecretTextField: NSViewRepresentable {
             }
         }
 
+        /// A key the owner may handle. A composition still in progress is
+        /// committed first, so the owner sees the whole word.
         func perform(_ command: Command) -> Bool {
-            parent.onCommand?(command) ?? false
+            guard let onCommand = parent.onCommand else { return false }
+            field?.secretEditor.commitComposition()
+            return onCommand(command)
+        }
+
+        /// Pasted text the owner took is shown as the binding now has it
+        /// before the next key arrives.
+        func pasted(_ text: String) -> Bool {
+            guard parent.onPaste?(text) == true else { return false }
+            show(parent.text)
+            return true
+        }
+
+        /// Shows `text` from the binding in the field.
+        func show(_ text: String) {
+            guard let field, !ExactText.same(field.currentText, text) || !ExactText.same(lastSynced, text) else { return }
+            isShowingBindingText = true
+            defer { isShowingBindingText = false }
+            if field.isEditing { field.secretEditor.string = text }
+            field.stringValue = text
+            lastSynced = text
+        }
+
+        /// Drops an unfinished composition in favour of `text` from the binding.
+        func replaceComposition(with text: String) {
+            guard let field else { return }
+            isShowingBindingText = true
+            defer { isShowingBindingText = false }
+            let editor = field.secretEditor
+            editor.unmarkText()
+            editor.inputContext?.discardMarkedText()
+            editor.string = text
+            field.stringValue = text
+            lastSynced = text
         }
 
         /// Hands the field's text to the binding, byte for byte.
         func pushFieldText() {
-            guard let field else { return }
+            guard !isShowingBindingText, let field else { return }
             let value = field.currentText
             lastSynced = value
             if !ExactText.same(parent.text, value) { parent.text = value }

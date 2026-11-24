@@ -11,7 +11,8 @@ struct ImportPhraseStep: View {
     var onCancel: (() -> Void)?
 
     @State private var showAdvanced = false
-    @State private var focusGroup = SecretFieldFocus()
+    @State private var secretFields = SecretFieldGroup()
+    @Environment(\.staticRendering) private var staticRendering
 
     private var entry: PhraseEntryModel { model.phraseEntry }
 
@@ -94,6 +95,8 @@ struct ImportPhraseStep: View {
                 .keyboardShortcut(.defaultAction)
                 .disabled(!model.canContinueImport)
         }
+        .environment(\.secretFieldGroup, secretFields)
+        .background(CaptureProtection(isActive: showsSecrets && !staticRendering))
         .onAppear {
             if entry.focusedIndex == nil { entry.focusedIndex = 0 }
         }
@@ -109,15 +112,16 @@ struct ImportPhraseStep: View {
                 .frame(width: 18, alignment: .trailing)
                 .accessibilityHidden(true)
             // An AppKit field with its own editor: Roman-script input sources
-            // only and every text service off, so no conversion dictionary,
-            // spelling, prediction or Writing Tools sees the words.
+            // only, and AppKit's spelling, grammar, correction, replacement,
+            // completion, smart punctuation, prediction, math completion,
+            // Writing Tools, Share and Look Up off. (The Roman mode of an input
+            // method can still receive the keys.)
             SecretTextField(
                 entry: .recoveryWord,
                 text: Binding(get: { entry.words[safe: index] ?? "" }, set: { entry.setText($0, at: index) }),
                 style: .plain,
                 accessibilityLabel: unknown ? "Word \(index + 1), not in the word list" : "Word \(index + 1)",
                 isFocused: focused,
-                focusGroup: focusGroup,
                 focusID: index,
                 onFocusChange: { isFocused in focusChanged(isFocused, at: index) },
                 onCommand: { command in handle(command, at: index) },
@@ -192,7 +196,7 @@ struct ImportPhraseStep: View {
         case .tab:
             if let first = entry.suggestions(at: index).first {
                 entry.acceptSuggestion(first, at: index)
-                focusGroup.move(to: entry.focusedIndex)
+                secretFields.move(to: entry.focusedIndex)
                 return true
             }
             guard index + 1 < entry.wordCount else { return false }
@@ -207,7 +211,7 @@ struct ImportPhraseStep: View {
 
     private func moveFocus(to index: Int?) {
         entry.focusedIndex = index
-        focusGroup.move(to: index)
+        secretFields.move(to: index)
     }
 
     /// Several words pasted or dropped into a field go to the grid as they
@@ -216,6 +220,7 @@ struct ImportPhraseStep: View {
     private func pasted(_ text: String, at index: Int) -> Bool {
         guard PhraseEntryModel.tokens(in: text).count > 1 else { return false }
         entry.setText(text, at: index)
+        secretFields.move(to: entry.focusedIndex)
         return true
     }
 
@@ -224,7 +229,7 @@ struct ImportPhraseStep: View {
         let suggestions = entry.suggestions(at: index)
         if !text.isEmpty, !entry.wordList.contains(text), let first = suggestions.first {
             entry.acceptSuggestion(first, at: index)
-            focusGroup.move(to: entry.focusedIndex)
+            secretFields.move(to: entry.focusedIndex)
         } else if index + 1 < entry.wordCount {
             moveFocus(to: index + 1)
         } else if model.canContinueImport {
@@ -233,8 +238,16 @@ struct ImportPhraseStep: View {
     }
 
     private func continueImport() {
-        SecretTextField.finishComposition()
+        secretFields.finishComposition()
         Task { await model.continueImport() }
+    }
+
+    /// Typed words, or a path with a password, are kept out of screenshots
+    /// and screen sharing ("remote support" scams ask to watch this screen).
+    private var showsSecrets: Bool {
+        entry.filledCount > 0
+            || DerivationPath.holdsPassword(model.derivation.substrateDerivationPath)
+            || DerivationPath.holdsPassword(model.derivation.evmDerivationPath)
     }
 }
 
@@ -354,14 +367,24 @@ struct ImportSeedStep: View {
     @Bindable var model: OnboardingModel
     let compact: Bool
 
-    @State private var isVisible: Bool
+    @State private var ownVisibility = false
+    private let visibility: Binding<Bool>?
+    @State private var secretFields = SecretFieldGroup()
     @Environment(\.controlActiveState) private var controlActiveState
     @Environment(\.staticRendering) private var staticRendering
 
-    init(model: OnboardingModel, compact: Bool, isVisible: Bool = false) {
+    /// `isVisible` is for tests; nil keeps the eye button's state here.
+    init(model: OnboardingModel, compact: Bool, isVisible: Binding<Bool>? = nil) {
         self.model = model
         self.compact = compact
-        _isVisible = State(initialValue: isVisible)
+        visibility = isVisible
+    }
+
+    private var isVisible: Bool {
+        get { visibility?.wrappedValue ?? ownVisibility }
+        nonmutating set {
+            if let visibility { visibility.wrappedValue = newValue } else { ownVisibility = newValue }
+        }
     }
 
     private var secretName: String {
@@ -423,14 +446,17 @@ struct ImportSeedStep: View {
             Spacer()
             StepProgress(isWorking: model.isWorking)
             Button("Continue") {
-                SecretTextField.finishComposition()
+                secretFields.finishComposition()
                 Task { await model.continueImport() }
             }
             .brandProminentButton()
             .keyboardShortcut(.defaultAction)
             .disabled(!model.canContinueImport)
         }
-        .background(CaptureProtection(isActive: isVisible && !staticRendering))
+        .environment(\.secretFieldGroup, secretFields)
+        .background(CaptureProtection(
+            isActive: (isVisible || DerivationPath.holdsPassword(model.derivation.substrateDerivationPath)) && !staticRendering
+        ))
         .onChange(of: controlActiveState) { _, state in
             if state != .key, !staticRendering { isVisible = false }
         }
