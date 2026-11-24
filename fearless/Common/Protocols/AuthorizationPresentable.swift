@@ -1,6 +1,7 @@
 import UIKit
 
 typealias AuthorizationCompletionBlock = (Bool) -> Void
+typealias AuthorizationOutcomeBlock = (ScreenAuthorizationOutcome) -> Void
 
 protocol AuthorizationPresentable: ScreenAuthorizationWireframeProtocol {
     func createAuthorizationView(
@@ -38,10 +39,10 @@ extension AuthorizationAccessible {
 }
 
 extension AuthorizationPresentable {
-    private var completionBlock: AuthorizationCompletionBlock? {
+    private var completionBlock: AuthorizationOutcomeBlock? {
         get {
             objc_getAssociatedObject(self, &AuthorizationConstants.completionBlockKey)
-                as? AuthorizationCompletionBlock
+                as? AuthorizationOutcomeBlock
         }
 
         set {
@@ -100,11 +101,25 @@ extension AuthorizationPresentable {
         )
     }
 
+    /// A cancelled, failed or unanswered authorization reports `false`.
     func authorize(
         animated: Bool,
         cancellable: Bool,
         from view: ControllerBackedProtocol? = nil,
         with completionBlock: @escaping AuthorizationCompletionBlock
+    ) {
+        authorizeWithOutcome(animated: animated, cancellable: cancellable, from: view) { outcome in
+            completionBlock(outcome.isAuthorized)
+        }
+    }
+
+    /// As `authorize(animated:cancellable:from:with:)`, but tells a refusal from no answer: the PIN closed because the
+    /// app went to the background is `.unanswered`.
+    func authorizeWithOutcome(
+        animated: Bool,
+        cancellable: Bool,
+        from view: ControllerBackedProtocol?,
+        completion completionBlock: @escaping AuthorizationOutcomeBlock
     ) {
         guard !isAuthorizing else {
             return
@@ -118,7 +133,7 @@ extension AuthorizationPresentable {
             with: self,
             cancellable: cancellable
         ) else {
-            completionBlock(false)
+            completionBlock(.declined)
             return
         }
 
@@ -234,6 +249,10 @@ final class SubmissionAuthorizer: SubmissionAuthorizing, AuthorizationPresentabl
 
 extension AuthorizationPresentable {
     func showAuthorizationCompletion(with result: Bool) {
+        showAuthorizationCompletion(outcome: result ? .authorized : .declined)
+    }
+
+    func showAuthorizationCompletion(outcome result: ScreenAuthorizationOutcome) {
         guard let completionBlock, let authorizationView else {
             self.completionBlock = nil
             self.authorizationView = nil

@@ -78,6 +78,12 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
         finish(resolved: approved ? true : (isInterrupted() ? nil : false))
     }
 
+    /// Closes the sheet with no answer (the PIN closed when the app went to the background): nothing is declined.
+    func finishUnanswered() {
+        guard completion != nil else { return }
+        finish(resolved: nil)
+    }
+
     private func finish(resolved outcome: Bool?) {
         guard let callback = completion else { return }
         guard !isInteractivelyDismissing else {

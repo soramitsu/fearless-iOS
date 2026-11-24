@@ -46,11 +46,23 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     private var waitsForTrigger = false
     private var drainObservers: [NSObjectProtocol] = []
     private var presenterCheckScheduled = false
+    /// Links the user answered whose reply is still being sent again: the same link arriving meanwhile is merged
+    /// with it instead of being asked about a second time.
+    private var answeredURLs: Set<URL> = []
+    /// Waits before each further try of a decided connection's reply that the bridge did not take.
+    private let replyRetryNanoseconds: [UInt64]
+    private let authorizationViewFactory: (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol?
+    private let reportError: ((Error) -> Void)?
 
     /// Set by `approve`, in the opening link's own task, once the user has decided on it. A link is queued again
     /// only for a failure before that decision, so nobody is asked twice about one link.
     private final class LinkDecision {
+        let url: URL
         var made = false
+
+        init(url: URL) {
+            self.url = url
+        }
     }
 
     @TaskLocal private static var linkDecision: LinkDecision?
@@ -72,7 +84,12 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
             return wallet
         },
         isEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonConnectEnabled },
-        isSigningEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonDappSigningEnabled }
+        isSigningEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonDappSigningEnabled },
+        replyRetryNanoseconds: [UInt64] = [1, 2, 4, 8, 16].map { $0 * 1_000_000_000 },
+        authorizationViewFactory: @escaping (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol? = {
+            PinViewFactory.createScreenAuthorizationView(with: $0, cancellable: $1)
+        },
+        reportError: ((Error) -> Void)? = nil
     ) {
         self.store = store
         self.transport = transport
@@ -83,6 +100,9 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         self.walletLoader = walletLoader
         self.isEnabled = isEnabled
         self.isSigningEnabled = isSigningEnabled
+        self.replyRetryNanoseconds = replyRetryNanoseconds
+        self.authorizationViewFactory = authorizationViewFactory
+        self.reportError = reportError
         service = LegacyTonConnectService(store: store, replies: replies, transport: transport)
         super.init()
     }
@@ -114,6 +134,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     func open(_ url: URL) {
         precondition(Thread.isMainThread)
+        // Answered already, its reply still on the way: asking again could only contradict the answer.
+        guard !answeredURLs.contains(url) else { return }
         // Links wait, in order, while the wallet is not ready, the app is locked or not active.
         if !pendingURLs.contains(url) {
             pendingURLs.append(url)
@@ -143,7 +165,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         isOpeningURL = true
         Task { @MainActor in
             var blocked = false
-            let decision = LinkDecision()
+            let decision = LinkDecision(url: url)
             defer {
                 isOpeningURL = false
                 if blocked {
@@ -302,7 +324,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         guard try await approve(title: "Connect TON wallet", details: details) else {
             let declined = try JSONSerialization.data(withJSONObject: ["event": "connect_error", "id": UInt64(Date().timeIntervalSince1970), "payload": ["code": 300, "message": "Connection declined"]])
             if connectionType == "http" {
-                try await transport.send(declined, session: session, bridge: context.bridgeURL, topic: "connect")
+                await deliverConnectReply(declined, session: session, bridge: context.bridgeURL, sessionIsSaved: false)
             }
             return declined
         }
@@ -322,7 +344,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         )
         try await service.save(session: session, context: context)
         if connectionType == "http" {
-            try await transport.send(response, session: session, bridge: context.bridgeURL, topic: "connect")
+            await deliverConnectReply(response, session: session, bridge: context.bridgeURL, sessionIsSaved: true)
+            // The saved session listens whether or not its reply has left yet.
             await service.start(selectedNetwork: network)
         }
         return response
@@ -487,8 +510,14 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
             controller.isInterrupted = { [weak self] in ApplicationLockState.shared.isLocked || self?.ready != true }
             controller.onApprove = { [weak self, weak controller] in
                 guard let self, let controller else { return }
-                authorize(animated: true, cancellable: true, from: controller) { authorized in
-                    controller.finish(approved: authorized)
+                authorizeWithOutcome(animated: true, cancellable: true, from: controller) { outcome in
+                    switch outcome {
+                    case .authorized: controller.finish(approved: true)
+                    case .declined: controller.finish(approved: false)
+                    // The PIN closed with the app going to the background: nothing was decided, so nothing is sent
+                    // and the request is asked again.
+                    case .unanswered: controller.finishUnanswered()
+                    }
                 }
             }
             controller.completion = { [weak self] outcome in
@@ -542,6 +571,10 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     @MainActor
     private func present(error: Error) {
+        if let reportError {
+            reportError(error)
+            return
+        }
         guard !ApplicationLockState.shared.isLocked else { return }
         let alert = UIAlertController(title: "TonConnect", message: error.localizedDescription, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -555,5 +588,58 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     private static func formatTon(_ nanotons: String) -> String {
         guard let value = Decimal(string: nanotons) else { return nanotons }
         return NSDecimalNumber(decimal: value / 1_000_000_000).stringValue
+    }
+}
+
+// MARK: - Decided replies and the approval PIN
+
+extension LegacyTonConnectCoordinator {
+    func createAuthorizationView(
+        with wireframe: ScreenAuthorizationWireframeProtocol,
+        cancellable: Bool
+    ) -> PinSetupViewProtocol? {
+        authorizationViewFactory(wireframe, cancellable)
+    }
+
+    /// Sends a decided connection's reply to the application's bridge. A reply the bridge did not take keeps its
+    /// session and bridge and is sent again in the background a bounded number of times: the decision stands and
+    /// the user is not asked again. It stops once TON Connect is vetoed or an approved session was disconnected,
+    /// and the user hears only if every try failed.
+    @MainActor
+    private func deliverConnectReply(
+        _ reply: Data, session: LegacyTonConnectSession, bridge: URL, sessionIsSaved: Bool
+    ) async {
+        do {
+            try await transport.send(reply, session: session, bridge: bridge, topic: "connect")
+            return
+        } catch {}
+        let delivery = Task { @MainActor [weak self, replyRetryNanoseconds] in
+            for delay in replyRetryNanoseconds {
+                do { try await Task.sleep(nanoseconds: delay) } catch { return }
+                guard let self, self.isEnabled() else { return }
+                if sessionIsSaved {
+                    // A session list that cannot be read now (Keychain locked) waits for the next try.
+                    guard let stored = try? await self.store.sessions().contains(session) else { continue }
+                    guard stored else { return }
+                }
+                do {
+                    try await self.transport.send(reply, session: session, bridge: bridge, topic: "connect")
+                    return
+                } catch {}
+            }
+            guard let self, self.ready else { return }
+            self.present(error: LegacyTonConnectError.transportFailed)
+        }
+        if let link = Self.linkDecision?.url {
+            holdAnswered(link, until: delivery)
+        }
+    }
+
+    private func holdAnswered(_ url: URL, until delivery: Task<Void, Never>) {
+        answeredURLs.insert(url)
+        Task { @MainActor [weak self] in
+            await delivery.value
+            self?.answeredURLs.remove(url)
+        }
     }
 }
