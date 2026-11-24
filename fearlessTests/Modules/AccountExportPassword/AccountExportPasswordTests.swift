@@ -908,8 +908,6 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
 
     func testExportPasswordLiveLocaleTypeAndKeyboardContinuity() async throws {
         try XCTSkipUnless(FWAppearance.accountExportPasswordRestyled)
-        let probe = KeyboardProbe()
-        defer { probe.close() }
         let localization = try XCTUnwrap(LocalizationManager(localization: "en"))
         let (controller, presenter) = makeController(localization: localization)
         let window = try show(controller, category: .large)
@@ -919,7 +917,7 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
         enter("public-fixture", into: fields[0], controller: controller)
         enter("public-fixture", into: fields[1], controller: controller)
         controller.set(error: .passwordMismatch)
-        XCTAssertTrue(fields[0].becomeFirstResponder())
+        await focusWithFixedKeyboard(fields[0], window: window)
         let editor = fields[0].textField!
         let caret = try XCTUnwrap(editor.position(from: editor.beginningOfDocument, offset: 4))
         editor.selectedTextRange = editor.textRange(from: caret, to: caret)
@@ -950,7 +948,6 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
             fields[0].textFont?.pointSize,
             UIFont.fw(.bodyL, locale: locale, compatibleWith: controller.traitCollection).pointSize
         )
-        await settleNativeKeyboard(probe, window: window)
         let keyboard = window.convert(CGRect(x: 0, y: 340, width: 320, height: 228), to: nil)
         controller.updateWhileKeyboardFrameChanging(keyboard)
         await settleKeyboardScroll(editor: editor, window: window, bottom: 340)
@@ -973,8 +970,6 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
 
     func testExportPasswordLiveWidthBoldAndConfirmationEditor() async throws {
         try XCTSkipUnless(FWAppearance.accountExportPasswordRestyled)
-        let probe = KeyboardProbe()
-        defer { probe.close() }
         let localization = try XCTUnwrap(LocalizationManager(localization: "ja"))
         let (controller, presenter) = makeController(localization: localization)
         let window = try show(controller, category: .accessibilityExtraExtraExtraLarge)
@@ -985,7 +980,7 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
         let sample = String(repeating: "public-fixture-", count: 5)
         fields.forEach { enter(sample, into: $0, controller: controller) }
         let editor = fields[1].textField!
-        XCTAssertTrue(fields[1].becomeFirstResponder())
+        await focusWithFixedKeyboard(fields[1], window: window)
         let position = try XCTUnwrap(editor.position(from: editor.beginningOfDocument, offset: 7))
         editor.selectedTextRange = editor.textRange(from: position, to: position)
         let regular = try XCTUnwrap(fields[1].textFont)
@@ -1054,14 +1049,21 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
         return (traits?[.weight] as? NSNumber).map { CGFloat(truncating: $0) } ?? 0
     }
 
+    /// Records keyboard notifications. It observes them synchronously, as the screen's keyboard handler does, so
+    /// `frame` always belongs to the notification the screen handled last.
     private final class KeyboardProbe {
         private var tokens: [NSObjectProtocol] = []
-        private var pending = false
-        private var hasShown = false
-        private var latest = Date()
+        private(set) var hasShown = false
+        /// End frame, in screen coordinates, of the latest notification the screen acts on.
+        private(set) var frame: CGRect?
         private(set) var observations: [String] = []
 
         init() {
+            let handled: Set<Notification.Name> = [
+                UIResponder.keyboardWillShowNotification,
+                UIResponder.keyboardWillChangeFrameNotification,
+                UIResponder.keyboardWillHideNotification
+            ]
             for name in [UIResponder.keyboardWillShowNotification, UIResponder.keyboardDidShowNotification,
                          UIResponder.keyboardWillChangeFrameNotification,
                          UIResponder.keyboardDidChangeFrameNotification,
@@ -1069,43 +1071,49 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
                 tokens
                     .append(
                         NotificationCenter.default
-                            .addObserver(forName: name, object: nil, queue: .main) { [weak self] event in
-                                self?.latest = Date()
-                                self?.pending = event.name.rawValue.contains("Will")
+                            .addObserver(forName: name, object: nil, queue: nil) { [weak self] event in
+                                let end = (event.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?
+                                    .cgRectValue
+                                if handled.contains(event.name), let end = end { self?.frame = end }
                                 if event.name == UIResponder.keyboardDidShowNotification { self?.hasShown = true }
                                 self?.observations
                                     .append(
-                                        "time=\(Date().timeIntervalSince1970); name=\(event.name.rawValue); frame=\(String(describing: event.userInfo?[UIResponder.keyboardFrameEndUserInfoKey]))"
+                                        "time=\(Date().timeIntervalSince1970); name=\(event.name.rawValue); frame=\(String(describing: end))"
                                     )
                             }
                     )
             }
         }
 
-        var isIdle: Bool { hasShown && !pending && Date().timeIntervalSince(latest) >= 0.25 }
         func close() { tokens.forEach { NotificationCenter.default.removeObserver($0) }; tokens = [] }
     }
 
-    private func settleNativeKeyboard(_ probe: KeyboardProbe, window: UIWindow) async {
-        for _ in 0 ..< 80 {
-            window.layoutIfNeeded()
-            if probe.isIdle { break }
+    /// Focuses `field` with a fixed stand-in for the system keyboard and waits until it has shown.
+    ///
+    /// The simulator's keyboard keeps changing after it has shown: on iOS 27 it adds its 27 pt AutoFill "Passwords"
+    /// bar some time later, at times after a frame the test has sent. The screen's keyboard handler and UIKit, which
+    /// scrolls a focused field back into view, both follow every such change and undo the test's frame. A plain input
+    /// view never changes, so after its DidShow no keyboard notification arrives that the test did not send.
+    /// `testExportPasswordScrollInsetFollowsTheSystemKeyboard` covers the screen with the real keyboard.
+    private func focusWithFixedKeyboard(_ field: AnimatedTextField, window: UIWindow) async {
+        let probe = KeyboardProbe()
+        defer { probe.close() }
+        field.textField.inputView = UIView(frame: CGRect(x: 0, y: 0, width: window.bounds.width, height: 120))
+        XCTAssertTrue(field.becomeFirstResponder())
+        for _ in 0 ..< 100 {
+            if probe.hasShown { break }
             try? await Task.sleep(nanoseconds: 50_000_000)
         }
-        XCTAssertTrue(
-            probe.isIdle,
-            "Native keyboard notifications must settle before injecting the constrained viewport"
-        )
+        XCTAssertTrue(probe.hasShown, "The stand-in keyboard must have shown before the test sends its own frames")
+        await settle(window)
         let attachment = XCTAttachment(string: probe.observations.joined(separator: "\n"))
-        attachment.name = "export-password-native-keyboard-notifications"
+        attachment.name = "export-password-fixed-keyboard-notifications"
         attachment.lifetime = .keepAlways
         add(attachment)
     }
 
     func testExportPasswordKeyboardNotificationsRevealAndHide() async throws {
         try XCTSkipUnless(FWAppearance.accountExportPasswordRestyled)
-        let probe = KeyboardProbe()
-        defer { probe.close() }
         let localization = try XCTUnwrap(LocalizationManager(localization: "ja"))
         let (controller, presenter) = makeController(localization: localization)
         let window = try show(controller, category: .accessibilityExtraExtraExtraLarge)
@@ -1114,8 +1122,7 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
         let fields = try inputFields(controller)
         let editor = fields[0].textField!
         enter("public-fixture", into: fields[0], controller: controller)
-        XCTAssertTrue(fields[0].becomeFirstResponder())
-        await settleNativeKeyboard(probe, window: window)
+        await focusWithFixedKeyboard(fields[0], window: window)
         let scroll = try XCTUnwrap(descendants(controller.view).compactMap { $0 as? UIScrollView }.first)
         let keyboard = window.convert(CGRect(x: 0, y: 340, width: 320, height: 228), to: nil)
         NotificationCenter.default.post(name: UIResponder.keyboardWillShowNotification, object: nil, userInfo: [
@@ -1157,6 +1164,59 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
         capture(window, name: "posted-keyboard-hide")
         controller.viewDidDisappear(false)
         XCTAssertNil(controller.keyboardHandler)
+    }
+
+    func testExportPasswordScrollInsetFollowsTheSystemKeyboard() async throws {
+        try XCTSkipUnless(FWAppearance.accountExportPasswordRestyled)
+        let probe = KeyboardProbe()
+        defer { probe.close() }
+        let localization = try XCTUnwrap(LocalizationManager(localization: "ja"))
+        let (controller, presenter) = makeController(localization: localization)
+        let window = try show(controller, category: .accessibilityExtraExtraExtraLarge, fullScreen: true)
+        defer { close(window) }
+        await settle(window)
+        XCTAssertNotNil(controller.keyboardHandler, "The screen must observe the keyboard itself")
+        let fields = try inputFields(controller)
+        let editor = fields[0].textField!
+        let scroll = try XCTUnwrap(descendants(controller.view).compactMap { $0 as? UIScrollView }.first)
+        enter("public-fixture", into: fields[0], controller: controller)
+        XCTAssertTrue(fields[0].becomeFirstResponder())
+        // The real keyboard may still change after it has shown (its AutoFill bar can come later), so this does not
+        // wait for it to go quiet. It passes once, for the frame the keyboard posted last, the inset equals the
+        // keyboard's overlap with the scroll view and the scrolled editor rests between the top bar and the keyboard.
+        var previous = scroll.contentOffset
+        var stable = 0
+        var states: [String] = []
+        var followed = false
+        for tick in 0 ..< 200 {
+            window.layoutIfNeeded()
+            stable = abs(previous.y - scroll.contentOffset.y) < 0.1 ? stable + 1 : 0
+            previous = scroll.contentOffset
+            if probe.hasShown, let screenFrame = probe.frame {
+                let keyboard = window.convert(screenFrame, from: nil)
+                let overlap = max(0, scroll.convert(scroll.bounds, to: window).maxY - keyboard.minY)
+                let frame = editor.convert(editor.bounds, to: window)
+                states.append(
+                    "tick=\(tick); keyboard=\(keyboard); overlap=\(overlap); inset=\(scroll.contentInset.bottom); editor=\(frame); offset=\(scroll.contentOffset)"
+                )
+                if overlap > 0, abs(scroll.contentInset.bottom - overlap) < 0.5, frame.maxY <= keyboard.minY + 0.5,
+                   frame.minY >= window.safeAreaInsets.top, stable >= 3 {
+                    followed = true
+                    break
+                }
+            }
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
+        let attachment = XCTAttachment(string: (probe.observations + states).joined(separator: "\n"))
+        attachment.name = "export-password-system-keyboard-observations"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        XCTAssertTrue(followed, "The scroll inset must follow the system keyboard and keep the editor above it")
+        XCTAssertTrue(editor.isFirstResponder)
+        XCTAssertEqual(editor.text, "public-fixture")
+        XCTAssertTrue(editor.isSecureTextEntry)
+        XCTAssertEqual(presenter.setups, 1)
+        capture(window, name: "system-keyboard")
     }
 
     private func makeController(
@@ -1272,10 +1332,15 @@ final class AccountExportPasswordPresentationTests: XCTestCase {
         await settle(window)
     }
 
-    private func show(_ controller: UIViewController, category: UIContentSizeCategory) throws -> UIWindow {
+    private func show(
+        _ controller: UIViewController,
+        category: UIContentSizeCategory,
+        fullScreen: Bool = false
+    ) throws -> UIWindow {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
         let window = UIWindow(windowScene: scene)
-        window.frame = CGRect(x: 0, y: 0, width: 320, height: 568)
+        // A real keyboard overlaps a full-screen window by its whole height; the 320 x 568 window sits above most of it.
+        window.frame = fullScreen ? scene.coordinateSpace.bounds : CGRect(x: 0, y: 0, width: 320, height: 568)
         window.overrideUserInterfaceStyle = .dark
         if #available(iOS 17.0, *) { window.traitOverrides.preferredContentSizeCategory = category }
         window.traitCollection.performAsCurrent {
