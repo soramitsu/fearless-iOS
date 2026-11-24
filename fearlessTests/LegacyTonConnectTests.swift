@@ -236,6 +236,14 @@ private final class TonConnectFakeSessionKeys: LegacyTonConnectSessionKeyStoring
     /// Widens the window in which two store operations could overlap.
     var callDelay: useconds_t = 0
     private(set) var saveCount = 0
+    /// Saves refused because another key is stored under the reference.
+    private(set) var refusedSaves = 0
+    /// The next load of each of these references answers "no item", as if the item were added just after the read.
+    var hideNextLoad: Set<String> {
+        get { guardLock.lock(); defer { guardLock.unlock() }; return hiddenLoads }
+        set { guardLock.lock(); hiddenLoads = newValue; guardLock.unlock() }
+    }
+    private var hiddenLoads: Set<String> = []
 
     var items: [String: Data] {
         get { guardLock.lock(); defer { guardLock.unlock() }; return storage }
@@ -268,7 +276,10 @@ private final class TonConnectFakeSessionKeys: LegacyTonConnectSessionKeyStoring
         guardLock.lock(); defer { guardLock.unlock() }
         // As the Keychain class does: a stored value is never replaced; the same bytes count as saved.
         if let existing = storage[reference] {
-            guard existing == key else { throw LegacyTonConnectSessionKeyError.existingKeyDiffers }
+            guard existing == key else {
+                refusedSaves += 1
+                throw LegacyTonConnectSessionKeyError.existingKeyDiffers
+            }
             saveCount += 1
             return false
         }
@@ -280,7 +291,10 @@ private final class TonConnectFakeSessionKeys: LegacyTonConnectSessionKeyStoring
     func loadKey(reference: String) throws -> Data? {
         enter(); defer { leave() }
         if let status = failLoads { throw LegacyTonConnectSessionKeyError.keychainUnavailable(status) }
-        guard let value = items[reference] else { return nil }
+        guardLock.lock()
+        let hidden = hiddenLoads.remove(reference) != nil
+        guardLock.unlock()
+        guard !hidden, let value = items[reference] else { return nil }
         guard corruptReads else { return value }
         var corrupted = value
         corrupted[corrupted.startIndex] ^= 0xFF
@@ -2576,12 +2590,15 @@ final class LegacyTonConnectSessionKeyDuplicateTests: XCTestCase {
         try fixture.insert(session)
         let before = try fixture.snapshot()
 
-        let listed = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
 
-        XCTAssertEqual(listed, [session])
-        XCTAssertEqual(try fixture.snapshot(), before)
-        XCTAssertEqual(keys.items, [reference(session).account: occupying])
-        XCTAssertEqual(keys.saveCount, 0)
+        for attempt in 1 ... 2 {
+            let listed = try await store.sessions()
+            XCTAssertEqual(listed, [session])
+            XCTAssertEqual(try fixture.snapshot(), before)
+            XCTAssertEqual(keys.items, [reference(session).account: occupying])
+            XCTAssertEqual(keys.refusedSaves, attempt, "Each read tries the move once, and it is refused")
+        }
     }
 
     /// Review: a failed new-session save removes an item only if that save added it, never one that was there.
@@ -2592,6 +2609,9 @@ final class LegacyTonConnectSessionKeyDuplicateTests: XCTestCase {
         let kept = try tonConnectTestSession(id: "kept", walletId: "legacy-wallet", host: "a.example.org")
         let added = try tonConnectTestSession(id: "added", walletId: "legacy-wallet", host: "b.example.org")
         keys.items[reference(kept).account] = kept.privateKey
+        // Whether the save added the item is never guessed from a read: the first read of the kept item misses it,
+        // as if another writer added it just after.
+        keys.hideNextLoad = [reference(kept).account]
         keys.corruptReads = true
 
         for session in [kept, added] {
