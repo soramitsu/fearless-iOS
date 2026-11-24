@@ -2291,16 +2291,34 @@ private final class TonConnectSendGate {
     }
 }
 
-/// Parks each retry of a kept reply until the test lets it go, in place of the retry delays.
+/// Parks each retry of a kept reply until the test lets it go, in place of the retry delays. Pass `pass` as the
+/// coordinator's `replyRetryWait`: it runs on the main actor like the retry, so once `resumed` counts a released
+/// retry, that retry has also made its synchronous decision (a cancelled one has ended).
 private final class TonConnectRetryGate {
     private let lock = NSLock()
     private var parked: [CheckedContinuation<Void, Never>] = []
     private var count = 0
+    private var resumedCount = 0
 
     var entered: Int {
         lock.lock()
         defer { lock.unlock() }
         return count
+    }
+
+    var resumed: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return resumedCount
+    }
+
+    var pass: @MainActor (UInt64) async -> Void {
+        { [self] delay in
+            await wait(delay)
+            lock.lock()
+            resumedCount += 1
+            lock.unlock()
+        }
     }
 
     func wait(_: UInt64) async {
@@ -2460,12 +2478,15 @@ private final class TonConnectFlakyReplyTransport: LegacyTonConnectBridgeTranspo
 }
 
 /// Runs a hook once, from inside the next `sessions()` read after it was armed, before that read returns the list
-/// it read before the hook ran.
+/// it read before the hook ran. On the main actor like the retry that reads it: once `hookFired` is set, that retry
+/// has also made its decision.
+@MainActor
 private final class TonConnectHookedSessionStore: LegacyTonConnectSessionStoring {
     private let lock = NSLock()
     private var stored: [LegacyTonConnectSession] = []
     private var hook: (() async -> Void)?
     private var fired = false
+    private var readCount = 0
 
     private func locked<T>(_ body: () -> T) -> T {
         lock.lock()
@@ -2475,11 +2496,13 @@ private final class TonConnectHookedSessionStore: LegacyTonConnectSessionStoring
 
     var values: [LegacyTonConnectSession] { locked { stored } }
     var hookFired: Bool { locked { fired } }
+    var reads: Int { locked { readCount } }
 
     func arm(_ hook: @escaping () async -> Void) { locked { self.hook = hook } }
 
     func sessions() async throws -> [LegacyTonConnectSession] {
         let (snapshot, pending): ([LegacyTonConnectSession], (() async -> Void)?) = locked {
+            readCount += 1
             let pending = hook
             hook = nil
             return (stored, pending)
@@ -2689,7 +2712,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         let coordinator = LegacyTonConnectCoordinator(
             store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
             selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet }, isEnabled: { true },
-            replyRetryNanoseconds: [1, 1, 1], replyRetryWait: { await gate.wait($0) }, reportError: { errors.append($0) }
+            replyRetryNanoseconds: [1, 1, 1], replyRetryWait: gate.pass, reportError: { errors.append($0) }
         )
         await coordinator.activate()
         let response = try await coordinator.connect(
@@ -2702,7 +2725,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
 
         try await coordinator.disconnect(try XCTUnwrap(storage.values.first))
         gate.releaseAll()
-        try await Task.sleep(nanoseconds: 300_000_000)
+        try await tonConnectWaitUntil("The released retry decided") { gate.resumed == 1 }
         XCTAssertEqual(transport.attempts, 1, "A disconnected session's reply is not sent again")
         XCTAssertEqual(gate.entered, 1, "It stopped instead of waiting for another try")
         XCTAssertTrue(errors.isEmpty, "Stopping is not a failure to report: \(errors)")
@@ -2721,7 +2744,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         let coordinator = LegacyTonConnectCoordinator(
             store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
             selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet }, isEnabled: { true },
-            replyRetryNanoseconds: [1, 1, 1], replyRetryWait: { await gate.wait($0) }, reportError: { errors.append($0) }
+            replyRetryNanoseconds: [1, 1, 1], replyRetryWait: gate.pass, reportError: { errors.append($0) }
         )
         await coordinator.activate()
         _ = try await coordinator.connect(
@@ -2735,7 +2758,6 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         storage.arm { try? await coordinator.disconnect(session) }
         gate.releaseAll()
         try await tonConnectWaitUntil("The retry read the list while the session was disconnected") { storage.hookFired }
-        try await Task.sleep(nanoseconds: 300_000_000)
 
         XCTAssertEqual(transport.attempts, 1, "Nothing is sent for a session disconnected during the lookup")
         XCTAssertEqual(gate.entered, 1)
@@ -2757,7 +2779,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
             store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys),
             keystore: keys, selectedWallet: { wallet }, approval: { _, _ in answers.removeFirst() },
             walletLoader: { _ in wallet }, isEnabled: { true }, replyRetryNanoseconds: [1, 1, 1],
-            replyRetryWait: { await gate.wait($0) }, reportError: { errors.append($0) }
+            replyRetryWait: gate.pass, reportError: { errors.append($0) }
         )
         await coordinator.activate()
         let clientId = try tonConnectTestSession().clientId
@@ -2771,7 +2793,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         XCTAssertEqual(transport.sent.map { $0.data }, [declined], "The newer decision left at once")
 
         gate.releaseAll()
-        try await Task.sleep(nanoseconds: 300_000_000)
+        try await tonConnectWaitUntil("The released retry decided") { gate.resumed == 1 }
         XCTAssertEqual(transport.sent.map { $0.data }, [declined], "The superseded approval is not sent after it")
         XCTAssertEqual(transport.attempts, 2)
         XCTAssertEqual(gate.entered, 1)
@@ -2822,7 +2844,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         let coordinator = LegacyTonConnectCoordinator(
             store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
             selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet },
-            isEnabled: { enabled.value }, replyRetryNanoseconds: [1, 1, 1], replyRetryWait: { await gate.wait($0) },
+            isEnabled: { enabled.value }, replyRetryNanoseconds: [1, 1, 1], replyRetryWait: gate.pass,
             reportError: { errors.append($0) }
         )
         await coordinator.activate()
@@ -2836,7 +2858,6 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         storage.arm { enabled.value = false }
         gate.releaseAll()
         try await tonConnectWaitUntil("The retry read the session list") { storage.hookFired }
-        try await Task.sleep(nanoseconds: 300_000_000)
 
         XCTAssertEqual(transport.attempts, 1, "Vetoed during the lookup: nothing more is sent")
         XCTAssertEqual(gate.entered, 1)
@@ -2852,7 +2873,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         let wallet = try tonConnectNativeWallet(keys)
         let transport = TonConnectFlakyReplyTransport(failures: 1)
         transport.gatedFromAttempt = 1
-        let storage = TonConnectFakeSessionStore(values: [])
+        let storage = TonConnectHookedSessionStore()
         var errors: [Error] = []
         let coordinator = LegacyTonConnectCoordinator(
             store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
@@ -2872,13 +2893,15 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         // behind that stop.
         try await Task.sleep(nanoseconds: 300_000_000)
         _ = try? await coordinator.selectedSessions()
+        let readsBeforeRelease = storage.reads
         transport.gate.open()
         let response = try await connecting.value
 
         try await tonConnectWaitUntil("The decided reply leaves on the retry") { transport.sent.count == 1 }
-        try await Task.sleep(nanoseconds: 300_000_000)
         XCTAssertEqual(transport.sent.first?.data, response)
-        XCTAssertEqual(transport.listens, 0, "A throttled wallet starts no listener")
+        // Starting listeners reads the session list whatever the stop's timing; only the retry's lookup may read it.
+        XCTAssertEqual(storage.reads - readsBeforeRelease, 1, "A throttled wallet starts no listener")
+        XCTAssertEqual(transport.listens, 0)
         XCTAssertEqual(storage.values.count, 1, "The approved session is saved for the next activation")
         XCTAssertTrue(errors.isEmpty)
     }
