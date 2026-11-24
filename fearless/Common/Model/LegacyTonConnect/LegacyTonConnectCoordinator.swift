@@ -538,7 +538,13 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// so it stops trusting the session's transport key.
     @MainActor
     func disconnect(_ session: LegacyTonConnectSession) async throws {
-        try await service.disconnect(session)
+        do {
+            try await service.disconnect(session)
+        } catch let unfinished as LegacyTonConnectUnfinishedRemoval {
+            // Retired for good though not fully removed yet: the application is told all the same.
+            await notifyDisconnected([session])
+            throw unfinished
+        }
         await notifyDisconnected([session])
     }
 
@@ -552,8 +558,9 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     }
 
     /// The user chose to reconnect: every session is disconnected, and the first failure is reported once all were
-    /// tried. A disconnect that never started leaves its session waiting, so it is offered again; one cut short after
-    /// it started is finished by the next read. Applications are told only after every removal is committed.
+    /// tried. A disconnect that never started leaves its session waiting, so it is offered again; one recorded but
+    /// not finished is finished by the next read. Applications are told once every disconnect was recorded, each
+    /// recorded one included.
     @MainActor
     func reconnect(_ sessions: [LegacyTonConnectSession]) async throws {
         var disconnected: [LegacyTonConnectSession] = []
@@ -562,6 +569,9 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
             do {
                 try await service.disconnect(session)
                 disconnected.append(session)
+            } catch let unfinished as LegacyTonConnectUnfinishedRemoval {
+                disconnected.append(session)
+                firstFailure = firstFailure ?? unfinished
             } catch {
                 firstFailure = firstFailure ?? error
             }

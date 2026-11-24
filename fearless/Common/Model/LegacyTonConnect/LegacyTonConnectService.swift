@@ -150,7 +150,13 @@ actor LegacyTonConnectService {
 
     func disconnect(_ session: LegacyTonConnectSession) async throws {
         // This is only called for an authenticated disconnect or an explicit UI action.
-        try await store.remove(session)
+        do {
+            try await store.remove(session)
+        } catch let unfinished as LegacyTonConnectUnfinishedRemoval {
+            // Retired for good: its listener stops now, and the next read finishes the removal.
+            listeners.removeValue(forKey: session.identifier)?.cancel()
+            throw unfinished
+        }
         listeners.removeValue(forKey: session.identifier)?.cancel()
     }
 

@@ -188,6 +188,8 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     private var sessions: [LegacyTonConnectSession] = []
     /// The offer to reconnect is on screen or its answer is being carried out.
     private var isOfferingReconnect = false
+    /// The last load failed, so `sessions` is not the stored list: the next appearance or unlock loads again.
+    private var needsReload = false
     private var lockObserver: NSObjectProtocol?
 
     init(coordinator: LegacyTonConnectCoordinator) {
@@ -207,13 +209,13 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         ]
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(reload), for: .valueChanged)
-        // An offer held back by the lock is made once the wallet is unlocked, while this list is on screen.
+        // A load or offer held back by the lock happens once the wallet is unlocked, while this list is on screen.
         lockObserver = NotificationCenter.default.addObserver(
             forName: ApplicationLockState.didChangeNotification,
             object: ApplicationLockState.shared,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in await self?.offerReconnectIfNeeded() }
+            Task { @MainActor in self?.resume() }
         }
         reload()
     }
@@ -227,18 +229,33 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         // The first load can finish before the sheet is on screen; the offer is made once it is.
-        Task { @MainActor in await offerReconnectIfNeeded() }
+        resume()
+    }
+
+    /// On screen and unlocked: loads again after a failed load (which then offers), otherwise offers.
+    private func resume() {
+        guard viewIfLoaded?.window != nil, !ApplicationLockState.shared.isLocked else { return }
+        if needsReload {
+            reload()
+        } else {
+            Task { @MainActor in await offerReconnectIfNeeded() }
+        }
     }
 
     @objc private func reload() {
         Task { @MainActor in
             do {
                 sessions = try await coordinator.selectedSessions()
+                needsReload = false
                 tableView.reloadData()
                 refreshControl?.endRefreshing()
             } catch {
+                needsReload = true
                 refreshControl?.endRefreshing()
-                show(error)
+                // Behind the lock (the Keychain may be unreadable) the list loads again after the unlock instead.
+                if !ApplicationLockState.shared.isLocked {
+                    show(error)
+                }
                 return
             }
             await offerReconnectIfNeeded()

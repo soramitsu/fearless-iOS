@@ -34,8 +34,8 @@ protocol LegacyTonConnectSessionStoring {
 /// (`LegacyTonConnectSessionKeyStoring.retire`) before anything else changes, so a restored row or a late save never
 /// brings that session back. The store is not vacuumed for this: a vacuum cannot reach archives or backups,
 /// rewrites a store that can be hundreds of megabytes while the wallet starts, and changes the files the
-/// cache-recovery transaction verifies by SHA-256. The system SQLite runs with `secure_delete` on, and a moved row
-/// leaves no raw key in the live database file (`LegacyTonConnectReconnectStoreTests`).
+/// cache-recovery transaction verifies by SHA-256. `LegacyTonConnectReconnectStoreTests` checks that the system
+/// SQLite library reports `secure_delete` on, and that a store closed after the move held no raw key in its files.
 final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
     /// Points where a test can stop a key move, as an interrupted process would.
     enum KeyMigrationBoundary: Equatable {
@@ -165,18 +165,22 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
             }
             guard !rows.isEmpty else { return }
             // 0. The disconnect is recorded on this device first: no restored copy of these rows and no late save
-            //    can bring the session or its key back.
+            //    can bring the session or its key back, and no later read lists it.
             try self.keys.retire(reference: reference.account)
-            // 1. The rows are marked as being removed, durably, so no read lists them again and a later read
-            //    finishes the removal if this one is cut short.
-            rows.forEach { $0.setValue(reference.removingColumn, forKey: "privateKey") }
-            try context.save()
-            // 2. The key goes, a key left by an interrupted move included. If the Keychain cannot delete it, the
-            //    disconnect is reported as failed and the next read retries; the session is already unusable.
-            try self.keys.deleteKey(reference: reference.account)
-            // 3. The rows go.
-            rows.forEach(context.delete)
-            try context.save()
+            do {
+                // 1. The rows are marked as being removed, durably, so a later read finishes the removal if this
+                //    one is cut short.
+                rows.forEach { $0.setValue(reference.removingColumn, forKey: "privateKey") }
+                try context.save()
+                // 2. The key goes, a key left by an interrupted move included. If the Keychain cannot delete it, the
+                //    disconnect is reported as unfinished and the next read retries.
+                try self.keys.deleteKey(reference: reference.account)
+                // 3. The rows go.
+                rows.forEach(context.delete)
+                try context.save()
+            } catch {
+                throw LegacyTonConnectUnfinishedRemoval(underlying: error)
+            }
         }
     }
 
@@ -466,6 +470,16 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                 }
             }
         }
+    }
+}
+
+/// A disconnect was recorded, so the session is retired for good (never listed, saved or restored again), but
+/// removing its key or row did not finish; the next read finishes it.
+struct LegacyTonConnectUnfinishedRemoval: LocalizedError {
+    let underlying: Error
+
+    var errorDescription: String? {
+        (underlying as? LocalizedError)?.errorDescription ?? underlying.localizedDescription
     }
 }
 
