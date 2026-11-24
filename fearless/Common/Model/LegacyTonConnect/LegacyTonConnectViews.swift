@@ -146,9 +146,62 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
     }
 }
 
+/// The one-time offer to retire transport keys an older version kept in the database: one warning, one action, and
+/// the hosts it applies to.
+enum LegacyTonConnectReconnectOffer {
+    /// Hosts named before the rest are left out.
+    static let maximumListedHosts = 5
+
+    static func alert(
+        for sessions: [LegacyTonConnectSession],
+        languages: [String]?,
+        disconnect: @escaping () -> Void,
+        keep: @escaping () -> Void
+    ) -> UIAlertController {
+        var hosts: [String] = []
+        for session in sessions {
+            let host = session.appUrl.host ?? session.appUrl.absoluteString
+            if !hosts.contains(host) {
+                hosts.append(host)
+            }
+        }
+        var listed = hosts.prefix(maximumListedHosts).joined(separator: "\n")
+        if hosts.count > maximumListedHosts {
+            listed += "\n…"
+        }
+        let alert = UIAlertController(
+            title: R.string.localizable.tonconnectReconnectTitle(preferredLanguages: languages),
+            message: R.string.localizable.tonconnectReconnectMessage(preferredLanguages: languages) + "\n\n" + listed,
+            preferredStyle: .alert
+        )
+        let keepConnected = UIAlertAction(
+            title: R.string.localizable.tonconnectReconnectKeep(preferredLanguages: languages),
+            style: .cancel
+        ) { _ in keep() }
+        let reconnect = UIAlertAction(
+            title: R.string.localizable.tonconnectReconnectAction(preferredLanguages: languages),
+            style: .destructive
+        ) { _ in disconnect() }
+        alert.addAction(keepConnected)
+        alert.addAction(reconnect)
+        alert.preferredAction = reconnect
+        return alert
+    }
+}
+
 final class LegacyTonConnectSessionsViewController: UITableViewController {
     private let coordinator: LegacyTonConnectCoordinator
     private var sessions: [LegacyTonConnectSession] = []
+    /// The offer to reconnect is on screen or its answer is being carried out.
+    private var isOfferingReconnect = false
+    /// The last load failed, so `sessions` is not the stored list: the next appearance or unlock loads again.
+    private var needsReload = false
+    /// A load is running; one asked for meanwhile runs once it ends, and a failure it supersedes is not shown.
+    private var isLoading = false
+    private var loadsAgain = false
+    /// An offer check asked for while another ran (for example on an unlock) runs once that one ends unanswered.
+    private var checksOfferAgain = false
+    private var lockObserver: NSObjectProtocol?
 
     init(coordinator: LegacyTonConnectCoordinator) {
         self.coordinator = coordinator
@@ -167,16 +220,149 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         ]
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(reload), for: .valueChanged)
+        // A load or offer held back by the lock happens once the wallet is unlocked, while this list is on screen.
+        lockObserver = NotificationCenter.default.addObserver(
+            forName: ApplicationLockState.didChangeNotification,
+            object: ApplicationLockState.shared,
+            queue: .main
+        ) { [weak self] _ in
+            // At once, ahead of any load completion already queued on the main actor.
+            MainActor.assumeIsolated { self?.resume() }
+        }
         reload()
     }
 
+    deinit {
+        if let lockObserver {
+            NotificationCenter.default.removeObserver(lockObserver)
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // The first load can finish before the sheet is on screen; the offer is made once it is.
+        resume()
+    }
+
+    /// On screen and unlocked: loads again after a failed load or one still running (each load then offers),
+    /// otherwise offers.
+    private func resume() {
+        guard viewIfLoaded?.window != nil, !ApplicationLockState.shared.isLocked else { return }
+        if needsReload || isLoading {
+            reload()
+        } else {
+            requestOffer()
+        }
+    }
+
     @objc private func reload() {
+        guard !isLoading else {
+            loadsAgain = true
+            return
+        }
+        isLoading = true
+        let startedLocked = ApplicationLockState.shared.isLocked
         Task { @MainActor in
-            defer { refreshControl?.endRefreshing() }
+            let outcome: Result<[LegacyTonConnectSession], Error>
             do {
-                sessions = try await coordinator.selectedSessions()
+                outcome = .success(try await coordinator.selectedSessions())
+            } catch {
+                outcome = .failure(error)
+            }
+            isLoading = false
+            let again = loadsAgain
+            loadsAgain = false
+            switch outcome {
+            case let .success(loaded):
+                sessions = loaded
+                needsReload = false
                 tableView.reloadData()
-            } catch { show(error) }
+            case let .failure(error):
+                needsReload = true
+                guard !again else { break }
+                refreshControl?.endRefreshing()
+                // A load that ran behind the lock (the Keychain may have been unreadable) is not reported: the list
+                // loads again once unlocked, at once if the unlock came while it ran.
+                if startedLocked || ApplicationLockState.shared.isLocked {
+                    if !ApplicationLockState.shared.isLocked, viewIfLoaded?.window != nil {
+                        reload()
+                    }
+                } else {
+                    show(error)
+                }
+                return
+            }
+            if again {
+                // Asked for while this load ran (an unlock, a refresh): that load decides what is shown.
+                reload()
+                return
+            }
+            refreshControl?.endRefreshing()
+            requestOffer()
+        }
+    }
+
+    private func requestOffer() {
+        guard !isOfferingReconnect else {
+            checksOfferAgain = true
+            return
+        }
+        Task { @MainActor in await offerReconnectIfNeeded() }
+    }
+
+    /// Offers, once, to reconnect the listed bridge sessions whose keys an older version kept in the database. Asked
+    /// only while this list is on screen with nothing over it and the wallet unlocked: after each load, each time
+    /// the list appears and after an unlock. Until the user answers, the next of those asks again.
+    private func offerReconnectIfNeeded() async {
+        guard !isOfferingReconnect else {
+            checksOfferAgain = true
+            return
+        }
+        isOfferingReconnect = true
+        checksOfferAgain = false
+        let waiting = ((try? await coordinator.sessionsToReconnect()) ?? []).filter { sessions.contains($0) }
+        guard !waiting.isEmpty, viewIfLoaded?.window != nil, presentedViewController == nil,
+              !ApplicationLockState.shared.isLocked else {
+            isOfferingReconnect = false
+            if checksOfferAgain {
+                // Something that may change the answer (an unlock) happened during this check.
+                checksOfferAgain = false
+                requestOffer()
+            }
+            return
+        }
+        let alert = LegacyTonConnectReconnectOffer.alert(
+            for: waiting,
+            languages: LegacyTonConnectProtocol.languages,
+            disconnect: { [weak self] in self?.answerReconnectOffer(waiting, reconnect: true) },
+            keep: { [weak self] in self?.answerReconnectOffer(waiting, reconnect: false) }
+        )
+        present(alert, animated: true)
+        if alert.presentingViewController == nil {
+            // UIKit refused it (for example mid-transition): nothing was asked, so the next load asks.
+            isOfferingReconnect = false
+            if checksOfferAgain {
+                checksOfferAgain = false
+                requestOffer()
+            }
+        }
+    }
+
+    private func answerReconnectOffer(_ waiting: [LegacyTonConnectSession], reconnect: Bool) {
+        Task { @MainActor in
+            defer { isOfferingReconnect = false }
+            do {
+                if reconnect {
+                    try await coordinator.reconnect(waiting)
+                } else {
+                    try await coordinator.keepWithoutReconnecting(waiting)
+                }
+            } catch {
+                show(error)
+            }
+            if reconnect {
+                reload()
+            }
         }
     }
 
@@ -238,6 +424,10 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
                     completion(true)
                 } catch {
                     self.show(error)
+                    if error is LegacyTonConnectUnfinishedRemoval {
+                        // Retired for good: it leaves the list now; the next read finishes its removal.
+                        self.reload()
+                    }
                     completion(false)
                 }
             }

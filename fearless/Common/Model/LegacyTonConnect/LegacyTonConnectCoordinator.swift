@@ -36,6 +36,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// The remote signing veto (`RemoteKillSwitch.tonDappSigning`): transactions and `ton_proof` sign-ins, as on
     /// Android. An absent key keeps signing on.
     private let isSigningEnabled: () -> Bool
+    /// How long a disconnect waits for its notice to reach the application's bridge.
+    private let disconnectNoticeNanoseconds: UInt64
     private var ready = false
     /// Links in arrival order, opened one at a time. The one being opened stays first until it is done, so a
     /// duplicate arriving meanwhile is merged with it.
@@ -89,6 +91,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         },
         isEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonConnectEnabled },
         isSigningEnabled: @escaping () -> Bool = { MultiChainFeaturePolicy.current.tonDappSigningEnabled },
+        disconnectNoticeNanoseconds: UInt64 = 5_000_000_000,
         replyRetryNanoseconds: [UInt64] = [1, 2, 4, 8, 16].map { $0 * 1_000_000_000 },
         replyRetryWait: @escaping (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) },
         authorizationViewFactory: @escaping (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol? = {
@@ -105,6 +108,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         self.walletLoader = walletLoader
         self.isEnabled = isEnabled
         self.isSigningEnabled = isSigningEnabled
+        self.disconnectNoticeNanoseconds = disconnectNoticeNanoseconds
         self.replyRetryNanoseconds = replyRetryNanoseconds
         self.replyRetryWait = replyRetryWait
         self.authorizationViewFactory = authorizationViewFactory
@@ -563,8 +567,121 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         return try await service.sessions(walletId: wallet.metaId)
     }
 
+    /// The id of a wallet `disconnect` event: the largest integer a JavaScript number holds exactly. @tonconnect/sdk
+    /// drops a wallet event whose id is not above the last one it accepted, and a disconnect ends the session, so it
+    /// takes the largest id an application can compare, above every connect event's (Unix seconds).
+    static let disconnectEventId: UInt64 = 9_007_199_254_740_991
+
+    /// The user disconnects a session in the wallet. It stops working at once; a bridge application is then told,
+    /// so it stops trusting the session's transport key.
+    @MainActor
     func disconnect(_ session: LegacyTonConnectSession) async throws {
-        try await service.disconnect(session)
+        do {
+            try await service.disconnect(session)
+        } catch let unfinished as LegacyTonConnectUnfinishedRemoval {
+            // Retired for good though not fully removed yet: the application is told all the same.
+            await notifyDisconnected([session])
+            throw unfinished
+        }
+        await notifyDisconnected([session])
+    }
+
+    /// Bridge sessions of the selected wallet whose transport key an older version kept in the database, and whose
+    /// offer to reconnect the user has not answered. An in-app browser session never uses its key, so it is not
+    /// offered.
+    @MainActor
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession] {
+        guard let wallet = selectedWallet() else { return [] }
+        return try await store.sessionsToReconnect().filter { $0.walletId == wallet.metaId && $0.connectionType == "http" }
+    }
+
+    /// The user chose to reconnect: every session is disconnected, and the first failure is reported once all were
+    /// tried. A disconnect that never started leaves its session waiting, so it is offered again; one recorded but
+    /// not finished is finished by the next read. Applications are told once every disconnect was recorded, each
+    /// recorded one included.
+    @MainActor
+    func reconnect(_ sessions: [LegacyTonConnectSession]) async throws {
+        var disconnected: [LegacyTonConnectSession] = []
+        var firstFailure: Error?
+        for session in sessions {
+            do {
+                try await service.disconnect(session)
+                disconnected.append(session)
+            } catch let unfinished as LegacyTonConnectUnfinishedRemoval {
+                disconnected.append(session)
+                firstFailure = firstFailure ?? unfinished
+            } catch {
+                firstFailure = firstFailure ?? error
+            }
+        }
+        await notifyDisconnected(disconnected)
+        if let firstFailure {
+            throw firstFailure
+        }
+    }
+
+    /// The user chose to keep these sessions as they are: they are not offered again.
+    @MainActor
+    func keepWithoutReconnecting(_ sessions: [LegacyTonConnectSession]) async throws {
+        try await store.finishReconnectOffer(for: sessions)
+    }
+
+    /// TON Connect has a wallet tell a bridge application that the user disconnected it, so the application drops
+    /// the session and its transport key. Called once the sessions are removed, with their keys still in memory.
+    /// Best effort: the notices go out together, the wait ends after `disconnectNoticeNanoseconds` whether or not
+    /// they finish (late ones are cancelled), and a paused TON Connect sends nothing.
+    @MainActor
+    private func notifyDisconnected(_ sessions: [LegacyTonConnectSession]) async {
+        let bridged = sessions.filter { $0.connectionType == "http" }
+        guard !bridged.isEmpty, isEnabled() else { return }
+        let service = service
+        let transport = transport
+        let network = selectedNetwork
+        let eventId = Self.disconnectEventId
+        let notices = Task { () -> Bool in
+            await withTaskGroup(of: Bool.self) { group in
+                for session in bridged {
+                    group.addTask {
+                        do {
+                            let bridge = try await service.bridgeURL(for: session, selectedNetwork: network)
+                            let event = try JSONSerialization.data(withJSONObject: [
+                                "event": "disconnect", "id": eventId, "payload": [String: String]()
+                            ])
+                            try await transport.send(event, session: session, bridge: bridge, topic: "disconnect")
+                            return true
+                        } catch {
+                            return false
+                        }
+                    }
+                }
+                return await group.reduce(true) { $0 && $1 }
+            }
+        }
+        let delivered = await Self.value(of: notices, within: disconnectNoticeNanoseconds)
+        if delivered != true {
+            notices.cancel()
+            Logger.shared.warning("A TON Connect application was not told about a disconnect; the session is removed")
+        }
+    }
+
+    /// The task's value, or nil once the time runs out first. The wait never depends on the task ending.
+    private static func value<T>(of task: Task<T, Never>, within nanoseconds: UInt64) async -> T? {
+        let gate = LegacyTonConnectOnceGate()
+        return await withCheckedContinuation { continuation in
+            let timer = Task {
+                try? await Task.sleep(nanoseconds: nanoseconds)
+                if gate.claim() {
+                    continuation.resume(returning: nil)
+                }
+            }
+            Task {
+                let value = await task.value
+                if gate.claim() {
+                    timer.cancel()
+                    continuation.resume(returning: value)
+                }
+            }
+        }
     }
 
     @MainActor
@@ -693,5 +810,19 @@ extension LegacyTonConnectCoordinator {
         if let link, answeredURLs[link] == token {
             answeredURLs[link] = nil
         }
+    }
+}
+
+/// Lets exactly one of several racing callers through.
+private final class LegacyTonConnectOnceGate {
+    private let lock = NSLock()
+    private var claimed = false
+
+    func claim() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !claimed else { return false }
+        claimed = true
+        return true
     }
 }

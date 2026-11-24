@@ -114,6 +114,7 @@ final class AccountImportViewLayout: UIView {
         inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
         inputView.defaultSetup()
         inputView.animatedInputField.textField.isSecureTextEntry = true
+        SecretTextEntry.configurePassword(inputView.animatedInputField.textField)
         return inputView
     }()
 
@@ -136,9 +137,7 @@ final class AccountImportViewLayout: UIView {
         view.textColor = R.color.colorWhite()
         view.font = .p1Paragraph
         view.tintColor = R.color.colorWhite()
-        view.keyboardType = .default
-        view.autocapitalizationType = .none
-        view.autocorrectionType = .no
+        SecretTextEntry.configureRecoveryInput(view)
         view.isScrollEnabled = false
         return view
     }()
@@ -244,6 +243,7 @@ final class AccountImportViewLayout: UIView {
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .never
         view.returnKeyType = .done
+        SecretTextEntry.disableTextAssistance(view)
         return view
     }()
 
@@ -253,6 +253,7 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .never
+        SecretTextEntry.disableTextAssistance(view)
         return view
     }()
 
