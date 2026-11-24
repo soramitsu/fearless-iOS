@@ -10,10 +10,12 @@ enum SceneWindowFinder {
                 scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
             }
 
+            // The re-lock cover is never a presenter: while it is key there is no active window, and prompts wait.
             return scenes
                 .filter { $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive }
                 .flatMap { $0.windows }
                 .first { $0.isKeyWindow && !$0.isHidden }
+                .flatMap { $0 is SessionLockCoverWindow ? nil : $0 }
         } else {
             return UIApplication.shared.windows.first { $0.isKeyWindow && !$0.isHidden }
         }

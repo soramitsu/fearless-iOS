@@ -30,6 +30,8 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
         case rowUpdated
     }
 
+    private static let operationLock = NSLock()
+
     private let service: CoreDataServiceProtocol
     private let keys: LegacyTonConnectSessionKeyStoring
     private let migrationBoundaryHook: (KeyMigrationBoundary) throws -> Void
@@ -51,20 +53,22 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
             let rows = try context.fetch(NSFetchRequest<NSManagedObject>(entityName: "CDTonConnectedApp"))
             var sessions: [LegacyTonConnectSession] = []
             for row in rows {
-                let stored: StoredSession
+                // A released row's key leaves SQLite whenever its key pair is sound, even if the row is not listed
+                // (for example an unknown connection type).
+                if let legacy = Self.legacyKey(in: row) {
+                    self.moveKeyToKeychain(row: row, key: legacy, in: context)
+                }
+                let session: LegacyTonConnectSession
                 do {
-                    stored = try self.read(row)
-                    _ = try stored.session.validated()
+                    session = try self.read(row).session
+                    _ = try session.validated()
                 } catch LegacyTonConnectSessionKeyError.keychainUnavailable(_) {
                     throw LegacyTonConnectError.invalidSession
                 } catch {
                     // One unreadable or future session must not hide all other sessions.
                     continue
                 }
-                if stored.isLegacy {
-                    self.moveKeyToKeychain(row: row, session: stored.session, in: context)
-                }
-                sessions.append(stored.session)
+                sessions.append(session)
             }
             return sessions
         }
@@ -81,14 +85,14 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                 let stored = try self.read(existing[0])
                 guard stored.session == session else { throw LegacyTonConnectError.invalidSession }
                 if stored.isLegacy {
-                    self.moveKeyToKeychain(row: existing[0], session: session, in: context)
+                    self.moveKeyToKeychain(row: existing[0], key: LegacyKey(session), in: context)
                 }
                 return
             }
             let reference = LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
             let createdItem = try self.keys.loadKey(reference: reference.account) == nil
             do {
-                try self.storeVerified(session, reference: reference)
+                try self.storeVerified(LegacyKey(session), reference: reference)
                 let row = NSEntityDescription.insertNewObject(forEntityName: "CDTonConnectedApp", into: context)
                 row.setValue(session.identifier, forKey: "identifier")
                 row.setValue(session.walletId, forKey: "walletId")
@@ -101,8 +105,8 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                 row.setValue(session.connectionType, forKey: "connectionType")
                 try context.save()
             } catch {
-                // Nothing refers to an item this save created; an item that was already there may belong to a row
-                // in a retained store and stays.
+                // Nothing refers to an item this save created (store operations are serialized); an item that was
+                // already there may belong to a row in a retained store and stays.
                 if createdItem {
                     try? self.keys.deleteKey(reference: reference.account)
                 }
@@ -118,14 +122,15 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
             let rows = try context.fetch(fetch)
             for row in rows {
                 guard try self.read(row).session == session else { throw LegacyTonConnectError.invalidSession }
-                context.delete(row)
             }
+            guard !rows.isEmpty else { return }
+            // The key goes first, a key left by an interrupted move included. If the Keychain cannot delete it the
+            // disconnect fails and the row stays, so no session survives a reported disconnect, not even through a
+            // retained copy of its row. If the row then cannot be deleted, a moved session stays unreadable.
+            let reference = LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
+            try self.keys.deleteKey(reference: reference.account)
+            rows.forEach(context.delete)
             try context.save()
-            // Only after the row is gone. A key left by an interrupted move goes too.
-            if !rows.isEmpty {
-                let reference = LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
-                try? self.keys.deleteKey(reference: reference.account)
-            }
         }
     }
 
@@ -149,11 +154,44 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
         let isLegacy: Bool
     }
 
+    /// A released row's raw key with what it is bound to.
+    private struct LegacyKey {
+        let identifier: String
+        let publicKey: Data
+        let privateKey: Data
+
+        init(identifier: String, publicKey: Data, privateKey: Data) {
+            self.identifier = identifier
+            self.publicKey = publicKey
+            self.privateKey = privateKey
+        }
+
+        init(_ session: LegacyTonConnectSession) {
+            self.init(identifier: session.identifier, publicKey: session.publicKey, privateKey: session.privateKey)
+        }
+    }
+
+    /// The row's raw key, when the row still holds one whose key pair is sound. Nothing else in the row is checked.
+    private static func legacyKey(in row: NSManagedObject) -> LegacyKey? {
+        var key: LegacyKey?
+        try? SafeObjectiveCExceptionBoundary.perform {
+            guard let identifier = row.value(forKey: "identifier") as? String, !identifier.isEmpty,
+                  let publicKey = row.value(forKey: "publicKey") as? Data, publicKey.count == 32,
+                  let column = row.value(forKey: "privateKey") as? Data,
+                  case let .legacy(privateKey) = LegacyTonConnectSessionKeyReference.Column(column),
+                  try NaclBox.keyPair(fromSecretKey: privateKey).publicKey == publicKey else {
+                return
+            }
+            key = LegacyKey(identifier: identifier, publicKey: publicKey, privateKey: privateKey)
+        }
+        return key
+    }
+
     /// Moves one legacy row's key into the Keychain. On any failure the row keeps its raw key and stays usable.
-    private func moveKeyToKeychain(row: NSManagedObject, session: LegacyTonConnectSession, in context: NSManagedObjectContext) {
-        let reference = LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
+    private func moveKeyToKeychain(row: NSManagedObject, key: LegacyKey, in context: NSManagedObjectContext) {
+        let reference = LegacyTonConnectSessionKeyReference(identifier: key.identifier, publicKey: key.publicKey)
         do {
-            try storeVerified(session, reference: reference)
+            try storeVerified(key, reference: reference)
             try migrationBoundaryHook(.keyStored)
             row.setValue(reference.column, forKey: "privateKey")
             try migrationBoundaryHook(.rowUpdated)
@@ -166,11 +204,11 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
     }
 
     /// Writes the key, reads it back and checks it still opens the session: same bytes, same public key.
-    private func storeVerified(_ session: LegacyTonConnectSession, reference: LegacyTonConnectSessionKeyReference) throws {
-        try keys.saveKey(session.privateKey, reference: reference.account)
+    private func storeVerified(_ key: LegacyKey, reference: LegacyTonConnectSessionKeyReference) throws {
+        try keys.saveKey(key.privateKey, reference: reference.account)
         guard let stored = try keys.loadKey(reference: reference.account),
-              stored == session.privateKey,
-              try NaclBox.keyPair(fromSecretKey: stored).publicKey == session.publicKey else {
+              stored == key.privateKey,
+              try NaclBox.keyPair(fromSecretKey: stored).publicKey == key.publicKey else {
             throw LegacyTonConnectSessionKeyError.mismatch
         }
     }
@@ -243,6 +281,10 @@ final class LegacyTonConnectStore: LegacyTonConnectSessionStoring {
                 let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
                 context.persistentStoreCoordinator = coordinator
                 context.perform {
+                    // One store operation at a time across contexts and store instances: a Keychain write, the row
+                    // that names it and any clean-up never interleave with another operation.
+                    Self.operationLock.lock()
+                    defer { Self.operationLock.unlock() }
                     do {
                         let result = try action(context)
                         continuation.resume(returning: result)

@@ -350,7 +350,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         approving = true
         defer { approving = false }
         if let approval { return try await approval(title, details) }
-        guard UIApplication.shared.applicationState == .active,
+        // Never over the PIN screen or the re-lock cover: wallet and request details wait for an unlocked app.
+        guard UIApplication.shared.applicationState == .active, !ApplicationLockState.shared.isLocked,
               let presenting = UIApplication.topViewController() else { throw LegacyTonConnectError.busy }
         return await withCheckedContinuation { continuation in
             let controller = LegacyTonConnectApprovalViewController(title: title, details: details)
@@ -402,6 +403,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     @MainActor
     private func present(error: Error) {
+        guard !ApplicationLockState.shared.isLocked else { return }
         let alert = UIAlertController(title: "TonConnect", message: error.localizedDescription, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         UIApplication.topViewController()?.present(alert, animated: true)

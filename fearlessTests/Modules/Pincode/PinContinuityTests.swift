@@ -2420,7 +2420,8 @@ final class SubmissionAuthorizerTests: XCTestCase {
 }
 
 /// A timed re-lock is never dropped (2026-11-23 audit, finding 7): a Keychain that cannot answer yet, a missing
-/// window or a PIN screen that cannot be presented keeps it pending behind an opaque cover until the PIN is shown.
+/// window, screens still open over the app or a PIN screen that cannot be presented keep it pending behind an opaque
+/// cover until UIKit reports the PIN on screen.
 final class PendingSessionLockTests: XCTestCase {
     private var windows: [UIWindow] = []
     private var lock: PendingSessionLock?
@@ -2428,7 +2429,10 @@ final class PendingSessionLockTests: XCTestCase {
     override func tearDown() {
         lock?.cover.hide()
         lock = nil
-        windows.forEach { $0.isHidden = true }
+        windows.forEach {
+            $0.rootViewController?.dismiss(animated: false)
+            $0.isHidden = true
+        }
         windows = []
         super.tearDown()
     }
@@ -2438,12 +2442,34 @@ final class PendingSessionLockTests: XCTestCase {
         func showSignup(from _: PinSetupViewProtocol?) {}
     }
 
+    private final class NoBiometry: BiometryAuthProtocol {
+        var availableBiometryType = AvailableBiometryType.none
+        func authenticate(localizedReason _: String, completionQueue _: DispatchQueue, completionBlock _: @escaping (Bool) -> Void) {}
+    }
+
     private final class ThrowingKeystore: KeystoreProtocol {
         func addKey(_: Data, with _: String) throws { throw KeystoreError.unexpectedFail }
         func updateKey(_: Data, with _: String) throws { throw KeystoreError.unexpectedFail }
         func fetchKey(for _: String) throws -> Data { throw KeystoreError.unexpectedFail }
         func checkKey(for _: String) throws -> Bool { throw KeystoreError.unexpectedFail }
         func deleteKey(for _: String) throws { throw KeystoreError.unexpectedFail }
+    }
+
+    /// The real unlock PIN screen, with no Keychain, settings or biometry behind it.
+    private func makeUnlockPin() -> PinSetupViewController {
+        let unlock = PinSetupViewController(nib: R.nib.pinSetupViewController)
+        unlock.modalPresentationStyle = .fullScreen
+        unlock.presenter = LocalAuthPresenter(
+            wireframe: UnlockWireframeStub(),
+            interactor: LocalAuthInteractor(
+                secretManager: KeychainManager.shared,
+                settingsManager: InMemorySettingsManager(),
+                biometryAuth: NoBiometry(),
+                locale: Locale(identifier: "en"),
+                attemptLimiter: PincodeAttemptLimiter(keystore: InMemoryKeychain())
+            )
+        )
+        return unlock
     }
 
     private func scene() throws -> UIWindowScene {
@@ -2466,6 +2492,7 @@ final class PendingSessionLockTests: XCTestCase {
         lockState: ApplicationLockState,
         presence: @escaping () -> AppPinPresence,
         window: @escaping () -> UIWindow?,
+        retryInterval: TimeInterval? = nil,
         makePin: @escaping () -> UIViewController?
     ) -> PendingSessionLock {
         let lock = PendingSessionLock(
@@ -2476,7 +2503,7 @@ final class PendingSessionLockTests: XCTestCase {
             lockState: lockState,
             cover: SessionLockCover(),
             notificationCenter: center,
-            retryInterval: nil
+            retryInterval: retryInterval
         )
         self.lock = lock
         return lock
@@ -2486,18 +2513,36 @@ final class PendingSessionLockTests: XCTestCase {
         RunLoop.main.run(until: Date().addingTimeInterval(seconds))
     }
 
-    private func assertCoverBlocksTheApp(_ lock: PendingSessionLock, file: StaticString = #filePath, line: UInt = #line) throws {
+    /// UIKit reports a presentation finished after a delay that grows with host load.
+    private func settle(_ lock: PendingSessionLock, timeout: TimeInterval = 5) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while lock.isPending, Date() < deadline {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+        }
+    }
+
+    private func assertCoverBlocksTheApp(
+        _ lock: PendingSessionLock,
+        appWindow: UIWindow? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
         XCTAssertTrue(lock.isCoverShown, "The cover is up", file: file, line: line)
         let cover = try XCTUnwrap(lock.cover.shownWindows.first, file: file, line: line)
         XCTAssertGreaterThan(cover.windowLevel, UIWindow.Level.alert + 1, "Above request prompts", file: file, line: line)
         XCTAssertTrue(cover.isUserInteractionEnabled, file: file, line: line)
+        XCTAssertTrue(cover.isKeyWindow, "The cover takes the keyboard", file: file, line: line)
         let center = CGPoint(x: cover.bounds.midX, y: cover.bounds.midY)
         let hit = cover.hitTest(center, with: nil)
         XCTAssertNotNil(hit, "Touches stop at the cover", file: file, line: line)
         XCTAssertTrue(hit.map { $0 === cover || $0.isDescendant(of: cover) } ?? false, file: file, line: line)
         let view = try XCTUnwrap(cover.rootViewController?.view, file: file, line: line)
-        XCTAssertTrue(view.accessibilityViewIsModal, "VoiceOver cannot reach the app underneath", file: file, line: line)
+        XCTAssertTrue(view.accessibilityViewIsModal, file: file, line: line)
         XCTAssertEqual(view.backgroundColor?.cgColor.alpha, 1, "Opaque", file: file, line: line)
+        if let appWindow {
+            XCTAssertTrue(appWindow.accessibilityElementsHidden, "VoiceOver cannot reach the app underneath", file: file, line: line)
+        }
+        XCTAssertNil(SceneWindowFinder.activeWindow(from: cover.windowScene), "The cover is never a presenter", file: file, line: line)
     }
 
     func testAppPinPresenceTellsNoPinFromAKeychainThatCannotAnswer() throws {
@@ -2511,6 +2556,34 @@ final class PendingSessionLockTests: XCTestCase {
             .unknown,
             "While protected data is unavailable, no PIN is not an answer"
         )
+    }
+
+    func testLockStateCountsAPendingLockAndOnlyItsOwnPinEndsTheLock() {
+        let center = NotificationCenter()
+        var changes = 0
+        let observer = center.addObserver(forName: ApplicationLockState.didChangeNotification, object: nil, queue: nil) { _ in
+            changes += 1
+        }
+        defer { center.removeObserver(observer) }
+        let lockState = ApplicationLockState(notificationCenter: center)
+
+        lockState.markLockPending()
+        XCTAssertTrue(lockState.isLocked, "Prompts wait while a re-lock is pending")
+        lockState.unlock()
+        XCTAssertTrue(lockState.isLocked, "Unlocking an older PIN does not end a pending re-lock")
+        lockState.cancelPendingLock()
+        XCTAssertFalse(lockState.isLocked)
+
+        let old = UIViewController()
+        let current = UIViewController()
+        lockState.markLockPending()
+        lockState.lock(with: current)
+        XCTAssertTrue(lockState.isLocked)
+        lockState.unlock(from: old)
+        XCTAssertTrue(lockState.isLocked, "A PIN finishing its exit cannot end a newer lock")
+        lockState.unlock(from: current)
+        XCTAssertFalse(lockState.isLocked)
+        XCTAssertEqual(changes, 5)
     }
 
     func testFiveMinutesAwayWithTheKeychainUnavailableCoversTheAppUntilThePinIsShown() throws {
@@ -2529,19 +2602,20 @@ final class PendingSessionLockTests: XCTestCase {
         XCTAssertEqual(lock.willEnterForeground(in: scene, now: 400), .waiting)
 
         XCTAssertTrue(lock.isPending)
-        try assertCoverBlocksTheApp(lock)
+        try assertCoverBlocksTheApp(lock, appWindow: window)
         XCTAssertNil(root.presentedViewController)
-        XCTAssertFalse(lockState.isLocked)
+        XCTAssertTrue(lockState.isLocked, "Request prompts wait")
         XCTAssertFalse(field.isFirstResponder, "Typing stops while the lock waits")
 
         presence = .present
         center.post(name: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil)
-        spin()
+        settle(lock)
 
         XCTAssertTrue(root.presentedViewController === pin, "The PIN is shown once the Keychain answers")
         XCTAssertTrue(lockState.isLocked)
         XCTAssertFalse(lock.isPending)
-        XCTAssertFalse(lock.isCoverShown, "The cover never sits over the PIN")
+        XCTAssertFalse(lock.isCoverShown, "The cover never stays over the PIN")
+        XCTAssertFalse(window.accessibilityElementsHidden, "VoiceOver is given back")
         XCTAssertTrue(window.isKeyWindow, "The PIN takes the keyboard")
     }
 
@@ -2559,11 +2633,12 @@ final class PendingSessionLockTests: XCTestCase {
         let (window, root) = makeAppWindow(in: scene)
         appWindow = window
         center.post(name: UIScene.didActivateNotification, object: scene)
-        spin()
+        settle(lock)
 
         XCTAssertTrue(root.presentedViewController === pin)
         XCTAssertTrue(lockState.isLocked)
         XCTAssertFalse(lock.isCoverShown)
+        XCTAssertFalse(lock.isPending)
     }
 
     func testSecondForegroundKeepsAPendingLockEvenAfterAShortAbsence() throws {
@@ -2580,14 +2655,16 @@ final class PendingSessionLockTests: XCTestCase {
         lock.didEnterBackground(now: 500)
         XCTAssertEqual(lock.willEnterForeground(in: scene, now: 510), .waiting, "Ten seconds away does not cancel it")
         XCTAssertTrue(lock.isPending)
-        try assertCoverBlocksTheApp(lock)
+        try assertCoverBlocksTheApp(lock, appWindow: window)
         XCTAssertNil(root.presentedViewController)
 
         presence = .present
         lock.didEnterBackground(now: 600)
         XCTAssertEqual(lock.willEnterForeground(in: scene, now: 605), .locked)
+        settle(lock)
         XCTAssertTrue(root.presentedViewController === pin)
         XCTAssertFalse(lock.isCoverShown)
+        XCTAssertFalse(lock.isPending)
 
         // A later short absence asks for nothing more.
         XCTAssertEqual(lock.willEnterForeground(in: scene, now: 700), .idle)
@@ -2612,14 +2689,16 @@ final class PendingSessionLockTests: XCTestCase {
         // Unknown first: covered until the Keychain confirms there is no PIN, then onboarding is back and key.
         presence = .unknown
         XCTAssertEqual(lock.request(), .waiting)
-        try assertCoverBlocksTheApp(lock)
+        try assertCoverBlocksTheApp(lock, appWindow: window)
         presence = .absent
         center.post(name: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil)
-        spin()
+        settle(lock)
         XCTAssertFalse(lock.isPending)
         XCTAssertFalse(lock.isCoverShown)
+        XCTAssertFalse(lockState.isLocked, "Prompts may show again")
         XCTAssertNil(root.presentedViewController)
         XCTAssertTrue(window.isKeyWindow)
+        XCTAssertFalse(window.accessibilityElementsHidden)
     }
 
     func testExistingPinLocksAtOnceWithoutACover() throws {
@@ -2631,11 +2710,12 @@ final class PendingSessionLockTests: XCTestCase {
         let lock = makeLock(in: scene, center: center, lockState: lockState, presence: { .present }, window: { window }) { pin }
 
         XCTAssertEqual(lock.request(), .locked)
-
         XCTAssertTrue(root.presentedViewController === pin)
         XCTAssertNil(lock.cover.shownWindows.first, "No cover was needed")
         XCTAssertTrue(lockState.isLocked)
-        XCTAssertFalse(lock.isPending)
+        settle(lock)
+        XCTAssertFalse(lock.isPending, "Done once UIKit reports the PIN presented")
+        XCTAssertTrue(pin.viewIfLoaded?.window === window)
     }
 
     /// Before this fix the PIN was presented from a root that was still presenting: UIKit refused it, only logged
@@ -2652,12 +2732,11 @@ final class PendingSessionLockTests: XCTestCase {
         let pin = UIViewController()
         let lock = makeLock(in: scene, center: center, lockState: lockState, presence: { .present }, window: { window }) { pin }
 
-        let first = lock.request()
-        if first == .waiting {
-            try assertCoverBlocksTheApp(lock)
-            XCTAssertFalse(lockState.isLocked)
+        if lock.request() == .waiting {
+            try assertCoverBlocksTheApp(lock, appWindow: window)
+            XCTAssertTrue(lockState.isLocked)
         }
-        spin(0.5)
+        settle(lock)
 
         XCTAssertTrue(root.presentedViewController === pin, "The PIN replaces whatever was open")
         XCTAssertNil(modal.presentingViewController)
@@ -2665,6 +2744,35 @@ final class PendingSessionLockTests: XCTestCase {
         XCTAssertFalse(lock.isPending)
         XCTAssertFalse(lock.isCoverShown, "The cover is gone once the PIN is on screen")
         XCTAssertTrue(window.isKeyWindow)
+    }
+
+    /// Codex review blocker: an unlock PIN that is still leaving after the user unlocked must not count as the new lock.
+    func testAPinStillLeavingAfterAnUnlockDoesNotStandInForANewLock() throws {
+        let scene = try scene()
+        let (window, root) = makeAppWindow(in: scene)
+        let leaving = makeUnlockPin()
+        root.present(leaving, animated: false)
+        spin()
+        XCTAssertTrue(FearlessApplication.isShowingUnlockPin(in: window))
+        let center = NotificationCenter()
+        let lockState = ApplicationLockState(notificationCenter: center)
+        let newPin = UIViewController()
+        let lock = makeLock(
+            in: scene, center: center, lockState: lockState, presence: { .present }, window: { window }, retryInterval: 0.1
+        ) { newPin }
+
+        leaving.dismiss(animated: true)
+        XCTAssertTrue(leaving.isBeingDismissed)
+        XCTAssertFalse(FearlessApplication.isShowingUnlockPin(in: window), "A leaving PIN is not on screen")
+        XCTAssertEqual(lock.request(), .waiting)
+        try assertCoverBlocksTheApp(lock, appWindow: window)
+
+        settle(lock)
+
+        XCTAssertTrue(root.presentedViewController === newPin, "A new PIN holds the new lock")
+        XCTAssertTrue(lockState.isLocked)
+        XCTAssertFalse(lock.isPending)
+        XCTAssertFalse(lock.isCoverShown)
     }
 
     func testAPinScreenThatCannotBePresentedStaysPendingAndIsRetried() throws {
@@ -2679,12 +2787,12 @@ final class PendingSessionLockTests: XCTestCase {
         }
 
         XCTAssertEqual(lock.request(), .waiting)
-        try assertCoverBlocksTheApp(lock)
-        XCTAssertFalse(lockState.isLocked)
+        try assertCoverBlocksTheApp(lock, appWindow: window)
+        XCTAssertTrue(lockState.isLocked)
 
         pinAvailable = true
         center.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-        spin()
+        settle(lock)
         XCTAssertTrue(root.presentedViewController === pin)
         XCTAssertTrue(lockState.isLocked)
         XCTAssertFalse(lock.isCoverShown)
@@ -2695,40 +2803,61 @@ final class PendingSessionLockTests: XCTestCase {
         let (window, root) = makeAppWindow(in: scene)
         var presence = AppPinPresence.unknown
         let pin = UIViewController()
-        let lock = PendingSessionLock(
-            pinPresence: { presence },
-            mainWindow: { _ in window },
-            scenes: { [scene] },
-            makePin: { pin },
+        let lock = makeLock(
+            in: scene,
+            center: NotificationCenter(),
             lockState: ApplicationLockState(notificationCenter: NotificationCenter()),
-            notificationCenter: NotificationCenter(),
+            presence: { presence },
+            window: { window },
             retryInterval: 0.05
-        )
-        self.lock = lock
+        ) { pin }
 
         XCTAssertEqual(lock.request(), .waiting)
         presence = .present
-        spin(0.4)
+        settle(lock)
 
         XCTAssertTrue(root.presentedViewController === pin)
         XCTAssertFalse(lock.isPending)
         XCTAssertFalse(lock.isCoverShown)
     }
 
+    /// Codex review: a prompt window that appears or takes the keyboard under the cover gets neither keyboard nor
+    /// VoiceOver, and no prompt can be presented on the cover.
+    func testAPromptArrivingUnderTheCoverGetsNeitherKeyboardNorVoiceOver() throws {
+        let scene = try scene()
+        let (window, _) = makeAppWindow(in: scene)
+        let lock = makeLock(
+            in: scene,
+            center: NotificationCenter(),
+            lockState: ApplicationLockState(notificationCenter: NotificationCenter()),
+            presence: { .unknown },
+            window: { window }
+        ) { UIViewController() }
+        XCTAssertEqual(lock.request(), .waiting)
+
+        let prompt = UIWindow(windowScene: scene)
+        prompt.windowLevel = .alert + 1
+        prompt.rootViewController = UIViewController()
+        windows.append(prompt)
+        prompt.makeKeyAndVisible()
+        spin()
+
+        try assertCoverBlocksTheApp(lock, appWindow: window)
+        XCTAssertFalse(prompt.isKeyWindow)
+        XCTAssertTrue(prompt.accessibilityElementsHidden)
+        XCTAssertFalse(UIApplication.topViewController() is SessionLockCoverViewController)
+
+        lock.cover.hide()
+        XCTAssertFalse(prompt.accessibilityElementsHidden)
+        XCTAssertFalse(window.accessibilityElementsHidden)
+        XCTAssertTrue(lock.cover.shownWindows.isEmpty)
+    }
+
     func testAnUnlockPinAlreadyOnScreenCountsAsShownAndIsNotStacked() throws {
         let scene = try scene()
         let window = UIWindow(windowScene: scene)
         defer { window.rootViewController = nil }
-        let unlock = PinSetupViewController(nib: R.nib.pinSetupViewController)
-        unlock.presenter = LocalAuthPresenter(
-            wireframe: UnlockWireframeStub(),
-            interactor: LocalAuthInteractor(
-                secretManager: KeychainManager.shared,
-                settingsManager: SettingsManager.shared,
-                biometryAuth: BiometryAuth(),
-                locale: Locale(identifier: "en")
-            )
-        )
+        let unlock = makeUnlockPin()
         window.rootViewController = unlock
         let lockState = ApplicationLockState(notificationCenter: NotificationCenter())
 

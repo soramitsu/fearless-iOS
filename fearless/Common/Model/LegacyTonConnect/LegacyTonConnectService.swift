@@ -25,6 +25,8 @@ actor LegacyTonConnectService {
     private weak var handler: LegacyTonConnectRequestHandling?
     private var listeners: [String: Task<Void, Never>] = [:]
     private var processing: Set<String> = []
+    private var startRetry: Task<Void, Never>?
+    private let startRetryNanoseconds: UInt64
 
     init(
         store: LegacyTonConnectSessionStoring = LegacyTonConnectStore(),
@@ -32,12 +34,14 @@ actor LegacyTonConnectService {
         transport: LegacyTonConnectBridgeTransporting = LegacyTonConnectBridgeTransport(),
         legacyEventId: @escaping () -> String? = {
             SettingsManager.shared.value(of: String.self, for: "ton.connect.last.event.key")
-        }
+        },
+        startRetryNanoseconds: UInt64 = 10_000_000_000
     ) {
         self.store = store
         self.replies = replies
         self.transport = transport
         self.legacyEventId = legacyEventId
+        self.startRetryNanoseconds = startRetryNanoseconds
     }
 
     func set(handler: LegacyTonConnectRequestHandling) {
@@ -61,7 +65,19 @@ actor LegacyTonConnectService {
     }
 
     func start(selectedNetwork: String) async {
-        guard let sessions = try? await store.sessions() else { return }
+        startRetry?.cancel()
+        startRetry = nil
+        let sessions: [LegacyTonConnectSession]
+        do {
+            sessions = try await store.sessions()
+        } catch {
+            // Session keys can be briefly unreadable (Keychain locked); the listeners start once they can be read.
+            startRetry = Task { [weak self, startRetryNanoseconds] in
+                do { try await Task.sleep(nanoseconds: startRetryNanoseconds) } catch { return }
+                await self?.retryStart(selectedNetwork: selectedNetwork)
+            }
+            return
+        }
         let validIds = Set(sessions.filter { $0.connectionType == "http" }.map(\.identifier))
         for (id, task) in listeners where !validIds.contains(id) {
             task.cancel()
@@ -99,7 +115,16 @@ actor LegacyTonConnectService {
         }
     }
 
+    private func retryStart(selectedNetwork: String) async {
+        // A stop() or a newer start() cancelled this retry.
+        guard startRetry != nil, !Task.isCancelled else { return }
+        startRetry = nil
+        await start(selectedNetwork: selectedNetwork)
+    }
+
     func stop() {
+        startRetry?.cancel()
+        startRetry = nil
         listeners.values.forEach { $0.cancel() }
         listeners.removeAll()
     }

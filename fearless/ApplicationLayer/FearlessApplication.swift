@@ -44,16 +44,19 @@ enum AppPinPresence: Equatable {
 
 /// Puts the unlock PIN on screen for a timed re-lock and keeps the request until it is there.
 ///
-/// A re-lock that cannot be shown at once, because the Keychain cannot yet say whether there is a PIN or because
-/// there is no window or the PIN screen cannot be presented, stays pending. An opaque cover that takes every touch
-/// stays over the app meanwhile, and the lock is tried again when a scene activates or comes to the foreground,
-/// when protected data becomes available, and every `retryInterval` seconds. Only a Keychain that answers "no PIN"
-/// ends a pending lock without the PIN: onboarding and the historical no-PIN recovery stay as they were.
+/// A re-lock that cannot be shown at once, because the Keychain cannot yet say whether there is a PIN, because there
+/// is no window, because screens open over the app are still being dismissed or because the PIN screen cannot be
+/// presented, stays pending. Meanwhile `ApplicationLockState` counts the app as locked, so request prompts wait, and
+/// an opaque cover that takes every touch, the keyboard and VoiceOver stays over the app. The lock is tried again
+/// when a scene activates or comes to the foreground, when protected data becomes available, when a dismissal ends
+/// and every `retryInterval` seconds. The cover goes only once UIKit reports the PIN presented and in its window.
+/// Only a Keychain that answers "no PIN" ends a pending lock without the PIN: onboarding and the historical no-PIN
+/// recovery stay as they were.
 final class PendingSessionLock {
     enum Attempt: Equatable {
         /// No lock was pending.
         case idle
-        /// The unlock PIN is on screen.
+        /// The unlock PIN is presented and holds the lock.
         case locked
         /// The Keychain answered that there is no app PIN, so there is nothing to unlock with.
         case noPin
@@ -79,6 +82,8 @@ final class PendingSessionLock {
     private var retryTimer: Timer?
     private var isAttempting = false
     private var backgroundEnteredUptime: TimeInterval?
+    /// Presented, but UIKit has not yet reported the presentation finished.
+    private weak var presentingPin: UIViewController?
 
     init(
         pinPresence: @escaping () -> AppPinPresence = {
@@ -164,9 +169,22 @@ final class PendingSessionLock {
         isAttempting = true
         defer { isAttempting = false }
 
+        if let pin = presentingPin {
+            if Self.isOnScreen(pin) {
+                finish(restoringKeyWindow: false, window: pin.view.window)
+                return .locked
+            }
+            if pin.presentingViewController != nil, !pin.isBeingDismissed {
+                // Still on its way: the presentation completion, or a later attempt, ends the wait.
+                return .locked
+            }
+            presentingPin = nil
+        }
+
         switch pinPresence() {
         case .absent:
-            finish(restoringKeyWindow: true)
+            finish(restoringKeyWindow: true, window: nil)
+            lockState.cancelPendingLock()
             return .noPin
         case .unknown:
             wait()
@@ -176,32 +194,64 @@ final class PendingSessionLock {
             let presentation = FearlessApplication.showLock(
                 on: window,
                 lockState: lockState,
-                makePin: makePin,
-                afterDismissal: { [weak self] in self?.attempt(in: scene) }
+                makePin: { [weak self] in
+                    let pin = self?.makePin()
+                    // Known before presenting, in case UIKit reports the presentation finished at once.
+                    self?.presentingPin = pin
+                    return pin
+                },
+                afterDismissal: { [weak self] in self?.attempt(in: scene) },
+                onPresented: { [weak self, weak window] pin in self?.didPresent(pin, in: window) }
             )
             switch presentation {
-            case .presented, .alreadyShown:
-                finish(restoringKeyWindow: false)
-                // The cover was key while it waited; the PIN's window takes the keyboard back.
-                window?.makeKey()
+            case .presented:
+                if isPending {
+                    // The cover, if up, stays until the presentation has finished.
+                    scheduleRetry()
+                }
+                return .locked
+            case .alreadyShown:
+                finish(restoringKeyWindow: false, window: window)
+                lockState.cancelPendingLock()
                 return .locked
             case .noWindow, .dismissing, .notPresented:
+                presentingPin = nil
                 wait()
                 return .waiting
             }
         }
     }
 
+    private func didPresent(_ pin: UIViewController, in _: UIWindow?) {
+        guard isPending, presentingPin === pin else {
+            return
+        }
+        // Checked on the next turn: UIKit may report the presentation before the PIN is in its window, and this can
+        // run inside the attempt that presented it.
+        DispatchQueue.main.async { [weak self] in
+            self?.attempt()
+        }
+    }
+
+    /// Presented, in a window and not leaving.
+    private static func isOnScreen(_ pin: UIViewController) -> Bool {
+        pin.viewIfLoaded?.window != nil && pin.presentingViewController != nil && !pin.isBeingDismissed
+    }
+
     private func wait() {
+        lockState.markLockPending()
         cover.show(in: scenes())
         scheduleRetry()
     }
 
-    private func finish(restoringKeyWindow: Bool) {
+    private func finish(restoringKeyWindow: Bool, window: UIWindow?) {
         isPending = false
+        presentingPin = nil
         retryTimer?.invalidate()
         retryTimer = nil
         cover.hide(restoringKeyWindow: restoringKeyWindow)
+        // The cover was key while it waited; the PIN's window takes the keyboard back.
+        window?.makeKey()
     }
 
     private func scheduleRetry() {
@@ -216,14 +266,30 @@ final class PendingSessionLock {
     }
 }
 
-/// An opaque window over every other window of the app, prompts included, that takes all touches while a timed
-/// re-lock waits to be shown. It is never shown over the PIN screen: it goes away once the PIN is presented.
+/// The cover's window. Never a presenter: `SceneWindowFinder.activeWindow` skips it, so prompts that look for the top
+/// screen wait instead of appearing on the cover.
+final class SessionLockCoverWindow: UIWindow {}
+
+/// An opaque window over every other window of the app, prompts included, that takes all touches, the keyboard and
+/// VoiceOver while a timed re-lock waits to be shown. It is never left over the PIN screen.
 final class SessionLockCover {
     /// Above the WalletConnect and IrohaConnect windows (`.alert + 1`), below the app-switcher cover.
     static let windowLevel = AppSwitcherSnapshotCover.windowLevel - 1
 
-    private var windows: [UIWindow] = []
+    private let notificationCenter: NotificationCenter
+    private var windows: [SessionLockCoverWindow] = []
     private weak var previousKeyWindow: UIWindow?
+    /// Windows whose VoiceOver elements the cover hid, with the value to restore.
+    private let hiddenAccessibility = NSMapTable<UIWindow, NSNumber>.weakToStrongObjects()
+    private var observers: [NSObjectProtocol] = []
+
+    init(notificationCenter: NotificationCenter = .default) {
+        self.notificationCenter = notificationCenter
+    }
+
+    deinit {
+        observers.forEach { notificationCenter.removeObserver($0) }
+    }
 
     var isShown: Bool {
         windows.contains { !$0.isHidden }
@@ -234,42 +300,79 @@ final class SessionLockCover {
     }
 
     func show(in scenes: [UIWindowScene]) {
-        for scene in scenes {
-            let window: UIWindow
-            if let existing = windows.first(where: { $0.windowScene === scene }) {
-                window = existing
-            } else {
-                window = Self.makeWindow(in: scene)
-                windows.append(window)
-            }
-            guard window.isHidden else {
-                continue
-            }
+        for scene in scenes where !windows.contains(where: { $0.windowScene === scene }) {
             if previousKeyWindow == nil {
-                previousKeyWindow = scene.windows.first { $0.isKeyWindow && $0 !== window }
+                previousKeyWindow = scene.windows.first { $0.isKeyWindow }
             }
+            let window = Self.makeWindow(in: scene)
+            windows.append(window)
             // Nothing typed while the app waits for its lock reaches a field underneath.
-            scene.windows.filter { $0 !== window }.forEach { $0.endEditing(true) }
+            scene.windows.filter { $0 !== window }.forEach {
+                $0.endEditing(true)
+                hideAccessibility(of: $0)
+            }
             window.makeKeyAndVisible()
         }
+        observeWindowsIfNeeded()
     }
 
     func hide(restoringKeyWindow: Bool = true) {
         let wasKey = windows.contains { $0.isKeyWindow }
-        windows.forEach { $0.isHidden = true }
+        observers.forEach { notificationCenter.removeObserver($0) }
+        observers = []
+        // Released, so a later lock starts from a fresh window with nothing presented on it.
+        for window in windows {
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+        windows = []
+        for case let window as UIWindow in hiddenAccessibility.keyEnumerator().allObjects {
+            window.accessibilityElementsHidden = hiddenAccessibility.object(forKey: window)?.boolValue ?? false
+        }
+        hiddenAccessibility.removeAllObjects()
         if restoringKeyWindow, wasKey, let previous = previousKeyWindow, !previous.isHidden {
             previous.makeKey()
         }
         previousKeyWindow = nil
     }
 
-    private static func makeWindow(in scene: UIWindowScene) -> UIWindow {
-        let window = UIWindow(windowScene: scene)
+    private func hideAccessibility(of window: UIWindow) {
+        guard !(window is SessionLockCoverWindow), hiddenAccessibility.object(forKey: window) == nil else {
+            return
+        }
+        hiddenAccessibility.setObject(NSNumber(value: window.accessibilityElementsHidden), forKey: window)
+        window.accessibilityElementsHidden = true
+    }
+
+    /// A prompt window that becomes key or visible while the cover is up gets neither the keyboard nor VoiceOver.
+    private func observeWindowsIfNeeded() {
+        guard observers.isEmpty, isShown else {
+            return
+        }
+        let names = [UIWindow.didBecomeKeyNotification, UIWindow.didBecomeVisibleNotification]
+        observers = names.map { name in
+            notificationCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] notification in
+                guard let self, let window = notification.object as? UIWindow,
+                      !(window is SessionLockCoverWindow),
+                      let cover = self.windows.first(where: { $0.windowScene === window.windowScene && !$0.isHidden }) else {
+                    return
+                }
+                window.endEditing(true)
+                self.hideAccessibility(of: window)
+                if window.isKeyWindow {
+                    cover.makeKey()
+                }
+            }
+        }
+    }
+
+    private static func makeWindow(in scene: UIWindowScene) -> SessionLockCoverWindow {
+        let window = SessionLockCoverWindow(windowScene: scene)
         window.windowLevel = windowLevel
         window.isUserInteractionEnabled = true
-        window.backgroundColor = R.color.colorBlack()
+        window.backgroundColor = R.color.colorBlack() ?? .black
         window.rootViewController = SessionLockCoverViewController()
-        window.isHidden = true
+        window.accessibilityViewIsModal = true
         return window
     }
 }
@@ -278,7 +381,7 @@ final class SessionLockCover {
 final class SessionLockCoverViewController: UIViewController {
     override func loadView() {
         let view = UIView()
-        view.backgroundColor = R.color.colorBlack()
+        view.backgroundColor = R.color.colorBlack() ?? .black
         view.isOpaque = true
         view.isUserInteractionEnabled = true
         view.accessibilityViewIsModal = true
@@ -373,7 +476,8 @@ class FearlessApplication: UIApplication {
         on window: UIWindow?,
         lockState: ApplicationLockState = .shared,
         makePin: () -> UIViewController?,
-        afterDismissal: (() -> Void)? = nil
+        afterDismissal: (() -> Void)? = nil,
+        onPresented: ((UIViewController) -> Void)? = nil
     ) -> LockPresentation {
         guard let window = window, let root = window.rootViewController else {
             return .noWindow
@@ -395,7 +499,11 @@ class FearlessApplication: UIApplication {
             return .notPresented
         }
 
-        root.present(pincodeViewController, animated: false)
+        root.present(pincodeViewController, animated: false) { [weak pincodeViewController] in
+            if let pincodeViewController {
+                onPresented?(pincodeViewController)
+            }
+        }
         // UIKit declines a presentation during another transition and only logs it. The lock counts only once the
         // PIN screen is actually presented; otherwise it stays pending and is tried again.
         guard root.presentedViewController === pincodeViewController else {
@@ -411,12 +519,19 @@ class FearlessApplication: UIApplication {
         unlockPin(in: window) != nil
     }
 
+    /// The unlock PIN counts as shown only as the frontmost screen and while nothing in the chain is being dismissed:
+    /// a PIN leaving after an unlock must not stand in for a new lock.
     private static func unlockPin(in window: UIWindow) -> UIViewController? {
         var controllers = [window.rootViewController].compactMap { $0 }
         while let presented = controllers.last?.presentedViewController {
             controllers.append(presented)
         }
-        return controllers.first { ($0 as? PinSetupViewController)?.presenter is LocalAuthPresenter }
+        guard let frontmost = controllers.last,
+              (frontmost as? PinSetupViewController)?.presenter is LocalAuthPresenter,
+              !controllers.contains(where: { $0.isBeingDismissed }) else {
+            return nil
+        }
+        return frontmost
     }
 }
 

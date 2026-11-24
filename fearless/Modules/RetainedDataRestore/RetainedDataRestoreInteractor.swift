@@ -292,16 +292,34 @@ enum StoreBackupExclusion {
             try resourceURL.setResourceValues(values)
         }
     ) -> [URL] {
+        var notExcluded: [URL] = []
+        // Children are looked at only under a real root: through a linked root they would be another directory.
+        switch kind(of: storageDirectory, fileManager: fileManager) {
+        case .directory:
+            break
+        case .missing, .other:
+            return []
+        case .unreadable:
+            notExcluded.append(storageDirectory)
+            Logger.shared.error("The store directory could not be inspected for backup exclusion")
+            return notExcluded
+        }
         let directories = [storageDirectory] + directoryNames.map {
             storageDirectory.appendingPathComponent($0, isDirectory: true)
         }
-        var notExcluded: [URL] = []
-        for directory in directories where isRealDirectory(directory, fileManager: fileManager) {
-            if !isExcluded(directory) {
-                try? setExcluded(directory)
-            }
-            if !isExcluded(directory) {
+        for directory in directories {
+            switch kind(of: directory, fileManager: fileManager) {
+            case .directory:
+                if !isExcluded(directory) {
+                    try? setExcluded(directory)
+                }
+                if !isExcluded(directory) {
+                    notExcluded.append(directory)
+                }
+            case .unreadable:
                 notExcluded.append(directory)
+            case .missing, .other:
+                continue
             }
         }
         if !notExcluded.isEmpty {
@@ -316,12 +334,20 @@ enum StoreBackupExclusion {
         return (try? fresh.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup) == true
     }
 
-    private static func isRealDirectory(_ url: URL, fileManager: FileManager) -> Bool {
-        guard let attributes = try? fileManager.attributesOfItem(atPath: url.path) else {
-            return false
+    private enum PathKind {
+        case directory, missing, other, unreadable
+    }
+
+    /// A symbolic link is never followed: the flag belongs on the directory itself.
+    private static func kind(of url: URL, fileManager: FileManager) -> PathKind {
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: url.path)
+            return attributes[.type] as? FileAttributeType == .typeDirectory ? .directory : .other
+        } catch let error as CocoaError where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile {
+            return .missing
+        } catch {
+            return .unreadable
         }
-        // A symbolic link is not followed: the flag belongs on the directory itself.
-        return attributes[.type] as? FileAttributeType == .typeDirectory
     }
 }
 

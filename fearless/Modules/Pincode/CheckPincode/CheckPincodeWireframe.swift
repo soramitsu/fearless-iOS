@@ -15,8 +15,9 @@ class CheckPincodeWireframe: PinSetupWireframeProtocol {
             return
         }
 
-        controller.dismiss(animated: true) { [lockState] in
-            lockState.unlock()
+        controller.dismiss(animated: true) { [lockState, controller] in
+            // Only the lock this PIN screen holds: a newer lock shown meanwhile stays.
+            lockState.unlock(from: controller)
         }
     }
 

@@ -791,6 +791,21 @@ final class StoreBackupExclusionTests: XCTestCase {
         XCTAssertEqual(StoreBackupExclusion.ensureExcluded(storageDirectory: storage) { _ in XCTFail("No write needed") }, [])
     }
 
+    /// Codex review: a linked store root is not followed into another directory's children.
+    func testALinkedStoreRootIsNotFollowed() throws {
+        let elsewhere = root.appendingPathComponent("Elsewhere", isDirectory: true)
+        try makeIncludedDirectory(elsewhere)
+        let elsewhereRetained = elsewhere.appendingPathComponent(RetainedStoreSetAside.substrateRootName, isDirectory: true)
+        try makeIncludedDirectory(elsewhereRetained)
+        let storage = root.appendingPathComponent("CoreData", isDirectory: true)
+        try FileManager.default.createSymbolicLink(at: storage, withDestinationURL: elsewhere)
+
+        XCTAssertEqual(StoreBackupExclusion.ensureExcluded(storageDirectory: storage) { _ in XCTFail("Nothing is changed") }, [])
+
+        XCTAssertFalse(StoreBackupExclusion.isExcluded(elsewhere))
+        XCTAssertFalse(StoreBackupExclusion.isExcluded(elsewhereRetained))
+    }
+
     func testADirectoryThatCannotBeExcludedIsReportedAndDoesNotStopStartup() throws {
         let storage = root.appendingPathComponent("CoreData", isDirectory: true)
         try makeIncludedDirectory(storage)
