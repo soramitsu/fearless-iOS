@@ -4,9 +4,11 @@ import CoreData
 import CryptoKit
 import Foundation
 import RobinHood
+import SoraFoundation
 import SoraKeystore
 import TonSwift
 import TweetNacl
+import SQLite3
 import XCTest
 @testable import fearless
 
@@ -285,6 +287,27 @@ private final class TonConnectFakeSessionKeys: LegacyTonConnectSessionKeyStoring
         storage.removeValue(forKey: reference)
         guardLock.unlock()
     }
+
+    private var retiredReferences: Set<String> = []
+    var failRetires: OSStatus?
+    var retired: Set<String> {
+        guardLock.lock(); defer { guardLock.unlock() }
+        return retiredReferences
+    }
+
+    func retire(reference: String) throws {
+        if let status = failRetires { throw LegacyTonConnectSessionKeyError.keychainUnavailable(status) }
+        guardLock.lock()
+        retiredReferences.insert(reference)
+        guardLock.unlock()
+    }
+
+    var failRetiredLookups: OSStatus?
+
+    func isRetired(reference: String) throws -> Bool {
+        if let status = failRetiredLookups { throw LegacyTonConnectSessionKeyError.keychainUnavailable(status) }
+        return retired.contains(reference)
+    }
 }
 
 private final class TonConnectGatedSessionStore: LegacyTonConnectSessionStoring {
@@ -337,6 +360,8 @@ private final class TonConnectGatedSessionStore: LegacyTonConnectSessionStoring 
         return values
     }
 
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession] { [] }
+    func finishReconnectOffer(for _: [LegacyTonConnectSession]) async throws {}
     func save(_: LegacyTonConnectSession) async throws {}
     func remove(_: LegacyTonConnectSession) async throws {}
     func bridgeURL(network _: String) async throws -> URL { URL(string: "https://bridge.example.org/bridge")! }
@@ -365,6 +390,8 @@ private final class TonConnectFlakySessionStore: LegacyTonConnectSessionStoring 
         return values
     }
 
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession] { [] }
+    func finishReconnectOffer(for _: [LegacyTonConnectSession]) async throws {}
     func save(_: LegacyTonConnectSession) async throws {}
     func remove(_: LegacyTonConnectSession) async throws {}
     func bridgeURL(network _: String) async throws -> URL { URL(string: "https://bridge.example.org/bridge")! }
@@ -541,17 +568,65 @@ final class LegacyTonConnectServiceTests: XCTestCase {
 
 private final class TonConnectFakeSessionStore: LegacyTonConnectSessionStoring {
     var values: [LegacyTonConnectSession]
+    /// Sessions waiting for an answer to the offer to reconnect.
+    var waiting: [LegacyTonConnectSession] = []
+    /// Reads fail as with an unreadable Keychain.
+    var failReads = false
+    /// The next read waits for `releaseRead()`, then fails.
+    private let readLock = NSLock()
+    private var holdsNextRead = false
+    private var heldRead: CheckedContinuation<Void, Never>?
+    /// Signalled as a held read fails, from the store's own thread.
+    let heldReadFailed = DispatchSemaphore(value: 0)
+    /// A disconnect removes the session, then throws this (as one recorded but not finished).
+    var removalError: Error?
     init(values: [LegacyTonConnectSession]) { self.values = values }
-    func sessions() async throws -> [LegacyTonConnectSession] { values }
+    func holdNextReadAndFailIt() {
+        readLock.lock(); holdsNextRead = true; readLock.unlock()
+    }
+    var isHoldingRead: Bool { readLock.lock(); defer { readLock.unlock() }; return heldRead != nil }
+    func releaseRead() {
+        readLock.lock()
+        let held = heldRead
+        heldRead = nil
+        readLock.unlock()
+        held?.resume()
+    }
+    func sessions() async throws -> [LegacyTonConnectSession] {
+        readLock.lock()
+        let hold = holdsNextRead
+        holdsNextRead = false
+        readLock.unlock()
+        if hold {
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                readLock.lock(); heldRead = continuation; readLock.unlock()
+            }
+            heldReadFailed.signal()
+            throw LegacyTonConnectError.invalidSession
+        }
+        if failReads { throw LegacyTonConnectError.invalidSession }
+        return values
+    }
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession] { waiting.filter { values.contains($0) } }
+    func finishReconnectOffer(for sessions: [LegacyTonConnectSession]) async throws { waiting.removeAll { sessions.contains($0) } }
     func save(_ session: LegacyTonConnectSession) async throws { if !values.contains(session) { values.append(session) } }
-    func remove(_ session: LegacyTonConnectSession) async throws { values.removeAll { $0 == session } }
+    func remove(_ session: LegacyTonConnectSession) async throws {
+        values.removeAll { $0 == session }
+        if let removalError { throw removalError }
+    }
     func bridgeURL(network _: String) async throws -> URL { URL(string: "https://bridge.example.org/bridge")! }
 }
 
 private final class TonConnectFakeTransport: LegacyTonConnectBridgeTransporting {
     var onListen: (() -> Void)?
     private(set) var manifestCalls = 0
-    var sent: [(Data, LegacyTonConnectSession, URL, String)] = []
+    private let sentLock = NSLock()
+    private var sentValues: [(Data, LegacyTonConnectSession, URL, String)] = []
+    /// Sends can arrive from concurrent tasks (disconnect notices go out together).
+    var sent: [(Data, LegacyTonConnectSession, URL, String)] {
+        get { sentLock.lock(); defer { sentLock.unlock() }; return sentValues }
+        set { sentLock.lock(); sentValues = newValue; sentLock.unlock() }
+    }
     var manifestValue: LegacyTonConnectManifest?
     func manifest(at url: URL) async throws -> LegacyTonConnectManifest {
         manifestCalls += 1
@@ -560,7 +635,9 @@ private final class TonConnectFakeTransport: LegacyTonConnectBridgeTransporting 
     var failSends = false
     func send(_ data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String) async throws {
         if failSends { throw URLError(.notConnectedToInternet) }
-        sent.append((data, session, bridge, topic))
+        sentLock.lock()
+        sentValues.append((data, session, bridge, topic))
+        sentLock.unlock()
     }
     func listen(session _: LegacyTonConnectSession, context _: LegacyTonConnectSessionContext, receive _: @escaping (Data, String?) async throws -> Void) async throws {
         onListen?()
@@ -816,17 +893,21 @@ extension LegacyTonConnectServiceTests {
     }
 }
 
+private func tonConnectTestWallet(_ keys: TonConnectFixtureKeychain) throws -> MetaAccountModel {
+    let pair = try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: tonConnectNativePhrase.components(separatedBy: " "))
+    let account = try LegacyTonAccount(serializedAddress: JSONEncoder().encode(WalletV4R2(publicKey: pair.publicKey.data).address()),
+                                       publicKey: pair.publicKey.data, contractVersion: "v4R2")
+    keys.values[KeystoreTagV2.tonSecretKeyTagForMetaId("legacy-wallet")] = pair.privateKey.data
+    return MetaAccountModel(metaId: "legacy-wallet", name: "Original native TON", substrateAccountId: nil,
+        substrateCryptoType: 0, substratePublicKey: nil, ethereumAddress: nil, ethereumPublicKey: nil,
+        chainAccounts: [], assetKeysOrder: nil, canExportEthereumMnemonic: false, unusedChainIds: nil,
+        selectedCurrency: .defaultCurrency(), networkManagmentFilter: nil, assetsVisibility: [],
+        hasBackup: true, favouriteChainIds: [], legacyTonAccount: account)
+}
+
 final class LegacyTonConnectCoordinatorTests: XCTestCase {
     private func wallet(_ keys: TonConnectFixtureKeychain) throws -> MetaAccountModel {
-        let pair = try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: tonConnectNativePhrase.components(separatedBy: " "))
-        let account = try LegacyTonAccount(serializedAddress: JSONEncoder().encode(WalletV4R2(publicKey: pair.publicKey.data).address()),
-                                           publicKey: pair.publicKey.data, contractVersion: "v4R2")
-        keys.values[KeystoreTagV2.tonSecretKeyTagForMetaId("legacy-wallet")] = pair.privateKey.data
-        return MetaAccountModel(metaId: "legacy-wallet", name: "Original native TON", substrateAccountId: nil,
-            substrateCryptoType: 0, substratePublicKey: nil, ethereumAddress: nil, ethereumPublicKey: nil,
-            chainAccounts: [], assetKeysOrder: nil, canExportEthereumMnemonic: false, unusedChainIds: nil,
-            selectedCurrency: .defaultCurrency(), networkManagmentFilter: nil, assetsVisibility: [],
-            hasBackup: true, favouriteChainIds: [], legacyTonAccount: account)
+        try tonConnectTestWallet(keys)
     }
 
     private var request: LegacyTonConnectConnectRequest {
@@ -1818,7 +1899,7 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         let after = try fixture.snapshot()
         for session in [http, js] {
             let row = try XCTUnwrap(after.first { $0["identifier"] == Data(session.identifier.utf8) })
-            XCTAssertEqual(row["privateKey"], reference(session).column, "The row names its Keychain item")
+            XCTAssertEqual(row["privateKey"], reference(session).movedColumn, "The row names its Keychain item, marked as moved")
             XCTAssertNotEqual(row["privateKey"], session.privateKey)
             XCTAssertFalse(try XCTUnwrap(row["privateKey"]).range(of: session.privateKey) != nil)
             XCTAssertEqual(keys.items[reference(session).account], session.privateKey)
@@ -1859,7 +1940,7 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         keys.corruptReads = false
         let moved = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
         XCTAssertEqual(moved, [http])
-        XCTAssertEqual(try fixture.snapshot().first?["privateKey"], reference(http).column)
+        XCTAssertEqual(try fixture.snapshot().first?["privateKey"], reference(http).movedColumn)
     }
 
     func testKeychainUnavailableForAMovedSessionIsAnErrorNotAnEmptyList() async throws {
@@ -1908,7 +1989,7 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         let reopened = try TonConnectFixtureCoreDataService(url: file)
         let sessions = try await LegacyTonConnectStore(service: reopened, keys: keys).sessions()
         XCTAssertEqual(Set(sessions.map(\.identifier)), [http.identifier, js.identifier])
-        XCTAssertEqual(Set(try reopened.snapshot().compactMap { $0["privateKey"] }), [reference(http).column, reference(js).column])
+        XCTAssertEqual(Set(try reopened.snapshot().compactMap { $0["privateKey"] }), [reference(http).movedColumn, reference(js).movedColumn])
         XCTAssertEqual(keys.items.count, 2)
         try reopened.close()
     }
@@ -1936,22 +2017,25 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         try await store.remove(js)
         try fixture.close()
 
-        // Restoring the archive from before the move: its rows hold raw keys and are moved again, to the same items.
+        // Restoring the archive from before the move: its rows hold raw keys. The kept session's key is moved
+        // again, to the same item; the disconnected session stays gone, its raw row removed and its key not moved.
         let restoredOld = try TonConnectFixtureCoreDataService(url: preMove)
         let oldSessions = try await LegacyTonConnectStore(service: restoredOld, keys: keys).sessions()
-        XCTAssertEqual(Set(oldSessions.map(\.identifier)), [http.identifier, js.identifier])
-        XCTAssertEqual(oldSessions.first { $0.identifier == js.identifier }?.privateKey, js.privateKey)
-        XCTAssertEqual(Set(try restoredOld.snapshot().compactMap { $0["privateKey"] }), [reference(http).column, reference(js).column])
-        XCTAssertEqual(keys.items[reference(js).account], js.privateKey)
+        XCTAssertEqual(oldSessions.map(\.identifier), [http.identifier])
+        XCTAssertEqual(try restoredOld.snapshot().compactMap { $0["privateKey"] }, [reference(http).movedColumn])
+        XCTAssertNil(keys.items[reference(js).account], "A disconnected session's key never comes back")
         try restoredOld.close()
 
-        // Restoring the archive from after the move, once js was disconnected again: its row is hidden, kept, and
-        // does not hide the other session.
-        try keys.deleteKey(reference: reference(js).account)
+        // Restoring the archive from after the move: the disconnected session's row is removed as well.
         let restoredNew = try TonConnectFixtureCoreDataService(url: postMove)
         let newSessions = try await LegacyTonConnectStore(service: restoredNew, keys: keys).sessions()
         XCTAssertEqual(newSessions, [http])
-        XCTAssertEqual(try restoredNew.snapshot().count, 2, "An unreadable row is preserved, never deleted")
+        XCTAssertEqual(try restoredNew.snapshot().count, 1)
+        // A row whose item is missing for any other reason is hidden but kept.
+        try keys.deleteKey(reference: reference(http).account)
+        let withoutItem = try await LegacyTonConnectStore(service: restoredNew, keys: keys).sessions()
+        XCTAssertTrue(withoutItem.isEmpty)
+        XCTAssertEqual(try restoredNew.snapshot().count, 1, "An unreadable row is preserved, never deleted")
         try restoredNew.close()
     }
 
@@ -1992,7 +2076,11 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         let other = try tonConnectTestSession(id: "other")
         XCTAssertEqual(LegacyTonConnectSessionKeyReference.Column(session.privateKey), .legacy(session.privateKey))
         XCTAssertEqual(LegacyTonConnectSessionKeyReference.Column(reference(session).column), .keychain(reference(session).digest))
+        XCTAssertEqual(LegacyTonConnectSessionKeyReference.Column(reference(session).movedColumn), .moved(reference(session).digest))
+        XCTAssertEqual(LegacyTonConnectSessionKeyReference.Column(reference(session).removingColumn), .removing(reference(session).digest))
         XCTAssertEqual(reference(session).column.count, 38)
+        XCTAssertEqual(reference(session).movedColumn.count, 38)
+        XCTAssertEqual(Set([reference(session).column, reference(session).movedColumn, reference(session).removingColumn]).count, 3)
         XCTAssertNil(LegacyTonConnectSessionKeyReference.Column(Data(repeating: 1, count: 38)))
         XCTAssertNil(LegacyTonConnectSessionKeyReference.Column(Data(repeating: 1, count: 31)))
         XCTAssertNotEqual(reference(session).account, reference(other).account)
@@ -2078,7 +2166,7 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         let sessions = try await LegacyTonConnectStore(service: fixture, keys: keys).sessions()
 
         XCTAssertTrue(sessions.isEmpty)
-        XCTAssertEqual(try fixture.snapshot().first?["privateKey"], reference(future).column)
+        XCTAssertEqual(try fixture.snapshot().first?["privateKey"], reference(future).movedColumn)
         XCTAssertEqual(keys.items[reference(future).account], future.privateKey)
         XCTAssertEqual(try fixture.snapshot().first?["connectionType"], Data("future".utf8), "The row is otherwise kept as it was")
     }
@@ -2250,5 +2338,1871 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
         try keychain.deleteKey(reference: name)
 
         XCTAssertEqual(try wallet.fetchKey(for: name), walletKey, "A wallet key with the same name is untouched")
+    }
+
+    func testRetirementRecordIsDeviceOnlyNotSynchronizedAndApartFromSessionKeys() throws {
+        let keychain = LegacyTonConnectSessionKeychain()
+        let name = "fearless-tests-tonconnect-retired-" + UUID().uuidString
+        defer {
+            try? keychain.deleteKey(reference: name)
+            SecItemDelete([
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: LegacyTonConnectSessionKeychain.retiredService,
+                kSecAttrAccount as String: name,
+                kSecUseDataProtectionKeychain as String: true
+            ] as CFDictionary)
+        }
+        let key = Data(repeating: 0x33, count: 32)
+        try keychain.saveKey(key, reference: name)
+        XCTAssertFalse(try keychain.isRetired(reference: name))
+
+        try keychain.retire(reference: name)
+        try keychain.retire(reference: name)
+        XCTAssertTrue(try keychain.isRetired(reference: name))
+        let attributes = try XCTUnwrap(try keychain.attributes(reference: name, service: LegacyTonConnectSessionKeychain.retiredService))
+        XCTAssertEqual(attributes[kSecAttrAccessible as String] as? String, kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly as String)
+        XCTAssertEqual((attributes[kSecAttrSynchronizable as String] as? NSNumber)?.boolValue ?? false, false)
+        XCTAssertEqual(try keychain.loadKey(reference: name), key, "A retirement record is not the session key")
+        try keychain.deleteKey(reference: name)
+        XCTAssertTrue(try keychain.isRetired(reference: name), "Deleting the key keeps the record")
+    }
+}
+
+// MARK: - Retiring transport keys an older version kept in SQLite (MoldyRoost audit finding 5)
+
+private func tonConnectTestSession(
+    id: String, walletId: String, host: String, type: String = "http", secretKey: Data? = nil
+) throws -> LegacyTonConnectSession {
+    let walletPair = try secretKey.map { try NaclBox.keyPair(fromSecretKey: $0) } ?? NaclBox.keyPair()
+    let peerPair = try NaclBox.keyPair(fromSecretKey: Data(repeating: 9, count: 32))
+    return LegacyTonConnectSession(
+        identifier: id, walletId: walletId,
+        clientId: type == "js" ? UUID().uuidString : peerPair.publicKey.map { String(format: "%02x", $0) }.joined(),
+        appUrl: URL(string: "https://\(host)/app")!, name: "Application at \(host)", iconUrl: nil,
+        publicKey: walletPair.publicKey, privateKey: walletPair.secretKey, connectionType: type
+    )
+}
+
+private final class TonConnectHangingTransport: LegacyTonConnectBridgeTransporting {
+    private let lock = NSLock()
+    private var inFlight = 0
+    private var cancelled = 0
+    private var mostInFlight = 0
+    var cancelledSends: Int { lock.lock(); defer { lock.unlock() }; return cancelled }
+    var maximumInFlight: Int { lock.lock(); defer { lock.unlock() }; return mostInFlight }
+    func manifest(at url: URL) async throws -> LegacyTonConnectManifest { .init(url: url, name: "Fixture", iconUrl: nil) }
+    func send(_: Data, session _: LegacyTonConnectSession, bridge _: URL, topic _: String) async throws {
+        lock.lock()
+        inFlight += 1
+        mostInFlight = max(mostInFlight, inFlight)
+        lock.unlock()
+        defer { lock.lock(); inFlight -= 1; lock.unlock() }
+        do {
+            try await Task.sleep(nanoseconds: 60_000_000_000)
+        } catch {
+            lock.lock()
+            cancelled += 1
+            lock.unlock()
+            throw error
+        }
+    }
+    func listen(session _: LegacyTonConnectSession, context _: LegacyTonConnectSessionContext, receive _: @escaping (Data, String?) async throws -> Void) async throws {
+        throw URLError(.notConnectedToInternet)
+    }
+}
+
+/// A bridge whose send ignores cancellation until the test releases it.
+private final class TonConnectStuckTransport: LegacyTonConnectBridgeTransporting {
+    private let lock = NSLock()
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+    private var released = false
+    private var sendCount = 0
+    var onSend: ((LegacyTonConnectSession) -> Void)?
+    var sends: Int { lock.lock(); defer { lock.unlock() }; return sendCount }
+
+    func manifest(at url: URL) async throws -> LegacyTonConnectManifest { .init(url: url, name: "Fixture", iconUrl: nil) }
+    func send(_: Data, session: LegacyTonConnectSession, bridge _: URL, topic _: String) async throws {
+        onSend?(session)
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            lock.lock()
+            sendCount += 1
+            if released {
+                lock.unlock()
+                continuation.resume()
+                return
+            }
+            waiters.append(continuation)
+            lock.unlock()
+        }
+    }
+    func listen(session _: LegacyTonConnectSession, context _: LegacyTonConnectSessionContext, receive _: @escaping (Data, String?) async throws -> Void) async throws {
+        throw URLError(.notConnectedToInternet)
+    }
+    func release() {
+        lock.lock()
+        released = true
+        let pending = waiters
+        waiters = []
+        lock.unlock()
+        pending.forEach { $0.resume() }
+    }
+}
+
+final class LegacyTonConnectReconnectStoreTests: XCTestCase {
+    private var directory: URL!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        directory = FileManager.default.temporaryDirectory.appendingPathComponent("TonReconnect-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: directory)
+        try super.tearDownWithError()
+    }
+
+    private func reference(_ session: LegacyTonConnectSession) -> LegacyTonConnectSessionKeyReference {
+        LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
+    }
+
+    private func column(of session: LegacyTonConnectSession, in fixture: TonConnectFixtureCoreDataService) throws -> Data? {
+        try fixture.snapshot().first { $0["identifier"] == Data(session.identifier.utf8) }?["privateKey"]
+    }
+
+    func testAMovedKeyIsMarkedInTheSameSaveAndWaitsDurablyUntilTheUserAnswers() async throws {
+        let file = directory.appendingPathComponent("SubstrateDataModel.sqlite")
+        let fixture = try TonConnectFixtureCoreDataService(url: file)
+        let keys = TonConnectFakeSessionKeys()
+        let http = try tonConnectTestSession(id: "old-http", walletId: "legacy-wallet", host: "a.example.org")
+        let js = try tonConnectTestSession(id: "old-js", walletId: "legacy-wallet", host: "b.example.org", type: "js")
+        let fresh = try tonConnectTestSession(id: "new-http", walletId: "legacy-wallet", host: "c.example.org")
+        try fixture.insert(http)
+        try fixture.insert(js, missingType: true)
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        try await store.save(fresh)
+
+        let waiting = try await store.sessionsToReconnect()
+        XCTAssertEqual(Set(waiting.map(\.identifier)), [http.identifier, js.identifier], "Only keys moved out of raw rows wait")
+        XCTAssertEqual(waiting.first { $0.identifier == http.identifier }, http)
+        XCTAssertEqual(try column(of: http, in: fixture), reference(http).movedColumn)
+        XCTAssertEqual(try column(of: js, in: fixture), reference(js).movedColumn)
+        XCTAssertEqual(try column(of: fresh, in: fixture), reference(fresh).column, "A session made here never held a raw key")
+        let listed = try await store.sessions()
+        XCTAssertEqual(Set(listed.map(\.identifier)), [http.identifier, js.identifier, fresh.identifier])
+        XCTAssertEqual(listed.first { $0.identifier == http.identifier }, http, "A waiting session works exactly as before")
+
+        // The mark is in the database: a relaunch still offers it.
+        try fixture.close()
+        let reopened = try TonConnectFixtureCoreDataService(url: file)
+        let reopenedStore = LegacyTonConnectStore(service: reopened, keys: keys)
+        let afterRelaunch = try await reopenedStore.sessionsToReconnect()
+        XCTAssertEqual(Set(afterRelaunch.map(\.identifier)), [http.identifier, js.identifier])
+
+        // A row with this identifier but another key is not this session's answer.
+        let impostor = LegacyTonConnectSession(
+            identifier: http.identifier, walletId: http.walletId, clientId: http.clientId, appUrl: http.appUrl, name: http.name,
+            iconUrl: nil, publicKey: fresh.publicKey, privateKey: fresh.privateKey, connectionType: http.connectionType
+        )
+        let before = try reopened.snapshot()
+        try await reopenedStore.finishReconnectOffer(for: [impostor])
+        XCTAssertEqual(try reopened.snapshot(), before)
+
+        try await reopenedStore.finishReconnectOffer(for: [http])
+        XCTAssertEqual(try column(of: http, in: reopened), reference(http).column, "Answered: the same item, no longer waiting")
+        XCTAssertEqual(try column(of: js, in: reopened), reference(js).movedColumn, "Another session still waits")
+        XCTAssertEqual(try reopened.snapshot().map(withoutKeyColumn), before.map(withoutKeyColumn), "Nothing else changes")
+        let stillWaiting = try await reopenedStore.sessionsToReconnect()
+        XCTAssertEqual(stillWaiting.map(\.identifier), [js.identifier])
+        let afterAnswer = try await reopenedStore.sessions()
+        XCTAssertEqual(afterAnswer.first { $0.identifier == http.identifier }, http)
+        XCTAssertEqual(keys.items[reference(http).account], http.privateKey, "The key is never touched")
+        XCTAssertEqual(keys.items.count, 3)
+
+        try await reopenedStore.finishReconnectOffer(for: [http])
+        XCTAssertEqual(try column(of: http, in: reopened), reference(http).column, "Answering twice changes nothing")
+        try reopened.close()
+    }
+
+    func testAnInterruptedMoveIsNeitherMarkedNorOfferedAndTheFinishedMoveIs() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let http = try tonConnectTestSession(id: "old-http", walletId: "legacy-wallet", host: "a.example.org")
+        try fixture.insert(http)
+        let before = try fixture.snapshot()
+
+        for boundary in [LegacyTonConnectStore.KeyMigrationBoundary.keyStored, .rowUpdated] {
+            struct Interrupted: Error {}
+            let interrupted = LegacyTonConnectStore(service: fixture, keys: keys) { reached in
+                if reached == boundary { throw Interrupted() }
+            }
+            let waiting = try await interrupted.sessionsToReconnect()
+            XCTAssertTrue(waiting.isEmpty, "Stopped at \(boundary): the row still holds its raw key and is moved later")
+            XCTAssertEqual(try fixture.snapshot(), before)
+        }
+        keys.failSaves = errSecInteractionNotAllowed
+        let whileUnavailable = try await LegacyTonConnectStore(service: fixture, keys: keys).sessionsToReconnect()
+        XCTAssertTrue(whileUnavailable.isEmpty)
+
+        keys.failSaves = nil
+        let waiting = try await LegacyTonConnectStore(service: fixture, keys: keys).sessionsToReconnect()
+        XCTAssertEqual(waiting, [http])
+        XCTAssertEqual(try fixture.snapshot().first?["privateKey"], reference(http).movedColumn)
+    }
+
+    func testAWaitingSessionDisconnectsLikeAnyOtherAndAnInterruptedDisconnectIsFinished() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let first = try tonConnectTestSession(id: "first", walletId: "legacy-wallet", host: "a.example.org")
+        let second = try tonConnectTestSession(id: "second", walletId: "legacy-wallet", host: "b.example.org")
+        try fixture.insert(first)
+        try fixture.insert(second)
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let waiting = try await store.sessionsToReconnect()
+        XCTAssertEqual(waiting.count, 2)
+
+        try await store.remove(first)
+        XCTAssertNil(try column(of: first, in: fixture))
+        XCTAssertNil(keys.items[reference(first).account])
+        let remaining = try await store.sessionsToReconnect()
+        XCTAssertEqual(remaining, [second])
+
+        // The key went but the row stayed (an earlier disconnect cut short): it is finished, not left waiting.
+        try keys.deleteKey(reference: reference(second).account)
+        let none = try await store.sessionsToReconnect()
+        XCTAssertTrue(none.isEmpty, "A row whose key is gone is not a session")
+        try await store.remove(second)
+        XCTAssertTrue(try fixture.snapshot().isEmpty)
+    }
+
+    func testARestoredArchiveFromBeforeTheMoveWaitsAgain() async throws {
+        let live = directory.appendingPathComponent("CoreData/SubstrateDataModel.sqlite")
+        try FileManager.default.createDirectory(at: live.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let fixture = try TonConnectFixtureCoreDataService(url: live)
+        let keys = TonConnectFakeSessionKeys()
+        let http = try tonConnectTestSession(id: "old-http", walletId: "legacy-wallet", host: "a.example.org")
+        try fixture.insert(http)
+        try fixture.close()
+        let archive = directory.appendingPathComponent("CoreData/SubstrateStoreRetained/\(UUID().uuidString)/SubstrateDataModel.sqlite")
+        try FileManager.default.createDirectory(at: archive.deletingLastPathComponent(), withIntermediateDirectories: true)
+        for suffix in ["", "-wal", "-shm"] where FileManager.default.fileExists(atPath: live.path + suffix) {
+            try FileManager.default.copyItem(atPath: live.path + suffix, toPath: archive.path + suffix)
+        }
+
+        let reopened = try TonConnectFixtureCoreDataService(url: live)
+        let store = LegacyTonConnectStore(service: reopened, keys: keys)
+        _ = try await store.sessionsToReconnect()
+        try await store.finishReconnectOffer(for: [http])
+        let answered = try await store.sessionsToReconnect()
+        XCTAssertTrue(answered.isEmpty)
+        try reopened.close()
+
+        // The archive still holds the raw key: once restored, the key is moved again and the offer comes back.
+        let restored = try TonConnectFixtureCoreDataService(url: archive)
+        let again = try await LegacyTonConnectStore(service: restored, keys: keys).sessionsToReconnect()
+        XCTAssertEqual(again, [http])
+        try restored.close()
+    }
+
+    func testADisconnectedSessionNeverComesBackFromAnArchiveOrALateSave() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let session = try tonConnectTestSession(id: "retired", walletId: "legacy-wallet", host: "a.example.org")
+        try await store.save(session)
+        try await store.remove(session)
+        XCTAssertEqual(keys.retired, [reference(session).account], "The disconnect is recorded on this device")
+        XCTAssertTrue(keys.items.isEmpty)
+
+        // A connection approved before the disconnect and saved after it cannot store the session again.
+        do {
+            try await store.save(session)
+            XCTFail("A disconnected session is never saved again")
+        } catch {}
+        XCTAssertTrue(try fixture.snapshot().isEmpty)
+        XCTAssertTrue(keys.items.isEmpty)
+
+        // Its raw row restored from an archive is removed, not moved, listed or offered.
+        try fixture.insert(session)
+        let saves = keys.saveCount
+        let listed = try await store.sessions()
+        XCTAssertTrue(listed.isEmpty)
+        XCTAssertTrue(try fixture.snapshot().isEmpty, "The restored row and its raw key are removed")
+        XCTAssertEqual(keys.saveCount, saves, "Its key is never written to the Keychain again")
+        let waiting = try await store.sessionsToReconnect()
+        XCTAssertTrue(waiting.isEmpty)
+
+        // A new pairing with the same application is a new identity and works.
+        let fresh = try tonConnectTestSession(id: "fresh", walletId: "legacy-wallet", host: "a.example.org")
+        try await store.save(fresh)
+        let afterPairing = try await store.sessions()
+        XCTAssertEqual(afterPairing, [fresh])
+    }
+
+    func testADisconnectIsRecordedBeforeAnythingElseAndACutShortOneIsRecordedWhenFinished() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let first = try tonConnectTestSession(id: "first", walletId: "legacy-wallet", host: "a.example.org")
+        try fixture.insert(first)
+        _ = try await store.sessions()
+        let before = try fixture.snapshot()
+
+        keys.failRetires = errSecInteractionNotAllowed
+        do {
+            try await store.remove(first)
+            XCTFail("A disconnect that cannot be recorded does not start")
+        } catch {}
+        XCTAssertEqual(try fixture.snapshot(), before, "Nothing changed")
+        XCTAssertEqual(keys.items[reference(first).account], first.privateKey)
+        let stillWaiting = try await store.sessionsToReconnect()
+        XCTAssertEqual(stillWaiting, [first])
+
+        // A disconnect cut short by an earlier version (marked, never recorded) is recorded as it is finished.
+        keys.failRetires = nil
+        let second = try tonConnectTestSession(id: "second", walletId: "legacy-wallet", host: "b.example.org")
+        try fixture.insertRaw(second, privateKeyColumn: reference(second).removingColumn)
+        try keys.saveKey(second.privateKey, reference: reference(second).account)
+        let listed = try await store.sessions()
+        XCTAssertEqual(listed, [first])
+        XCTAssertTrue(keys.retired.contains(reference(second).account))
+        XCTAssertNil(keys.items[reference(second).account])
+        XCTAssertEqual(try fixture.snapshot().count, 1)
+    }
+
+    func testAnUnreadableRetirementRecordStopsMovesListingAndSavesUntilItCanBeRead() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let store = LegacyTonConnectStore(service: fixture, keys: keys)
+        let raw = try tonConnectTestSession(id: "raw", walletId: "legacy-wallet", host: "a.example.org")
+        let fresh = try tonConnectTestSession(id: "fresh", walletId: "legacy-wallet", host: "b.example.org")
+        try fixture.insert(raw)
+        let before = try fixture.snapshot()
+
+        keys.failRetiredLookups = errSecInteractionNotAllowed
+        do {
+            _ = try await store.sessions()
+            XCTFail("An unreadable record is an error, not an empty list")
+        } catch {}
+        do {
+            _ = try await store.sessionsToReconnect()
+            XCTFail("Nothing is offered while it cannot be told apart from a disconnected session")
+        } catch {}
+        do {
+            try await store.save(fresh)
+            XCTFail("Nothing is saved while the record cannot be read")
+        } catch {}
+        XCTAssertEqual(try fixture.snapshot(), before, "The raw row is neither moved nor removed")
+        XCTAssertTrue(keys.items.isEmpty)
+
+        keys.failRetiredLookups = nil
+        let waiting = try await store.sessionsToReconnect()
+        XCTAssertEqual(waiting, [raw])
+        try await store.save(fresh)
+        let listed = try await store.sessions()
+        XCTAssertEqual(Set(listed.map(\.identifier)), [raw.identifier, fresh.identifier])
+    }
+
+    /// The in-place scrub the store relies on: Apple's SQLite zeroes a replaced cell (`secure_delete`, FAST or ON).
+    func testTheMoveLeavesNoRawKeyInTheClosedDatabaseFile() async throws {
+        var library: OpaquePointer?
+        XCTAssertEqual(sqlite3_open(":memory:", &library), SQLITE_OK)
+        var pragma: OpaquePointer?
+        XCTAssertEqual(sqlite3_prepare_v2(library, "PRAGMA secure_delete", -1, &pragma, nil), SQLITE_OK)
+        XCTAssertEqual(sqlite3_step(pragma), SQLITE_ROW)
+        XCTAssertNotEqual(sqlite3_column_int(pragma, 0), 0, "secure_delete is on by default in the system SQLite")
+        sqlite3_finalize(pragma)
+        sqlite3_close(library)
+
+        let file = directory.appendingPathComponent("SubstrateDataModel.sqlite")
+        let http = try tonConnectTestSession(id: "old-http", walletId: "legacy-wallet", host: "a.example.org")
+        let written = try TonConnectFixtureCoreDataService(url: file)
+        try written.insert(http)
+        try written.close()
+        func family() throws -> Data {
+            try ["", "-wal", "-journal"].reduce(into: Data()) { result, suffix in
+                let path = file.path + suffix
+                if FileManager.default.fileExists(atPath: path) {
+                    result.append(try Data(contentsOf: URL(fileURLWithPath: path)))
+                }
+            }
+        }
+        XCTAssertNotNil(try family().range(of: http.privateKey), "The released row's raw key is on disk")
+
+        let reopened = try TonConnectFixtureCoreDataService(url: file)
+        let keys = TonConnectFakeSessionKeys()
+        _ = try await LegacyTonConnectStore(service: reopened, keys: keys).sessions()
+        try reopened.close()
+        XCTAssertNil(try family().range(of: http.privateKey), "Moving the key leaves no copy in the live database")
+        XCTAssertEqual(keys.items[reference(http).account], http.privateKey)
+    }
+}
+
+final class LegacyTonConnectReconnectCoordinatorTests: XCTestCase {
+    private func reference(_ session: LegacyTonConnectSession) -> LegacyTonConnectSessionKeyReference {
+        LegacyTonConnectSessionKeyReference(identifier: session.identifier, publicKey: session.publicKey)
+    }
+
+    private func makeCoordinator(
+        fixture: TonConnectFixtureCoreDataService,
+        keys: TonConnectFakeSessionKeys,
+        transport: LegacyTonConnectBridgeTransporting,
+        enabled: Bool = true,
+        noticeNanoseconds: UInt64 = 5_000_000_000
+    ) throws -> LegacyTonConnectCoordinator {
+        let walletKeys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectTestWallet(walletKeys)
+        try fixture.insertBridge(network: "-239", url: URL(string: "https://bridge.example.org/bridge")!)
+        return LegacyTonConnectCoordinator(
+            store: LegacyTonConnectStore(service: fixture, keys: keys), transport: transport,
+            replies: .init(keystore: walletKeys), keystore: walletKeys, selectedWallet: { wallet },
+            networkSelection: { "-239" }, walletLoader: { _ in wallet }, isEnabled: { enabled },
+            disconnectNoticeNanoseconds: noticeNanoseconds
+        )
+    }
+
+    @MainActor
+    func testOnlyTheSelectedWalletsBridgeSessionsAreOfferedAndKeepingThemEndsTheOffer() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let transport = TonConnectFakeTransport()
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let browser = try tonConnectTestSession(id: "browser", walletId: "legacy-wallet", host: "b.example.org", type: "js")
+        let otherWallet = try tonConnectTestSession(id: "other", walletId: "another-wallet", host: "c.example.org")
+        for session in [bridge, browser, otherWallet] {
+            try fixture.insert(session)
+        }
+        let coordinator = try makeCoordinator(fixture: fixture, keys: keys, transport: transport)
+
+        let offered = try await coordinator.sessionsToReconnect()
+        XCTAssertEqual(offered, [bridge], "An in-app browser session never uses its key; another wallet's waits for its own list")
+
+        try await coordinator.keepWithoutReconnecting(offered)
+        let afterKeeping = try await coordinator.sessionsToReconnect()
+        XCTAssertTrue(afterKeeping.isEmpty)
+        let listed = try await coordinator.selectedSessions()
+        XCTAssertEqual(Set(listed.map(\.identifier)), [bridge.identifier, browser.identifier])
+        XCTAssertEqual(listed.first { $0.identifier == bridge.identifier }, bridge, "Keeping changes nothing about the session")
+        XCTAssertTrue(transport.sent.isEmpty, "Keeping tells nobody anything")
+        let otherStillWaits = try await LegacyTonConnectStore(service: fixture, keys: keys).sessionsToReconnect()
+        XCTAssertEqual(Set(otherStillWaits.map(\.identifier)), [browser.identifier, otherWallet.identifier])
+    }
+
+    @MainActor
+    func testReconnectingTellsEachApplicationThenRemovesItsSessionAndKey() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let transport = TonConnectFakeTransport()
+        let first = try tonConnectTestSession(id: "first", walletId: "legacy-wallet", host: "a.example.org")
+        let second = try tonConnectTestSession(id: "second", walletId: "legacy-wallet", host: "b.example.org")
+        try fixture.insert(first)
+        try fixture.insert(second)
+        let coordinator = try makeCoordinator(fixture: fixture, keys: keys, transport: transport)
+        let offered = try await coordinator.sessionsToReconnect()
+        XCTAssertEqual(Set(offered.map(\.identifier)), [first.identifier, second.identifier])
+
+        try await coordinator.reconnect(offered)
+
+        XCTAssertEqual(transport.sent.map { $0.1.identifier }.sorted(), offered.map(\.identifier).sorted(), "Each application is told, once")
+        for (data, session, bridge, topic) in transport.sent {
+            XCTAssertEqual(topic, "disconnect")
+            XCTAssertEqual(bridge, URL(string: "https://bridge.example.org/bridge")!)
+            let event = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+            XCTAssertEqual(event["event"] as? String, "disconnect")
+            let id = try XCTUnwrap(event["id"] as? UInt64)
+            XCTAssertEqual(id, LegacyTonConnectCoordinator.disconnectEventId)
+            XCTAssertEqual(id, 9_007_199_254_740_991, "Number.MAX_SAFE_INTEGER: exact in JavaScript")
+            XCTAssertEqual(UInt64(Double(id)), id)
+            // @tonconnect/sdk drops a wallet event unless its id is above the last one, and connect events here use
+            // Unix seconds: even one sent in the same second, or after the clock moved back, is below it.
+            XCTAssertGreaterThan(id, UInt64(Date().timeIntervalSince1970) + 1_000_000_000_000)
+            XCTAssertEqual((event["payload"] as? [String: Any])?.isEmpty, true)
+            XCTAssertNil(keys.items[reference(session).account], "The retired key is gone")
+        }
+        XCTAssertTrue(try fixture.snapshot().isEmpty)
+        let remaining = try await coordinator.selectedSessions()
+        XCTAssertTrue(remaining.isEmpty)
+    }
+
+    @MainActor
+    func testAnUnreachableOrSlowBridgeNeverKeepsTheSessionAndAPausedOneIsNotContacted() async throws {
+        let failing = TonConnectFakeTransport()
+        failing.failSends = true
+        let offline = try tonConnectTestSession(id: "offline", walletId: "legacy-wallet", host: "a.example.org")
+        let offlineFixture = try TonConnectFixtureCoreDataService()
+        try offlineFixture.insert(offline)
+        let offlineKeys = TonConnectFakeSessionKeys()
+        let offlineCoordinator = try makeCoordinator(fixture: offlineFixture, keys: offlineKeys, transport: failing)
+        try await offlineCoordinator.reconnect(offlineCoordinator.sessionsToReconnect())
+        XCTAssertTrue(try offlineFixture.snapshot().isEmpty)
+        XCTAssertTrue(offlineKeys.items.isEmpty)
+
+        let hanging = TonConnectHangingTransport()
+        let slow = try tonConnectTestSession(id: "slow", walletId: "legacy-wallet", host: "b.example.org")
+        let slower = try tonConnectTestSession(id: "slower", walletId: "legacy-wallet", host: "d.example.org")
+        let slowFixture = try TonConnectFixtureCoreDataService()
+        try slowFixture.insert(slow)
+        try slowFixture.insert(slower)
+        let slowKeys = TonConnectFakeSessionKeys()
+        let slowCoordinator = try makeCoordinator(
+            fixture: slowFixture, keys: slowKeys, transport: hanging, noticeNanoseconds: 3_000_000_000
+        )
+        let started = Date()
+        try await slowCoordinator.reconnect(slowCoordinator.sessionsToReconnect())
+        XCTAssertLessThan(Date().timeIntervalSince(started), 30, "The notices wait a bounded time")
+        XCTAssertEqual(hanging.maximumInFlight, 2, "Both notices go out together: one wait, not one each")
+        // The answer does not wait for the cancelled notices to end; they end soon after.
+        for _ in 0 ..< 500 where hanging.cancelledSends < 2 {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(hanging.cancelledSends, 2, "Unanswered notices are cancelled")
+        XCTAssertTrue(try slowFixture.snapshot().isEmpty)
+        XCTAssertTrue(slowKeys.items.isEmpty)
+
+        let paused = TonConnectFakeTransport()
+        let quiet = try tonConnectTestSession(id: "quiet", walletId: "legacy-wallet", host: "c.example.org")
+        let pausedFixture = try TonConnectFixtureCoreDataService()
+        try pausedFixture.insert(quiet)
+        let pausedCoordinator = try makeCoordinator(
+            fixture: pausedFixture, keys: TonConnectFakeSessionKeys(), transport: paused, enabled: false
+        )
+        try await pausedCoordinator.reconnect(pausedCoordinator.sessionsToReconnect())
+        XCTAssertTrue(paused.sent.isEmpty, "A paused TON Connect sends nothing")
+        XCTAssertTrue(try pausedFixture.snapshot().isEmpty, "The user's disconnect still happens")
+    }
+
+    @MainActor
+    func testEverySessionIsRemovedBeforeAnyNoticeAndAStuckBridgeNeverHoldsTheAnswerUp() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let transport = TonConnectStuckTransport()
+        defer { transport.release() }
+        let first = try tonConnectTestSession(id: "first", walletId: "legacy-wallet", host: "a.example.org")
+        let second = try tonConnectTestSession(id: "second", walletId: "legacy-wallet", host: "b.example.org")
+        try fixture.insert(first)
+        try fixture.insert(second)
+        let lock = NSLock()
+        var rowsAtSend: [Int] = []
+        transport.onSend = { _ in
+            let rows = (try? fixture.snapshot().count) ?? -1
+            lock.lock()
+            rowsAtSend.append(rows)
+            lock.unlock()
+        }
+        let coordinator = try makeCoordinator(fixture: fixture, keys: keys, transport: transport, noticeNanoseconds: 300_000_000)
+        let offered = try await coordinator.sessionsToReconnect()
+
+        let started = Date()
+        try await coordinator.reconnect(offered)
+
+        XCTAssertLessThan(Date().timeIntervalSince(started), 20, "A send that ignores cancellation does not hold the answer")
+        XCTAssertTrue(try fixture.snapshot().isEmpty)
+        XCTAssertTrue(keys.items.isEmpty, "Both retired keys are gone")
+        XCTAssertEqual(keys.retired.count, 2)
+        lock.lock()
+        let observed = rowsAtSend
+        lock.unlock()
+        XCTAssertEqual(observed, [0, 0], "Each application is told only after every selected session was removed")
+
+        // The swipe path: removed first as well.
+        let third = try tonConnectTestSession(id: "third", walletId: "legacy-wallet", host: "c.example.org")
+        try fixture.insert(third)
+        _ = try await coordinator.selectedSessions()
+        let swipeStarted = Date()
+        try await coordinator.disconnect(third)
+        XCTAssertLessThan(Date().timeIntervalSince(swipeStarted), 20)
+        XCTAssertTrue(try fixture.snapshot().isEmpty)
+    }
+
+    @MainActor
+    func testARecordedDisconnectThatCannotFinishStillTellsTheApplicationAndIsFinishedLater() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let transport = TonConnectFakeTransport()
+        let offered = try tonConnectTestSession(id: "offered", walletId: "legacy-wallet", host: "a.example.org")
+        let swiped = try tonConnectTestSession(id: "swiped", walletId: "legacy-wallet", host: "b.example.org")
+        try fixture.insert(offered)
+        try fixture.insert(swiped)
+        let coordinator = try makeCoordinator(fixture: fixture, keys: keys, transport: transport)
+        let waiting = try await coordinator.sessionsToReconnect()
+        XCTAssertEqual(Set(waiting.map(\.identifier)), [offered.identifier, swiped.identifier])
+
+        keys.failDeletes = errSecInteractionNotAllowed
+        do {
+            try await coordinator.reconnect([offered])
+            XCTFail("An unfinished disconnect is reported")
+        } catch {
+            XCTAssertTrue(error is LegacyTonConnectUnfinishedRemoval)
+        }
+        do {
+            try await coordinator.disconnect(swiped)
+            XCTFail("An unfinished disconnect is reported")
+        } catch {
+            XCTAssertTrue(error is LegacyTonConnectUnfinishedRemoval)
+        }
+        XCTAssertEqual(transport.sent.map { $0.1.identifier }.sorted(), [offered.identifier, swiped.identifier],
+                       "Both applications are told: the sessions are retired for good")
+        XCTAssertEqual(keys.retired.count, 2)
+        let listedMeanwhile = try await coordinator.selectedSessions()
+        XCTAssertTrue(listedMeanwhile.isEmpty, "Neither session is usable while its removal waits")
+
+        keys.failDeletes = nil
+        _ = try await coordinator.selectedSessions()
+        XCTAssertTrue(try fixture.snapshot().isEmpty, "The next read finished both removals")
+        XCTAssertTrue(keys.items.isEmpty)
+    }
+
+    @MainActor
+    func testADisconnectThatCannotStartKeepsTheSessionWaitingAndIsReportedAfterTheOthers() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let transport = TonConnectFakeTransport()
+        let first = try tonConnectTestSession(id: "first", walletId: "legacy-wallet", host: "a.example.org")
+        try fixture.insert(first)
+        let coordinator = try makeCoordinator(fixture: fixture, keys: keys, transport: transport)
+        let offered = try await coordinator.sessionsToReconnect()
+        XCTAssertEqual(offered, [first])
+        let before = try fixture.snapshot()
+
+        keys.failLoads = errSecInteractionNotAllowed
+        do {
+            try await coordinator.reconnect(offered)
+            XCTFail("A disconnect that could not happen is reported")
+        } catch {}
+        XCTAssertEqual(try fixture.snapshot(), before, "The session and its mark stay as they were")
+        XCTAssertEqual(keys.items[reference(first).account], first.privateKey)
+
+        keys.failLoads = nil
+        let offeredAgain = try await coordinator.sessionsToReconnect()
+        XCTAssertEqual(offeredAgain, [first], "Not answered by a failure: offered again")
+    }
+}
+
+final class LegacyTonConnectReconnectOfferViewTests: XCTestCase {
+    /// The languages the app bundle ships (`pt.lproj` is kept in the tree but not in the target).
+    private static let locales = ["en", "id", "ja", "pt-PT", "ru", "tr", "vi", "zh-Hans"]
+
+    func testTheNoticeIsShortAndTranslatedInEveryShippedLanguage() throws {
+        let english = R.string.localizable.tonconnectReconnectMessage(preferredLanguages: ["en"])
+        for locale in Self.locales {
+            let languages = [locale]
+            let title = R.string.localizable.tonconnectReconnectTitle(preferredLanguages: languages)
+            let message = R.string.localizable.tonconnectReconnectMessage(preferredLanguages: languages)
+            let action = R.string.localizable.tonconnectReconnectAction(preferredLanguages: languages)
+            let keep = R.string.localizable.tonconnectReconnectKeep(preferredLanguages: languages)
+            for text in [title, message, action, keep] {
+                XCTAssertFalse(text.isEmpty, locale)
+                XCTAssertFalse(text.hasPrefix("tonconnect."), "\(locale) has its own text")
+            }
+            XCTAssertLessThanOrEqual(message.count, 200, "\(locale): one warning, one action, kept short")
+            XCTAssertLessThanOrEqual(title.count, 40, locale)
+            if locale != "en" {
+                XCTAssertNotEqual(message, english, "\(locale) is translated")
+            }
+        }
+    }
+
+    func testTheOfferNamesEachHostOnceAndAtMostFive() throws {
+        let sessions = try (0 ..< 8).map { index in
+            try tonConnectTestSession(id: "s\(index)", walletId: "legacy-wallet", host: "app\(index % 7).example.org")
+        }
+        var answers: [String] = []
+        let alert = LegacyTonConnectReconnectOffer.alert(
+            for: sessions, languages: ["en"], disconnect: { answers.append("disconnect") }, keep: { answers.append("keep") }
+        )
+        let message = try XCTUnwrap(alert.message)
+        let body = R.string.localizable.tonconnectReconnectMessage(preferredLanguages: ["en"])
+        XCTAssertEqual(message, body + "\n\n" + (0 ..< 5).map { "app\($0).example.org" }.joined(separator: "\n") + "\n…")
+        XCTAssertEqual(alert.title, R.string.localizable.tonconnectReconnectTitle(preferredLanguages: ["en"]))
+        XCTAssertEqual(alert.actions.map(\.style), [.cancel, .destructive])
+        XCTAssertEqual(alert.actions.map(\.title), ["Keep connected", "Disconnect"])
+        XCTAssertIdentical(alert.preferredAction, alert.actions[1])
+        CovEAlert.tap(alert.actions[0])
+        CovEAlert.tap(alert.actions[1])
+        XCTAssertEqual(answers, ["keep", "disconnect"])
+
+        let one = LegacyTonConnectReconnectOffer.alert(for: Array(sessions.prefix(2)) + [sessions[0]], languages: ["ja"], disconnect: {}, keep: {})
+        XCTAssertEqual(one.message, R.string.localizable.tonconnectReconnectMessage(preferredLanguages: ["ja"]) + "\n\napp0.example.org\napp1.example.org")
+    }
+
+    @MainActor
+    private func host(_ controller: UIViewController) throws -> (UIWindow, () -> Void) {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .first(where: { $0.activationState == .foregroundActive }))
+        let previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.coordinateSpace.bounds
+        window.rootViewController = UINavigationController(rootViewController: controller)
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+        return (window, {
+            window.rootViewController?.dismiss(animated: false)
+            window.isHidden = true
+            window.rootViewController = nil
+            previousKeyWindow?.makeKey()
+        })
+    }
+
+    @MainActor
+    private func waitUntil(_ timeout: TimeInterval = 10, _ condition: () -> Bool) async throws {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition(), Date() < deadline {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+    }
+
+    /// Answers the offer as a tap would: the alert closes first, then its action runs.
+    @MainActor
+    private func answer(_ alert: UIAlertController, on controller: UIViewController, action index: Int) async throws {
+        try await waitUntil { alert.viewIfLoaded?.window != nil && !alert.isBeingPresented && alert.transitionCoordinator == nil }
+        controller.dismiss(animated: false)
+        try await waitUntil { controller.presentedViewController == nil }
+        XCTAssertNil(controller.presentedViewController)
+        CovEAlert.tap(alert.actions[index])
+    }
+
+    @MainActor
+    private func makeCoordinator(_ store: TonConnectFakeSessionStore, transport: TonConnectFakeTransport) throws -> LegacyTonConnectCoordinator {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectTestWallet(keys)
+        return LegacyTonConnectCoordinator(
+            store: store, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, networkSelection: { "-239" }, walletLoader: { _ in wallet }, isEnabled: { true }
+        )
+    }
+
+    @MainActor
+    func testTheListOffersOnceAndKeepingTheSessionsEndsIt() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let browser = try tonConnectTestSession(id: "browser", walletId: "legacy-wallet", host: "b.example.org", type: "js")
+        let store = TonConnectFakeSessionStore(values: [bridge, browser])
+        store.waiting = [bridge, browser]
+        let transport = TonConnectFakeTransport()
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: transport))
+        let (_, close) = try host(controller)
+        defer { close() }
+
+        try await waitUntil { controller.presentedViewController is UIAlertController }
+        let alert = try XCTUnwrap(controller.presentedViewController as? UIAlertController)
+        let languages = LegacyTonConnectProtocol.languages
+        XCTAssertEqual(alert.title, R.string.localizable.tonconnectReconnectTitle(preferredLanguages: languages))
+        XCTAssertEqual(alert.message, R.string.localizable.tonconnectReconnectMessage(preferredLanguages: languages) + "\n\na.example.org",
+                       "Only the bridge session is named")
+
+        try await answer(alert, on: controller, action: 0)
+        try await waitUntil { store.waiting == [browser] }
+        XCTAssertEqual(store.waiting, [browser], "The kept session is not offered again")
+        XCTAssertEqual(store.values, [bridge, browser], "Keeping disconnects nothing")
+        XCTAssertTrue(transport.sent.isEmpty)
+
+        controller.refreshControl?.sendActions(for: .valueChanged)
+        try await Task.sleep(nanoseconds: 500_000_000)
+        XCTAssertNil(controller.presentedViewController, "Answered once, never asked again")
+    }
+
+    @MainActor
+    func testDisconnectingFromTheOfferRemovesTheSessionsAndRefreshesTheList() async throws {
+        let first = try tonConnectTestSession(id: "first", walletId: "legacy-wallet", host: "a.example.org")
+        let second = try tonConnectTestSession(id: "second", walletId: "legacy-wallet", host: "b.example.org")
+        let kept = try tonConnectTestSession(id: "kept", walletId: "legacy-wallet", host: "c.example.org")
+        let store = TonConnectFakeSessionStore(values: [first, second, kept])
+        store.waiting = [first, second]
+        let transport = TonConnectFakeTransport()
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: transport))
+        let (_, close) = try host(controller)
+        defer { close() }
+
+        try await waitUntil { controller.presentedViewController is UIAlertController }
+        let alert = try XCTUnwrap(controller.presentedViewController as? UIAlertController)
+        XCTAssertTrue(alert.message?.hasSuffix("\n\na.example.org\nb.example.org") == true)
+        try await answer(alert, on: controller, action: 1)
+
+        try await waitUntil { store.values == [kept] && controller.tableView.numberOfRows(inSection: 0) == 1 }
+        XCTAssertEqual(store.values, [kept], "Only the offered sessions are disconnected")
+        XCTAssertEqual(transport.sent.map { $0.3 }, ["disconnect", "disconnect"])
+        XCTAssertEqual(controller.tableView.numberOfRows(inSection: 0), 1)
+        XCTAssertNil(controller.presentedViewController)
+    }
+
+    @MainActor
+    func testOpeningTheListAsASheetOffersWithoutARefresh() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        store.waiting = [bridge]
+        let coordinator = try makeCoordinator(store, transport: TonConnectFakeTransport())
+        let root = UIViewController()
+        let (_, close) = try host(root)
+        defer { close() }
+        try await waitUntil { root.viewIfLoaded?.window != nil }
+
+        coordinator.presentSessions(from: root)
+
+        var list: LegacyTonConnectSessionsViewController? {
+            (root.navigationController?.presentedViewController as? UINavigationController)?.topViewController
+                as? LegacyTonConnectSessionsViewController
+        }
+        try await waitUntil { list?.presentedViewController is UIAlertController }
+        let alert = try XCTUnwrap(list?.presentedViewController as? UIAlertController)
+        XCTAssertTrue(alert.message?.hasSuffix("\n\na.example.org") == true)
+        try await waitUntil { alert.viewIfLoaded?.window != nil && !alert.isBeingPresented }
+    }
+
+    @MainActor
+    func testAListThatCouldNotLoadBehindTheLockLoadsAndOffersAfterTheUnlock() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        store.waiting = [bridge]
+        store.failReads = true
+        let lockState = ApplicationLockState.shared
+        lockState.markLockPending()
+        defer { lockState.cancelPendingLock() }
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: TonConnectFakeTransport()))
+        let (_, close) = try host(controller)
+        defer { close() }
+        try await waitUntil(2) { controller.presentedViewController != nil }
+        XCTAssertNil(controller.presentedViewController, "No error is shown for a read the lock held back")
+
+        store.failReads = false
+        lockState.cancelPendingLock()
+        try await waitUntil { controller.presentedViewController is UIAlertController }
+        let alert = try XCTUnwrap(controller.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages),
+                       "The offer, not an error, after the unlock and without a refresh")
+        XCTAssertEqual(controller.tableView.numberOfRows(inSection: 0), 1)
+    }
+
+    @MainActor
+    func testAnUnlockDuringAFailingFirstLoadStillLoadsAndOffers() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        store.waiting = [bridge]
+        store.holdNextReadAndFailIt()
+        let lockState = ApplicationLockState.shared
+        lockState.markLockPending()
+        defer { lockState.cancelPendingLock() }
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: TonConnectFakeTransport()))
+        let (_, close) = try host(controller)
+        defer { close() }
+        try await waitUntil { store.isHoldingRead }
+        XCTAssertTrue(store.isHoldingRead, "The first load is still running")
+
+        lockState.cancelPendingLock()
+        try await Task.sleep(nanoseconds: 200_000_000)
+        store.releaseRead()
+
+        try await waitUntil { controller.presentedViewController is UIAlertController }
+        let alert = try XCTUnwrap(controller.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages),
+                       "The load asked for by the unlock runs and offers; the superseded failure is not shown")
+        XCTAssertEqual(controller.tableView.numberOfRows(inSection: 0), 1)
+    }
+
+    /// Codex review (round 4): the failed read's completion is queued on the main actor before the unlock is posted.
+    @MainActor
+    func testAFailedLoadQueuedBeforeTheUnlockIsNotShownAndTheListLoadsAndOffers() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        store.waiting = [bridge]
+        store.holdNextReadAndFailIt()
+        let lockState = ApplicationLockState.shared
+        lockState.markLockPending()
+        defer { lockState.cancelPendingLock() }
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: TonConnectFakeTransport()))
+        let (_, close) = try host(controller)
+        defer { close() }
+        try await waitUntil { store.isHoldingRead }
+        XCTAssertTrue(store.isHoldingRead)
+
+        // The failed read's completion is queued on the main actor (held here, without suspending) before the
+        // unlock is posted: the unlock must still win over the failure.
+        store.releaseRead()
+        XCTAssertEqual(store.heldReadFailed.wait(timeout: .now() + 10), .success)
+        Thread.sleep(forTimeInterval: 0.5)
+        lockState.cancelPendingLock()
+
+        try await waitUntil { controller.presentedViewController is UIAlertController }
+        let alert = try XCTUnwrap(controller.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages),
+                       "The offer, not the error of a read the lock held back")
+        XCTAssertEqual(controller.tableView.numberOfRows(inSection: 0), 1)
+    }
+
+    @MainActor
+    func testASwipeWhoseRemovalIsUnfinishedShowsTheErrorAndDropsTheRow() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        store.removalError = LegacyTonConnectUnfinishedRemoval(underlying: LegacyTonConnectSessionKeyError.keychainUnavailable(errSecInteractionNotAllowed))
+        let transport = TonConnectFakeTransport()
+        let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: transport))
+        let (_, close) = try host(controller)
+        defer { close() }
+        try await waitUntil { controller.tableView(controller.tableView, cellForRowAt: IndexPath(row: 0, section: 0)).textLabel?.text == bridge.name }
+
+        let removalError = try XCTUnwrap(store.removalError)
+        let action = try XCTUnwrap(controller.tableView(controller.tableView, trailingSwipeActionsConfigurationForRowAt: IndexPath(row: 0, section: 0))?.actions.first)
+        var completed: [Bool] = []
+        action.handler(action, UIView()) { completed.append($0) }
+        try await waitUntil { !completed.isEmpty && controller.presentedViewController is UIAlertController }
+
+        XCTAssertEqual(completed, [false])
+        XCTAssertEqual(transport.sent.map { $0.3 }, ["disconnect"], "The application is told")
+        try await waitUntil {
+            controller.tableView(controller.tableView, cellForRowAt: IndexPath(row: 0, section: 0)).textLabel?.text == "No connected applications"
+        }
+        XCTAssertEqual(controller.tableView(controller.tableView, cellForRowAt: IndexPath(row: 0, section: 0)).textLabel?.text,
+                       "No connected applications", "The retired session leaves the list")
+        let shown = try XCTUnwrap(controller.presentedViewController as? UIAlertController, "The cleanup error is shown")
+        XCTAssertEqual(shown.message, removalError.localizedDescription)
+    }
+
+    @MainActor
+    func testNothingIsOfferedBehindTheLockOrWhenNothingWaits() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let store = TonConnectFakeSessionStore(values: [bridge])
+        let transport = TonConnectFakeTransport()
+        let quiet = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: transport))
+        let (_, closeQuiet) = try host(quiet)
+        try await waitUntil(2) { quiet.tableView.numberOfRows(inSection: 0) == 1 && quiet.presentedViewController != nil }
+        XCTAssertNil(quiet.presentedViewController, "A session made by this version is never offered")
+        closeQuiet()
+
+        store.waiting = [bridge]
+        let lockState = ApplicationLockState.shared
+        lockState.markLockPending()
+        defer { lockState.cancelPendingLock() }
+        let locked = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: transport))
+        let (_, closeLocked) = try host(locked)
+        defer { closeLocked() }
+        try await waitUntil(2) { locked.presentedViewController != nil }
+        XCTAssertNil(locked.presentedViewController, "Nothing is asked behind the lock")
+        XCTAssertEqual(store.waiting, [bridge], "Not asked, so still waiting")
+
+        lockState.cancelPendingLock()
+        try await waitUntil { locked.presentedViewController is UIAlertController }
+        XCTAssertTrue(locked.presentedViewController is UIAlertController, "Asked once the wallet is unlocked, without a refresh")
+    }
+}
+
+// MARK: - A decided connection's reply that the bridge did not take (Codex rounds 6 and 8, 2026-11-23)
+
+/// Opens once; every waiter before and after passes.
+private final class TonConnectSendGate {
+    private let lock = NSLock()
+    private var isOpen = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    var waiting: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return waiters.count
+    }
+
+    func wait() async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            lock.lock()
+            if isOpen {
+                lock.unlock()
+                continuation.resume()
+            } else {
+                waiters.append(continuation)
+                lock.unlock()
+            }
+        }
+    }
+
+    func open() {
+        lock.lock()
+        isOpen = true
+        let released = waiters
+        waiters = []
+        lock.unlock()
+        released.forEach { $0.resume() }
+    }
+}
+
+/// Parks each retry of a kept reply until the test lets it go, in place of the retry delays. Pass `pass` as the
+/// coordinator's `replyRetryWait`: it runs on the main actor like the retry, so once `resumed` counts a released
+/// retry, that retry has also made its synchronous decision (a cancelled one has ended).
+private final class TonConnectRetryGate {
+    private let lock = NSLock()
+    private var parked: [CheckedContinuation<Void, Never>] = []
+    private var count = 0
+    private var resumedCount = 0
+
+    var entered: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return count
+    }
+
+    var resumed: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return resumedCount
+    }
+
+    var pass: @MainActor (UInt64) async -> Void {
+        { [self] delay in
+            await wait(delay)
+            markResumed()
+        }
+    }
+
+    private func markResumed() {
+        lock.lock()
+        resumedCount += 1
+        lock.unlock()
+    }
+
+    func wait(_: UInt64) async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            lock.lock()
+            count += 1
+            parked.append(continuation)
+            lock.unlock()
+        }
+    }
+
+    func releaseAll() {
+        lock.lock()
+        let released = parked
+        parked = []
+        lock.unlock()
+        released.forEach { $0.resume() }
+    }
+}
+
+private final class TonConnectEventLog {
+    private let lock = NSLock()
+    private var stored: [String] = []
+
+    var events: [String] {
+        lock.lock()
+        defer { lock.unlock() }
+        return stored
+    }
+
+    func append(_ event: String) {
+        lock.lock()
+        stored.append(event)
+        lock.unlock()
+    }
+}
+
+private final class TonConnectLoggingSessionStore: LegacyTonConnectSessionStoring {
+    private let log: TonConnectEventLog
+    private(set) var values: [LegacyTonConnectSession]
+    var failRemovals = 0
+
+    init(values: [LegacyTonConnectSession], log: TonConnectEventLog) {
+        self.values = values
+        self.log = log
+    }
+
+    func sessions() async throws -> [LegacyTonConnectSession] { values }
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession] { [] }
+    func finishReconnectOffer(for _: [LegacyTonConnectSession]) async throws {}
+    func save(_ session: LegacyTonConnectSession) async throws { if !values.contains(session) { values.append(session) } }
+
+    func remove(_ session: LegacyTonConnectSession) async throws {
+        guard failRemovals == 0 else {
+            failRemovals -= 1
+            log.append("remove failed")
+            throw KeystoreError.unexpectedFail
+        }
+        log.append("remove")
+        values.removeAll { $0 == session }
+    }
+
+    func bridgeURL(network _: String) async throws -> URL { URL(string: "https://bridge.example.org/bridge")! }
+}
+
+private final class TonConnectDisconnectRecordingHandler: LegacyTonConnectRequestHandling {
+    private let log: TonConnectEventLog
+    init(log: TonConnectEventLog) { self.log = log }
+
+    func process(
+        session _: LegacyTonConnectSession, network _: String, request _: LegacyTonConnectRPCRequest
+    ) async throws -> LegacyTonConnectRPCOutcome {
+        throw LegacyTonConnectError.unavailableWallet
+    }
+
+    func acknowledge(
+        session _: LegacyTonConnectSession, network _: String, request _: LegacyTonConnectRPCRequest, messageHashHex _: String
+    ) async throws {}
+
+    func sessionWillDisconnect(_: LegacyTonConnectSession) async { log.append("willDisconnect") }
+}
+
+/// A flag the session store may flip off the main thread while the coordinator reads it on main.
+private final class TonConnectLockedFlag {
+    private let lock = NSLock()
+    private var stored: Bool
+    init(_ value: Bool) { stored = value }
+    var value: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return stored }
+        set { lock.lock(); stored = newValue; lock.unlock() }
+    }
+}
+
+/// Refuses the first `failures` sends, then takes them; sends from `gatedFromAttempt` on wait for `gate` first.
+/// `send` runs on the main actor like the retry, so a try is counted in the same job as the decision to send it.
+/// Counters are read on main while the listener runs elsewhere.
+private final class TonConnectFlakyReplyTransport: LegacyTonConnectBridgeTransporting {
+    let gate = TonConnectSendGate()
+    private let lock = NSLock()
+    private var failuresLeft: Int
+    private var gatedFrom = Int.max
+    private var attemptCount = 0
+    private var listenCount = 0
+    private var manifestCount = 0
+    private var tried: [(data: Data, topic: String)] = []
+    private var delivered: [(data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String)] = []
+
+    init(failures: Int) { failuresLeft = failures }
+
+    private func locked<T>(_ body: () -> T) -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return body()
+    }
+
+    var gatedFromAttempt: Int {
+        get { locked { gatedFrom } }
+        set { locked { gatedFrom = newValue } }
+    }
+
+    var attempts: Int { locked { attemptCount } }
+    var listens: Int { locked { listenCount } }
+    var manifestCalls: Int { locked { manifestCount } }
+    /// Every payload handed to `send`, refused or not, in order.
+    var triedPayloads: [Data] { locked { tried.map(\.data) } }
+    /// The topic of every send, refused or not, in order: `connect` replies and `disconnect` notices.
+    var triedTopics: [String] { locked { tried.map(\.topic) } }
+    var sent: [(data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String)] { locked { delivered } }
+
+    func manifest(at url: URL) async throws -> LegacyTonConnectManifest {
+        locked { manifestCount += 1 }
+        return .init(url: url, name: "Fixture", iconUrl: nil)
+    }
+
+    @MainActor
+    func send(_ data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String) async throws {
+        let gated: Bool = locked {
+            attemptCount += 1
+            tried.append((data, topic))
+            return attemptCount >= gatedFrom
+        }
+        if gated {
+            await gate.wait()
+        }
+        let refused: Bool = locked {
+            guard failuresLeft > 0 else {
+                delivered.append((data, session, bridge, topic))
+                return false
+            }
+            failuresLeft -= 1
+            return true
+        }
+        if refused { throw URLError(.networkConnectionLost) }
+    }
+
+    func listen(
+        session _: LegacyTonConnectSession, context _: LegacyTonConnectSessionContext,
+        receive _: @escaping (Data, String?) async throws -> Void
+    ) async throws {
+        locked { listenCount += 1 }
+        throw URLError(.notConnectedToInternet)
+    }
+}
+
+/// Runs a hook once, from inside the next `sessions()` read after it was armed, before that read returns the list
+/// it read before the hook ran. On the main actor like the retry that reads it: once `hookFired` is set, that retry
+/// has also made its decision.
+@MainActor
+private final class TonConnectHookedSessionStore: LegacyTonConnectSessionStoring {
+    private let lock = NSLock()
+    private var stored: [LegacyTonConnectSession] = []
+    private var hook: (() async -> Void)?
+    private var fired = false
+    private var readCount = 0
+
+    private func locked<T>(_ body: () -> T) -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return body()
+    }
+
+    var values: [LegacyTonConnectSession] { locked { stored } }
+    var hookFired: Bool { locked { fired } }
+    var reads: Int { locked { readCount } }
+
+    func arm(_ hook: @escaping () async -> Void) { locked { self.hook = hook } }
+
+    func sessions() async throws -> [LegacyTonConnectSession] {
+        let (snapshot, pending): ([LegacyTonConnectSession], (() async -> Void)?) = locked {
+            readCount += 1
+            let pending = hook
+            hook = nil
+            return (stored, pending)
+        }
+        if let pending {
+            await pending()
+            locked { fired = true }
+        }
+        return snapshot
+    }
+
+    func sessionsToReconnect() async throws -> [LegacyTonConnectSession] { [] }
+    func finishReconnectOffer(for _: [LegacyTonConnectSession]) async throws {}
+
+    func save(_ session: LegacyTonConnectSession) async throws {
+        locked { if !stored.contains(session) { stored.append(session) } }
+    }
+
+    func remove(_ session: LegacyTonConnectSession) async throws { locked { stored.removeAll { $0 == session } } }
+    func bridgeURL(network _: String) async throws -> URL { URL(string: "https://bridge.example.org/bridge")! }
+}
+
+@MainActor
+private func tonConnectWaitUntil(
+    _ message: String, timeout: TimeInterval = 10, file: StaticString = #filePath, line: UInt = #line,
+    _ condition: () -> Bool
+) async throws {
+    let deadline = Date().addingTimeInterval(timeout)
+    while !condition() {
+        guard Date() < deadline else {
+            XCTFail(message, file: file, line: line)
+            return
+        }
+        try await Task.sleep(nanoseconds: 10_000_000)
+    }
+}
+
+private func tonConnectNativeWallet(_ keys: TonConnectFixtureKeychain) throws -> MetaAccountModel {
+    let pair = try TonSwift.Mnemonic.mnemonicToPrivateKey(mnemonicArray: tonConnectNativePhrase.components(separatedBy: " "))
+    let account = try LegacyTonAccount(serializedAddress: JSONEncoder().encode(WalletV4R2(publicKey: pair.publicKey.data).address()),
+                                       publicKey: pair.publicKey.data, contractVersion: "v4R2")
+    keys.values[KeystoreTagV2.tonSecretKeyTagForMetaId("legacy-wallet")] = pair.privateKey.data
+    return MetaAccountModel(metaId: "legacy-wallet", name: "Original native TON", substrateAccountId: nil,
+        substrateCryptoType: 0, substratePublicKey: nil, ethereumAddress: nil, ethereumPublicKey: nil,
+        chainAccounts: [], assetKeysOrder: nil, canExportEthereumMnemonic: false, unusedChainIds: nil,
+        selectedCurrency: .defaultCurrency(), networkManagmentFilter: nil, assetsVisibility: [],
+        hasBackup: true, favouriteChainIds: [], legacyTonAccount: account)
+}
+
+private func tonConnectPeer(seed: UInt8) throws -> String {
+    try NaclBox.keyPair(fromSecretKey: Data(repeating: seed, count: 32)).publicKey.map { String(format: "%02x", $0) }.joined()
+}
+
+private func tonConnectLink(peerSeed: UInt8) throws -> URL {
+    var parts = URLComponents(string: "tc://")!
+    parts.queryItems = [
+        .init(name: "v", value: "2"), .init(name: "id", value: try tonConnectPeer(seed: peerSeed)),
+        .init(name: "r", value: #"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#)
+    ]
+    return try XCTUnwrap(parts.url)
+}
+
+private func tonConnectEvent(_ data: Data) throws -> [String: Any] {
+    try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+}
+
+final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
+    private let addressRequest = LegacyTonConnectConnectRequest(
+        manifestUrl: URL(string: "https://example.org/manifest.json")!, items: [.init(name: "ton_addr", payload: nil)]
+    )
+    private let manifest = LegacyTonConnectManifest(url: URL(string: "https://example.org/app")!, name: "Original application", iconUrl: nil)
+
+    /// An approved link whose reply the bridge refused keeps listening and sends the same bytes again; the user is
+    /// asked once and hears nothing once it left.
+    @MainActor
+    func testAnApprovedReplyTheBridgeRefusedIsSentAgainWhileTheSessionListens() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let transport = TonConnectFlakyReplyTransport(failures: 2)
+        let storage = TonConnectFakeSessionStore(values: [])
+        var approvals = 0
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return true }, walletLoader: { _ in wallet },
+            isEnabled: { true }, replyRetryNanoseconds: [50_000_000, 50_000_000, 50_000_000],
+            reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+
+        coordinator.open(try tonConnectLink(peerSeed: 5))
+        try await tonConnectWaitUntil("The reply leaves on the third try") { transport.sent.count == 1 }
+        try await tonConnectWaitUntil("The saved session listens") { transport.listens > 0 }
+        try await Task.sleep(nanoseconds: 300_000_000)
+
+        XCTAssertEqual(transport.attempts, 3)
+        XCTAssertEqual(approvals, 1, "Decided once, never asked again")
+        XCTAssertEqual(transport.manifestCalls, 1, "The link was not queued again")
+        XCTAssertEqual(storage.values.count, 1)
+        let reply = try XCTUnwrap(transport.sent.first)
+        XCTAssertEqual(Set(transport.triedPayloads), [reply.data], "Every try carries the same decided reply")
+        XCTAssertEqual(reply.topic, "connect")
+        XCTAssertEqual(reply.session, storage.values.first)
+        XCTAssertEqual(reply.bridge, URL(string: "https://bridge.example.org/bridge"))
+        XCTAssertEqual(try tonConnectEvent(reply.data)["event"] as? String, "connect")
+        XCTAssertTrue(errors.isEmpty, "Nothing to report once the reply left: \(errors)")
+        coordinator.throttle()
+    }
+
+    /// A reply that never leaves is tried a bounded number of times; the session listens meanwhile, the user is told
+    /// once and is not asked again.
+    @MainActor
+    func testAReplyThatNeverLeavesIsTriedABoundedNumberOfTimesAndTheUserIsToldOnce() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let transport = TonConnectFlakyReplyTransport(failures: .max)
+        let storage = TonConnectFakeSessionStore(values: [])
+        var approvals = 0
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return true }, walletLoader: { _ in wallet },
+            isEnabled: { true }, replyRetryNanoseconds: [20_000_000, 20_000_000, 20_000_000],
+            reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+
+        coordinator.open(try tonConnectLink(peerSeed: 5))
+        try await tonConnectWaitUntil("The saved session listens though its reply did not leave") { transport.listens > 0 }
+        try await tonConnectWaitUntil("The user hears once every try failed") { !errors.isEmpty }
+        try await Task.sleep(nanoseconds: 300_000_000)
+
+        XCTAssertEqual(transport.attempts, 4, "The first try and three more, then it stops")
+        XCTAssertEqual(Set(transport.triedPayloads).count, 1)
+        XCTAssertTrue(transport.sent.isEmpty)
+        XCTAssertEqual(storage.values.count, 1, "The approved session stays saved")
+        XCTAssertEqual(errors.count, 1)
+        guard case LegacyTonConnectError.transportFailed? = errors.first as? LegacyTonConnectError else {
+            return XCTFail("Expected transportFailed, got \(errors)")
+        }
+        XCTAssertEqual(approvals, 1)
+        XCTAssertEqual(transport.manifestCalls, 1)
+        coordinator.throttle()
+    }
+
+    /// The same link arriving after it left the queue, while its decline is still being sent, is merged with it;
+    /// once that reply left, a new arrival is a new request.
+    @MainActor
+    func testTheSameLinkOpenedWhileItsReplyIsSentAgainIsNotAskedAgain() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let transport = TonConnectFlakyReplyTransport(failures: 1)
+        // Every send after the first, refused one waits for the gate.
+        transport.gatedFromAttempt = 2
+        var approvals = 0
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return false },
+            walletLoader: { _ in wallet }, isEnabled: { true }, replyRetryNanoseconds: [10_000_000],
+            reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+        let url = try tonConnectLink(peerSeed: 5)
+        let peer = try tonConnectPeer(seed: 5)
+
+        coordinator.open(url)
+        try await tonConnectWaitUntil("The decline's first try was refused") { approvals == 1 && transport.attempts >= 1 }
+        // The queue is serial: another link is asked only after the first one left the queue.
+        coordinator.open(try tonConnectLink(peerSeed: 6))
+        try await tonConnectWaitUntil("The next link is asked") { approvals == 2 }
+        coordinator.open(url)
+        coordinator.open(url)
+        try await tonConnectWaitUntil("The retried decline and the next reply wait at the gate") { transport.gate.waiting == 2 }
+
+        transport.gate.open()
+        try await tonConnectWaitUntil("Both declines left") { transport.sent.count == 2 }
+        try await Task.sleep(nanoseconds: 300_000_000)
+        XCTAssertEqual(approvals, 2, "The answered link was not asked about again")
+        XCTAssertEqual(transport.manifestCalls, 2)
+        let first = try XCTUnwrap(transport.sent.first { $0.session.clientId == peer })
+        XCTAssertEqual(first.data, transport.triedPayloads.first, "The retry sends the refused decline unchanged")
+        for reply in transport.sent {
+            let event = try tonConnectEvent(reply.data)
+            XCTAssertEqual(event["event"] as? String, "connect_error")
+            XCTAssertEqual((event["payload"] as? [String: Any])?["code"] as? Int, 300)
+        }
+        XCTAssertEqual(transport.listens, 0, "A declined connection saves no session")
+        XCTAssertTrue(errors.isEmpty)
+
+        // The hold ends with the delivery task itself; until then an arrival is still merged.
+        try await tonConnectWaitUntil("After its reply left, the link is a new request") {
+            if approvals == 3 { return true }
+            coordinator.open(url)
+            return false
+        }
+        XCTAssertEqual(transport.manifestCalls, 3)
+        coordinator.throttle()
+    }
+
+    /// Disconnecting the approved session ends its retries without a word.
+    @MainActor
+    func testADisconnectEndsTheRetriesQuietly() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let gate = TonConnectRetryGate()
+        let transport = TonConnectFlakyReplyTransport(failures: .max)
+        // On the main actor, like the retry and the transport's send: a wrong decision would show in the same job.
+        let storage = TonConnectHookedSessionStore()
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet }, isEnabled: { true },
+            replyRetryNanoseconds: [1, 1, 1], replyRetryWait: gate.pass, reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+        let response = try await coordinator.connect(
+            walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: addressRequest,
+            manifest: manifest, connectionType: "http"
+        )
+        XCTAssertEqual(try tonConnectEvent(response)["event"] as? String, "connect", "The decision stands")
+        XCTAssertEqual(transport.attempts, 1)
+        try await tonConnectWaitUntil("The retry waits") { gate.entered == 1 }
+
+        try await coordinator.disconnect(try XCTUnwrap(storage.values.first))
+        gate.releaseAll()
+        try await tonConnectWaitUntil("The released retry decided") { gate.resumed == 1 }
+        XCTAssertEqual(transport.triedTopics, ["connect", "disconnect"], "The application is told; the reply is not sent again")
+        XCTAssertEqual(gate.entered, 1, "It stopped instead of waiting for another try")
+        XCTAssertTrue(errors.isEmpty, "Stopping is not a failure to report: \(errors)")
+        coordinator.throttle()
+    }
+
+    /// A disconnect that lands while a retry reads the session list (the read still saw the session) stops it.
+    @MainActor
+    func testADisconnectDuringTheSessionLookupStopsTheRetry() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let gate = TonConnectRetryGate()
+        let transport = TonConnectFlakyReplyTransport(failures: .max)
+        let storage = TonConnectHookedSessionStore()
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet }, isEnabled: { true },
+            replyRetryNanoseconds: [1, 1, 1], replyRetryWait: gate.pass, reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+        _ = try await coordinator.connect(
+            walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: addressRequest,
+            manifest: manifest, connectionType: "http"
+        )
+        // The listener read the list once and now waits 10 s; the retry is parked: the next read is the retry's.
+        try await tonConnectWaitUntil("The saved session listens") { transport.listens > 0 }
+        try await tonConnectWaitUntil("The retry waits") { gate.entered == 1 }
+        let session = try XCTUnwrap(storage.values.first)
+        storage.arm { try? await coordinator.disconnect(session) }
+        gate.releaseAll()
+        try await tonConnectWaitUntil("The retry read the list while the session was disconnected") { storage.hookFired }
+
+        XCTAssertEqual(
+            transport.triedTopics, ["connect", "disconnect"],
+            "Only the disconnect notice follows; no reply is sent for a session disconnected during the lookup"
+        )
+        XCTAssertEqual(gate.entered, 1)
+        XCTAssertTrue(storage.values.isEmpty)
+        XCTAssertTrue(errors.isEmpty, "Stopping is not a failure to report: \(errors)")
+        coordinator.throttle()
+    }
+
+    /// A newer decision for the same session supersedes an older reply still being sent again.
+    @MainActor
+    func testANewerReplyForTheSessionEndsTheOlderRetry() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let gate = TonConnectRetryGate()
+        let transport = TonConnectFlakyReplyTransport(failures: 1)
+        var answers = [true, false]
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectHookedSessionStore(), transport: transport, replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in answers.removeFirst() },
+            walletLoader: { _ in wallet }, isEnabled: { true }, replyRetryNanoseconds: [1, 1, 1],
+            replyRetryWait: gate.pass, reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+        let clientId = try tonConnectTestSession().clientId
+        let approved = try await coordinator.connect(
+            walletId: wallet.metaId, clientId: clientId, request: addressRequest, manifest: manifest, connectionType: "http"
+        )
+        try await tonConnectWaitUntil("The approval's retry waits") { gate.entered == 1 }
+        let declined = try await coordinator.connect(
+            walletId: wallet.metaId, clientId: clientId, request: addressRequest, manifest: manifest, connectionType: "http"
+        )
+        XCTAssertEqual(transport.sent.map { $0.data }, [declined], "The newer decision left at once")
+
+        gate.releaseAll()
+        try await tonConnectWaitUntil("The released retry decided") { gate.resumed == 1 }
+        XCTAssertEqual(transport.sent.map { $0.data }, [declined], "The superseded approval is not sent after it")
+        XCTAssertEqual(transport.attempts, 2)
+        XCTAssertEqual(gate.entered, 1)
+        XCTAssertEqual(try tonConnectEvent(approved)["event"] as? String, "connect")
+        XCTAssertEqual(try tonConnectEvent(declined)["event"] as? String, "connect_error")
+        XCTAssertTrue(errors.isEmpty)
+        coordinator.throttle()
+    }
+
+    /// The application's disconnect, its replay and the user's disconnect each tell the handler before the session
+    /// is removed, so a reply still being sent for it ends first.
+    func testEveryDisconnectTellsTheHandlerBeforeRemovingTheSession() async throws {
+        let log = TonConnectEventLog()
+        let session = try tonConnectTestSession()
+        let other = try tonConnectTestSession(id: "other-session")
+        let storage = TonConnectLoggingSessionStore(values: [session, other], log: log)
+        let handler = TonConnectDisconnectRecordingHandler(log: log)
+        let service = LegacyTonConnectService(
+            store: storage, replies: LegacyTonConnectReplyStore(keystore: TonConnectFixtureKeychain()),
+            transport: TonConnectFakeTransport(), legacyEventId: { nil }
+        )
+        await service.set(handler: handler)
+        let disconnect = Data(#"{"id":"7","method":"disconnect","params":[]}"#.utf8)
+
+        storage.failRemovals = 1
+        do {
+            _ = try await service.handle(disconnect, session: session, network: "-239")
+            XCTFail("No acknowledgement while the session is still stored")
+        } catch {}
+        _ = try await service.handle(disconnect, session: session, network: "-239")
+        XCTAssertEqual(log.events, ["willDisconnect", "remove failed", "willDisconnect", "remove"])
+
+        try await service.disconnect(other)
+        XCTAssertEqual(log.events.suffix(2), ["willDisconnect", "remove"])
+        XCTAssertTrue(storage.values.isEmpty)
+    }
+
+    /// A veto that arrives while a retry reads the session list still stops that retry.
+    @MainActor
+    func testAVetoDuringTheSessionLookupStopsTheRetry() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let enabled = TonConnectLockedFlag(true)
+        let gate = TonConnectRetryGate()
+        let transport = TonConnectFlakyReplyTransport(failures: .max)
+        let storage = TonConnectHookedSessionStore()
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet },
+            isEnabled: { enabled.value }, replyRetryNanoseconds: [1, 1, 1], replyRetryWait: gate.pass,
+            reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+        _ = try await coordinator.connect(
+            walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: addressRequest,
+            manifest: manifest, connectionType: "http"
+        )
+        // The listener read the list once and now waits 10 s; the retry is parked: the next read is the retry's.
+        try await tonConnectWaitUntil("The saved session listens") { transport.listens > 0 }
+        try await tonConnectWaitUntil("The retry waits") { gate.entered == 1 }
+        storage.arm { enabled.value = false }
+        gate.releaseAll()
+        try await tonConnectWaitUntil("The retry read the session list") { storage.hookFired }
+
+        XCTAssertEqual(transport.attempts, 1, "Vetoed during the lookup: nothing more is sent")
+        XCTAssertEqual(gate.entered, 1)
+        XCTAssertTrue(errors.isEmpty, "A vetoed reply is not a failure to report: \(errors)")
+        XCTAssertEqual(storage.values.count, 1, "The session and its keys stay")
+        coordinator.throttle()
+    }
+
+    /// A wallet throttled while the first try is on its way starts no listener; the decided reply still leaves.
+    @MainActor
+    func testAThrottleWhileTheReplyIsSentStartsNoListener() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let transport = TonConnectFlakyReplyTransport(failures: 1)
+        transport.gatedFromAttempt = 1
+        let storage = TonConnectHookedSessionStore()
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet }, isEnabled: { true },
+            replyRetryNanoseconds: [10_000_000], reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+        let connecting = Task { @MainActor in
+            try await coordinator.connect(
+                walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: self.addressRequest,
+                manifest: self.manifest, connectionType: "http"
+            )
+        }
+        try await tonConnectWaitUntil("The first try is on its way") { transport.gate.waiting == 1 }
+        coordinator.throttle()
+        // The throttle runs on the next main turn and stops the service from a task; a later service call queues
+        // behind that stop.
+        try await Task.sleep(nanoseconds: 300_000_000)
+        _ = try? await coordinator.selectedSessions()
+        let readsBeforeRelease = storage.reads
+        transport.gate.open()
+        let response = try await connecting.value
+
+        try await tonConnectWaitUntil("The decided reply leaves on the retry") { transport.sent.count == 1 }
+        XCTAssertEqual(transport.sent.first?.data, response)
+        // Starting listeners reads the session list whatever the stop's timing; only the retry's lookup may read it.
+        XCTAssertEqual(storage.reads - readsBeforeRelease, 1, "A throttled wallet starts no listener")
+        XCTAssertEqual(transport.listens, 0)
+        XCTAssertEqual(storage.values.count, 1, "The approved session is saved for the next activation")
+        XCTAssertTrue(errors.isEmpty)
+    }
+}
+
+// MARK: - The screen-authorization PIN closed by the app going to the background (Codex rounds 6 and 8)
+
+private final class TonConnectIdlePinInteractor: LocalAuthInteractorInputProtocol {
+    var allowManualBiometryAuth: Bool { false }
+    var availableBiometryType: AvailableBiometryType { .none }
+    private(set) var cancels = 0
+    func startAuth(with _: LocalAuthInteractorOutputProtocol) {}
+    func process(pin _: String) {}
+    func cancelAuth() { cancels += 1 }
+}
+
+private final class TonConnectOutcomeWireframe: ScreenAuthorizationWireframeProtocol {
+    private(set) var outcomes: [ScreenAuthorizationOutcome] = []
+    func showAuthorizationCompletion(with result: Bool) { outcomes.append(result ? .authorized : .declined) }
+    func showAuthorizationCompletion(outcome: ScreenAuthorizationOutcome) { outcomes.append(outcome) }
+}
+
+private final class TonConnectBoolWireframe: ScreenAuthorizationWireframeProtocol {
+    private(set) var results: [Bool] = []
+    func showAuthorizationCompletion(with result: Bool) { results.append(result) }
+}
+
+private final class TonConnectTestAuthorizer: AuthorizationPresentable {
+    func createAuthorizationView(with wireframe: ScreenAuthorizationWireframeProtocol, cancellable: Bool) -> PinSetupViewProtocol? {
+        PinViewFactory.createScreenAuthorizationView(
+            with: wireframe, cancellable: cancellable, interactor: TonConnectIdlePinInteractor(),
+            localizationManager: LocalizationManager.shared
+        )
+    }
+}
+
+private final class TonConnectHostController: UIViewController, ControllerBackedProtocol {}
+
+final class LegacyTonConnectPinBackgroundTests: XCTestCase {
+    private var window: UIWindow?
+    private var previousKeyWindow: UIWindow?
+
+    override func tearDown() {
+        window?.rootViewController?.dismiss(animated: false)
+        window?.isHidden = true
+        window?.rootViewController = nil
+        window = nil
+        previousKeyWindow?.makeKey()
+        previousKeyWindow = nil
+        super.tearDown()
+    }
+
+    @MainActor
+    private func host() async throws -> TonConnectHostController {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .first(where: { $0.activationState == .foregroundActive }), "The test host needs an active scene")
+        previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
+        let root = TonConnectHostController()
+        root.view.backgroundColor = .systemBackground
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.coordinateSpace.bounds
+        window.rootViewController = root
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+        self.window = window
+        try await tonConnectWaitUntil("The host is on screen") { root.view.window === window && root.transitionCoordinator == nil }
+        return root
+    }
+
+    @MainActor
+    private func settled<T: UIViewController>(_ type: T.Type, over presenter: UIViewController) async throws -> T {
+        try await tonConnectWaitUntil("\(T.self) is on screen") {
+            guard let shown = presenter.presentedViewController as? T else { return false }
+            return shown.view.window != nil && !shown.isBeingPresented && shown.transitionCoordinator == nil
+        }
+        return try XCTUnwrap(presenter.presentedViewController as? T)
+    }
+
+    @MainActor
+    private func approve(_ sheet: LegacyTonConnectApprovalViewController) throws {
+        func buttons(_ view: UIView) -> [UIButton] { view.subviews.flatMap { ($0 as? UIButton).map { [$0] } ?? buttons($0) } }
+        let approve = try XCTUnwrap(buttons(sheet.view).first { $0.accessibilityIdentifier == "tonconnect.approve" })
+        approve.sendActions(for: .touchUpInside)
+    }
+
+    private func postBackgroundAndReturn() {
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: UIApplication.shared)
+        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: UIApplication.shared)
+    }
+
+    /// The presenter tells the app leaving (unanswered) from the user's Cancel (declined); a wireframe that only
+    /// knows Bool hears `false` for both, as before.
+    @MainActor
+    func testScreenAuthorizationTellsABackgroundCloseFromACancel() async throws {
+        let outcomeWireframe = TonConnectOutcomeWireframe()
+        let backgrounded = ScreenAuthorizationPresenter(wireframe: outcomeWireframe, interactor: TonConnectIdlePinInteractor())
+        backgrounded.didLoad(view: CovJOnPinView())
+        let cancelledWireframe = TonConnectOutcomeWireframe()
+        let cancelled = ScreenAuthorizationPresenter(wireframe: cancelledWireframe, interactor: TonConnectIdlePinInteractor())
+        cancelled.didLoad(view: CovJOnPinView())
+        cancelled.cancel()
+        let boolWireframe = TonConnectBoolWireframe()
+        let legacy = ScreenAuthorizationPresenter(wireframe: boolWireframe, interactor: TonConnectIdlePinInteractor())
+        legacy.didLoad(view: CovJOnPinView())
+
+        postBackgroundAndReturn()
+
+        try await tonConnectWaitUntil("The app leaving is no answer") { outcomeWireframe.outcomes == [.unanswered] }
+        try await tonConnectWaitUntil("A Bool-only wireframe hears false") { boolWireframe.results == [false] }
+        try await Task.sleep(nanoseconds: 100_000_000)
+        XCTAssertEqual(outcomeWireframe.outcomes, [.unanswered], "Reported once")
+        XCTAssertEqual(cancelledWireframe.outcomes, [.declined], "A finished PIN ignores the later background")
+        XCTAssertEqual(boolWireframe.results, [false], "Callers that only take Bool are unchanged")
+
+        let authorizedWireframe = TonConnectOutcomeWireframe()
+        let authorized = ScreenAuthorizationPresenter(wireframe: authorizedWireframe, interactor: TonConnectIdlePinInteractor())
+        authorized.didLoad(view: CovJOnPinView())
+        authorized.didCompleteAuth()
+        try await tonConnectWaitUntil("A completed PIN authorizes") { authorizedWireframe.outcomes == [.authorized] }
+        withExtendedLifetime([backgrounded, cancelled, legacy, authorized]) {}
+    }
+
+    /// Through `AuthorizationPresentable`: the Bool API still reports `false` when the app leaves, while the outcome
+    /// API reports it unanswered and a Cancel declined.
+    @MainActor
+    func testAuthorizationPresentableKeepsBoolCallersAndReportsUnansweredToOutcomeCallers() async throws {
+        let root = try await host()
+        let authorizer = TonConnectTestAuthorizer()
+
+        var results: [Bool] = []
+        authorizer.authorize(animated: true, cancellable: true, from: root) { results.append($0) }
+        _ = try await settled(PinSetupViewController.self, over: root)
+        postBackgroundAndReturn()
+        try await tonConnectWaitUntil("The Bool caller hears false") { results == [false] }
+        try await tonConnectWaitUntil("The PIN closed") { root.presentedViewController == nil && root.transitionCoordinator == nil }
+
+        var outcomes: [ScreenAuthorizationOutcome] = []
+        authorizer.authorizeWithOutcome(animated: true, cancellable: true, from: root) { outcomes.append($0) }
+        _ = try await settled(PinSetupViewController.self, over: root)
+        postBackgroundAndReturn()
+        try await tonConnectWaitUntil("The outcome caller hears unanswered") { outcomes == [.unanswered] }
+        try await tonConnectWaitUntil("The PIN closed") { root.presentedViewController == nil && root.transitionCoordinator == nil }
+
+        authorizer.authorizeWithOutcome(animated: true, cancellable: true, from: root) { outcomes.append($0) }
+        let pin = try await settled(PinSetupViewController.self, over: root)
+        pin.actionCancel()
+        try await tonConnectWaitUntil("Cancel declines") { outcomes == [.unanswered, .declined] }
+        try await tonConnectWaitUntil("The PIN closed") { root.presentedViewController == nil && root.transitionCoordinator == nil }
+    }
+
+    /// The real approval sheet and PIN: the app leaving over the PIN sends no decline and leaves the request to be
+    /// asked again; the user's Cancel on the PIN still declines.
+    @MainActor
+    func testATonApprovalWhosePinClosedWithTheAppSendsNoDecline() async throws {
+        let root = try await host()
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let transport = TonConnectFlakyReplyTransport(failures: 0)
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, walletLoader: { _ in wallet }, isEnabled: { true },
+            authorizationViewFactory: {
+                PinViewFactory.createScreenAuthorizationView(
+                    with: $0, cancellable: $1, interactor: TonConnectIdlePinInteractor(),
+                    localizationManager: LocalizationManager.shared
+                )
+            },
+            reportError: { XCTFail("Unexpected error \($0)") }
+        )
+        await coordinator.activate()
+        let request = LegacyTonConnectConnectRequest(
+            manifestUrl: URL(string: "https://example.org/manifest.json")!, items: [.init(name: "ton_addr", payload: nil)]
+        )
+        let manifest = LegacyTonConnectManifest(url: URL(string: "https://example.org/app")!, name: "Original application", iconUrl: nil)
+        let clientId = try tonConnectTestSession().clientId
+        func connecting() -> Task<Result<Data, Error>, Never> {
+            Task { @MainActor in
+                do {
+                    return .success(try await coordinator.connect(
+                        walletId: wallet.metaId, clientId: clientId, request: request, manifest: manifest, connectionType: "http"
+                    ))
+                } catch {
+                    return .failure(error)
+                }
+            }
+        }
+
+        let first = connecting()
+        let sheet = try await settled(LegacyTonConnectApprovalViewController.self, over: root)
+        try approve(sheet)
+        _ = try await settled(PinSetupViewController.self, over: sheet)
+        postBackgroundAndReturn()
+        guard case let .failure(error) = await first.value, case LegacyTonConnectError.busy? = error as? LegacyTonConnectError else {
+            return XCTFail("An unanswered approval is not a decision")
+        }
+        XCTAssertEqual(transport.attempts, 0, "No decline for a request the user never answered")
+        try await tonConnectWaitUntil("The sheet and PIN closed") { root.presentedViewController == nil && root.transitionCoordinator == nil }
+
+        let second = connecting()
+        let again = try await settled(LegacyTonConnectApprovalViewController.self, over: root)
+        try approve(again)
+        let pin = try await settled(PinSetupViewController.self, over: again)
+        pin.actionCancel()
+        guard case let .success(declined) = await second.value else {
+            return XCTFail("Cancel on the PIN is the user's decline")
+        }
+        XCTAssertEqual(try tonConnectEvent(declined)["event"] as? String, "connect_error")
+        XCTAssertEqual(transport.sent.count, 1)
+        XCTAssertEqual(transport.sent.first?.data, declined)
+        try await tonConnectWaitUntil("The sheet and PIN closed") { root.presentedViewController == nil && root.transitionCoordinator == nil }
+        coordinator.throttle()
+    }
+
+    /// Through the link queue: the PIN closed with the app leaves the link queued; it is asked again on the next
+    /// settled screen, and the user's Cancel then sends one decline.
+    @MainActor
+    func testALinkWhosePinClosedWithTheAppIsAskedAgainAndDeclinedOnce() async throws {
+        let root = try await host()
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let transport = TonConnectFlakyReplyTransport(failures: 0)
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, walletLoader: { _ in wallet }, isEnabled: { true },
+            authorizationViewFactory: {
+                PinViewFactory.createScreenAuthorizationView(
+                    with: $0, cancellable: $1, interactor: TonConnectIdlePinInteractor(),
+                    localizationManager: LocalizationManager.shared
+                )
+            },
+            reportError: { XCTFail("Unexpected error \($0)") }
+        )
+        await coordinator.activate()
+
+        coordinator.open(try tonConnectLink(peerSeed: 5))
+        let sheet = try await settled(LegacyTonConnectApprovalViewController.self, over: root)
+        try approve(sheet)
+        _ = try await settled(PinSetupViewController.self, over: sheet)
+        postBackgroundAndReturn()
+        try await tonConnectWaitUntil("The unanswered sheet closed") { root.presentedViewController !== sheet }
+        XCTAssertEqual(transport.attempts, 0, "No decline for a request the user never answered")
+
+        let again = try await settled(LegacyTonConnectApprovalViewController.self, over: root)
+        XCTAssertFalse(again === sheet)
+        try approve(again)
+        let pin = try await settled(PinSetupViewController.self, over: again)
+        pin.actionCancel()
+        try await tonConnectWaitUntil("The user's Cancel declines") { transport.sent.count == 1 }
+        try await tonConnectWaitUntil("The sheet and PIN closed") { root.presentedViewController == nil && root.transitionCoordinator == nil }
+        try await Task.sleep(nanoseconds: 1_500_000_000)
+        XCTAssertEqual(transport.attempts, 1, "One decline, sent once")
+        XCTAssertEqual(transport.manifestCalls, 2, "Asked again after no answer, then never again")
+        XCTAssertNil(root.presentedViewController)
+        let event = try tonConnectEvent(try XCTUnwrap(transport.sent.first).data)
+        XCTAssertEqual(event["event"] as? String, "connect_error")
+        coordinator.throttle()
     }
 }

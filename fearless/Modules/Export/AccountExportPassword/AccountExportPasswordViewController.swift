@@ -155,6 +155,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
     private func setupTextFields() {
         passwordInputField.textField.isSecureTextEntry = true
         passwordInputField.textField.returnKeyType = .done
+        SecretTextEntry.configurePassword(passwordInputField.textField)
         passwordInputField.delegate = self
         passwordInputField.addTarget(
             self,
@@ -164,6 +165,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
 
         passwordConfirmField.textField.isSecureTextEntry = true
         passwordConfirmField.textField.returnKeyType = .done
+        SecretTextEntry.configurePassword(passwordConfirmField.textField)
         passwordConfirmField.delegate = self
         passwordConfirmField.addTarget(
             self,
