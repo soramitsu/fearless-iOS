@@ -2256,13 +2256,63 @@ final class LegacyTonConnectSessionKeyMoveTests: XCTestCase {
 
 // MARK: - A decided connection's reply that the bridge did not take (Codex rounds 6 and 8, 2026-11-23)
 
-/// Refuses the first `failures` sends, then takes them. Counters are read on main while the listener runs elsewhere.
+/// Opens once; every waiter before and after passes.
+private final class TonConnectSendGate {
+    private let lock = NSLock()
+    private var isOpen = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    var waiting: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return waiters.count
+    }
+
+    func wait() async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            lock.lock()
+            if isOpen {
+                lock.unlock()
+                continuation.resume()
+            } else {
+                waiters.append(continuation)
+                lock.unlock()
+            }
+        }
+    }
+
+    func open() {
+        lock.lock()
+        isOpen = true
+        let released = waiters
+        waiters = []
+        lock.unlock()
+        released.forEach { $0.resume() }
+    }
+}
+
+/// A flag the session store may flip off the main thread while the coordinator reads it on main.
+private final class TonConnectLockedFlag {
+    private let lock = NSLock()
+    private var stored: Bool
+    init(_ value: Bool) { stored = value }
+    var value: Bool {
+        get { lock.lock(); defer { lock.unlock() }; return stored }
+        set { lock.lock(); stored = newValue; lock.unlock() }
+    }
+}
+
+/// Refuses the first `failures` sends, then takes them; sends from `gatedFromAttempt` on wait for `gate` first.
+/// Counters are read on main while sends and the listener run elsewhere.
 private final class TonConnectFlakyReplyTransport: LegacyTonConnectBridgeTransporting {
+    let gate = TonConnectSendGate()
     private let lock = NSLock()
     private var failuresLeft: Int
+    private var gatedFrom = Int.max
     private var attemptCount = 0
     private var listenCount = 0
     private var manifestCount = 0
+    private var tried: [Data] = []
     private var delivered: [(data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String)] = []
 
     init(failures: Int) { failuresLeft = failures }
@@ -2273,9 +2323,16 @@ private final class TonConnectFlakyReplyTransport: LegacyTonConnectBridgeTranspo
         return body()
     }
 
+    var gatedFromAttempt: Int {
+        get { locked { gatedFrom } }
+        set { locked { gatedFrom = newValue } }
+    }
+
     var attempts: Int { locked { attemptCount } }
     var listens: Int { locked { listenCount } }
     var manifestCalls: Int { locked { manifestCount } }
+    /// Every payload handed to `send`, refused or not, in order.
+    var triedPayloads: [Data] { locked { tried } }
     var sent: [(data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String)] { locked { delivered } }
 
     func manifest(at url: URL) async throws -> LegacyTonConnectManifest {
@@ -2284,8 +2341,15 @@ private final class TonConnectFlakyReplyTransport: LegacyTonConnectBridgeTranspo
     }
 
     func send(_ data: Data, session: LegacyTonConnectSession, bridge: URL, topic: String) async throws {
-        let refused: Bool = locked {
+        let gated: Bool = locked {
             attemptCount += 1
+            tried.append(data)
+            return attemptCount >= gatedFrom
+        }
+        if gated {
+            await gate.wait()
+        }
+        let refused: Bool = locked {
             guard failuresLeft > 0 else {
                 delivered.append((data, session, bridge, topic))
                 return false
@@ -2303,6 +2367,45 @@ private final class TonConnectFlakyReplyTransport: LegacyTonConnectBridgeTranspo
         locked { listenCount += 1 }
         throw URLError(.notConnectedToInternet)
     }
+}
+
+/// Runs a hook once, from inside the next `sessions()` read after it was armed, before that read returns.
+private final class TonConnectHookedSessionStore: LegacyTonConnectSessionStoring {
+    private let lock = NSLock()
+    private var stored: [LegacyTonConnectSession] = []
+    private var hook: (() -> Void)?
+    private var fired = false
+
+    private func locked<T>(_ body: () -> T) -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return body()
+    }
+
+    var values: [LegacyTonConnectSession] { locked { stored } }
+    var hookFired: Bool { locked { fired } }
+
+    func arm(_ hook: @escaping () -> Void) { locked { self.hook = hook } }
+
+    func sessions() async throws -> [LegacyTonConnectSession] {
+        let (snapshot, pending): ([LegacyTonConnectSession], (() -> Void)?) = locked {
+            let pending = hook
+            hook = nil
+            return (stored, pending)
+        }
+        if let pending {
+            pending()
+            locked { fired = true }
+        }
+        return snapshot
+    }
+
+    func save(_ session: LegacyTonConnectSession) async throws {
+        locked { if !stored.contains(session) { stored.append(session) } }
+    }
+
+    func remove(_ session: LegacyTonConnectSession) async throws { locked { stored.removeAll { $0 == session } } }
+    func bridgeURL(network _: String) async throws -> URL { URL(string: "https://bridge.example.org/bridge")! }
 }
 
 @MainActor
@@ -2332,11 +2435,14 @@ private func tonConnectNativeWallet(_ keys: TonConnectFixtureKeychain) throws ->
         hasBackup: true, favouriteChainIds: [], legacyTonAccount: account)
 }
 
+private func tonConnectPeer(seed: UInt8) throws -> String {
+    try NaclBox.keyPair(fromSecretKey: Data(repeating: seed, count: 32)).publicKey.map { String(format: "%02x", $0) }.joined()
+}
+
 private func tonConnectLink(peerSeed: UInt8) throws -> URL {
-    let peer = try NaclBox.keyPair(fromSecretKey: Data(repeating: peerSeed, count: 32)).publicKey
     var parts = URLComponents(string: "tc://")!
     parts.queryItems = [
-        .init(name: "v", value: "2"), .init(name: "id", value: peer.map { String(format: "%02x", $0) }.joined()),
+        .init(name: "v", value: "2"), .init(name: "id", value: try tonConnectPeer(seed: peerSeed)),
         .init(name: "r", value: #"{"manifestUrl":"https://example.org/manifest.json","items":[{"name":"ton_addr"}]}"#)
     ]
     return try XCTUnwrap(parts.url)
@@ -2352,7 +2458,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
     )
     private let manifest = LegacyTonConnectManifest(url: URL(string: "https://example.org/app")!, name: "Original application", iconUrl: nil)
 
-    /// An approved link whose reply the bridge refused keeps listening and sends that same reply again; the user is
+    /// An approved link whose reply the bridge refused keeps listening and sends the same bytes again; the user is
     /// asked once and hears nothing once it left.
     @MainActor
     func testAnApprovedReplyTheBridgeRefusedIsSentAgainWhileTheSessionListens() async throws {
@@ -2380,6 +2486,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         XCTAssertEqual(transport.manifestCalls, 1, "The link was not queued again")
         XCTAssertEqual(storage.values.count, 1)
         let reply = try XCTUnwrap(transport.sent.first)
+        XCTAssertEqual(Set(transport.triedPayloads), [reply.data], "Every try carries the same decided reply")
         XCTAssertEqual(reply.topic, "connect")
         XCTAssertEqual(reply.session, storage.values.first)
         XCTAssertEqual(reply.bridge, URL(string: "https://bridge.example.org/bridge"))
@@ -2412,6 +2519,7 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         try await Task.sleep(nanoseconds: 300_000_000)
 
         XCTAssertEqual(transport.attempts, 4, "The first try and three more, then it stops")
+        XCTAssertEqual(Set(transport.triedPayloads).count, 1)
         XCTAssertTrue(transport.sent.isEmpty)
         XCTAssertEqual(storage.values.count, 1, "The approved session stays saved")
         XCTAssertEqual(errors.count, 1)
@@ -2423,62 +2531,69 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         coordinator.throttle()
     }
 
-    /// The same link arriving while its decline is sent again is merged with it; once that reply left, a new
-    /// arrival is a new request.
+    /// The same link arriving after it left the queue, while its decline is still being sent, is merged with it;
+    /// once that reply left, a new arrival is a new request.
     @MainActor
     func testTheSameLinkOpenedWhileItsReplyIsSentAgainIsNotAskedAgain() async throws {
         let keys = TonConnectFixtureKeychain()
         let wallet = try tonConnectNativeWallet(keys)
         let transport = TonConnectFlakyReplyTransport(failures: 1)
-        let storage = TonConnectFakeSessionStore(values: [])
+        // Every send after the first, refused one waits for the gate.
+        transport.gatedFromAttempt = 2
         var approvals = 0
         var errors: [Error] = []
         let coordinator = LegacyTonConnectCoordinator(
-            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
-            selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return false }, walletLoader: { _ in wallet },
-            isEnabled: { true }, replyRetryNanoseconds: [600_000_000], reportError: { errors.append($0) }
+            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys),
+            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in approvals += 1; return false },
+            walletLoader: { _ in wallet }, isEnabled: { true }, replyRetryNanoseconds: [10_000_000],
+            reportError: { errors.append($0) }
         )
         await coordinator.activate()
         let url = try tonConnectLink(peerSeed: 5)
+        let peer = try tonConnectPeer(seed: 5)
 
         coordinator.open(url)
-        try await tonConnectWaitUntil("The decline's first try failed") { transport.attempts == 1 }
+        try await tonConnectWaitUntil("The decline's first try was refused") { approvals == 1 && transport.attempts >= 1 }
+        // The queue is serial: another link is asked only after the first one left the queue.
+        coordinator.open(try tonConnectLink(peerSeed: 6))
+        try await tonConnectWaitUntil("The next link is asked") { approvals == 2 }
         coordinator.open(url)
         coordinator.open(url)
-        try await Task.sleep(nanoseconds: 150_000_000)
-        XCTAssertEqual(approvals, 1, "The answered link is not asked about again")
-        XCTAssertEqual(transport.manifestCalls, 1)
+        try await tonConnectWaitUntil("The retried decline and the next reply wait at the gate") { transport.gate.waiting == 2 }
 
-        try await tonConnectWaitUntil("The decline leaves on the next try") { transport.sent.count == 1 }
-        let reply = try XCTUnwrap(transport.sent.first)
-        let event = try tonConnectEvent(reply.data)
-        XCTAssertEqual(event["event"] as? String, "connect_error")
-        XCTAssertEqual((event["payload"] as? [String: Any])?["code"] as? Int, 300)
-        XCTAssertTrue(storage.values.isEmpty, "A declined connection saves no session")
-        XCTAssertEqual(transport.listens, 0)
+        transport.gate.open()
+        try await tonConnectWaitUntil("Both declines left") { transport.sent.count == 2 }
+        try await Task.sleep(nanoseconds: 300_000_000)
+        XCTAssertEqual(approvals, 2, "The answered link was not asked about again")
+        XCTAssertEqual(transport.manifestCalls, 2)
+        let first = try XCTUnwrap(transport.sent.first { $0.session.clientId == peer })
+        XCTAssertEqual(first.data, transport.triedPayloads.first, "The retry sends the refused decline unchanged")
+        for reply in transport.sent {
+            let event = try tonConnectEvent(reply.data)
+            XCTAssertEqual(event["event"] as? String, "connect_error")
+            XCTAssertEqual((event["payload"] as? [String: Any])?["code"] as? Int, 300)
+        }
+        XCTAssertEqual(transport.listens, 0, "A declined connection saves no session")
         XCTAssertTrue(errors.isEmpty)
 
-        try await Task.sleep(nanoseconds: 100_000_000)
         coordinator.open(url)
-        try await tonConnectWaitUntil("After the reply left, a new arrival is asked") { approvals == 2 }
-        XCTAssertEqual(transport.manifestCalls, 2)
+        try await tonConnectWaitUntil("After its reply left, the link is a new request") { approvals == 3 }
+        XCTAssertEqual(transport.manifestCalls, 3)
         coordinator.throttle()
     }
 
-    /// Retries stop without a word once the approved session was disconnected or TON Connect was vetoed.
+    /// Disconnecting the approved session ends its retries without a word.
     @MainActor
-    func testRetriesStopForADisconnectedSessionAndForAVeto() async throws {
+    func testADisconnectEndsTheRetriesQuietly() async throws {
         let keys = TonConnectFixtureKeychain()
         let wallet = try tonConnectNativeWallet(keys)
-        let delays: [UInt64] = [500_000_000, 500_000_000, 500_000_000]
-
         let transport = TonConnectFlakyReplyTransport(failures: .max)
         let storage = TonConnectFakeSessionStore(values: [])
         var errors: [Error] = []
         let coordinator = LegacyTonConnectCoordinator(
             store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
-            selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet },
-            isEnabled: { true }, replyRetryNanoseconds: delays, reportError: { errors.append($0) }
+            selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet }, isEnabled: { true },
+            replyRetryNanoseconds: Array(repeating: 400_000_000, count: 5), reportError: { errors.append($0) }
         )
         await coordinator.activate()
         let response = try await coordinator.connect(
@@ -2487,34 +2602,82 @@ final class LegacyTonConnectReplyDeliveryTests: XCTestCase {
         )
         XCTAssertEqual(try tonConnectEvent(response)["event"] as? String, "connect", "The decision stands")
         XCTAssertEqual(transport.attempts, 1)
-        try await tonConnectWaitUntil("The saved session listens") { transport.listens > 0 }
+
         try await coordinator.disconnect(try XCTUnwrap(storage.values.first))
         let atDisconnect = transport.attempts
-        XCTAssertLessThan(atDisconnect, 4)
-        try await Task.sleep(nanoseconds: 1_800_000_000)
+        try await Task.sleep(nanoseconds: 2_500_000_000)
         XCTAssertEqual(transport.attempts, atDisconnect, "A disconnected session's reply is not sent again")
         XCTAssertTrue(errors.isEmpty, "Stopping is not a failure to report: \(errors)")
         coordinator.throttle()
+    }
 
-        var enabled = true
-        let vetoTransport = TonConnectFlakyReplyTransport(failures: .max)
-        let vetoed = LegacyTonConnectCoordinator(
-            store: TonConnectFakeSessionStore(values: []), transport: vetoTransport, replies: .init(keystore: keys),
-            keystore: keys, selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet },
-            isEnabled: { enabled }, replyRetryNanoseconds: delays, reportError: { errors.append($0) }
+    /// A veto that arrives while a retry reads the session list still stops that retry.
+    @MainActor
+    func testAVetoDuringTheSessionLookupStopsTheRetry() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let enabled = TonConnectLockedFlag(true)
+        let transport = TonConnectFlakyReplyTransport(failures: .max)
+        let storage = TonConnectHookedSessionStore()
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet },
+            isEnabled: { enabled.value }, replyRetryNanoseconds: Array(repeating: 300_000_000, count: 5),
+            reportError: { errors.append($0) }
         )
-        await vetoed.activate()
-        _ = try await vetoed.connect(
+        await coordinator.activate()
+        _ = try await coordinator.connect(
             walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: addressRequest,
             manifest: manifest, connectionType: "http"
         )
-        XCTAssertEqual(vetoTransport.attempts, 1)
-        enabled = false
-        let atVeto = vetoTransport.attempts
-        try await Task.sleep(nanoseconds: 1_800_000_000)
-        XCTAssertEqual(vetoTransport.attempts, atVeto, "A vetoed TON Connect sends nothing more")
-        XCTAssertTrue(errors.isEmpty, "Stopping is not a failure to report: \(errors)")
-        vetoed.throttle()
+        // The listener read the list once and now waits 10 s: the next read is a retry's.
+        try await tonConnectWaitUntil("The saved session listens") { transport.listens > 0 }
+        let armedAt = transport.attempts
+        storage.arm { enabled.value = false }
+        try await tonConnectWaitUntil("A retry read the session list") { storage.hookFired }
+        try await Task.sleep(nanoseconds: 400_000_000)
+
+        XCTAssertEqual(transport.attempts, armedAt, "Vetoed during the lookup: nothing more is sent")
+        XCTAssertTrue(errors.isEmpty, "A vetoed reply is not a failure to report: \(errors)")
+        XCTAssertEqual(storage.values.count, 1, "The session and its keys stay")
+        coordinator.throttle()
+    }
+
+    /// A wallet throttled while the first try is on its way starts no listener; the decided reply still leaves.
+    @MainActor
+    func testAThrottleWhileTheReplyIsSentStartsNoListener() async throws {
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let transport = TonConnectFlakyReplyTransport(failures: 1)
+        transport.gatedFromAttempt = 1
+        let storage = TonConnectFakeSessionStore(values: [])
+        var errors: [Error] = []
+        let coordinator = LegacyTonConnectCoordinator(
+            store: storage, transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, approval: { _, _ in true }, walletLoader: { _ in wallet }, isEnabled: { true },
+            replyRetryNanoseconds: [10_000_000], reportError: { errors.append($0) }
+        )
+        await coordinator.activate()
+        let connecting = Task { @MainActor in
+            try await coordinator.connect(
+                walletId: wallet.metaId, clientId: try tonConnectTestSession().clientId, request: self.addressRequest,
+                manifest: self.manifest, connectionType: "http"
+            )
+        }
+        try await tonConnectWaitUntil("The first try is on its way") { transport.gate.waiting == 1 }
+        coordinator.throttle()
+        // The throttle runs on the next main turn and stops the service from a task.
+        try await Task.sleep(nanoseconds: 200_000_000)
+        transport.gate.open()
+        let response = try await connecting.value
+
+        try await tonConnectWaitUntil("The decided reply leaves on the retry") { transport.sent.count == 1 }
+        try await Task.sleep(nanoseconds: 300_000_000)
+        XCTAssertEqual(transport.sent.first?.data, response)
+        XCTAssertEqual(transport.listens, 0, "A throttled wallet starts no listener")
+        XCTAssertEqual(storage.values.count, 1, "The approved session is saved for the next activation")
+        XCTAssertTrue(errors.isEmpty)
     }
 }
 
@@ -2723,6 +2886,51 @@ final class LegacyTonConnectPinBackgroundTests: XCTestCase {
         XCTAssertEqual(transport.sent.count, 1)
         XCTAssertEqual(transport.sent.first?.data, declined)
         try await tonConnectWaitUntil("The sheet and PIN closed") { root.presentedViewController == nil && root.transitionCoordinator == nil }
+        coordinator.throttle()
+    }
+
+    /// Through the link queue: the PIN closed with the app leaves the link queued; it is asked again on the next
+    /// settled screen, and the user's Cancel then sends one decline.
+    @MainActor
+    func testALinkWhosePinClosedWithTheAppIsAskedAgainAndDeclinedOnce() async throws {
+        let root = try await host()
+        let keys = TonConnectFixtureKeychain()
+        let wallet = try tonConnectNativeWallet(keys)
+        let transport = TonConnectFlakyReplyTransport(failures: 0)
+        let coordinator = LegacyTonConnectCoordinator(
+            store: TonConnectFakeSessionStore(values: []), transport: transport, replies: .init(keystore: keys), keystore: keys,
+            selectedWallet: { wallet }, walletLoader: { _ in wallet }, isEnabled: { true },
+            authorizationViewFactory: {
+                PinViewFactory.createScreenAuthorizationView(
+                    with: $0, cancellable: $1, interactor: TonConnectIdlePinInteractor(),
+                    localizationManager: LocalizationManager.shared
+                )
+            },
+            reportError: { XCTFail("Unexpected error \($0)") }
+        )
+        await coordinator.activate()
+
+        coordinator.open(try tonConnectLink(peerSeed: 5))
+        let sheet = try await settled(LegacyTonConnectApprovalViewController.self, over: root)
+        try approve(sheet)
+        _ = try await settled(PinSetupViewController.self, over: sheet)
+        postBackgroundAndReturn()
+        try await tonConnectWaitUntil("The unanswered sheet closed") { root.presentedViewController !== sheet }
+        XCTAssertEqual(transport.attempts, 0, "No decline for a request the user never answered")
+
+        let again = try await settled(LegacyTonConnectApprovalViewController.self, over: root)
+        XCTAssertFalse(again === sheet)
+        try approve(again)
+        let pin = try await settled(PinSetupViewController.self, over: again)
+        pin.actionCancel()
+        try await tonConnectWaitUntil("The user's Cancel declines") { transport.sent.count == 1 }
+        try await tonConnectWaitUntil("The sheet and PIN closed") { root.presentedViewController == nil && root.transitionCoordinator == nil }
+        try await Task.sleep(nanoseconds: 1_500_000_000)
+        XCTAssertEqual(transport.attempts, 1, "One decline, sent once")
+        XCTAssertEqual(transport.manifestCalls, 2, "Asked again after no answer, then never again")
+        XCTAssertNil(root.presentedViewController)
+        let event = try tonConnectEvent(try XCTUnwrap(transport.sent.first).data)
+        XCTAssertEqual(event["event"] as? String, "connect_error")
         coordinator.throttle()
     }
 }

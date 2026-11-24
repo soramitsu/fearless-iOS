@@ -46,9 +46,11 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     private var waitsForTrigger = false
     private var drainObservers: [NSObjectProtocol] = []
     private var presenterCheckScheduled = false
-    /// Links the user answered whose reply is still being sent again: the same link arriving meanwhile is merged
-    /// with it instead of being asked about a second time.
-    private var answeredURLs: Set<URL> = []
+    /// Links the user answered whose reply is still being sent again, with that delivery: the same link arriving
+    /// meanwhile is merged with it instead of being asked about a second time.
+    private var answeredURLs: [URL: UUID] = [:]
+    /// Decided replies being sent again, by session: a disconnect or a newer reply for that session ends one.
+    private var replyDeliveries: [String: (token: UUID, task: Task<Void, Never>)] = [:]
     /// Waits before each further try of a decided connection's reply that the bridge did not take.
     private let replyRetryNanoseconds: [UInt64]
     private let authorizationViewFactory: (ScreenAuthorizationWireframeProtocol, Bool) -> PinSetupViewProtocol?
@@ -135,7 +137,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     func open(_ url: URL) {
         precondition(Thread.isMainThread)
         // Answered already, its reply still on the way: asking again could only contradict the answer.
-        guard !answeredURLs.contains(url) else { return }
+        guard answeredURLs[url] == nil else { return }
         // Links wait, in order, while the wallet is not ready, the app is locked or not active.
         if !pendingURLs.contains(url) {
             pendingURLs.append(url)
@@ -345,8 +347,11 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         try await service.save(session: session, context: context)
         if connectionType == "http" {
             await deliverConnectReply(response, session: session, bridge: context.bridgeURL, sessionIsSaved: true)
-            // The saved session listens whether or not its reply has left yet.
-            await service.start(selectedNetwork: network)
+            // The saved session listens whether or not its reply has left yet; a wallet throttled meanwhile starts
+            // it on its next activation instead.
+            if ready {
+                await service.start(selectedNetwork: network)
+            }
         }
         return response
     }
@@ -556,6 +561,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     func disconnect(_ session: LegacyTonConnectSession) async throws {
         try await service.disconnect(session)
+        // Its connect reply, if still being sent again, is moot now.
+        await MainActor.run { replyDeliveries.removeValue(forKey: session.identifier)?.task.cancel() }
     }
 
     @MainActor
@@ -613,33 +620,63 @@ extension LegacyTonConnectCoordinator {
             try await transport.send(reply, session: session, bridge: bridge, topic: "connect")
             return
         } catch {}
+        let token = UUID()
+        let link = Self.linkDecision?.url
         let delivery = Task { @MainActor [weak self, replyRetryNanoseconds] in
+            // Ends with the task itself, so a link opened after the last try is a new request.
+            defer { self?.endReplyDelivery(token, session: session, link: link) }
             for delay in replyRetryNanoseconds {
                 do { try await Task.sleep(nanoseconds: delay) } catch { return }
-                guard let self, self.isEnabled() else { return }
-                if sessionIsSaved {
-                    // A session list that cannot be read now (Keychain locked) waits for the next try.
-                    guard let stored = try? await self.store.sessions().contains(session) else { continue }
-                    guard stored else { return }
+                guard let self else { return }
+                switch await self.replyDeliveryCheck(session: session, sessionIsSaved: sessionIsSaved) {
+                case .stop: return
+                case .later: continue
+                case .send: break
                 }
                 do {
                     try await self.transport.send(reply, session: session, bridge: bridge, topic: "connect")
                     return
                 } catch {}
             }
+            // Every try failed. A throttle, veto or disconnect meanwhile made the reply moot: nothing to tell then.
             guard let self, self.ready else { return }
+            let check = await self.replyDeliveryCheck(session: session, sessionIsSaved: sessionIsSaved)
+            guard check != .stop else { return }
             self.present(error: LegacyTonConnectError.transportFailed)
         }
-        if let link = Self.linkDecision?.url {
-            holdAnswered(link, until: delivery)
+        // Registered before the task can run (both on the main actor); a newer reply for the session replaces it.
+        replyDeliveries.removeValue(forKey: session.identifier)?.task.cancel()
+        replyDeliveries[session.identifier] = (token, delivery)
+        if let link {
+            answeredURLs[link] = token
         }
     }
 
-    private func holdAnswered(_ url: URL, until delivery: Task<Void, Never>) {
-        answeredURLs.insert(url)
-        Task { @MainActor [weak self] in
-            await delivery.value
-            self?.answeredURLs.remove(url)
+    private enum ReplyDeliveryCheck {
+        case send
+        /// The session list cannot be read now (Keychain locked): try at the next step.
+        case later
+        case stop
+    }
+
+    /// A kept reply never goes after a veto or a disconnect, including one that happened during the lookup.
+    @MainActor
+    private func replyDeliveryCheck(
+        session: LegacyTonConnectSession, sessionIsSaved: Bool
+    ) async -> ReplyDeliveryCheck {
+        guard !Task.isCancelled, isEnabled() else { return .stop }
+        guard sessionIsSaved else { return .send }
+        guard let stored = try? await store.sessions().contains(session) else { return .later }
+        guard stored, !Task.isCancelled, isEnabled() else { return .stop }
+        return .send
+    }
+
+    private func endReplyDelivery(_ token: UUID, session: LegacyTonConnectSession, link: URL?) {
+        if replyDeliveries[session.identifier]?.token == token {
+            replyDeliveries[session.identifier] = nil
+        }
+        if let link, answeredURLs[link] == token {
+            answeredURLs[link] = nil
         }
     }
 }
