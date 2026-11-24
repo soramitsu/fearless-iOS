@@ -39,6 +39,11 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// How long a disconnect notice may take to reach the application's bridge before it is given up.
     private let disconnectNoticeNanoseconds: UInt64
     private let logger: LoggerProtocol
+    /// Asks iOS for time to finish work if the app leaves the screen meanwhile; `expired` runs if that time runs
+    /// out. Returns how to give the time back.
+    typealias BackgroundTimeRequest = (_ expired: @escaping () -> Void) -> () -> Void
+    /// Keeps a disconnect notice going if the app leaves the screen right after the disconnect.
+    private let requestBackgroundTime: BackgroundTimeRequest
     /// Disconnect notices still on their way to applications' bridges. Nobody waits for them; each ends by itself
     /// within `disconnectNoticeNanoseconds`.
     private var disconnectNotices: [UUID: Task<Void, Never>] = [:]
@@ -102,7 +107,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
             PinViewFactory.createScreenAuthorizationView(with: $0, cancellable: $1)
         },
         reportError: ((Error) -> Void)? = nil,
-        logger: LoggerProtocol = Logger.shared
+        logger: LoggerProtocol = Logger.shared,
+        requestBackgroundTime: @escaping BackgroundTimeRequest = LegacyTonConnectBackgroundTime.request
     ) {
         self.store = store
         self.transport = transport
@@ -119,6 +125,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         self.authorizationViewFactory = authorizationViewFactory
         self.reportError = reportError
         self.logger = logger
+        self.requestBackgroundTime = requestBackgroundTime
         service = LegacyTonConnectService(store: store, replies: replies, transport: transport)
         super.init()
     }
@@ -651,7 +658,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// TON Connect has a wallet tell a bridge application that the user disconnected it, so the application drops
     /// the session and its transport key. Called once the sessions are removed, with their keys still in memory.
     /// Best effort, in the background: the notices go out together and are given up (cancelled) after
-    /// `disconnectNoticeNanoseconds`; a paused TON Connect sends nothing and logs that it did not.
+    /// `disconnectNoticeNanoseconds`, or earlier if iOS ends the time it gave the app to finish them once it left the
+    /// screen. A paused TON Connect sends nothing and logs that it did not.
     @MainActor
     private func notifyDisconnected(_ sessions: [LegacyTonConnectSession]) {
         let bridged = sessions.filter { $0.connectionType == "http" }
@@ -685,6 +693,8 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
                 return await group.reduce(true) { $0 && $1 }
             }
         }
+        // A user who disconnects and switches straight to the application still has it told.
+        let endBackgroundTime = requestBackgroundTime { notices.cancel() }
         let id = UUID()
         // Registered before the task can run (both on the main actor); the task removes itself as it ends.
         disconnectNotices[id] = Task { @MainActor [weak self] in
@@ -693,6 +703,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
                 notices.cancel()
                 logger.warning("A TON Connect application was not told about a disconnect; the session is removed")
             }
+            endBackgroundTime()
             self?.disconnectNotices[id] = nil
         }
     }
@@ -843,6 +854,27 @@ extension LegacyTonConnectCoordinator {
         if let link, answeredURLs[link] == token {
             answeredURLs[link] = nil
         }
+    }
+}
+
+/// Time iOS gives the app to finish work after it leaves the screen.
+enum LegacyTonConnectBackgroundTime {
+    /// Begins a background task; `expired` runs if iOS ends it first. The returned closure ends it, once, whichever
+    /// side gets there first; later calls do nothing.
+    static func request(expired: @escaping () -> Void) -> () -> Void {
+        let gate = LegacyTonConnectOnceGate()
+        var identifier = UIBackgroundTaskIdentifier.invalid
+        let end = {
+            // The identifier first: the gate is spent only by a call that can end the task.
+            guard identifier != .invalid, gate.claim() else { return }
+            UIApplication.shared.endBackgroundTask(identifier)
+        }
+        // Called on the main thread like this function, so `identifier` is set by then.
+        identifier = UIApplication.shared.beginBackgroundTask(withName: "TON Connect disconnect notice") {
+            expired()
+            end()
+        }
+        return end
     }
 }
 

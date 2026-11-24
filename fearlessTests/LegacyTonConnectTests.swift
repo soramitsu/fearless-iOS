@@ -2431,6 +2431,35 @@ private final class TonConnectRecordingLogger: LoggerProtocol {
     func customError(error: Error, file _: String, function _: String, line _: Int) { record("\(error)") }
 }
 
+/// Stands in for iOS background time: records each request and each end, and lets a test run it out.
+private final class TonConnectBackgroundTimeRecorder {
+    private let lock = NSLock()
+    private var expiries: [() -> Void] = []
+    private var ends = 0
+    var requested: Int { lock.lock(); defer { lock.unlock() }; return expiries.count }
+    var ended: Int { lock.lock(); defer { lock.unlock() }; return ends }
+
+    func request(expired: @escaping () -> Void) -> () -> Void {
+        lock.lock()
+        expiries.append(expired)
+        lock.unlock()
+        // Every call counts: an end called twice shows as more ends than requests.
+        return { [self] in
+            lock.lock()
+            ends += 1
+            lock.unlock()
+        }
+    }
+
+    /// iOS ends the time: each handler runs, as UIKit's expiration handler would.
+    func expireAll() {
+        lock.lock()
+        let all = expiries
+        lock.unlock()
+        all.forEach { $0() }
+    }
+}
+
 /// Counts notifications from any thread.
 private final class TonConnectPostCounter {
     private let lock = NSLock()
@@ -2777,7 +2806,8 @@ final class LegacyTonConnectReconnectCoordinatorTests: XCTestCase {
         transport: LegacyTonConnectBridgeTransporting,
         enabled: Bool = true,
         noticeNanoseconds: UInt64 = 5_000_000_000,
-        logger: LoggerProtocol = TonConnectRecordingLogger()
+        logger: LoggerProtocol = TonConnectRecordingLogger(),
+        backgroundTime: @escaping LegacyTonConnectCoordinator.BackgroundTimeRequest = LegacyTonConnectBackgroundTime.request
     ) throws -> LegacyTonConnectCoordinator {
         let walletKeys = TonConnectFixtureKeychain()
         let wallet = try tonConnectTestWallet(walletKeys)
@@ -2786,7 +2816,7 @@ final class LegacyTonConnectReconnectCoordinatorTests: XCTestCase {
             store: LegacyTonConnectStore(service: fixture, keys: keys), transport: transport,
             replies: .init(keystore: walletKeys), keystore: walletKeys, selectedWallet: { wallet },
             networkSelection: { "-239" }, walletLoader: { _ in wallet }, isEnabled: { enabled },
-            disconnectNoticeNanoseconds: noticeNanoseconds, logger: logger
+            disconnectNoticeNanoseconds: noticeNanoseconds, logger: logger, requestBackgroundTime: backgroundTime
         )
     }
 
@@ -2919,6 +2949,8 @@ final class LegacyTonConnectReconnectCoordinatorTests: XCTestCase {
         try pausedFixture.insert(swiped)
         _ = try await pausedCoordinator.selectedSessions()
         try await pausedCoordinator.disconnect(swiped)
+        XCTAssertEqual(pausedCoordinator.disconnectNoticesInFlight, 0, "Nothing is sent later either")
+        await pausedCoordinator.waitForDisconnectNotices()
         XCTAssertTrue(paused.sent.isEmpty)
         XCTAssertEqual(pausedLogger.warnings.count, 2)
         XCTAssertEqual(pausedLogger.warnings.last, pausedLogger.warnings.first)
@@ -2985,16 +3017,35 @@ final class LegacyTonConnectReconnectCoordinatorTests: XCTestCase {
         let swiped = try tonConnectTestSession(id: "swiped", walletId: "legacy-wallet", host: "b.example.org")
         try fixture.insert(offered)
         try fixture.insert(swiped)
+        let backgroundTime = TonConnectBackgroundTimeRecorder()
         // A deadline far beyond the test: only the bridge, released below, ends the notices.
-        let coordinator = try makeCoordinator(fixture: fixture, keys: keys, transport: transport, noticeNanoseconds: 600_000_000_000)
+        let coordinator = try makeCoordinator(
+            fixture: fixture, keys: keys, transport: transport, noticeNanoseconds: 600_000_000_000,
+            backgroundTime: backgroundTime.request
+        )
         _ = try await coordinator.sessionsToReconnect()
 
-        try await coordinator.reconnect([offered])
-        try await coordinator.disconnect(swiped)
+        // Run apart, so a call that waited for its notice again fails here instead of hanging the test.
+        let returned = TonConnectPostCounter()
+        let calls = Task { @MainActor in
+            defer { returned.increment() }
+            try await coordinator.reconnect([offered])
+            try await coordinator.disconnect(swiped)
+        }
+        for _ in 0 ..< 500 where returned.value == 0 {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(returned.value, 1, "Both calls returned while the bridge still holds the notices")
+        if returned.value == 0 {
+            transport.release()
+        }
+        try await calls.value
 
         XCTAssertTrue(try fixture.snapshot().isEmpty, "Both sessions are gone when the calls return")
         XCTAssertTrue(keys.items.isEmpty)
         XCTAssertEqual(coordinator.disconnectNoticesInFlight, 2, "Neither call waited for its notice")
+        XCTAssertEqual(backgroundTime.requested, 2, "Each notice holds background time in case the app leaves the screen")
+        XCTAssertEqual(backgroundTime.ended, 0)
         for _ in 0 ..< 500 where transport.sends < 2 {
             try await Task.sleep(nanoseconds: 20_000_000)
         }
@@ -3004,6 +3055,50 @@ final class LegacyTonConnectReconnectCoordinatorTests: XCTestCase {
         transport.release()
         await coordinator.waitForDisconnectNotices()
         XCTAssertEqual(coordinator.disconnectNoticesInFlight, 0, "Delivered notices end by themselves")
+        XCTAssertEqual(backgroundTime.ended, 2, "Each gives its background time back, once")
+    }
+
+    /// Review minor (2026-11-24): if iOS ends the background time first, the notice is given up then.
+    @MainActor
+    func testANoticeWhoseBackgroundTimeRunsOutIsGivenUp() async throws {
+        let fixture = try TonConnectFixtureCoreDataService()
+        let keys = TonConnectFakeSessionKeys()
+        let transport = TonConnectHangingTransport()
+        let session = try tonConnectTestSession(id: "swiped", walletId: "legacy-wallet", host: "a.example.org")
+        try fixture.insert(session)
+        let backgroundTime = TonConnectBackgroundTimeRecorder()
+        let logger = TonConnectRecordingLogger()
+        let coordinator = try makeCoordinator(
+            fixture: fixture, keys: keys, transport: transport, noticeNanoseconds: 600_000_000_000, logger: logger,
+            backgroundTime: backgroundTime.request
+        )
+        _ = try await coordinator.selectedSessions()
+        try await coordinator.disconnect(session)
+        for _ in 0 ..< 500 where transport.maximumInFlight < 1 {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(transport.maximumInFlight, 1, "The notice is on its way")
+        XCTAssertEqual(coordinator.disconnectNoticesInFlight, 1)
+
+        backgroundTime.expireAll()
+        // Polled, not awaited: a notice that ignored the expiry would otherwise hold the test for its deadline.
+        for _ in 0 ..< 500 where coordinator.disconnectNoticesInFlight > 0 {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(coordinator.disconnectNoticesInFlight, 0, "The notice ended with the background time")
+        XCTAssertEqual(transport.cancelledSends, 1, "The send is cancelled")
+        XCTAssertEqual(backgroundTime.ended, 1, "The background time is given back once")
+        XCTAssertEqual(logger.warnings, ["A TON Connect application was not told about a disconnect; the session is removed"])
+        XCTAssertTrue(try fixture.snapshot().isEmpty, "The disconnect itself is not undone")
+    }
+
+    @MainActor
+    func testTheBackgroundTimeEndsOnceWhoeverEndsItFirst() {
+        var expiries = 0
+        let end = LegacyTonConnectBackgroundTime.request { expiries += 1 }
+        end()
+        end()
+        XCTAssertEqual(expiries, 0, "Ending it is not running out of time")
     }
 
     @MainActor
@@ -3462,13 +3557,22 @@ final class LegacyTonConnectReconnectOfferViewTests: XCTestCase {
         // On an unlocked device with the app in front, the same failure is shown.
         let shownStore = TonConnectFakeSessionStore(values: [bridge])
         shownStore.failReads = true
+        let shownCenter = NotificationCenter()
         let shown = LegacyTonConnectSessionsViewController(
             coordinator: try makeCoordinator(shownStore, transport: TonConnectFakeTransport()),
-            notificationCenter: NotificationCenter(), isDeviceReadable: { true }
+            notificationCenter: shownCenter, isDeviceReadable: { true }
         )
         let (_, closeShown) = try host(shown)
         try await waitUntil { shown.presentedViewController is UIAlertController }
         XCTAssertEqual((shown.presentedViewController as? UIAlertController)?.title, "TonConnect", "An ordinary failure is shown")
+        // Shown once: coming back to the app does not show it again each time.
+        shown.dismiss(animated: false)
+        try await waitUntil { shown.presentedViewController == nil }
+        for trigger in [UIApplication.didBecomeActiveNotification, UIApplication.protectedDataDidBecomeAvailableNotification] {
+            shownCenter.post(name: trigger, object: nil)
+        }
+        try await waitUntil(1.5) { shown.presentedViewController != nil }
+        XCTAssertNil(shown.presentedViewController, "A failure already shown is not shown again on each activation")
         closeShown()
 
         for trigger in [UIApplication.protectedDataDidBecomeAvailableNotification, UIApplication.didBecomeActiveNotification] {
@@ -3497,6 +3601,37 @@ final class LegacyTonConnectReconnectOfferViewTests: XCTestCase {
         }
     }
 
+    /// Review follow-up (2026-11-24): a list that loaded while the device is locked or the app is not in front offers
+    /// nothing until the device is unlocked and the app is in front.
+    @MainActor
+    func testNothingIsOfferedOnALockedDeviceOrInAnInactiveApp() async throws {
+        let bridge = try tonConnectTestSession(id: "bridge", walletId: "legacy-wallet", host: "a.example.org")
+        let offerTitle = R.string.localizable.tonconnectReconnectTitle(preferredLanguages: LegacyTonConnectProtocol.languages)
+        for trigger in [UIApplication.protectedDataDidBecomeAvailableNotification, UIApplication.didBecomeActiveNotification] {
+            let store = TonConnectFakeSessionStore(values: [bridge])
+            store.waiting = [bridge]
+            let center = NotificationCenter()
+            var readable = false
+            let controller = LegacyTonConnectSessionsViewController(
+                coordinator: try makeCoordinator(store, transport: TonConnectFakeTransport()),
+                notificationCenter: center, isDeviceReadable: { readable }
+            )
+            let (_, close) = try host(controller)
+            defer { close() }
+            try await waitUntil { cellText(controller) == bridge.name }
+            try await waitUntil(2) { controller.presentedViewController != nil }
+            XCTAssertEqual(cellText(controller), bridge.name, "\(trigger.rawValue): the list loaded")
+            XCTAssertNil(controller.presentedViewController, "\(trigger.rawValue): nothing is offered on a locked device")
+
+            readable = true
+            center.post(name: trigger, object: nil)
+            try await waitUntil { controller.presentedViewController is UIAlertController }
+            let alert = try XCTUnwrap(controller.presentedViewController as? UIAlertController, trigger.rawValue)
+            XCTAssertEqual(alert.title, offerTitle, trigger.rawValue)
+            XCTAssertEqual(store.waiting, [bridge], "Offered, not yet answered")
+        }
+    }
+
     /// Review minor (2026-11-24): the lock can end with nothing posted (its PIN screen went away). A load that started
     /// behind it and failed is not shown; the list loads again at once and offers.
     @MainActor
@@ -3508,7 +3643,11 @@ final class LegacyTonConnectReconnectOfferViewTests: XCTestCase {
         let lockState = ApplicationLockState.shared
         var pinScreen: UIViewController? = UIViewController()
         autoreleasepool { lockState.lock(with: pinScreen!) }
-        defer { lockState.unlock() }
+        defer {
+            lockState.unlock()
+            // The app's other observers heard "locked": they hear that it ended too.
+            NotificationCenter.default.post(name: ApplicationLockState.didChangeNotification, object: lockState)
+        }
         XCTAssertTrue(lockState.isLocked)
         let controller = LegacyTonConnectSessionsViewController(coordinator: try makeCoordinator(store, transport: TonConnectFakeTransport()))
         let (_, close) = try host(controller)

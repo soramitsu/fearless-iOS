@@ -201,6 +201,8 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     private var isOfferingReconnect = false
     /// The last load failed, so `sessions` is not the stored list: the next appearance or unlock loads again.
     private var needsReload = false
+    /// That failure was not shown because the lock, a locked device or an inactive app held it back.
+    private var failureWasHeldBack = false
     /// A load is running; one asked for meanwhile runs once it ends, and a failure it supersedes is not shown.
     private var isLoading = false
     private var loadsAgain = false
@@ -235,16 +237,23 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         refreshControl?.addTarget(self, action: #selector(reload), for: .valueChanged)
         // A load or offer held back by the lock, a locked device or an inactive app happens once the wallet and the
         // device are unlocked and the app is in front, while this list is on screen.
-        let triggers: [(Notification.Name, Any?)] = [
-            (ApplicationLockState.didChangeNotification, ApplicationLockState.shared),
-            (UIApplication.protectedDataDidBecomeAvailableNotification, nil),
-            (UIApplication.didBecomeActiveNotification, nil)
-        ]
-        resumeObservers = triggers.map { name, object in
-            notificationCenter.addObserver(forName: name, object: object, queue: .main) { [weak self] _ in
-                // At once, ahead of any load completion already queued on the main actor.
+        // Each runs at once, ahead of any load completion already queued on the main actor.
+        resumeObservers = [
+            notificationCenter.addObserver(
+                forName: ApplicationLockState.didChangeNotification, object: ApplicationLockState.shared, queue: .main
+            ) { [weak self] _ in
                 MainActor.assumeIsolated { self?.resume() }
             }
+        ]
+        let deviceTriggers: [Notification.Name] = [
+            UIApplication.protectedDataDidBecomeAvailableNotification,
+            UIApplication.didBecomeActiveNotification
+        ]
+        for name in deviceTriggers {
+            let observer = notificationCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.resume(fromDevice: true) }
+            }
+            resumeObservers.append(observer)
         }
         reload()
     }
@@ -266,12 +275,13 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
     }
 
     /// On screen and not held back: loads again after a failed load or one still running (each load then offers),
-    /// otherwise offers.
-    private func resume() {
+    /// otherwise offers. `fromDevice`: the device was unlocked or the app came to the front. A failure that was shown
+    /// is not loaded (and shown) again for that each time, only one that was held back.
+    private func resume(fromDevice: Bool = false) {
         guard viewIfLoaded?.window != nil, !isHeldBack else { return }
-        if needsReload || isLoading {
+        if isLoading || (needsReload && (failureWasHeldBack || !fromDevice)) {
             reload()
-        } else {
+        } else if !needsReload {
             requestOffer()
         }
     }
@@ -297,6 +307,7 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
             case let .success(loaded):
                 sessions = loaded
                 needsReload = false
+                failureWasHeldBack = false
                 tableView.reloadData()
             case let .failure(error):
                 needsReload = true
@@ -305,7 +316,8 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
                 // A load that ran behind the lock, on a locked device or in an inactive app (the Keychain may have
                 // been unreadable) is not reported: the list loads again once that ends, at once if it ended while
                 // the load ran, with or without a notice.
-                if startedLocked || isHeldBack {
+                failureWasHeldBack = startedLocked || isHeldBack
+                if failureWasHeldBack {
                     if !isHeldBack, viewIfLoaded?.window != nil {
                         reload()
                     }
