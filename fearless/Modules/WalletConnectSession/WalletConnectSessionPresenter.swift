@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 import SoraFoundation
 import SSFModels
 
@@ -14,6 +14,13 @@ protocol WalletConnectSessionInteractorInput: AnyObject {
 }
 
 final class WalletConnectSessionPresenter {
+    private enum Preparation {
+        case idle
+        case preparing
+        case prepared(WalletConnectSigningRequest)
+        case declined
+    }
+
     // MARK: Private properties
 
     private weak var view: WalletConnectSessionViewInput?
@@ -23,21 +30,24 @@ final class WalletConnectSessionPresenter {
 
     private let request: Request
     private let session: Session?
+    private let verification: WalletConnectVerification
     private let viewModelFactory: WalletConnectSessionViewModelFactory
-    private let walletConnectModelFactory: WalletConnectModelFactory
+    private let preparer: WalletConnectRequestPreparing
 
     private var wallets: [MetaAccountModel] = []
     private var chainModels: [ChainModel] = []
     private var balanceInfos: WalletBalanceInfos?
     private var viewModel: WalletConnectSessionViewModel?
+    private var preparation: Preparation = .idle
 
     // MARK: - Constructors
 
     init(
         request: Request,
         session: Session?,
+        verification: WalletConnectVerification,
         viewModelFactory: WalletConnectSessionViewModelFactory,
-        walletConnectModelFactory: WalletConnectModelFactory,
+        preparer: WalletConnectRequestPreparing,
         logger: LoggerProtocol,
         interactor: WalletConnectSessionInteractorInput,
         router: WalletConnectSessionRouterInput,
@@ -45,8 +55,9 @@ final class WalletConnectSessionPresenter {
     ) {
         self.request = request
         self.session = session
+        self.verification = verification
         self.viewModelFactory = viewModelFactory
-        self.walletConnectModelFactory = walletConnectModelFactory
+        self.preparer = preparer
         self.interactor = interactor
         self.logger = logger
         self.router = router
@@ -56,27 +67,56 @@ final class WalletConnectSessionPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
+        switch preparation {
+        case let .prepared(signingRequest):
+            let viewModel = viewModelFactory.buildViewModel(
+                signingRequest: signingRequest,
+                balanceInfo: balanceInfos,
+                locale: selectedLocale
+            )
+            self.viewModel = viewModel
+            view?.didReceive(viewModel: viewModel)
+        case .idle:
+            prepareSigningRequest()
+        case .preparing, .declined:
+            break
+        }
+    }
+
+    /// Decodes and checks the request once. Balance updates only refresh the wallet row,
+    /// so what the confirmation shows is not quoted again behind the user's back.
+    private func prepareSigningRequest() {
         guard chainModels.isNotEmpty, wallets.isNotEmpty else {
             return
         }
+
+        guard let session = session else {
+            preparation = .declined
+            handle(error: WalletConnectRequestError.accountNotApproved, request: request)
+            return
+        }
+
+        preparation = .preparing
+        let request = request
+        let wallets = wallets
+        let chains = chainModels
         Task {
             do {
-                let viewModel = try await viewModelFactory.buildViewModel(
+                let signingRequest = try await preparer.prepare(
+                    request: request,
+                    session: session,
                     wallets: wallets,
-                    chains: chainModels,
-                    balanceInfo: balanceInfos,
-                    locale: selectedLocale
+                    chains: chains
                 )
-
                 await MainActor.run {
-                    view?.didReceive(viewModel: viewModel)
-                    self.viewModel = viewModel
+                    preparation = .prepared(signingRequest)
+                    provideViewModel()
                 }
-
             } catch {
-                await MainActor.run(body: {
+                await MainActor.run {
+                    preparation = .declined
                     handle(error: error, request: request)
-                })
+                }
             }
         }
     }
@@ -92,38 +132,37 @@ final class WalletConnectSessionPresenter {
     }
 
     private func prepareConfirmationData() {
-        do {
-            let chain = try walletConnectModelFactory.resolveChain(for: request.chainId, chains: chainModels)
-            let method = try walletConnectModelFactory.parseMethod(from: request)
-            guard
-                let session = session,
-                let viewModel = viewModel
-            else {
-                throw JSONRPCError.invalidRequest
-            }
-
-            let inputData = WalletConnectConfirmationInputData(
-                wallet: viewModel.wallet,
-                chain: chain,
-                resuest: request,
-                session: session,
-                method: method,
-                payload: viewModel.payload
-            )
+        guard let session = session, case let .prepared(signingRequest) = preparation else {
             view?.didStopLoading()
-            router.showConfirmation(inputData: inputData)
-        } catch {
-            handle(error: error, request: request)
+            return
         }
+
+        let inputData = WalletConnectConfirmationInputData(
+            signingRequest: signingRequest,
+            session: session,
+            verification: verification
+        )
+        view?.didStopLoading()
+        router.showConfirmation(inputData: inputData)
     }
 
     private func handle(error: Error, request: Request?) {
         logger.customError(error)
         view?.didStopLoading()
 
+        let title: String
+        let message: String
+        if let content = (error as? ErrorContentConvertible)?.toErrorContent(for: selectedLocale) {
+            title = content.title
+            message = content.message
+        } else {
+            title = "\(error._code)"
+            message = error.localizedDescription
+        }
+
         let viewModel = SheetAlertPresentableViewModel(
-            title: "\(error._code)",
-            message: error.localizedDescription,
+            title: title,
+            message: message,
             actions: [],
             closeAction: nil
         ) { [weak self] in
@@ -134,7 +173,9 @@ final class WalletConnectSessionPresenter {
         guard let request = request else {
             return
         }
-        if let error = error as? JSONRPCError {
+        if let error = error as? WalletConnectRequestError {
+            sumbitReject(request: request, error: error.rpcError)
+        } else if let error = error as? JSONRPCError {
             sumbitReject(request: request, error: error)
         } else {
             let error = JSONRPCError(

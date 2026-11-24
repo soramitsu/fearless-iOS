@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 
 protocol WalletConnectActiveSessionsViewModelFactory {
     func createViewModel(

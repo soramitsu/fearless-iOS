@@ -76,6 +76,7 @@ extension PolkaswapSwapConfirmationViewController: PolkaswapSwapConfirmationView
 
     func didStopLoading() {
         rootView.confirmButton.set(loading: false)
+        FWTransferSeal.end(in: view)
     }
 }
 
@@ -84,5 +85,18 @@ extension PolkaswapSwapConfirmationViewController: PolkaswapSwapConfirmationView
 extension PolkaswapSwapConfirmationViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
+    }
+}
+
+// MARK: - The seal (kit v4)
+
+extension PolkaswapSwapConfirmationViewController: FWTransferSealShowing {
+    /// The loading here is a spinner in the confirm button, so the seal shows above the screen on ink at 72 %.
+    func didReachTransferStage(_ stage: FWSealStage) {
+        FWTransferSeal.reach(stage, in: view, overlayWhenNoLoader: true)
+    }
+
+    func didBreakTransfer() {
+        FWTransferSeal.breakSeal(in: view)
     }
 }

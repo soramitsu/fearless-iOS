@@ -9,6 +9,16 @@ import UIKit
 
 class AccountCreateTests: XCTestCase {
 
+    func testThirdPartyKeyboardsAreNeverOfferedForPhrasesOrPasswords() {
+        let delegate = AppDelegate()
+
+        XCTAssertFalse(delegate.application(UIApplication.shared, shouldAllowExtensionPointIdentifier: .keyboard))
+        XCTAssertTrue(delegate.application(
+            UIApplication.shared,
+            shouldAllowExtensionPointIdentifier: UIApplication.ExtensionPointIdentifier(rawValue: "fixture.other.extension")
+        ))
+    }
+
     func testSuccessfullAccountCreation() {
         // given
 
@@ -445,6 +455,68 @@ final class AccountCreatePresentationTests: XCTestCase {
         if FWAppearance.accountCreateRestyled { XCTAssertGreaterThan(grid.wordFontInColumn.pointSize, originalFont) }
         else { XCTAssertEqual(grid.wordFontInColumn.pointSize, originalFont) }
         assertDisplayedWords(grid, equal: fixtures("fixture", count: 24))
+    }
+
+    func testCaptureGuardCoversPhraseOnlyWhileTheScreenIsCaptured() async throws {
+        let controller = AccountCreateViewController(presenter: Presenter(flow: .wallet))
+        controller.localizationManager = try XCTUnwrap(LocalizationManager(localization: "en"))
+        let window = try show(controller, category: .large)
+        defer { close(window) }
+        configure(controller)
+        await settle(window)
+        let grid = try XCTUnwrap(controller.rootView.mnemonicView)
+        let host = try XCTUnwrap(grid.superview)
+        let center = NotificationCenter()
+        var captured = false
+        let captureGuard = SecretCaptureGuard(
+            owner: controller,
+            languages: { ["en"] },
+            notificationCenter: center,
+            isCaptured: { _ in captured }
+        )
+        let note = R.string.localizable.secretCaptureHidden(preferredLanguages: ["en"])
+        let notes = { self.descendants(host).compactMap { $0 as? UILabel }.filter { $0.text == note } }
+        captureGuard.protect([grid])
+        captureGuard.start()
+        XCTAssertTrue(notes().isEmpty, "Nothing is added while the screen is not captured")
+
+        captured = true
+        center.post(name: UIScreen.capturedDidChangeNotification, object: nil)
+        window.layoutIfNeeded()
+        let cover = try XCTUnwrap(notes().first?.superview)
+        XCTAssertEqual(cover.frame, grid.frame)
+        XCTAssertGreaterThan(
+            try XCTUnwrap(host.subviews.firstIndex(of: cover)),
+            try XCTUnwrap(host.subviews.firstIndex(of: grid))
+        )
+        XCTAssertTrue(grid.accessibilityElementsHidden)
+        capture(window, name: "capture-guard-covered")
+
+        captured = false
+        center.post(name: UIScreen.capturedDidChangeNotification, object: nil)
+        XCTAssertTrue(notes().isEmpty)
+        XCTAssertFalse(grid.accessibilityElementsHidden)
+        assertDisplayedWords(grid, equal: fixtures("fixture", count: 24))
+
+        captureGuard.stop()
+        captured = true
+        center.post(name: UIScreen.capturedDidChangeNotification, object: nil)
+        XCTAssertTrue(notes().isEmpty, "A stopped guard ignores capture changes")
+    }
+
+    func testScreenshotOfCreatedPhraseShowsOneWarning() async throws {
+        let controller = AccountCreateViewController(presenter: Presenter(flow: .wallet))
+        controller.localizationManager = try XCTUnwrap(LocalizationManager(localization: "en"))
+        let window = try show(controller, category: .large)
+        defer { close(window) }
+        configure(controller)
+        await settle(window)
+        NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        let sheet = try XCTUnwrap(controller.presentedViewController as? SheetAletViewController)
+        XCTAssertNil(sheet.presentedViewController)
+        await withCheckedContinuation { continuation in sheet.dismiss(animated: false) { continuation.resume() } }
     }
 
     private func fixtures(_ prefix: String, count: Int) -> [String] {

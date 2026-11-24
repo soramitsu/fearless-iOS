@@ -28,6 +28,8 @@ final class WalletMainContainerPresenter {
     private var pendingPasswordNoticeAccounts: [UniversalWalletNoPasswordAccount] = []
     /// Funds that reached watched old addresses, shown after the other notices.
     private var pendingOldAddressArrivals: [UniversalWalletOldAddressArrival] = []
+    /// The selected wallet may take the recovery-phrase check (offered once, last in the queue).
+    private var pendingRecoveryCheckWallet: MetaAccountModel?
     /// Switch is checking balances; its outcome shows before the arrivals that wait meanwhile.
     private var isSwitchingNoPasswordAccounts = false
     private var pendingSwitchOutcome: (
@@ -35,6 +37,8 @@ final class WalletMainContainerPresenter {
         accounts: [UniversalWalletNoPasswordAccount]
     )?
     private let updateSecurityNotice: UpdateSecurityNoticeTracking
+    private let operatingSystemSecurityNotice: OperatingSystemSecurityNoticeTracking
+    /// The update or iOS notice is showing; the other notices wait until it is closed.
     private var isUpdateSecurityNoticeActive = false
 
     // MARK: - Constructors
@@ -48,6 +52,7 @@ final class WalletMainContainerPresenter {
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
         updateSecurityNotice: UpdateSecurityNoticeTracking,
+        operatingSystemSecurityNotice: OperatingSystemSecurityNoticeTracking,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.balanceInfoModuleInput = balanceInfoModuleInput
@@ -58,6 +63,7 @@ final class WalletMainContainerPresenter {
         self.interactor = interactor
         self.router = router
         self.updateSecurityNotice = updateSecurityNotice
+        self.operatingSystemSecurityNotice = operatingSystemSecurityNotice
 
         self.localizationManager = localizationManager
     }
@@ -107,6 +113,9 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         if updateSecurityNotice.isPending {
             isUpdateSecurityNoticeActive = true
             presentUpdateSecurityNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+        } else if operatingSystemSecurityNotice.isPending {
+            isUpdateSecurityNoticeActive = true
+            presentOperatingSystemSecurityNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
         }
     }
 
@@ -137,15 +146,47 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         )
     }
 
-    func didTapAccountScore() {
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        router.presentAccountScore(address: address, from: view)
+    func didTapHomeAction(_ action: WalletHomeAction) {
+        switch action {
+        case .send, .receive, .buy:
+            router.showAssetPicker(from: view, wallet: wallet, action: action, output: self)
+        case .swap:
+            router.showSwap(from: view)
+        }
+    }
+}
+
+// MARK: - SelectAssetModuleOutput
+
+extension WalletMainContainerPresenter: SelectAssetModuleOutput {
+    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?) {
+        guard let chainAsset = chainAsset, let action = contextTag.flatMap(WalletHomeAction.init(rawValue:)) else {
+            return
+        }
+        // The picker dismisses itself right after answering; the next screen opens once it has gone.
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            switch action {
+            case .send:
+                self.router.showSendFlow(from: self.view, wallet: self.wallet, initialData: .chainAsset(chainAsset))
+            case .receive:
+                self.router.showReceive(from: self.view, wallet: self.wallet, chainAsset: chainAsset)
+            case .buy:
+                self.router.showAssetDetails(from: self.view, chainAsset: chainAsset)
+            case .swap:
+                break
+            }
+        }
     }
 }
 
 // MARK: - WalletMainContainerInteractorOutput
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
+    func didReceive(syncUpdate: WalletSyncUpdate) {
+        view?.didReceive(syncUpdate: syncUpdate)
+    }
+
     func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [SSFModels.ChainModel])) {
         selectedNetworkManagmentFilter = tuple.select
 
@@ -265,6 +306,14 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
     }
 
+    func didReceiveRecoveryCheckOffer(for wallet: MetaAccountModel) {
+        guard wallet.metaId == self.wallet.metaId else {
+            return
+        }
+        pendingRecoveryCheckWallet = wallet
+        presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+    }
+
     func didReceiveUniversalWalletSwitchOutcomes(
         _ outcomes: [UniversalWalletSlot: UniversalWalletSwitchOutcome],
         for accounts: [UniversalWalletNoPasswordAccount]
@@ -286,6 +335,13 @@ private struct StoredRecordsNoticeContent {
 private enum StoredRecordsNoticeConstants {
     static let presentationRetries = 5
     static let retryDelay: TimeInterval = 1
+}
+
+/// How a startup notice ended.
+enum StartupNoticeOutcome {
+    case closed
+    case interrupted
+    case notPresented
 }
 
 private extension WalletMainContainerPresenter {
@@ -350,7 +406,7 @@ private extension WalletMainContainerPresenter {
             controller.presentedViewController == nil
         else {
             guard retriesLeft > 0 else {
-                finishUpdateSecurityNotice(acknowledged: false)
+                finishUpdateSecurityNotice(.notPresented)
                 return
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
@@ -360,10 +416,14 @@ private extension WalletMainContainerPresenter {
         }
 
         let viewModel = SheetAlertPresentableViewModel.updateSecurityNotice(locale: selectedLocale) { [weak self] in
-            self?.finishUpdateSecurityNotice(acknowledged: true)
+            self?.finishUpdateSecurityNotice(.closed)
         }
 
-        router.present(viewModel: viewModel, from: view)
+        router.presentNotice(
+            viewModel: viewModel,
+            onInterrupted: { [weak self] in self?.finishUpdateSecurityNotice(.interrupted) },
+            from: view
+        )
     }
 
     /// The last notices: Switch's outcome, then universal accounts the wallet's password does not
@@ -454,11 +514,63 @@ private extension WalletMainContainerPresenter {
         router.present(viewModel: viewModel, from: view)
     }
 
+    /// Step 1 of the recovery-phrase check, after every other notice: one action, one warning.
+    /// Showing it records the one offer for this wallet, so a sheet the app lock or anything else
+    /// closes is never shown again; "Not now" leaves the wallet as it is.
+    func presentRecoveryCheckOffer(retriesLeft: Int) {
+        guard let candidate = pendingRecoveryCheckWallet else {
+            return
+        }
+        guard candidate.metaId == wallet.metaId else {
+            pendingRecoveryCheckWallet = nil
+            return
+        }
+        guard
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            controller.presentedViewController == nil
+        else {
+            guard retriesLeft > 0 else {
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
+                self?.presentRecoveryCheckOffer(retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+
+        pendingRecoveryCheckWallet = nil
+        // Checked again as it is shown (the flag may have gone off, or a second queued check may
+        // already have shown it) and recorded as the one offer.
+        guard interactor.claimRecoveryCheckOffer(for: candidate) else {
+            return
+        }
+        var followUp: (() -> Void)?
+        let locale = selectedLocale
+        let viewModel = SheetAlertPresentableViewModel.protectedRecoveryCheckOffer(
+            locale: locale,
+            onCheck: { [weak self] in
+                followUp = {
+                    guard let self else { return }
+                    self.router.showProtectedRecoveryCheck(wallet: candidate, locale: locale, from: self.view)
+                }
+            },
+            onClose: {
+                followUp?()
+            }
+        )
+        router.present(viewModel: viewModel, from: view)
+    }
+
     /// Funds at an old address the wallet left; its password-protected account stays because it
     /// holds funds too or could not be checked.
     func presentOldAddressArrivals(retriesLeft: Int) {
         // A retry scheduled earlier waits for Switch's outcome, which goes first.
-        guard !pendingOldAddressArrivals.isEmpty, !isSwitchingNoPasswordAccounts, pendingSwitchOutcome == nil else {
+        guard !isSwitchingNoPasswordAccounts, pendingSwitchOutcome == nil else {
+            return
+        }
+        guard !pendingOldAddressArrivals.isEmpty else {
+            presentRecoveryCheckOffer(retriesLeft: retriesLeft)
             return
         }
         guard
@@ -488,9 +600,55 @@ private extension WalletMainContainerPresenter {
         router.present(viewModel: viewModel, from: view)
     }
 
-    func finishUpdateSecurityNotice(acknowledged: Bool) {
-        if acknowledged {
+    /// Only a notice the user closed counts as shown. One the lock screen closed, or one that
+    /// could not be presented, stays pending for the next launch and releases the notices after it.
+    func finishUpdateSecurityNotice(_ outcome: StartupNoticeOutcome) {
+        if outcome == .closed {
             updateSecurityNotice.acknowledge()
+            if operatingSystemSecurityNotice.isPending {
+                presentOperatingSystemSecurityNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+                return
+            }
+        }
+        isUpdateSecurityNoticeActive = false
+        presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)
+    }
+
+    /// Follows the update notice and, like it, counts as shown only once the user has closed it.
+    func presentOperatingSystemSecurityNotice(retriesLeft: Int) {
+        guard
+            let controller = view?.controller,
+            controller.viewIfLoaded?.window != nil,
+            controller.presentedViewController == nil
+        else {
+            guard retriesLeft > 0 else {
+                finishOperatingSystemSecurityNotice(.notPresented)
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + StoredRecordsNoticeConstants.retryDelay) { [weak self] in
+                self?.presentOperatingSystemSecurityNotice(retriesLeft: retriesLeft - 1)
+            }
+            return
+        }
+
+        let onClose: () -> Void = { [weak self] in
+            self?.finishOperatingSystemSecurityNotice(.closed)
+        }
+        let viewModel = SheetAlertPresentableViewModel.operatingSystemSecurityNotice(
+            locale: selectedLocale,
+            onClose: onClose
+        )
+
+        router.presentNotice(
+            viewModel: viewModel,
+            onInterrupted: { [weak self] in self?.finishOperatingSystemSecurityNotice(.interrupted) },
+            from: view
+        )
+    }
+
+    func finishOperatingSystemSecurityNotice(_ outcome: StartupNoticeOutcome) {
+        if outcome == .closed {
+            operatingSystemSecurityNotice.acknowledge()
         }
         isUpdateSecurityNoticeActive = false
         presentNextStoredRecordsNotice(retriesLeft: StoredRecordsNoticeConstants.presentationRetries)

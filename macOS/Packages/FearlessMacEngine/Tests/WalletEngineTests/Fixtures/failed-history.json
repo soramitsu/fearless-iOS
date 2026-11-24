@@ -1,0 +1,9 @@
+{
+  "data": {
+    "historyElements": [
+      {"id":"incoming","success":false,"timestamp":100,"extrinsicHash":"0x01","transfer":{"from":"14ScPaB87Aj2upYK8wHjyEbqosuvur2NbSy7x7F1s3VmCfdL","to":"165GUHN1DS7cSeJWA6VPQNnVcKGuyBB7F48PaEb2bcSLnYur","amount":"100","fee":"2"}},
+      {"id":"outgoing","success":false,"timestamp":101,"extrinsicHash":"0x02","transfer":{"to":"14ScPaB87Aj2upYK8wHjyEbqosuvur2NbSy7x7F1s3VmCfdL","from":"165GUHN1DS7cSeJWA6VPQNnVcKGuyBB7F48PaEb2bcSLnYur","amount":"100","fee":"2"}},
+      {"id":"conflicting","success":true,"timestamp":102,"extrinsicHash":"0x03","transfer":{"to":"14ScPaB87Aj2upYK8wHjyEbqosuvur2NbSy7x7F1s3VmCfdL","from":"165GUHN1DS7cSeJWA6VPQNnVcKGuyBB7F48PaEb2bcSLnYur","amount":"100","fee":"2"}}
+    ]
+  }
+}

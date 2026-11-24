@@ -92,6 +92,8 @@ extension CustomCrowdloanFlow: Codable {
 extension CustomCrowdloanFlow: Equatable {
     static func == (lhs: CustomCrowdloanFlow, rhs: CustomCrowdloanFlow) -> Bool {
         switch (lhs, rhs) {
+        case let (.unsupported(lhsName), .unsupported(rhsName)):
+            return lhsName == rhsName
         case (.moonbeamMemoFix, .moonbeamMemoFix):
             return true
         case let (.astar(lhsData), .astar(rhsData)):
@@ -122,8 +124,8 @@ struct MoonbeamFlowData: FlowData {
             prodApiUrl: "https://yy9252r9jh.api.purestake.io",
             devApiUrl: "https://wallet-test.api.purestake.xyz",
             termsUrl: "https://raw.githubusercontent.com/moonbeam-foundation/crowdloan-self-attestation/main/moonbeam/README.md",
-            devApiKey: "JbykAAZTUa8MTggXlb4k03yAW9Ur2DFU1T0rm2Th",
-            prodApiKey: "oueZPaKtwAEAooqpdafr33i6yqPgU804E06CqeGb"
+            devApiKey: "",
+            prodApiKey: ""
         )
     }
 }

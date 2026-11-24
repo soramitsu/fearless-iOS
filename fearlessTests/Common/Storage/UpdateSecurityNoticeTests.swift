@@ -166,3 +166,82 @@ final class UpdateSecurityNoticeTests: XCTestCase {
         return (title, message)
     }
 }
+
+/// The iOS update notice: shown on releases with the flaws Coruna, SilkPath, DarkSword and
+/// GhostWave use, once per release, never on a Mac or Vision Pro.
+final class OperatingSystemSecurityNoticeTests: XCTestCase {
+    private func version(_ major: Int, _ minor: Int, _ patch: Int) -> OperatingSystemVersion {
+        OperatingSystemVersion(majorVersion: major, minorVersion: minor, patchVersion: patch)
+    }
+
+    func testAdvisory_listsEveryExposedReleaseAndNoFixedOne() {
+        let exposed = [
+            version(14, 8, 1), version(15, 0, 0), version(15, 8, 6), version(16, 0, 0), version(16, 7, 14),
+            version(17, 0, 0), version(17, 2, 1), version(17, 7, 10), version(18, 0, 0), version(18, 4, 0),
+            version(18, 6, 2), version(18, 7, 6), version(26, 0, 0), version(26, 2, 1)
+        ]
+        let fixed = [
+            version(15, 8, 7), version(15, 9, 0), version(16, 7, 15), version(16, 8, 0), version(18, 7, 7),
+            version(18, 8, 0), version(26, 3, 0), version(26, 4, 1), version(27, 0, 0), version(27, 1, 0)
+        ]
+
+        for release in exposed {
+            XCTAssertTrue(OperatingSystemExploitAdvisory.isExposed(release, runsOnIPhoneOrIPad: true), "\(release)")
+        }
+        for release in fixed {
+            XCTAssertFalse(OperatingSystemExploitAdvisory.isExposed(release, runsOnIPhoneOrIPad: true), "\(release)")
+        }
+    }
+
+    func testAdvisory_neverAppliesOffIPhoneAndIPad() {
+        XCTAssertFalse(OperatingSystemExploitAdvisory.isExposed(version(15, 7, 0), runsOnIPhoneOrIPad: false))
+        XCTAssertFalse(OperatingSystemExploitAdvisory.isExposed(version(26, 0, 0), runsOnIPhoneOrIPad: false))
+    }
+
+    func testTracker_showsOncePerExposedReleaseAndNeverOnFixedOne() {
+        let settings = InMemorySettingsManager()
+        var current = version(18, 6, 2)
+        let tracker = OperatingSystemSecurityNoticeTracker(settings: settings, version: { current }) {
+            OperatingSystemExploitAdvisory.isExposed($0, runsOnIPhoneOrIPad: true)
+        }
+
+        XCTAssertTrue(tracker.isPending)
+        tracker.acknowledge()
+        XCTAssertFalse(tracker.isPending)
+        XCTAssertFalse(
+            OperatingSystemSecurityNoticeTracker(settings: settings, version: { current }) {
+                OperatingSystemExploitAdvisory.isExposed($0, runsOnIPhoneOrIPad: true)
+            }.isPending,
+            "Closing it is remembered across launches"
+        )
+
+        current = version(18, 7, 6)
+        XCTAssertTrue(tracker.isPending, "Another exposed release asks again")
+
+        current = version(18, 7, 7)
+        XCTAssertFalse(tracker.isPending)
+    }
+
+    func testNoticeText_existsInEveryShippedLanguage() throws {
+        let english = try Self.text(language: "en")
+        XCTAssertEqual(english.title, "Install the latest security update")
+
+        // The languages the app target packages (pt.lproj is not in the target).
+        for language in ["id", "ja", "pt-PT", "ru", "tr", "vi", "zh-Hans"] {
+            let translated = try Self.text(language: language)
+            XCTAssertNotEqual(translated.title, english.title, language)
+            XCTAssertNotEqual(translated.message, english.message, language)
+        }
+    }
+
+    private static func text(language: String) throws -> (title: String, message: String) {
+        let path = try XCTUnwrap(Bundle.main.path(forResource: language, ofType: "lproj"), language)
+        let bundle = try XCTUnwrap(Bundle(path: path), language)
+        let missing = "<missing>"
+        let title = bundle.localizedString(forKey: "os.security.notice.title", value: missing, table: nil)
+        let message = bundle.localizedString(forKey: "os.security.notice.message", value: missing, table: nil)
+        XCTAssertNotEqual(title, missing, language)
+        XCTAssertNotEqual(message, missing, language)
+        return (title, message)
+    }
+}

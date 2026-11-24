@@ -57,8 +57,13 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             throw RewardCalculatorEngineError.unexpectedValidator(accountId: validatorAccountId)
         }
 
-        let filteredRewardPointsByEra = rewardPointsByEra.sorted(by: { $0.key < $1.key }).prefix(rewardPointsByEra.count - 1)
-        let filteredValidatorRewardsByEra = validatorRewardsByEra.sorted(by: { $0.key < $1.key }).prefix(validatorRewardsByEra.count - 1)
+        // The latest era is still running, so only the eras before it count. Without a finished era there is
+        // nothing to average: `prefix(count - 1)` trapped on an empty history.
+        let filteredRewardPointsByEra = rewardPointsByEra.sorted(by: { $0.key < $1.key }).dropLast()
+        let filteredValidatorRewardsByEra = validatorRewardsByEra.sorted(by: { $0.key < $1.key }).dropLast()
+        guard !filteredRewardPointsByEra.isEmpty, !filteredValidatorRewardsByEra.isEmpty else {
+            throw RewardCalculatorEngineError.missingRewardHistory
+        }
         let avgIndividualRewardPoint = filteredRewardPointsByEra
             .compactMap { $0.value.individual }
             .reduce([], +)

@@ -1,0 +1,27 @@
+{
+  "commit": "tree 31369c2062c80d17d0d11ab2b3292bf17bf83ca6\nparent 7d8fa0bc6c7bf46816e3873d62b7cdeab431a83b\nauthor Nick Lockwood <nick@charcoaldesign.co.uk> 1616335140 +0000\ncommitter Nick Lockwood <nick@charcoaldesign.co.uk> 1616365767 +0000\n\nUpdate for 0.47.13 release\n",
+  "omitted": {
+    "": [
+      "100644 blob 667ec516c9025d587c25b82a53730ef009c6ccd7\t.gitignore",
+      "100644 blob 56c535842d42f1223ead3bc22d2f83caa188f077\t.pre-commit-hooks.yaml",
+      "100644 blob 5645a329fe9fff0a4485a6e3c2a142166ef63b9c\t.swiftformat",
+      "100644 blob f45c96a6f71189e0801a34a6d10e948348f17f77\t.travis.yml",
+      "100755 blob 0794a280ed46d5d67c24f1ad75740b5ddfd698b2\tCHANGELOG.md",
+      "100644 blob fff526c3f2569e9ff524ece91a4c7cebcdddbb56\tCONTRIBUTING.md",
+      "040000 tree 7dabcd50fa06dea8710e6136a56119322665d7db\tEditorExtension",
+      "100644 blob 7767190f0d730d34cfbf8799b7a52d51c5e723fb\tLinuxMain.swift",
+      "100644 blob e3c2a3bdda215ef39d5c108c44442f1a47784592\tPackage.swift",
+      "040000 tree 07a1eda5d16e71a1916bb405814503b5d4f5212a\tPerformanceTests",
+      "100644 blob b790327736e359ad366c02ea0b33a8fcf262a21a\tREADME.md",
+      "100644 blob 00eef504d255b848e36ea8ba050a3bcd517bfee2\tRules.md",
+      "040000 tree 3631c630ed5a540fb0c8810756940605e4a720df\tSnapshots",
+      "100644 blob ea9da77a3e74519c75c46e8d95195a39f30575cb\tSwiftFormat.podspec.json",
+      "040000 tree f702d4826747ae333049883dcae75aa1b7efa183\tSwiftFormat.xcodeproj",
+      "040000 tree fb0f5d5dad6157ca8f844cdfe32e7760a72438c3\tTests",
+      "100755 blob 82e8e4c6640c5ad0406745b4149f86a54e4a5c15\tformat.sh"
+    ],
+    "CommandLineTool": [
+      "100755 blob a7bf3f94c07354ff15d6741369ff4d028e4f0304\tswiftformat"
+    ]
+  }
+}

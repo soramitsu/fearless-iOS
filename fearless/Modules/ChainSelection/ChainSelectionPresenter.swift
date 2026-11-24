@@ -118,8 +118,11 @@ extension ChainSelectionPresenter: ChainSelectionPresenterProtocol {
             return
         }
 
-        let index = includeAllNetworksCell ? index - 1 : index
-        wireframe.complete(on: view, selecting: chainModels[safe: index])
+        // Rows leave out chains the wallet has no account for, so a row maps to its chain by id, not by position.
+        // The "All networks" row has no id and selects no chain.
+        let chainId = viewModels[safe: index]?.identifier
+        let chain = chainId.flatMap { chainId in chainModels.first { $0.chainId == chainId } }
+        wireframe.complete(on: view, selecting: chain)
     }
 
     func setup() {

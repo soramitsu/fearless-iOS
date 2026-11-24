@@ -110,6 +110,42 @@ enum RemoteLastKnownBalanceStore {
     }
 }
 
+/// Which Bitcoin account the last saved total of a wallet and network belongs to. A password
+/// wallet can switch accounts under one wallet id; a total of one account never stands in for another.
+enum BitcoinLastKnownAccountStore {
+    static let storageKey = "bitcoin.lastKnownAccount.v1"
+    private static let lock = NSLock()
+
+    static func record(_ address: String, walletId: MetaAccountId, chain: ChainModel, userDefaults: UserDefaults = .standard) {
+        lock.lock()
+        defer { lock.unlock() }
+        var stored = (userDefaults.dictionary(forKey: storageKey) as? [String: String]) ?? [:]
+        stored[key(walletId, chain)] = address.lowercased()
+        userDefaults.set(stored, forKey: storageKey)
+    }
+
+    /// True when the saved total is this account's, or was saved by a release that did not record
+    /// the account (it scanned the account the wallet showed then).
+    static func mayBelong(
+        to address: String,
+        walletId: MetaAccountId,
+        chain: ChainModel,
+        userDefaults: UserDefaults = .standard
+    ) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        let stored = (userDefaults.dictionary(forKey: storageKey) as? [String: String]) ?? [:]
+        guard let account = stored[key(walletId, chain)] else {
+            return true
+        }
+        return account == address.lowercased()
+    }
+
+    private static func key(_ walletId: MetaAccountId, _ chain: ChainModel) -> String {
+        "\(walletId)|\(chain.chainId)"
+    }
+}
+
 protocol SolanaBalanceSyncing {
     func balances(
         wallet: String,
@@ -172,6 +208,14 @@ protocol BitcoinBalanceSyncing {
         network: BitcoinKeyDerivation.Network,
         baseURL: String?
     ) async throws -> BitcoinAddressBalanceResult
+
+    /// Every address of the account, from its public descriptor.
+    func balance(
+        descriptor: BitcoinKeyDerivation.AccountDescriptor,
+        baseURL: String?,
+        gapLimit: Int?,
+        maxLookahead: Int
+    ) async throws -> BitcoinBalanceSyncResult
 }
 
 extension BitcoinBalanceSync: BitcoinBalanceSyncing {}
@@ -183,6 +227,15 @@ extension BitcoinBalanceSyncing {
         baseURL _: String?
     ) async throws -> BitcoinAddressBalanceResult {
         throw ConvenienceError(error: "Direct Bitcoin address discovery is unavailable")
+    }
+
+    func balance(
+        descriptor _: BitcoinKeyDerivation.AccountDescriptor,
+        baseURL _: String?,
+        gapLimit _: Int?,
+        maxLookahead _: Int
+    ) async throws -> BitcoinBalanceSyncResult {
+        throw ConvenienceError(error: "Bitcoin descriptor discovery is unavailable")
     }
 }
 
@@ -283,6 +336,31 @@ final class KeychainUniversalWalletMnemonicProvider:
 
         // A root read/format failure stays an error unless independently verified
         // historical child material above was available for this exact account.
+        if case let .failure(error) = rootResult {
+            throw error
+        }
+        return nil
+    }
+
+    /// The words and passphrase that derive the account `wallet` stores for `slot`, checked against
+    /// that account's key: the root (with or without the wallet password), or the chain-specific
+    /// phrase an older release wrote for it. Nil when nothing stored derives it.
+    func secret(for wallet: MetaAccountModel, slot: UniversalWalletSlot) throws -> UniversalWalletSecret? {
+        guard let account = slot.storedAccount(in: wallet) else {
+            return nil
+        }
+        let rootResult = Result { try rootSecret(for: wallet) }
+        if let root = try? rootResult.get(),
+           let match = slot.matchingSecret(root, publicKey: account.publicKey) {
+            return match
+        }
+        if let accountMnemonic = try mnemonicIfPresent(metaId: wallet.metaId, accountId: account.accountId),
+           let match = slot.matchingSecret(
+               UniversalWalletSecret(mnemonic: accountMnemonic, passphrase: ""),
+               publicKey: account.publicKey
+           ) {
+            return match
+        }
         if case let .failure(error) = rootResult {
             throw error
         }
@@ -397,7 +475,8 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
     private let ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol?
     private let tonRemoteBalanceFetching: AccountInfoRemoteService?
     private let bitcoinBalanceSync: BitcoinBalanceSyncing?
-    private let bitcoinMnemonicProvider: BitcoinMnemonicProviding
+    /// Refresh reads public descriptors only: it never holds a wallet secret.
+    private let bitcoinDescriptorProvider: BitcoinAccountDescriptorProviding
     private let solanaBalanceSync: SolanaBalanceSyncing?
     private let irohaToriiClient: IrohaToriiClientProtocol?
     private let dynamicAssetCatalogInjector: DynamicAssetCatalogInjecting?
@@ -407,7 +486,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         ethereumRemoteBalanceFetching: AccountInfoFetchingProtocol? = nil,
         tonRemoteBalanceFetching: AccountInfoRemoteService? = nil,
         bitcoinBalanceSync: BitcoinBalanceSyncing? = nil,
-        bitcoinMnemonicProvider: BitcoinMnemonicProviding = KeychainBitcoinMnemonicProvider(),
+        bitcoinDescriptorProvider: BitcoinAccountDescriptorProviding = BitcoinAccountDescriptorStore.shared,
         solanaBalanceSync: SolanaBalanceSyncing? = nil,
         irohaToriiClient: IrohaToriiClientProtocol? = IrohaToriiClient(),
         dynamicAssetCatalogInjector: DynamicAssetCatalogInjecting? = nil,
@@ -416,7 +495,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         self.ethereumRemoteBalanceFetching = ethereumRemoteBalanceFetching
         self.tonRemoteBalanceFetching = tonRemoteBalanceFetching
         self.bitcoinBalanceSync = bitcoinBalanceSync
-        self.bitcoinMnemonicProvider = bitcoinMnemonicProvider
+        self.bitcoinDescriptorProvider = bitcoinDescriptorProvider
         self.solanaBalanceSync = solanaBalanceSync
         self.irohaToriiClient = irohaToriiClient
         self.dynamicAssetCatalogInjector = dynamicAssetCatalogInjector
@@ -731,9 +810,31 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         guard let bitcoinBalanceSync else {
             throw ConvenienceError(error: "Bitcoin discovery is unavailable")
         }
-        guard let secret = try bitcoinMnemonicProvider.secret(for: wallet, chain: chain) else {
+        // A descriptor made at an authorized moment covers every address. Until one exists the
+        // stored address alone is read and the scan says its coverage is limited.
+        guard let descriptor = bitcoinDescriptorProvider.descriptor(for: wallet, chain: chain),
+              descriptor.network == bitcoinKeyDerivationNetwork(for: network) else {
+            // Until the first authorized unlock makes the descriptor, one address would undercount
+            // change and later receive addresses: the total a full scan saved stays as it is.
             guard let address = UniversalWalletAccountAddressResolver.address(for: chain, wallet: wallet) else {
                 throw ConvenienceError(error: "Bitcoin account address is unavailable")
+            }
+            // Shown, never offered for sending: it is the last full scan's total of this same
+            // account, kept until a real scan replaces it.
+            if bitcoinDescriptorProvider.isDescriptorPending(for: wallet, chain: chain),
+               BitcoinLastKnownAccountStore.mayBelong(to: address, walletId: wallet.metaId, chain: chain) {
+                let retained = RemoteLastKnownBalanceStore.load(chain: chain, walletId: wallet.metaId)
+                if !retained.isEmpty {
+                    NetworkScanStateStore.markSuccess(for: chain, coverage: .limited, walletId: wallet.metaId)
+                    retained.forEach { key, info in
+                        let total = info?.data.total ?? .zero
+                        accountInfos[key] = AccountInfo(
+                            nonce: 0, consumers: 0, providers: 0,
+                            data: AccountData(free: total, reserved: .zero, frozen: total)
+                        )
+                    }
+                    return accountInfos
+                }
             }
             let result = try await bitcoinBalanceSync.balance(
                 address: address,
@@ -751,8 +852,17 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                       result.totalSats >= 0 else {
                     return
                 }
+                // Only confirmed coins nothing in the mempool spends can be sent; unknown is none.
+                let spendable = max(0, min(result.confirmedSpendableSats ?? 0, result.totalSats))
                 accountInfos[chainAsset.chainAssetId] = AccountInfo(
-                    ethBalance: BigUInt(UInt64(result.totalSats))
+                    nonce: 0,
+                    consumers: 0,
+                    providers: 0,
+                    data: AccountData(
+                        free: BigUInt(UInt64(result.totalSats)),
+                        reserved: .zero,
+                        frozen: BigUInt(UInt64(result.totalSats - spendable))
+                    )
                 )
             }
             RemoteLastKnownBalanceStore.save(
@@ -760,6 +870,7 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 chain: chain,
                 walletId: wallet.metaId
             )
+            BitcoinLastKnownAccountStore.record(address, walletId: wallet.metaId, chain: chain)
             return accountInfos
         }
 
@@ -774,15 +885,14 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 network: indexerNetwork,
                 baseURL: baseURL,
                 gapLimit: network.defaultGapLimit,
-                maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
+                maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead,
+                account: try descriptor.address(change: 0, index: 0)
             )
             let result = try await BitcoinWalletBalanceCache.shared.value(
                 for: cacheKey
             ) {
                 try await bitcoinBalanceSync.balance(
-                    mnemonic: secret.mnemonic,
-                    passphrase: secret.passphrase,
-                    network: keyNetwork,
+                    descriptor: descriptor,
                     baseURL: baseURL,
                     gapLimit: network.defaultGapLimit,
                     maxLookahead: BitcoinReceiveDiscovery.defaultMaxLookahead
@@ -806,6 +916,9 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
                 chain: chain,
                 walletId: wallet.metaId
             )
+            if let address = try? descriptor.address(change: 0, index: 0) {
+                BitcoinLastKnownAccountStore.record(address, walletId: wallet.metaId, chain: chain)
+            }
         } catch is CancellationError {
             throw CancellationError()
         } catch {

@@ -36,6 +36,49 @@ class NativeSourceTests(unittest.TestCase):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(value)
 
+    def make_source_packages(self, modify=None, revision=None):
+        packages = self.root / "SourcePackages"
+        checkout = packages / "checkouts" / "upstream"
+        checkout.mkdir(parents=True)
+        subprocess.run(["git", "init", "-q"], cwd=checkout, check=True)
+        (checkout / "Source.swift").write_text("let value = 1\n")
+        subprocess.run(["git", "add", "Source.swift"], cwd=checkout, check=True)
+        subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q", "-m", "pin"],
+            cwd=checkout, check=True,
+        )
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=checkout, check=True, capture_output=True).stdout.decode().strip()
+        pin = {"identity": "upstream", "location": "https://github.com/example/upstream.git", "state": {"revision": revision or head}}
+        for path in VERIFIER.RESOLVED_PATHS:
+            self.write(path, json.dumps({"pins": [pin], "version": 3}))
+        if modify:
+            modify(checkout)
+        return packages
+
+    def test_resolved_checkout_at_its_pin_passes(self):
+        packages = self.make_source_packages()
+        self.assertEqual(VERIFIER.verify(self.root, source_packages=packages)["verifiedCheckouts"], 1)
+
+    def test_modified_resolved_checkout_is_rejected(self):
+        packages = self.make_source_packages(modify=lambda c: (c / "Source.swift").write_text("let value = 2\n"))
+        with self.assertRaisesRegex(ValueError, "differs from its pinned commit"):
+            VERIFIER.verify(self.root, source_packages=packages)
+
+    def test_added_file_in_resolved_checkout_is_rejected(self):
+        packages = self.make_source_packages(modify=lambda c: (c / "Injected.swift").write_text("// injected\n"))
+        with self.assertRaisesRegex(ValueError, "differs from its pinned commit"):
+            VERIFIER.verify(self.root, source_packages=packages)
+
+    def test_checkout_at_another_commit_is_rejected(self):
+        packages = self.make_source_packages(revision="b" * 40)
+        with self.assertRaisesRegex(ValueError, "pinned bbbbbbbbbbbb"):
+            VERIFIER.verify(self.root, source_packages=packages)
+
+    def test_missing_checkout_is_rejected(self):
+        packages = self.make_source_packages(modify=lambda c: subprocess.run(["rm", "-rf", str(c)], check=True))
+        with self.assertRaisesRegex(ValueError, "Missing resolved checkout"):
+            VERIFIER.verify(self.root, source_packages=packages)
+
     def test_owned_sources_and_pinned_external_dependencies_pass(self):
         self.assertEqual(VERIFIER.verify(self.root)["nativeBinaryFiles"], 1)
 
@@ -118,6 +161,57 @@ class NativeSourceTests(unittest.TestCase):
         for path in VERIFIER.RESOLVED_PATHS:
             self.write(path, json.dumps({"pins": [{"identity": "upstream", "state": {"branch": "master"}}]}))
         with self.assertRaisesRegex(ValueError, "bound to a commit"):
+            VERIFIER.verify(self.root)
+
+
+    def make_versioned_framework(self):
+        """A macOS-style framework: Versions/A holds the files, the rest are links."""
+        framework = self.root / "Native/Binaries/lib.xcframework/macos/lib.framework"
+        (framework / "Versions/A/Headers").mkdir(parents=True)
+        (framework / "Versions/A/Headers/lib.h").write_text("header")
+        (framework / "Versions/A/lib").write_text("binary")
+        links = {"Versions/Current": "A", "Headers": "Versions/Current/Headers", "lib": "Versions/Current/lib"}
+        for name, target in links.items():
+            (framework / name).symlink_to(target)
+        prefix = "Binaries/lib.xcframework/macos/lib.framework/"
+        self.contract["nativeBinaries"].update({
+            prefix + "Versions/A/Headers/lib.h": hashlib.sha256(b"header").hexdigest(),
+            prefix + "Versions/A/lib": hashlib.sha256(b"binary").hexdigest(),
+        })
+        self.contract["nativeBinarySymlinks"] = {prefix + name: target for name, target in links.items()}
+        self.write("config/native-sources.json", json.dumps(self.contract))
+        return framework
+
+    def test_versioned_framework_with_recorded_symlinks_passes(self):
+        self.make_versioned_framework()
+        self.assertEqual(VERIFIER.verify(self.root)["nativeBinaryFiles"], 3)
+
+    def test_retargeted_framework_symlink_is_rejected(self):
+        framework = self.make_versioned_framework()
+        (framework / "Versions/B/Headers").mkdir(parents=True)
+        (framework / "Versions/B/Headers/lib.h").write_text("header")
+        (framework / "Versions/B/lib").write_text("binary")
+        self.contract["nativeBinaries"].update({
+            "Binaries/lib.xcframework/macos/lib.framework/Versions/B/Headers/lib.h": hashlib.sha256(b"header").hexdigest(),
+            "Binaries/lib.xcframework/macos/lib.framework/Versions/B/lib": hashlib.sha256(b"binary").hexdigest(),
+        })
+        self.write("config/native-sources.json", json.dumps(self.contract))
+        (framework / "Versions/Current").unlink()
+        (framework / "Versions/Current").symlink_to("B")
+        with self.assertRaisesRegex(ValueError, "symlinks differ"):
+            VERIFIER.verify(self.root)
+
+    def test_framework_symlink_escaping_the_bundle_is_rejected(self):
+        framework = self.make_versioned_framework()
+        (framework / "lib").unlink()
+        (framework / "lib").symlink_to("../../../example")
+        with self.assertRaisesRegex(ValueError, "escapes its framework"):
+            VERIFIER.verify(self.root)
+
+    def test_unrecorded_framework_symlink_is_rejected(self):
+        framework = self.make_versioned_framework()
+        (framework / "Modules").symlink_to("Versions/Current/Headers")
+        with self.assertRaisesRegex(ValueError, "symlinks differ"):
             VERIFIER.verify(self.root)
 
 

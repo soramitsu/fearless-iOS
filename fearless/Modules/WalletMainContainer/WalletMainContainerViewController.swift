@@ -11,7 +11,6 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
 
     private let balanceInfoViewController: UIViewController
     private let pageControllers: [UIViewController]
-    var accountScoreTapGesture: UITapGestureRecognizer?
 
     // MARK: - Constructor
 
@@ -66,13 +65,22 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         }
 
         rootView.addBalance(view)
-        controller.didMove(toParent: self)
+        balanceInfoViewController.didMove(toParent: self)
     }
 
     private func setupPageViewController() {
         addChild(rootView.pageViewController)
 
         rootView.pageViewController.setViewControllers([pageControllers[0]], direction: .forward, animated: false)
+        // One list: the balance card folds away while the list's search field has the keyboard.
+        for page in pageControllers {
+            (page as? WalletInlineSearchHosting)?.onInlineSearchActiveChange = { [weak self] active in
+                self?.rootView.setSearchFocused(active, animated: true)
+            }
+            (page as? WalletHomeListChanging)?.onListChange = { [weak self] in
+                self?.rootView.setNeedsLayout()
+            }
+        }
     }
 
     private func setupActions() {
@@ -84,8 +92,14 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         let walletBalanceTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBalanceDidTap))
         rootView.walletBalanceViewContainer.addGestureRecognizer(walletBalanceTapGesture)
 
-        rootView.accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
-            self?.output.didTapAccountScore()
+        let actions: [(FWRoundActionButton, WalletHomeAction)] = [
+            (rootView.sendButton, .send), (rootView.receiveButton, .receive),
+            (rootView.buyButton, .buy), (rootView.swapButton, .swap)
+        ]
+        for (button, action) in actions {
+            button.addAction { [weak self] in
+                self?.output.didTapHomeAction(action)
+            }
         }
     }
 
@@ -99,7 +113,12 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         output.didTapOnQR()
     }
 
+    /// The asset list's own search field takes the keyboard; another page keeps the search screen.
     @objc private func handleSearchTap() {
+        if let page = rootView.pageViewController.viewControllers?.first as? WalletInlineSearchHosting,
+           page.focusInlineSearch() {
+            return
+        }
         output.didTapSearch()
     }
 
@@ -119,12 +138,12 @@ extension WalletMainContainerViewController: WalletMainContainerViewInput {
         rootView.bind(viewModel: viewModel)
     }
 
-    func didReceiveAccountScoreViewModel(_ viewModel: AccountScoreViewModel) {
-        rootView.bind(accountScoreViewModel: viewModel)
-    }
-
     func didReceiveNftAvailability(isNftAvailable: Bool) {
         rootView.segmentContainer.isHidden = !isNftAvailable
+    }
+
+    func didReceive(syncUpdate: WalletSyncUpdate) {
+        rootView.apply(syncUpdate: syncUpdate)
     }
 }
 
@@ -141,11 +160,17 @@ extension WalletMainContainerViewController: Localizable {
 
 extension WalletMainContainerViewController: FWSegmentedControlDelegate {
     func didSelect(_ segmentIndex: Int) {
+        let page = pageControllers[segmentIndex]
+        // The page slides in beside the one it replaces; neither of their lists may take the status-bar tap.
+        rootView.assignScrollToTop(in: page.view)
         rootView.pageViewController.setViewControllers(
-            [pageControllers[segmentIndex]],
+            [page],
             direction: .init(from: segmentIndex) ?? .forward,
             animated: true
-        )
+        ) { [weak self] _ in
+            // The home follows the list it shows now.
+            self?.rootView.setNeedsLayout()
+        }
     }
 }
 
@@ -159,5 +184,14 @@ extension UIPageViewController.NavigationDirection {
         default:
             return nil
         }
+    }
+}
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension WalletMainContainerViewController: FWFlightTiered {
+    var flightTiers: [FWFlightTier] {
+        let list = (rootView.pageViewController.viewControllers?.first as? FWFlightTiered)?.flightTiers ?? []
+        return rootView.flightTiers + list
     }
 }

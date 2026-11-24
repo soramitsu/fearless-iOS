@@ -740,7 +740,7 @@ final class BitcoinBroadcastAmbiguityTests: XCTestCase {
         XCTAssertEqual(mempool?.confirmed, false)
         // `/tx/:txid`, never `/tx/:txid/status`: electrs answers the latter with
         // {"confirmed":false} for a transaction it has never seen.
-        XCTAssertEqual(transport.requests.last?.url?.absoluteString, "https://mempool.space/api/tx/\(txid)")
+        XCTAssertEqual(transport.requests.last?.url?.absoluteString, "https://blockstream.info/api/tx/\(txid)")
 
         transport.responses = [
             .success(Data(#"{"txid":"\#(txid)","status":{"confirmed":true,"block_height":840000}}"#.utf8))
@@ -788,15 +788,19 @@ final class BitcoinBroadcastAmbiguityTests: XCTestCase {
         XCTAssertEqual(unspent, BitcoinEsploraOutspend(spent: false))
     }
 
-    func testBitcoinNetworksFailOverBetweenMempoolSpaceAndBlockstream() {
+    func testBitcoinNetworksAskBlockstreamFirstAndFailOverToMempoolSpace() {
+        // Same order as web (src/consts/universalWallet.ts) and Android (RetrofitBitcoinIndexerClient).
         XCTAssertEqual(
             BitcoinIndexerNetwork.mainnet.baseURLs.map(\.absoluteString),
-            ["https://mempool.space/api", "https://blockstream.info/api"]
+            ["https://blockstream.info/api", "https://mempool.space/api"]
         )
         XCTAssertEqual(
             BitcoinIndexerNetwork.testnet.baseURLs.map(\.absoluteString),
-            ["https://mempool.space/testnet/api", "https://blockstream.info/testnet/api"]
+            ["https://blockstream.info/testnet/api", "https://mempool.space/testnet/api"]
         )
+        XCTAssertEqual(BitcoinIndexerNetwork.mainnet.defaultBaseURL, UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL)
+        XCTAssertEqual(BitcoinIndexerNetwork.testnet.defaultBaseURL, UniversalWalletRegistry.bitcoinTestnetIndexerBaseURL)
+        XCTAssertEqual(UniversalWalletRegistry.bitcoinMainnetChainModel.nodes.map(\.url), [UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL])
     }
 
     func testTransport_reportsRateLimitsWithTheServicesRetryAfter() async throws {
@@ -835,8 +839,8 @@ final class BitcoinBroadcastAmbiguityTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private static let primary = "https://mempool.space/api"
-    private static let fallback = "https://blockstream.info/api"
+    private static let primary = "https://blockstream.info/api"
+    private static let fallback = "https://mempool.space/api"
 
     private var scope: BitcoinPendingBroadcastScope {
         BitcoinPendingBroadcastScope(walletId: wallet.metaId, chainId: BitcoinTestWallet.chain.chainId)
@@ -1005,6 +1009,21 @@ final class BitcoinTestMnemonicProvider: BitcoinMnemonicProviding {
     func mnemonic(for _: MetaAccountModel, chain _: ChainModel) throws -> String? {
         callCount += 1
         return mnemonic
+    }
+}
+
+/// The public descriptor of `BitcoinTestWallet.mnemonic`, as an authorized unlock saves it.
+final class BitcoinTestDescriptorProvider: BitcoinAccountDescriptorProviding {
+    private let descriptor: BitcoinKeyDerivation.AccountDescriptor?
+    private(set) var callCount = 0
+
+    init(mnemonic: String? = BitcoinTestWallet.mnemonic, network: BitcoinKeyDerivation.Network = .mainnet) {
+        descriptor = mnemonic.flatMap { try? BitcoinKeyDerivation.deriveAccountDescriptor(mnemonic: $0, network: network) }
+    }
+
+    func descriptor(for _: MetaAccountModel, chain _: ChainModel) -> BitcoinKeyDerivation.AccountDescriptor? {
+        callCount += 1
+        return descriptor
     }
 }
 

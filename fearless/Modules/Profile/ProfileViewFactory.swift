@@ -16,16 +16,11 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
                 sortDescriptors: [NSSortDescriptor.accountsByOrder]
             )
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerDefault(),
-            signer: NomisRequestSigner()
-        )
         let settings = SettingsManager.shared
         let profileViewModelFactory = ProfileViewModelFactory(
             iconGenerator: UniversalIconGenerator(),
             biometry: BiometryAuth(),
-            settings: settings,
-            accountScoreFetcher: accountScoreFetcher
+            settings: settings
         )
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
@@ -48,11 +43,6 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let missingAccountHelper = MissingAccountFetcher(
@@ -69,11 +59,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             accountInfoFetcher: substrateAccountInfoFetching
         )
 
-        let walletConnectModelFactory = WalletConnectModelFactoryImpl()
-        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl(
-            walletConnectModelFactory: walletConnectModelFactory,
-            chainAssetFetcher: chainAssetFetching
-        )
+        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl()
 
         let interactor = ProfileInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,

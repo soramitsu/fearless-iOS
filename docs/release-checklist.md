@@ -17,9 +17,10 @@ Use this checklist for every release PR from `develop` to `master`.
   `bash ./scripts/test-codecov-workflow-audit.sh && bash ./scripts/audit-codecov-workflow.sh`
   and confirm every third-party action remains pinned to its reviewed commit,
   Codecov uploads use OIDC, and coverage failures remain release-blocking.
-- Run `bash ./scripts/deps/check-dependency-contracts.sh "$PWD"` and confirm
-  the committed SwiftPM state, native crypto contract wiring, and
-  shared-features patch wiring still fail fast before release.
+- Run `scripts/deps/build-tools-from-source.sh --force`, then
+  `SOURCE_PACKAGES_DIR="$PWD/SourcePackages" scripts/deps/check-dependency-contracts.sh "$PWD"`.
+  These commands build the host tools and verify their provenance, the native
+  module inventory, and the app's resolved SwiftPM checkouts before release.
 - Run
   `bash ./scripts/deps/test-shared-features-delta-report.sh && bash ./scripts/deps/audit-shared-features-delta-report.sh "$PWD" --write-report build/reports/shared-features-delta-report.json`
   and review `build/reports/shared-features-delta-report.json`. Every

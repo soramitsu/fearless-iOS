@@ -25,12 +25,8 @@ final class BackupWalletAssembly {
             operationManager: OperationManagerFacade.sharedManager
         )
         let router = BackupWalletRouter()
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerDefault(),
-            signer: NomisRequestSigner()
-        )
 
-        let viewModelFactory = BackupWalletViewModelFactory(accountScoreFetcher: accountScoreFetcher, settings: SettingsManager.shared)
+        let viewModelFactory = BackupWalletViewModelFactory()
         let presenter = BackupWalletPresenter(
             wallet: wallet,
             interactor: interactor,
@@ -44,8 +40,11 @@ final class BackupWalletAssembly {
             output: presenter,
             localizationManager: localizationManager
         )
-        let cloudStorage = CloudStorageService(uiDelegate: view)
-        interactor.cloudStorage = cloudStorage
+        // Google Sign-In raises an Objective-C exception for missing configuration.
+        // Keep local exports available without constructing that service in keyless builds.
+        if (try? GoogleDriveBackupOAuthConfiguration(info: Bundle.main.infoDictionary ?? [:])) != nil {
+            interactor.cloudStorage = CloudStorageService(uiDelegate: view)
+        }
 
         return (view, presenter)
     }

@@ -181,11 +181,24 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             let info = wallet.fetch(for: asset.chain.accountRequest()).flatMap { accountInfos[asset.uniqueKey(accountId: $0.accountId)] ?? nil }
             return portfolioValue(for: asset, accountInfo: info, wallet: wallet, testnets: testnets).isFunded
         }
+        let query = search?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        // The token list shows token rows and, per network, the detected assets to review.
+        let foundNothing = !query.isEmpty && tokenRows.isEmpty && !networkSections.contains { $0.kind == .detected }
         let viewModel = ChainAssetListViewModel(
             displayState: displayState,
             networkSections: networkSections,
             walletId: wallet.metaId,
             lens: lens,
+            searchText: search ?? "",
+            networkChips: networkChips(
+                chainAssets: chainAssets,
+                accountInfos: accountInfos,
+                wallet: wallet,
+                filter: networkFilter,
+                locale: locale
+            ),
+            canSearchAllNetworks: foundNothing && networkFilter.map { !$0.isAllFilter } == true,
+            searchFoundNothing: foundNothing,
             tokenRows: tokenRows.filter { !zeroIds.contains($0.model.id) },
             zeroTokenRows: zeroRows,
             tokenChildCells: tokenCells,
@@ -198,6 +211,57 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             hiddenFundsNotice: Self.hiddenFundsNotice(for: exclusions, walletId: wallet.metaId)
         )
         return viewModel
+    }
+
+    /// The one list's network chips: All networks, then every network the wallet holds something on, largest
+    /// counted value first (then by name). Hidden, unverified and testnet holdings make no chip, as they make no
+    /// row. A chosen Popular or Favorites, or a chosen network without holdings, keeps a chip of its own so the
+    /// selection stays visible and can be undone.
+    func networkChips(
+        chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        wallet: MetaAccountModel,
+        filter: NetworkManagmentFilter?,
+        locale: Locale
+    ) -> [PortfolioNetworkChip] {
+        let selection = filter?.identifier ?? NetworkManagmentFilter.all.identifier
+        var totals: [ChainModel.Id: (name: String, fiat: Decimal)] = [:]
+        var seen = Set<AssetKey>()
+        for asset in chainAssets where !asset.chain.disabled && seen.insert(asset.assetKey).inserted {
+            let info = wallet.fetch(for: asset.chain.accountRequest()).flatMap {
+                accountInfos[asset.uniqueKey(accountId: $0.accountId)] ?? nil
+            }
+            let value = portfolioValue(for: asset, accountInfo: info, wallet: wallet, testnets: testnets)
+            guard value.isFunded, value.role != .hidden, value.role != .unverified, value.role != .testnet else {
+                continue
+            }
+            let previous = totals[asset.chain.chainId]?.fiat ?? .zero
+            totals[asset.chain.chainId] = (asset.chain.name, previous + (value.role == .counted ? value.fiat : .zero))
+        }
+        if case let .chain(chainId) = filter, totals[chainId] == nil,
+           let chain = chainAssets.first(where: { $0.chain.chainId == chainId })?.chain {
+            totals[chainId] = (chain.name, .zero)
+        }
+        var chips = [PortfolioNetworkChip(
+            id: NetworkManagmentFilter.all.identifier,
+            title: PortfolioStrings.text("portfolio.one_list.all", locale: locale),
+            selected: selection == NetworkManagmentFilter.all.identifier
+        )]
+        if let filter, filter.isPopularFilter || filter.isFavouriteFilter {
+            chips.append(PortfolioNetworkChip(
+                id: filter.identifier,
+                title: PortfolioStrings.text("portfolio.one_list." + filter.identifier, locale: locale),
+                selected: true
+            ))
+        }
+        chips += totals.sorted { lhs, rhs in
+            if lhs.value.fiat != rhs.value.fiat {
+                return lhs.value.fiat > rhs.value.fiat
+            }
+            let order = lhs.value.name.localizedCaseInsensitiveCompare(rhs.value.name)
+            return order == .orderedSame ? lhs.key < rhs.key : order == .orderedAscending
+        }.map { PortfolioNetworkChip(id: $0.key, title: $0.value.name, selected: selection == $0.key) }
+        return chips
     }
 
     // MARK: - Private methods

@@ -248,6 +248,22 @@ final class Sr25519KnownAnswerTests: XCTestCase {
         }
     }
 
+    /// `createPublicKeySoft` used to copy 96 bytes out of a 32-byte stack buffer, so it read
+    /// stack memory and always failed. Public-only soft derivation must equal the public key of
+    /// the soft-derived key pair.
+    func testPublicOnlySoftDerivationMatchesKeypairDerivation() throws {
+        let factory = SNKeyFactory()
+        let parent = try factory.createKeypair(fromSeed: Data(repeating: 0x2A, count: 32))
+        for byte: UInt8 in [0, 7, 0xFF] {
+            let chaincode = Data(repeating: byte, count: 32)
+            let child = try factory.createKeypairSoft(parent, chaincode: chaincode)
+            let childPublic = try factory.createPublicKeySoft(parent.publicKey(), chaincode: chaincode)
+            XCTAssertEqual(childPublic.rawData().count, 32)
+            XCTAssertEqual(childPublic.rawData(), child.publicKey().rawData())
+        }
+        XCTAssertThrowsError(try factory.createPublicKeySoft(parent.publicKey(), chaincode: Data(count: 31)))
+    }
+
     // MARK: - polkadot-js JSON
 
     func testPolkadotJsJsonImportsAsStoredAndRoundTrips() throws {

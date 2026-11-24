@@ -14,6 +14,7 @@ final class StakingRewardDestConfirmPresenter {
     let asset: AssetModel
     let logger: LoggerProtocol?
     private let wallet: MetaAccountModel
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var controllerAccount: ChainAccountResponse?
     private var stashItem: StashItem?
@@ -30,8 +31,10 @@ final class StakingRewardDestConfirmPresenter {
         chain: ChainModel,
         asset: AssetModel,
         wallet: MetaAccountModel,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.wireframe = wireframe
         self.rewardDestination = rewardDestination
@@ -101,11 +104,15 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmPresenterPr
             dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
 
         ]).runValidation { [weak self] in
-            guard let rewardDestination = self?.rewardDestination, let stashItem = self?.stashItem else { return }
+            guard let self = self else { return }
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                guard let rewardDestination = self?.rewardDestination, let stashItem = self?.stashItem else { return }
 
-            self?.view?.didStartLoading()
+                self?.view?.didStartLoading()
+                FWTransferEvents.report(.authorised, to: self?.view)
 
-            self?.interactor.submit(rewardDestination: rewardDestination.accountAddress, for: stashItem)
+                self?.interactor.submit(rewardDestination: rewardDestination.accountAddress, for: stashItem)
+            }
         }
     }
 
@@ -187,6 +194,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
             return
         }
 
+        FWTransferEvents.report(FWTransferEvents.extrinsic(result), to: view)
         switch result {
         case .success:
             wireframe.complete(from: view)

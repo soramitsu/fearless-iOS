@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import IrohaCrypto
 import UIKit
 
@@ -220,3 +221,4 @@ public class PolkadotIconGenerator: IconGenerating {
         )
     }
 }
+#endif

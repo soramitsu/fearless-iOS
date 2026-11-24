@@ -3,8 +3,22 @@ import Foundation
 class CheckPincodeWireframe: PinSetupWireframeProtocol {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
+    private let lockState: ApplicationLockState
+
+    init(lockState: ApplicationLockState = .shared) {
+        self.lockState = lockState
+    }
+
     func showMain(from view: PinSetupViewProtocol?) {
-        view?.controller.dismiss(animated: true)
+        // Without its own screen there is no lock this PIN may end.
+        guard let controller = view?.controller else {
+            return
+        }
+
+        controller.dismiss(animated: true) { [lockState, controller] in
+            // Only the lock this PIN screen holds: a newer lock shown meanwhile stays.
+            lockState.unlock(from: controller)
+        }
     }
 
     func showSignup(from _: PinSetupViewProtocol?) {

@@ -189,11 +189,24 @@ xcodebuild test -workspace fearless.xcworkspace -scheme fearless.tests \
 | device-slice machine code (shipped and new): derivation, signing, verification, refusals | arm64 simulator process (retagged device archive) | done, counts above |
 | `Sr25519KnownAnswerTests` (10 tests) with `SigningWrapperTests` and `KeystoreExportWrapperTests`, Debug, simulator slice | iOS 27.0 and iOS 26.5 simulators, 2026-10-11 | passed, 30 of 30 on each |
 | `fearless.tests` built for `generic/platform=iOS`, Debug, unsigned | this Mac, 2026-10-11 | built; the device app links `sr25519_sign_checked` from the `ios-arm64` slice and bundles the fixture |
-| `Sr25519KnownAnswerTests` on a physical iPhone, Release build | the only registered phone (iPhone 17 Pro Max, iOS 26.7) was unavailable | **open: release gate** |
+| `Sr25519KnownAnswerTests` on a physical iPhone, Debug with `SWIFT_OPTIMIZATION_LEVEL=-O` and `ENABLE_TESTABILITY=YES` | iPhone 17 Pro Max, iOS 27.0.1, 10 November 2026 | 11 passed, 0 failed, 0 skipped; scope below |
 
-The retagged run executes the device slice's own instructions on Apple-silicon cores, which
-share the arm64 ISA with iPhone CPUs, but it is not a device run: it does not cover the
-device's dynamic loader, code signing or a store-signed build. Before submitting 4.2.0, run
-the command above on a physical iPhone against the Release configuration, and keep the
-in-place upgrade from App Store 4.0.4 with a real signed transfer (test-matrix, IOS-M1) on
-the device checklist.
+The retagged run executes the device slice's instructions on Apple-silicon cores;
+it does not exercise the phone's loader or code signing. The 10 November device
+run covers those paths in a separately signed `jp.co.soramitsu.fearlesswallet.dev`
+test host built from `6063ef167142c52b69a83fe77a85689b8a20634b`. Its recorded
+uncommitted files were unrelated ExportMnemonic and iPad layout tests. The sr25519
+implementation, native libraries, signing wrappers, test code and fixtures are
+unchanged between that source and 4.2.1 (2026.11.10) source
+`5b91c912c4c05fa3806d909d16bfbfcdc932ed73`.
+
+The device run is not a test of the exact signed App Store archive or the Release
+configuration: Debug compile conditions and testability remain enabled. The test
+host was removed afterward and the installed-app inventory was unchanged. The
+production wallet was not installed over, launched or modified by this check.
+The physical TestFlight checklist and a real signed transfer remain separate.
+
+The result bundle, summary, artifact hashes and source-equivalence record are in
+`build/reports/ios-public-release-4.2.1-2026.11.10/takeover-20261110/`, including
+`device/sr25519-summary.json`, `device/provenance.json`,
+`device-test-provenance.json` and `device-run.log`.

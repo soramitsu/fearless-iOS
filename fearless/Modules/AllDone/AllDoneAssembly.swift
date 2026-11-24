@@ -9,7 +9,8 @@ final class AllDoneAssembly {
         title: String? = nil,
         description: String? = nil,
         closure: (() -> Void)? = nil,
-        isWalletConnectResult: Bool = false
+        isWalletConnectResult: Bool = false,
+        celebration: FWTransferCelebration? = nil
     ) -> AllDoneModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -32,7 +33,8 @@ final class AllDoneAssembly {
 
         let view = AllDoneViewController(
             output: presenter,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            celebration: celebration
         )
 
         return (view, presenter)

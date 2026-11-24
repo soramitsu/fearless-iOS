@@ -1,7 +1,5 @@
 import Foundation
-import WalletConnectSign
-import JSONRPC
-import Commons
+import FearlessWalletConnect
 import SoraKeystore
 import SSFModels
 import SSFSigner
@@ -9,133 +7,120 @@ import SSFCrypto
 import Web3
 
 protocol WalletConnectSigner {
-    func sign(
-        params: AnyCodable,
-        chain: ChainModel,
-        method: WalletConnectMethod
-    ) async throws -> AnyCodable
+    func sign(request: WalletConnectSigningRequest) async throws -> AnyCodable
 }
 
+/// Signs exactly what a confirmation showed, with the key of the account the session
+/// approved for the request's chain.
 final class WalletConnectSignerImpl: WalletConnectSigner {
-    private lazy var keystore: KeystoreProtocol = {
-        Keychain()
-    }()
-
-    private let wallet: MetaAccountModel
     private let policy: WalletConnectSigningPolicy
+    private let keystore: KeystoreProtocol
+    private let polkadotRuntime: WalletConnectPolkadotRuntimeProviding
+    private let ethereumConnection: (ChainModel) throws -> Web3.Eth
 
-    init(wallet: MetaAccountModel, policy: WalletConnectSigningPolicy = .production) {
-        self.wallet = wallet
+    init(
+        policy: WalletConnectSigningPolicy = .production,
+        keystore: KeystoreProtocol = Keychain(),
+        polkadotRuntime: WalletConnectPolkadotRuntimeProviding = WalletConnectPolkadotRuntimeProvider(),
+        ethereumConnection: @escaping (ChainModel) throws -> Web3.Eth = { chain in
+            guard let connection = ChainRegistryFacade.sharedRegistry.getEthereumConnection(for: chain.chainId) else {
+                throw ChainRegistryError.connectionUnavailable
+            }
+            return connection
+        }
+    ) {
         self.policy = policy
+        self.keystore = keystore
+        self.polkadotRuntime = polkadotRuntime
+        self.ethereumConnection = ethereumConnection
     }
 
-    func sign(
-        params: AnyCodable,
-        chain: ChainModel,
-        method: WalletConnectMethod
-    ) async throws -> AnyCodable {
+    func sign(request: WalletConnectSigningRequest) async throws -> AnyCodable {
         // Checked before any key is read; see `WalletConnectSigningPolicy`.
         guard policy.isEnabled else {
             throw WalletConnectSigningError.unavailable
         }
 
-        let signer: WalletConnectPayloadSigner
-        switch method {
-        case .polkadotSignTransaction:
-            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType
-            let transactionSigner = try createSigner(for: chain, cryptoType: cryptoType ?? .sr25519)
-            let signType: WalletConnectPolkadorSigner.SignType = .signTransaction(transactionSigner: transactionSigner)
-            signer = WalletConnectPolkadorSigner(signType: signType, chain: chain, wallet: wallet)
-        case .polkadotSignMessage:
-            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType
-            let transactionSigner = try createSigner(for: chain, cryptoType: cryptoType ?? .sr25519)
-            let signType: WalletConnectPolkadorSigner.SignType = .signMessage(transactionSigner: transactionSigner)
-            signer = WalletConnectPolkadorSigner(signType: signType, chain: chain, wallet: wallet)
-        case .ethereumPersonalSign:
-            let transactionSigner = try createSigner(for: chain, cryptoType: .ecdsa)
-            let signType: WalletConnectEthereumSignerImpl.SignType = .bytes(transactionSigner: transactionSigner)
-            signer = WalletConnectEthereumSignerImpl(signType: signType)
-        case .ethereumSignTransaction:
-            let transferService = try createEthereumTransferService(chain: chain)
-            let signType: WalletConnectEthereumSignerImpl.SignType = .signTransaction(
-                transferService: transferService,
-                chain: chain
-            )
-            signer = WalletConnectEthereumSignerImpl(signType: signType)
-        case .ethereumSendTransaction:
-            let transferService = try createEthereumTransferService(chain: chain)
-            let signType: WalletConnectEthereumSignerImpl.SignType = .sendTransaction(
-                transferService: transferService,
-                chain: chain
-            )
-            signer = WalletConnectEthereumSignerImpl(signType: signType)
-        case .ethereumSignTypeData, .ethereumSignTypeDataV4:
-            let transactionSigner = try createSigner(for: chain, cryptoType: .ecdsa)
-            let signType: WalletConnectEthereumSignerImpl.SignType = .bytes(transactionSigner: transactionSigner)
-            signer = WalletConnectEthereumSignerImpl(signType: signType)
+        // The wallet's account for the chain must still be the one the confirmation showed.
+        guard
+            let account = request.wallet.fetch(for: request.chain.accountRequest()),
+            account.accountId == request.account.accountId
+        else {
+            throw WalletConnectRequestError.accountNotApproved
         }
 
-        return try await signer.sign(params: params)
+        let signer: WalletConnectPayloadSigner
+        switch request.content {
+        case let .polkadotTransaction(extrinsic):
+            signer = WalletConnectPolkadorSigner(
+                signType: .signTransaction(extrinsic, transactionSigner: try createSigner(for: request)),
+                chain: request.chain,
+                cryptoType: account.cryptoType,
+                runtime: polkadotRuntime
+            )
+        case let .polkadotMessage(message):
+            signer = WalletConnectPolkadorSigner(
+                signType: .signMessage(message, transactionSigner: try createSigner(for: request)),
+                chain: request.chain,
+                cryptoType: account.cryptoType,
+                runtime: polkadotRuntime
+            )
+        case let .ethereumMessage(message):
+            signer = WalletConnectEthereumSignerImpl(
+                signType: .message(message, transactionSigner: try createSigner(for: request))
+            )
+        case let .ethereumTypedData(typedData):
+            signer = WalletConnectEthereumSignerImpl(
+                signType: .typedData(typedData, transactionSigner: try createSigner(for: request))
+            )
+        case let .ethereumTransaction(quote):
+            let transferService = try createEthereumTransferService(for: request)
+            switch request.method {
+            case .ethereumSendTransaction:
+                signer = WalletConnectEthereumSignerImpl(signType: .sendTransaction(quote, transferService: transferService))
+            default:
+                signer = WalletConnectEthereumSignerImpl(signType: .signTransaction(quote, transferService: transferService))
+            }
+        }
+
+        return try await signer.sign()
     }
 
     // MARK: - Private methods
 
-    private func createSigner(
-        for chain: ChainModel,
-        cryptoType: CryptoType
-    ) throws -> TransactionSignerProtocol {
-        let publicKeyData = try extractPublicKey(for: chain)
-        let secretKeyData = try extractPrivateKey(for: chain)
+    private func createSigner(for request: WalletConnectSigningRequest) throws -> TransactionSignerProtocol {
+        let secretKeyData = try extractPrivateKey(for: request)
 
         return TransactionSignerAssembly.signer(
-            for: chain.chainBaseType,
-            publicKeyData: publicKeyData,
+            for: request.chain.chainBaseType,
+            publicKeyData: request.account.publicKey,
             secretKeyData: secretKeyData,
-            cryptoType: cryptoType
+            cryptoType: request.chain.isEthereumBased ? .ecdsa : request.account.cryptoType
         )
     }
 
-    private func extractPrivateKey(for chain: ChainModel) throws -> Data {
-        guard let accountResponse = wallet.fetch(for: chain.accountRequest()) else {
-            throw AutoNamespacesError.requiredAccountsNotSatisfied
-        }
-        let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-        let tag: String = chain.isEthereumBased
-            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-            : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+    private func extractPrivateKey(for request: WalletConnectSigningRequest) throws -> Data {
+        let account = request.account
+        let accountId = account.isChainAccount ? account.accountId : nil
+        let tag: String = request.chain.isEthereumBased
+            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(request.wallet.metaId, accountId: accountId)
+            : KeystoreTagV2.substrateSecretKeyTagForMetaId(request.wallet.metaId, accountId: accountId)
 
-        let secretKey = try keystore.fetchKey(for: tag)
-
-        return secretKey
-    }
-
-    private func extractPublicKey(for chain: ChainModel) throws -> Data {
-        guard let response = wallet.fetch(for: chain.accountRequest()) else {
-            throw AutoNamespacesError.requiredAccountsNotSatisfied
-        }
-
-        return response.publicKey
+        return try keystore.fetchKey(for: tag)
     }
 
     private func createEthereumTransferService(
-        chain: ChainModel
+        for request: WalletConnectSigningRequest
     ) throws -> WalletConnectEthereumTransferService {
-        guard let ws = ChainRegistryFacade.sharedRegistry.getEthereumConnection(for: chain.chainId) else {
-            throw ChainRegistryError.connectionUnavailable
-        }
-
-        let secretKey = try extractPrivateKey(for: chain)
+        let connection = try ethereumConnection(request.chain)
+        let secretKey = try extractPrivateKey(for: request)
         // web3-swift expects [UInt8]; convert Data to an Array<UInt8>
         let privateKey = try EthereumPrivateKey(privateKey: Array(secretKey))
 
-        guard let senderAddress = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
-            throw AutoNamespacesError.requiredAccountsNotSatisfied
-        }
-
         return EthereumTransferService(
-            ws: ws,
+            ws: connection,
             privateKey: privateKey,
-            senderAddress: senderAddress
+            senderAddress: request.account.accountId.toHex(includePrefix: true)
         )
     }
 }

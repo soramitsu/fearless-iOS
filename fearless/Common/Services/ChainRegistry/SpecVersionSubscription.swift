@@ -66,7 +66,14 @@ extension SpecVersionSubscription: SpecVersionSubscriptionProtocol {
     func unsubscribe() {
         if let identifier = subscriptionId {
             subscriptionId = nil
-            connection.cancelForIdentifier(identifier)
+
+            // cancelForIdentifier only withdraws an unanswered request; an established
+            // subscription keeps running on the node until it is unsubscribed.
+            do {
+                try connection.unsubsribe(identifier)
+            } catch {
+                logger?.error("Unexpected chain \(chainId) unsubscription failure: \(error)")
+            }
         }
     }
 }

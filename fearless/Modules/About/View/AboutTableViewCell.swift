@@ -84,6 +84,8 @@ final class AboutTableViewCell: UITableViewCell {
     // MARK: - Private methods
 
     private func configure() {
+        // The sun-lit page shows through the list.
+        backgroundColor = .clear
         let selectedBackgroundView = UIView()
         selectedBackgroundView.backgroundColor = R.color.colorCellSelection()!
         self.selectedBackgroundView = selectedBackgroundView

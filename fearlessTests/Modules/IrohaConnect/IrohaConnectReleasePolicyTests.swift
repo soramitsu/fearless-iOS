@@ -157,6 +157,27 @@ final class IrohaConnectReleasePolicyTests: XCTestCase {
         XCTAssertEqual(notice.presentedCount, 1)
     }
 
+    /// Codex review (round 2): a notice that waited behind the PIN or the re-lock cover is shown on unlock.
+    func testStart_whenTheNoticeWaitedForTheLock_thenItIsShownOnceUnlocked() throws {
+        let notice = UnavailableNoticeSpy()
+        notice.acceptsPresentation = false
+        let notificationCenter = NotificationCenter()
+        let lockState = ApplicationLockState(notificationCenter: notificationCenter)
+        let coordinator = makeCoordinator(notice: notice, notificationCenter: notificationCenter)
+        coordinator.setup()
+        drainMainQueue()
+        let url = try XCTUnwrap(URL(string: "irohaconnect://connect?pairing=test"))
+
+        lockState.markLockPending()
+        coordinator.start(with: url)
+        XCTAssertEqual(notice.presentedCount, 0)
+
+        notice.acceptsPresentation = true
+        lockState.cancelPendingLock()
+
+        XCTAssertEqual(notice.presentedCount, 1)
+    }
+
     func testPresentLanding_whenPolicyDisabled_thenPresentsUnavailableNoticeInsteadOfLanding() {
         let notice = UnavailableNoticeSpy()
         let coordinator = makeCoordinator(notice: notice)
@@ -338,21 +359,18 @@ final class IrohaConnectReleasePolicyTests: XCTestCase {
         policy: IrohaConnectReleasePolicy? = nil
     ) -> ProfileViewModelFactory {
         let settings = InMemorySettingsManager()
-        let fetcher = AccountStatisticsFetcherStub()
         if let policy {
             return ProfileViewModelFactory(
                 iconGenerator: UniversalIconGenerator(),
                 biometry: BiometryStub(),
                 settings: settings,
-                accountScoreFetcher: fetcher,
                 irohaConnectPolicy: policy
             )
         }
         return ProfileViewModelFactory(
             iconGenerator: UniversalIconGenerator(),
             biometry: BiometryStub(),
-            settings: settings,
-            accountScoreFetcher: fetcher
+            settings: settings
         )
     }
 
@@ -439,18 +457,6 @@ private struct BiometryStub: BiometryAuthProtocol {
         completionQueue.async {
             completionBlock(false)
         }
-    }
-}
-
-private struct AccountStatisticsFetcherStub: AccountStatisticsFetching {
-    func subscribeForStatistics(
-        address _: String
-    ) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { $0.finish() }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? {
-        nil
     }
 }
 

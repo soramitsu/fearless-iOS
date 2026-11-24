@@ -12,6 +12,8 @@ is linked and also run when the simulator can execute it.
 
 --host-asan runs the source-built harnesses on macOS with AddressSanitizer and
 checks every independently specified result without using the old iOS archives.
+The old archives are in soramitsu/shared-features-spm history, which is no longer
+public; --legacy-repo takes a clone or git bundle of it.
 """
 
 import argparse
@@ -469,17 +471,45 @@ def link(sdk, target, output, header_flags, libraries, objc=False, optimization=
     return output
 
 
-def legacy_slices(vectors, stage):
+def legacy_repository(revision, source, scratch):
+    """Return a git directory holding the replaced frameworks' revision, or None.
+
+    The revision is from soramitsu/shared-features-spm, which is no longer
+    public. It is looked up in this checkout, then in `source` (a clone or a
+    git bundle of that repository), then fetched from origin.
+    """
+    def has(directory):
+        return subprocess.run(["git", "-C", str(directory), "cat-file", "-e", f"{revision}^{{commit}}"],
+                              capture_output=True).returncode == 0
+
+    if has(ROOT):
+        return ROOT
+    if source is not None:
+        if source.is_file():
+            run("git", "clone", "--bare", "--quiet", str(source), str(scratch))
+            source = scratch
+        if has(source):
+            return source
+        raise SystemExit(f"{source} does not contain {revision}")
+    if subprocess.run(["git", "-C", str(ROOT), "fetch", "--quiet", "--depth", "1", "origin", revision],
+                      capture_output=True).returncode == 0:
+        return ROOT
+    return None
+
+
+def legacy_slices(vectors, stage, source):
     """Write the replaced frameworks from git history and check their archive hashes."""
     legacy = vectors["legacy_binaries"]
     revision = legacy["revision"]
-    if subprocess.run(["git", "-C", str(ROOT), "cat-file", "-e", f"{revision}^{{commit}}"],
-                      capture_output=True).returncode:
-        run("git", "-C", str(ROOT), "fetch", "--quiet", "--depth", "1", "origin", revision)
-    paths = run("git", "-C", str(ROOT), "ls-tree", "-r", "--name-only", revision,
+    repository = legacy_repository(revision, source, stage / "legacy-repository")
+    if repository is None:
+        raise SystemExit(f"The replaced frameworks are in soramitsu/shared-features-spm {revision}, which is "
+                         "no longer public. Pass --legacy-repo with a clone or git bundle of that repository, "
+                         "or run --host-asan, which does not need them.")
+    paths = run("git", "-C", str(repository), "ls-tree", "-r", "--name-only", revision,
                 "Binaries/libed25519.xcframework", "Binaries/blake2lib.xcframework").stdout.split()
     for path in paths:
-        data = subprocess.run(["git", "-C", str(ROOT), "show", f"{revision}:{path}"],
+        data = subprocess.run(["git", "-C", str(repository), "show", f"{revision}:{path}"],
                               check=True, capture_output=True).stdout
         if path in legacy["archives"] and hashlib.sha256(data).hexdigest() != legacy["archives"][path]:
             raise SystemExit(f"{path} at {revision} does not match its recorded SHA-256")
@@ -562,6 +592,9 @@ def main():
     parser.add_argument("--xcode-products", type=Path,
                         help="Build/Products/<config>-iphonesimulator directory holding Xcode-built "
                              "libed25519.o and blake2lib.o to run as well")
+    parser.add_argument("--legacy-repo", type=Path,
+                        help="clone or git bundle of soramitsu/shared-features-spm holding the replaced "
+                             "frameworks, when this checkout does not")
     args = parser.parse_args()
     vectors = json.loads((TESTS / "vectors.json").read_text())
     rng = random.Random(args.seed)
@@ -597,7 +630,7 @@ def main():
         stage = Path(temporary)
         native.write(stage / "native.txt")
         wrappers.write(stage / "wrappers.txt")
-        binaries = legacy_slices(vectors, stage / "legacy")
+        binaries = legacy_slices(vectors, stage / "legacy", args.legacy_repo)
 
         builds = {}
         for label, sdk, target, optimization, arch in (

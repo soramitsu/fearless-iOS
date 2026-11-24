@@ -51,9 +51,6 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
         rootView.changeWalletNameButton.addAction { [weak self] in
             self?.output.changeWalletNameDidTap()
         }
-        rootView.accountScoreButton.addAction { [weak self] in
-            self?.output.accountScoreDidTap()
-        }
     }
 }
 

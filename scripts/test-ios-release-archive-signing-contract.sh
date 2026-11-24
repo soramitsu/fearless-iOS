@@ -33,6 +33,8 @@ import sys
 from pathlib import Path
 script, project_path = sys.argv[1:]
 source = Path(script).read_text()
+bootstrap = '\n"$REPO_ROOT/scripts/deps/build-tools-from-source.sh" --force\n'
+assert source.index(bootstrap) < source.index('xcodebuild "${xcodebuild_arguments[@]}"'), 'rebuild host tools before archiving'
 builds = re.findall(r'^readonly EXPECTED_BUILD="([0-9.]+)"$', source, re.MULTILINE)
 assert len(builds) == 1, 'archive must declare exactly one canonical build'
 assert re.fullmatch(r'[1-9][0-9]{0,3}(\.[0-9]{1,2}){0,2}', builds[0]), 'invalid archive build'
@@ -43,7 +45,7 @@ configurations = objects[targets[0]['buildConfigurationList']]['buildConfigurati
 release = [objects[key]['buildSettings'] for key in configurations if objects[key].get('name') == 'Release']
 assert len(release) == 1, 'production Release configuration must be unique'
 assert release[0]['CURRENT_PROJECT_VERSION'] == builds[0], 'archive/project build drift'
-assert release[0]['MARKETING_VERSION'] == '4.2.0', 'archive/project marketing version drift'
+assert release[0]['MARKETING_VERSION'] == '4.2.4', 'archive/project marketing version drift'
 PYTHON
 
 # Command-line build-setting overrides apply to every target in a workspace.

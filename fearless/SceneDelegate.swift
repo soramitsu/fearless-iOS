@@ -22,6 +22,13 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         rootPresenter = presenter
         presenter.loadOnLaunch()
         rootWindow.makeKeyAndVisible()
+        // The Ignite launch covers the start flow above and flies into its first screen; it changes nothing below.
+        FWLaunchIgnite.installIfNeeded(over: rootWindow, in: windowScene)
+        FWFeedback.shared.prepare()
+        #if DEBUG
+            FWFeelDebugSeams.install()
+            FWShikibanDebugSeams.install()
+        #endif
 
         // Scene apps receive launch URLs here, not in AppDelegate launch options.
         // Defer delivery until root setup has installed its full handler list.
@@ -47,8 +54,15 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         snapshotCover.show(in: windowScene)
     }
 
-    func sceneWillEnterForeground(_: UIScene) {
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        // A re-lock that is due, or still pending from before, goes on screen (or behind its cover) before the
+        // app-switcher cover is removed, so the app is never shown unlocked in between.
+        FearlessApplication.current?.sessionLock.willEnterForeground(in: scene as? UIWindowScene)
         snapshotCover.hide()
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        FearlessApplication.current?.sessionLock.attempt(in: scene as? UIWindowScene)
     }
 
     func sceneDidDisconnect(_: UIScene) {

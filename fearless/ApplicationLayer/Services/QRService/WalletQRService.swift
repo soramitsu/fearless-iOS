@@ -4,10 +4,16 @@ import SSFUtils
 
 /// Keeps the installed QR formats while handling optional Request amounts and
 /// separator characters in the wallet name in the app's Sora payload.
+///
+/// WalletConnect pairing codes use the `wc:` scheme (EIP-1328). The shared decoder's
+/// default matchers report `ws:` URLs as WalletConnect instead, so its WalletConnect
+/// results are refused here and `wc:` codes are matched by `WalletConnectQRMatcher`.
 final class WalletQRService: QRService {
     private let standard: QRService
     private let soraMatcher = WalletSoraQRMatcher()
+    private let walletConnectMatcher = WalletConnectQRMatcher()
     private lazy var soraService = QRServiceDefault(matchers: [soraMatcher])
+    private lazy var walletConnectService = QRServiceDefault(matchers: [walletConnectMatcher])
 
     init(standard: QRService = QRServiceDefault()) {
         self.standard = standard
@@ -28,12 +34,13 @@ final class WalletQRService: QRService {
 
     func extractQrCode(from image: UIImage) throws -> QRMatcherType {
         if let result = try? soraService.extractQrCode(from: image) { return result }
-        return try standard.extractQrCode(from: image)
+        if let result = try? walletConnectService.extractQrCode(from: image) { return result }
+        return try Self.refusingSocketAddresses(standard.extractQrCode(from: image))
     }
 
     func extractQrCode(from code: String) throws -> QRMatcherType {
         if let result = soraMatcher.match(code: code) { return result }
-        if let url = URL(string: code), url.scheme == "ws" { return .walletConnect(code) }
+        if let result = walletConnectMatcher.match(code: code) { return result }
         // The dependency exposes its other decoders through image extraction
         // only. Re-encode locally to retain the same address/Bokolo formats in
         // camera and gallery paths, without reimplementing private decoders.
@@ -48,7 +55,26 @@ final class WalletQRService: QRService {
         guard let bitmap = CIContext().createCGImage(scaled, from: scaled.extent) else {
             throw QRDecoderError.brokenFormat
         }
-        return try standard.extractQrCode(from: UIImage(cgImage: bitmap))
+        return try Self.refusingSocketAddresses(standard.extractQrCode(from: UIImage(cgImage: bitmap)))
+    }
+
+    /// The only WalletConnect result the shared decoder produces is a `ws:` URL, which is
+    /// a node address and never a pairing code.
+    private static func refusingSocketAddresses(_ result: QRMatcherType) throws -> QRMatcherType {
+        guard case .walletConnect = result else {
+            return result
+        }
+        throw QRDecoderError.brokenFormat
+    }
+}
+
+/// Matches WalletConnect pairing codes. The SDK accepts only the lowercase `wc:` prefix.
+final class WalletConnectQRMatcher: QRMatcher {
+    func match(code: String) -> QRMatcherType? {
+        guard code.hasPrefix("wc:"), URL(string: code) != nil else {
+            return nil
+        }
+        return .walletConnect(code)
     }
 }
 

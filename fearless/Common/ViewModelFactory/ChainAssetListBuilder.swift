@@ -508,9 +508,7 @@ extension ChainAssetListBuilder {
         let priceWithChangeString = [priceString, changeString].joined(separator: " ")
         let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
 
-        let color = (priceData.fiatDayChange ?? 0) > 0
-            ? R.color.colorGreen()
-            : R.color.colorRed()
+        let color = FWSunlit.Palette.change(priceData.fiatDayChange ?? 0)
 
         if let color = color {
             priceWithChangeAttributed.addAttributes(

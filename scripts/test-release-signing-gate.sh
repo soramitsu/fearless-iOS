@@ -16,8 +16,17 @@ fail() {
   exit 1
 }
 
-mkdir -p "$FIXTURE/fearless.xcworkspace" "$FIXTURE/SourcePackages/checkouts" "$FIXTURE/scripts/ci" "$BIN_DIR" "$PROFILE_DIR"
+mkdir -p "$FIXTURE/fearless.xcworkspace" "$FIXTURE/SourcePackages/checkouts" "$FIXTURE/scripts/ci" "$FIXTURE/scripts/deps" "$BIN_DIR" "$PROFILE_DIR"
 touch "$PROFILE_DIR/release.mobileprovision"
+
+cat > "$FIXTURE/scripts/deps/build-tools-from-source.sh" <<'SCRIPT'
+#!/usr/bin/env bash
+set -eu
+[[ "$#" == 1 && "$1" == --force ]] || exit 1
+if [[ "${FAKE_BOOTSTRAP_FAIL:-0}" == 1 ]]; then exit 1; fi
+: > "$FAKE_TOOLS_READY"
+SCRIPT
+chmod +x "$FIXTURE/scripts/deps/build-tools-from-source.sh"
 
 # The archive gate delegates UUID-bound symbol generation to a separately
 # tested script. This fixture proves the handoff occurs on the signed archive.
@@ -114,6 +123,7 @@ SCRIPT
 cat > "$BIN_DIR/xcodebuild" <<'SCRIPT'
 #!/usr/bin/env bash
 set -euo pipefail
+[[ -f "$FAKE_TOOLS_READY" ]] || exit 1
 archive_path=""
 saw_manual_style=0
 saw_distribution_identity=0
@@ -168,10 +178,12 @@ run_gate() {
   IOS_RELEASE_EXPECTED_PROFILE_UUID="${TEST_PROFILE_UUID:-12345678-1234-1234-1234-123456789ABC}" \
   IOS_RELEASE_PROVISIONING_PROFILE_SPECIFIER="${TEST_PROFILE_SPECIFIER:-Fearless App Store}" \
   FAKE_IDENTITY_AVAILABLE="${FAKE_IDENTITY_AVAILABLE:-1}" \
+  FAKE_BOOTSTRAP_FAIL="${FAKE_BOOTSTRAP_FAIL:-0}" \
   FAKE_XCODEBUILD_FAIL="${FAKE_XCODEBUILD_FAIL:-0}" \
   FAKE_CODESIGN_VERIFY_FAIL="${FAKE_CODESIGN_VERIFY_FAIL:-0}" \
   FAKE_MISSING_PRIVACY="${FAKE_MISSING_PRIVACY:-0}" \
   FAKE_DSYM_CALLED="$OUTPUT/dsym-called" \
+  FAKE_TOOLS_READY="$OUTPUT/built-tools" \
   GITHUB_ACTIONS="${TEST_GITHUB_ACTIONS:-false}" \
   GITHUB_EVENT_NAME="${TEST_GITHUB_EVENT_NAME:-}" \
   GITHUB_REF="${TEST_GITHUB_REF:-}" \
@@ -197,6 +209,7 @@ grep -Fq 'PASSED' "$OUTPUT/stdout" || fail "valid signed Release fixture did not
 if grep -Fq "$SECRET_SENTINEL" "$OUTPUT/stdout" "$OUTPUT/stderr"; then
   fail "valid signed Release run leaked signing identity material"
 fi
+FAKE_BOOTSTRAP_FAIL=1 expect_failure "failed build tools bootstrap"
 
 cp "$FIXTURE/profile.plist" "$FIXTURE/profile-exact-authorizations.plist"
 plutil -replace 'Entitlements.com\.apple\.developer\.associated-domains' \

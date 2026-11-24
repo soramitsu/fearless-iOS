@@ -53,6 +53,7 @@ final class BackupPasswordViewLayout: UIView {
         inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
         inputView.defaultSetup()
         inputView.animatedInputField.textField.isSecureTextEntry = true
+        SecretTextEntry.configurePassword(inputView.animatedInputField.textField)
         inputView.rightButton.isHidden = false
         inputView.rightButton.setImage(R.image.iconEye(), for: .normal)
         return inputView

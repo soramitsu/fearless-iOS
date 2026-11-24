@@ -39,8 +39,10 @@ final class UniversalWalletPasswordSwitcher {
     }
 
     /// Empty for a wallet without a password, or when every account uses it.
+    /// Listing never shows a sheet: a moved wallet whose words need the device owner lists nothing.
     func noPasswordAccounts(in wallet: MetaAccountModel) -> [UniversalWalletNoPasswordAccount] {
-        guard let root = try? mnemonicProvider.rootSecret(for: wallet), !root.passphrase.isEmpty else {
+        guard let root = try? WalletSecretAuthorization.withoutPrompt({ try mnemonicProvider.rootSecret(for: wallet) }),
+              !root.passphrase.isEmpty else {
             return []
         }
         let wordsOnly = UniversalWalletSecret(mnemonic: root.mnemonic, passphrase: "")

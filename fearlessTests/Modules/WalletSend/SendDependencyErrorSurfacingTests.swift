@@ -6,6 +6,7 @@ import RobinHood
 import SoraFoundation
 import SSFModels
 import SSFUtils
+import SSFQRService
 #if canImport(SSFAssetManagmentStorage)
     import SSFAssetManagmentStorage
 #endif
@@ -20,6 +21,16 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
     /// a test that needs another language sets it and restores this one.
     private var languageBeforeTest: String?
 
+    /// Copy and paste go to this store, not the system pasteboard. A system pasteboard read can
+    /// wait for a paste-permission answer when the content came from elsewhere, for example from
+    /// the Mac clipboard that Simulator syncs, and one such read hung a test host for minutes.
+    private final class TestPasteboard: PasteboardStringAccessing {
+        private(set) var writes = 0
+        var string: String? { didSet { writes += 1 } }
+    }
+
+    private let pasteboard = TestPasteboard()
+
     override func setUp() {
         super.setUp()
         languageBeforeTest = LocalizationManager.shared.selectedLocalization
@@ -31,6 +42,18 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
             LocalizationManager.shared.selectedLocalization = languageBeforeTest
         }
         super.tearDown()
+    }
+
+    /// A test host relaunched after another test's timeout can start the next test before its
+    /// scene is active, and the Solana form refuses to continue in an inactive scene by design.
+    @MainActor
+    private func waitForActiveScene() async throws {
+        for _ in 0 ..< 200 {
+            let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+            if UIApplication.shared.applicationState == .active, scene?.activationState == .foregroundActive { return }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        XCTFail("The test host scene did not become active")
     }
 
     // MARK: - Interactor
@@ -411,7 +434,7 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
         XCTAssertEqual(sheet.actions.map(\.title), ["Retry sending", "Copy transaction ID"])
 
         sheet.actions[1].handler?()
-        XCTAssertEqual(UIPasteboard.general.string, txid)
+        XCTAssertEqual(pasteboard.string, txid)
 
         sheet.actions[0].handler?()
         sheet.dismissCompletion?()
@@ -509,7 +532,7 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
         XCTAssertEqual(sheet.actions.map(\.title), ["Retry sending", "Copy transaction ID"])
 
         sheet.actions[1].handler?()
-        XCTAssertEqual(UIPasteboard.general.string, Self.solanaSignature)
+        XCTAssertEqual(pasteboard.string, Self.solanaSignature)
         sheet.actions[0].handler?()
         sheet.dismissCompletion?()
         XCTAssertEqual(context.interactor.retriedHashes, [Self.solanaSignature])
@@ -530,7 +553,7 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
         XCTAssertTrue(sheet.message?.contains(Self.solanaSignature) == true)
         XCTAssertEqual(sheet.actions.map(\.title), ["Copy ID"])
         sheet.actions[0].handler?()
-        XCTAssertEqual(UIPasteboard.general.string, Self.solanaSignature)
+        XCTAssertEqual(pasteboard.string, Self.solanaSignature)
         sheet.dismissCompletion?()
         XCTAssertTrue(context.interactor.retriedHashes.isEmpty)
         XCTAssertEqual(context.interactor.refreshFeeCount, 1)
@@ -611,7 +634,7 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
                 XCTAssertNil(sheet.presentingViewController)
                 XCTAssertTrue(context.interactor.retriedHashes.isEmpty)
                 XCTAssertEqual(context.interactor.refreshFeeCount, 1)
-                if category == .large { XCTAssertEqual(UIPasteboard.general.string, Self.solanaSignature) }
+                if category == .large { XCTAssertEqual(pasteboard.string, Self.solanaSignature) }
             }
         }
     }
@@ -638,7 +661,8 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
                 XCTAssertTrue(model.actions.isEmpty)
                 XCTAssertEqual(model.closeAction, bundle.localizedString(forKey: "common.close", value: nil, table: nil))
                 XCTAssertEqual(model.message, message)
-                let clipboardBefore = UIPasteboard.general.string
+                let clipboardBefore = pasteboard.string
+                let writesBefore = pasteboard.writes
                 let window = UIWindow(windowScene: scene)
                 window.frame = CGRect(x: 0, y: 0, width: 320, height: 568)
                 window.overrideUserInterfaceStyle = .dark
@@ -692,7 +716,8 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
                 XCTAssertNil(sheet.presentingViewController)
                 XCTAssertTrue(context.interactor.retriedHashes.isEmpty)
                 XCTAssertEqual(context.interactor.refreshFeeCount, 1)
-                XCTAssertEqual(UIPasteboard.general.string, clipboardBefore)
+                XCTAssertEqual(pasteboard.string, clipboardBefore)
+                XCTAssertEqual(pasteboard.writes, writesBefore, "Closing the sheet must not copy")
             }
         }
     }
@@ -1006,7 +1031,8 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
             viewModelFactory: SendViewModelFactoryStub(),
             dataValidatingFactory: SendDataValidatingFactory(presentable: router),
             wallet: AccountGenerator.generateMetaAccount(),
-            initialData: .chainAsset(chainAsset)
+            initialData: .chainAsset(chainAsset),
+            pasteboard: pasteboard
         )
         presenter.didLoad(view: view)
         return PresenterContext(
@@ -1029,7 +1055,8 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
     private func makeConfirmPresenter(
         chainAsset: ChainAsset = ChainAsset(chain: SendDependencyErrorSurfacingTests.bitcoinChain, asset: SendDependencyErrorSurfacingTests.btcAsset),
         receiver: String = "bc1qslk39wvggqa0vl8nd6jckaz54dw3vk45c5w60m",
-        scamInfo: ScamInfo? = nil
+        scamInfo: ScamInfo? = nil,
+        submissionAuthorizer: SubmissionAuthorizing = GrantingSubmissionAuthorizer()
     ) -> ConfirmContext {
         let wireframe = WalletSendConfirmWireframeSpy()
         let view = WalletSendConfirmViewStub()
@@ -1057,7 +1084,9 @@ final class SendDependencyErrorSurfacingTests: XCTestCase {
             ),
             scamInfo: scamInfo,
             feeViewModel: nil,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            submissionAuthorizer: submissionAuthorizer,
+            pasteboard: pasteboard
         )
         presenter.view = view
         return ConfirmContext(
@@ -1335,10 +1364,6 @@ private struct SendViewModelFactoryStub: SendViewModelFactoryProtocol {
     func buildNetworkViewModel(chain: ChainModel, canEdit: Bool) -> SelectNetworkViewModel {
         SelectNetworkViewModel(chainName: chain.name, iconViewModel: nil, canEdit: canEdit)
     }
-
-    func buildAccountScoreViewModel(address _: String?, chain _: ChainModel) -> AccountScoreViewModel? {
-        nil
-    }
 }
 
 private final class SendViewStub: UIViewController, SendViewInput {
@@ -1376,7 +1401,7 @@ private final class SendViewStub: UIViewController, SendViewInput {
     func didStopFeeCalculation() {}
     func didStopTipCalculation() {}
     func didReceive(viewModel _: RecipientViewModel) {}
-    func didReceive(accountScoreViewModel _: AccountScoreViewModel?) {}
+    func didReceive(recipientAddress _: String) {}
     func didBlockUserInteractive(isUserInteractiveAmount _: Bool) {}
     func setInputAccessoryView(visible _: Bool) {}
     func setHistoryButton(isVisible _: Bool) {}
@@ -1695,7 +1720,8 @@ extension SendDependencyErrorSurfacingTests {
             walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory(amountFormatterFactory: AssetBalanceFormatterFactory(),
                 assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon)), logger: nil,
             chainAsset: chainAsset, wallet: wallet, call: .transfer(transfer), scamInfo: nil, feeViewModel: nil,
-            localizationManager: LocalizationManager.shared)
+            localizationManager: LocalizationManager.shared, submissionAuthorizer: GrantingSubmissionAuthorizer(),
+            pasteboard: pasteboard)
         presenter.view = view
         interactor.presenter = presenter
         return SolanaPipelineContext(presenter: presenter, interactor: interactor, wireframe: wireframe, view: view,
@@ -1929,6 +1955,34 @@ extension SendDependencyErrorSurfacingTests {
         XCTAssertEqual(context.wireframe.completedHashes, [Self.solanaSignature])
         context.presenter.didTapConfirmButton()
         XCTAssertEqual(context.interactor.submittedCount, 1)
+    }
+
+    @MainActor
+    func testConfirmSendsNothingUntilThePinIsEnteredAndACancelKeepsConfirmUsable() {
+        let authorizer = RecordingSubmissionAuthorizer()
+        let context = makeConfirmPresenter(
+            chainAsset: ChainAsset(chain: Self.solanaChain, asset: Self.solAsset),
+            receiver: "HAgk14JpMQLgt6rVgv7cBQFJWFto5Dqxi472uT3DKpqk",
+            submissionAuthorizer: authorizer
+        )
+        var loadingStarts = 0
+        context.view.onStartLoading = { loadingStarts += 1 }
+        context.presenter.didReceiveAccountInfo(result: .success(AccountInfo(ethBalance: 2_000_000_000)), for: context.chainAsset)
+        context.presenter.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: 5000)))
+        let loadingBefore = loadingStarts
+
+        context.presenter.didTapConfirmButton()
+        XCTAssertEqual(authorizer.completions.count, 1)
+        XCTAssertEqual(context.interactor.submittedCount, 0, "Nothing is signed or sent before the PIN")
+        authorizer.answer(0, false)
+        XCTAssertEqual(context.interactor.submittedCount, 0, "A cancelled PIN sends nothing")
+        XCTAssertEqual(loadingStarts, loadingBefore, "and leaves Confirm usable")
+
+        context.presenter.didTapConfirmButton()
+        XCTAssertEqual(authorizer.completions.count, 2)
+        authorizer.answer(1, true)
+        XCTAssertEqual(context.interactor.submittedCount, 1)
+        XCTAssertEqual(loadingStarts, loadingBefore + 1)
     }
 
     @MainActor
@@ -2275,6 +2329,7 @@ extension SendDependencyErrorSurfacingTests {
 
     @MainActor
     private func makeSolanaSelectionFixture() async throws -> SolanaSelectionFixture {
+        try await waitForActiveScene()
         let account = try SolanaKeyDerivation.deriveAccount(mnemonic: SolanaPipelineKeys.phrase)
         let chainAccount = ChainAccountModel(chainId: Self.solanaChain.chainId, accountId: account.publicKey,
             publicKey: account.publicKey, cryptoType: CryptoType.ed25519.rawValue, ethereumBased: false)
@@ -2775,7 +2830,7 @@ extension SendDependencyErrorSurfacingTests {
         let presenter = SendPresenter(interactor: interactor, router: router,
             localizationManager: LocalizationManager.shared, viewModelFactory: SendViewModelFactoryStub(),
             dataValidatingFactory: validating, wallet: selection.original, initialData: .chainAsset(asset),
-            selectedWalletSettings: selection.settings)
+            selectedWalletSettings: selection.settings, pasteboard: pasteboard)
         presenter.didLoad(view: view)
         let context = PresenterContext(presenter: presenter, interactor: interactor, router: router, view: view, chainAsset: asset, validating: validating)
         presenter.searchTextDidChanged(Self.formRecipient)
@@ -3826,13 +3881,11 @@ extension SendDependencyErrorSurfacingTests {
 
     @MainActor
     func testSolanaNativeRecipientFreshNativePasteAfterClearRemainsUsable() async throws {
-        let previousPasteboard = UIPasteboard.general.items
-        defer { UIPasteboard.general.items = previousPasteboard }
         let native = try await makeNativeRecipientInput()
         defer { closeNativeAmountInput(native) }
         try nativeRecipientButton("clean", in: native.controller.rootView.searchView).sendActions(for: .touchUpInside)
         await drainNativeAmountQueue()
-        UIPasteboard.general.string = Self.otherFormRecipient
+        pasteboard.string = Self.otherFormRecipient
         let paste = try nativeRecipientButton("pasteTapped", in: native.controller.rootView.searchView)
         XCTAssertFalse(paste.isHidden)
         paste.sendActions(for: .touchUpInside)
@@ -3995,19 +4048,16 @@ extension SendDependencyErrorSurfacingTests {
             prepareDependencies: { _ in try await dependencies.wait() }
         )
         let router = SendRouterSpy()
-        let settings = InMemorySettingsManager()
-        settings.accountScoreEnabled = true
         let presenter = SendPresenter(
             interactor: interactor,
             router: router,
             localizationManager: LocalizationManager.shared,
-            viewModelFactory: SendViewModelFactory(
-                iconGenerator: UniversalIconGenerator(), accountScoreFetcher: SendScamWarningScoreFetcher(), settings: settings
-            ),
+            viewModelFactory: SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
             dataValidatingFactory: SendDataValidatingFactory(presentable: router),
             wallet: wallet,
             initialData: .chainAsset(asset),
-            tokenCatalog: CanonicalTokenGroupCatalog(data: nil, testnets: .bundled)
+            tokenCatalog: CanonicalTokenGroupCatalog(data: nil, testnets: .bundled),
+            pasteboard: pasteboard
         )
         let controller = SendViewController(initialData: .chainAsset(asset), output: presenter, localizationManager: LocalizationManager.shared)
         controller.loadViewIfNeeded()
@@ -4121,17 +4171,6 @@ private final class SendScamWarningDependencyGate {
         pending.removeAll()
         continuations.forEach { $0.resume(throwing: CancellationError()) }
     }
-}
-
-private struct SendScamWarningScoreFetcher: AccountStatisticsFetching {
-    func subscribeForStatistics(address: String) async throws -> AsyncThrowingStream<AccountStatisticsResponse, Error> {
-        AsyncThrowingStream { continuation in
-            continuation.yield(AccountStatisticsResponse(data: AccountStatistics(score: 0.8, address: address, stats: nil)))
-            continuation.finish()
-        }
-    }
-
-    func fetchStatistics(address _: String) async throws -> AccountStatisticsResponse? { nil }
 }
 
 private extension SendInteractorStub {
@@ -4294,5 +4333,53 @@ extension SendDependencyErrorSurfacingTests {
         XCTAssertTrue(
             scamWarningLabels(in: fixture.controller.rootView.scamWarningView).contains(fixture.second.warning.name)
         )
+    }
+}
+
+// MARK: - SORA QR codes
+
+extension SendDependencyErrorSurfacingTests {
+    /// A scanned SORA QR code for an asset this wallet does not offer shows the "unsupported asset" sheet. The chain
+    /// lookup finishes off the main thread, and the presenter used to build the sheet (UIKit buttons) and present it
+    /// there, so it was not reliably shown.
+    func testSoraQrCodeForAnUnsupportedAssetPresentsItsSheetOnTheMainThread() throws {
+        let context = makePresenter(chainAsset: ChainAsset(chain: Self.bitcoinChain, asset: Self.btcAsset))
+        let presented = XCTestExpectation(description: "the unsupported asset sheet is presented")
+        let threads = MainThreadRecorder()
+        context.router.sheetForwarder = { _, _ in
+            threads.record()
+            presented.fulfill()
+        }
+        let qrInfo = SoraQRInfo(
+            address: "cnVkoGs3rEMqLqY27c2nfVXJRGdzNJk2ns78DcqtppaSRe8qm",
+            rawPublicKey: Data(),
+            username: "",
+            assetId: "0x0200000000000000000000000000000000000000000000000000000000000000",
+            amount: nil
+        )
+
+        context.presenter.didFinishWith(scanType: .qrInfo(.sora(qrInfo)))
+
+        wait(for: [presented], timeout: 10)
+        XCTAssertEqual(threads.values, [true], "the sheet is built and presented on the main thread")
+        let sheet = try XCTUnwrap(context.router.presentedSheets.last)
+        XCTAssertEqual(sheet.message, R.string.localizable.errorScanQrDisabledAsset(preferredLanguages: ["en"]))
+    }
+}
+
+private final class MainThreadRecorder {
+    private let lock = NSLock()
+    private var recorded: [Bool] = []
+
+    var values: [Bool] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recorded
+    }
+
+    func record() {
+        lock.lock()
+        recorded.append(Thread.isMainThread)
+        lock.unlock()
     }
 }

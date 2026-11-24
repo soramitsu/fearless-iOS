@@ -1,0 +1,18 @@
+{
+  "commit": "tree b65075068f83e4a388d53ab385230b7b6145a32d\nparent f2a97ad0aa0a500c14c88880353c154ac2b4d64b\nauthor Kyle Fuller <kyle@fuller.li> 1623170763 +0100\ncommitter Kyle Fuller <kyle@fuller.li> 1623173289 +0100\n\nrelease: 0.9.2\n",
+  "omitted": {
+    "": [
+      "040000 tree b8db74444d3e0a650017f99fa9641e35592390db\t.github",
+      "100644 blob 9a6c034f36795b68b925f2af0d3785d7e083c83c\t.gitignore",
+      "100644 blob 20a5046368ded85110aa1c57904027baa1136c34\t.travis.yml",
+      "100644 blob 992b9644959ea41e293786236d7eff6cc76246ed\tCHANGELOG.md",
+      "100644 blob ea01accaadecd56cebef8cd68cde04e883de5c05\tCommander.png",
+      "100644 blob 4be0d24b1c180a9f8dccda4d625cfecd0fdc7de9\tCommander.podspec.json",
+      "040000 tree eae0f343c7e8cfa39ea95791a6cbab437f7d05fc\tExamples",
+      "100644 blob e86e89f969c71c6ee328a17d9fd3c49ab28c4864\tPackage.resolved",
+      "100644 blob 6b007b8e098f6edcb9d9e00d79b18f743adf4652\tPackage.swift",
+      "100644 blob 9c8bf9c0b1a56fa7d638ed3f64c2f3ee37d8a8c2\tREADME.md",
+      "040000 tree 5a2bd1d8f82100a8293b45998126f448de96c82f\tTests"
+    ]
+  }
+}

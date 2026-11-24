@@ -7,7 +7,8 @@ import SSFStorageQueryKit
 final class ChainAssetListAssembly {
     static func configureModule(
         wallet: MetaAccountModel,
-        keyboardAdoptable: Bool
+        keyboardAdoptable: Bool,
+        showsDiscovery: Bool = true
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
@@ -127,7 +128,8 @@ final class ChainAssetListAssembly {
             router: router,
             localizationManager: localizationManager,
             wallet: wallet,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            showsDiscovery: showsDiscovery
         )
 
         let bannersModule = Self.configureBannersModule(moduleOutput: presenter)

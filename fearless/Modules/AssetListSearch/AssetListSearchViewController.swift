@@ -59,7 +59,7 @@ final class AssetListSearchViewController: UIViewController, ViewHolder {
         }
 
         rootView.addAssetList(view)
-        controller.didMove(toParent: self)
+        assetListViewController.didMove(toParent: self)
     }
 
     // MARK: - Actions

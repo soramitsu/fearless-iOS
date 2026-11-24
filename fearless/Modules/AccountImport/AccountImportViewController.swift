@@ -24,6 +24,12 @@ final class AccountImportViewController: UIViewController, ViewHolder {
     private var importContainerInteraction: [(UIView, Bool)]?
     var keyboardHandler: KeyboardHandler?
 
+    /// The phrase or raw seed being typed.
+    private lazy var captureGuard = SecretCaptureGuard(
+        owner: self,
+        languages: { [weak self] in self?.locale.rLanguages }
+    )
+
     private var locale: Locale {
         localizationManager?.selectedLocale ?? Locale.current
     }
@@ -56,6 +62,7 @@ final class AccountImportViewController: UIViewController, ViewHolder {
         setupKeyboardHandler()
 
         navigationController?.isNavigationBarHidden = false
+        captureGuard.start()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -74,6 +81,7 @@ final class AccountImportViewController: UIViewController, ViewHolder {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()
+        captureGuard.stop()
     }
 
     override func viewDidLayoutSubviews() {
@@ -320,6 +328,10 @@ extension AccountImportViewController: AccountImportViewProtocol {
             rootView.passwordTextField.text = nil
             rootView.textView.text = nil
         }
+        // The phrase or seed editor, the chosen keystore (shown verbatim; it can hold an
+        // unencrypted key) and the derivation paths (which can hold a password). Hidden
+        // arranged subviews collapse, so their covers do too.
+        captureGuard.protect([rootView.textViewContainer, rootView.uploadViewContainer, rootView.advancedContainerView])
 
         rootView.warningContainerView.isHidden = true
 

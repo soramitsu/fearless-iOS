@@ -41,14 +41,9 @@ final class WalletsManagmentAssembly {
         )
         let router = WalletsManagmentRouter()
 
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerDefault(),
-            signer: NomisRequestSigner()
-        )
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
         let viewModelFactory = WalletsManagmentViewModelFactory(
-            assetBalanceFormatterFactory: assetBalanceFormatterFactory,
-            accountScoreFetcher: accountScoreFetcher
+            assetBalanceFormatterFactory: assetBalanceFormatterFactory
         )
 
         let presenter = WalletsManagmentPresenter(

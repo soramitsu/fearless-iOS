@@ -13,10 +13,6 @@
 @_exported import Web3PromiseKit
 #endif
 
-#if canImport(Cosmos)
-@_exported import Cosmos
-#endif
-
 #if canImport(Swime)
 @_exported import Swime
 #endif
@@ -37,20 +33,8 @@
 @_exported import SwiftyBeaver
 #endif
 
-#if canImport(WalletConnectSign)
-@_exported import WalletConnectSign
-#endif
-
-#if canImport(WalletConnectNetworking)
-@_exported import WalletConnectNetworking
-#endif
-
-#if canImport(WalletConnectPairing)
-@_exported import WalletConnectPairing
-#endif
-
-#if canImport(ReownWalletKit)
-@_exported import ReownWalletKit
+#if canImport(FearlessWalletConnect)
+@_exported import FearlessWalletConnect
 #endif
 
 #if canImport(TonAPI)

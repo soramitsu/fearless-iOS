@@ -62,8 +62,11 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private let eventCenter: EventCenterProtocol
     private let fallbackSettings: PolkaswapRemoteSettings?
 
+    static let quoteTimeout: TimeInterval = 10
+
     private var dexIds: [UInt32] = []
     private var listeningSubscription: [String] = []
+    private var blockSubscriptionGeneration: UInt64 = 0
 
     init(
         xorChainAsset: ChainAsset,
@@ -225,25 +228,22 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
     }
 
     func fetchQuotes(with params: PolkaswapQuoteParams) {
-        var allOperations: [Operation] = []
         let batch = PolkaswapOperationBatch<SwapValues>(expectedCount: dexIds.count)
 
+        // Straight to the socket: no operation queue slot or blocked thread stands between the user and a quote.
         dexIds.forEach { dexId in
-            let quotesOperation = operationFactory
-                .createPolkaswapQuoteOperation(dexId: dexId, params: params)
-
-            quotesOperation.completionBlock = { [dexId] in
-                do {
-                    var result = try quotesOperation.extractNoCancellableResultData()
-                    result.dexId = dexId
-                    batch.complete(.success(result))
-                } catch {
-                    batch.complete(.failure(error))
-                }
+            operationFactory.fetchQuote(
+                dexId: dexId,
+                params: params,
+                timeout: Self.quoteTimeout
+            ) { result in
+                batch.complete(result.map { value in
+                    var quote = value
+                    quote.dexId = dexId
+                    return quote
+                })
             }
-            allOperations.append(quotesOperation)
         }
-        operationManager.enqueue(operations: allOperations, in: .transient)
 
         batch.notify(on: .main) { [weak self] values, errors in
             self?.output?.didReceiveSwapValues(
@@ -258,10 +258,14 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         listeningSubscription.removeAll()
         unsubscribePool()
 
+        // The node keeps a replaced subscription alive, so updates from an older one must not refresh quotes.
+        blockSubscriptionGeneration &+= 1
+        let generation = blockSubscriptionGeneration
+
         subscriptionService.subscribeToBlocks { [weak self] update in
             let subscription = update.params.subscription
             DispatchQueue.main.async { [weak self] in
-                guard let self else {
+                guard let self, generation == self.blockSubscriptionGeneration else {
                     return
                 }
                 if self.listeningSubscription.contains(subscription) {

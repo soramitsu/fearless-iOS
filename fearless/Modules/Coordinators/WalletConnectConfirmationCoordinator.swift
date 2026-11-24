@@ -3,6 +3,12 @@ import Foundation
 final class WalletConnectConfirmationCoordinator: DefaultCoordinator, CoordinatorFinishOutput {
     private let router: WalletConnectCoordinatorRouter
     private let inputData: WalletConnectConfirmationInputData
+    private weak var moduleInput: WalletConnectConfirmationModuleInput?
+
+    /// True while the confirmation signs: the PIN screen may be up.
+    var isSigning: Bool {
+        moduleInput?.isSigning ?? false
+    }
 
     init(
         router: WalletConnectCoordinatorRouter,
@@ -29,6 +35,7 @@ final class WalletConnectConfirmationCoordinator: DefaultCoordinator, Coordinato
         guard let controller = module?.view.controller else {
             return
         }
+        moduleInput = module?.input
         controller.addOnInteractionDismiss { [weak self] in
             self?.finishFlow?()
         }

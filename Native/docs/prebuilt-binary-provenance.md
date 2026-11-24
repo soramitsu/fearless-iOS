@@ -7,95 +7,62 @@ Three of the wallet's native binaries were already accounted for:
 - `libed25519` and `blake2lib` are now built from pinned C sources; see
   [ed25519-blake2-native-provenance.md](ed25519-blake2-native-provenance.md).
 
-Two prebuilt binaries remain. This record states what each is, where it came
-from, and what reproducing it would take. Neither has been rebuilt yet.
+`sorawallet.xcframework`, a closed-source Kotlin/Native framework built in
+February 2024 from an unpublished revision of `soramitsu/x-networking`, was
+removed on 2026-11-07. The wallet used it only to read Polkaswap pool
+strategic-bonus APY. That query is now plain Swift in
+`Sources/SSFPolkaswap/PolkaswapAPYWorker.swift`, sent to the Soramitsu indexer
+(`https://pi.soramitsu.io/graphql`) that the wallet already uses for SORA
+prices. The framework's configured SubQuery endpoint
+(`api.subquery.network/sq/sora-xor/sora-prod`) answered HTTP 503 on that date.
 
-## sorawallet.xcframework
+The prebuilt `yttrium` libraries (`libyttrium.xcframework` and
+`libyttrium-utils.xcframework`) that came in through `reown-swift` were removed
+with it on 2026-11-07: `reown-swift` is under the WalletConnect Community
+License, which is not open source. The wallet now speaks WalletConnect with its
+own open-source client, `Packages/FearlessWalletConnect` (see
+`docs/walletconnect-protocol.md`), which uses only Apple's system frameworks.
 
-`Binaries/sorawallet.xcframework` is a dynamic Kotlin/Native framework, bundle
-identifier `jp.co.soramitsu.xnetworking.sorawallet.sorawallet`. It provides the
-SORA history, fiat and configuration clients that `SSFPolkaswap` imports, and
-`IrohaCrypto` links it. It was added in `67eebf2` (2024-02-05) and has not
-changed since.
+## macOS sr25519 framework
 
-| Slice | Executable SHA-256 | Notes |
-| --- | --- | --- |
-| iOS arm64 | `acaf61f4a79fd5e33002a24298f36c981249752d411a60d01182f197d671a214` | Minimum iOS 12.0, SDK 16.1, UUID `35E44070-F4E3-3FEB-9268-AB810C1A56A4`, matching the bundled dSYM |
-| iOS simulator arm64/x86_64 | `8edddc4081fd9182ff37acc8c6386e4290768f7d93e238ffd34080b0829a23f1` | |
+The macOS 14 static framework contains arm64 and x86_64 archives from the same
+Apache-2.0 sr25519 crate, Cargo.lock and Rust 1.97.1 toolchain as iOS. The
+crate uses the wallet's existing C ABI. Each architecture includes the
+framework version symbols from `native/sr25519lib_vers.c`. The universal
+archive has SHA-256
+`201f93acf248ba4638d94f3e555a6f5163228d8e9d4072806c8d64a320fe7d06`.
+The versioned framework uses relative bundle symlinks and an ad hoc code
+signature. The two iOS directories retain the same SHA-256 for all 19 files.
 
-The bundled dSYMs record the build:
+From `Native/`, run these commands on a Mac with Xcode and the pinned Rust
+toolchain installed. The first command adds or replaces only the macOS slice
+and its outer plist entry. Omit its flag for a complete platform rebuild.
 
-- **Compiler.** The DWARF producer is `kotlin-compiler: 1.9.10`, built with
-  Gradle 8.2.
-- **Sources.** They came from a developer's local checkout of
-  [soramitsu/x-networking](https://github.com/soramitsu/x-networking), modules
-  `lib/basic` and `lib/sorawallet`.
-- **Libraries.** The dSYMs also reference SQLDelight 1.x with SQLiter, Stately,
-  multiplatform-settings, Ktor client and kotlinx.serialization, all built by
-  their upstream CI.
+```sh
+CARGO_TARGET_DIR="$PWD/.build-codex/rust" python3 scripts/build-sr25519-xcframework.py --add-macos-slice
+python3 scripts/test-sr25519-native.py --macos-only
+```
 
-The public x-networking history starts on 2024-05-29. v0.2.12 (`8040fe2`,
-2024-05-31) imports the earlier codebase as a single commit. The exact revision
-this February 2024 framework was built from is not published.
+The test links the C and Objective-C harnesses for both architectures and
+runs them on the host architecture. It checks the framework layout and
+deployment floor, legacy keypair and derivation vectors, signature verification
+and the Objective-C signer's error handling. The recorded runs exercised
+arm64 natively and x86_64 under Rosetta on the same Mac. To repeat the Intel
+run with Apple's universal Python, use
+`arch -x86_64 /usr/bin/python3 scripts/test-sr25519-native.py --macos-only`.
 
-To reproduce it:
+On this Xcode 27.2 host, dyld rejected LINKEDIT alignment in Rust host compiler
+plugins linked against the 27.2 SDK. For a cold build use the installed
+Command Line Tools 26.5 SDK for Cargo:
 
-1. Pin a source revision. Compare the framework's exported Objective-C header
-   with `lib/sorawallet` and `lib/basic` at v0.2.12, or obtain the original
-   revision from its author.
-2. Build with Kotlin 1.9.10 and Gradle 8.2, with dependency versions locked as
-   at that revision.
-3. Compare code sections and exported symbols rather than whole files.
-   Kotlin/Native embeds absolute source paths in its debug info, and dynamic
-   frameworks carry an ad hoc or developer signature.
+```sh
+SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk \
+  CARGO_TARGET_DIR="$PWD/.build-codex/rust" \
+  python3 scripts/build-sr25519-xcframework.py --add-macos-slice
+```
 
-## yttrium (reown)
-
-yttrium is not in this package. The wallet gets it through
-`reown-swift` 1.8.0, which depends on `https://github.com/reown-com/yttrium`
-exactly at 0.9.75 (`3c8222684e5164af98027494226071d720e6e1d1`). That revision's
-`Package.swift` declares two checksum-pinned binary targets. SwiftPM refuses a
-download whose SHA-256 differs from the declared checksum.
-
-| Binary target | Release asset | Checksum |
-| --- | --- | --- |
-| `YttriumXCFramework` | `releases/download/0.9.75/libyttrium.xcframework.zip` | `7e1f54b3379cc0d53a165636868a8d823d8a6efdb37c772ca33bc2a7b6c9c978` |
-| `YttriumUtilsXCFramework` | `releases/download/0.9.74/libyttrium-utils.xcframework.zip` | `9a54019eb2899f9d6e98afa0804e21e2a0dc1b444f7196621feb79d8081c4732` |
-
-Both are static Rust libraries with UniFFI bindings.
-
-- **CI build.** They were built by yttrium's `release-swift.yml` and
-  `release-swift-utils.yml` GitHub Actions workflows on `macos-latest-xlarge`.
-  The workflows run `rustup update stable`, `make setup-thirdparty` and
-  `make build-xcframework`, then compute the checksum with
-  `swift package compute-checksum` and open the release pull request.
-- **Release commits.** That pull request commit, `3c82226`, sits on `5281e48`
-  for 0.9.75. For 0.9.74, `2cf70a0` sits on `8347d50`.
-- **Rust toolchain.** The workflows install whatever stable Rust is current.
-  The libraries' embedded panic paths name
-  `/rustc/1159e78c4747b02ef996e55082b704c09b970588`, which is Rust 1.90.0
-  (2025-09-14).
-- **Build environment.** The embedded crate paths
-  (`/Users/runner/.cargo/registry/...`) show a GitHub-hosted runner. Crate
-  versions are pinned by the repository's `Cargo.lock`. The objects target
-  iOS 13.0.
-
-The libraries as extracted by SwiftPM have these hashes:
-
-| Library | SHA-256 |
-| --- | --- |
-| `libyttrium.a`, iOS arm64 | `97ecd398caa47c269149669a313048d5bd69c3ea64b1fa7cd64324cc738c2ccb` |
-| `libyttrium.a`, iOS simulator | `4f31b77c9484dbd3d03c90a56217caffde53370034cd0baccbb024892cbad877` |
-| `libyttrium-utils.a`, iOS arm64 | `b4cc2972ce64a3624db8e78cd5efbb76af2bb711f122bc75fe2ede0a5185076e` |
-| `libyttrium-utils.a`, iOS simulator | `6e133e4c7db0e4535c1d705d9a6226d30b591c6f55d0e1c22218f694920304a8` |
-
-To reproduce them:
-
-1. Check out the commits above with submodules.
-2. Install Rust 1.90.0 with the iOS device and simulator targets, and the Xcode
-   version named in the release workflow's log.
-3. Run `make build-xcframework` (or `make build-utils-xcframework`). Build
-   under `/Users/runner/work/yttrium/yttrium`, or remap that path with
-   `--remap-path-prefix`.
-4. Compare the static libraries. The zip checksums cannot match because zip
-   records file times.
+From an empty Cargo target directory this produced the same SHA-256 digests
+for all ten macOS framework files and the outer XCFramework plist. Xcode's
+explicit `xcrun --sdk macosx` steps still use the active Xcode SDK. The file
+digests and relative symlink destinations are recorded in
+`config/native-sources.json`.

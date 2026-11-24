@@ -259,7 +259,7 @@ class SubqueryHistoryOperationFactory {
                     asset: asset
                 )
                 return manager.merge(
-                    subscanItems: remoteTransactions,
+                    subscanItems: filteredTransactions,
                     localItems: localTransactions
                 )
             } else {

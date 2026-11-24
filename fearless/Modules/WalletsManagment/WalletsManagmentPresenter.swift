@@ -194,10 +194,6 @@ extension WalletsManagmentPresenter: WalletsManagmentViewOutput {
         interactor.setup(with: self)
     }
 
-    func didTapAccountScore(address: String?) {
-        router.presentAccountScore(address: address, from: view)
-    }
-
     func didTapRecordsNotice() {
         let preferredLanguages = selectedLocale.rLanguages
         // The sheet closes before its action runs, so the import choices are

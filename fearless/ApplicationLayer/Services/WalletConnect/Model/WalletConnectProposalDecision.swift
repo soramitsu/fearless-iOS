@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 
 enum WalletConnectProposalDecision {
     case approve(proposal: Session.Proposal, namespaces: [String: SessionNamespace])

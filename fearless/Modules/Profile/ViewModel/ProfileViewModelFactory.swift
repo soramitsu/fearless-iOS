@@ -26,12 +26,13 @@ enum ProfileOption: UInt, CaseIterable {
     case changePincode
     case biometry
     case about
-    case accountScore
     case networkAssets
     case tonConnect
     case irohaConnect
     case previousData
     case emergencyMaterial
+    case soundEffects
+    case hapticFeedback
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -41,8 +42,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private let biometry: BiometryAuthProtocol
     private let settings: SettingsManagerProtocol
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
-    private let accountScoreFetcher: AccountStatisticsFetching
     private let irohaConnectPolicy: IrohaConnectReleasePolicy
+    private let feedbackSettings: FWFeedbackSettings
 
     // MARK: - Constructors
 
@@ -50,13 +51,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         iconGenerator: IconGenerating,
         biometry: BiometryAuthProtocol,
         settings: SettingsManagerProtocol,
-        accountScoreFetcher: AccountStatisticsFetching,
-        irohaConnectPolicy: IrohaConnectReleasePolicy = .production
+        irohaConnectPolicy: IrohaConnectReleasePolicy = .production,
+        feedbackSettings: FWFeedbackSettings = .shared
     ) {
+        self.feedbackSettings = feedbackSettings
         self.iconGenerator = iconGenerator
         self.biometry = biometry
         self.settings = settings
-        self.accountScoreFetcher = accountScoreFetcher
         self.irohaConnectPolicy = irohaConnectPolicy
     }
 
@@ -116,15 +117,11 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             )
         }
 
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
-
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
             fiatBalance: fiatBalance,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel,
             balanceCaption: balance?.allHoldingsCaption
         )
     }
@@ -157,8 +154,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
-            case .accountScore:
-                return createAccountScoreViewModel(locale: locale)
             case .networkAssets:
                 return createNetworkAssetsViewModel()
             case .tonConnect:
@@ -180,6 +175,24 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 )
             case .irohaConnect:
                 return irohaConnectPolicy.isEnabled ? createIrohaConnectViewModel() : nil
+            case .soundEffects:
+                return ProfileOptionViewModel(
+                    title: FWFeelText.string("fw.feedback.sound_effects", locale: locale),
+                    icon: UIImage(systemName: "speaker.wave.2"),
+                    accessoryTitle: nil,
+                    accessoryImage: nil,
+                    accessoryType: .switcher(feedbackSettings.soundEnabled),
+                    option: .soundEffects
+                )
+            case .hapticFeedback:
+                return ProfileOptionViewModel(
+                    title: FWFeelText.string("fw.feedback.haptic_feedback", locale: locale),
+                    icon: UIImage(systemName: "hand.tap"),
+                    accessoryTitle: nil,
+                    accessoryImage: nil,
+                    accessoryType: .switcher(feedbackSettings.hapticsEnabled),
+                    option: .hapticFeedback
+                )
             }
         }
     }
@@ -347,17 +360,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         )
     }
 
-    private func createAccountScoreViewModel(locale: Locale) -> ProfileOptionViewModel? {
-        ProfileOptionViewModel(
-            title: R.string.localizable.profileAccountScoreTitle(preferredLanguages: locale.rLanguages),
-            icon: R.image.iconProfleAccountScore(),
-            accessoryTitle: nil,
-            accessoryImage: nil,
-            accessoryType: .switcher(settings.accountScoreEnabled ?? false),
-            option: .accountScore
-        )
-    }
-
     // MARK: Additional
 
     private func getDayChangeAttributedString(
@@ -374,9 +376,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let priceWithChangeString = [dayChangePercent, dayChangeValue].joined(separator: " ")
         let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
 
-        let color = dayChange > 0
-            ? R.color.colorGreen()
-            : R.color.colorRed()
+        let color = FWSunlit.Palette.change(dayChange)
 
         if let color = color, let colorLightGray = R.color.colorStrokeGray() {
             priceWithChangeAttributed.addAttributes(

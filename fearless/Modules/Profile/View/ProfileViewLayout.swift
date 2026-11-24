@@ -7,12 +7,17 @@ final class ProfileViewLayout: UIView {
     private(set) var usesColumns = false
     var columnsDidChange: (() -> Void)?
 
+    private let sunlitBackground = FWSunlitBackgroundView()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = R.color.colorBlack()
+        backgroundColor = FWSunlit.Palette.background
+        addSubview(sunlitBackground)
+        sunlitBackground.snp.makeConstraints { make in make.edges.equalToSuperview() }
         for table in [tableView, secondaryTableView] {
-            table.backgroundColor = R.color.colorBlack()
+            table.backgroundColor = .clear
             table.separatorStyle = .none
+            table.sectionHeaderTopPadding = 8
             table.alwaysBounceVertical = false
             table.register(
                 UINib(resource: R.nib.profileTableViewCell),

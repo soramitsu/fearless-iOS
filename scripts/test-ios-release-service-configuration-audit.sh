@@ -78,7 +78,7 @@ class AuditTests(unittest.TestCase):
 
     def test_valid_preflight_allows_empty_source_plist_and_optional_settings(self):
         result = A.audit(self.root)
-        self.assertEqual(33, len(result['fields']))
+        self.assertEqual(31, len(result['fields']))
         self.assertEqual(len(A.REQUIRED), sum(f['required'] for f in result['fields'].values()))
         self.assertTrue(all(not row['present'] and row['sha256'] is None for name, row in result['fields'].items() if name not in A.REQUIRED))
         encoded = json.dumps(result)
@@ -113,7 +113,13 @@ class AuditTests(unittest.TestCase):
         retired = ('SoraCardCIKeys.', 'PayWingsCIKeys.', 'XOneCIKeys.')
         self.assertEqual([], [name for name in SCHEMA if name.startswith(retired)])
         self.assertFalse(any(name.startswith(retired) for name in A.REQUIRED))
-        self.assertTrue({'MoonPayCIKeys.secretKey', 'MoonPayCIKeys.testSecretKey', 'MoonPayCIKeys.publicKey'} <= set(SCHEMA))
+        self.assertIn('MoonPayCIKeys.publicKey', set(SCHEMA))
+        self.assertFalse({'MoonPayCIKeys.secretKey', 'MoonPayCIKeys.testSecretKey'} & set(SCHEMA))
+
+    def test_retired_nomis_settings_are_not_in_the_schema(self):
+        # The Nomis account score was removed; its credentials must not return to signed builds.
+        self.assertEqual([], [name for name in SCHEMA if name.startswith('NomisApiKeys.')])
+        self.assertFalse(any(name.startswith('NomisApiKeys.') for name in A.REQUIRED))
 
     def test_dwellir_is_optional_with_catalog_connection_fallback(self):
         field = 'DwellirNodeApiKey.dwellirApiKey'
@@ -179,7 +185,7 @@ class AuditTests(unittest.TestCase):
                 A.validate_values(candidate, SCHEMA)
 
     def test_literal_escaped_quote_backslash_is_read_without_evaluation(self):
-        self.fields['MoonPayCIKeys.secretKey'] = 'safe-quote-"-backslash-\\-literal'
+        self.fields['MoonPayCIKeys.publicKey'] = 'safe-quote-"-backslash-\\-literal'
         parsed = A.parse_declarations(generated(self.fields))
         self.assertEqual(self.fields, parsed)
         A.validate_values(parsed, SCHEMA)

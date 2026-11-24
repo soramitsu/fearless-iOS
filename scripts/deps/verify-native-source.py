@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -27,7 +28,35 @@ def owned_path(root, relative):
     return path
 
 
-def verify(root):
+def binary_inventory(native):
+    """Regular files and symlinks under Native/Binaries, without following links.
+
+    Versioned macOS framework bundles link `Headers`, `Modules`, `Resources`, the
+    binary and `Versions/Current` into `Versions/A`. Each link must be relative,
+    must stay inside its own framework bundle and must point at something that exists.
+    """
+    files, links = set(), {}
+    binaries = native / "Binaries"
+    for directory, folders, names in os.walk(binaries, followlinks=False):
+        current = Path(directory)
+        for name in folders + names:
+            path = current / name
+            relative = path.relative_to(native).as_posix()
+            if path.is_symlink():
+                target = os.readlink(path)
+                if os.path.isabs(target) or not target or "\\" in target:
+                    raise ValueError("Native binary symlink must be relative: " + relative)
+                bundle = next((parent for parent in path.parents if parent.suffix == ".framework"), None)
+                resolved = Path(os.path.normpath(path.parent / target))
+                if bundle is None or (resolved != bundle and bundle not in resolved.parents) or not resolved.exists():
+                    raise ValueError("Native binary symlink escapes its framework: " + relative)
+                links[relative] = target
+            elif path.is_file():
+                files.add(relative)
+    return files, links
+
+
+def verify(root, source_packages=None):
     root = Path(root).resolve()
     native = owned_path(root, "Native")
     if native.is_symlink() or (native / ".git").exists():
@@ -85,16 +114,21 @@ def verify(root):
     binaries = contract.get("nativeBinaries")
     if not isinstance(binaries, dict) or not binaries:
         raise ValueError("Native binary provenance is missing")
-    actual_files = {path.relative_to(native).as_posix() for path in (native / "Binaries").rglob("*") if path.is_file()}
+    symlinks = contract.get("nativeBinarySymlinks", {})
+    if not isinstance(symlinks, dict) or not all(isinstance(target, str) for target in symlinks.values()):
+        raise ValueError("Invalid native binary symlink record")
+    actual_files, actual_symlinks = binary_inventory(native)
     if actual_files != set(binaries):
         raise ValueError("Native binary inventory differs from its provenance record")
+    if actual_symlinks != symlinks:
+        raise ValueError("Native binary symlinks differ from their provenance record")
     if (root / ".git").exists():
         tracked = subprocess.run(
             ["git", "ls-files", "-z", "--", "Native/Binaries"], cwd=root,
             check=True, capture_output=True,
         ).stdout.decode().split("\0")
         tracked_binaries = {path.removeprefix("Native/") for path in tracked if path}
-        if tracked_binaries != set(binaries):
+        if tracked_binaries != set(binaries) | set(symlinks):
             raise ValueError("Native binary provenance must match tracked files; ignored local files cannot qualify a clean checkout")
     if (root / ".git").exists():
         tracked = subprocess.run(
@@ -114,15 +148,70 @@ def verify(root):
         path = owned_path(native, relative)
         if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
             raise ValueError("Native binary bytes changed: " + relative)
-    return {"ownership": contract["ownership"], "sourceFiles": source_files, "nativeBinaryFiles": len(binaries), "externalPackages": len(pins)}
+    result = {"ownership": contract["ownership"], "sourceFiles": source_files, "nativeBinaryFiles": len(binaries), "externalPackages": len(pins)}
+    if source_packages:
+        result["verifiedCheckouts"] = verify_checkouts(Path(source_packages), pins)
+    return result
+
+
+def checkout_name(pin):
+    """SwiftPM names a checkout after the last component of the repository URL."""
+    location = str(pin.get("location", "")).rstrip("/")
+    name = location.rsplit("/", 1)[-1]
+    if name.endswith(".git"):
+        name = name[:-4]
+    if not name or name in (".", "..") or "/" in name:
+        raise ValueError("Unusable SwiftPM location for " + str(pin.get("identity")))
+    return name
+
+
+def git_output(checkout, *arguments):
+    completed = subprocess.run(
+        # A verifier must not write: no index refresh, no locks.
+        ["git", "--no-optional-locks", "-C", str(checkout), *arguments],
+        check=False, capture_output=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError("Git cannot read resolved checkout " + checkout.name)
+    return completed.stdout.decode("utf-8", "replace")
+
+
+def verify_checkouts(source_packages, pins):
+    """Every pinned package must be checked out at exactly its pinned commit, unmodified.
+
+    Before 4.2.1 the callers passed SOURCE_PACKAGES_DIR but nothing read it, so a
+    tampered or moved checkout in the build's package directory went unnoticed.
+    """
+    checkouts = source_packages / "checkouts"
+    if not checkouts.is_dir():
+        raise ValueError("SOURCE_PACKAGES_DIR has no checkouts directory: " + str(source_packages))
+    verified = 0
+    for pin in pins:
+        revision = pin.get("state", {}).get("revision", "")
+        checkout = checkouts / checkout_name(pin)
+        if checkout.is_symlink() or not checkout.is_dir():
+            raise ValueError("Missing resolved checkout for " + str(pin.get("identity")))
+        head = git_output(checkout, "rev-parse", "HEAD").strip()
+        if head != revision:
+            raise ValueError("Resolved checkout " + checkout.name + " is at " + head[:12] + ", pinned " + revision[:12])
+        changes = git_output(checkout, "status", "--porcelain", "--untracked-files=all", "--ignore-submodules=none")
+        if changes.strip():
+            raise ValueError("Resolved checkout " + checkout.name + " differs from its pinned commit")
+        verified += 1
+    return verified
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", nargs="?", default=".")
+    parser.add_argument(
+        "--source-packages",
+        default=os.environ.get("SOURCE_PACKAGES_DIR", ""),
+        help="SwiftPM source packages directory whose checkouts must match the pins (default: $SOURCE_PACKAGES_DIR)",
+    )
     args = parser.parse_args()
     try:
-        result = verify(Path(args.root))
+        result = verify(Path(args.root), source_packages=args.source_packages or None)
     except (OSError, ValueError, TypeError, KeyError) as error:
         parser.exit(1, "[native-source] " + str(error) + "\n")
     print("[native-source] " + json.dumps(result, sort_keys=True))

@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import UIKit
 
 public final class PolkadotIconView: UIView {
@@ -23,3 +24,4 @@ public final class PolkadotIconView: UIView {
         }
     }
 }
+#endif

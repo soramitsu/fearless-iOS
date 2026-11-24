@@ -2,12 +2,13 @@ import Foundation
 import SSFModels
 
 enum UniversalWalletRegistry {
-    static let bitcoinMainnetIndexerBaseURL = URL(string: "https://mempool.space/api")!
-    static let bitcoinTestnetIndexerBaseURL = URL(string: "https://mempool.space/testnet/api")!
+    /// The Esplora service the wallet asks first, as web and Android do.
+    static let bitcoinMainnetIndexerBaseURL = URL(string: "https://blockstream.info/api")!
+    static let bitcoinTestnetIndexerBaseURL = URL(string: "https://blockstream.info/testnet/api")!
     /// A second public Esplora service. Balances, fee estimates and broadcasts fail over to it
-    /// when mempool.space is unreachable or rate limits the app.
-    static let bitcoinMainnetFallbackIndexerBaseURL = URL(string: "https://blockstream.info/api")!
-    static let bitcoinTestnetFallbackIndexerBaseURL = URL(string: "https://blockstream.info/testnet/api")!
+    /// when blockstream.info is unreachable or rate limits the app.
+    static let bitcoinMainnetFallbackIndexerBaseURL = URL(string: "https://mempool.space/api")!
+    static let bitcoinTestnetFallbackIndexerBaseURL = URL(string: "https://mempool.space/testnet/api")!
     static let bitcoinIconURL = URL(
         string: "https://bitcoin.org/img/icons/logotop.svg"
     )!
@@ -89,7 +90,7 @@ enum UniversalWalletRegistry {
         )
         let indexerNode = ChainNodeModel(
             url: bitcoinMainnet.indexerBaseURL,
-            name: "Mempool.space Public API",
+            name: "Blockstream.info Public API",
             apikey: nil
         )
         let history = ChainModel.BlockExplorer(
@@ -583,11 +584,15 @@ enum UniversalWalletAccountProvisioning {
     /// `passphrase` is the wallet password. A missing network gets the account that password
     /// protects unless `enrollment` keeps the one the words alone open (see
     /// `UniversalWalletPasswordEnrollment`); an account already present is never replaced.
+    ///
+    /// The phrase is in hand here, so the public descriptor of each Bitcoin account the result
+    /// holds is saved to `descriptorStore`: refresh then covers every address without the phrase.
     static func addingMissingAppOwnedAccounts(
         to wallet: MetaAccountModel,
         mnemonic: String,
         passphrase: String = "",
-        enrollment: UniversalWalletPasswordEnrollment = .unchecked
+        enrollment: UniversalWalletPasswordEnrollment = .unchecked,
+        descriptorStore: BitcoinAccountDescriptorStore? = .shared
     ) throws -> MetaAccountModel {
         var accounts = wallet.chainAccounts
         let slots: [UniversalWalletSlot] = [.bitcoinMainnet, .bitcoinTestnet, .ton, .taira]
@@ -612,11 +617,47 @@ enum UniversalWalletAccountProvisioning {
             ))
         }
         let updatedWallet = accounts == wallet.chainAccounts ? wallet : wallet.replacingChainAccounts(accounts)
-        return try addingSolanaMainnetAccount(
+        let result = try addingSolanaMainnetAccount(
             to: updatedWallet,
             mnemonic: mnemonic,
             passphrase: enrollment.passphrase(for: .solana, password: passphrase)
         )
+        if let descriptorStore {
+            recordBitcoinDescriptors(
+                of: result,
+                secret: UniversalWalletSecret(mnemonic: mnemonic, passphrase: passphrase),
+                store: descriptorStore
+            )
+        }
+        return result
+    }
+
+    /// Saves the descriptor of each Bitcoin account of `wallet` that `secret` (with or without its
+    /// passphrase) derives. Accounts from another phrase are left alone.
+    static func recordBitcoinDescriptors(
+        of wallet: MetaAccountModel,
+        secret: UniversalWalletSecret,
+        store: BitcoinAccountDescriptorStore
+    ) {
+        for slot in [UniversalWalletSlot.bitcoinMainnet, .bitcoinTestnet] {
+            guard let network = slot.bitcoinNetwork,
+                  let account = slot.storedAccount(in: wallet),
+                  !store.hasDescriptor(walletId: wallet.metaId, network: network, accountPublicKey: account.publicKey)
+            else {
+                continue
+            }
+            for candidate in secret.candidates {
+                guard let descriptor = try? BitcoinKeyDerivation.deriveAccountDescriptor(
+                    mnemonic: candidate.mnemonic,
+                    passphrase: candidate.passphrase,
+                    network: network
+                ), (try? descriptor.firstReceivePublicKey()) == account.publicKey else {
+                    continue
+                }
+                try? store.save(descriptor, walletId: wallet.metaId)
+                break
+            }
+        }
     }
 
     /// The networks `addingMissingAppOwnedAccounts` would add to `wallet`.

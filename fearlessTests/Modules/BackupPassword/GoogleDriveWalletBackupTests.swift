@@ -935,7 +935,7 @@ private struct BackupWalletViewModelFactoryStub: BackupWalletViewModelFactoryPro
     ) -> ProfileViewModelProtocol {
         ProfileViewModel(
             profileUserViewModel: WalletsManagmentCellViewModel(
-                isSelected: false, walletName: wallet.name, fiatBalance: nil, dayChange: nil, accountScoreViewModel: nil
+                isSelected: false, walletName: wallet.name, fiatBalance: nil, dayChange: nil
             ),
             profileOptionViewModel: [],
             logoutViewModel: ProfileOptionViewModel(

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Trace the replaced libed25519 and blake2lib XCFramework objects to published build outputs.
 
-Reads the previous frameworks from git history and fetches the archives Soramitsu
+Reads the previous frameworks from git history (--legacy-repo when this checkout
+lacks it) and fetches the archives Soramitsu
 committed to soramitsu/ios-crypto and the build directory committed to
 ERussel/ed25519. Every object in every slice must be code-identical to its
 counterpart: equal non-debug section bytes, relocations (resolved to symbol or
@@ -290,7 +291,10 @@ def fetch(repository, revision, cache):
     checkout = cache / revision
     if not checkout.exists():
         run("git", "init", "--quiet", str(checkout))
-        run("git", "-C", str(checkout), "fetch", "--quiet", "--depth", "1", repository, revision)
+        # Fetch blobs lazily: these commits carry tens of megabytes of other prebuilt
+        # libraries, and only a few archives are read.
+        run("git", "-C", str(checkout), "fetch", "--quiet", "--depth", "1", "--filter=blob:none",
+            repository, revision)
     return checkout
 
 
@@ -298,11 +302,31 @@ def show(checkout, revision, path):
     return run("git", "-C", str(checkout), "show", f"{revision}:{path}").stdout
 
 
-def legacy(path):
-    if subprocess.run(["git", "-C", str(ROOT), "cat-file", "-e", f"{LEGACY_REVISION}^{{commit}}"],
-                      capture_output=True).returncode:
-        run("git", "-C", str(ROOT), "fetch", "--quiet", "--depth", "1", "origin", LEGACY_REVISION)
-    return show(ROOT, LEGACY_REVISION, path)
+def legacy_repository(source, scratch):
+    """Return a git directory holding LEGACY_REVISION.
+
+    The revision is from soramitsu/shared-features-spm, which is no longer
+    public. It is looked up in this checkout, then in `source` (a clone or a
+    git bundle of that repository), then fetched from origin.
+    """
+    def has(directory):
+        return subprocess.run(["git", "-C", str(directory), "cat-file", "-e", f"{LEGACY_REVISION}^{{commit}}"],
+                              capture_output=True).returncode == 0
+
+    if has(ROOT):
+        return ROOT
+    if source is not None:
+        if source.is_file():
+            run("git", "clone", "--bare", "--quiet", str(source), str(scratch))
+            source = scratch
+        if has(source):
+            return source
+        raise SystemExit(f"{source} does not contain {LEGACY_REVISION}")
+    if subprocess.run(["git", "-C", str(ROOT), "fetch", "--quiet", "--depth", "1", "origin", LEGACY_REVISION],
+                      capture_output=True).returncode == 0:
+        return ROOT
+    raise SystemExit(f"The replaced frameworks are in soramitsu/shared-features-spm {LEGACY_REVISION}, which is "
+                     "no longer public. Pass --legacy-repo with a clone or git bundle of that repository.")
 
 
 def section(obj, name):
@@ -325,10 +349,14 @@ def platform(obj):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="print the per-object results as JSON")
+    parser.add_argument("--legacy-repo", type=Path,
+                        help="clone or git bundle of soramitsu/shared-features-spm holding the replaced "
+                             "frameworks, when this checkout does not")
     args = parser.parse_args()
     report, problems = [], []
     with tempfile.TemporaryDirectory(prefix="ed25519-blake2-trace-") as temporary_folder:
         stage = Path(temporary_folder)
+        legacy_git = legacy_repository(args.legacy_repo, stage / "legacy-repository")
         cache = stage / "upstream"
         cache.mkdir()
         references = {}
@@ -350,7 +378,7 @@ def main():
         for library in ("libed25519", "blake2lib"):
             for slice_name in SLICES:
                 path = f"Binaries/{library}.xcframework/{slice_name}/{library}.framework/{library}"
-                data = legacy(path)
+                data = show(legacy_git, LEGACY_REVISION, path)
                 for arch in ("arm64", "x86_64") if "simulator" in slice_name else ("arm64",):
                     members = archive_members(data, arch, stage, f"legacy-{library}-{slice_name}-{arch}")
                     for name, member in sorted(members.items()):

@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectPairing
+import FearlessWalletConnect
 
 extension AppMetadata {
     private static let fearlessMetadata = AppMetadata(
@@ -7,7 +7,7 @@ extension AppMetadata {
         description: "Defi wallet",
         url: "https://fearlesswallet.io",
         icons: ["https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/production/icons/FW%20icon%20128.png"],
-        redirect: try! AppMetadata.Redirect(native: "fearless://", universal: nil)
+        redirect: AppMetadata.Redirect(native: "fearless://", universal: nil)
     )
 
     static func createFearlessMetadata() -> AppMetadata {

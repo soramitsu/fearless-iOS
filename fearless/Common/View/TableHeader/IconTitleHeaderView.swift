@@ -10,13 +10,9 @@ final class IconTitleHeaderView: UITableViewHeaderFooterView {
         titleView.iconImage = icon
         contentView.invalidateIntrinsicContentSize()
 
-        // Backward compatibility
-        if customBackgroundColor != nil {
-            backgroundColor = customBackgroundColor
-        } else {
-            let backgroundView = UIView()
-            backgroundView.backgroundColor = R.color.colorBlack()
-            self.backgroundView = backgroundView
-        }
+        // UIKit ignores backgroundColor on a header-footer view, so a custom colour goes on the background view too.
+        let backgroundView = UIView()
+        backgroundView.backgroundColor = customBackgroundColor ?? R.color.colorBlack()
+        self.backgroundView = backgroundView
     }
 }

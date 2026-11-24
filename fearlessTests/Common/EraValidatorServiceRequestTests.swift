@@ -212,3 +212,21 @@ final class EraValidatorServiceRequestTests: XCTestCase {
         }
     }
 }
+
+extension EraValidatorServiceRequestTests {
+    /// Throttling used to return early while the service was running, so it never unsubscribed and a later setup
+    /// found it still active and did nothing.
+    func testThrottleEndsTheSubscriptionAndSetupSubscribesAgain() throws {
+        let fixture = try Fixture()
+
+        fixture.service.setup()
+        fixture.drain()
+        fixture.service.throttle()
+        fixture.drain()
+        fixture.service.setup()
+        fixture.drain()
+
+        let key = try LocalStorageKeyFactory().createFromStoragePath(.activeEra, chainId: fixture.chain.chainId)
+        XCTAssertEqual(fixture.provider.storageKeys, [key, key], "setup after throttle subscribes again")
+    }
+}

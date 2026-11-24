@@ -476,7 +476,13 @@ final class ChainRegistry {
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
-    private lazy var readLock = ReaderWriterLock()
+    // Every read and write of the state below goes through this lock. A `lazy var`
+    // would create it on first use, and two threads can then each create one.
+    private let readLock = ReaderWriterLock()
+    // Socket state changes arrive on the queue shared by every chain's socket. They
+    // look the chain up here, so that queue never waits for a chain list update.
+    private let connectionStateQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry.connection-state")
+    private let chainsTypesLock = NSLock()
 
     private var substrateConnectionPool: ConnectionPool? {
         connectionPools.first(where: { $0 is ConnectionPool }) as? ConnectionPool
@@ -489,10 +495,17 @@ final class ChainRegistry {
     // MARK: - State
 
     private var chains: [ChainModel] = []
-    private(set) var chainsTypesMap: [String: Data] = [:]
+    private var storedChainsTypesMap: [String: Data] = [:]
     private var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
-    private(set) var tonApiClientFactory: TonAPIClientFactory?
+    private var tonApiClientFactory: TonAPIClientFactory?
     private var tonApiChainId: ChainModel.Id?
+
+    // The types sync publishes this from its own queue while chains are being set up.
+    var chainsTypesMap: [String: Data] {
+        chainsTypesLock.lock()
+        defer { chainsTypesLock.unlock() }
+        return storedChainsTypesMap
+    }
 
     // MARK: - Constructor
 
@@ -540,39 +553,10 @@ final class ChainRegistry {
             changes.forEach { change in
                 do {
                     switch change {
-                    case let .insert(storedChain):
-                        // Stored data can predate this build: retirement applies before any download succeeds.
-                        if let newChain = NetworkRetirement.offered(storedChain), !newChain.disabled {
-                            try self.handleInsert(newChain)
-                        }
-                    case let .update(storedChain):
-                        let currentChain = self.chains.first { $0.chainId == storedChain.chainId }
-                        guard let updatedChain = NetworkRetirement.offered(storedChain), !updatedChain.disabled else {
-                            if currentChain != nil {
-                                self.handleDelete(storedChain.chainId)
-                            }
-                            return
-                        }
-
-                        if let chain = currentChain {
-                            if self.chainKind(for: chain) != self.chainKind(for: updatedChain) {
-                                // Tear down with the old model's kind, then set up the new one.
-                                self.handleDelete(chain.chainId)
-                                try self.handleInsert(updatedChain)
-                            } else if chain.nodes != updatedChain.nodes ||
-                                chain.selectedNode != updatedChain.selectedNode ||
-                                chain.assets != updatedChain.assets {
-                                // Runtime providers keep their own chain model, so asset changes rebuild them.
-                                try self.handleUpdate(updatedChain)
-                            } else if chain != updatedChain {
-                                // Options or other metadata changed: keep the connection, publish the new model.
-                                self.chains = self.chains.map {
-                                    $0.chainId == updatedChain.chainId ? updatedChain : $0
-                                }
-                            }
-                        } else {
-                            try self.handleInsert(updatedChain)
-                        }
+                    case let .insert(storedChain), let .update(storedChain):
+                        // An insert can name a chain the registry already holds: each new subscription
+                        // delivers every stored chain as an insert. It replaces the entry like an update.
+                        try self.handleStoredChain(storedChain)
                     case let .delete(chainId):
                         self.handleDelete(chainId)
                     }
@@ -587,6 +571,39 @@ final class ChainRegistry {
     }
 
     // MARK: - Private DataProviderChange handle methods
+
+    /// Sets up a chain the registry does not hold, or brings the entry it holds up to the stored model.
+    /// Setting a held chain up again would add a second entry for it, keep the pool's connection to
+    /// the old node and leak the first runtime version subscription.
+    private func handleStoredChain(_ storedChain: ChainModel) throws {
+        let currentChain = chains.first { $0.chainId == storedChain.chainId }
+        // Stored data can predate this build: retirement applies before any download succeeds.
+        guard let offeredChain = NetworkRetirement.offered(storedChain), !offeredChain.disabled else {
+            if currentChain != nil {
+                handleDelete(storedChain.chainId)
+            }
+            return
+        }
+
+        guard let chain = currentChain else {
+            try handleInsert(offeredChain)
+            return
+        }
+
+        if chainKind(for: chain) != chainKind(for: offeredChain) {
+            // Tear down with the old model's kind, then set up the new one.
+            handleDelete(chain.chainId)
+            try handleInsert(offeredChain)
+        } else if chain.nodes != offeredChain.nodes ||
+            chain.selectedNode != offeredChain.selectedNode ||
+            chain.assets != offeredChain.assets {
+            // Runtime providers keep their own chain model, so asset changes rebuild them.
+            try handleUpdate(offeredChain)
+        } else if chain != offeredChain {
+            // Options or other metadata changed: keep the connection, publish the new model.
+            chains = chains.map { $0.chainId == offeredChain.chainId ? offeredChain : $0 }
+        }
+    }
 
     private func handleInsert(_ chain: ChainModel) throws {
         switch chainKind(for: chain) {
@@ -836,7 +853,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func performHotBoot() {
-        guard chains.isEmpty else { return }
+        guard readLock.concurrentlyRead({ chains.isEmpty }) else { return }
         snapshotHotBootBuilder.startHotBoot()
     }
 
@@ -859,7 +876,8 @@ extension ChainRegistry: ChainRegistryProtocol {
 
         chainProvider.addObserver(
             self,
-            deliverOn: DispatchQueue.global(qos: .userInitiated),
+            // Submit writes in provider order so an older node update cannot overwrite a newer one.
+            deliverOn: processingQueue,
             executing: updateClosure,
             failing: failureClosure,
             options: options
@@ -1063,14 +1081,26 @@ private extension ChainRegistry {
 
 extension ChainRegistry: ConnectionPoolDelegate {
     func webSocketDidChangeState(chainId: SSFModels.ChainModel.Id, state: SSFUtils.WebSocketEngine.State) {
-        guard let changedStateChain = chains.first(where: { chain in
-            chain.chainId == chainId
-        }) else {
-            return
-        }
+        // This runs on the socket queue while a chain list update can be running.
+        // 4.2.1 read `chains` here without the lock and crashed at launch when the
+        // update replaced the array mid-read. Waiting for the lock here would hold up
+        // every socket, so the lookup moves to the registry's own serial queue, which
+        // also keeps one chain's state changes in order.
+        connectionStateQueue.async { [weak self] in
+            guard let self else {
+                return
+            }
 
-        let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
-        eventCenter.notify(with: reconnectedEvent)
+            let changedStateChain = self.readLock.concurrentlyRead {
+                self.chains.first(where: { $0.chainId == chainId })
+            }
+
+            guard let changedStateChain else {
+                return
+            }
+
+            self.eventCenter.notify(with: ChainReconnectingEvent(chain: changedStateChain, state: state))
+        }
     }
 }
 
@@ -1078,7 +1108,9 @@ extension ChainRegistry: ConnectionPoolDelegate {
 
 extension ChainRegistry: EventVisitorProtocol {
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
-        chainsTypesMap = event.versioningMap
+        chainsTypesLock.lock()
+        storedChainsTypesMap = event.versioningMap
+        chainsTypesLock.unlock()
     }
 }
 
@@ -1090,7 +1122,9 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         usedRuntimePaths _: [String: [String]],
         runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
     ) async throws -> SSFRuntimeCodingService.RuntimeProviderProtocol {
-        guard let chain = chains.first(where: { $0.chainId == chainId }) else {
+        let chain = readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
+
+        guard let chain else {
             throw ChainRegistryError.chainUnavailable(chainId: chainId)
         }
         let chainTypes = chainsTypesMap[chainId]

@@ -6,6 +6,7 @@ class SearchTextField: BackgroundedContentControl {
     private enum Constants {
         static let delay: CGFloat = 0.5
         static let textFieldInsets: CGFloat = 13
+        static let textFieldVerticalInset: CGFloat = 1
         static let minimumTextFieldHeight: CGFloat = 44
     }
 
@@ -33,11 +34,32 @@ class SearchTextField: BackgroundedContentControl {
         textField.addTarget(self, action: #selector(handleThorttle), for: UIControl.Event.editingChanged)
         textField.delegate = self
         textField.clearButtonMode = .whileEditing
+        // A stack view gives its spare height to the view that hugs least; that must be the list, never the field.
+        setContentHuggingPriority(.defaultHigh, for: .vertical)
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // BackgroundedContentControl sizes itself from `contentView`, which this control leaves empty, so it reported a
+    // zero height and selection sheets stretched the field over most of the screen (iOS 4.2.0 2026.11.5). The width
+    // stays as it was.
+    override var intrinsicContentSize: CGSize {
+        let fieldHeight = max(Constants.minimumTextFieldHeight, textField.intrinsicContentSize.height)
+        return CGSize(
+            width: super.intrinsicContentSize.width,
+            height: fieldHeight + 2 * Constants.textFieldVerticalInset
+        )
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
+            invalidateIntrinsicContentSize()
+        }
     }
 
     // MARK: - Private
@@ -57,7 +79,7 @@ class SearchTextField: BackgroundedContentControl {
 
         addSubview(textField)
         textField.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().inset(1)
+            make.top.bottom.equalToSuperview().inset(Constants.textFieldVerticalInset)
             make.leading.trailing.equalToSuperview().inset(Constants.textFieldInsets)
             make.height.greaterThanOrEqualTo(Constants.minimumTextFieldHeight).priority(999)
         }

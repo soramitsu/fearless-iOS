@@ -58,6 +58,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     private let liquidityPair: LiquidityPair
     private let dataValidatingFactory: SendDataValidatingFactory
     private let confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?
+    private let submissionAuthorizer: SubmissionAuthorizing
     private var didSubmitTransactionClosure: (String) -> Void
 
     private var removeInfo: RemoveLiquidityInfo?
@@ -113,8 +114,10 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         dataValidatingFactory: SendDataValidatingFactory,
         confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?,
         removeInfo: RemoveLiquidityInfo?,
-        didSubmitTransactionClosure: @escaping (String) -> Void
+        didSubmitTransactionClosure: @escaping (String) -> Void,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.router = router
         self.wallet = wallet
@@ -445,8 +448,10 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityCon
         guard let removeInfo else {
             return
         }
-        runLoadingState()
-        interactor.submit(removeLiquidityInfo: removeInfo)
+        submissionAuthorizer.performAuthorized(from: confirmView) { [weak self] in
+            self?.runLoadingState()
+            self?.interactor.submit(removeLiquidityInfo: removeInfo)
+        }
     }
 
     func didTapFeeInfo() {

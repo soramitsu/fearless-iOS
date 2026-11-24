@@ -38,6 +38,9 @@ class RootViewController: UIViewController, ViewHolder {
     }
 }
 
+/// The launch overlay waits for the start flow to replace this screen before it zooms in.
+extension RootViewController: FWLaunchSplashScreen {}
+
 extension RootViewController: RootViewProtocol {
     func didReceive(state: RootViewState) {
         self.state = state

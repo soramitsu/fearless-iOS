@@ -11,7 +11,6 @@ protocol ProfilePresenterProtocol: AnyObject {
     func activateOption(_ option: ProfileOption)
     func logout()
     func switcherValueChanged(isOn: Bool, index: Int)
-    func didTapAccountScore(address: String?)
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {
@@ -34,7 +33,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     WebPresentable,
     ModalAlertPresenting,
     AddressOptionsPresentable,
-    AccountManagementPresentable, AccountScorePresentable {
+    AccountManagementPresentable {
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
@@ -45,6 +44,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     )
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
+    func authorizeBiometryEnabling(from view: ProfileViewProtocol?, completion: @escaping (Bool) -> Void)
     func showAbout(from view: ProfileViewProtocol?)
     func logout(from view: ProfileViewProtocol?)
     func showCheckPincode(

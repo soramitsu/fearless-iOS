@@ -22,5 +22,7 @@
 	<string>$(FEARLESS_SUBSTRATE_PHONE_STORE_FIXTURE_PATH)</string>
 	<key>FearlessRunSubstratePhoneScaleProfile</key>
 	<string>$(FEARLESS_RUN_SUBSTRATE_PHONE_SCALE_PROFILE)</string>
+	<key>NSPrincipalClass</key>
+	<string>FearlessTestsPrincipal</string>
 </dict>
 </plist>

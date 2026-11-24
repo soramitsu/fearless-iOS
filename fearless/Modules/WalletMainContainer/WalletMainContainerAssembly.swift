@@ -35,10 +35,6 @@ final class WalletMainContainerAssembly {
             walletRepository: AnyDataProviderRepository(accountRepository),
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
-        let accountScoreFetcher = NomisAccountStatisticsFetcher(
-            networkWorker: NetworkWorkerDefault(),
-            signer: NomisRequestSigner()
-        )
 
         let featureToggleProvider = FeatureToggleProvider(
             networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
@@ -70,10 +66,7 @@ final class WalletMainContainerAssembly {
             return nil
         }
 
-        let viewModelFactory = WalletMainContainerViewModelFactory(
-            accountScoreFetcher: accountScoreFetcher,
-            settings: SettingsManager.shared
-        )
+        let viewModelFactory = WalletMainContainerViewModelFactory()
         let presenter = WalletMainContainerPresenter(
             balanceInfoModuleInput: balanceInfoModule.input,
             assetListModuleInput: assetListModule.input,
@@ -83,6 +76,7 @@ final class WalletMainContainerAssembly {
             interactor: interactor,
             router: router,
             updateSecurityNotice: UpdateSecurityNoticeTracker(settings: SettingsManager.shared),
+            operatingSystemSecurityNotice: OperatingSystemSecurityNoticeTracker(settings: SettingsManager.shared),
             localizationManager: localizationManager
         )
 
@@ -107,7 +101,8 @@ final class WalletMainContainerAssembly {
     private static func configureAssetListModule(
         metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
-        ChainAssetListAssembly.configureModule(wallet: metaAccount, keyboardAdoptable: false)
+        // The one list's search field sits in the list, so the list makes room for the keyboard.
+        ChainAssetListAssembly.configureModule(wallet: metaAccount, keyboardAdoptable: true)
     }
 
     private static func configureNftModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {

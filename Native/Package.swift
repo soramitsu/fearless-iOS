@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "FearlessNative",
     defaultLocalization: "en",
-    platforms: [.iOS(.v14)],
+    platforms: [.iOS(.v14), .macOS(.v14)],
     products: [
         .library(name: "FearlessUtils", targets: ["FearlessUtils"]),
         .library(name: "Starscream", targets: ["Starscream"]),
@@ -82,7 +82,6 @@ let package = Package(
             ]
         ),
         .binaryTarget(name: "sr25519lib", path: "Binaries/sr25519lib.xcframework"),
-        .binaryTarget(name: "sorawallet", path: "Binaries/sorawallet.xcframework"),
         .target(
             name: "scrypt",
             sources: [
@@ -170,10 +169,7 @@ let package = Package(
                 "scrypt"
             ],
             publicHeadersPath: "include",
-            cSettings: [ .headerSearchPath(".") ],
-            linkerSettings: [
-                .linkedFramework("sorawallet")
-            ]
+            cSettings: [ .headerSearchPath(".") ]
         ),
         .target(
             name: "SSFCloudStorage",
@@ -367,7 +363,6 @@ let package = Package(
                 "SSFModels",
                 "SSFStorageQueryKit",
                 "SSFPools",
-                "sorawallet",
                 "SSFPoolsStorage",
                 "SSFExtrinsicKit",
                 "SSFSigner",
@@ -411,6 +406,7 @@ let package = Package(
             dependencies: [
                 "SSFUtils",
                 "SSFModels",
+                "Starscream",
                 "RuntimeMetadataFixtures",
                 "BigInt"
             ]

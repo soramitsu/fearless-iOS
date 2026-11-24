@@ -1,0 +1,506 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4437C0BD07249EAD1BE35B0F /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E731D72C3EFE111594F6EA /* AppEnvironment.swift */; };
+		5E7029CAC8D6741E8ADB6791 /* WalletCore in Frameworks */ = {isa = PBXBuildFile; productRef = AC835030C9CFD825B7DC5074 /* WalletCore */; };
+		6A0D85F74312873E63AEA264 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EC4F95A241AA35E8EE7FD759 /* PrivacyInfo.xcprivacy */; };
+		7689FEE56F16913115A87E54 /* FearlessMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2DD85A12631EB432EC09199 /* FearlessMacApp.swift */; };
+		9D7EC62BB91F0B1011D18F43 /* FearlessMacLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E386C977536793C058726CC6 /* FearlessMacLaunchTests.swift */; };
+		AD305C9BC87480B333AF32A6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0471B5B420F72D65C0DA9498 /* Assets.xcassets */; };
+		B0871F19B48E54D7AA4DCC25 /* WalletUI in Frameworks */ = {isa = PBXBuildFile; productRef = 45D9BE4FDDF94A389E18F20B /* WalletUI */; };
+		DCC2D99C3B521689B3BD9FB1 /* WalletEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 1A146D8D32D704FDE7CB6747 /* WalletEngine */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4F15717DE8324950E16E5563 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FDB2F4F43841B6A4273534C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 19CDDF9DA5D0D20B9382DF74;
+			remoteInfo = FearlessMac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0471B5B420F72D65C0DA9498 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		22FA376F8E2EBC6652F98A72 /* FearlessMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FearlessMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A00B6CF71CC2FDBCCA06915 /* FearlessMacEngine */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FearlessMacEngine; path = Packages/FearlessMacEngine; sourceTree = SOURCE_ROOT; };
+		A2DD85A12631EB432EC09199 /* FearlessMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FearlessMacApp.swift; sourceTree = "<group>"; };
+		C6B95A442D12142E1B17B654 /* WalletCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = WalletCore; path = Packages/WalletCore; sourceTree = SOURCE_ROOT; };
+		D36B64559EA5FC623F32D2CB /* FearlessMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FearlessMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E06B7BBB24CDD0BBFC911853 /* FearlessMacUI */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FearlessMacUI; path = Packages/FearlessMacUI; sourceTree = SOURCE_ROOT; };
+		E386C977536793C058726CC6 /* FearlessMacLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FearlessMacLaunchTests.swift; sourceTree = "<group>"; };
+		E9E731D72C3EFE111594F6EA /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		EC4F95A241AA35E8EE7FD759 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		369FA1CE744BE38A304C8D0B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5E7029CAC8D6741E8ADB6791 /* WalletCore in Frameworks */,
+				B0871F19B48E54D7AA4DCC25 /* WalletUI in Frameworks */,
+				DCC2D99C3B521689B3BD9FB1 /* WalletEngine in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		02583EA9646922C1FB8CB2D7 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				E386C977536793C058726CC6 /* FearlessMacLaunchTests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		48FED6E1493B214D3DC9F098 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				E9E731D72C3EFE111594F6EA /* AppEnvironment.swift */,
+				0471B5B420F72D65C0DA9498 /* Assets.xcassets */,
+				A2DD85A12631EB432EC09199 /* FearlessMacApp.swift */,
+				EC4F95A241AA35E8EE7FD759 /* PrivacyInfo.xcprivacy */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		5DEED4933FC3F628F1FFC82C = {
+			isa = PBXGroup;
+			children = (
+				48FED6E1493B214D3DC9F098 /* App */,
+				9BD20F63BFDC35F92B1FB489 /* Packages */,
+				02583EA9646922C1FB8CB2D7 /* UITests */,
+				918608F0A788B3B5FC11969C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		918608F0A788B3B5FC11969C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				22FA376F8E2EBC6652F98A72 /* FearlessMac.app */,
+				D36B64559EA5FC623F32D2CB /* FearlessMacUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9BD20F63BFDC35F92B1FB489 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				3A00B6CF71CC2FDBCCA06915 /* FearlessMacEngine */,
+				E06B7BBB24CDD0BBFC911853 /* FearlessMacUI */,
+				C6B95A442D12142E1B17B654 /* WalletCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		19CDDF9DA5D0D20B9382DF74 /* FearlessMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D41F8936610909D3372755B2 /* Build configuration list for PBXNativeTarget "FearlessMac" */;
+			buildPhases = (
+				91AAE7326F4C368B69CF58F5 /* Sources */,
+				B39025343E2C5742FF322EE1 /* Resources */,
+				369FA1CE744BE38A304C8D0B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FearlessMac;
+			packageProductDependencies = (
+				AC835030C9CFD825B7DC5074 /* WalletCore */,
+				45D9BE4FDDF94A389E18F20B /* WalletUI */,
+				1A146D8D32D704FDE7CB6747 /* WalletEngine */,
+			);
+			productName = FearlessMac;
+			productReference = 22FA376F8E2EBC6652F98A72 /* FearlessMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		60E6B09E94270554299287BE /* FearlessMacUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 86943E1803EDFC5C2006F03D /* Build configuration list for PBXNativeTarget "FearlessMacUITests" */;
+			buildPhases = (
+				25D7A855B870A1522324EF8C /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C084BD91F37C9533F57AB139 /* PBXTargetDependency */,
+			);
+			name = FearlessMacUITests;
+			packageProductDependencies = (
+			);
+			productName = FearlessMacUITests;
+			productReference = D36B64559EA5FC623F32D2CB /* FearlessMacUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4FDB2F4F43841B6A4273534C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					60E6B09E94270554299287BE = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+						TestTargetID = 19CDDF9DA5D0D20B9382DF74;
+					};
+				};
+			};
+			buildConfigurationList = D8669E84A96CBDFCE102282C /* Build configuration list for PBXProject "FearlessMac" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 5DEED4933FC3F628F1FFC82C;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D206152C23F798A192F94E34 /* XCLocalSwiftPackageReference "Packages/FearlessMacEngine" */,
+				EE239954F326E13289CD17CB /* XCLocalSwiftPackageReference "Packages/FearlessMacUI" */,
+				475EB583C49320A9D3B29EC0 /* XCLocalSwiftPackageReference "Packages/WalletCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 918608F0A788B3B5FC11969C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				19CDDF9DA5D0D20B9382DF74 /* FearlessMac */,
+				60E6B09E94270554299287BE /* FearlessMacUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B39025343E2C5742FF322EE1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD305C9BC87480B333AF32A6 /* Assets.xcassets in Resources */,
+				6A0D85F74312873E63AEA264 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		25D7A855B870A1522324EF8C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9D7EC62BB91F0B1011D18F43 /* FearlessMacLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91AAE7326F4C368B69CF58F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4437C0BD07249EAD1BE35B0F /* AppEnvironment.swift in Sources */,
+				7689FEE56F16913115A87E54 /* FearlessMacApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C084BD91F37C9533F57AB139 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 19CDDF9DA5D0D20B9382DF74 /* FearlessMac */;
+			targetProxy = 4F15717DE8324950E16E5563 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		16FFD94E6C37059A11817134 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 2026.11.22;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		4464C0FB6CA7EEC6EF3D8B73 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "App/FearlessMac-Release.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
+				PRODUCT_NAME = Fearless;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		64C5623D59EA63696A954CFE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = App/FearlessMac.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
+				PRODUCT_NAME = Fearless;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		88CE0E739BEF3491CBBAD343 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet.mac.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = FearlessMac;
+			};
+			name = Debug;
+		};
+		ABF453653106B44D537FFEE0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 2026.11.22;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		FF0B08FE1A8320FAC355BEAF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet.mac.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = FearlessMac;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		86943E1803EDFC5C2006F03D /* Build configuration list for PBXNativeTarget "FearlessMacUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88CE0E739BEF3491CBBAD343 /* Debug */,
+				FF0B08FE1A8320FAC355BEAF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D41F8936610909D3372755B2 /* Build configuration list for PBXNativeTarget "FearlessMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				64C5623D59EA63696A954CFE /* Debug */,
+				4464C0FB6CA7EEC6EF3D8B73 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D8669E84A96CBDFCE102282C /* Build configuration list for PBXProject "FearlessMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16FFD94E6C37059A11817134 /* Debug */,
+				ABF453653106B44D537FFEE0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		475EB583C49320A9D3B29EC0 /* XCLocalSwiftPackageReference "Packages/WalletCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/WalletCore;
+		};
+		D206152C23F798A192F94E34 /* XCLocalSwiftPackageReference "Packages/FearlessMacEngine" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/FearlessMacEngine;
+		};
+		EE239954F326E13289CD17CB /* XCLocalSwiftPackageReference "Packages/FearlessMacUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/FearlessMacUI;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1A146D8D32D704FDE7CB6747 /* WalletEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WalletEngine;
+		};
+		45D9BE4FDDF94A389E18F20B /* WalletUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WalletUI;
+		};
+		AC835030C9CFD825B7DC5074 /* WalletCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WalletCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 4FDB2F4F43841B6A4273534C /* Project object */;
+}

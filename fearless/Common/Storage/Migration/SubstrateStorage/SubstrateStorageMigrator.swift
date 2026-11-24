@@ -228,11 +228,12 @@ enum SubstrateStorageMigrationError: LocalizedError {
         return !SubstrateStoreEnvironmentFailure.isPresent(in: self)
     }
 
-    /// Whether no model this build bundles can read the store, so a retry cannot get past
-    /// the failure and the store is set aside at once. Every other failure that allows a
-    /// set-aside is retried first (`SubstrateStorageMigrator.migrate()`): the store holds the
-    /// user's contacts, custom nodes and TON Connect sessions, and a failure that passes on
-    /// a second attempt must not cost them.
+    /// Whether no model this build bundles can read the store, so another attempt cannot
+    /// get past the failure and startup sets the store aside at once. Every other failure
+    /// that allows a set-aside is first retried quietly inside one startup call
+    /// (`SubstrateStorageMigrator.migrate()`): the store holds the user's contacts, custom
+    /// nodes and TON Connect sessions, and a failure that passes on another attempt must
+    /// not cost them.
     var setsStoreAsideWithoutRetry: Bool {
         switch self {
         case .metadataUnreadable,
@@ -270,7 +271,7 @@ enum SubstrateStorageMigrationError: LocalizedError {
         }
     }
 
-    /// A failure startup reports once with Retry before the store is set aside.
+    /// A failure startup retries quietly before it sets the store aside.
     var isRetriedBeforeStoreSetAside: Bool {
         allowsStoreSetAside && !setsStoreAsideWithoutRetry
     }
@@ -390,6 +391,76 @@ private enum SubstrateStoreEnvironmentFailure {
 
         return nestedErrors(in: error).contains {
             isPresent(in: $0, remainingDepth: remainingDepth - 1)
+        }
+    }
+
+    /// A test-only interruption anywhere in the chain: it stands for a
+    /// process that died at that point, so nothing may act on the failure.
+    static func containsSimulatedProcessDeath(
+        in error: Error,
+        remainingDepth: Int = 8
+    ) -> Bool {
+        guard remainingDepth > 0 else {
+            return false
+        }
+
+        if
+            error is CrashConsistentStoreReplacementInterruption ||
+            error is SubstrateCacheRecoveryInterruption ||
+            error is RetainedStoreSetAsideInterruption {
+            return true
+        }
+
+        return nestedErrors(in: error).contains {
+            containsSimulatedProcessDeath(in: $0, remainingDepth: remainingDepth - 1)
+        }
+    }
+
+    /// The device is out of free space: the part of `isPresent(in:)` that
+    /// freeing storage clears, as opposed to files that are not accessible.
+    static func isOutOfSpace(
+        in error: Error,
+        remainingDepth: Int = 8
+    ) -> Bool {
+        guard remainingDepth > 0 else {
+            return false
+        }
+
+        if
+            let replacementError =
+            error as? CrashConsistentStoreReplacementError,
+            case .insufficientStorageCapacity = replacementError {
+            return true
+        }
+
+        let nsError = error as NSError
+        switch nsError.domain {
+        case NSPOSIXErrorDomain:
+            let code = Int32(truncatingIfNeeded: nsError.code)
+            if code == ENOSPC || code == EDQUOT {
+                return true
+            }
+        case NSCocoaErrorDomain:
+            if nsError.code == NSFileWriteOutOfSpaceError {
+                return true
+            }
+        case NSSQLiteErrorDomain:
+            if Int32(truncatingIfNeeded: nsError.code & 0xFF) == SQLITE_FULL {
+                return true
+            }
+        default:
+            break
+        }
+
+        if
+            let sqliteResult =
+            nsError.userInfo[NSSQLiteErrorDomain] as? NSNumber,
+            Int32(truncatingIfNeeded: sqliteResult.intValue & 0xFF) == SQLITE_FULL {
+            return true
+        }
+
+        return nestedErrors(in: error).contains {
+            isOutOfSpace(in: $0, remainingDepth: remainingDepth - 1)
         }
     }
 
@@ -612,7 +683,7 @@ final class CrashConsistentSubstrateCacheRecovery { // swiftlint:disable:this ty
     private static let markerTemporaryFileName = "recovery-transaction.pending"
     private static let maximumMarkerByteCount: UInt64 = 4 * 1024
     private static let digestChunkByteCount = 1024 * 1024
-    private static let recoveryRootName = "SubstrateStoreRecovery"
+    static let recoveryRootName = "SubstrateStoreRecovery"
     private static let restorationTemporarySuffix =
         ".cache-recovery-restore.pending"
     private static let maximumArchiveDirectoryScanCount = 64
@@ -3115,11 +3186,11 @@ final class SubstrateStorageMigrator {
         String,
         Int
     ) -> Void
-    /// Set when startup reported a retried failure (`isRetriedBeforeStoreSetAside`) and
-    /// cleared by a successful check. Kept for the life of this migrator, which is the
-    /// startup's: its Retry runs the same instance again.
-    private let retryLock = NSLock()
-    private var hasReportedRetriedFailure = false
+    /// The model version of the installed store as the last attempt detected
+    /// it from its private copy. Startup uses it to keep a current store that
+    /// only failed for a passing reason.
+    private let detectionLock = NSLock()
+    private var detectedVersion: SubstrateStorageVersion?
 
     init(
         targetVersion: SubstrateStorageVersion,
@@ -3516,26 +3587,6 @@ final class SubstrateStorageMigrator {
     /// (`allowsStoreSetAside`, or the current model is missing, so a fresh
     /// store could not open either) and while a replacement or cache-recovery
     /// transaction still owns the family; the next launch reconciles those.
-    /// Whether `failure` is reported for a retry instead of setting the store aside: true for
-    /// the first such failure only. The next one, if the retry fails too, sets the store aside
-    /// so the app still opens.
-    func reportsForRetryBeforeSetAside(_ failure: SubstrateStorageMigrationError) -> Bool {
-        retryLock.lock()
-        defer { retryLock.unlock() }
-
-        guard failure.isRetriedBeforeStoreSetAside, !hasReportedRetriedFailure else {
-            return false
-        }
-        hasReportedRetriedFailure = true
-        return true
-    }
-
-    func clearReportedRetry() {
-        retryLock.lock()
-        hasReportedRetriedFailure = false
-        retryLock.unlock()
-    }
-
     func setAsideUnusableStore(after failure: Error) throws -> URL {
         let allowsStoreSetAside: Bool
         if let migrationError = failure as? SubstrateStorageMigrationError {
@@ -3556,7 +3607,9 @@ final class SubstrateStorageMigrator {
                 allowsStoreSetAside = false
             }
         } else {
-            allowsStoreSetAside = false
+            // Any other error is unexpected here. A fresh store still gets
+            // the app past it unless the device itself is the problem.
+            allowsStoreSetAside = !Self.isEnvironmentFailure(failure)
         }
 
         guard
@@ -3585,6 +3638,238 @@ final class SubstrateStorageMigrator {
         }
 
         return archiveURL
+    }
+
+    // MARK: Startup resolution support
+
+    /// Failures that clear up without any change to the store: no free
+    /// space, or files that are not accessible. See
+    /// `SubstrateStoreEnvironmentFailure`.
+    static func isEnvironmentFailure(_ error: Error) -> Bool {
+        SubstrateStoreEnvironmentFailure.isPresent(in: error)
+    }
+
+    /// The part of `isEnvironmentFailure(_:)` that freeing storage clears.
+    static func isOutOfSpaceFailure(_ error: Error) -> Bool {
+        SubstrateStoreEnvironmentFailure.isOutOfSpace(in: error)
+    }
+
+    /// Test-only: a simulated process death anywhere in the failure chain.
+    static func isSimulatedProcessDeath(_ error: Error) -> Bool {
+        SubstrateStoreEnvironmentFailure.containsSimulatedProcessDeath(in: error)
+    }
+
+    /// A short, payload-free name for a failure, for startup logs: no path,
+    /// address or error description.
+    static func failureKind(of error: Error) -> String {
+        if let migrationError = error as? SubstrateStorageMigrationError {
+            let caseName = String(describing: migrationError)
+                .prefix { $0 != "(" }
+            let nested = migrationError.underlyingErrors.first.map {
+                "/" + failureKind(of: $0)
+            } ?? ""
+            return "SubstrateStorageMigrationError." + caseName + nested
+        }
+
+        if let replacementError = error as? CrashConsistentStoreReplacementError {
+            return "CrashConsistentStoreReplacementError." + String(
+                String(describing: replacementError).prefix { $0 != "(" }
+            )
+        }
+
+        let nsError = error as NSError
+        return "\(nsError.domain)#\(nsError.code)"
+    }
+
+    func recordDetectedVersion(_ version: SubstrateStorageVersion) {
+        detectionLock.lock()
+        detectedVersion = version
+        detectionLock.unlock()
+    }
+
+    func takeDetectedVersion() -> SubstrateStorageVersion? {
+        detectionLock.lock()
+        defer { detectionLock.unlock() }
+
+        let version = detectedVersion
+        detectedVersion = nil
+        return version
+    }
+
+    /// Whether the installed store is already the target model, read from the
+    /// metadata row in its main file only. Used when no attempt got as far as
+    /// detecting the version from a private copy, for example because the copy
+    /// found too little free space. The store is opened `immutable`, so no
+    /// lock, journal, WAL or shared-memory file is created or touched. Any
+    /// doubt answers false.
+    func installedStoreIsTargetVersion() -> Bool {
+        guard
+            fileManager.fileExists(atPath: storeURL.path),
+            let metadata = Self.storeMetadataWithoutOpening(at: storeURL),
+            let model = try? createManagedObjectModel(for: targetVersion)
+        else {
+            return false
+        }
+
+        return model.isConfiguration(
+            withName: nil,
+            compatibleWithStoreMetadata: metadata
+        )
+    }
+
+    private static func storeMetadataWithoutOpening(
+        at url: URL
+    ) -> [String: Any]? {
+        var components = URLComponents()
+        components.scheme = "file"
+        components.path = url.path
+        components.queryItems = [
+            URLQueryItem(name: "mode", value: "ro"),
+            URLQueryItem(name: "immutable", value: "1")
+        ]
+        guard let uri = components.url?.absoluteString else {
+            return nil
+        }
+
+        var database: OpaquePointer?
+        let openResult = sqlite3_open_v2(
+            uri,
+            &database,
+            SQLITE_OPEN_READONLY | SQLITE_OPEN_URI | SQLITE_OPEN_NOMUTEX,
+            nil
+        )
+        defer {
+            if let database {
+                sqlite3_close(database)
+            }
+        }
+        guard openResult == SQLITE_OK, let database else {
+            return nil
+        }
+
+        var statement: OpaquePointer?
+        guard
+            sqlite3_prepare_v2(
+                database,
+                "SELECT Z_PLIST FROM Z_METADATA LIMIT 1",
+                -1,
+                &statement,
+                nil
+            ) == SQLITE_OK,
+            let statement
+        else {
+            return nil
+        }
+        defer { sqlite3_finalize(statement) }
+
+        guard
+            sqlite3_step(statement) == SQLITE_ROW,
+            let bytes = sqlite3_column_blob(statement, 0)
+        else {
+            return nil
+        }
+
+        let byteCount = Int(sqlite3_column_bytes(statement, 0))
+        guard byteCount > 0, byteCount <= 4 * 1024 * 1024 else {
+            return nil
+        }
+
+        return (try? PropertyListSerialization.propertyList(
+            from: Data(bytes: bytes, count: byteCount),
+            options: [],
+            format: nil
+        )) as? [String: Any]
+    }
+
+    /// The error startup shows when a store that needs migrating cannot be
+    /// copied for lack of free space: the copier's own capacity rejection when
+    /// there is one, otherwise one sized from the installed family.
+    func insufficientStorageFailure(after failure: Error) -> Error {
+        if Self.containsCapacityRejection(failure) {
+            return failure
+        }
+
+        let familyByteCount = RetainedStoreSetAside.storeFamilySuffixes
+            .compactMap { suffix -> UInt64? in
+                let url = URL(fileURLWithPath: storeURL.path + suffix)
+                let size = (try? fileManager.attributesOfItem(
+                    atPath: url.path
+                ))?[.size] as? NSNumber
+                return size?.uint64Value
+            }
+            .reduce(UInt64(0)) { $0.addingReportingOverflow($1).partialValue }
+
+        // A private copy and a staged copy, plus the copier's reserve.
+        let required = familyByteCount
+            .multipliedReportingOverflow(by: 2).partialValue
+            .addingReportingOverflow(
+                privateSourceCopyLimits.minimumFreeStorageReserveByteCount
+            ).partialValue
+        let directoryURL = storeURL.deletingLastPathComponent()
+        let available = (try? directoryURL.resourceValues(
+            forKeys: [.volumeAvailableCapacityForImportantUsageKey]
+        ))?.volumeAvailableCapacityForImportantUsage.map {
+            UInt64(max(0, $0))
+        } ?? 0
+
+        return CrashConsistentStoreReplacementError.insufficientStorageCapacity(
+            requiredByteCount: required,
+            availableByteCount: available
+        )
+    }
+
+    private static func containsCapacityRejection(
+        _ error: Error,
+        remainingDepth: Int = 8
+    ) -> Bool {
+        guard remainingDepth > 0 else {
+            return false
+        }
+
+        if
+            let replacementError = error as? CrashConsistentStoreReplacementError,
+            case .insufficientStorageCapacity = replacementError {
+            return true
+        }
+
+        let nested = (error as? SubstrateStorageMigrationError)?
+            .underlyingErrors ?? []
+        return nested.contains {
+            containsCapacityRejection($0, remainingDepth: remainingDepth - 1)
+        }
+    }
+
+    /// Removes private copies that an earlier run left in the temporary
+    /// directory when the process died mid-check. Only this migrator's own
+    /// prefixes, and only copies old enough that no live check owns them.
+    func removeStalePrivateCopies(olderThan age: TimeInterval = 60 * 60) {
+        let temporaryDirectory = fileManager.temporaryDirectory
+        guard
+            let entries = try? fileManager.contentsOfDirectory(
+                at: temporaryDirectory,
+                includingPropertiesForKeys: [.contentModificationDateKey],
+                options: [.skipsHiddenFiles]
+            )
+        else {
+            return
+        }
+
+        let prefixes = ["SubstrateStorageSource-", "SubstrateProtectedInspection-"]
+        let cutoff = Date().addingTimeInterval(-age)
+        for entry in entries {
+            let name = entry.lastPathComponent
+            guard
+                prefixes.contains(where: { name.hasPrefix($0) }),
+                let modified = try? entry.resourceValues(
+                    forKeys: [.contentModificationDateKey]
+                ).contentModificationDate,
+                modified < cutoff
+            else {
+                continue
+            }
+
+            try? fileManager.removeItem(at: entry)
+        }
     }
 
     /// Runs before the other reconciliations: an interrupted set-aside
@@ -3635,6 +3920,7 @@ final class SubstrateStorageMigrator {
         let compatibleStore = try loadCompatibleStore(
             at: snapshot.workingStoreURL
         )
+        recordDetectedVersion(compatibleStore.version)
         let detectedSource = PreparedSource(
             snapshot: snapshot,
             compatibleStore: compatibleStore,
@@ -3665,10 +3951,20 @@ final class SubstrateStorageMigrator {
         // public v8/v9 and modern v8 sources are bounded before a writer runs.
         if compatibleStore.version != targetVersion,
            compatibleStore.version.requiresStartupGraphBounds {
-            try inspectVersion8StartupGraphBounds(
-                at: snapshot.workingStoreURL,
-                model: compatibleStore.model
-            )
+            // Same error boundary as repairCurrentStoreIfNeeded(): a raw
+            // inspection or Core Data error must stay a typed migration
+            // failure so startup can recover from it.
+            do {
+                try inspectVersion8StartupGraphBounds(
+                    at: snapshot.workingStoreURL,
+                    model: compatibleStore.model
+                )
+            } catch let migrationError as SubstrateStorageMigrationError {
+                throw migrationError
+            } catch {
+                throw SubstrateStorageMigrationError
+                    .sourceStoreInspectionFailed(storeURL, error)
+            }
         }
         let preparedSource = PreparedSource(
             snapshot: snapshot,

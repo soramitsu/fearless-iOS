@@ -61,9 +61,8 @@ rm -rf "$WORKSPACE_DIR/DerivedData"/*/SourcePackages || true
 mkdir -p "$SP_DIR"
 if [[ -f fearless.xcworkspace/contents.xcworkspacedata ]]; then
   python3 scripts/deps/verify-native-source.py "$WORKSPACE_DIR"
-  if [[ -x scripts/deps/check-dependency-contracts.sh ]]; then
-    scripts/deps/check-dependency-contracts.sh
-  fi
+  scripts/deps/build-tools-from-source.sh --force
+  scripts/deps/check-dependency-contracts.sh
   # Hosted runner repository caches can contain missing/stale bare checkouts.
   # Resolve into this job's source directory without consulting that shared cache.
   xcodebuild -resolvePackageDependencies -disablePackageRepositoryCache -workspace fearless.xcworkspace -scheme fearless -clonedSourcePackagesDirPath "$SP_DIR"

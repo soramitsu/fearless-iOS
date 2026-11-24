@@ -33,6 +33,8 @@ final class KeystoreImportService {
 
 extension KeystoreImportService: KeystoreImportServiceProtocol {
     func handle(url: URL) -> Bool {
+        defer { Self.removeInboxCopy(url) }
+
         do {
             let data = try Data(contentsOf: url)
 
@@ -53,6 +55,26 @@ extension KeystoreImportService: KeystoreImportServiceProtocol {
             logger.warning("Error while parsing keystore from url: \(error)")
             return false
         }
+    }
+
+    /// iOS copies a document opened from another app into `Documents/Inbox`. The keystore
+    /// stays in memory for the import screen; the copy on disk is removed at once. Files
+    /// anywhere else (for example opened in place) are never touched.
+    static func removeInboxCopy(_ url: URL, fileManager: FileManager = .default) {
+        guard
+            url.isFileURL,
+            let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first
+        else {
+            return
+        }
+
+        let inbox = documents.appendingPathComponent("Inbox", isDirectory: true).standardizedFileURL.path
+        let file = url.standardizedFileURL.path
+        guard file.hasPrefix(inbox + "/") else {
+            return
+        }
+
+        try? fileManager.removeItem(atPath: file)
     }
 
     func add(observer: KeystoreImportObserver) {

@@ -94,10 +94,11 @@ final class StakingPoolJoinConfigViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         ))
 
+        // The footer resets its button to "Confirm" when its locale changes, so set the locale first.
+        feeView.locale = locale
         feeView.actionButton.imageWithTitleView?.title = R.string.localizable.poolStakingJoinButtonTitle(
             preferredLanguages: locale.rLanguages
         )
-        feeView.locale = locale
         amountView.locale = locale
     }
 

@@ -65,7 +65,7 @@ final class MultichainAssetSelectionViewController: UIViewController, ViewHolder
         }
 
         rootView.addSelectAssetView(view)
-        controller.didMove(toParent: self)
+        selectAssetViewController.didMove(toParent: self)
     }
 
     private func setupCollectionView() {

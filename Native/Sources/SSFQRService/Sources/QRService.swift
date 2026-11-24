@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import Foundation
 import UIKit
 
@@ -115,3 +116,4 @@ public final class QRServiceDefault: QRService {
         return receivedString
     }
 }
+#endif

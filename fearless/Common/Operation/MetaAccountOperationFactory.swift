@@ -31,13 +31,18 @@ final class MetaAccountOperationFactory {
 
     private let keystore: KeystoreProtocol
     private let watchedAccounts: UniversalWalletWatchedAccountsStore
+    /// What the user just typed in or confirmed word by word: the items it covers may later move to
+    /// storage that removing the device passcode erases (`ProtectedKeychainRecoveryEvidence`).
+    private let recoveryEvidence: ProtectedKeychainRecoveryEvidence
 
     init(
         keystore: KeystoreProtocol,
-        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore()
+        watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore(),
+        recoveryEvidence: ProtectedKeychainRecoveryEvidence = .shared
     ) {
         self.keystore = keystore
         self.watchedAccounts = watchedAccounts
+        self.recoveryEvidence = recoveryEvidence
     }
 
     /// Reuses the released import derivation recipe without writing Keychain or Core Data.
@@ -55,6 +60,40 @@ final class MetaAccountOperationFactory {
             seedSource: .mnemonic(mnemonic), derivationPath: derivationPath,
             cryptoType: cryptoType, ethereumBased: ethereumBased, passwordRule: passwordRule
         ).publicKey
+    }
+
+    /// The root items the released mnemonic import writes for `entropy` and these paths, by tag
+    /// suffix (`newMetaAccountOperation(request: MetaAccountImportMnemonicRequest)`). A
+    /// recovery-phrase check compares the stored items with these byte for byte.
+    func rootItemsForMnemonicImport(
+        entropy: Data,
+        substratePath: String,
+        ethereumPath: String,
+        cryptoType: CryptoType
+    ) throws -> [String: Data] {
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+        let substrate = try getQuery(
+            seedSource: .mnemonic(mnemonic), derivationPath: substratePath,
+            cryptoType: cryptoType, ethereumBased: false
+        )
+        let ethereum = try getQuery(
+            seedSource: .mnemonic(mnemonic), derivationPath: ethereumPath,
+            cryptoType: .ecdsa, ethereumBased: true
+        )
+        var items: [String: Data] = [
+            "-entropy": entropy,
+            "-substrateSecretKey": substrate.privateKey,
+            "-substrateSeed": substrate.seed,
+            "-ethereumSecretKey": ethereum.privateKey,
+            "-ethereumSeed": ethereum.privateKey
+        ]
+        if !substratePath.isEmpty {
+            items["-substrateDeriv"] = Data(substratePath.utf8)
+        }
+        if !ethereumPath.isEmpty {
+            items["-ethereumDeriv"] = Data(ethereumPath.utf8)
+        }
+        return items
     }
 
     /// True when the entropy and path re-derive `publicKey` under one of the rules that read the
@@ -113,8 +152,13 @@ private extension MetaAccountOperationFactory {
         _ body: @escaping (MetaAccountOperationFactory) throws -> MetaAccountModel
     ) -> BaseOperation<MetaAccountModel> {
         let watchedAccounts = watchedAccounts
+        let recoveryEvidence = recoveryEvidence
         return PersistenceBoundImportOperation(keystore: keystore, replacing: previous) { transactionalStore in
-            try body(MetaAccountOperationFactory(keystore: transactionalStore, watchedAccounts: watchedAccounts))
+            try body(MetaAccountOperationFactory(
+                keystore: transactionalStore,
+                watchedAccounts: watchedAccounts,
+                recoveryEvidence: recoveryEvidence
+            ))
         }
     }
 
@@ -507,6 +551,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try factory.saveSeed(ethereumQuery.privateKey, metaId: metaId, ethereumBased: true)
 
             try factory.saveEntropy(request.mnemonic.entropy(), metaId: metaId)
+            if isBackuped {
+                factory.recoveryEvidence.recordWrittenRootItems(walletId: metaId, keystore: factory.keystore)
+            }
 
             return metaAccount
         }
@@ -566,6 +613,10 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             }
 
             try factory.saveUniversalWalletSeedBridgeContract(metaId: metaId)
+
+            if isBackuped {
+                factory.recoveryEvidence.recordWrittenRootItems(walletId: metaId, keystore: factory.keystore)
+            }
 
             return metaAccount
         }
@@ -632,6 +683,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try factory.saveSecretKey(substrateKeystore.secretKeyData, metaId: metaId, ethereumBased: false)
             if let ethereumKeystore = ethereumKeystore {
                 try factory.saveSecretKey(ethereumKeystore.secretKeyData, metaId: metaId, ethereumBased: true)
+            }
+            if isBackuped {
+                factory.recoveryEvidence.recordWrittenRootItems(walletId: metaId, keystore: factory.keystore)
             }
 
             return MetaAccountModel(

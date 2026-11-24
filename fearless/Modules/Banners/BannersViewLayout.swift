@@ -1,11 +1,7 @@
 import UIKit
 
 final class BannersViewLayout: UIView {
-    var locale: Locale = .current {
-        didSet {
-            applyLocalization()
-        }
-    }
+    var locale: Locale = .current
 
     let collectionView: UICollectionView = {
         let view = UICollectionView(frame: .zero, collectionViewLayout: DefaultFlowLayout())
@@ -13,6 +9,7 @@ final class BannersViewLayout: UIView {
         view.showsHorizontalScrollIndicator = false
         view.backgroundColor = .clear
         view.decelerationRate = .fast
+        view.scrollsToTop = false
         view.registerClassForCell(BannerCollectionViewCell.self)
         return view
     }()
@@ -70,6 +67,4 @@ final class BannersViewLayout: UIView {
             make.centerX.equalToSuperview()
         }
     }
-
-    private func applyLocalization() {}
 }

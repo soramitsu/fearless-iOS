@@ -1239,29 +1239,6 @@
         ]
     },
     {
-        "chainId": "6d8d9f145c2177fa83512492cdd80a71e29f22473f4a8943a6292149ac319fb9",
-        "runtime_id": 1,
-        "types": { },
-        "versioning": [
-            {
-                "runtime_range": [
-                    0,
-                    null
-                ],
-                "types": {
-                    "Balance": "u128",
-                    "Index": "u32",
-                    "Phase": "78",
-                    "Address": "140",
-                    "ExtrinsicSignature": "224",
-                    "ParaId": "110",
-                    "17": "GenericEvent",
-                    "221": "GenericCall"
-                }
-            }
-        ]
-    },
-    {
         "chainId": "sora_parachain.json",
         "runtime_id": 1,
         "types": { },

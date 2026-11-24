@@ -23,6 +23,30 @@ final class BitcoinBalanceSync {
             gapLimit: gapLimit,
             maxLookahead: maxLookahead
         )
+        return try await balance(of: discoveryResult, network: network, baseURL: baseURL)
+    }
+
+    /// The whole account's balance from its public descriptor; reads no secret.
+    func balance(
+        descriptor: BitcoinKeyDerivation.AccountDescriptor,
+        baseURL: String? = nil,
+        gapLimit: Int? = nil,
+        maxLookahead: Int = BitcoinReceiveDiscovery.defaultMaxLookahead
+    ) async throws -> BitcoinBalanceSyncResult {
+        let discoveryResult = try await discovery.discoverWallet(
+            descriptor: descriptor,
+            baseURL: baseURL,
+            gapLimit: gapLimit,
+            maxLookahead: maxLookahead
+        )
+        return try await balance(of: discoveryResult, network: descriptor.network, baseURL: baseURL)
+    }
+
+    private func balance(
+        of discoveryResult: BitcoinReceiveDiscoveryResult,
+        network: BitcoinKeyDerivation.Network,
+        baseURL: String?
+    ) async throws -> BitcoinBalanceSyncResult {
         var confirmedSats: Int64 = 0
         var mempoolSats: Int64 = 0
 
@@ -79,7 +103,14 @@ final class BitcoinBalanceSync {
         network: BitcoinKeyDerivation.Network,
         baseURL: String? = nil
     ) async throws -> BitcoinAddressBalanceResult {
-        try await discovery.balance(address: address, network: network, baseURL: baseURL)
+        var result = try await discovery.balance(address: address, network: network, baseURL: baseURL)
+        // What Send may offer: confirmed coins nothing in the mempool already spends.
+        result.confirmedSpendableSats = try? await discovery.confirmedSpendableSats(
+            address: address,
+            network: network,
+            baseURL: baseURL
+        )
+        return result
     }
 
     private func safeAdd(_ left: Int64, _ right: Int64) throws -> Int64 {
@@ -132,6 +163,25 @@ actor BitcoinWalletBalanceCache {
         let baseURL: String?
         let gapLimit: Int
         let maxLookahead: Int
+        /// The account's first receive address, lowercased. A password wallet can switch to
+        /// another account under the same wallet id; a scan of one account never answers for another.
+        let account: String
+
+        init(
+            walletId: MetaAccountId,
+            network: BitcoinIndexerNetwork,
+            baseURL: String?,
+            gapLimit: Int,
+            maxLookahead: Int,
+            account: String = ""
+        ) {
+            self.walletId = walletId
+            self.network = network
+            self.baseURL = baseURL
+            self.gapLimit = gapLimit
+            self.maxLookahead = maxLookahead
+            self.account = account.lowercased()
+        }
     }
 
     static let shared = BitcoinWalletBalanceCache()
@@ -250,4 +300,6 @@ struct BitcoinAddressBalanceResult: Equatable {
     let confirmedSats: Int64
     let mempoolSats: Int64
     let totalSats: Int64
+    /// Confirmed coins no mempool transaction spends; nil when the coins could not be read.
+    var confirmedSpendableSats: Int64?
 }

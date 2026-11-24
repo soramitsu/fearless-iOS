@@ -210,6 +210,10 @@ public final class WebSocketEngine {
         mutex.unlock()
     }
 
+    /// Stops a subscription's updates and ends it on the node. The handler is
+    /// removed at once; a subscription still waiting for its remote ID is ended
+    /// as soon as that ID arrives, and one whose request was never sent is
+    /// dropped. Throws only when the unsubscribe request cannot be prepared.
     public func unsubsribe(_ identifier: UInt16) throws {
         try processUnsubscription(identifier)
     }
@@ -715,30 +719,169 @@ extension WebSocketEngine {
         scheduleReconnectionOrDisconnect(NetworkConstants.websocketReconnectAttemptsLimit + 1)
     }
 
+    // MARK: Unsubscription
+
     private func processUnsubscription(_ identifier: UInt16) throws {
         mutex.lock()
-        let current = subscriptions[identifier]
-        mutex.unlock()
-        guard let subscription = current else { return }
+        defer { mutex.unlock() }
 
-        let requestInfo = try jsonDecoder.decode(
-            JSONRPCInfo<[[Data]]>.self,
-            from: subscription.requestData
-        )
+        // The handler goes at once, whatever the node answers later.
+        guard let subscription = subscriptions.removeValue(forKey: identifier) else {
+            return
+        }
 
-        _ = try callMethod(
-            RPCMethod.stateUnsubscribe,
-            params: requestInfo.params,
-            options: JSONRPCOptions(resendOnReconnect: false)
-        ) { [weak self] (result: Result<Data, Error>) in
-            guard case .success = result, let self = self else { return }
-            self.mutex.lock()
-            defer { self.mutex.unlock() }
-            if self.subscriptions[identifier] === subscription {
-                self.subscriptions.removeValue(forKey: identifier)
+        let method = Self.unsubscriptionMethod(forSubscriptionRequest: subscription.requestData)
+
+        if let remoteId = subscription.remoteId {
+            unknownResponsesByRemoteId[remoteId] = nil
+
+            guard let method = method else {
+                // A watcher added without its subscribe request, for example
+                // an extrinsic status stream that the node ends by itself.
+                logger?.debug("Removed subscription \(identifier) without a remote unsubscribe")
+                return
             }
+
+            try sendUnsubscriptionLocked(method: method, remoteId: remoteId)
+            return
+        }
+
+        // No remote ID yet: the subscribe request is queued or unanswered.
+        if let index = pendingRequests.firstIndex(where: { $0.requestId == identifier }),
+           pendingRequests[index].options.writeAuthorization == nil {
+            // Never sent, so the node has nothing to end.
+            pendingRequests.remove(at: index)
+            return
+        }
+
+        if let method = method {
+            unsubscribeOnRemoteIdLocked(identifier, method: method)
         }
     }
+
+    /// Gives an unanswered subscribe request a handler that ends the remote
+    /// subscription it creates. A guarded request stays queued: unsubscribing
+    /// stops watching a write but never withdraws it.
+    private func unsubscribeOnRemoteIdLocked(_ identifier: UInt16, method: String) {
+        let handler = RemoteSubscriptionIdHandler { [weak self] remoteId in
+            self?.sendUnsubscription(method: method, remoteId: remoteId)
+        }
+
+        if let index = pendingRequests.firstIndex(where: { $0.requestId == identifier }) {
+            let request = pendingRequests[index]
+            pendingRequests[index] = JSONRPCRequest(
+                requestId: request.requestId,
+                data: request.data,
+                options: request.options,
+                responseHandler: handler
+            )
+        } else if let request = inProgressRequests[identifier] {
+            // The remote subscription ends with its socket, so a reconnect
+            // must not resend the request.
+            let options = request.options.writeAuthorization == nil
+                ? JSONRPCOptions(resendOnReconnect: false)
+                : request.options
+            inProgressRequests[identifier] = JSONRPCRequest(
+                requestId: request.requestId,
+                data: request.data,
+                options: options,
+                responseHandler: handler
+            )
+        }
+    }
+
+    private func sendUnsubscription(method: String, remoteId: String) {
+        mutex.lock()
+        defer { mutex.unlock() }
+
+        unknownResponsesByRemoteId[remoteId] = nil
+
+        do {
+            try sendUnsubscriptionLocked(method: method, remoteId: remoteId)
+        } catch {
+            logger?.error("Did fail to unsubscribe \(remoteId): \(error)")
+        }
+    }
+
+    /// Substrate ends a subscription only when given the ID it assigned, sent
+    /// with the unsubscribe method that matches the subscribe method.
+    private func sendUnsubscriptionLocked(method: String, remoteId: String) throws {
+        // A remote subscription lives only as long as the socket that opened it.
+        guard case .connected = state else {
+            return
+        }
+
+        let request = try prepareRequest(
+            method: method,
+            params: [remoteId],
+            options: JSONRPCOptions(resendOnReconnect: false)
+        ) { [weak self] (result: Result<Bool, Error>) in
+            self?.didReceiveUnsubscription(result, remoteId: remoteId)
+        }
+
+        send(request: request)
+    }
+
+    private func didReceiveUnsubscription(_ result: Result<Bool, Error>, remoteId: String) {
+        mutex.lock()
+        // Updates sent before the node handled the request found no handler.
+        unknownResponsesByRemoteId[remoteId] = nil
+        mutex.unlock()
+
+        switch result {
+        case .success(true):
+            logger?.debug("Did unsubscribe \(remoteId)")
+        case .success(false):
+            logger?.warning("Node had no subscription \(remoteId) to end")
+        case let .failure(error):
+            logger?.warning("Did fail to unsubscribe \(remoteId): \(error)")
+        }
+    }
+
+    static func unsubscriptionMethod(forSubscriptionRequest data: Data) -> String? {
+        guard let request = try? JSONDecoder().decode(SubscriptionRequestMethod.self, from: data) else {
+            return nil
+        }
+
+        return unsubscriptionMethod(forSubscriptionMethod: request.method)
+    }
+
+    /// Each Substrate subscription method has its own unsubscribe method; any
+    /// other one answers `false` and the updates continue.
+    static func unsubscriptionMethod(forSubscriptionMethod method: String) -> String? {
+        if method == RPCMethod.submitAndWatchExtrinsic {
+            return RPCMethod.unwatchExtrinsic
+        }
+
+        if let range = method.range(of: "_subscribe") {
+            return method.replacingCharacters(in: range, with: "_unsubscribe")
+        }
+
+        if method.hasPrefix("subscribe_") {
+            return "un" + method
+        }
+
+        return nil
+    }
+}
+
+private struct SubscriptionRequestMethod: Decodable {
+    let method: String
+}
+
+/// Reads the subscription ID from a subscribe response.
+private struct RemoteSubscriptionIdHandler: JSONRPCResponseHandling {
+    let onRemoteId: (String) -> Void
+
+    func handle(data: Data) {
+        guard let response = try? JSONDecoder().decode(JSONRPCData<String>.self, from: data) else {
+            return
+        }
+
+        onRemoteId(response.result)
+    }
+
+    func handle(error _: Error) {}
 }
 
 

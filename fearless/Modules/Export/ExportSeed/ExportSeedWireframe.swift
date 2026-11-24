@@ -1,6 +1,36 @@
 import UIKit
 
 final class ExportSeedWireframe: ExportSeedWireframeProtocol {
+    /// The raw seed or private key stays off the general pasteboard, which has no expiry
+    /// and syncs to the user's other devices, and away from posting, printing and contact
+    /// targets, as the emergency export does.
+    ///
+    /// It also stays out of Notes, Reminders, Freeform, Messages, Mail, Books and Files: these
+    /// keep the plain text on the device and in iCloud, which is where wallet-stealing malware
+    /// on a hacked iPhone searches for recovery phrases and keys (the 2026 Coruna and DarkSword
+    /// payloads read Notes, iCloud Drive and messages). This sheet exists only in Debug builds.
+    static let excludedShareActivities: [UIActivity.ActivityType] = [
+        .copyToPasteboard,
+        .print,
+        .assignToContact,
+        .addToReadingList,
+        .saveToCameraRoll,
+        .markupAsPDF,
+        .postToFacebook,
+        .postToTwitter,
+        .postToWeibo,
+        .postToTencentWeibo,
+        .postToFlickr,
+        .postToVimeo,
+        .message,
+        .mail,
+        .openInIBooks,
+        .notes,
+        .reminders,
+        .freeform,
+        .saveToFiles
+    ]
+
     private weak var activityController: SeedShareActivityViewController?
 
     func present(viewModel: SheetAlertPresentableViewModel, from view: ControllerBackedProtocol?) {
@@ -31,6 +61,7 @@ final class ExportSeedWireframe: ExportSeedWireframeProtocol {
             return
         }
         let activity = SeedShareActivityViewController(activityItems: [source], applicationActivities: nil)
+        activity.excludedActivityTypes = Self.excludedShareActivities
         activityController = activity
         activity.onCompletion = { [weak self, weak activity] completed in
             if self?.activityController === activity {
@@ -92,4 +123,12 @@ private final class SeedShareActivityViewController: UIActivityViewController,
     func presentationControllerDidDismiss(_: UIPresentationController) {
         finish(false)
     }
+}
+
+extension UIActivity.ActivityType {
+    /// System share extensions without a public constant.
+    static let notes = UIActivity.ActivityType("com.apple.mobilenotes.SharingExtension")
+    static let reminders = UIActivity.ActivityType("com.apple.reminders.sharingextension")
+    static let freeform = UIActivity.ActivityType("com.apple.freeform.sharingextension")
+    static let saveToFiles = UIActivity.ActivityType("com.apple.DocumentManagerUICore.SaveToFiles")
 }

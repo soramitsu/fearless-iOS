@@ -83,6 +83,7 @@ final class ReceiveAndRequestAssetViewController: UIViewController, ViewHolder, 
             }
         }
         rootView.copyButton.addAction { [weak self] in
+            FWFeedback.shared.play(.commit)
             UIPasteboard.general.string = self?.rootView.addressLabel.text
             self?.output.close()
         }
@@ -98,7 +99,8 @@ extension ReceiveAndRequestAssetViewController: ReceiveAndRequestAssetViewInput 
     func didStartQRGeneration() {
         rootView.qrView.qrImageView.image = nil
         rootView.qrView.alpha = 0
-        rootView.shareButton.set(enabled: false)
+        // Share keeps its secondary (neutral) paint, which follows `isEnabled`.
+        rootView.shareButton.set(enabled: false, changeStyle: false)
     }
 
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?) {
@@ -112,7 +114,7 @@ extension ReceiveAndRequestAssetViewController: ReceiveAndRequestAssetViewInput 
     func didReceive(image: UIImage) {
         rootView.qrView.qrImageView.image = image
         rootView.qrView.alpha = 1
-        rootView.shareButton.set(enabled: true)
+        rootView.shareButton.set(enabled: true, changeStyle: false)
     }
 
     func didReceive(amountInputViewModel: IAmountInputViewModel?) {

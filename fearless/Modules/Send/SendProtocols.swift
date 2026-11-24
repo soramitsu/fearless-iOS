@@ -15,7 +15,7 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didStopFeeCalculation()
     func didStopTipCalculation()
     func didReceive(viewModel: RecipientViewModel)
-    func didReceive(accountScoreViewModel: AccountScoreViewModel?)
+    func didReceive(recipientAddress: String)
     func didBlockUserInteractive(isUserInteractiveAmount: Bool)
     func setInputAccessoryView(visible: Bool)
     func setHistoryButton(isVisible: Bool)

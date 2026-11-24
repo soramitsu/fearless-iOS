@@ -19,7 +19,10 @@ final class ScreenAuthorizationPresenter {
             forName: UIApplication.didEnterBackgroundNotification,
             object: nil,
             queue: .main
-        ) { [weak self] _ in self?.cancel() }
+        ) { [weak self] _ in
+            // The PIN closes with the app, but the user answered nothing: the caller may ask again.
+            self?.finish(with: .unanswered)
+        }
     }
 
     deinit {
@@ -39,7 +42,7 @@ extension ScreenAuthorizationPresenter: PinSetupPresenterProtocol {
     }
 
     func cancel() {
-        finish(with: false)
+        finish(with: .declined)
     }
 
     func willLeaveView() {
@@ -52,7 +55,7 @@ extension ScreenAuthorizationPresenter: PinSetupPresenterProtocol {
     func didLeaveView() {
         guard departurePending else { return }
         departurePending = false
-        finish(with: false)
+        finish(with: .declined)
     }
 
     func didCancelLeavingView() {
@@ -69,12 +72,12 @@ extension ScreenAuthorizationPresenter: PinSetupPresenterProtocol {
             controller.navigationController?.isBeingDismissed == true
     }
 
-    private func finish(with result: Bool) {
-        guard !finished, !result || !(departurePending || isLeavingView) else { return }
+    private func finish(with outcome: ScreenAuthorizationOutcome) {
+        guard !finished, !outcome.isAuthorized || !(departurePending || isLeavingView) else { return }
         finished = true
         deliveryGeneration &+= 1
         interactor.cancelAuth()
-        wireframe.showAuthorizationCompletion(with: result)
+        wireframe.showAuthorizationCompletion(outcome: outcome)
     }
 
     func activateBiometricAuth() {
@@ -98,13 +101,22 @@ extension ScreenAuthorizationPresenter: LocalAuthInteractorOutputProtocol {
         }
     }
 
+    func didReceiveLockout(remaining: TimeInterval) {
+        let generation = deliveryGeneration
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.deliveryGeneration == generation,
+                  !self.finished, !self.departurePending else { return }
+            self.view?.didReceiveLockout(remaining: remaining)
+        }
+    }
+
     func didChangeState(to _: LocalAuthInteractor.LocalAuthState) {}
 
     func didCompleteAuth() {
         let generation = deliveryGeneration
         DispatchQueue.main.async { [weak self] in
             guard let self, self.deliveryGeneration == generation else { return }
-            self.finish(with: true)
+            self.finish(with: .authorized)
         }
     }
 
@@ -112,7 +124,7 @@ extension ScreenAuthorizationPresenter: LocalAuthInteractorOutputProtocol {
         let generation = deliveryGeneration
         DispatchQueue.main.async { [weak self] in
             guard let self, self.deliveryGeneration == generation else { return }
-            self.finish(with: false)
+            self.finish(with: .declined)
         }
     }
 }

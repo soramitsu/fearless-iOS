@@ -16,20 +16,7 @@ final class WalletOptionAssembly {
             sortDescriptors: []
         )
 
-        let chainRepository = ChainRepositoryFactory().createRepository(
-            for: NSPredicate.enabledCHain(),
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository)
-        )
-
-        let walletConnectModelFactory = WalletConnectModelFactoryImpl()
-        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl(
-            walletConnectModelFactory: walletConnectModelFactory,
-            chainAssetFetcher: chainAssetFetching
-        )
+        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl()
 
         let interactor = WalletOptionInteractor(
             wallet: wallet,

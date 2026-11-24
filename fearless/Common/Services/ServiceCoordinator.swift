@@ -26,7 +26,12 @@ final class ServiceCoordinator {
     private let pricesService: PricesServiceProtocol
     private let appOwnedMnemonicProvider: UniversalWalletRootMnemonicProviding
     private let universalWalletFundsProbe: () -> UniversalWalletFundsProbing
+    private let descriptorBackfill: BitcoinAccountDescriptorBackfill
+    private let authorizedUnlock: WalletAuthorizedUnlock
+    private let allWallets: () async -> [MetaAccountModel]
     private let notificationCenter: NotificationCenter
+    private let descriptorBackfillLock = NSLock()
+    private var isBackfillingDescriptors = false
     private let appOwnedProvisioningLock = NSLock()
     private var appOwnedProvisioningWalletIds = Set<MetaAccountId>()
     private var appOwnedProvisioningObservers: [NSObjectProtocol] = []
@@ -44,6 +49,9 @@ final class ServiceCoordinator {
         universalWalletFundsProbe: @escaping () -> UniversalWalletFundsProbing = {
             UniversalWalletRemoteFundsProbe.makeDefault()
         },
+        descriptorBackfill: BitcoinAccountDescriptorBackfill = BitcoinAccountDescriptorBackfill(),
+        authorizedUnlock: WalletAuthorizedUnlock = .shared,
+        allWallets: @escaping () async -> [MetaAccountModel] = ServiceCoordinator.storedWallets,
         notificationCenter: NotificationCenter = .default
     ) {
         self.walletSettings = walletSettings
@@ -56,6 +64,9 @@ final class ServiceCoordinator {
         self.pricesService = pricesService
         appOwnedMnemonicProvider = bitcoinMnemonicProvider
         self.universalWalletFundsProbe = universalWalletFundsProbe
+        self.descriptorBackfill = descriptorBackfill
+        self.authorizedUnlock = authorizedUnlock
+        self.allWallets = allWallets
         self.notificationCenter = notificationCenter
     }
 
@@ -92,6 +103,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         if let selectedMetaAccount = walletSettings.value {
             provisionAppOwnedAccountsIfNeeded(for: selectedMetaAccount)
         }
+        backfillDescriptorsOfAllWallets()
     }
 
     func throttle() {
@@ -111,13 +123,25 @@ private extension ServiceCoordinator {
             return
         }
 
-        let retry: (Notification) -> Void = { [weak self] _ in
-            guard let self, let wallet = self.walletSettings.value else {
+        let retry: (Notification) -> Void = { [weak self] notification in
+            guard let self else {
+                return
+            }
+            if notification.name == .walletAuthorizedUnlock {
+                self.backfillDescriptorsOfAllWallets()
+            }
+            guard let wallet = self.walletSettings.value else {
                 return
             }
             self.provisionAppOwnedAccountsIfNeeded(for: wallet)
         }
         appOwnedProvisioningObservers = [
+            notificationCenter.addObserver(
+                forName: .walletAuthorizedUnlock,
+                object: nil,
+                queue: .main,
+                using: retry
+            ),
             notificationCenter.addObserver(
                 forName: UIApplication.protectedDataDidBecomeAvailableNotification,
                 object: nil,
@@ -138,7 +162,19 @@ private extension ServiceCoordinator {
         appOwnedProvisioningObservers.removeAll()
     }
 
+    /// Fills networks a wallet from an earlier release lacks and makes its Bitcoin descriptors.
+    /// Both need the wallet's secret, so the public account rows are checked first and the secret
+    /// is read only when something is missing and the user has just unlocked the app. Otherwise
+    /// the work waits for the next unlock; nothing here reads a secret on a refresh or foreground.
     func provisionAppOwnedAccountsIfNeeded(for wallet: MetaAccountModel) {
+        // A wallet without a Substrate root has no app-owned phrase to provision from.
+        let needsProvisioning = wallet.substrateAccountId != nil
+            && !UniversalWalletAccountProvisioning.missingSlots(in: wallet).isEmpty
+        let needsDescriptors = !descriptorBackfill.missingSlots(in: wallet).isEmpty
+        guard needsProvisioning || needsDescriptors, authorizedUnlock.isWindowOpen else {
+            return
+        }
+
         appOwnedProvisioningLock.lock()
         let shouldProvision = appOwnedProvisioningWalletIds.insert(wallet.metaId).inserted
         appOwnedProvisioningLock.unlock()
@@ -148,7 +184,17 @@ private extension ServiceCoordinator {
 
         Task.detached(priority: .utility) { [self] in
             do {
-                guard let root = try appOwnedMnemonicProvider.rootSecret(for: wallet) else {
+                // The window is checked again at each read: the queue or a network check may have
+                // taken it past its end.
+                guard authorizedUnlock.isWindowOpen else {
+                    finishAppOwnedProvisioning(for: wallet.metaId)
+                    return
+                }
+                guard needsProvisioning,
+                      let root = try WalletSecretAuthorization.withoutPrompt({
+                          try appOwnedMnemonicProvider.rootSecret(for: wallet)
+                      }) else {
+                    backfillDescriptorsAndRefresh(wallet)
                     finishAppOwnedProvisioning(for: wallet.metaId)
                     return
                 }
@@ -159,6 +205,7 @@ private extension ServiceCoordinator {
                     probe: universalWalletFundsProbe()
                 )
                 guard updatedWallet != wallet else {
+                    backfillDescriptorsAndRefresh(wallet)
                     finishAppOwnedProvisioning(for: wallet.metaId)
                     return
                 }
@@ -200,6 +247,54 @@ private extension ServiceCoordinator {
         }
     }
 
+    /// Makes the wallet's missing Bitcoin descriptors while the window is still open, and has the
+    /// selected wallet's balances read again with them.
+    func backfillDescriptorsAndRefresh(_ wallet: MetaAccountModel) {
+        guard authorizedUnlock.isWindowOpen, descriptorBackfill.backfill(wallet) > 0 else {
+            return
+        }
+        Task { @MainActor [weak self] in
+            await BitcoinWalletBalanceCache.shared.invalidate(walletId: wallet.metaId)
+            // The portfolio scans Bitcoin again, now over every address.
+            NotificationCenter.default.post(
+                name: .bitcoinAccountDescriptorsSaved,
+                object: nil,
+                userInfo: ["walletId": wallet.metaId]
+            )
+            guard let self, let selected = self.walletSettings.value, selected.metaId == wallet.metaId else {
+                return
+            }
+            self.accountInfoService.update(selectedMetaAccount: selected)
+        }
+    }
+
+    /// Every wallet's balance is refreshed from public data, the wallets not selected too, so
+    /// each one's missing Bitcoin descriptors are made right after an unlock.
+    func backfillDescriptorsOfAllWallets() {
+        guard authorizedUnlock.isWindowOpen else {
+            return
+        }
+        descriptorBackfillLock.lock()
+        guard !isBackfillingDescriptors else {
+            descriptorBackfillLock.unlock()
+            return
+        }
+        isBackfillingDescriptors = true
+        descriptorBackfillLock.unlock()
+
+        Task.detached(priority: .utility) { [self] in
+            for wallet in await allWallets() where !descriptorBackfill.missingSlots(in: wallet).isEmpty {
+                guard authorizedUnlock.isWindowOpen else {
+                    break
+                }
+                backfillDescriptorsAndRefresh(wallet)
+            }
+            descriptorBackfillLock.lock()
+            isBackfillingDescriptors = false
+            descriptorBackfillLock.unlock()
+        }
+    }
+
     func finishAppOwnedProvisioning(for walletId: MetaAccountId) {
         appOwnedProvisioningLock.lock()
         appOwnedProvisioningWalletIds.remove(walletId)
@@ -208,6 +303,12 @@ private extension ServiceCoordinator {
 }
 
 extension ServiceCoordinator {
+    static func storedWallets() async -> [MetaAccountModel] {
+        let repository = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+            .createMetaAccountRepository(for: nil, sortDescriptors: [])
+        return (try? await repository.fetchAllAsync()) ?? []
+    }
+
     static func createDefault(
         with selectedMetaAccount: MetaAccountModel,
         walletConnect: WalletConnectService

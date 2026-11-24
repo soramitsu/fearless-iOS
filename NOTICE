@@ -1,0 +1,30 @@
+Fearless Wallet for iOS
+Copyright Soramitsu Co., Ltd.
+
+The application is licensed under the Apache License, Version 2.0 (see LICENSE).
+Native/NOTICE covers the app-owned native modules in Native/.
+
+Third-party code in the application target:
+- fearless/Common/Network/Chainlink/ABI/abi/ ABI.swift, ABIDecoding.swift,
+  ABIElements.swift, ABIEncoding.swift, ABIParameterTypes.swift, ABIParsing.swift
+  and ABITypeParser.swift are derived from web3swift
+  (https://github.com/web3swift-team/web3swift), Copyright 2018 Alex Vlasov,
+  Apache License 2.0; see LICENSE-web3swift.txt in that folder. Modified by
+  Soramitsu for Fearless Wallet.
+- fearless/Common/Network/Chainlink/ABI/ Address.swift, Data+Length.swift,
+  String+Hex.swift, abi/BigInt+ABI.swift and abi/Collections/ are derived from
+  MEWwalletKit (https://github.com/MyEtherWallet/MEWwalletKit), Copyright
+  2019-2021 MyEtherWallet Inc., MIT License; see LICENSE-MEWwalletKit.txt in that
+  folder. Modified by Soramitsu for Fearless Wallet.
+- fearless/ApplicationLayer/Services/WalletConnect/eip_mew/ RLPBigInt.swift and
+  SignTypedData.swift are derived from MEWwalletKit
+  (https://github.com/MyEtherWallet/MEWwalletKit), Copyright 2021 MyEtherWallet
+  Inc., MIT License; see LICENSE-MEWwalletKit.txt in that folder. Modified by
+  Soramitsu for Fearless Wallet.
+- Packages/TonAPI/: the tonapi.io client generated in this repository by
+  swift-openapi-generator 0.3.1 (https://github.com/apple/swift-openapi-generator,
+  Apache License 2.0) from the tonapi OpenAPI specification in
+  Packages/TonAPI/openapi/openapi.yml, from tonkeeper/opentonapi
+  (https://github.com/tonkeeper/opentonapi), Copyright 2022-2023 TON APPS Inc.
+  and contributors, MIT License; see Packages/TonAPI/openapi/LICENSE and
+  Packages/TonAPI/README.md.

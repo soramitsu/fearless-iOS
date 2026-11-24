@@ -46,6 +46,8 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 pass_root="$tmp_dir/pass"
 make_fixture_root "$pass_root"
+mkdir -p "$pass_root/BuildTools/Vendor"
+printf '%s\n' '// TODO upstream release marker' > "$pass_root/BuildTools/Vendor/Upstream.swift"
 printf '%s\n' 'final class ExistingDebt { // TODO existing baseline marker' '}' > "$pass_root/fearless/ExistingDebt.swift"
 printf '%s\t%s\n' 'fearless/ExistingDebt.swift' 'final class ExistingDebt { // TODO existing baseline marker' > "$pass_root/config/todo-debt-baseline.tsv"
 run_audit "$pass_root" >/dev/null

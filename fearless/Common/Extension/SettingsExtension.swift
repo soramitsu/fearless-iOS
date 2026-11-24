@@ -14,10 +14,10 @@ enum SettingsKey: String {
     case referralEthereumAccount
     case selectedCurrency
     case shouldPlayAssetManagementAnimateKey
-    case accountScoreEnabled
     case acknowledgedRecordsNotShown
     case acknowledgedStoredChainAccounts
     case updateSecurityNotice
+    case operatingSystemSecurityNotice
 }
 
 extension SettingsManagerProtocol {
@@ -79,20 +79,6 @@ extension SettingsManagerProtocol {
         }
         set {
             set(value: newValue, for: SettingsKey.shouldPlayAssetManagementAnimateKey.rawValue)
-        }
-    }
-
-    var accountScoreEnabled: Bool? {
-        get {
-            bool(for: SettingsKey.accountScoreEnabled.rawValue) ?? true
-        }
-
-        set {
-            if let existingValue = newValue {
-                set(value: existingValue, for: SettingsKey.accountScoreEnabled.rawValue)
-            } else {
-                removeValue(for: SettingsKey.accountScoreEnabled.rawValue)
-            }
         }
     }
 

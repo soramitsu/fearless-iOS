@@ -97,13 +97,15 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
                 phase: .languageMigration,
                 migrator: languageMigrator
             ),
+            // The store migrators run once per process: a scene that connects
+            // again must not re-check stores the app already has open.
             RootSetupMigrationStep(
                 phase: .userStorageMigration,
-                migrator: dbMigrator
+                migrator: ProcessOnceMigrator(key: "user-storage", migrator: dbMigrator)
             ),
             RootSetupMigrationStep(
                 phase: .substrateMigration,
-                migrator: substrateDbMigrator
+                migrator: ProcessOnceMigrator(key: "substrate-storage", migrator: substrateDbMigrator)
             ),
             RootSetupMigrationStep(phase: .substrateMigration, migrator: RetainedContactStartupRecovery())
         ]
@@ -130,7 +132,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
                 // An empty list after recovery is not consent to forget the
                 // existing authentication protecting retained keys and records.
                 guard try retained.retainedArchiveURLs().isEmpty,
-                      try EmergencyWalletMaterialReader.walletTags().isEmpty else { return }
+                      try EmergencyWalletMaterialReader.pinCleanupFindsNoWalletTags() else { return }
                 try dependencies.keystore.deleteKeyIfExists(
                     for: KeystoreTag.pincode.rawValue
                 )

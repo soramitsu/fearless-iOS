@@ -82,3 +82,12 @@ extension OnboardingStartViewController: Localizable {
         }
     }
 }
+
+// MARK: - Launch flight tiers (kit v4)
+
+extension OnboardingStartViewController: FWFlightTiered {
+    /// The welcome: 0 the lockup, 1 the main control, 2 the rest. The older layout flies as one piece.
+    var flightTiers: [FWFlightTier] {
+        welcomeView?.flightTiers ?? []
+    }
+}

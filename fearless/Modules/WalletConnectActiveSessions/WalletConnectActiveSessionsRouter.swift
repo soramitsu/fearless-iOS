@@ -1,5 +1,5 @@
 import Foundation
-import WalletConnectSign
+import FearlessWalletConnect
 
 final class WalletConnectActiveSessionsRouter: WalletConnectActiveSessionsRouterInput {
     func showSession(

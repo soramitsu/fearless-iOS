@@ -15,21 +15,7 @@
     }
   ],
   "nativeBinaries": {
-    "Binaries/sorawallet.xcframework/Info.plist": "ffca0291124f175e36fc5ee312e951a2d7387e7724060a77ff62f71abef46745",
-    "Binaries/sorawallet.xcframework/ios-arm64/dSYMs/sorawallet.framework.dSYM/Contents/Info.plist": "c0a20ce87802a9004d25a14289308152bd51d96bf9a5374b37d878eaaac7e0e4",
-    "Binaries/sorawallet.xcframework/ios-arm64/dSYMs/sorawallet.framework.dSYM/Contents/Resources/DWARF/sorawallet": "479556e0375583fefb7649be7634798f3148207ffcd08e587f41fb77762c024c",
-    "Binaries/sorawallet.xcframework/ios-arm64/dSYMs/sorawallet.framework.dSYM/Contents/Resources/Relocations/aarch64/sorawallet.yml": "e90ff2224431e53bcf67221e6ff6966fb2322f2a75eed6fcfc06b2409d810078",
-    "Binaries/sorawallet.xcframework/ios-arm64/sorawallet.framework/Headers/sorawallet.h": "104407ae4b4ba14281d31bb9f3d8fa483cc5d4ac87c80a34a18c90c993c9ffb8",
-    "Binaries/sorawallet.xcframework/ios-arm64/sorawallet.framework/Info.plist": "a2b4970c0f3b88e8b4fc7ed1d950f8bbc8b47dd6cb58948e0e4884bf707f0847",
-    "Binaries/sorawallet.xcframework/ios-arm64/sorawallet.framework/Modules/module.modulemap": "6d04065b2ea6e8ca2a835197c1d614c4ddecd6b42f794db6b34a226d1e33cb7a",
-    "Binaries/sorawallet.xcframework/ios-arm64/sorawallet.framework/sorawallet": "acaf61f4a79fd5e33002a24298f36c981249752d411a60d01182f197d671a214",
-    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/dSYMs/sorawallet.framework.dSYM/Contents/Info.plist": "c0a20ce87802a9004d25a14289308152bd51d96bf9a5374b37d878eaaac7e0e4",
-    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/dSYMs/sorawallet.framework.dSYM/Contents/Resources/DWARF/sorawallet": "e44529be36553086662ddd63ee95c463d3a41d8300315ea5d827e376f65b7974",
-    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/sorawallet.framework/Headers/sorawallet.h": "104407ae4b4ba14281d31bb9f3d8fa483cc5d4ac87c80a34a18c90c993c9ffb8",
-    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/sorawallet.framework/Info.plist": "287fe3a45de1f92dcbd97950b6ea584ff824edaa875fdff1163fb3f9d4e0a220",
-    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/sorawallet.framework/Modules/module.modulemap": "0bdba3e4d100331748cbb8c1e0eba4bdf65468081b7074b4f981360bd7d8b2ff",
-    "Binaries/sorawallet.xcframework/ios-arm64_x86_64-simulator/sorawallet.framework/sorawallet": "8edddc4081fd9182ff37acc8c6386e4290768f7d93e238ffd34080b0829a23f1",
-    "Binaries/sr25519lib.xcframework/Info.plist": "4c4cd2cf3bb1db2feb292845aa2ef8fa2a7d3817f3da57b7a286b3dde7979b3d",
+    "Binaries/sr25519lib.xcframework/Info.plist": "6fb9a2e8a3fe3a2f09ca7f23564f2b831123450bba0ce6151617be735d301a44",
     "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/Headers/sr25519.h": "1a2ac0ff0a2f60bc428041e9626e4c5c131e31c80ff389f44fad3405ac81d8a9",
     "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/Headers/sr25519lib.h": "4924e757a6d16671fd44c7c9ab58a13abf78ec47b90e70c0184e21f031018d0b",
     "Binaries/sr25519lib.xcframework/ios-arm64/sr25519lib.framework/Info.plist": "998f3bfb551b680a8f8737b576c5444d34a17ac6fa244d75babb2973602ded53",
@@ -48,11 +34,27 @@
     "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/_CodeSignature/CodeResources": "a88fb354bd906e213166d57d991ac59942c1aac37d49b9f19ccf2f7d1a0b37c9",
     "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/_CodeSignature/CodeSignature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/libsr25519crust.a": "7cf16e0951f25f35f74b3b388bb219ad5a35b8ff9a97abd5473a5448396e3cba",
-    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/sr25519lib": "7cf16e0951f25f35f74b3b388bb219ad5a35b8ff9a97abd5473a5448396e3cba"
+    "Binaries/sr25519lib.xcframework/ios-arm64_x86_64-simulator/sr25519lib.framework/sr25519lib": "7cf16e0951f25f35f74b3b388bb219ad5a35b8ff9a97abd5473a5448396e3cba",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/Headers/sr25519.h": "1a2ac0ff0a2f60bc428041e9626e4c5c131e31c80ff389f44fad3405ac81d8a9",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/Headers/sr25519lib.h": "4924e757a6d16671fd44c7c9ab58a13abf78ec47b90e70c0184e21f031018d0b",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/Modules/module.modulemap": "1dec5ba0eed89d97f7ce8d7321ced39eff1749c4f88c442cd304989a87e20d21",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/Resources/Info.plist": "d552e8f19443b6814d50f13441972499b93091e27b4b87c5dbfc29ab0ffc4375",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/_CodeSignature/CodeDirectory": "b33a1a145315d259c0a471c474e3c28117b93f00c79da6743f5f077f3ea1cc68",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/_CodeSignature/CodeRequirements": "987920904eab650e75788c054aa0b0524e6a80bfc71aa32df8d237a61743f986",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/_CodeSignature/CodeResources": "40f1b8b28dd647ae7ee6c78999e7a0c187698d5c6a3d6731e750a89ccae14a2a",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/_CodeSignature/CodeSignature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/A/sr25519lib": "201f93acf248ba4638d94f3e555a6f5163228d8e9d4072806c8d64a320fe7d06"
   },
   "licenseImport": {
     "repository": "soramitsu/shared-features-spm",
     "revision": "0cfcc1f77810847d356e95ac524d8d359b23d3f2",
     "scope": "First-party Apache-2.0 and retained alternative MIT notices; third-party licenses preserved"
+  },
+  "nativeBinarySymlinks": {
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Headers": "Versions/Current/Headers",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Modules": "Versions/Current/Modules",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Resources": "Versions/Current/Resources",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/Versions/Current": "A",
+    "Binaries/sr25519lib.xcframework/macos-arm64_x86_64/sr25519lib.framework/sr25519lib": "Versions/Current/sr25519lib"
   }
 }

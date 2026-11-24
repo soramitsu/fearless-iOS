@@ -64,7 +64,7 @@ final class AssetManagementResetOrderViewController: UIViewController {
         titleLabel.textColor = UIColor(named: "fwTextPrimary")
         messageLabel.textColor = UIColor(named: "fwTextSecondary")
         confirmButton.configuration?.title = viewModel.actions.first?.title
-        confirmButton.configuration?.background.backgroundColor = UIColor(named: "fwFillTop")
+        confirmButton.emphasis = .primary
         confirmButton.configuration?.baseForegroundColor = UIColor(named: "fwTextOnAccent")
         confirmButton.addTarget(self, action: #selector(confirm), for: .touchUpInside)
         cancelButton.configuration?.title = viewModel.closeAction

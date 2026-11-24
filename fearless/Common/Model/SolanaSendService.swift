@@ -847,7 +847,13 @@ final class SolanaTransactionBroadcaster {
         } catch { return .recoveryRecordUnreadable }
         let record = snapshot.record
         guard record.signature == signature else { return nil }
-        guard isBound(record, to: scope) else { return .recoveryUnavailable(signature: record.signature) }
+        guard isBound(record, to: scope) else {
+            // Swift 6.4.2 at -O otherwise destroys the snapshot before copying the signature out of it,
+            // and the caller receives a freed string. Keep the snapshot alive past the copy.
+            return withExtendedLifetime(snapshot) {
+                SolanaTransferOutcome.recoveryUnavailable(signature: record.signature)
+            }
+        }
         return await send(snapshot, scope: scope, options: options, rpcURL: rpcURL, isFirstAttempt: false)
     }
 

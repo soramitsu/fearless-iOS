@@ -11,6 +11,7 @@ final class PinSaveCoordinator {
     func save(
         _ pin: String,
         using secretManager: SecretStoreManagerProtocol,
+        storesVerifier: Bool = ProtectedKeychainPolicy.isEnabled,
         isCurrent: @escaping () -> Bool,
         completion: @escaping (Bool) -> Void
     ) {
@@ -18,18 +19,97 @@ final class PinSaveCoordinator {
         requests.append { [weak self] in
             guard let self = self else { return }
             guard isCurrent() else { self.finish(); return }
-            var answered = false
-            secretManager.saveSecret(pin, for: KeystoreTag.pincode.rawValue, completionQueue: .main) { saved in
-                let deliver = {
-                    guard !answered else { return }
-                    answered = true
-                    completion(saved)
+            guard storesVerifier else {
+                self.store(pin, using: secretManager, completion: completion)
+                return
+            }
+            // A new PIN is stored as a salted, slow verifier (`PincodeVerifier`), never as digits.
+            DispatchQueue.global(qos: .userInitiated).async {
+                let value = try? PincodeVerifier.make(pin: pin)
+                DispatchQueue.main.async {
+                    guard isCurrent() else {
+                        self.finish()
+                        return
+                    }
+                    guard let value else {
+                        completion(false)
+                        self.finish()
+                        return
+                    }
+                    self.store(value, using: secretManager, completion: completion)
+                }
+            }
+        }
+        if requests.count == 1 {
+            requests[0]()
+        }
+    }
+
+    private func store(
+        _ value: String,
+        using secretManager: SecretStoreManagerProtocol,
+        completion: @escaping (Bool) -> Void
+    ) {
+        var answered = false
+        secretManager.saveSecret(value, for: KeystoreTag.pincode.rawValue, completionQueue: .main) { saved in
+            let deliver = {
+                guard !answered else { return }
+                answered = true
+                completion(saved)
+                self.finish()
+            }
+            if Thread.isMainThread {
+                deliver()
+            } else {
+                DispatchQueue.main.async(execute: deliver)
+            }
+        }
+    }
+
+    /// Replaces a plain stored PIN with a verifier after the user entered it correctly, in the same
+    /// queue as PIN changes so neither can overwrite the other. It writes only while the stored value
+    /// is still exactly `plain`, in place (the item never goes missing), reads the result back and
+    /// puts `plain` back only while the stored value is still the verifier it wrote.
+    func upgrade(
+        plain: String,
+        using secretManager: SecretStoreManagerProtocol,
+        completion: ((Bool) -> Void)? = nil
+    ) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        requests.append { [weak self] in
+            guard let self else { return }
+            let done: (Bool) -> Void = { upgraded in
+                DispatchQueue.main.async {
+                    completion?(upgraded)
                     self.finish()
                 }
-                if Thread.isMainThread {
-                    deliver()
-                } else {
-                    DispatchQueue.main.async(execute: deliver)
+            }
+            let tag = KeystoreTag.pincode.rawValue
+            let worker = DispatchQueue.global(qos: .utility)
+            secretManager.loadSecret(for: tag, completionQueue: worker) { current in
+                guard current?.toUTF8String() == plain, let verifier = try? PincodeVerifier.make(pin: plain) else {
+                    done(false)
+                    return
+                }
+                secretManager.saveSecret(verifier, for: tag, completionQueue: worker) { saved in
+                    guard saved else {
+                        done(false)
+                        return
+                    }
+                    secretManager.loadSecret(for: tag, completionQueue: worker) { stored in
+                        let value = stored?.toUTF8String()
+                        guard value == verifier else {
+                            // Another write won: it is never undone.
+                            done(false)
+                            return
+                        }
+                        guard PincodeVerifier.matches(plain, stored: verifier) else {
+                            // Never leave a PIN the user cannot enter.
+                            secretManager.saveSecret(plain, for: tag, completionQueue: worker) { _ in done(false) }
+                            return
+                        }
+                        done(true)
+                    }
                 }
             }
         }
@@ -60,6 +140,9 @@ class PinSetupInteractor {
     private(set) var settingsManager: SettingsManagerProtocol
     private let biometryAuth: BiometryAuthProtocol
     private let locale: Locale
+    private let attemptLimiter: PincodeAttemptLimiting
+    private let enrollmentGuard: BiometryEnrollmentGuarding
+    private let authorizedUnlock: WalletAuthorizedUnlock
     private var generation: UInt64 = 0
     private(set) var pincode: String?
     private(set) var state: PinSetupState = .waitingPincode
@@ -68,12 +151,18 @@ class PinSetupInteractor {
         secretManager: SecretStoreManagerProtocol,
         settingsManager: SettingsManagerProtocol,
         biometryAuth: BiometryAuthProtocol,
-        locale: Locale
+        locale: Locale,
+        attemptLimiter: PincodeAttemptLimiting = PincodeAttemptLimiter.shared,
+        enrollmentGuard: BiometryEnrollmentGuarding = BiometryEnrollmentGuard.shared,
+        authorizedUnlock: WalletAuthorizedUnlock = .shared
     ) {
         self.secretManager = secretManager
         self.settingsManager = settingsManager
         self.biometryAuth = biometryAuth
         self.locale = locale
+        self.attemptLimiter = attemptLimiter
+        self.enrollmentGuard = enrollmentGuard
+        self.authorizedUnlock = authorizedUnlock
     }
 
     private func onMain(_ action: @escaping () -> Void) {
@@ -113,10 +202,18 @@ class PinSetupInteractor {
                         self.changeState(to: .saveFailed)
                         return
                     }
+                    // A new PIN starts with no wrong attempts, even when a count survived a reinstall.
+                    self.attemptLimiter.reset()
                     // The preference must never claim a usable biometric PIN before storage acknowledges it.
                     if let biometryEnabled = biometryEnabled {
                         self.settingsManager.biometryEnabled = biometryEnabled
                     }
+                    // The user who just chose the PIN vouches for the enrollment that biometric unlock will accept.
+                    if biometryEnabled == true {
+                        self.enrollmentGuard.trustCurrentEnrollment()
+                    }
+                    // Whoever just chose the PIN is the owner: wallet work that needs secrets may run.
+                    self.authorizedUnlock.recordUnlock()
                     self.changeState(to: .submitedPincode)
                     output.didSavePin()
                 }

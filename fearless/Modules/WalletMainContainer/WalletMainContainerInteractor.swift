@@ -25,7 +25,9 @@ final class WalletMainContainerInteractor {
     private let watchedAccounts: UniversalWalletWatchedAccountsStore
     private let watchedAccountsChecker: UniversalWalletWatchedAccountsChecker
     private var isCheckingWatchedAccounts = false
-    private var portfolioRefreshObserver: NSObjectProtocol?
+    private var authorizedUnlockObserver: NSObjectProtocol?
+    private let authorizedUnlock: WalletAuthorizedUnlock
+    private let recoveryCheck: ProtectedKeychainRecoveryCheck
 
     // MARK: - Constructor
 
@@ -44,7 +46,9 @@ final class WalletMainContainerInteractor {
         passwordSwitcher: UniversalWalletPasswordSwitcher = UniversalWalletPasswordSwitcher(),
         passwordNoticeTracker: UniversalWalletPasswordNoticeTracker = UniversalWalletPasswordNoticeTracker(),
         watchedAccounts: UniversalWalletWatchedAccountsStore = UniversalWalletWatchedAccountsStore(),
-        watchedAccountsChecker: UniversalWalletWatchedAccountsChecker = UniversalWalletWatchedAccountsChecker()
+        watchedAccountsChecker: UniversalWalletWatchedAccountsChecker = UniversalWalletWatchedAccountsChecker(),
+        authorizedUnlock: WalletAuthorizedUnlock = .shared,
+        recoveryCheck: ProtectedKeychainRecoveryCheck = .shared
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -61,7 +65,15 @@ final class WalletMainContainerInteractor {
         self.passwordNoticeTracker = passwordNoticeTracker
         self.watchedAccounts = watchedAccounts
         self.watchedAccountsChecker = watchedAccountsChecker
+        self.authorizedUnlock = authorizedUnlock
+        self.recoveryCheck = recoveryCheck
         applicationHandler.delegate = self
+    }
+
+    deinit {
+        [authorizedUnlockObserver].compactMap { $0 }.forEach {
+            NotificationCenter.default.removeObserver($0)
+        }
     }
 
     // MARK: - Private method
@@ -135,9 +147,11 @@ final class WalletMainContainerInteractor {
     }
 
     /// Shows once per wallet that its password does not protect some universal accounts yet.
-    private func checkUniversalWalletPassword() {
+    /// It reads the wallet's words, so it runs only right after the user unlocked the app; a
+    /// check skipped now runs at the next unlock.
+    private func checkUniversalWalletPassword(requiresUnlock: Bool = true) {
         let wallet = self.wallet
-        guard !passwordNoticeTracker.wasShown(for: wallet.metaId) else {
+        guard !passwordNoticeTracker.wasShown(for: wallet.metaId), !requiresUnlock || authorizedUnlock.isWindowOpen else {
             return
         }
         let switcher = passwordSwitcher
@@ -156,7 +170,11 @@ final class WalletMainContainerInteractor {
 
     /// The account a watched network of a password wallet does not show stays watched: funds
     /// there make the network show it when the shown account is empty, and are reported otherwise.
-    private func checkWatchedOldAddresses() {
+    /// Reads the wallet's words, so it runs for a wallet with watched networks only, and only
+    /// right after the user unlocked the app: a portfolio refresh alone never reads a secret.
+    private func checkWatchedOldAddresses(requiresUnlock: Bool = true) {
+        guard !watchedAccounts.watchedSlots(in: wallet.metaId).isEmpty,
+              !requiresUnlock || authorizedUnlock.isWindowOpen else { return }
         guard !isCheckingWatchedAccounts else { return }
         isCheckingWatchedAccounts = true
         let wallet = self.wallet
@@ -203,6 +221,22 @@ final class WalletMainContainerInteractor {
         )
     }
 
+    /// Public data only (the flag, the offer record, the evidence and an attribute inventory): whether
+    /// to offer the recovery-phrase check for the selected wallet. Off while the flag is off.
+    private func checkRecoveryOffer() {
+        let wallet = self.wallet
+        let check = recoveryCheck
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard check.shouldOffer(wallet) else {
+                return
+            }
+            DispatchQueue.main.async {
+                guard let self, self.wallet.metaId == wallet.metaId else { return }
+                self.output?.didReceiveRecoveryCheckOffer(for: wallet)
+            }
+        }
+    }
+
     private func checkNftAvailability() {
         let fetchOperation = featureToggleService.fetchConfigOperation()
 
@@ -227,14 +261,20 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         fetchNetworkManagmentFilter()
         checkNftAvailability()
         checkStoredWalletRecords()
+        // Both read the wallet's words: they run when the user has just unlocked the app (now, if
+        // this screen opened right after the unlock, and at every later unlock), never because the
+        // portfolio refreshed or the app came to the foreground.
         checkUniversalWalletPassword()
         checkWatchedOldAddresses()
-        portfolioRefreshObserver = NotificationCenter.default.addObserver(
-            forName: .universalWalletPortfolioRefreshed,
+        checkRecoveryOffer()
+        authorizedUnlockObserver = NotificationCenter.default.addObserver(
+            forName: .walletAuthorizedUnlock,
             object: nil,
             queue: .main
         ) { [weak self] _ in
+            self?.checkUniversalWalletPassword()
             self?.checkWatchedOldAddresses()
+            self?.checkRecoveryOffer()
         }
     }
 
@@ -257,6 +297,10 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
     func acknowledgeUniversalWalletPasswordNotice() {
         passwordNoticeTracker.markShown(for: wallet.metaId)
+    }
+
+    func claimRecoveryCheckOffer(for wallet: MetaAccountModel) -> Bool {
+        recoveryCheck.claimOffer(wallet)
     }
 
     func acknowledgeOldAddressArrivals(_ arrivals: [UniversalWalletOldAddressArrival]) {
@@ -346,18 +390,36 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         }
 
         fetchNetworkManagmentFilter()
-        checkUniversalWalletPassword()
-        checkWatchedOldAddresses()
+        // Choosing a wallet is the user's own action: its checks run now, so a wallet that is never
+        // selected at an unlock is still checked (without a sheet once its keys are protected).
+        checkUniversalWalletPassword(requiresUnlock: false)
+        checkWatchedOldAddresses(requiresUnlock: false)
+        checkRecoveryOffer()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
         checkDeprecatedAccountIssues()
+        output?.didReceive(syncUpdate: .catalog(running: false))
+    }
+
+    func processChainSyncDidStart(event _: ChainSyncDidStart) {
+        output?.didReceive(syncUpdate: .catalog(running: true))
+    }
+
+    func processChainSyncDidFail(event _: ChainSyncDidFail) {
+        output?.didReceive(syncUpdate: .catalogFailed)
+    }
+
+    func processChainReconnecting(event: ChainReconnectingEvent) {
+        output?.didReceive(syncUpdate: .connection(
+            chainId: event.chain.chainId,
+            WalletSyncUpdate.connection(for: event.state)
+        ))
     }
 }
 
 extension WalletMainContainerInteractor: ApplicationHandlerDelegate {
     func didReceiveWillEnterForeground(notification _: Notification) {
         checkDeprecatedAccountIssues()
-        checkWatchedOldAddresses()
     }
 }

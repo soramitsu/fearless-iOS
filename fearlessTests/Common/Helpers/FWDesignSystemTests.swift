@@ -183,7 +183,12 @@ final class FWDesignSystemTests: XCTestCase {
         ))
         context.translateBy(x: -view.bounds.midX, y: -view.bounds.midY)
         view.layer.render(in: context)
-        XCTAssertEqual(pixel, [6, 7, 15, 255], "An inset shadow must not cover the entire fill")
+        // Sun-lit redesign, Yatagarasu palette: wells are bgDeep (#0C0722). `render(in:)` ignores masks, so the rim
+        // gradient adds a faint lift; the inner shadow must still leave the centre at the well colour.
+        let well: [Int] = [12, 7, 34, 255]
+        for (channel, expected) in zip(pixel.map(Int.init), well) {
+            XCTAssertEqual(channel, expected, accuracy: 6, "An inset shadow must not cover the entire fill")
+        }
         let focus = rim.strokeColor
         view.hasError = true
         XCTAssertNotEqual(rim.strokeColor, focus)
@@ -261,11 +266,16 @@ final class FWDesignSystemTests: XCTestCase {
             let font = UIFont.fw(.hud, locale: Locale(identifier: language), compatibleWith: traits)
             XCTAssertFalse(font.fontName.localizedCaseInsensitiveContains("mono"))
         }
-        for role in [FWFontStyle.bodyM, .numberM, .titleS, .monoM, .hud] {
-            let regular = UIFont.fw(role, compatibleWith: traits, boldText: false)
-            let bold = UIFont.fw(role, compatibleWith: traits, boldText: true)
-            XCTAssertEqual(regular.pointSize, bold.pointSize)
-            XCTAssertNotEqual(regular.fontDescriptor, bold.fontDescriptor)
+        // Both a language whose HUD uses the bundled mono face and one whose HUD uses the system
+        // face; the default locale would make the result depend on the device language.
+        for language in ["en", "ja"] {
+            let locale = Locale(identifier: language)
+            for role in [FWFontStyle.bodyM, .numberM, .titleS, .monoM, .hud] {
+                let regular = UIFont.fw(role, locale: locale, compatibleWith: traits, boldText: false)
+                let bold = UIFont.fw(role, locale: locale, compatibleWith: traits, boldText: true)
+                XCTAssertEqual(regular.pointSize, bold.pointSize, "\(language) \(role)")
+                XCTAssertNotEqual(regular.fontDescriptor, bold.fontDescriptor, "\(language) \(role)")
+            }
         }
     }
 }

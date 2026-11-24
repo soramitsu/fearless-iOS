@@ -329,7 +329,7 @@ final class ReceiveAndRequestAssetTests: XCTestCase {
     func testWalletHeaderCopyActionUsesFullAddress() {
         let address = "bc1qzmtrqsfuaf6l6kkcsseumq26ukaphfj9skkug6"
         let view = WalletMainContainerViewLayout()
-        view.bind(viewModel: WalletMainContainerViewModel(walletName: "My wallet", selectedFilter: "Bitcoin", selectedFilterImage: nil, address: address, accountScoreViewModel: nil))
+        view.bind(viewModel: WalletMainContainerViewModel(walletName: "My wallet", selectedFilter: "Bitcoin", selectedFilterImage: nil, address: address))
         let controller = UIViewController()
         controller.view = view
         var copied = false
@@ -406,7 +406,7 @@ final class ReceiveAndRequestAssetTests: XCTestCase {
             UITraitCollection(preferredContentSizeCategory: category).performAsCurrent {
                 let view = WalletMainContainerViewLayout()
                 view.locale = Locale(identifier: "en")
-                view.bind(viewModel: WalletMainContainerViewModel(walletName: "My wallet", selectedFilter: "Ethereum", selectedFilterImage: nil, address: "0x1234567890abcdef1234567890abcdef12345678", accountScoreViewModel: nil))
+                view.bind(viewModel: WalletMainContainerViewModel(walletName: "My wallet", selectedFilter: "Ethereum", selectedFilterImage: nil, address: "0x1234567890abcdef1234567890abcdef12345678"))
                 let balance = BalanceInfoViewLayout()
                 balance.bind(viewModel: BalanceInfoViewModel(dayChangeAttributedString: NSAttributedString(string: "+$12.34 (1.2%)"), balanceString: "$12,345.67", infoButtonEnabled: true))
                 view.addBalance(balance)
@@ -436,16 +436,8 @@ final class ReceiveAndRequestAssetTests: XCTestCase {
                             x: 0, y: view.headerScrollView.contentSize.height - view.headerScrollView.bounds.height
                         ), animated: false)
                         view.layoutIfNeeded()
-                        let scoreFrame = view.accountScoreView.convert(view.accountScoreView.bounds, to: view)
-                        XCTAssertLessThanOrEqual(scoreFrame.maxY, pageContainer.frame.minY)
-                        XCTAssertGreaterThanOrEqual(
-                            view.accountScoreView.starView.bounds.height,
-                            view.accountScoreView.starView.settings.textFont.lineHeight
-                        )
-                        for layer in view.accountScoreView.starView.layer.sublayers ?? [] {
-                            XCTAssertGreaterThanOrEqual(layer.frame.minY, 0)
-                            XCTAssertLessThanOrEqual(layer.frame.maxY, view.accountScoreView.starView.bounds.height)
-                        }
+                        let addressFrame = view.addressCopyableLabel.convert(view.addressCopyableLabel.bounds, to: view)
+                        XCTAssertLessThanOrEqual(addressFrame.maxY, pageContainer.frame.minY)
                     }
                     let labels = (descendants(in: balance) + descendants(in: view.selectNetworkButton)
                         + descendants(in: view.addressCopyableLabel)).compactMap { $0 as? UILabel }
@@ -576,8 +568,7 @@ final class WalletHeaderPresentationTests: XCTestCase {
                             preferredLanguages: [language]
                         ),
                         selectedFilterImage: nil,
-                        address: filtered ? address : nil,
-                        accountScoreViewModel: nil
+                        address: filtered ? address : nil
                     ))
                     await settle(fixture.window)
                     let tag = "\(language)-\(category.rawValue)-\(filtered ? "filtered" : "all")"
@@ -677,8 +668,7 @@ final class WalletHeaderPresentationTests: XCTestCase {
             walletName: walletName("en"),
             selectedFilter: network,
             selectedFilterImage: nil,
-            address: address,
-            accountScoreViewModel: nil
+            address: address
         ))
         await settle(fixture.window)
         fixture.localization.selectedLocalization = "ja"
@@ -687,8 +677,7 @@ final class WalletHeaderPresentationTests: XCTestCase {
             walletName: walletName("ja"),
             selectedFilter: network,
             selectedFilterImage: nil,
-            address: address,
-            accountScoreViewModel: nil
+            address: address
         ))
         if #available(iOS 17.0, *) {
             fixture.window.traitOverrides.preferredContentSizeCategory = .accessibilityExtraExtraExtraLarge
@@ -728,8 +717,7 @@ final class WalletHeaderPresentationTests: XCTestCase {
             walletName: walletName("ja"),
             selectedFilter: "All networks",
             selectedFilterImage: nil,
-            address: nil,
-            accountScoreViewModel: nil
+            address: nil
         ))
         await settle(fixture.window)
         XCTAssertTrue(layout.addressCopyableLabel.isHidden)
@@ -773,8 +761,7 @@ final class WalletHeaderPresentationTests: XCTestCase {
             walletName: walletName("en"),
             selectedFilter: network,
             selectedFilterImage: nil,
-            address: nil,
-            accountScoreViewModel: nil
+            address: nil
         ))
         await settle(fixture.window)
         let button = layout.selectNetworkButton
@@ -995,7 +982,6 @@ private final class WalletHeaderRecordingOutput: WalletMainContainerViewOutput {
     func didTapSelectNetwork() { actions.append("network") }
     func didTapOnBalance() { actions.append("balance") }
     func addressDidCopied() { actions.append("copy") }
-    func didTapAccountScore() { actions.append("score") }
 }
 
 @MainActor
@@ -1890,8 +1876,8 @@ final class ReceiveQRGenerationOwnershipTests: XCTestCase {
         interactor.lookingMatcher(for: address)
         XCTAssertEqual(output.matches.count, 1, "Frames after a match must not deliver twice")
         interactor.startScanning()
-        interactor.lookingMatcher(for: "ws://public-qr-fixture")
-        XCTAssertEqual(output.matches.last?.uri, "ws://public-qr-fixture")
+        interactor.lookingMatcher(for: "wc:public-qr-fixture@2")
+        XCTAssertEqual(output.matches.last?.uri, "wc:public-qr-fixture@2")
         interactor.startScanning()
         interactor.stopScanning()
         interactor.lookingMatcher(for: address)
@@ -1909,7 +1895,7 @@ final class ReceiveQRGenerationOwnershipTests: XCTestCase {
         // retire that capture and start the next one before draining main.
         let queued = DispatchSemaphore(value: 0)
         DispatchQueue.global().async {
-            interactor.lookingMatcher(for: "ws://public-obsolete-capture")
+            interactor.lookingMatcher(for: "wc:public-obsolete-capture@2")
             queued.signal()
         }
         XCTAssertEqual(queued.wait(timeout: .now() + 2), .success)
@@ -1918,9 +1904,9 @@ final class ReceiveQRGenerationOwnershipTests: XCTestCase {
         await fulfillment(of: [stale], timeout: 0.3)
         XCTAssertTrue(output.matches.isEmpty)
         output.onMatch = nil
-        interactor.lookingMatcher(for: "ws://public-current-capture")
+        interactor.lookingMatcher(for: "wc:public-current-capture@2")
         XCTAssertEqual(output.matches.count, 1)
-        XCTAssertEqual(output.matches.last?.uri, "ws://public-current-capture")
+        XCTAssertEqual(output.matches.last?.uri, "wc:public-current-capture@2")
     }
 
     private struct Fixture {

@@ -532,24 +532,29 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         let chain = makeBitcoinChain(historyBaseURL: "https://blockstream.info/api/")
         let wallet = try walletWithBitcoinAccount(chainId: chain.chainId)
         let bitcoinSync = BitcoinBalanceSyncStub(result: bitcoinBalanceResult(totalSats: 125_000))
-        let mnemonicProvider = BitcoinMnemonicProviderStub(mnemonic: Self.mnemonic)
+        let descriptor = try BitcoinKeyDerivation.deriveAccountDescriptor(mnemonic: Self.mnemonic, network: .mainnet)
         let storagePerformer = StorageRequestPerformerStub()
         let service = makeAccountInfoRemoteService(
             bitcoinBalanceSync: bitcoinSync,
-            bitcoinMnemonicProvider: mnemonicProvider,
+            bitcoinDescriptor: descriptor,
             storagePerformer: storagePerformer
         )
 
         let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
 
-        XCTAssertEqual(bitcoinSync.invocations.count, 1)
-        XCTAssertEqual(bitcoinSync.invocations.first?.mnemonic, Self.mnemonic)
-        XCTAssertEqual(bitcoinSync.invocations.first?.network, .mainnet)
+        // Refresh scans from the public descriptor and never asks for the phrase.
+        XCTAssertEqual(bitcoinSync.invocations.count, 0)
+        XCTAssertEqual(bitcoinSync.descriptorInvocations.count, 1)
+        XCTAssertEqual(bitcoinSync.descriptorInvocations.first?.descriptor, descriptor)
+        XCTAssertEqual(bitcoinSync.descriptorInvocations.first?.descriptor.network, .mainnet)
         XCTAssertEqual(
-            bitcoinSync.invocations.first?.baseURL,
+            bitcoinSync.descriptorInvocations.first?.baseURL,
             UniversalWalletRegistry.bitcoinMainnetIndexerBaseURL.absoluteString
         )
-        XCTAssertEqual(bitcoinSync.invocations.first?.gapLimit, UniversalWalletRegistry.bitcoinMainnet.defaultGapLimit)
+        XCTAssertEqual(
+            bitcoinSync.descriptorInvocations.first?.gapLimit,
+            UniversalWalletRegistry.bitcoinMainnet.defaultGapLimit
+        )
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
 
         let nativeInfo = try XCTUnwrap(result[Self.btcAsset.chainAssetId(chainId: chain.chainId)] ?? nil)
@@ -563,12 +568,12 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         let bitcoinSync = BitcoinBalanceSyncStub(result: bitcoinBalanceResult(totalSats: 50_001))
         let service = makeAccountInfoRemoteService(
             bitcoinBalanceSync: bitcoinSync,
-            bitcoinMnemonicProvider: BitcoinMnemonicProviderStub(mnemonic: Self.mnemonic)
+            bitcoinDescriptor: try BitcoinKeyDerivation.deriveAccountDescriptor(mnemonic: Self.mnemonic)
         )
 
         let result = try await service.fetchAccountInfo(for: chainAsset, wallet: wallet)
 
-        XCTAssertEqual(bitcoinSync.invocations.count, 1)
+        XCTAssertEqual(bitcoinSync.descriptorInvocations.count, 1)
         XCTAssertEqual(result?.data.free, BigUInt(50_001))
     }
 
@@ -578,23 +583,29 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         let bitcoinSync = BitcoinBalanceSyncStub(result: bitcoinBalanceResult(totalSats: 7))
         let service = makeAccountInfoRemoteService(
             bitcoinBalanceSync: bitcoinSync,
-            bitcoinMnemonicProvider: BitcoinMnemonicProviderStub(mnemonic: Self.mnemonic)
+            bitcoinDescriptor: try BitcoinKeyDerivation.deriveAccountDescriptor(
+                mnemonic: Self.mnemonic,
+                network: .testnet
+            )
         )
 
         _ = try await service.fetchAccountInfos(for: chain, wallet: wallet)
 
-        XCTAssertEqual(bitcoinSync.invocations.first?.network, .testnet)
-        XCTAssertEqual(bitcoinSync.invocations.first?.gapLimit, UniversalWalletRegistry.bitcoinTestnet.defaultGapLimit)
+        XCTAssertEqual(bitcoinSync.descriptorInvocations.first?.descriptor.network, .testnet)
+        XCTAssertEqual(
+            bitcoinSync.descriptorInvocations.first?.gapLimit,
+            UniversalWalletRegistry.bitcoinTestnet.defaultGapLimit
+        )
     }
 
-    func testFetchAccountInfosUsesLimitedDirectAddressCoverageWithoutMnemonic() async throws {
+    func testFetchAccountInfosUsesLimitedDirectAddressCoverageWithoutDescriptor() async throws {
         let chain = makeBitcoinChain()
         let wallet = try walletWithBitcoinAccount(chainId: chain.chainId)
         let bitcoinSync = BitcoinBalanceSyncStub(result: bitcoinBalanceResult(totalSats: 1))
         let storagePerformer = StorageRequestPerformerStub()
         let service = makeAccountInfoRemoteService(
             bitcoinBalanceSync: bitcoinSync,
-            bitcoinMnemonicProvider: BitcoinMnemonicProviderStub(mnemonic: nil),
+            bitcoinDescriptor: nil,
             storagePerformer: storagePerformer
         )
 
@@ -603,6 +614,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         let nativeInfo = try XCTUnwrap(result[Self.btcAsset.chainAssetId(chainId: chain.chainId)] ?? nil)
         XCTAssertEqual(nativeInfo.data.free, BigUInt(1))
         XCTAssertEqual(bitcoinSync.invocations.count, 0)
+        XCTAssertEqual(bitcoinSync.descriptorInvocations.count, 0)
         XCTAssertEqual(bitcoinSync.addressInvocations.count, 1)
         XCTAssertEqual(bitcoinSync.addressInvocations.first?.network, .mainnet)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
@@ -615,7 +627,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         let storagePerformer = StorageRequestPerformerStub()
         let service = makeAccountInfoRemoteService(
             bitcoinBalanceSync: bitcoinSync,
-            bitcoinMnemonicProvider: BitcoinMnemonicProviderStub(mnemonic: Self.mnemonic),
+            bitcoinDescriptor: try BitcoinKeyDerivation.deriveAccountDescriptor(mnemonic: Self.mnemonic),
             storagePerformer: storagePerformer
         )
 
@@ -627,7 +639,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         } catch {
             XCTFail("Unexpected Bitcoin indexer error: \(error)")
         }
-        XCTAssertEqual(bitcoinSync.invocations.count, 1)
+        XCTAssertEqual(bitcoinSync.descriptorInvocations.count, 1)
         XCTAssertEqual(storagePerformer.performMixInvocations, 0)
     }
 
@@ -637,13 +649,13 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
         let bitcoinSync = BitcoinBalanceSyncStub(result: bitcoinBalanceResult(totalSats: -1))
         let service = makeAccountInfoRemoteService(
             bitcoinBalanceSync: bitcoinSync,
-            bitcoinMnemonicProvider: BitcoinMnemonicProviderStub(mnemonic: Self.mnemonic)
+            bitcoinDescriptor: try BitcoinKeyDerivation.deriveAccountDescriptor(mnemonic: Self.mnemonic)
         )
 
         let result = try await service.fetchAccountInfos(for: chain, wallet: wallet)
 
         XCTAssertTrue(result.values.allSatisfy { $0 == nil })
-        XCTAssertEqual(bitcoinSync.invocations.count, 1)
+        XCTAssertEqual(bitcoinSync.descriptorInvocations.count, 1)
     }
 
     func testFetchAccountInfosMapsSolanaNativeAndTokenBalancesWithoutSubstrateStorage() async throws {
@@ -1545,7 +1557,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
 
     private func makeAccountInfoRemoteService(
         bitcoinBalanceSync: BitcoinBalanceSyncing? = nil,
-        bitcoinMnemonicProvider: BitcoinMnemonicProviding = BitcoinMnemonicProviderStub(mnemonic: nil),
+        bitcoinDescriptor: BitcoinKeyDerivation.AccountDescriptor? = nil,
         solanaBalanceSync: SolanaBalanceSyncing? = nil,
         irohaToriiClient: IrohaToriiClientProtocol? = nil,
         storagePerformer: StorageRequestPerformerStub = StorageRequestPerformerStub()
@@ -1554,7 +1566,7 @@ final class AccountInfoRemoteServiceTests: XCTestCase {
             ethereumRemoteBalanceFetching: AccountInfoFetchingStub(),
             tonRemoteBalanceFetching: AccountInfoRemoteServiceStub(),
             bitcoinBalanceSync: bitcoinBalanceSync,
-            bitcoinMnemonicProvider: bitcoinMnemonicProvider,
+            bitcoinDescriptorProvider: BitcoinDescriptorProviderStub(descriptor: bitcoinDescriptor),
             solanaBalanceSync: solanaBalanceSync,
             irohaToriiClient: irohaToriiClient,
             storagePerformer: storagePerformer
@@ -4350,11 +4362,19 @@ private final class BitcoinBalanceSyncStub: BitcoinBalanceSyncing {
         let baseURL: String?
     }
 
+    struct DescriptorInvocation: Equatable {
+        let descriptor: BitcoinKeyDerivation.AccountDescriptor
+        let baseURL: String?
+        let gapLimit: Int?
+        let maxLookahead: Int
+    }
+
     private let result: BitcoinBalanceSyncResult
     private let addressResult: BitcoinAddressBalanceResult
     private let error: Error?
     private(set) var invocations: [Invocation] = []
     private(set) var addressInvocations: [AddressInvocation] = []
+    private(set) var descriptorInvocations: [DescriptorInvocation] = []
 
     init(
         result: BitcoinBalanceSyncResult = BitcoinBalanceSyncResult(
@@ -4420,13 +4440,26 @@ private final class BitcoinBalanceSyncStub: BitcoinBalanceSyncing {
         if let error { throw error }
         return addressResult
     }
+
+    func balance(
+        descriptor: BitcoinKeyDerivation.AccountDescriptor,
+        baseURL: String?,
+        gapLimit: Int?,
+        maxLookahead: Int
+    ) async throws -> BitcoinBalanceSyncResult {
+        descriptorInvocations.append(
+            DescriptorInvocation(descriptor: descriptor, baseURL: baseURL, gapLimit: gapLimit, maxLookahead: maxLookahead)
+        )
+        if let error { throw error }
+        return result
+    }
 }
 
-private struct BitcoinMnemonicProviderStub: BitcoinMnemonicProviding {
-    let mnemonic: String?
+private struct BitcoinDescriptorProviderStub: BitcoinAccountDescriptorProviding {
+    let descriptor: BitcoinKeyDerivation.AccountDescriptor?
 
-    func mnemonic(for _: MetaAccountModel, chain _: ChainModel) throws -> String? {
-        mnemonic
+    func descriptor(for _: MetaAccountModel, chain _: ChainModel) -> BitcoinKeyDerivation.AccountDescriptor? {
+        descriptor
     }
 }
 

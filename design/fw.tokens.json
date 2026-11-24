@@ -114,10 +114,10 @@
             "colorSpace": "srgb",
             "components": [
               1,
-              0.302,
-              0.7216
+              0.3098,
+              0.6392
             ],
-            "hex": "#FF4DB8"
+            "hex": "#FF4FA3"
           }
         },
         "500": {
@@ -125,11 +125,11 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              1,
+              0.902,
               0,
-              0.6039
+              0.4353
             ],
-            "hex": "#FF009A"
+            "hex": "#E6006F"
           }
         },
         "600": {
@@ -139,9 +139,9 @@
             "components": [
               0.8392,
               0,
-              0.498
+              0.4157
             ],
-            "hex": "#D6007F"
+            "hex": "#D6006A"
           }
         },
         "700": {
@@ -149,11 +149,11 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.6392,
+              0.6588,
               0,
-              0.4157
+              0.3529
             ],
-            "hex": "#A3006A"
+            "hex": "#A8005A"
           }
         }
       },
@@ -794,10 +794,10 @@
           "colorSpace": "srgb",
           "components": [
             1,
-            0.302,
-            0.7216
+            0.3098,
+            0.6392
           ],
-          "hex": "#FF4DB8"
+          "hex": "#FF4FA3"
         },
         "$description": "Rare brand emphasis. Restricted (3.4).",
         "$extensions": {
@@ -835,11 +835,11 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            1,
+            0.902,
             0,
-            0.6039
+            0.4353
           ],
-          "hex": "#FF009A"
+          "hex": "#E6006F"
         },
         "$description": "Brand mark and glow colour. Never behind text.",
         "$extensions": {
@@ -858,9 +858,9 @@
           "components": [
             0.8392,
             0,
-            0.498
+            0.4157
           ],
-          "hex": "#D6007F"
+          "hex": "#D6006A"
         },
         "$description": "Primary fill gradient top; toggle-on track.",
         "$extensions": {
@@ -877,11 +877,11 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            0.6392,
+            0.6588,
             0,
-            0.4157
+            0.3529
           ],
-          "hex": "#A3006A"
+          "hex": "#A8005A"
         },
         "$description": "Primary fill gradient bottom; pressed primary.",
         "$extensions": {
@@ -899,11 +899,11 @@
           "colorSpace": "srgb",
           "components": [
             1,
-            0.302,
-            0.7216
+            0.3098,
+            0.6392
           ],
           "alpha": 0.55,
-          "hex": "#FF4DB8"
+          "hex": "#FF4FA3"
         },
         "$description": "1 px inside edge on fills; lifts the toggle-on track to 3:1.",
         "$extensions": {
@@ -1109,12 +1109,12 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            1,
+            0.902,
             0,
-            0.6039
+            0.4353
           ],
           "alpha": 0.16,
-          "hex": "#FF009A"
+          "hex": "#E6006F"
         },
         "$description": "Selected chip, selected tab pill.",
         "$extensions": {
@@ -1132,10 +1132,10 @@
           "colorSpace": "srgb",
           "components": [
             1,
-            0.302,
-            0.7216
+            0.3098,
+            0.6392
           ],
-          "hex": "#FF4DB8"
+          "hex": "#FF4FA3"
         },
         "$description": "Selected chip and pill edge (non-text 3:1).",
         "$extensions": {
@@ -1152,12 +1152,12 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            1,
+            0.902,
             0,
-            0.6039
+            0.4353
           ],
           "alpha": 0.1,
-          "hex": "#FF009A"
+          "hex": "#E6006F"
         },
         "$description": "Selected list row on glass.",
         "$extensions": {
@@ -1405,12 +1405,12 @@
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            1,
+            0.902,
             0,
-            0.6039
+            0.4353
           ],
           "alpha": 0.18,
-          "hex": "#FF009A"
+          "hex": "#E6006F"
         },
         "$extensions": {
           "fw": {
@@ -1513,12 +1513,12 @@
           "color": {
             "colorSpace": "srgb",
             "components": [
-              1,
+              0.902,
               0,
-              0.6039
+              0.4353
             ],
             "alpha": 0.28,
-            "hex": "#FF009A"
+            "hex": "#E6006F"
           },
           "position": 1
         }
@@ -1541,12 +1541,12 @@
           "color": {
             "colorSpace": "srgb",
             "components": [
-              1,
+              0.902,
               0,
-              0.6039
+              0.4353
             ],
             "alpha": 0.75,
-            "hex": "#FF009A"
+            "hex": "#E6006F"
           },
           "position": 0
         },
@@ -1597,9 +1597,9 @@
             "components": [
               0.8392,
               0,
-              0.498
+              0.4157
             ],
-            "hex": "#D6007F"
+            "hex": "#D6006A"
           },
           "position": 0
         },
@@ -1607,11 +1607,11 @@
           "color": {
             "colorSpace": "srgb",
             "components": [
-              0.6392,
+              0.6588,
               0,
-              0.4157
+              0.3529
             ],
-            "hex": "#A3006A"
+            "hex": "#A8005A"
           },
           "position": 1
         }

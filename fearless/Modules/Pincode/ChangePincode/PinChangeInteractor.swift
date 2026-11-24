@@ -4,11 +4,16 @@ import SoraKeystore
 final class PinChangeInteractor {
     weak var presenter: PinSetupInteractorOutputProtocol?
     private(set) var secretManager: SecretStoreManagerProtocol
+    private let attemptLimiter: PincodeAttemptLimiting
     private var state = PinSetupInteractor.PinSetupState.waitingPincode
     private var generation: UInt64 = 0
 
-    init(secretManager: SecretStoreManagerProtocol) {
+    init(
+        secretManager: SecretStoreManagerProtocol,
+        attemptLimiter: PincodeAttemptLimiting = PincodeAttemptLimiter.shared
+    ) {
         self.secretManager = secretManager
+        self.attemptLimiter = attemptLimiter
     }
 
     private func onMain(_ action: @escaping () -> Void) {
@@ -42,6 +47,7 @@ extension PinChangeInteractor: PinSetupInteractorInputProtocol {
                         self.state = saved ? .submitedPincode : .saveFailed
                         output.didChangeState(to: self.state)
                         if saved {
+                            self.attemptLimiter.reset()
                             output.didSavePin()
                         }
                     }

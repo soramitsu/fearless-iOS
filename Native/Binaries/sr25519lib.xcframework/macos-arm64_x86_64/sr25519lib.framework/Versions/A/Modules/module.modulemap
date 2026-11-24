@@ -1,0 +1,6 @@
+framework module sr25519lib {
+  umbrella header "sr25519lib.h"
+  export *
+
+  module * { export * }
+}

@@ -247,7 +247,7 @@
     </objects>
     <resources>
         <image name="backgroundImage" width="375" height="812"/>
-        <image name="logo" width="246" height="158"/>
+        <image name="logo" width="480" height="200"/>
         <namedColor name="colorAccent">
             <color red="1" green="0.0" blue="0.60392156862745094" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

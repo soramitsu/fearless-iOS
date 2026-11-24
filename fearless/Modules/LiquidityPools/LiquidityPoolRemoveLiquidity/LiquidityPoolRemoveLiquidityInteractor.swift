@@ -99,7 +99,7 @@ final class LiquidityPoolRemoveLiquidityInteractor {
             return
         }
 
-        guard let reservesId = try? Data(hexStringSSF: reservesIdString) else {
+        guard let reservesId = try? LiquidityPoolReservesId.accountId(from: reservesIdString, chain: chain) else {
             output?.didReceiveTotalIssuanceError(error: CommonError.internal)
             return
         }

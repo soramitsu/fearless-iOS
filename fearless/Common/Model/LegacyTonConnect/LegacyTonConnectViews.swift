@@ -3,7 +3,16 @@ import WebKit
 
 final class LegacyTonConnectApprovalViewController: UIViewController, ControllerBackedProtocol {
     var onApprove: (() -> Void)?
-    var completion: ((Bool) -> Void)?
+    /// true: approved; false: declined by the user; nil: not answered (closed by the lock or a throttle).
+    var completion: ((Bool?) -> Void)?
+    /// Asked when a dismissal starts, never after it: whether the sheet is closing for the lock or a throttle.
+    var isInterrupted: () -> Bool = { false }
+    private var externalDismissalOutcome: Bool??
+    /// A swipe is still being dragged: nothing is decided until UIKit commits or cancels it.
+    private var isInteractivelyDismissing = false
+    /// The first outcome requested during that drag (for example a throttle's interruption), resolved when it was
+    /// requested and applied unchanged once a cancelled swipe has settled. `nil`: none requested.
+    private var finishAfterInteraction: Bool??
     private let details: String
 
     init(title: String, details: String) {
@@ -64,28 +73,153 @@ final class LegacyTonConnectApprovalViewController: UIViewController, Controller
     @objc private func cancelPressed() { finish(approved: false) }
 
     func finish(approved: Bool) {
+        guard completion != nil else { return }
+        // Decided now, as the sheet starts to close; a lock or throttle during the animation changes nothing.
+        finish(resolved: approved ? true : (isInterrupted() ? nil : false))
+    }
+
+    /// Closes the sheet with no answer (the PIN closed when the app went to the background): nothing is declined.
+    func finishUnanswered() {
+        guard completion != nil else { return }
+        finish(resolved: nil)
+    }
+
+    private func finish(resolved outcome: Bool?) {
         guard let callback = completion else { return }
+        guard !isInteractivelyDismissing else {
+            // Keep the callbacks until UIKit has settled the swipe; the first request wins, unchanged.
+            if finishAfterInteraction == nil {
+                finishAfterInteraction = .some(outcome)
+            }
+            return
+        }
         completion = nil
         onApprove = nil
-        if let presentingViewController {
-            presentingViewController.dismiss(animated: true) { callback(approved) }
-        } else {
-            callback(false)
+        if let captured = externalDismissalOutcome {
+            // Already closing from outside (a committed swipe, the lock): that decided it, once.
+            callback(captured)
+            return
         }
+        if let presentingViewController {
+            presentingViewController.dismiss(animated: true) { callback(outcome) }
+        } else {
+            callback(outcome == true ? false : outcome)
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Back on screen after a cancelled swipe (UIKit balances the appearance calls): nothing was decided, and a
+        // finish requested during the drag applies now, as resolved when it was requested.
+        externalDismissalOutcome = nil
+        guard isInteractivelyDismissing else { return }
+        isInteractivelyDismissing = false
+        if let pending = finishAfterInteraction {
+            finishAfterInteraction = nil
+            finish(resolved: pending)
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Closed from outside (the lock, a swipe): what it means is decided as the dismissal starts. A swipe can
+        // still be cancelled, so until it ends nothing is delivered and finishes wait.
+        guard completion != nil, isBeingDismissed || presentingViewController == nil else { return }
+        externalDismissalOutcome = .some(isInterrupted() ? nil : false)
+        isInteractivelyDismissing = transitionCoordinator?.isInteractive == true
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        if isBeingDismissed || presentingViewController == nil { finish(approved: false) }
+        guard isBeingDismissed || presentingViewController == nil else { return }
+        // Gone, a committed swipe included: its outcome is delivered once; a finish requested meanwhile is moot.
+        isInteractivelyDismissing = false
+        finishAfterInteraction = nil
+        deliverExternalDismissal()
+    }
+
+    private func deliverExternalDismissal() {
+        guard let callback = completion else { return }
+        completion = nil
+        onApprove = nil
+        callback(externalDismissalOutcome ?? (isInterrupted() ? nil : false))
+    }
+}
+
+/// The one-time offer to retire transport keys an older version kept in the database: one warning, one action, and
+/// the hosts it applies to.
+enum LegacyTonConnectReconnectOffer {
+    /// Hosts named before the rest are left out.
+    static let maximumListedHosts = 5
+
+    static func alert(
+        for sessions: [LegacyTonConnectSession],
+        languages: [String]?,
+        disconnect: @escaping () -> Void,
+        keep: @escaping () -> Void
+    ) -> UIAlertController {
+        var hosts: [String] = []
+        for session in sessions {
+            let host = session.appUrl.host ?? session.appUrl.absoluteString
+            if !hosts.contains(host) {
+                hosts.append(host)
+            }
+        }
+        var listed = hosts.prefix(maximumListedHosts).joined(separator: "\n")
+        if hosts.count > maximumListedHosts {
+            listed += "\n…"
+        }
+        let alert = UIAlertController(
+            title: R.string.localizable.tonconnectReconnectTitle(preferredLanguages: languages),
+            message: R.string.localizable.tonconnectReconnectMessage(preferredLanguages: languages) + "\n\n" + listed,
+            preferredStyle: .alert
+        )
+        let keepConnected = UIAlertAction(
+            title: R.string.localizable.tonconnectReconnectKeep(preferredLanguages: languages),
+            style: .cancel
+        ) { _ in keep() }
+        let reconnect = UIAlertAction(
+            title: R.string.localizable.tonconnectReconnectAction(preferredLanguages: languages),
+            style: .destructive
+        ) { _ in disconnect() }
+        alert.addAction(keepConnected)
+        alert.addAction(reconnect)
+        // No preferred action: Return on a hardware keyboard must never choose the destructive answer.
+        return alert
     }
 }
 
 final class LegacyTonConnectSessionsViewController: UITableViewController {
     private let coordinator: LegacyTonConnectCoordinator
+    /// Where the lock, protected-data and activation notices that resume a held-back load arrive.
+    private let notificationCenter: NotificationCenter
+    /// The app is in front and the device unlocked (protected data available). A Keychain read can fail for either
+    /// alone, like it can behind the app's own lock.
+    private let isDeviceReadable: () -> Bool
     private var sessions: [LegacyTonConnectSession] = []
+    /// The offer to reconnect is on screen or its answer is being carried out.
+    private var isOfferingReconnect = false
+    /// The last load failed, so `sessions` is not the stored list: the next appearance or unlock loads again.
+    private var needsReload = false
+    /// That failure was not shown because the lock, a locked device or an inactive app held it back.
+    private var failureWasHeldBack = false
+    /// A load is running; one asked for meanwhile runs once it ends, and a failure it supersedes is not shown.
+    private var isLoading = false
+    private var loadsAgain = false
+    /// An offer check asked for while another ran (for example on an unlock) runs once that one ends unanswered.
+    private var checksOfferAgain = false
+    private var resumeObservers: [NSObjectProtocol] = []
 
-    init(coordinator: LegacyTonConnectCoordinator) {
+    init(
+        coordinator: LegacyTonConnectCoordinator,
+        notificationCenter: NotificationCenter = .default,
+        isDeviceReadable: @escaping () -> Bool = {
+            UIApplication.shared.applicationState == .active && UIApplication.shared.isProtectedDataAvailable
+        }
+    ) {
         self.coordinator = coordinator
+        self.notificationCenter = notificationCenter
+        self.isDeviceReadable = isDeviceReadable
         super.init(style: .insetGrouped)
     }
 
@@ -101,16 +235,167 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
         ]
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(reload), for: .valueChanged)
+        // A load or offer held back by the lock, a locked device or an inactive app happens once the wallet and the
+        // device are unlocked and the app is in front, while this list is on screen.
+        // Each runs at once, ahead of any load completion already queued on the main actor.
+        resumeObservers = [
+            notificationCenter.addObserver(
+                forName: ApplicationLockState.didChangeNotification, object: ApplicationLockState.shared, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.resume() }
+            }
+        ]
+        let deviceTriggers: [Notification.Name] = [
+            UIApplication.protectedDataDidBecomeAvailableNotification,
+            UIApplication.didBecomeActiveNotification
+        ]
+        for name in deviceTriggers {
+            let observer = notificationCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.resume(fromDevice: true) }
+            }
+            resumeObservers.append(observer)
+        }
         reload()
     }
 
+    deinit {
+        resumeObservers.forEach { notificationCenter.removeObserver($0) }
+    }
+
+    /// The wallet is locked, or the device is, or the app is not in front: a read may fail for that alone, and
+    /// nothing is offered.
+    private var isHeldBack: Bool {
+        ApplicationLockState.shared.isLocked || !isDeviceReadable()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // The first load can finish before the sheet is on screen; the offer is made once it is.
+        resume()
+    }
+
+    /// On screen and not held back: loads again after a failed load or one still running (each load then offers),
+    /// otherwise offers. `fromDevice`: the device was unlocked or the app came to the front. A failure that was shown
+    /// is not loaded (and shown) again for that each time, only one that was held back.
+    private func resume(fromDevice: Bool = false) {
+        guard viewIfLoaded?.window != nil, !isHeldBack else { return }
+        if isLoading || (needsReload && (failureWasHeldBack || !fromDevice)) {
+            reload()
+        } else if !needsReload {
+            requestOffer()
+        }
+    }
+
     @objc private func reload() {
+        guard !isLoading else {
+            loadsAgain = true
+            return
+        }
+        isLoading = true
+        let startedLocked = isHeldBack
         Task { @MainActor in
-            defer { refreshControl?.endRefreshing() }
+            let outcome: Result<[LegacyTonConnectSession], Error>
             do {
-                sessions = try await coordinator.selectedSessions()
+                outcome = .success(try await coordinator.selectedSessions())
+            } catch {
+                outcome = .failure(error)
+            }
+            isLoading = false
+            let again = loadsAgain
+            loadsAgain = false
+            switch outcome {
+            case let .success(loaded):
+                sessions = loaded
+                needsReload = false
+                failureWasHeldBack = false
                 tableView.reloadData()
-            } catch { show(error) }
+            case let .failure(error):
+                needsReload = true
+                guard !again else { break }
+                refreshControl?.endRefreshing()
+                // A load that ran behind the lock, on a locked device or in an inactive app (the Keychain may have
+                // been unreadable) is not reported: the list loads again once that ends, at once if it ended while
+                // the load ran, with or without a notice.
+                failureWasHeldBack = startedLocked || isHeldBack
+                if failureWasHeldBack {
+                    if !isHeldBack, viewIfLoaded?.window != nil {
+                        reload()
+                    }
+                } else {
+                    show(error)
+                }
+                return
+            }
+            if again {
+                // Asked for while this load ran (an unlock, a refresh): that load decides what is shown.
+                reload()
+                return
+            }
+            refreshControl?.endRefreshing()
+            requestOffer()
+        }
+    }
+
+    private func requestOffer() {
+        guard !isOfferingReconnect else {
+            checksOfferAgain = true
+            return
+        }
+        Task { @MainActor in await offerReconnectIfNeeded() }
+    }
+
+    /// Offers, once, to reconnect the listed bridge sessions whose keys an older version kept in the database. Asked
+    /// only while this list is on screen with nothing over it and nothing holds it back: after each load, each time
+    /// the list appears and after an unlock or activation. Until the user answers, the next of those asks again.
+    private func offerReconnectIfNeeded() async {
+        guard !isOfferingReconnect else {
+            checksOfferAgain = true
+            return
+        }
+        isOfferingReconnect = true
+        checksOfferAgain = false
+        let waiting = ((try? await coordinator.sessionsToReconnect()) ?? []).filter { sessions.contains($0) }
+        guard !waiting.isEmpty, viewIfLoaded?.window != nil, presentedViewController == nil, !isHeldBack else {
+            isOfferingReconnect = false
+            if checksOfferAgain {
+                // Something that may change the answer (an unlock) happened during this check.
+                checksOfferAgain = false
+                requestOffer()
+            }
+            return
+        }
+        let alert = LegacyTonConnectReconnectOffer.alert(
+            for: waiting,
+            languages: LegacyTonConnectProtocol.languages,
+            disconnect: { [weak self] in self?.answerReconnectOffer(waiting, reconnect: true) },
+            keep: { [weak self] in self?.answerReconnectOffer(waiting, reconnect: false) }
+        )
+        present(alert, animated: true)
+        if alert.presentingViewController == nil {
+            // UIKit refused it (for example mid-transition): nothing was asked, so the next load asks.
+            isOfferingReconnect = false
+            if checksOfferAgain {
+                checksOfferAgain = false
+                requestOffer()
+            }
+        }
+    }
+
+    private func answerReconnectOffer(_ waiting: [LegacyTonConnectSession], reconnect: Bool) {
+        Task { @MainActor in
+            defer { isOfferingReconnect = false }
+            do {
+                if reconnect {
+                    try await coordinator.reconnect(waiting)
+                } else {
+                    try await coordinator.keepWithoutReconnecting(waiting)
+                }
+            } catch {
+                show(error)
+            }
+            if reconnect {
+                reload()
+            }
         }
     }
 
@@ -167,11 +452,16 @@ final class LegacyTonConnectSessionsViewController: UITableViewController {
             guard let self else { completion(false); return }
             Task { @MainActor in
                 do {
+                    // Returns once the session is removed here; the application is told in the background.
                     try await self.coordinator.disconnect(session)
                     self.reload()
                     completion(true)
                 } catch {
                     self.show(error)
+                    if error is LegacyTonConnectUnfinishedRemoval {
+                        // Retired for good: it leaves the list now; the next read finishes its removal.
+                        self.reload()
+                    }
                     completion(false)
                 }
             }

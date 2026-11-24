@@ -8,6 +8,19 @@ enum RemoteKillSwitch: String, CaseIterable {
     case polkaswapMutations = "polkaswap_mutations"
     case bitcoinSend = "bitcoin_send"
     case solanaSend = "solana_send"
+    /// TON Connect links, connections and transaction signing.
+    case tonConnect = "ton_connect"
+    /// Signing EVM (`eip155`) requests from apps over WalletConnect. Remote key `evm_dapp_signing_enabled`, as on
+    /// Android; never `dapp_enabled`, a legacy key that is `false` in production.
+    case evmDappSigning = "evm_dapp_signing"
+    /// Signing Polkadot (Substrate) requests from apps over WalletConnect. Remote key `polkadot_dapp_signing_enabled`.
+    case polkadotDappSigning = "polkadot_dapp_signing"
+    /// Signing TON Connect transactions and `ton_proof` sign-ins. Remote key `ton_dapp_signing_enabled`.
+    case tonDappSigning = "ton_dapp_signing"
+    /// Moving wallet secrets to items that need the device owner, and storing the app PIN as a
+    /// verifier (`ProtectedKeychainPolicy`). Remote key `protected_keychain_enabled`. A veto stops
+    /// new migrations only; wallets already moved stay readable.
+    case protectedKeychain = "protected_keychain"
 
     var storageKey: String {
         "feature.kill_switch.\(rawValue)"
@@ -23,6 +36,11 @@ struct FeatureToggleConfig: Decodable, Equatable {
     let crossChainMutationsEnabled: Bool
     let bitcoinSendEnabled: Bool
     let solanaSendEnabled: Bool
+    let tonConnectEnabled: Bool
+    let evmDappSigningEnabled: Bool
+    let polkadotDappSigningEnabled: Bool
+    let tonDappSigningEnabled: Bool
+    let protectedKeychainEnabled: Bool
     let assetDiscoveryShadowMode: Bool
     let signedMutationAuthorization: String?
     /// Kill-switch values the payload stated explicitly. Only these record or
@@ -38,6 +56,11 @@ struct FeatureToggleConfig: Decodable, Equatable {
         crossChainMutationsEnabled: Bool = false,
         bitcoinSendEnabled: Bool = true,
         solanaSendEnabled: Bool = true,
+        tonConnectEnabled: Bool = true,
+        evmDappSigningEnabled: Bool = true,
+        polkadotDappSigningEnabled: Bool = true,
+        tonDappSigningEnabled: Bool = true,
+        protectedKeychainEnabled: Bool = true,
         assetDiscoveryShadowMode: Bool = true,
         signedMutationAuthorization: String? = nil,
         explicitKillSwitches: [RemoteKillSwitch: Bool] = [:]
@@ -50,6 +73,11 @@ struct FeatureToggleConfig: Decodable, Equatable {
         self.crossChainMutationsEnabled = crossChainMutationsEnabled
         self.bitcoinSendEnabled = bitcoinSendEnabled
         self.solanaSendEnabled = solanaSendEnabled
+        self.tonConnectEnabled = tonConnectEnabled
+        self.evmDappSigningEnabled = evmDappSigningEnabled
+        self.polkadotDappSigningEnabled = polkadotDappSigningEnabled
+        self.tonDappSigningEnabled = tonDappSigningEnabled
+        self.protectedKeychainEnabled = protectedKeychainEnabled
         self.assetDiscoveryShadowMode = assetDiscoveryShadowMode
         self.signedMutationAuthorization = signedMutationAuthorization
         self.explicitKillSwitches = explicitKillSwitches
@@ -67,6 +95,16 @@ struct FeatureToggleConfig: Decodable, Equatable {
         case bitcoinSendEnabledLegacy = "bitcoin_send_enabled"
         case solanaSendEnabled
         case solanaSendEnabledLegacy = "solana_send_enabled"
+        case tonConnectEnabled
+        case tonConnectEnabledLegacy = "ton_connect_enabled"
+        case evmDappSigningEnabled
+        case evmDappSigningEnabledLegacy = "evm_dapp_signing_enabled"
+        case polkadotDappSigningEnabled
+        case polkadotDappSigningEnabledLegacy = "polkadot_dapp_signing_enabled"
+        case tonDappSigningEnabled
+        case tonDappSigningEnabledLegacy = "ton_dapp_signing_enabled"
+        case protectedKeychainEnabled
+        case protectedKeychainEnabledLegacy = "protected_keychain_enabled"
         case assetDiscoveryShadowMode
         case signedMutationAuthorization = "mutation_authorization"
         case normalizedMutationAuthorization = "mutationAuthorization"
@@ -97,13 +135,55 @@ struct FeatureToggleConfig: Decodable, Equatable {
             Bool.self,
             forKey: .solanaSendEnabledLegacy
         )
+        let remoteTonConnect = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .tonConnectEnabled
+        ) ?? container.decodeIfPresent(
+            Bool.self,
+            forKey: .tonConnectEnabledLegacy
+        )
+        let remoteEvmDappSigning = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .evmDappSigningEnabled
+        ) ?? container.decodeIfPresent(
+            Bool.self,
+            forKey: .evmDappSigningEnabledLegacy
+        )
+        let remotePolkadotDappSigning = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .polkadotDappSigningEnabled
+        ) ?? container.decodeIfPresent(
+            Bool.self,
+            forKey: .polkadotDappSigningEnabledLegacy
+        )
+        let remoteTonDappSigning = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .tonDappSigningEnabled
+        ) ?? container.decodeIfPresent(
+            Bool.self,
+            forKey: .tonDappSigningEnabledLegacy
+        )
+        // Decoded on its own: a malformed value is ignored (no change), never a failed document
+        // that would drop every other switch.
+        let remoteProtectedKeychain = (try? container.decodeIfPresent(Bool.self, forKey: .protectedKeychainEnabled))
+            ?? (try? container.decodeIfPresent(Bool.self, forKey: .protectedKeychainEnabledLegacy))
         polkaswapMutationsEnabled = remotePolkaswap ?? true
         bitcoinSendEnabled = remoteBitcoinSend ?? true
         solanaSendEnabled = remoteSolanaSend ?? true
+        tonConnectEnabled = remoteTonConnect ?? true
+        evmDappSigningEnabled = remoteEvmDappSigning ?? true
+        polkadotDappSigningEnabled = remotePolkadotDappSigning ?? true
+        tonDappSigningEnabled = remoteTonDappSigning ?? true
+        protectedKeychainEnabled = remoteProtectedKeychain ?? true
         let remoteKillSwitches: [RemoteKillSwitch: Bool?] = [
             .polkaswapMutations: remotePolkaswap,
             .bitcoinSend: remoteBitcoinSend,
-            .solanaSend: remoteSolanaSend
+            .solanaSend: remoteSolanaSend,
+            .tonConnect: remoteTonConnect,
+            .evmDappSigning: remoteEvmDappSigning,
+            .polkadotDappSigning: remotePolkadotDappSigning,
+            .tonDappSigning: remoteTonDappSigning,
+            .protectedKeychain: remoteProtectedKeychain
         ]
         explicitKillSwitches = remoteKillSwitches.compactMapValues { $0 }
         demeterMutationsEnabled = try container.decodeIfPresent(
@@ -183,7 +263,7 @@ final class RemoteKillSwitchStore {
 }
 
 /// Process-wide, read-only-at-call-site policy for remote action kill switches.
-/// Polkaswap, Bitcoin send and Solana send ship enabled, so they stay available
+/// Polkaswap, Bitcoin send, Solana send, TON Connect and dApp signing (EVM, Polkadot, TON) ship enabled, so they stay available
 /// when their keys are absent from the legacy remote payload; an explicit false
 /// pauses them and is remembered until an explicit true (`RemoteKillSwitchStore`).
 /// New destinations continue to default fail-closed.
@@ -208,6 +288,11 @@ enum MultiChainFeaturePolicy {
             crossChainMutationsEnabled: config.crossChainMutationsEnabled && authority?.isAllowed(.xcm) == true,
             bitcoinSendEnabled: config.bitcoinSendEnabled && !vetoes.contains(.bitcoinSend),
             solanaSendEnabled: config.solanaSendEnabled && !vetoes.contains(.solanaSend),
+            tonConnectEnabled: config.tonConnectEnabled && !vetoes.contains(.tonConnect),
+            evmDappSigningEnabled: config.evmDappSigningEnabled && !vetoes.contains(.evmDappSigning),
+            polkadotDappSigningEnabled: config.polkadotDappSigningEnabled && !vetoes.contains(.polkadotDappSigning),
+            tonDappSigningEnabled: config.tonDappSigningEnabled && !vetoes.contains(.tonDappSigning),
+            protectedKeychainEnabled: config.protectedKeychainEnabled && !vetoes.contains(.protectedKeychain),
             assetDiscoveryShadowMode: config.assetDiscoveryShadowMode
         )
     }

@@ -14,6 +14,7 @@ final class StakingUnbondConfirmPresenter {
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let logger: LoggerProtocol?
+    private let submissionAuthorizer: SubmissionAuthorizing
 
     private var priceData: PriceData? {
         chainAsset.asset.getPrice(for: wallet.selectedCurrency)
@@ -28,8 +29,10 @@ final class StakingUnbondConfirmPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        submissionAuthorizer: SubmissionAuthorizing = SubmissionAuthorizer()
     ) {
+        self.submissionAuthorizer = submissionAuthorizer
         self.interactor = interactor
         self.wireframe = wireframe
         self.confirmViewModelFactory = confirmViewModelFactory
@@ -63,13 +66,17 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
     func confirm() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
-            guard let strongSelf = self else {
-                return
+            guard let self = self else { return }
+            self.submissionAuthorizer.performAuthorized(from: self.view) { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
+
+                strongSelf.view?.didStartLoading()
+                FWTransferEvents.report(.authorised, to: strongSelf.view)
+
+                strongSelf.interactor.submit(builderClosure: strongSelf.viewModelState.builderClosure)
             }
-
-            strongSelf.view?.didStartLoading()
-
-            strongSelf.interactor.submit(builderClosure: strongSelf.viewModelState.builderClosure)
         }
     }
 
@@ -95,6 +102,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmModelStateListener 
             return
         }
 
+        FWTransferEvents.report(FWTransferEvents.extrinsic(result), to: view)
         switch result {
         case let .success(result):
             wireframe.complete(on: view, hash: result, chainAsset: chainAsset)

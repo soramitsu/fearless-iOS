@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import UIKit
 
 public extension UIColor {
@@ -55,3 +56,4 @@ public extension UIColor {
         return UIColor(red: r, green: g, blue: b, alpha: 1.0)
     }
 }
+#endif

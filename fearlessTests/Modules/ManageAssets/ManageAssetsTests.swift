@@ -161,7 +161,9 @@ final class ManageAssetsTests: XCTestCase {
                 add(geometry)
                 XCTAssertTrue(window.bounds.insetBy(dx: -1, dy: -1).contains(sheet.view.convert(sheet.view.bounds, to: window)))
                 XCTAssertEqual(description.font.pointSize, UIFont.preferredFont(forTextStyle: .body, compatibleWith: description.traitCollection).pointSize, accuracy: 0.5)
-                XCTAssertEqual(sheet.confirmButton.configuration?.background.backgroundColor, UIColor(named: "fwFillTop"))
+                // Sun-lit redesign: the primary action is the emissive surface, not a flat fill.
+                XCTAssertEqual(sheet.confirmButton.emphasis, .primary)
+                XCTAssertEqual(sheet.confirmButton.configuration?.background.backgroundColor, .clear)
                 XCTAssertTrue(sheet.view.accessibilityViewIsModal)
                 XCTAssertTrue(sheet.titleLabel.accessibilityTraits.contains(.header))
                 for label in labels where label.text == title || label.text == message || label.text == cancel {
@@ -985,7 +987,6 @@ private final class ManageWalletSettingsStub: PersistentValueSettings<MetaAccoun
     }
 }
 
-
 @MainActor
 final class ManageAssetsPresentationTests: XCTestCase {
     private let languages = ["en", "ru", "ja", "zh-Hans", "id", "pt-PT", "tr", "vi"]
@@ -1240,8 +1241,10 @@ final class ManageAssetsPresentationTests: XCTestCase {
                 XCTAssertEqual(label.font.pointSize, regular.pointSize, accuracy: 0.1)
                 let oldTraits = regular.fontDescriptor.object(forKey: .traits) as? [UIFontDescriptor.TraitKey: Any]
                 let newTraits = label.font.fontDescriptor.object(forKey: .traits) as? [UIFontDescriptor.TraitKey: Any]
-                XCTAssertGreaterThan((newTraits?[.weight] as? NSNumber)?.doubleValue ?? 0,
-                                     (oldTraits?[.weight] as? NSNumber)?.doubleValue ?? 0)
+                XCTAssertGreaterThan(
+                    (newTraits?[.weight] as? NSNumber)?.doubleValue ?? 0,
+                    (oldTraits?[.weight] as? NSNumber)?.doubleValue ?? 0
+                )
             }
             capture(f, name: "manage-presentation-live-bold-ru-AX5-\(Int(width))")
         }

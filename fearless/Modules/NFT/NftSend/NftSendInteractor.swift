@@ -14,6 +14,7 @@ final class NftSendInteractor {
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let chain: ChainModel
     private let wallet: MetaAccountModel
+    private let scamScope = SendRequestScope()
 
     init(
         transferService: NftTransferService,
@@ -80,10 +81,16 @@ extension NftSendInteractor: NftSendInteractorInput {
         }
     }
 
+    func invalidateScamInfo() {
+        scamScope.begin()
+    }
+
     func fetchScamInfo(for address: String) {
-        Task {
-            let scamInfo = try await scamInfoFetching.fetch(address: address, chain: chain)
-            output?.didReceive(scamInfo: scamInfo)
+        let request = scamScope.begin()
+        Task { @MainActor [weak self, scamInfoFetching, chain] in
+            let scamInfo = try? await scamInfoFetching.fetch(address: address, chain: chain)
+            guard let self, self.scamScope.isCurrent(request) else { return }
+            self.output?.didReceive(scamInfo: scamInfo)
         }
     }
 

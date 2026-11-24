@@ -878,7 +878,7 @@ final class CrashConsistentStoreReplacer { // swiftlint:disable:this type_body_l
     private static let markerSchemaVersion = 1
     private static let maximumMarkerByteCount: UInt64 = 64 * 1024
     private static let digestChunkByteCount = 1024 * 1024
-    private static let recoveryRootName = ".FearlessStoreReplacement"
+    static let recoveryRootName = ".FearlessStoreReplacement"
 
     let storeURL: URL
     let transactionDirectoryURL: URL

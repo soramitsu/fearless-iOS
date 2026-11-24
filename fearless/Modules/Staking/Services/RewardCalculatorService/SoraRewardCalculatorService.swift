@@ -9,7 +9,7 @@ final class SoraRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 
     private struct PendingRequest {
-        let resultClosure: (RewardCalculatorEngineProtocol) -> Void
+        let resultClosure: (Result<RewardCalculatorEngineProtocol, Error>) -> Void
         let queue: DispatchQueue?
     }
 
@@ -27,6 +27,7 @@ final class SoraRewardCalculatorService {
     private var totalStakeByEra: [EraIndex: BigUInt]?
     private var rewardPointsByEra: [EraIndex: EraRewardPoints]?
     private var validatorRewardsByEra: [EraIndex: BigUInt]?
+    private var historyError: Error?
 
     private var swapValues: [SwapValues] = []
     private var swapValueErrors: [Error] = []
@@ -105,9 +106,11 @@ final class SoraRewardCalculatorService {
             filterMode: LiquiditySourceType.smart.filterMode
         )
 
-        swapValues.removeAll()
-        swapValueErrors.removeAll()
-        dexInfos.removeAll()
+        syncQueue.sync {
+            swapValues.removeAll()
+            swapValueErrors.removeAll()
+            dexInfos.removeAll()
+        }
         var allOperations: [Operation] = []
         let group = DispatchGroup()
 
@@ -118,7 +121,8 @@ final class SoraRewardCalculatorService {
 
             quotesOperation.completionBlock = { [weak self, dexId, group] in
                 guard let strongSelf = self else { return }
-                DispatchQueue.global().sync(flags: .barrier) {
+                // Answers complete concurrently; a barrier on a global queue serialised nothing.
+                strongSelf.syncQueue.sync {
                     do {
                         var result = try quotesOperation.extractNoCancellableResultData()
                         result.dexId = dexId
@@ -126,14 +130,14 @@ final class SoraRewardCalculatorService {
                     } catch {
                         strongSelf.swapValueErrors.append(error)
                     }
-                    group.leave()
                 }
+                group.leave()
             }
             allOperations.append(quotesOperation)
         }
         operationManager.enqueue(operations: allOperations, in: .blockAfter)
 
-        let workItem = DispatchWorkItem(flags: .barrier) { [weak self] in
+        let workItem = DispatchWorkItem { [weak self] in
             let rewardAssetAmount = self?.swapValues.compactMap { BigUInt(string: $0.amount) }.max()
             guard
                 let rewardAssetAmount = rewardAssetAmount,
@@ -150,7 +154,7 @@ final class SoraRewardCalculatorService {
             self?.fetchTotalValidatorRewards()
         }
 
-        group.notify(queue: .main, work: workItem)
+        group.notify(queue: syncQueue, work: workItem)
     }
 
     private func fetchPolkaswapSettings() {
@@ -210,14 +214,20 @@ final class SoraRewardCalculatorService {
 
     private func fetchInfoFactory(
         runCompletionIn queue: DispatchQueue?,
-        executing closure: @escaping (RewardCalculatorEngineProtocol) -> Void
+        executing closure: @escaping (Result<RewardCalculatorEngineProtocol, Error>) -> Void
     ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
-        if let totalStake = totalStakeByEra, let rewardPoints = rewardPointsByEra, let validatorRewards = validatorRewardsByEra {
-            deliver(totalStake: totalStake, rewardPoints: rewardPoints, validatorRewards: validatorRewards, to: request)
-        } else {
-            pendingRequests.append(request)
+        syncQueue.async {
+            if let stake = self.totalStakeByEra,
+               let points = self.rewardPointsByEra,
+               let rewards = self.validatorRewardsByEra {
+                self.deliver(totalStake: stake, rewardPoints: points, validatorRewards: rewards, to: request)
+            } else if let historyError = self.historyError {
+                self.fail(request, with: historyError)
+            } else {
+                self.pendingRequests.append(request)
+            }
         }
     }
 
@@ -229,6 +239,7 @@ final class SoraRewardCalculatorService {
     ) {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            fail(request, with: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -264,11 +275,13 @@ final class SoraRewardCalculatorService {
             dispatchInQueueWhenPossible(request.queue) {
                 switch mapOperation.result {
                 case let .success(calculator):
-                    request.resultClosure(calculator)
+                    request.resultClosure(.success(calculator))
                 case let .failure(error):
                     self?.logger?.error("Era stakers info fetch error: \(error)")
+                    request.resultClosure(.failure(error))
                 case .none:
                     self?.logger?.warning("Era stakers info fetch cancelled")
+                    request.resultClosure(.failure(BaseOperationError.parentOperationCancelled))
                 }
             }
         }
@@ -277,6 +290,12 @@ final class SoraRewardCalculatorService {
             operations: durationWrapper.allOperations + [eraOperation, mapOperation],
             in: .transient
         )
+    }
+
+    private func fail(_ request: PendingRequest, with error: Error) {
+        dispatchInQueueWhenPossible(request.queue) {
+            request.resultClosure(.failure(error))
+        }
     }
 
     private func notifyPendingClosures(
@@ -302,64 +321,44 @@ final class SoraRewardCalculatorService {
     }
 
     private func fetchTotalValidatorRewards() {
-        let totalStakeRequest = StakingErasTotalStakeRequest()
-        let rewardPointsRequest = StakingErasRewardPointsRequest()
-        let validatorRewardRequest = StakingErasValidatorRewardRequest()
+        syncQueue.async {
+            self.historyError = nil
+        }
 
         Task {
             do {
-                async let totalStake: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(totalStakeRequest, chain: chainAsset.chain)
-                async let rewardPoints: [String: EraRewardPoints]? = try await storageRequestPerformer.performPrefix(rewardPointsRequest, chain: chainAsset.chain)
-                async let validatorRewards: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(validatorRewardRequest, chain: chainAsset.chain)
-
-                let totalStakeValue = try await totalStake
-                let totalStakeByEra = totalStakeValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
-                    var map = partialResult
-
-                    guard let era = EraIndex(key), let value = totalStakeValue?[key]?.value else {
-                        return partialResult
-                    }
-
-                    map[era] = value
-
-                    return map
+                let history = try await SoraEraRewardHistory.fetch(storageRequestPerformer, chain: chainAsset.chain)
+                syncQueue.async {
+                    self.storeHistory(history)
                 }
-
-                let rewardPointsValue = try await rewardPoints
-                let rewardPointsByEra = rewardPointsValue?.keys.reduce([EraIndex: EraRewardPoints]()) { partialResult, key in
-                    var map = partialResult
-
-                    guard let era = EraIndex(key), let points = rewardPointsValue?[key] else {
-                        return partialResult
-                    }
-
-                    map[era] = points
-
-                    return map
-                }
-
-                let validatorRewardsValue = try await validatorRewards
-                let validatorRewardsByEra = validatorRewardsValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
-                    var map = partialResult
-
-                    guard let era = EraIndex(key), let value = validatorRewardsValue?[key]?.value else {
-                        return partialResult
-                    }
-
-                    map[era] = value
-
-                    return map
-                }
-
-                notifyPendingClosures(
-                    with: totalStakeByEra.or([:]),
-                    rewardPoints: rewardPointsByEra.or([:]),
-                    validatorRewards: validatorRewardsByEra.or([:])
-                )
             } catch {
                 logger?.error(error.localizedDescription)
+                syncQueue.async {
+                    self.failHistory(error)
+                }
             }
         }
+    }
+
+    /// Keeps the history so requests made later are answered too; only the requests already waiting used to be.
+    private func storeHistory(_ history: SoraEraRewardHistory) {
+        totalStakeByEra = history.totalStakeByEra
+        rewardPointsByEra = history.rewardPointsByEra
+        validatorRewardsByEra = history.validatorRewardsByEra
+        historyError = nil
+        notifyPendingClosures(
+            with: history.totalStakeByEra,
+            rewardPoints: history.rewardPointsByEra,
+            validatorRewards: history.validatorRewardsByEra
+        )
+    }
+
+    /// Waiting and later requests learn that the history could not be read instead of waiting forever.
+    private func failHistory(_ error: Error) {
+        historyError = error
+        let requests = pendingRequests
+        pendingRequests = []
+        requests.forEach { fail($0, with: error) }
     }
 }
 
@@ -379,7 +378,7 @@ extension SoraRewardCalculatorService: RewardCalculatorServiceProtocol {
 
     func throttle() {
         syncQueue.async {
-            guard !self.isActive else {
+            guard self.isActive else {
                 return
             }
 
@@ -389,9 +388,10 @@ extension SoraRewardCalculatorService: RewardCalculatorServiceProtocol {
 
     func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
         AwaitOperation { [weak self] in
-            await withCheckedContinuation { continuation in
-                self?.fetchInfoFactory(runCompletionIn: nil) { info in
-                    continuation.resume(with: .success(info))
+            guard let self = self else { throw BaseOperationError.parentOperationCancelled }
+            return try await withCheckedThrowingContinuation { continuation in
+                self.fetchInfoFactory(runCompletionIn: nil) { result in
+                    continuation.resume(with: result)
                 }
             }
         }
