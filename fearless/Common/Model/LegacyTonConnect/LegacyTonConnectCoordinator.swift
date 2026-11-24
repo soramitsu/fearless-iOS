@@ -37,7 +37,23 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
     /// Android. An absent key keeps signing on.
     private let isSigningEnabled: () -> Bool
     private var ready = false
-    private var queuedURL: URL?
+    /// Links in arrival order, opened one at a time. The one being opened stays first until it is done, so a
+    /// duplicate arriving meanwhile is merged with it.
+    private var pendingURLs: [URL] = []
+    private var isOpeningURL = false
+    /// The first link was blocked (another approval, a lock, the app inactive or the wallet not ready): it waits for
+    /// a trigger instead of being retried at once.
+    private var waitsForTrigger = false
+    private var drainObservers: [NSObjectProtocol] = []
+    private var presenterCheckScheduled = false
+
+    /// Set by `approve`, in the opening link's own task, once the user has decided on it. A link is queued again
+    /// only for a failure before that decision, so nobody is asked twice about one link.
+    private final class LinkDecision {
+        var made = false
+    }
+
+    @TaskLocal private static var linkDecision: LinkDecision?
     private var approving = false
     private weak var approvalController: LegacyTonConnectApprovalViewController?
 
@@ -80,10 +96,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
         ready = true
         await service.set(handler: self)
         await service.start(selectedNetwork: selectedNetwork)
-        if let url = queuedURL {
-            queuedURL = nil
-            open(url)
-        }
+        drainPendingURLs(trigger: true)
     }
 
     func throttle() {
@@ -101,19 +114,109 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     func open(_ url: URL) {
         precondition(Thread.isMainThread)
-        guard ready else {
-            queuedURL = url
+        // Links wait, in order, while the wallet is not ready, the app is locked or not active.
+        if !pendingURLs.contains(url) {
+            pendingURLs.append(url)
+        }
+        drainPendingURLs()
+    }
+
+    private var canOpenURLs: Bool {
+        ready && !ApplicationLockState.shared.isLocked && UIApplication.shared.applicationState == .active
+    }
+
+    /// `trigger`: something that may unblock the first link happened (unlock, activation, an approval ended, the
+    /// coordinator was activated).
+    private func drainPendingURLs(trigger: Bool = false) {
+        if trigger {
+            waitsForTrigger = false
+        }
+        guard let url = pendingURLs.first else {
+            drainObservers.forEach { NotificationCenter.default.removeObserver($0) }
+            drainObservers = []
             return
         }
+        guard canOpenURLs, !isOpeningURL, !waitsForTrigger else {
+            observeDrainTriggersIfNeeded()
+            return
+        }
+        isOpeningURL = true
         Task { @MainActor in
+            var blocked = false
+            let decision = LinkDecision()
+            defer {
+                isOpeningURL = false
+                if blocked {
+                    waitsForTrigger = true
+                } else {
+                    pendingURLs.removeAll { $0 == url }
+                }
+                drainPendingURLs()
+            }
             do {
                 guard isEnabled() else { throw LegacyTonConnectError.disabled }
                 let link = try LegacyTonConnectProtocol.parseLink(url)
                 guard let wallet = selectedWallet() else { throw LegacyTonConnectError.unavailableWallet }
                 let manifest = try await transport.manifest(at: link.request.manifestUrl)
-                _ = try await connect(walletId: wallet.metaId, clientId: link.clientId, request: link.request, manifest: manifest, connectionType: "http")
+                guard canOpenURLs else {
+                    blocked = true
+                    return
+                }
+                _ = try await Self.$linkDecision.withValue(decision) {
+                    try await connect(
+                        walletId: wallet.metaId, clientId: link.clientId, request: link.request, manifest: manifest,
+                        connectionType: "http"
+                    )
+                }
+            } catch LegacyTonConnectError.busy where !decision.made {
+                // Another approval is open, the app locked or left, or nothing can present the request: the link
+                // waits for that to end.
+                blocked = true
+                schedulePresenterCheckIfNeeded()
+            } catch where !canOpenURLs && !decision.made {
+                // The wallet stopped being ready while the link was prepared: it waits for the next activation.
+                blocked = true
             } catch {
                 present(error: error)
+            }
+        }
+    }
+
+    /// Nothing wakes the queue when the app stays active and unlocked but had no settled screen to present on (none,
+    /// or UIKit refused the sheet mid-transition): look again every second, without loading anything, until one
+    /// exists and no other approval is open.
+    private func schedulePresenterCheckIfNeeded() {
+        guard !presenterCheckScheduled, !approving, canOpenURLs else {
+            return
+        }
+        presenterCheckScheduled = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            guard let self else { return }
+            self.presenterCheckScheduled = false
+            guard self.waitsForTrigger, !self.pendingURLs.isEmpty, !self.approving, self.canOpenURLs else { return }
+            if let top = UIApplication.topViewController(), Self.isSettled(top) {
+                self.drainPendingURLs(trigger: true)
+            } else {
+                self.schedulePresenterCheckIfNeeded()
+            }
+        }
+    }
+
+    /// In a window, with no presentation, dismissal or interactive transition in flight.
+    private static func isSettled(_ controller: UIViewController) -> Bool {
+        controller.viewIfLoaded?.window != nil && controller.transitionCoordinator == nil
+            && !controller.isBeingPresented && !controller.isBeingDismissed
+    }
+
+    private func observeDrainTriggersIfNeeded() {
+        guard drainObservers.isEmpty else { return }
+        let triggers: [(Notification.Name, Any?)] = [
+            (ApplicationLockState.didChangeNotification, ApplicationLockState.shared),
+            (UIApplication.didBecomeActiveNotification, nil)
+        ]
+        drainObservers = triggers.map { name, object in
+            NotificationCenter.default.addObserver(forName: name, object: object, queue: .main) { [weak self] _ in
+                self?.drainPendingURLs(trigger: true)
             }
         }
     }
@@ -346,27 +449,64 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     @MainActor
     private func approve(title: String, details: String) async throws -> Bool {
-        guard !approving else { throw LegacyTonConnectError.busy }
+        // A wallet that stopped being ready (throttled while the request was prepared) asks nothing.
+        guard ready, !approving else { throw LegacyTonConnectError.busy }
         approving = true
-        defer { approving = false }
-        if let approval { return try await approval(title, details) }
-        guard UIApplication.shared.applicationState == .active,
-              let presenting = UIApplication.topViewController() else { throw LegacyTonConnectError.busy }
-        return await withCheckedContinuation { continuation in
+        defer {
+            approving = false
+            // A link that waited for this approval to end may go now.
+            drainPendingURLs(trigger: true)
+        }
+        let approved: Bool
+        if let approval {
+            approved = try await approval(title, details)
+        } else {
+            approved = try await presentApproval(title: title, details: details)
+        }
+        Self.linkDecision?.made = true
+        return approved
+    }
+
+    @MainActor
+    private func presentApproval(title: String, details: String) async throws -> Bool {
+        // Never over the PIN screen or the re-lock cover: wallet and request details wait for an unlocked app.
+        guard UIApplication.shared.applicationState == .active, !ApplicationLockState.shared.isLocked,
+              let presenting = UIApplication.topViewController(), Self.isSettled(presenting) else {
+            throw LegacyTonConnectError.busy
+        }
+        // nil: the user did not answer (UIKit refused the sheet, or the lock or a throttle closed it).
+        let outcome: Bool? = await withCheckedContinuation { continuation in
+            var resumed = false
+            let resume: (Bool?) -> Void = { value in
+                guard !resumed else { return }
+                resumed = true
+                continuation.resume(returning: value)
+            }
             let controller = LegacyTonConnectApprovalViewController(title: title, details: details)
             approvalController = controller
+            controller.isInterrupted = { [weak self] in ApplicationLockState.shared.isLocked || self?.ready != true }
             controller.onApprove = { [weak self, weak controller] in
                 guard let self, let controller else { return }
                 authorize(animated: true, cancellable: true, from: controller) { authorized in
                     controller.finish(approved: authorized)
                 }
             }
-            controller.completion = { [weak self] approved in
+            controller.completion = { [weak self] outcome in
                 self?.approvalController = nil
-                continuation.resume(returning: approved)
+                resume(outcome)
             }
             presenting.present(controller, animated: true)
+            // UIKit declines a presentation during another transition and only logs it; the sheet then never
+            // answers, which would hold the approval slot and every waiting link.
+            if controller.presentingViewController == nil {
+                controller.completion = nil
+                controller.onApprove = nil
+                approvalController = nil
+                resume(nil)
+            }
         }
+        guard let outcome else { throw LegacyTonConnectError.busy }
+        return outcome
     }
 
     @MainActor
@@ -402,6 +542,7 @@ final class LegacyTonConnectCoordinator: NSObject, AuthorizationPresentable, Leg
 
     @MainActor
     private func present(error: Error) {
+        guard !ApplicationLockState.shared.isLocked else { return }
         let alert = UIAlertController(title: "TonConnect", message: error.localizedDescription, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         UIApplication.topViewController()?.present(alert, animated: true)

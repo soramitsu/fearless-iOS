@@ -539,7 +539,10 @@ final class IrohaConnectUnavailableNoticePresenter: IrohaConnectUnavailableNotic
 
     init(
         topViewController: @escaping () -> UIViewController? = { UIApplication.topViewController() },
-        isApplicationActive: @escaping () -> Bool = { UIApplication.shared.applicationState == .active }
+        // Never over the PIN screen or the re-lock cover.
+        isApplicationActive: @escaping () -> Bool = {
+            UIApplication.shared.applicationState == .active && !ApplicationLockState.shared.isLocked
+        }
     ) {
         self.topViewController = topViewController
         self.isApplicationActive = isApplicationActive

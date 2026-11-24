@@ -683,7 +683,7 @@ final class CrashConsistentSubstrateCacheRecovery { // swiftlint:disable:this ty
     private static let markerTemporaryFileName = "recovery-transaction.pending"
     private static let maximumMarkerByteCount: UInt64 = 4 * 1024
     private static let digestChunkByteCount = 1024 * 1024
-    private static let recoveryRootName = "SubstrateStoreRecovery"
+    static let recoveryRootName = "SubstrateStoreRecovery"
     private static let restorationTemporarySuffix =
         ".cache-recovery-restore.pending"
     private static let maximumArchiveDirectoryScanCount = 64

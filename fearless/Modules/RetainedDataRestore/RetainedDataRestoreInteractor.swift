@@ -267,8 +267,93 @@ final class RetainedDataRestoreInteractor: RetainedDataArchiveManaging {
 
 extension RetainedDataRestoreInteractor.Kind: Codable {}
 
+/// The live stores, their set-aside archives and the recovery and replacement copies all live under
+/// `Documents/CoreData`. Core Data marks that directory as excluded from device backups only when it creates it, so
+/// an existing directory, possibly made by an older release, is checked and corrected on every launch. Older rows in
+/// these stores, and copies of them, can hold TON Connect session keys.
+enum StoreBackupExclusion {
+    static let directoryNames = [
+        RetainedStoreSetAside.userRootName,
+        RetainedStoreSetAside.substrateRootName,
+        CrashConsistentSubstrateCacheRecovery.recoveryRootName,
+        CrashConsistentStoreReplacer.recoveryRootName
+    ]
+
+    /// Marks the storage directory and each existing archive directory in it as excluded from backups, reads the
+    /// flag back, and returns the directories that are still not excluded. Never throws and never creates anything.
+    @discardableResult
+    static func ensureExcluded(
+        storageDirectory: URL = SubstrateStorageParams.storageDirectoryURL,
+        fileManager: FileManager = .default,
+        setExcluded: (URL) throws -> Void = { url in
+            var resourceURL = url
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try resourceURL.setResourceValues(values)
+        }
+    ) -> [URL] {
+        var notExcluded: [URL] = []
+        // Children are looked at only under a real root: through a linked root they would be another directory.
+        switch kind(of: storageDirectory, fileManager: fileManager) {
+        case .directory:
+            break
+        case .missing, .other:
+            return []
+        case .unreadable:
+            notExcluded.append(storageDirectory)
+            Logger.shared.error("The store directory could not be inspected for backup exclusion")
+            return notExcluded
+        }
+        let directories = [storageDirectory] + directoryNames.map {
+            storageDirectory.appendingPathComponent($0, isDirectory: true)
+        }
+        for directory in directories {
+            switch kind(of: directory, fileManager: fileManager) {
+            case .directory:
+                if !isExcluded(directory) {
+                    try? setExcluded(directory)
+                }
+                if !isExcluded(directory) {
+                    notExcluded.append(directory)
+                }
+            case .unreadable:
+                notExcluded.append(directory)
+            case .missing, .other:
+                continue
+            }
+        }
+        if !notExcluded.isEmpty {
+            Logger.shared.error("\(notExcluded.count) store directories are still included in device backups")
+        }
+        return notExcluded
+    }
+
+    static func isExcluded(_ url: URL) -> Bool {
+        var fresh = url
+        fresh.removeAllCachedResourceValues()
+        return (try? fresh.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup) == true
+    }
+
+    private enum PathKind {
+        case directory, missing, other, unreadable
+    }
+
+    /// A symbolic link is never followed: the flag belongs on the directory itself.
+    private static func kind(of url: URL, fileManager: FileManager) -> PathKind {
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: url.path)
+            return attributes[.type] as? FileAttributeType == .typeDirectory ? .directory : .other
+        } catch let error as CocoaError where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile {
+            return .missing
+        } catch {
+            return .unreadable
+        }
+    }
+}
+
 final class RetainedDataStartupRecovery: Migrating {
     func migrate() throws {
+        StoreBackupExclusion.ensureExcluded()
         // Finish a user-requested set-aside before the wallet store is opened.
         _ = try RetainedStoreSetAside(
             storeURL: UserStorageParams.storageURL,

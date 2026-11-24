@@ -733,3 +733,87 @@ final class WalletRemovalSafetyTests: XCTestCase {
         XCTAssertEqual(interactor.deletions, 1)
     }
 }
+
+/// Store directories made by an older release are re-excluded from device backups on launch (2026-11-23 audit,
+/// finding 5): their rows and retained copies can hold TON Connect session keys.
+final class StoreBackupExclusionTests: XCTestCase {
+    private var root: URL!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        root = FileManager.default.temporaryDirectory.appendingPathComponent("BackupExclusion-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: root)
+        try super.tearDownWithError()
+    }
+
+    private func makeIncludedDirectory(_ url: URL) throws {
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        var resourceURL = url
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = false
+        try resourceURL.setResourceValues(values)
+        XCTAssertFalse(StoreBackupExclusion.isExcluded(url))
+    }
+
+    func testExistingLiveAndRetainedStoreDirectoriesAreExcludedAgain() throws {
+        let storage = root.appendingPathComponent("CoreData", isDirectory: true)
+        try makeIncludedDirectory(storage)
+        let retained = storage.appendingPathComponent(RetainedStoreSetAside.substrateRootName, isDirectory: true)
+        try makeIncludedDirectory(retained)
+        try makeIncludedDirectory(retained.appendingPathComponent(UUID().uuidString))
+        let replacement = storage.appendingPathComponent(CrashConsistentStoreReplacer.recoveryRootName, isDirectory: true)
+        try makeIncludedDirectory(replacement)
+        // A link in place of an archive directory is not followed out of the store directory.
+        let outside = root.appendingPathComponent("Outside", isDirectory: true)
+        try makeIncludedDirectory(outside)
+        try FileManager.default.createSymbolicLink(
+            at: storage.appendingPathComponent(RetainedStoreSetAside.userRootName),
+            withDestinationURL: outside
+        )
+
+        XCTAssertEqual(StoreBackupExclusion.ensureExcluded(storageDirectory: storage), [])
+
+        XCTAssertTrue(StoreBackupExclusion.isExcluded(storage))
+        XCTAssertTrue(StoreBackupExclusion.isExcluded(retained))
+        XCTAssertTrue(StoreBackupExclusion.isExcluded(replacement))
+        XCTAssertFalse(StoreBackupExclusion.isExcluded(outside))
+        XCTAssertFalse(
+            FileManager.default.fileExists(
+                atPath: storage.appendingPathComponent(CrashConsistentSubstrateCacheRecovery.recoveryRootName).path
+            ),
+            "Nothing is created"
+        )
+        // Already excluded: nothing more to do, and it stays so.
+        XCTAssertEqual(StoreBackupExclusion.ensureExcluded(storageDirectory: storage) { _ in XCTFail("No write needed") }, [])
+    }
+
+    /// Codex review: a linked store root is not followed into another directory's children.
+    func testALinkedStoreRootIsNotFollowed() throws {
+        let elsewhere = root.appendingPathComponent("Elsewhere", isDirectory: true)
+        try makeIncludedDirectory(elsewhere)
+        let elsewhereRetained = elsewhere.appendingPathComponent(RetainedStoreSetAside.substrateRootName, isDirectory: true)
+        try makeIncludedDirectory(elsewhereRetained)
+        let storage = root.appendingPathComponent("CoreData", isDirectory: true)
+        try FileManager.default.createSymbolicLink(at: storage, withDestinationURL: elsewhere)
+
+        XCTAssertEqual(StoreBackupExclusion.ensureExcluded(storageDirectory: storage) { _ in XCTFail("Nothing is changed") }, [])
+
+        XCTAssertFalse(StoreBackupExclusion.isExcluded(elsewhere))
+        XCTAssertFalse(StoreBackupExclusion.isExcluded(elsewhereRetained))
+    }
+
+    func testADirectoryThatCannotBeExcludedIsReportedAndDoesNotStopStartup() throws {
+        let storage = root.appendingPathComponent("CoreData", isDirectory: true)
+        try makeIncludedDirectory(storage)
+        struct Refused: Error {}
+
+        let notExcluded = StoreBackupExclusion.ensureExcluded(storageDirectory: storage) { _ in throw Refused() }
+
+        XCTAssertEqual(notExcluded.map(\.standardizedFileURL), [storage.standardizedFileURL])
+        XCTAssertEqual(StoreBackupExclusion.ensureExcluded(storageDirectory: root.appendingPathComponent("Missing")), [])
+    }
+}

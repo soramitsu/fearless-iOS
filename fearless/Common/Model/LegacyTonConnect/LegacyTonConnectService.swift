@@ -25,6 +25,10 @@ actor LegacyTonConnectService {
     private weak var handler: LegacyTonConnectRequestHandling?
     private var listeners: [String: Task<Void, Never>] = [:]
     private var processing: Set<String> = []
+    private var startRetry: Task<Void, Never>?
+    private let startRetryNanoseconds: UInt64
+    /// Bumped by every start() and stop(): a discovery or retry from an older call does nothing once it resumes.
+    private var startGeneration: UInt64 = 0
 
     init(
         store: LegacyTonConnectSessionStoring = LegacyTonConnectStore(),
@@ -32,12 +36,14 @@ actor LegacyTonConnectService {
         transport: LegacyTonConnectBridgeTransporting = LegacyTonConnectBridgeTransport(),
         legacyEventId: @escaping () -> String? = {
             SettingsManager.shared.value(of: String.self, for: "ton.connect.last.event.key")
-        }
+        },
+        startRetryNanoseconds: UInt64 = 10_000_000_000
     ) {
         self.store = store
         self.replies = replies
         self.transport = transport
         self.legacyEventId = legacyEventId
+        self.startRetryNanoseconds = startRetryNanoseconds
     }
 
     func set(handler: LegacyTonConnectRequestHandling) {
@@ -61,7 +67,24 @@ actor LegacyTonConnectService {
     }
 
     func start(selectedNetwork: String) async {
-        guard let sessions = try? await store.sessions() else { return }
+        startRetry?.cancel()
+        startRetry = nil
+        startGeneration &+= 1
+        let generation = startGeneration
+        let sessions: [LegacyTonConnectSession]
+        do {
+            sessions = try await store.sessions()
+        } catch {
+            guard generation == startGeneration else { return }
+            // Session keys can be briefly unreadable (Keychain locked); the listeners start once they can be read.
+            startRetry = Task { [weak self, startRetryNanoseconds] in
+                do { try await Task.sleep(nanoseconds: startRetryNanoseconds) } catch { return }
+                await self?.retryStart(selectedNetwork: selectedNetwork, generation: generation)
+            }
+            return
+        }
+        // A stop() or a newer start() ran while the sessions were read.
+        guard generation == startGeneration else { return }
         let validIds = Set(sessions.filter { $0.connectionType == "http" }.map(\.identifier))
         for (id, task) in listeners where !validIds.contains(id) {
             task.cancel()
@@ -99,7 +122,17 @@ actor LegacyTonConnectService {
         }
     }
 
+    private func retryStart(selectedNetwork: String, generation: UInt64) async {
+        // A stop() or a newer start() cancelled this retry.
+        guard generation == startGeneration, !Task.isCancelled else { return }
+        startRetry = nil
+        await start(selectedNetwork: selectedNetwork)
+    }
+
     func stop() {
+        startGeneration &+= 1
+        startRetry?.cancel()
+        startRetry = nil
         listeners.values.forEach { $0.cancel() }
         listeners.removeAll()
     }
@@ -125,6 +158,11 @@ actor LegacyTonConnectService {
         }
         let canonical = try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
         if let saved = try replies.reply(sessionId: session.identifier, requestId: requestId, request: canonical) {
+            if (try? LegacyTonConnectRPCRequest.decode(data))?.method == "disconnect" {
+                // A replayed disconnect is acknowledged only once the session is really gone: an earlier attempt
+                // may have saved this reply and then failed to remove the session or its key.
+                try await store.remove(session)
+            }
             if let hash = saved.messageHashHex {
                 let request = try LegacyTonConnectRPCRequest.decode(data)
                 try await handler?.acknowledge(session: session, network: network, request: request, messageHashHex: hash)
