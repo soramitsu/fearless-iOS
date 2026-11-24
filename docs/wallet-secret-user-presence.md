@@ -309,10 +309,11 @@ as it is.
   An Ethereum key from another backup (older rows may keep only the address), a child seed 4.0.x
   kept under the wallet's `-substrateSeed`, or an account imported after the offer fails this. The
   stored Substrate key, Ethereum address/key and every universal account must also re-derive.
-- Native TON wallets: the typed words, as typed or normalized (the forms native import accepts),
-  give the wallet's key, and the stored phrase and stored signing key give that same key.
+- Native TON wallets: one of exactly the candidates native import tries for the typed text (as
+  typed, or with whitespace collapsed) gives the wallet's key, so that text restores this wallet;
+  the stored phrase and stored signing key give that same key.
 - The check is re-checked for cancellation and the flag right before recording.
-- Evidence holds a SHA-256 of each item it proved (`protectedKeychain.recoveryEvidence.digests.v1`);
+- Evidence holds a SHA-256 of each item it proved (`protectedKeychain.recoveryEvidence.v3.digests`; evidence itself is under `.v3`, so evidence that review builds wrote under `.v2` never counts);
   the migrator defers (`recoveryUnverified`) when a covered item no longer holds those bytes. A
   write this build makes from a typed phrase replaces the binding.
 

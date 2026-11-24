@@ -149,17 +149,16 @@ final class ProtectedKeychainRecoveryCheck {
         return true
     }
 
-    /// A released native TON wallet: the typed words, as typed or normalized (both are forms the
-    /// native import accepts), must give the wallet's key; the stored phrase and stored signing key
-    /// must be that same key.
+    /// A released native TON wallet: one of exactly the candidates native import would try for the
+    /// typed text (as typed, or with whitespace collapsed) must give the wallet's key, so the typed
+    /// text restores this wallet; the stored phrase and stored signing key must be that same key.
     private static func verifyTon(
         _ phrase: String,
         account: LegacyTonAccount,
         walletId: MetaAccountId,
         stored: [String: Data]
     ) -> Outcome {
-        let texts = [phrase, phrase.trimmingCharacters(in: .whitespacesAndNewlines), phrase.lowercased()]
-        let candidates = texts.flatMap { (try? LegacyTonMnemonic.importCandidates($0)) ?? [] }
+        let candidates = (try? LegacyTonMnemonic.importCandidates(phrase)) ?? []
         guard let candidate = candidates.first(where: { $0.publicKey == account.publicKey }),
               let typed = try? TonSwift.Mnemonic.mnemonicToPrivateKey(
                   mnemonicArray: candidate.mnemonic.allWords()

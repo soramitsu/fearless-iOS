@@ -448,10 +448,12 @@ final class ProtectedWalletSecretRouter: KeychainItemRouting, KeystoreProtocol {
 /// the device passcode erases protected items.
 final class ProtectedKeychainRecoveryEvidence {
     static let shared = ProtectedKeychainRecoveryEvidence()
-    static let storageKey = "protectedKeychain.recoveryEvidence.v2"
+    /// v3: review builds before the first shipping build wrote v2 evidence, some of it from a
+    /// recovery check that proved only public keys; none of it counts.
+    static let storageKey = "protectedKeychain.recoveryEvidence.v3"
     /// SHA-256 of items whose evidence is a recovery-phrase check: covered only while the item
     /// still holds those bytes.
-    static let digestsKey = "protectedKeychain.recoveryEvidence.digests.v1"
+    static let digestsKey = "protectedKeychain.recoveryEvidence.v3.digests"
 
     private let userDefaults: UserDefaults
     private let lock = NSLock()

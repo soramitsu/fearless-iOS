@@ -234,6 +234,15 @@ final class ProtectedKeychainRecoveryCheckTests: XCTestCase {
         assertNoEvidence(fixture)
     }
 
+    /// Codex review 4: evidence written by review builds under the old key never counts.
+    func testEvidenceFromReviewBuildsDoesNotCount() throws {
+        let defaults = CovHAssetListFixture.defaults()
+        defaults.set(["w": ["w-entropy"]], forKey: "protectedKeychain.recoveryEvidence.v2")
+        let evidence = ProtectedKeychainRecoveryEvidence(userDefaults: defaults)
+        XCTAssertFalse(evidence.covers(tag: "w-entropy", walletId: "w"))
+        XCTAssertEqual(ProtectedKeychainRecoveryEvidence.storageKey, "protectedKeychain.recoveryEvidence.v3")
+    }
+
     /// Finding 5: a wallet with evidence on any item is never offered.
     func testPartialEvidenceIsNeverOffered() throws {
         let fixture = try ProtectedFixture(imported: false)
@@ -252,6 +261,10 @@ final class ProtectedKeychainRecoveryCheckTests: XCTestCase {
         let check = check(fixture)
 
         XCTAssertEqual(check.verify(phrase: recoveryTonPhrase, wallet: wallet), .mismatch)
+        XCTAssertEqual(
+            check.verify(phrase: " " + spaced, wallet: wallet), .mismatch,
+            "Import would not restore this wallet from that text, so it proves nothing"
+        )
         XCTAssertEqual(check.verify(phrase: spaced, wallet: wallet), .verified)
         XCTAssertTrue(fixture.evidence.covers(tag: fearless.KeystoreTagV2.entropyTagForMetaId(metaId), walletId: metaId))
     }
