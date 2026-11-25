@@ -212,11 +212,18 @@ Use this checklist for every release PR from `develop` to `master`.
   - deployed-node compatibility and funded Taira and Nexus broadcast evidence.
   A local unpublished upstream correction is diagnostic only and cannot satisfy
   a release criterion.
-- Confirm IrohaConnect is off: `IrohaConnectReleasePolicy.production` is
-  `isEnabled: false`, Settings → Connections has no IrohaConnect row, and
-  opening `irohaconnect://connect` on the release build shows only the
-  "IrohaConnect isn't available in this version" sheet. Re-enabling requires the
-  design and security review in `docs/irohaconnect-safe-signing.md`.
+- Confirm IrohaConnect v1 on the release build (`docs/irohaconnect-safe-signing.md`):
+  `IrohaConnectReleasePolicy.production` is `isEnabled: true` and Settings →
+  Connections lists IrohaConnect. Pair with a dApp that uses `@iroha/connect-widget`
+  or the iroha-js app SDK on `https://taira.sora.org` through the same-device
+  `irohaconnect://connect` link, a QR scan and a pasted link. Require the PIN for the
+  connection and for each transaction; a transfer prompt must show the amount,
+  asset and full destination, a contract call its contract and method, and both the
+  fee limits. Confirm that a declined transaction keeps the session, a raw request
+  is refused with `SIGNING_KEY_REQUIRED` and a notice that nothing was signed, a
+  Nexus or retired (`chain_id`) link is refused, and the session survives at least
+  a minute of keepalive pings. Confirm no recovery phrase, private key, raw payload,
+  relay credential or WebSocket frame appears in UI, logs or receipts.
 - From the workspace root, run
   `bash scripts/audit-passkey-backup-prerequisites.sh` and confirm
   `config/passkey-backup-production.json` still matches iOS passkey code,

@@ -5,7 +5,8 @@ import UIKit
 final class CovJIrohaConnectViewsTests: XCTestCase {
     func testConnectionPromptDisplaysClaimsAndRoutesActions() throws {
         let prompt = IrohaConnectPrompt(
-            kind: .connection, appName: "Test dApp", appURL: URL(string: "https://example.invalid/path"),
+            kind: .connection(permissions: IrohaConnectPermissions(methods: ["sign_transaction", "sign_raw"], events: [], resources: nil)),
+            appName: "Test dApp", appURL: URL(string: "https://example.invalid/path"),
             networkName: "Taira", accountID: "0123456789012345678901234567890123456789"
         )
         let controller = IrohaConnectPromptViewController(prompt: prompt)
@@ -17,9 +18,10 @@ final class CovJIrohaConnectViewsTests: XCTestCase {
         XCTAssertTrue(text.contains("Test dApp"))
         XCTAssertTrue(text.contains("example.invalid"))
         XCTAssertTrue(text.contains("012345678901…0123456789"))
-        XCTAssertFalse(text.contains("SHA-256"))
-        let permission = try XCTUnwrap(labels.first { $0.text == "Signs data supplied by this app. Fearless can't decode it." })
-        XCTAssertEqual(permission.numberOfLines, 0)
+        XCTAssertTrue(text.contains("sign_transaction, sign_raw"))
+        XCTAssertFalse(text.contains("PAYLOAD HASH"))
+        let signing = try XCTUnwrap(labels.first { $0.text?.hasPrefix("You approve every transaction with your PIN.") == true })
+        XCTAssertEqual(signing.numberOfLines, 0)
         let buttons = CovJViewFixture.descendants(UIButton.self, in: controller.view)
         let approve = try XCTUnwrap(buttons.first { $0.configuration?.title == "Connect with PIN" })
         let reject = try XCTUnwrap(buttons.first { $0.configuration?.title == "Reject" })
@@ -41,43 +43,59 @@ final class CovJIrohaConnectViewsTests: XCTestCase {
         XCTAssertEqual(controller.modalPresentationStyle, .fullScreen)
     }
 
-    func testSignaturePromptDisplaysPayloadFingerprintWithoutOrigin() throws {
-        let prompt = IrohaConnectPrompt(
-            kind: .signature(payload: Data("abc".utf8)),
-            appName: "Signer",
-            appURL: nil,
-            networkName: "Taira",
-            accountID: "alice"
-        )
-        XCTAssertEqual(prompt.payloadByteCount, 3)
-        XCTAssertEqual(prompt.payloadDigest, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+    func testTransferPromptShowsTheDecodedTransfer() throws {
+        let reviewed = IrohaConnectWebVectors.reviewedTransaction("transfer scoped with nonce, metadata and both limits")
+        let review = reviewed.review
+        let prompt = IrohaConnectPrompt(kind: .transaction(review), appName: "Signer", appURL: nil, networkName: "Taira Testnet", accountID: review.authority)
+        XCTAssertTrue(prompt.isTransaction)
+        let rows = Dictionary(prompt.rows.map { ($0.label, $0.value) }, uniquingKeysWith: { first, _ in first })
+        XCTAssertEqual(rows["SEND"], "12.5 XOR")
+        XCTAssertEqual(rows["TO"], review.transfer?.destination)
+        XCTAssertEqual(rows["SCOPE"], "dataspace:7")
+        XCTAssertEqual(rows["MAX FEE"], "0.1 XOR")
+        XCTAssertEqual(rows["MAX GAS FEE"], "3 XOR")
+        XCTAssertEqual(rows["GAS LIMIT"], "50000")
+        XCTAssertEqual(rows["VALID FOR"], "100 s after creation")
+        XCTAssertEqual(rows["METADATA"], review.metadata)
+        XCTAssertTrue(rows["METADATA"]?.contains("\\u{202E}") == true, "bidi controls are shown escaped")
+        XCTAssertNil(rows["CLAIMED ORIGIN"])
+
         let controller = IrohaConnectPromptViewController(prompt: prompt)
         let window = try CovJViewFixture.host(controller)
         defer { window.isHidden = true }
-        let texts = CovJViewFixture.descendants(UILabel.self, in: controller.view).compactMap(\.text)
-        XCTAssertTrue(texts.contains("Approve contract signature"))
-        XCTAssertTrue(texts.contains("3 bytes"))
-        XCTAssertTrue(texts.contains("ba7816bf8f01cfea…ff61f20015ad"))
-        XCTAssertTrue(texts.contains("alice"))
-        XCTAssertFalse(texts.contains("CLAIMED ORIGIN"))
-        let button = CovJViewFixture.descendants(UIButton.self, in: controller.view).first { $0.configuration?.title == "Review with PIN" }
+        let labels = CovJViewFixture.descendants(UILabel.self, in: controller.view)
+        XCTAssertTrue(labels.contains { $0.text == "Approve transfer" })
+        let destination = try XCTUnwrap(labels.first { $0.text == review.transfer?.destination })
+        XCTAssertEqual(destination.numberOfLines, 0, "the destination is never truncated")
+        let button = CovJViewFixture.descendants(UIButton.self, in: controller.view).first { $0.configuration?.title == "Sign with PIN" }
         XCTAssertNotNil(button)
         controller.setActionsEnabled(false)
         XCTAssertEqual(button?.isEnabled, false)
+    }
+
+    func testContractCallPromptShowsEveryCall() {
+        let review = IrohaConnectWebVectors.reviewedTransaction("two contract calls").review
+        let prompt = IrohaConnectPrompt(kind: .transaction(review), appName: "Signer", appURL: nil, networkName: "Taira Testnet", accountID: review.authority)
+        XCTAssertEqual(prompt.title, "Approve contract call")
+        let rows = prompt.rows
+        XCTAssertEqual(rows.filter { $0.label.hasSuffix("METHOD") }.map(\.value), ["approve", "place_order"])
+        XCTAssertEqual(rows.first { $0.label == "CALL 1 ARGUMENTS" }?.value, "None")
+        XCTAssertEqual(rows.first { $0.label == "CALL 2 ARGUMENTS" }?.value.hasPrefix("200 bytes, SHA-256 "), true)
+        XCTAssertEqual(rows.last?.label, "PAYLOAD HASH")
     }
 
     func testPromptAccountBoundaryAndURLWithoutHost() {
         XCTAssertEqual(IrohaConnectPrompt.shortenedAccountID(String(repeating: "a", count: 24)), String(repeating: "a", count: 24))
         XCTAssertEqual(IrohaConnectPrompt.shortenedAccountID(String(repeating: "b", count: 25)), "bbbbbbbbbbbb…bbbbbbbbbb")
         let prompt = IrohaConnectPrompt(
-            kind: .connection,
+            kind: .connection(permissions: nil),
             appName: "App",
             appURL: URL(string: "urn:example:test"),
             networkName: "Taira",
             accountID: "short"
         )
-        XCTAssertNil(prompt.payloadDigest)
-        XCTAssertNil(prompt.payloadByteCount)
+        XCTAssertFalse(prompt.isTransaction)
+        XCTAssertEqual(prompt.rows.first { $0.label == "ASKS TO" }?.value, "Any request")
         let controller = IrohaConnectPromptViewController(prompt: prompt)
         controller.loadViewIfNeeded()
         XCTAssertTrue(CovJViewFixture.descendants(UILabel.self, in: controller.view).contains { $0.text == "urn:example:test" })

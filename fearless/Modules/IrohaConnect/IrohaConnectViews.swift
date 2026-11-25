@@ -1,11 +1,17 @@
-import CryptoKit
 import SoraFoundation
 import UIKit
 
 struct IrohaConnectPrompt: Equatable {
     enum Kind: Equatable {
-        case connection
-        case signature(payload: Data)
+        case connection(permissions: IrohaConnectPermissions?)
+        case transaction(IrohaConnectTransactionReview)
+    }
+
+    struct Row: Equatable {
+        let label: String
+        let value: String
+        /// Rows that must never be truncated.
+        var isFullText = false
     }
 
     let kind: Kind
@@ -14,22 +20,97 @@ struct IrohaConnectPrompt: Equatable {
     let networkName: String
     let accountID: String
 
-    var payloadDigest: String? {
-        guard case let .signature(payload) = kind else {
-            return nil
-        }
-
-        return SHA256.hash(data: payload)
-            .map { String(format: "%02x", $0) }
-            .joined()
+    var isTransaction: Bool {
+        if case .transaction = kind { return true }
+        return false
     }
 
-    var payloadByteCount: Int? {
-        guard case let .signature(payload) = kind else {
-            return nil
+    var title: String {
+        switch kind {
+        case .connection:
+            return "Connect your SORA wallet"
+        case let .transaction(review):
+            return review.kind == .transfer ? "Approve transfer" : "Approve contract call"
         }
+    }
 
-        return payload.count
+    var explanation: String {
+        switch kind {
+        case .connection:
+            return "This app wants to see your public account and ask you to sign transactions. " +
+                "Your recovery phrase and private key never leave Fearless."
+        case .transaction:
+            return "Fearless decoded this transaction. Check every line before you sign it."
+        }
+    }
+
+    /// The decoded request, in the order the person should read it.
+    var rows: [Row] {
+        var rows = [Row(label: "APP CLAIM", value: appName)]
+        if let appURL {
+            rows.append(Row(label: "CLAIMED ORIGIN", value: appURL.host ?? appURL.absoluteString))
+        }
+        rows.append(Row(label: "NETWORK", value: networkName))
+        rows.append(Row(label: "ACCOUNT", value: Self.shortenedAccountID(accountID)))
+        switch kind {
+        case let .connection(permissions):
+            let methods = permissions?.methods ?? []
+            let allowed = methods.isEmpty
+                ? "Any request"
+                : methods.map { irohaConnectSanitizedReviewText($0, maximum: 96) }.joined(separator: ", ")
+            rows.append(Row(label: "ASKS TO", value: allowed, isFullText: true))
+            rows.append(Row(
+                label: "SIGNING",
+                value: "You approve every transaction with your PIN. Fearless never signs data it can't show you.",
+                isFullText: true
+            ))
+        case let .transaction(review):
+            rows += Self.transactionRows(review)
+        }
+        return rows
+    }
+
+    private static func transactionRows(_ review: IrohaConnectTransactionReview) -> [Row] {
+        var rows = [Row]()
+        if let transfer = review.transfer {
+            rows.append(Row(label: "SEND", value: "\(transfer.quantity) \(assetName(transfer.asset))", isFullText: true))
+            rows.append(Row(label: "TO", value: transfer.destination, isFullText: true))
+            if let scope = transfer.scope {
+                rows.append(Row(label: "SCOPE", value: scope))
+            }
+        }
+        for (index, call) in (review.calls ?? []).enumerated() {
+            let prefix = (review.calls?.count ?? 0) > 1 ? "CALL \(index + 1) " : ""
+            rows.append(Row(label: "\(prefix)CONTRACT", value: call.contractAddress, isFullText: true))
+            rows.append(Row(label: "\(prefix)METHOD", value: call.entrypoint, isFullText: true))
+            let arguments = call.argumentBytes.map { bytes in
+                "\(bytes) bytes, SHA-256 \(call.argumentsSHA256?.prefix(16) ?? "")…"
+            } ?? "None"
+            rows.append(Row(label: "\(prefix)ARGUMENTS", value: arguments))
+            rows.append(Row(label: "\(prefix)CODE HASH", value: "\(call.codeHashHex.prefix(16))…\(call.codeHashHex.suffix(8))"))
+        }
+        for limit in review.fee.chargeLimits {
+            let label = limit.kind == .nexus ? "MAX FEE" : "MAX GAS FEE"
+            rows.append(Row(label: label, value: "\(limit.maxAmount) \(assetName(limit.asset))", isFullText: true))
+        }
+        if let gasLimit = review.fee.gasLimit {
+            rows.append(Row(label: "GAS LIMIT", value: gasLimit))
+        }
+        if let program = review.fee.program {
+            rows.append(Row(label: "FEE SPONSOR", value: program, isFullText: true))
+        }
+        if let ttl = review.ttlMs, let milliseconds = UInt64(ttl) {
+            rows.append(Row(label: "VALID FOR", value: "\(max(1, milliseconds / 1000)) s after creation"))
+        }
+        if let metadata = review.metadata {
+            rows.append(Row(label: "METADATA", value: metadata, isFullText: true))
+        }
+        rows.append(Row(label: "PAYLOAD HASH", value: "\(review.payloadHashHex.prefix(16))…\(review.payloadHashHex.suffix(8))"))
+        return rows
+    }
+
+    private static func assetName(_ asset: IrohaConnectReviewAsset) -> String {
+        asset.symbol ?? asset.definitionID
     }
 
     static func shortenedAccountID(_ accountID: String) -> String {
@@ -247,23 +328,12 @@ final class IrohaConnectPromptViewController: UIViewController, ControllerBacked
         eyebrow.textColor = R.color.irohaConnectEyebrow()!
         eyebrow.accessibilityTraits.insert(.header)
 
-        let isSignature = prompt.payloadDigest != nil
-        let title = makeLabel(
-            text: isSignature ? "Approve contract signature" : "Connect your SORA wallet",
-            style: .largeTitle,
-            weight: .bold
-        )
+        let isSignature = prompt.isTransaction
+        let title = makeLabel(text: prompt.title, style: .largeTitle, weight: .bold)
         title.numberOfLines = 0
         title.accessibilityTraits.insert(.header)
 
-        let explanation = makeLabel(
-            text: isSignature
-                ? "Review this request before Fearless signs it with your selected Iroha account."
-                : "A SORA dApp wants to use your public account and request signatures. " +
-                "Your recovery phrase and private key never leave Fearless.",
-            style: .body,
-            weight: .regular
-        )
+        let explanation = makeLabel(text: prompt.explanation, style: .body, weight: .regular)
         explanation.numberOfLines = 0
         explanation.textColor = UIColor.white.withAlphaComponent(0.72)
 
@@ -319,30 +389,9 @@ final class IrohaConnectPromptViewController: UIViewController, ControllerBacked
     }
 
     private func detailRows() -> [UIView] {
-        var rows = [
-            makeDetailRow(label: "APP CLAIM", value: prompt.appName),
-            makeDetailRow(label: "NETWORK", value: prompt.networkName),
-            makeDetailRow(label: "ACCOUNT", value: IrohaConnectPrompt.shortenedAccountID(prompt.accountID)),
-            // Never truncated: the caveat is the point of this row.
-            makeDetailRow(
-                label: "PERMISSION",
-                value: "Signs data supplied by this app. Fearless can't decode it.",
-                numberOfLines: 0
-            )
-        ]
-
-        if let appURL = prompt.appURL {
-            rows.insert(
-                makeDetailRow(label: "CLAIMED ORIGIN", value: appURL.host ?? appURL.absoluteString),
-                at: 1
-            )
+        prompt.rows.map { row in
+            makeDetailRow(label: row.label, value: row.value, numberOfLines: row.isFullText ? 0 : 2)
         }
-        if let byteCount = prompt.payloadByteCount, let digest = prompt.payloadDigest {
-            rows.append(makeDetailRow(label: "PAYLOAD", value: "\(byteCount) bytes"))
-            rows.append(makeDetailRow(label: "SHA-256", value: "\(digest.prefix(16))…\(digest.suffix(12))"))
-        }
-
-        return rows
     }
 
     private func makeDetailRow(label: String, value: String, numberOfLines: Int = 2) -> UIView {
@@ -364,7 +413,7 @@ final class IrohaConnectPromptViewController: UIViewController, ControllerBacked
 
     private func configurePrimaryButton(isSignature: Bool) {
         var configuration = UIButton.Configuration.filled()
-        configuration.title = isSignature ? "Review with PIN" : "Connect with PIN"
+        configuration.title = isSignature ? "Sign with PIN" : "Connect with PIN"
         configuration.baseBackgroundColor = R.color.irohaConnectActionFill()!
         configuration.baseForegroundColor = .white
         configuration.cornerStyle = .large
@@ -380,7 +429,7 @@ final class IrohaConnectPromptViewController: UIViewController, ControllerBacked
         configuration.baseForegroundColor = UIColor.white.withAlphaComponent(0.8)
         rejectButton.configuration = configuration
         rejectButton.addTarget(self, action: #selector(reject), for: .touchUpInside)
-        rejectButton.accessibilityHint = "Closes this IrohaConnect request without signing."
+        rejectButton.accessibilityHint = "Declines this IrohaConnect request without signing."
     }
 
     private func makeLabel(text: String, style: UIFont.TextStyle, weight: UIFont.Weight) -> UILabel {
@@ -448,8 +497,8 @@ final class IrohaConnectLandingViewController: UIViewController, ControllerBacke
         title.accessibilityTraits.insert(.header)
 
         let body = UILabel()
-        body.text = "In Uranai or another compatible app, choose IrohaConnect. " +
-            "Open the pairing link on this iPhone, scan its QR code, or paste the link here. " +
+        body.text = "In a SORA app, choose IrohaConnect. " +
+            "Open the link on this iPhone, scan its QR code, or paste the link here. " +
             "Every signature still needs your approval."
         body.textColor = UIColor.white.withAlphaComponent(0.72)
         body.textAlignment = .center
@@ -470,9 +519,8 @@ final class IrohaConnectLandingViewController: UIViewController, ControllerBacke
         pasteButton.configuration?.baseBackgroundColor = UIColor.white.withAlphaComponent(0.1)
 
         let safety = UILabel()
-        safety.text = "Fearless accepts only the canonical Taira endpoint. Signature requests carry data " +
-            "Fearless can't decode, so approve only requests you started. " +
-            "Private keys remain in Keychain-backed wallet storage."
+        safety.text = "Fearless connects only through the Taira node and shows every transaction before you sign it. " +
+            "It never signs data it can't read. Private keys stay in Keychain-backed wallet storage."
         safety.textColor = UIColor.white.withAlphaComponent(0.52)
         safety.textAlignment = .center
         safety.numberOfLines = 0

@@ -84,32 +84,34 @@ final class IrohaConnectAccountProviderTests: XCTestCase {
 }
 
 final class IrohaConnectPromptTests: XCTestCase {
-    func testSignaturePromptSummarizesPayloadWithoutDisplayingIt() {
-        let payload = Data("private contract signing bytes".utf8)
+    func testTransactionPromptShowsTheReviewNotRawBytes() {
+        let review = IrohaConnectWebVectors.reviewedTransaction("transfer xor").review
         let prompt = IrohaConnectPrompt(
-            kind: .signature(payload: payload),
+            kind: .transaction(review),
             appName: "Uranai",
             appURL: URL(string: "https://uranai.app"),
             networkName: "Taira Testnet",
-            accountID: "account"
+            accountID: review.authority
         )
 
-        XCTAssertEqual(prompt.payloadByteCount, payload.count)
-        XCTAssertEqual(prompt.payloadDigest?.count, 64)
-        XCTAssertFalse(prompt.payloadDigest?.contains("private") == true)
+        XCTAssertTrue(prompt.isTransaction)
+        XCTAssertEqual(prompt.title, "Approve transfer")
+        XCTAssertEqual(prompt.rows.first { $0.label == "SEND" }?.value, "0.001 XOR")
+        XCTAssertEqual(prompt.rows.first { $0.label == "CLAIMED ORIGIN" }?.value, "uranai.app")
+        XCTAssertFalse(prompt.rows.contains { $0.value.contains(review.payloadHashHex) }, "the full hash is shortened")
     }
 
-    func testConnectionPromptHasNoPayloadSummary() {
+    func testConnectionPromptHasNoTransactionRows() {
         let prompt = IrohaConnectPrompt(
-            kind: .connection,
+            kind: .connection(permissions: nil),
             appName: "Uranai",
             appURL: nil,
             networkName: "Taira Testnet",
             accountID: "account"
         )
 
-        XCTAssertNil(prompt.payloadByteCount)
-        XCTAssertNil(prompt.payloadDigest)
+        XCTAssertFalse(prompt.isTransaction)
+        XCTAssertFalse(prompt.rows.contains { $0.label == "PAYLOAD HASH" || $0.label == "SEND" })
     }
 
     func testShortenedAccountPreservesSmallAccountAndBothEndsOfLongAccount() {

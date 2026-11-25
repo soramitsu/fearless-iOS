@@ -682,12 +682,17 @@
 		1C0A34010000000000000001 /* IrohaConnectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000001 /* IrohaConnectModels.swift */; };
 		1C0A34010000000000000002 /* IrohaConnectWireCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000002 /* IrohaConnectWireCodec.swift */; };
 		1C0A34010000000000000003 /* IrohaConnectCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000003 /* IrohaConnectCrypto.swift */; };
+		1C0A3401000000000000000D /* IrohaConnectPayloadEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A3402000000000000000D /* IrohaConnectPayloadEncoder.swift */; };
+		1C0A3401000000000000000C /* IrohaConnectTransactionReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A3402000000000000000C /* IrohaConnectTransactionReview.swift */; };
+		1C0A3401000000000000000B /* IrohaConnectEncodings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A3402000000000000000B /* IrohaConnectEncodings.swift */; };
 		1C0A34010000000000000004 /* IrohaConnectProtocolEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000004 /* IrohaConnectProtocolEngine.swift */; };
 		1C0A34010000000000000005 /* IrohaConnectAccountProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000005 /* IrohaConnectAccountProvider.swift */; };
 		1C0A34010000000000000006 /* IrohaConnectSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000006 /* IrohaConnectSessionService.swift */; };
 		1C0A34010000000000000007 /* IrohaConnectViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000007 /* IrohaConnectViews.swift */; };
 		1C0A34010000000000000008 /* IrohaConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000008 /* IrohaConnectCoordinator.swift */; };
 		1C0A34010000000000000009 /* IrohaConnectProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A34020000000000000009 /* IrohaConnectProtocolTests.swift */; };
+		1C0A3401000000000000000F /* IrohaConnectTransactionReviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A3402000000000000000F /* IrohaConnectTransactionReviewTests.swift */; };
+		1C0A3401000000000000000E /* IrohaConnectWebVectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A3402000000000000000E /* IrohaConnectWebVectors.swift */; };
 		1C0A3401000000000000000A /* IrohaConnectAccountProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0A3402000000000000000A /* IrohaConnectAccountProviderTests.swift */; };
 		FA714002ABCDEF0123456789 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FA714001ABCDEF0123456789 /* PrivacyInfo.xcprivacy */; };
 		FF1000000000000000000001 /* MainTabBarDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000001 /* MainTabBarDestination.swift */; };
@@ -4499,12 +4504,17 @@
 		1C0A34020000000000000001 /* IrohaConnectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectModels.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000002 /* IrohaConnectWireCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectWireCodec.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000003 /* IrohaConnectCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectCrypto.swift; sourceTree = SOURCE_ROOT; };
+		1C0A3402000000000000000D /* IrohaConnectPayloadEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectPayloadEncoder.swift; sourceTree = SOURCE_ROOT; };
+		1C0A3402000000000000000C /* IrohaConnectTransactionReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectTransactionReview.swift; sourceTree = SOURCE_ROOT; };
+		1C0A3402000000000000000B /* IrohaConnectEncodings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectEncodings.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000004 /* IrohaConnectProtocolEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectProtocolEngine.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000005 /* IrohaConnectAccountProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Common/Model/IrohaConnect/IrohaConnectAccountProvider.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000006 /* IrohaConnectSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/ApplicationLayer/Services/IrohaConnect/IrohaConnectSessionService.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000007 /* IrohaConnectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Modules/IrohaConnect/IrohaConnectViews.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000008 /* IrohaConnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearless/Modules/IrohaConnect/IrohaConnectCoordinator.swift; sourceTree = SOURCE_ROOT; };
 		1C0A34020000000000000009 /* IrohaConnectProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests/Common/Model/IrohaConnect/IrohaConnectProtocolTests.swift; sourceTree = SOURCE_ROOT; };
+		1C0A3402000000000000000F /* IrohaConnectTransactionReviewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests/Common/Model/IrohaConnect/IrohaConnectTransactionReviewTests.swift; sourceTree = SOURCE_ROOT; };
+		1C0A3402000000000000000E /* IrohaConnectWebVectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests/Common/Model/IrohaConnect/IrohaConnectWebVectors.swift; sourceTree = SOURCE_ROOT; };
 		1C0A3402000000000000000A /* IrohaConnectAccountProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests/Common/Model/IrohaConnect/IrohaConnectAccountProviderTests.swift; sourceTree = SOURCE_ROOT; };
 		002A29AE58EB53E915330490 /* ControllerAccountViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewFactory.swift; sourceTree = "<group>"; };
 		0033D320A9033F5200279087 /* SelectedValidatorListFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListFlow.swift; sourceTree = "<group>"; };
@@ -7744,6 +7754,9 @@
 				1C0A34020000000000000006 /* IrohaConnectSessionService.swift */,
 				1C0A34020000000000000007 /* IrohaConnectViews.swift */,
 				1C0A34020000000000000008 /* IrohaConnectCoordinator.swift */,
+				1C0A3402000000000000000D /* IrohaConnectPayloadEncoder.swift */,
+				1C0A3402000000000000000C /* IrohaConnectTransactionReview.swift */,
+				1C0A3402000000000000000B /* IrohaConnectEncodings.swift */,
 				28AFCB150BAB5F52D8CBBDA1 /* LegacyTonConnectTests.swift */,
 				B2C88FE5FDEBA997949F83C2 /* LegacyTonConnectService.swift */,
 				7EA637E15A18D44D0F77E8DB /* LegacyTonConnectBridgeTransport.swift */,
@@ -7763,6 +7776,8 @@
 			children = (
 				1C0A34020000000000000009 /* IrohaConnectProtocolTests.swift */,
 				1C0A3402000000000000000A /* IrohaConnectAccountProviderTests.swift */,
+				1C0A3402000000000000000F /* IrohaConnectTransactionReviewTests.swift */,
+				1C0A3402000000000000000E /* IrohaConnectWebVectors.swift */,
 			);
 			name = "IrohaConnect Tests";
 			sourceTree = "<group>";
@@ -18164,6 +18179,9 @@
 				1C0A34010000000000000001 /* IrohaConnectModels.swift in Sources */,
 				1C0A34010000000000000002 /* IrohaConnectWireCodec.swift in Sources */,
 				1C0A34010000000000000003 /* IrohaConnectCrypto.swift in Sources */,
+				1C0A3401000000000000000D /* IrohaConnectPayloadEncoder.swift in Sources */,
+				1C0A3401000000000000000C /* IrohaConnectTransactionReview.swift in Sources */,
+				1C0A3401000000000000000B /* IrohaConnectEncodings.swift in Sources */,
 				1C0A34010000000000000004 /* IrohaConnectProtocolEngine.swift in Sources */,
 				1C0A34010000000000000005 /* IrohaConnectAccountProvider.swift in Sources */,
 				1C0A34010000000000000006 /* IrohaConnectSessionService.swift in Sources */,
@@ -21451,6 +21469,8 @@
 				2E119E9A98D0018D1DFC3F8A /* NetworkDateParsingTests.swift in Sources */,
 				FF26D6B731581C9CA1DAD936 /* PricesServiceSubscriptionTests.swift in Sources */,
 				1C0A34010000000000000009 /* IrohaConnectProtocolTests.swift in Sources */,
+				1C0A3401000000000000000F /* IrohaConnectTransactionReviewTests.swift in Sources */,
+				1C0A3401000000000000000E /* IrohaConnectWebVectors.swift in Sources */,
 				1C0A3401000000000000000A /* IrohaConnectAccountProviderTests.swift in Sources */,
 				84B66A1826FE05B00038B963 /* ChainRegistryStub.swift in Sources */,
 				FAE601022ECA700100000001 /* UniversalWalletV2VectorsTests.swift in Sources */,

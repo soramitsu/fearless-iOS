@@ -1,10 +1,10 @@
 import UIKit
 
-/// IrohaConnect stays off until the safe signing design in
-/// `docs/irohaconnect-safe-signing.md` ships and passes a security review.
-/// Today the wallet would sign opaque dApp bytes with the same Ed25519 key that
-/// controls SORA Nexus mainnet funds. There is intentionally no
-/// environment-variable, remote-config, or runtime-toggle override.
+/// IrohaConnect is on: the wallet speaks the current Iroha Connect v1, signs only wallet-built approval
+/// preimages and the hashes of Taira transactions it decoded and showed the person, and refuses raw requests
+/// (`docs/irohaconnect-safe-signing.md`). The constant stays the single switch for the coordinator, the
+/// Profile row and the account provider. There is intentionally no environment-variable, remote-config, or
+/// runtime-toggle override.
 struct IrohaConnectReleasePolicy: Equatable {
     let isEnabled: Bool
 
@@ -12,9 +12,10 @@ struct IrohaConnectReleasePolicy: Equatable {
         self.isEnabled = isEnabled
     }
 
-    static let production = IrohaConnectReleasePolicy(isEnabled: false)
+    static let production = IrohaConnectReleasePolicy(isEnabled: true)
     #if DEBUG
         static let enabledForTests = IrohaConnectReleasePolicy(isEnabled: true)
+        static let disabledForTests = IrohaConnectReleasePolicy(isEnabled: false)
     #endif
 }
 
@@ -60,37 +61,41 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
     static let shared = IrohaConnectCoordinator()
 
     private enum PendingApproval {
-        case connection(IrohaConnectAccountDescriptor)
-        case signature(IrohaConnectAccountDescriptor, IrohaConnectSignRawRequest)
+        case connection(IrohaConnectAccountDescriptor, IrohaConnectPermissions?)
+        case signature(IrohaConnectPendingSignature)
     }
 
     private let policy: IrohaConnectReleasePolicy
     private let sessionFactory: (IrohaConnectWalletURI) throws -> IrohaConnectSessionService
     private let unavailableNotice: IrohaConnectUnavailableNoticePresenting
     private let notificationCenter: NotificationCenter
+    private let pasteboard: PasteboardStringAccessing
 
     private var session: IrohaConnectSessionService?
     private var pendingApproval: PendingApproval?
     private var coveringWindow: UIWindow?
     private weak var previousKeyWindow: UIWindow?
     private weak var promptViewController: IrohaConnectPromptViewController?
-    private var appName = "SORA dApp"
+    private var appName = IrohaConnectCoordinator.defaultAppName
     private var appURL: URL?
+    private static let defaultAppName = "Iroha dApp"
     private var isWalletInterfaceReady = false
     private var isUnavailableNoticePending = false
 
     init(
         policy: IrohaConnectReleasePolicy = .production,
         sessionFactory: @escaping (IrohaConnectWalletURI) throws -> IrohaConnectSessionService = { handoff in
-            try IrohaConnectSessionService(handoff: handoff)
+            IrohaConnectSessionService(handoff: handoff)
         },
         unavailableNotice: IrohaConnectUnavailableNoticePresenting = IrohaConnectUnavailableNoticePresenter(),
-        notificationCenter: NotificationCenter = .default
+        notificationCenter: NotificationCenter = .default,
+        pasteboard: PasteboardStringAccessing = UIPasteboard.general
     ) {
         self.policy = policy
         self.sessionFactory = sessionFactory
         self.unavailableNotice = unavailableNotice
         self.notificationCenter = notificationCenter
+        self.pasteboard = pasteboard
         super.init()
         notificationCenter.addObserver(
             self,
@@ -143,18 +148,17 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
             session?.close()
             dismissPrompt()
             pendingApproval = nil
-            appName = "SORA dApp"
+            appName = Self.defaultAppName
             appURL = nil
 
             let service = try sessionFactory(handoff)
             service.delegate = self
             session = service
             service.start()
+        } catch let error as IrohaConnectError {
+            presentError(message: error.localizedDescription)
         } catch {
-            presentError(
-                message: "This link is not a canonical Taira IrohaConnect request. " +
-                    "Create a fresh pairing request in Uranai and try again."
-            )
+            presentError(message: IrohaConnectError.invalidLink("").localizedDescription)
         }
     }
 
@@ -196,13 +200,15 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
     }
 
     private func handlePaste(from viewController: UIViewController) {
-        guard let literal = UIPasteboard.general.string,
-              let url = URL(string: literal),
-              (try? IrohaConnectWalletURI.parse(url)) != nil else {
-            presentError(
-                message: "The clipboard does not contain a valid Taira IrohaConnect pairing link.",
-                from: viewController
-            )
+        guard let literal = pasteboard.string?.trimmingCharacters(in: .whitespacesAndNewlines),
+              let url = URL(string: literal) else {
+            presentError(message: "The clipboard doesn't contain an IrohaConnect link.", from: viewController)
+            return
+        }
+        do {
+            _ = try IrohaConnectWalletURI.parse(literal)
+        } catch {
+            presentError(message: error.localizedDescription, from: viewController)
             return
         }
 
@@ -217,23 +223,24 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
             return
         }
 
+        let networkName = session?.handoff.profile.displayName ?? IrohaConnectProfile.taira.displayName
         let prompt: IrohaConnectPrompt
         switch pendingApproval {
-        case let .connection(account):
+        case let .connection(account, permissions):
             prompt = IrohaConnectPrompt(
-                kind: .connection,
+                kind: .connection(permissions: permissions),
                 appName: appName,
                 appURL: appURL,
-                networkName: "Taira Testnet",
+                networkName: networkName,
                 accountID: account.accountID
             )
-        case let .signature(account, request):
+        case let .signature(request):
             prompt = IrohaConnectPrompt(
-                kind: .signature(payload: request.message),
+                kind: .transaction(request.review),
                 appName: appName,
                 appURL: appURL,
-                networkName: "Taira Testnet",
-                accountID: account.accountID
+                networkName: networkName,
+                accountID: request.account.accountID
             )
         }
 
@@ -262,10 +269,10 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
             }
 
             switch pendingApproval {
-            case let .connection(account):
+            case let .connection(account, _):
                 session.approveConnection(for: account)
-            case let .signature(account, _):
-                session.approveSignature(for: account)
+            case let .signature(request):
+                session.approveSignature(requestID: request.requestID)
             case .none:
                 dismissPrompt()
             }
@@ -273,11 +280,18 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
     }
 
     private func rejectPendingApproval() {
+        let rejected = pendingApproval
         pendingApproval = nil
-        let rejectedSession = session
-        session = nil
-        rejectedSession?.delegate = nil
-        rejectedSession?.close()
+        switch rejected {
+        case let .signature(request):
+            // Declining one transaction keeps the session; the dApp gets USER_REJECTED.
+            session?.rejectSignature(requestID: request.requestID)
+        case .connection, .none:
+            let rejectedSession = session
+            session = nil
+            rejectedSession?.delegate = nil
+            rejectedSession?.rejectConnection()
+        }
         dismissPrompt()
     }
 
@@ -317,6 +331,8 @@ final class IrohaConnectCoordinator: NSObject, AuthorizationPresentable {
             self?.promptViewController = nil
             self?.previousKeyWindow?.makeKeyAndVisible()
             completion?()
+            // A request that arrived while the previous prompt was fading out is shown now.
+            self?.presentPendingApprovalIfPossible()
         })
     }
 
@@ -365,10 +381,23 @@ extension IrohaConnectCoordinator: IrohaConnectSessionServiceDelegate {
         account: IrohaConnectAccountDescriptor
     ) {
         guard session === self.session else { return }
-        appName = open.appMetadata?.name ?? "SORA dApp"
-        appURL = open.appMetadata?.url
-        pendingApproval = .connection(account)
+        appName = irohaConnectSanitizedReviewText(open.appMetadata?.name ?? Self.defaultAppName, maximum: 128)
+        appURL = Self.normalizedAppURL(open.appMetadata?.url)
+        pendingApproval = .connection(account, open.permissions)
         presentPendingApprovalIfPossible()
+    }
+
+    /// The app's claimed origin, shown only when it is an https URL (or http on loopback) without credentials.
+    static func normalizedAppURL(_ value: String?) -> URL? {
+        guard let value, let components = URLComponents(string: value), let host = components.host, !host.isEmpty,
+              components.user == nil, components.password == nil else {
+            return nil
+        }
+        let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "[::1]" || host == "::1"
+        guard components.scheme == "https" || (components.scheme == "http" && isLoopback) else {
+            return nil
+        }
+        return components.url
     }
 
     func irohaConnectSessionDidApprove(_ session: IrohaConnectSessionService) {
@@ -377,14 +406,42 @@ extension IrohaConnectCoordinator: IrohaConnectSessionServiceDelegate {
         dismissPrompt()
     }
 
-    func irohaConnectSession(
-        _ session: IrohaConnectSessionService,
-        requestsSignature request: IrohaConnectSignRawRequest,
-        account: IrohaConnectAccountDescriptor
-    ) {
+    func irohaConnectSession(_ session: IrohaConnectSessionService, requestsSignature request: IrohaConnectPendingSignature) {
         guard session === self.session else { return }
-        pendingApproval = .signature(account, request)
+        pendingApproval = .signature(request)
         presentPendingApprovalIfPossible()
+    }
+
+    func irohaConnectSession(_ session: IrohaConnectSessionService, didRefuse notice: IrohaConnectNotice) {
+        guard session === self.session else { return }
+        if notice == .requestExpired, case .signature = pendingApproval {
+            pendingApproval = nil
+            dismissPrompt { [weak self] in
+                self?.presentError(message: Self.message(for: notice))
+            }
+            return
+        }
+        presentError(message: Self.message(for: notice))
+    }
+
+    /// One short sentence: what happened and that nothing was signed.
+    static func message(for notice: IrohaConnectNotice) -> String {
+        switch notice {
+        case .rawSigningUnavailable:
+            return "The app asked Fearless to sign raw data. Fearless only signs transactions it can show you, so nothing was signed."
+        case .requestInProgress:
+            return "The app sent another request while one was waiting, so Fearless declined it."
+        case .permissionDenied:
+            return "The app didn't ask permission to sign transactions when it connected, so nothing was signed."
+        case .transactionInvalid:
+            return "Fearless couldn't read this transaction, so it wasn't signed."
+        case .transactionUnsupported:
+            return "Fearless can't show this kind of transaction yet, so it wasn't signed."
+        case .transactionWrongAccount:
+            return "This transaction is for a different account, so it wasn't signed."
+        case .requestExpired:
+            return "The signature request expired, so nothing was signed."
+        }
     }
 
     func irohaConnectSessionDidCompleteSignature(_ session: IrohaConnectSessionService) {
@@ -398,7 +455,7 @@ extension IrohaConnectCoordinator: IrohaConnectSessionServiceDelegate {
         self.session = nil
         pendingApproval = nil
 
-        let message = error?.localizedDescription
+        let message = error.flatMap { ($0 as? LocalizedError)?.errorDescription ?? $0.localizedDescription }
         dismissPrompt { [weak self] in
             if let message {
                 self?.presentError(message: message)
@@ -417,7 +474,7 @@ extension IrohaConnectCoordinator: ScanQRRawCodeOutput {
 
     func didFinishWith(rawCode: String) {
         guard let url = URL(string: rawCode) else {
-            presentError(message: "The scanned pairing request is invalid.")
+            presentError(message: IrohaConnectError.invalidLink("").localizedDescription)
             return
         }
         start(with: url)

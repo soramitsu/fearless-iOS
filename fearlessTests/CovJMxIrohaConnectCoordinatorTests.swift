@@ -15,6 +15,10 @@ import UIKit
         }
     }
 
+    final class CovJMxPasteboard: PasteboardStringAccessing {
+        var string: String?
+    }
+
     /// Never signs and has no account: nothing in these tests may reach signing material.
     final class CovJMxIrohaAccountProvider: IrohaConnectAccountProviding {
         func selectedAccount() throws -> IrohaConnectAccountDescriptor {
@@ -35,10 +39,10 @@ import UIKit
         func make(_ handoff: IrohaConnectWalletURI) throws -> IrohaConnectSessionService {
             handoffs.append(handoff)
             if let failure { throw failure }
-            let service = try IrohaConnectSessionService(
+            let service = IrohaConnectSessionService(
                 handoff: handoff,
                 accountProvider: CovJMxIrohaAccountProvider(),
-                ephemeralPrivateKey: Data(repeating: 0x55, count: 32)
+                transport: IrohaConnectFakeTransport()
             )
             // `close()` and `start()` run on the same serial queue: the session is finished before it can connect.
             service.close()
@@ -48,14 +52,12 @@ import UIKit
     }
 
     final class CovJMxIrohaConnectCoordinatorTests: XCTestCase {
-        private static let walletURI = "irohaconnect://connect?" +
-            "sid=yjnfVXnZeSYGYZRtmaP7falZC6w04-qu9eQ-9dBsDvQ&" +
-            "network_id=hash%3A82531CE8EAE8BFF6BEECA4698BFD13A3BC8BEC5F0EE0D23D428C97FC17AB0F3B%233E94&" +
-            "app_pk=ew1H2TQn-DERYHgcfHM_2J-IlwrvSQ2KoO4ZpMuKGxQ&" +
-            "nonce=EREREREREREREREREREREQ&v=1&role=wallet&" +
-            "node=https%3A%2F%2Ftaira.sora.org&" +
-            "token=IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI&" +
-            "relay=REREREREREREREREREREREREREREREREREREREREREQ"
+        /// A current Taira wallet invitation (from the web wallet's vectors).
+        private static var walletURI: String {
+            IrohaConnectWebVectors.string("link", "irohaconnectUri")
+        }
+
+        private static let invalidLinkMessage = "This IrohaConnect link is invalid. Create a new connection in the app."
 
         private let account = IrohaConnectAccountDescriptor(
             walletName: "Sakura",
@@ -66,12 +68,14 @@ import UIKit
         private var notice = CovJMxIrohaNoticeSpy()
         private var box = CovJMxIrohaSessionBox()
         private var center = NotificationCenter()
+        private var pasteboard = CovJMxPasteboard()
 
         override func setUp() {
             super.setUp()
             notice = CovJMxIrohaNoticeSpy()
             box = CovJMxIrohaSessionBox()
             center = NotificationCenter()
+            pasteboard = CovJMxPasteboard()
         }
 
         override func tearDown() {
@@ -128,10 +132,7 @@ import UIKit
 
             let alert = try XCTUnwrap(presentedAlert(on: root))
             XCTAssertEqual(alert.title, "IrohaConnect")
-            XCTAssertEqual(
-                alert.message,
-                "This link is not a canonical Taira IrohaConnect request. Create a fresh pairing request in Uranai and try again."
-            )
+            XCTAssertEqual(alert.message, Self.invalidLinkMessage)
             XCTAssertEqual(alert.actions.map(\.title), ["OK"])
             XCTAssertTrue(box.handoffs.isEmpty)
         }
@@ -147,7 +148,7 @@ import UIKit
             XCTAssertEqual(box.handoffs.count, 1)
             XCTAssertTrue(box.services.isEmpty)
             let alert = try XCTUnwrap(presentedAlert(on: root))
-            XCTAssertEqual(alert.message?.hasPrefix("This link is not a canonical Taira IrohaConnect request."), true)
+            XCTAssertEqual(alert.message, Self.invalidLinkMessage)
         }
 
         func testEmptyScannedCodeShowsInvalidRequestError() throws {
@@ -158,7 +159,7 @@ import UIKit
             coordinator.didFinishWith(rawCode: "")
 
             let alert = try XCTUnwrap(presentedAlert(on: root))
-            XCTAssertEqual(alert.message, "The scanned pairing request is invalid.")
+            XCTAssertEqual(alert.message, Self.invalidLinkMessage)
             XCTAssertTrue(box.handoffs.isEmpty)
         }
 
@@ -202,7 +203,52 @@ import UIKit
             XCTAssertEqual(notice.attempts, 0)
         }
 
+        func testPastedLinkStartsASessionAndAnInvalidOneExplainsWhy() throws {
+            let (window, root) = try hostRoot()
+            defer { close(window, root) }
+            let coordinator = makeCoordinator()
+            coordinator.presentLanding(from: root)
+            let navigation = try XCTUnwrap(root.presentedViewController as? FearlessNavigationController)
+            let landing = try XCTUnwrap(navigation.viewControllers.first as? IrohaConnectLandingViewController)
+            XCTAssertTrue(CovJWait.until(timeout: 3) { !navigation.isBeingPresented })
+
+            pasteboard.string = "  \(Self.walletURI)\n"
+            landing.onPaste?()
+            XCTAssertEqual(box.handoffs.count, 1)
+            box.services.last?.delegate = nil
+
+            pasteboard.string = IrohaConnectWebVectors.string("link", "uri").replacingOccurrences(of: "v=1", with: "v=2")
+            landing.onPaste?()
+            XCTAssertEqual(box.handoffs.count, 1)
+            XCTAssertTrue(CovJWait.until(timeout: 3) {
+                (landing.presentedViewController as? UIAlertController)?.message == Self.invalidLinkMessage
+            })
+        }
+
         // MARK: - Approval prompts
+
+        func testRequestArrivingWhileThePromptFadesOutIsShownAfterwards() throws {
+            let (window, root) = try hostRoot()
+            defer { close(window, root) }
+            let (coordinator, service) = try startedSession()
+            let open = IrohaConnectOpenFrame(
+                appPublicKey: Data(repeating: 2, count: 32),
+                appMetadata: nil,
+                networkID: Data(repeating: 3, count: 32),
+                permissions: nil,
+                permissionsField: Data([0])
+            )
+            coordinator.irohaConnectSession(service, requestsConnection: open, account: account)
+            let cover = try XCTUnwrap(promptWindow())
+
+            coordinator.irohaConnectSessionDidApprove(service)
+            coordinator.irohaConnectSession(service, requestsSignature: signatureRequest())
+
+            XCTAssertTrue(CovJWait.until(timeout: 3) { cover.isHidden })
+            XCTAssertTrue(CovJWait.until(timeout: 3) {
+                (promptWindow()?.rootViewController as? IrohaConnectPromptViewController).map { labels(in: $0).contains("Approve transfer") } ?? false
+            })
+        }
 
         func testConnectionRequestCoversTheAppAndRejectClosesTheSession() throws {
             let (window, root) = try hostRoot()
@@ -210,9 +256,10 @@ import UIKit
             let (coordinator, service) = try startedSession()
             let open = IrohaConnectOpenFrame(
                 appPublicKey: Data(repeating: 2, count: 32),
-                appMetadata: IrohaConnectAppMetadata(name: "Uranai", url: URL(string: "https://uranai.invalid/app"), iconHash: nil),
+                appMetadata: IrohaConnectAppMetadata(name: "Uranai", url: "https://uranai.invalid/app", iconHash: nil),
                 networkID: Data(repeating: 3, count: 32),
-                permissions: nil
+                permissions: nil,
+                permissionsField: Data([0])
             )
 
             coordinator.irohaConnectSession(service, requestsConnection: open, account: account)
@@ -228,11 +275,6 @@ import UIKit
             XCTAssertTrue(texts.contains("Taira Testnet"))
             XCTAssertTrue(texts.contains(IrohaConnectPrompt.shortenedAccountID(account.accountID)))
 
-            // A second request while the cover is up leaves the first prompt in place.
-            let request = IrohaConnectSignRawRequest(domain: "contract", message: Data("abc".utf8))
-            coordinator.irohaConnectSession(service, requestsSignature: request, account: account)
-            XCTAssertTrue(promptWindow()?.rootViewController === prompt)
-
             prompt.onReject?()
 
             XCTAssertTrue(CovJWait.until(timeout: 3) { cover.isHidden })
@@ -243,21 +285,21 @@ import UIKit
             XCTAssertNil(promptWindow())
         }
 
-        func testSignatureRequestShowsPayloadFingerprintAndCompletionDismissesIt() throws {
+        func testSignatureRequestShowsTheDecodedTransferAndCompletionDismissesIt() throws {
             let (window, root) = try hostRoot()
             defer { close(window, root) }
             let (coordinator, service) = try startedSession()
-            let request = IrohaConnectSignRawRequest(domain: "contract", message: Data("abc".utf8))
+            let request = signatureRequest()
 
-            coordinator.irohaConnectSession(service, requestsSignature: request, account: account)
+            coordinator.irohaConnectSession(service, requestsSignature: request)
 
             let cover = try XCTUnwrap(promptWindow())
             let prompt = try XCTUnwrap(cover.rootViewController as? IrohaConnectPromptViewController)
             let texts = labels(in: prompt)
-            XCTAssertTrue(texts.contains("Approve contract signature"))
-            XCTAssertTrue(texts.contains("SORA dApp"))
-            XCTAssertTrue(texts.contains("3 bytes"))
-            XCTAssertTrue(texts.contains("ba7816bf8f01cfea…ff61f20015ad"))
+            XCTAssertTrue(texts.contains("Approve transfer"))
+            XCTAssertTrue(texts.contains("Iroha dApp"))
+            XCTAssertTrue(texts.contains("0.001 XOR"))
+            XCTAssertTrue(texts.contains(try XCTUnwrap(request.review.transfer?.destination)))
             XCTAssertFalse(texts.contains("CLAIMED ORIGIN"))
 
             // Callbacks from a session that is not the current one are ignored.
@@ -281,14 +323,15 @@ import UIKit
                 appPublicKey: Data(repeating: 2, count: 32),
                 appMetadata: nil,
                 networkID: Data(repeating: 3, count: 32),
-                permissions: nil
+                permissions: nil,
+                permissionsField: Data([0])
             )
 
             coordinator.irohaConnectSession(service, requestsConnection: open, account: account)
 
             let cover = try XCTUnwrap(promptWindow())
             let texts = try labels(in: XCTUnwrap(cover.rootViewController))
-            XCTAssertTrue(texts.contains("SORA dApp"))
+            XCTAssertTrue(texts.contains("Iroha dApp"))
             XCTAssertFalse(texts.contains("CLAIMED ORIGIN"))
 
             coordinator.irohaConnectSessionDidApprove(service)
@@ -301,20 +344,62 @@ import UIKit
             let (window, root) = try hostRoot()
             defer { close(window, root) }
             let (coordinator, service) = try startedSession()
-            let request = IrohaConnectSignRawRequest(domain: "contract", message: Data([1, 2]))
-            coordinator.irohaConnectSession(service, requestsSignature: request, account: account)
+            coordinator.irohaConnectSession(service, requestsSignature: signatureRequest())
             let cover = try XCTUnwrap(promptWindow())
 
-            coordinator.irohaConnectSession(service, didCloseWith: IrohaConnectSessionServiceError.requestTimedOut)
+            coordinator.irohaConnectSession(service, didCloseWith: IrohaConnectSessionServiceError.transportUnavailable)
 
             XCTAssertTrue(CovJWait.until(timeout: 3) { cover.isHidden })
             let alert = try XCTUnwrap(presentedAlert(on: root))
-            XCTAssertEqual(alert.message, IrohaConnectSessionServiceError.requestTimedOut.errorDescription)
+            XCTAssertEqual(alert.message, IrohaConnectSessionServiceError.transportUnavailable.errorDescription)
             // The session is gone: another close report changes nothing.
             root.dismiss(animated: false)
             coordinator.irohaConnectSession(service, didCloseWith: CovJError())
             CovJWait.drain(0.3)
             XCTAssertNil(root.presentedViewController)
+        }
+
+        func testDecliningATransactionKeepsTheSession() throws {
+            let (window, root) = try hostRoot()
+            defer { close(window, root) }
+            let (coordinator, service) = try startedSession()
+            coordinator.irohaConnectSession(service, requestsSignature: signatureRequest())
+            let cover = try XCTUnwrap(promptWindow())
+            let prompt = try XCTUnwrap(cover.rootViewController as? IrohaConnectPromptViewController)
+
+            prompt.onReject?()
+
+            XCTAssertTrue(CovJWait.until(timeout: 3) { cover.isHidden })
+            // The session is still current: its next request is shown again.
+            coordinator.irohaConnectSession(service, requestsSignature: signatureRequest())
+            XCTAssertTrue(CovJWait.until(timeout: 3) { promptWindow() != nil })
+        }
+
+        func testRefusedRequestsExplainThatNothingWasSigned() throws {
+            let (window, root) = try hostRoot()
+            defer { close(window, root) }
+            let (coordinator, service) = try startedSession()
+
+            coordinator.irohaConnectSession(service, didRefuse: .rawSigningUnavailable)
+
+            let alert = try XCTUnwrap(presentedAlert(on: root))
+            XCTAssertEqual(alert.message, IrohaConnectCoordinator.message(for: .rawSigningUnavailable))
+            let notices: [IrohaConnectNotice] = [
+                .rawSigningUnavailable, .requestInProgress, .permissionDenied, .transactionInvalid,
+                .transactionUnsupported, .transactionWrongAccount, .requestExpired
+            ]
+            let messages = notices.map(IrohaConnectCoordinator.message(for:))
+            XCTAssertEqual(Set(messages).count, notices.count)
+            XCTAssertTrue(messages.allSatisfy { $0.contains("sign") || $0.contains("declined") })
+        }
+
+        func testClaimedOriginIsShownOnlyForHTTPSOrLoopback() {
+            XCTAssertEqual(IrohaConnectCoordinator.normalizedAppURL("https://app.example/x")?.host, "app.example")
+            XCTAssertEqual(IrohaConnectCoordinator.normalizedAppURL("http://localhost:3000")?.host, "localhost")
+            XCTAssertNil(IrohaConnectCoordinator.normalizedAppURL("http://app.example"))
+            XCTAssertNil(IrohaConnectCoordinator.normalizedAppURL("https://user:pass@app.example"))
+            XCTAssertNil(IrohaConnectCoordinator.normalizedAppURL("javascript:alert(1)"))
+            XCTAssertNil(IrohaConnectCoordinator.normalizedAppURL(nil))
         }
 
         func testCleanCloseWithoutPromptShowsNoError() throws {
@@ -342,7 +427,18 @@ import UIKit
                 policy: .enabledForTests,
                 sessionFactory: { try box.make($0) },
                 unavailableNotice: notice,
-                notificationCenter: center
+                notificationCenter: center,
+                pasteboard: pasteboard
+            )
+        }
+
+        private func signatureRequest() -> IrohaConnectPendingSignature {
+            let reviewed = IrohaConnectWebVectors.reviewedTransaction("transfer xor")
+            return IrohaConnectPendingSignature(
+                requestID: UUID().uuidString,
+                account: account,
+                review: reviewed.review,
+                payloadHash: reviewed.payloadHash
             )
         }
 

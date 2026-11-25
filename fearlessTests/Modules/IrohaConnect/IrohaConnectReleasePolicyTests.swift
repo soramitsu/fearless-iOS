@@ -7,8 +7,10 @@ import UIKit
 import XCTest
 @testable import fearless
 
-/// IOSUX-1: IrohaConnect is hidden and hard-disabled in release builds. The wallet
-/// would otherwise sign opaque dApp bytes with the key that controls SORA Nexus funds.
+#if DEBUG
+
+/// IrohaConnect is on in release builds now that the wallet decodes and shows every transaction and refuses raw
+/// requests. The policy stays the single switch: a build with it off must still fail closed everywhere.
 final class IrohaConnectReleasePolicyTests: XCTestCase {
     private enum SessionFactoryError: Error {
         case unexpectedCall
@@ -16,30 +18,28 @@ final class IrohaConnectReleasePolicyTests: XCTestCase {
 
     // MARK: - Policy
 
-    func testProductionPolicy_isDisabled() {
-        XCTAssertFalse(IrohaConnectReleasePolicy.production.isEnabled)
+    func testProductionPolicy_isEnabled() {
+        XCTAssertTrue(IrohaConnectReleasePolicy.production.isEnabled)
+        XCTAssertFalse(IrohaConnectReleasePolicy.disabledForTests.isEnabled)
     }
 
     // MARK: - Profile
 
     func testProfileOptions_whenPolicyDisabled_thenNoIrohaConnectRow() {
+        let disabledOptions = makeProfileOptions(factory: makeProfileViewModelFactory(policy: .disabledForTests))
+
+        XCTAssertFalse(disabledOptions.contains(.irohaConnect))
+        XCTAssertTrue(disabledOptions.contains(.walletConnect))
+        XCTAssertTrue(disabledOptions.contains(.tonConnect))
+    }
+
+    func testProfileOptions_whenProductionPolicy_thenIrohaConnectRowIsBuilt() {
         let defaultOptions = makeProfileOptions(factory: makeProfileViewModelFactory())
         let productionOptions = makeProfileOptions(factory: makeProfileViewModelFactory(policy: .production))
 
-        XCTAssertFalse(defaultOptions.contains(.irohaConnect))
-        XCTAssertFalse(productionOptions.contains(.irohaConnect))
-        XCTAssertTrue(defaultOptions.contains(.walletConnect))
-        XCTAssertTrue(defaultOptions.contains(.tonConnect))
+        XCTAssertTrue(defaultOptions.contains(.irohaConnect))
+        XCTAssertTrue(productionOptions.contains(.irohaConnect))
     }
-
-    #if DEBUG
-        func testProfileOptions_whenPolicyEnabledForTests_thenIrohaConnectRowIsBuilt() {
-            // Negative control: the row exists and is only filtered by the policy.
-            let options = makeProfileOptions(factory: makeProfileViewModelFactory(policy: .enabledForTests))
-
-            XCTAssertTrue(options.contains(.irohaConnect))
-        }
-    #endif
 
     // MARK: - Deep links, QR and landing
 
@@ -222,10 +222,9 @@ final class IrohaConnectReleasePolicyTests: XCTestCase {
             return (descriptor, key.rawRepresentation)
         }
         let providers = [
-            KeychainIrohaConnectAccountProvider(materialLoader: materialLoader),
-            KeychainIrohaConnectAccountProvider(policy: .production, materialLoader: materialLoader),
+            KeychainIrohaConnectAccountProvider(policy: .disabledForTests, materialLoader: materialLoader),
             KeychainIrohaConnectAccountProvider(
-                policy: .production,
+                policy: .disabledForTests,
                 descriptorLoader: { descriptor },
                 materialLoader: materialLoader
             )
@@ -242,6 +241,13 @@ final class IrohaConnectReleasePolicyTests: XCTestCase {
             IrohaConnectAccountProviderError.signingDisabled.errorDescription,
             "IrohaConnect signing is disabled in this version."
         )
+
+        // The production provider signs, with the key that matches the approved account.
+        let production = KeychainIrohaConnectAccountProvider(materialLoader: materialLoader)
+        let message = Data("payload hash".utf8)
+        let signature = try production.sign(message, for: descriptor)
+        XCTAssertTrue(key.publicKey.isValidSignature(signature, for: message))
+        XCTAssertEqual(materialLoads, 1)
     }
 
     // MARK: - Unavailable notice
@@ -348,7 +354,7 @@ final class IrohaConnectReleasePolicyTests: XCTestCase {
         }
     ) -> IrohaConnectCoordinator {
         IrohaConnectCoordinator(
-            policy: .production,
+            policy: .disabledForTests,
             sessionFactory: sessionFactory,
             unavailableNotice: notice,
             notificationCenter: notificationCenter
@@ -468,3 +474,5 @@ private extension UIView {
         }
     }
 }
+
+#endif
