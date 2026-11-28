@@ -73,7 +73,7 @@ final class FWWelcomeActionButton: UIButton {
         paragraph.alignment = .center
         paragraph.minimumLineHeight = UIFont.fwLineHeight(role, locale: locale, compatibleWith: traitCollection)
         label.attributedText = NSAttributedString(string: label.text ?? "", attributes: [
-            .font: font, .paragraphStyle: paragraph,
+            .font: font, .paragraphStyle: paragraph, .fwLanguage: locale.fwTextLanguage,
             .underlineStyle: style == .link ? NSUnderlineStyle.single.rawValue : 0
         ])
         invalidateIntrinsicContentSize()
