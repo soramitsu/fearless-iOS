@@ -2,12 +2,12 @@
 
 Since the app took its configuration into this repository (#1305), release builds read the chain lists and chain types
 from `remote-config/` here, through `https://raw.githubusercontent.com/soramitsu/fearless-iOS/master/remote-config/`
-(`ApplicationConfig.chainsSourceUrl`, `chainTypesSourceUrl`). Values as of 2026-10-29:
+(`ApplicationConfig.chainsSourceUrl`, `chainTypesSourceUrl`). Values as of 2026-11-28:
 
 | Artifact | Path | Size (bytes) | SHA256 |
 | --- | --- | ---: | --- |
-| Prod chains list | `remote-config/production/chains/v13/chains.json` | 298,148 | `0546203ea2bb0b56a9563200334e9e3ba4675540fd08dab6888be6c6328c81ae` |
-| Dev chains list | `remote-config/development/chains/v13/chains_dev.json` | 329,157 | `8c02de0fce958b81d23e4fbb03b2b216e11c4d08a65404369d033d94c6f7af76` |
+| Prod chains list | `remote-config/production/chains/v13/chains.json` | 175,695 | `3177ecb1b0bd57821cf87a072c6e6ebc2e1aca0685b0b8919195ec054fa5a26e` |
+| Dev chains list | `remote-config/development/chains/v13/chains_dev.json` | 232,635 | `08b5f95e93db9697330fa99c338fec39ab17301e3b420ec9216aa974aaacfd9c` |
 | Prod chain types | `remote-config/production/chains/all_chains_types.json` | 415,606 | `ced6c59d8fb198dada4f43994fb5c3d9ea7109a5f691cc278ead97bcc7fcb90e` |
 | Dev chain types | `remote-config/development/chains/all_chains_types.json` | 408,802 | `d270d62d4f9a0f1c0bacea7bb7909df513d083ee600ec76fbd41b04f55893d2d` |
 

@@ -7708,6 +7708,18 @@
       "changes": [
         "Polkadot Asset Hub (DOT) and Kusama Asset Hub (KSM) offer staking again as \"staking\": \"assetHub\": staking moved there from the relays (Kusama 2025-10-07, Polkadot 2025-11-04) and a stake kept its address. Builds without Asset Hub staking decode the value as no staking, so they never run relay staking code against a hub; never mark the hubs relaychain or poolStaking. Both hubs take their relay's People chain as identity chain, so validator identities resolve; the development list gains the Polkadot People entry from the production list for this. The app follows this only for the hub's native token and offers no pool staking or crowdloans there"
       ]
+    },
+    {
+      "files": [
+        "remote-config/production/chains/v13/chains.json",
+        "remote-config/production/chains/v9/chains.json",
+        "remote-config/development/chains/v13/chains_dev.json",
+        "remote-config/development/chains/v9/chains_dev.json",
+        "fearless/Modules/LiquidityPools/LiquidityPoolDetails/Resources/chains.json"
+      ],
+      "changes": [
+        "Use the SORA v2 Hashi ERC-20 contract 0x1D03EbBd6bE00B805702dDe42313dcF44aC1a6Eb for Ethereum mainnet XOR. SORA announced the contract at https://t.me/sora_announcements/1452. The bridge registered it in Ethereum transaction 0xe6f241e0ef2355c5c6906e54d6e71f6e0215bbb0d6115d8b223f71ad94ebe2fd."
+      ]
     }
   ]
 }

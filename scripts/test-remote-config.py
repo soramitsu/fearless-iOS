@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise remote data boundaries using isolated configuration documents."""
+"""Test the wallet registries and their configuration validator."""
 import importlib.util
 import json
 from pathlib import Path
@@ -111,6 +111,27 @@ class ConfigTests(unittest.TestCase):
         (self.config / "data.json").write_text('{"invalid":')
         with self.assertRaises(ValueError):
             check.validate(self.root)
+
+
+class EthereumXorCatalogTests(unittest.TestCase):
+    def test_wallet_lists_the_hashi_xor_contract_on_ethereum(self):
+        root = Path(__file__).resolve().parents[1]
+        catalogs = [
+            "remote-config/production/chains/v13/chains.json",
+            "remote-config/development/chains/v13/chains_dev.json",
+            "remote-config/production/chains/v9/chains.json",
+            "remote-config/development/chains/v9/chains_dev.json",
+            check.BUNDLED_CONFIG / "chains.json",
+        ]
+        for catalog in catalogs:
+            with self.subTest(catalog=catalog):
+                chains = json.loads((root / catalog).read_text())
+                ethereum, = [chain for chain in chains if chain["chainId"] == "1"]
+                xor = [asset for asset in ethereum["assets"] if asset["symbol"].upper() == "XOR"]
+                self.assertEqual(
+                    [(asset["id"], asset["ethereumType"], asset["precision"]) for asset in xor],
+                    [("0x1D03EbBd6bE00B805702dDe42313dcF44aC1a6Eb", "erc20", 18)],
+                )
 
 
 if __name__ == "__main__":
